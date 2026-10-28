@@ -188,9 +188,11 @@ window.App.StockOverview = (function () {
     var fullHistory = currentStock.chartHistory || [];
     var filtered = sliceHistoryByPeriod(fullHistory, currentPeriod);
 
-    window.App.Charts.renderPriceChart(canvas, filtered, {
-      currency: currentStock.quote ? currentStock.quote.currency : 'EUR',
-      height: 180
+    var cur = currentStock.quote ? currentStock.quote.currency : 'EUR';
+    window.App.Charts.renderLineChart(canvas, {
+      labels: filtered.map(function (p) { return p.date; }),
+      values: filtered.map(function (p) { return p.close; }),
+      formatY: function (v) { return window.App.Format.currency(v, cur, 0); }
     });
   }
 
@@ -239,11 +241,10 @@ window.App.StockOverview = (function () {
       return item.Total_Revenue || item.Operating_Revenue || 0;
     });
 
-    window.App.Charts.renderBarChart(canvas, {
+    window.App.Charts.renderGroupedBarChart(canvas, {
       labels: labels,
-      data: revenues,
-      currency: 'EUR',
-      barColor: 'rgba(99, 102, 241, 0.85)'
+      series: [{ name: 'Umsatz', data: revenues, color: 'rgba(99, 102, 241, 0.85)' }],
+      formatY: function (v) { return window.App.Format.compactNumber(v); }
     });
   }
 
