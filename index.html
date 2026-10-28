@@ -11,7 +11,7 @@
   <!-- Haupt-Container für die dynamisch gerenderten Views -->
   <main id="appViewContainer"></main>
 
-  <!-- Feste Bottom-Navigation (Dark-Finance Look) -->
+  <!-- Feste Bottom-Navigation -->
   <nav class="bottom-nav">
     <a href="#screener" class="nav-item active" id="navScreener">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -27,7 +27,7 @@
     </a>
   </nav>
 
-  <!-- Versteckte Inline-Templates der Views -->
+  <!-- ==================== TEMPLATE 1: SCREENER ==================== -->
   <template id="view-template-screener">
     <div class="header-bar">
       <div class="header-title-wrap">
@@ -35,11 +35,12 @@
         <div class="header-subtitle" id="lastUpdatedLabel">Lade Marktdaten...</div>
       </div>
       <div class="header-actions">
-        <button class="icon-btn" id="openFilterBtn" aria-label="Filter öffnen">
+        <!-- Öffnet die separate Filter-Seite -->
+        <a href="#filters" class="icon-btn" aria-label="Filter anpassen">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
           </svg>
-        </button>
+        </a>
       </div>
     </div>
 
@@ -98,56 +99,93 @@
 
       <div id="stocksList" class="stocks-list"></div>
     </div>
+  </template>
 
-    <div id="sheetBackdrop" class="sheet-backdrop"></div>
-    <div id="filterSheet" class="bottom-sheet">
-      <div class="sheet-handle"></div>
-      <div class="sheet-header">
-        <div class="sheet-title">Filterkriterien</div>
-        <button id="closeFilterBtn" class="icon-btn" style="width: 32px; height: 32px;" aria-label="Schließen">✕</button>
+  <!-- ==================== TEMPLATE 2: FILTER-SEITE (EXTRA VIEW) ==================== -->
+  <template id="view-template-filters">
+    <div class="header-bar">
+      <div class="header-actions">
+        <button class="icon-btn" id="filterBackBtn" aria-label="Zurück zum Screener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
       </div>
-      <div class="sheet-body">
-        <div>
-          <div class="filter-group-title">Branche / Sektor</div>
-          <select id="filterSector" class="sort-select" style="width: 100%; padding: 10px; font-size: 0.9rem;"></select>
-        </div>
-        <div>
-          <div class="filter-group-title">Region / Land</div>
-          <select id="filterCountry" class="sort-select" style="width: 100%; padding: 10px; font-size: 0.9rem;"></select>
-        </div>
-        <div>
-          <div class="slider-row">
-            <span class="filter-group-title" style="margin: 0;">Maximales KGV</span>
-            <span id="peValueDisplay" style="font-weight: 700; color: var(--accent-purple);">Beliebig</span>
-          </div>
-          <input type="range" id="filterMaxPe" class="filter-slider" min="10" max="100" step="5" value="100">
-        </div>
-        <div>
-          <div class="slider-row">
-            <span class="filter-group-title" style="margin: 0;">Mindest-Dividendenrendite</span>
-            <span id="divValueDisplay" style="font-weight: 700; color: var(--accent-purple);">0 %</span>
-          </div>
-          <input type="range" id="filterMinDiv" class="filter-slider" min="0" max="8" step="0.5" value="0">
-        </div>
-        <div>
-          <div class="slider-row">
-            <span class="filter-group-title" style="margin: 0;">Min. Marktkapitalisierung</span>
-            <span id="mcapValueDisplay" style="font-weight: 700; color: var(--accent-purple);">Alle Größen</span>
-          </div>
-          <input type="range" id="filterMinMcap" class="filter-slider" min="0" max="100" step="10" value="0">
-        </div>
+      <div class="header-title-wrap" style="text-align: center;">
+        <h1>Filter anpassen</h1>
+        <div class="header-subtitle">Kriterien für den Screener definieren</div>
       </div>
-      <div class="sheet-footer">
-        <button id="resetFiltersBtn" class="btn-secondary">Zurücksetzen</button>
-        <button id="applyFiltersBtn" class="btn-primary">Filter anwenden</button>
+      <div class="header-actions" style="width: 42px;"></div>
+    </div>
+
+    <div class="container" style="padding-bottom: 90px;">
+      <!-- Branche / Sektor -->
+      <div class="filter-section-card">
+        <div class="filter-section-header">
+          <span class="filter-section-title">Branche / Sektor</span>
+        </div>
+        <select id="pageFilterSector" class="filter-select-full"></select>
       </div>
+
+      <!-- Land / Region -->
+      <div class="filter-section-card">
+        <div class="filter-section-header">
+          <span class="filter-section-title">Land / Region</span>
+        </div>
+        <select id="pageFilterCountry" class="filter-select-full"></select>
+      </div>
+
+      <!-- Maximales KGV -->
+      <div class="filter-section-card">
+        <div class="filter-section-header">
+          <span class="filter-section-title">Maximales KGV (P/E)</span>
+          <span id="pagePeDisplay" class="filter-slider-val">Beliebig</span>
+        </div>
+        <input type="range" id="pageFilterMaxPe" class="filter-slider" min="10" max="100" step="5" value="100">
+      </div>
+
+      <!-- Mindest-Dividendenrendite -->
+      <div class="filter-section-card">
+        <div class="filter-section-header">
+          <span class="filter-section-title">Mindest-Dividendenrendite</span>
+          <span id="pageDivDisplay" class="filter-slider-val">0 %</span>
+        </div>
+        <input type="range" id="pageFilterMinDiv" class="filter-slider" min="0" max="8" step="0.5" value="0">
+      </div>
+
+      <!-- Mindest-Marktkapitalisierung -->
+      <div class="filter-section-card">
+        <div class="filter-section-header">
+          <span class="filter-section-title">Min. Marktkapitalisierung</span>
+          <span id="pageMcapDisplay" class="filter-slider-val">Alle Größen</span>
+        </div>
+        <input type="range" id="pageFilterMinMcap" class="filter-slider" min="0" max="100" step="10" value="0">
+      </div>
+
+      <!-- Mindest 52-Wochen-Performance -->
+      <div class="filter-section-card">
+        <div class="filter-section-header">
+          <span class="filter-section-title">Min. 52-Wochen-Trend</span>
+          <span id="pagePerfDisplay" class="filter-slider-val">Beliebig</span>
+        </div>
+        <input type="range" id="pageFilterMinPerf" class="filter-slider" min="-50" max="100" step="10" value="-50">
+      </div>
+    </div>
+
+    <!-- Fixierte Aktionsleiste unten mit Treffer-Vorschau -->
+    <div class="filter-footer-bar">
+      <button id="pageFilterResetBtn" class="btn-secondary">Zurücksetzen</button>
+      <button id="pageFilterApplyBtn" class="btn-primary">
+        <span id="pageFilterCountPreview">Treffer anzeigen</span>
+      </button>
     </div>
   </template>
 
+  <!-- ==================== TEMPLATE 3: DETAILANSICHT ==================== -->
   <template id="view-template-detail">
     <div class="header-bar">
       <div class="header-actions">
-        <button class="icon-btn" id="detailBackBtn" aria-label="Zurück zur Übersicht">
+        <button class="icon-btn" id="detailBackBtn" aria-label="Zurück">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
@@ -175,14 +213,12 @@
         </div>
       </div>
 
-      <!-- Chart-Box mit Zeitspannen-Schaltern -->
       <div class="chart-box">
         <div class="chart-header">
           <span id="detailChartTitle" style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Kursentwicklung (1J)</span>
           <span id="detailChartPerfBadge" class="stock-badge" style="font-size: 0.75rem;">-</span>
         </div>
 
-        <!-- 4-fach Segment-Schalter für Zeiträume -->
         <div class="range-selector-row">
           <button class="range-pill-btn" data-range="1W">1W</button>
           <button class="range-pill-btn" data-range="1M">1M</button>
@@ -229,6 +265,7 @@
     </div>
   </template>
 
+  <!-- ==================== TEMPLATE 4: WATCHLIST ==================== -->
   <template id="view-template-watchlist">
     <div class="header-bar">
       <div class="header-title-wrap">
@@ -273,7 +310,7 @@
     </div>
   </template>
 
-  <!-- Klassische Script-Einbindung -->
+  <!-- Scripts -->
   <script src="data/fallback-data.js"></script>
   <script src="js/lib/chart.umd.js"></script>
   <script src="js/data.js"></script>
@@ -282,7 +319,7 @@
   <script src="js/charts.js"></script>
   <script src="js/ui.js"></script>
 
-  <!-- App-Initialisierung, Router & Interaktive Chart-Zeitspannen -->
+  <!-- Router & Logik -->
   <script>
     (function () {
       'use strict';
@@ -304,7 +341,7 @@
         var navWatchlist = document.getElementById('navWatchlist');
 
         if (navScreener && navWatchlist) {
-          navScreener.classList.toggle('active', routeView === 'screener' || routeView === 'detail');
+          navScreener.classList.toggle('active', routeView === 'screener' || routeView === 'detail' || routeView === 'filters');
           navWatchlist.classList.toggle('active', routeView === 'watchlist');
         }
       }
@@ -366,8 +403,6 @@
         var template = document.getElementById('view-template-screener');
         container.innerHTML = template.innerHTML;
 
-        window.App.UIController.populateFilterDropdowns();
-
         var searchInput = document.getElementById('searchInput');
         var searchClearBtn = document.getElementById('searchClearBtn');
         var sortSelect = document.getElementById('sortSelect');
@@ -415,93 +450,122 @@
           refreshList();
         });
 
-        var openFilterBtn = document.getElementById('openFilterBtn');
-        var closeFilterBtn = document.getElementById('closeFilterBtn');
-        var sheetBackdrop = document.getElementById('sheetBackdrop');
-        var applyFiltersBtn = document.getElementById('applyFiltersBtn');
-        var resetFiltersBtn = document.getElementById('resetFiltersBtn');
-
-        var filterSector = document.getElementById('filterSector');
-        var filterCountry = document.getElementById('filterCountry');
-        var filterMaxPe = document.getElementById('filterMaxPe');
-        var filterMinDiv = document.getElementById('filterMinDiv');
-        var filterMinMcap = document.getElementById('filterMinMcap');
-
-        var peValueDisplay = document.getElementById('peValueDisplay');
-        var divValueDisplay = document.getElementById('divValueDisplay');
-        var mcapValueDisplay = document.getElementById('mcapValueDisplay');
-
-        filterMaxPe.addEventListener('input', function() {
-          peValueDisplay.textContent = this.value >= 100 ? 'Beliebig' : '≤ ' + this.value;
-        });
-
-        filterMinDiv.addEventListener('input', function() {
-          divValueDisplay.textContent = '≥ ' + this.value + ' %';
-        });
-
-        filterMinMcap.addEventListener('input', function() {
-          mcapValueDisplay.textContent = this.value == 0 ? 'Alle Größen' : '≥ ' + this.value + ' Mrd. €';
-        });
-
-        openFilterBtn.addEventListener('click', function() {
-          filterSector.value = window.App.FilterEngine.state.sector;
-          filterCountry.value = window.App.FilterEngine.state.country;
-          filterMaxPe.value = window.App.FilterEngine.state.maxPe;
-          filterMinDiv.value = window.App.FilterEngine.state.minDividendYield;
-          filterMinMcap.value = window.App.FilterEngine.state.minMarketCap;
-
-          peValueDisplay.textContent = filterMaxPe.value >= 100 ? 'Beliebig' : '≤ ' + filterMaxPe.value;
-          divValueDisplay.textContent = '≥ ' + filterMinDiv.value + ' %';
-          mcapValueDisplay.textContent = filterMinMcap.value == 0 ? 'Alle Größen' : '≥ ' + filterMinMcap.value + ' Mrd. €';
-
-          window.App.UIController.toggleBottomSheet(true);
-        });
-
-        closeFilterBtn.addEventListener('click', function() {
-          window.App.UIController.toggleBottomSheet(false);
-        });
-
-        sheetBackdrop.addEventListener('click', function() {
-          window.App.UIController.toggleBottomSheet(false);
-        });
-
-        applyFiltersBtn.addEventListener('click', function() {
-          window.App.FilterEngine.state.sector = filterSector.value;
-          window.App.FilterEngine.state.country = filterCountry.value;
-          window.App.FilterEngine.state.maxPe = parseFloat(filterMaxPe.value);
-          window.App.FilterEngine.state.minDividendYield = parseFloat(filterMinDiv.value);
-          window.App.FilterEngine.state.minMarketCap = parseFloat(filterMinMcap.value);
-
-          window.App.UIController.toggleBottomSheet(false);
-          refreshList();
-        });
-
-        resetFiltersBtn.addEventListener('click', function() {
-          window.App.FilterEngine.reset();
-          filterSector.value = '';
-          filterCountry.value = '';
-          filterMaxPe.value = 100;
-          filterMinDiv.value = 0;
-          filterMinMcap.value = 0;
-          peValueDisplay.textContent = 'Beliebig';
-          divValueDisplay.textContent = '0 %';
-          mcapValueDisplay.textContent = 'Alle Größen';
-
-          for (var k = 0; k < chips.length; k++) chips[k].classList.remove('active');
-          chips[0].classList.add('active');
-
-          window.App.UIController.toggleBottomSheet(false);
-          refreshList();
-        });
-
         updateScreenerHero(currentStocks);
         refreshList();
+      }
+
+      function renderFiltersView() {
+        var container = document.getElementById('appViewContainer');
+        var template = document.getElementById('view-template-filters');
+        container.innerHTML = template.innerHTML;
+
+        document.getElementById('filterBackBtn').addEventListener('click', function() {
+          window.location.hash = 'screener';
+        });
+
+        var sectorSelect = document.getElementById('pageFilterSector');
+        var countrySelect = document.getElementById('pageFilterCountry');
+        var peInput = document.getElementById('pageFilterMaxPe');
+        var divInput = document.getElementById('pageFilterMinDiv');
+        var mcapInput = document.getElementById('pageFilterMinMcap');
+        var perfInput = document.getElementById('pageFilterMinPerf');
+
+        var peDisplay = document.getElementById('pagePeDisplay');
+        var divDisplay = document.getElementById('pageDivDisplay');
+        var mcapDisplay = document.getElementById('pageMcapDisplay');
+        var perfDisplay = document.getElementById('pagePerfDisplay');
+        var previewBtn = document.getElementById('pageFilterCountPreview');
+
+        // Dropdowns befüllen
+        var sectors = window.App.DataService.getSectors();
+        var sHtml = ['<option value="">Alle Branchen</option>'];
+        for (var i = 0; i < sectors.length; i++) {
+          sHtml.push('<option value="' + sectors[i] + '">' + sectors[i] + '</option>');
+        }
+        sectorSelect.innerHTML = sHtml.join('');
+
+        var countries = window.App.DataService.getCountries();
+        var cHtml = ['<option value="">Alle Regionen</option>'];
+        for (var j = 0; j < countries.length; j++) {
+          cHtml.push('<option value="' + countries[j] + '">' + countries[j] + '</option>');
+        }
+        countrySelect.innerHTML = cHtml.join('');
+
+        // Aktuelle Zustände laden
+        var state = window.App.FilterEngine.state;
+        sectorSelect.value = state.sector || '';
+        countrySelect.value = state.country || '';
+        peInput.value = state.maxPe || 100;
+        divInput.value = state.minDividendYield || 0;
+        mcapInput.value = state.minMarketCap || 0;
+        perfInput.value = state.minPerf52w !== undefined ? state.minPerf52w : -50;
+
+        function updateLabelsAndPreview() {
+          peDisplay.textContent = peInput.value >= 100 ? 'Beliebig' : '≤ ' + peInput.value;
+          divDisplay.textContent = divInput.value == 0 ? 'Beliebig' : '≥ ' + divInput.value + ' %';
+          mcapDisplay.textContent = mcapInput.value == 0 ? 'Alle Größen' : '≥ ' + mcapInput.value + ' Mrd. €';
+          perfDisplay.textContent = perfInput.value <= -50 ? 'Beliebig' : '≥ ' + perfInput.value + ' %';
+
+          // Temporär simulieren für Trefferanzahl-Button
+          var tempState = {
+            searchQuery: state.searchQuery,
+            sector: sectorSelect.value,
+            country: countrySelect.value,
+            maxPe: parseFloat(peInput.value),
+            minDividendYield: parseFloat(divInput.value),
+            minMarketCap: parseFloat(mcapInput.value),
+            minPerf52w: parseFloat(perfInput.value),
+            sortBy: state.sortBy
+          };
+
+          var matches = currentStocks.filter(function(s) {
+            if (tempState.sector && s.sector !== tempState.sector) return false;
+            if (tempState.country && s.country !== tempState.country) return false;
+            if (tempState.minMarketCap > 0 && (s.marketCap || 0) < tempState.minMarketCap * 1000000000) return false;
+            if (tempState.maxPe < 100 && ((s.peRatio || 0) <= 0 || (s.peRatio || 0) > tempState.maxPe)) return false;
+            if (tempState.minDividendYield > 0 && (s.dividendYield || 0) < tempState.minDividendYield) return false;
+            if (tempState.minPerf52w > -50 && (s.perf52w || 0) < tempState.minPerf52w) return false;
+            return true;
+          });
+
+          previewBtn.textContent = matches.length + ' Aktien anzeigen';
+        }
+
+        sectorSelect.addEventListener('change', updateLabelsAndPreview);
+        countrySelect.addEventListener('change', updateLabelsAndPreview);
+        peInput.addEventListener('input', updateLabelsAndPreview);
+        divInput.addEventListener('input', updateLabelsAndPreview);
+        mcapInput.addEventListener('input', updateLabelsAndPreview);
+        perfInput.addEventListener('input', updateLabelsAndPreview);
+
+        updateLabelsAndPreview();
+
+        document.getElementById('pageFilterApplyBtn').addEventListener('click', function() {
+          window.App.FilterEngine.state.sector = sectorSelect.value;
+          window.App.FilterEngine.state.country = countrySelect.value;
+          window.App.FilterEngine.state.maxPe = parseFloat(peInput.value);
+          window.App.FilterEngine.state.minDividendYield = parseFloat(divInput.value);
+          window.App.FilterEngine.state.minMarketCap = parseFloat(mcapInput.value);
+          window.App.FilterEngine.state.minPerf52w = parseFloat(perfInput.value);
+
+          window.location.hash = 'screener';
+        });
+
+        document.getElementById('pageFilterResetBtn').addEventListener('click', function() {
+          window.App.FilterEngine.reset();
+          sectorSelect.value = '';
+          countrySelect.value = '';
+          peInput.value = 100;
+          divInput.value = 0;
+          mcapInput.value = 0;
+          perfInput.value = -50;
+          updateLabelsAndPreview();
+        });
       }
 
       function updateRangeChart(stock, rangeKey) {
         currentSelectedRange = rangeKey;
 
-        // Passende Kursserie ermitteln
         var dataSeries = [];
         if (stock.ranges && stock.ranges[rangeKey] && stock.ranges[rangeKey].length > 0) {
           dataSeries = stock.ranges[rangeKey];
@@ -509,7 +573,6 @@
           dataSeries = stock.history;
         }
 
-        // Performance des gewählten Zeitraums berechnen
         var perfVal = 0;
         if (dataSeries.length >= 2) {
           var startP = dataSeries[0];
@@ -567,7 +630,6 @@
         document.getElementById('metricCountry').textContent = stock.country || '-';
         document.getElementById('metricCurrency').textContent = stock.currency || 'EUR';
 
-        // Watchlist Button
         var wlBtn = document.getElementById('detailWatchlistBtn');
         var wlIcon = document.getElementById('detailWatchlistIcon');
 
@@ -588,7 +650,6 @@
           updateWatchlistState();
         });
 
-        // Event-Listener für Zeitraum-Buttons (1W, 1M, 6M, 1J)
         var rangeButtons = document.querySelectorAll('.range-pill-btn');
         for (var i = 0; i < rangeButtons.length; i++) {
           rangeButtons[i].addEventListener('click', function() {
@@ -601,7 +662,6 @@
           });
         }
 
-        // Standardmäßig 1J initialisieren
         currentSelectedRange = '1J';
         setTimeout(function() {
           updateRangeChart(stock, '1J');
@@ -664,6 +724,8 @@
           renderDetailView(route.param);
         } else if (route.view === 'watchlist') {
           renderWatchlistView();
+        } else if (route.view === 'filters') {
+          renderFiltersView();
         } else {
           renderScreenerView();
         }
