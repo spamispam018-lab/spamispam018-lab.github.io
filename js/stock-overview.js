@@ -273,3 +273,4 @@ window.App.StockOverview = (function () {
     render: render
   };
 })();
+ 
