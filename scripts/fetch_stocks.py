@@ -1,100 +1,103 @@
-#!/usr/bin/env python3
-"""
-scripts/fetch_stocks.py
-Holt Kurs- und Fundamentaldaten fuer die Screener-Uebersichtsliste via yfinance,
-aktualisiert data/stocks.json und stoesst bei Bedarf die Generierung der Detaildateien an.
-"""
-
 import os
-import sys
 import json
 import time
+import logging
 from datetime import datetime
-import yfinance as yf
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, "data")
-OUTPUT_FILE = os.path.join(DATA_DIR, "stocks.json")
+# Setup Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
 
-# Standard-Tickerliste fuer den Screener
-DEFAULT_TICKERS = [
-    "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "BRK-B",
-    "JNJ", "V", "WMT", "JPM", "PG", "MA", "UNH", "HD", "DIS", "BAC",
-    "ADBE", "CRM", "NFLX", "AMD", "INTC", "CSCO", "SAP", "ASML"
+try:
+    import yfinance as yf
+except ImportError:
+    logging.error("yfinance ist nicht installiert. Bitte 'pip install yfinance' ausführen.")
+    raise
+
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
+OUTPUT_FILE = os.path.join(OUTPUT_DIR, "stocks.json")
+
+# Standard-Liste relevanter Ticker (kann bei Bedarf erweitert werden)
+TICKERS = [
+    "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA",
+    "BRK-B", "JNJ", "V", "WMT", "JPM", "PG", "MA", "UNH",
+    "HD", "DIS", "BAC", "VZ", "KO", "PFE", "CSCO", "INTC", "SAP"
 ]
 
-def clean_val(val, decimals=4):
-    if val is None:
-        return None
+def safe_float(val, default=0.0):
     try:
-        import numpy as np
-        if np.isnan(val) or np.isinf(val):
-            return None
-    except Exception:
-        pass
-    if isinstance(val, (int, float)):
-        return round(val, decimals)
-    return str(val)
+        if val is None:
+            return default
+        return round(float(val), 2)
+    except (ValueError, TypeError):
+        return default
 
-def fetch_screener_summary(tickers):
-    print(f"Starte Abruf von {len(tickers)} Aktien fuer den Screener...")
-    os.makedirs(DATA_DIR, exist_ok=True)
+def fetch_stock_overview(ticker_symbol):
+    logging.info(f"Hole Daten für Ticker: {ticker_symbol}")
+    try:
+        ticker = yf.Ticker(ticker_symbol)
+        info = ticker.info or {}
+
+        # Fallback auf 'fast_info', falls 'info' leer oder limitiert ist
+        fast_info = getattr(ticker, "fast_info", {})
+        price = safe_float(
+            info.get("currentPrice") or info.get("regularMarketPrice") or getattr(fast_info, "last_price", 0.0)
+        )
+        prev_close = safe_float(
+            info.get("previousClose") or info.get("regularMarketPreviousClose") or getattr(fast_info, "previous_close", price)
+        )
+        
+        change_pct = 0.0
+        if prev_close > 0:
+            change_pct = round(((price - prev_close) / prev_close) * 100, 2)
+
+        data = {
+            "symbol": ticker_symbol,
+            "name": info.get("shortName") or info.get("longName") or ticker_symbol,
+            "sector": info.get("sector", "N/A"),
+            "industry": info.get("industry", "N/A"),
+            "price": price,
+            "change": round(price - prev_close, 2),
+            "changePercent": change_pct,
+            "marketCap": info.get("marketCap") or getattr(fast_info, "market_cap", 0),
+            "peRatio": safe_float(info.get("trailingPE"), None),
+            "forwardPE": safe_float(info.get("forwardPE"), None),
+            "dividendYield": safe_float(info.get("dividendYield", 0) * 100 if info.get("dividendYield") else 0, 2),
+            "fiftyTwoWeekHigh": safe_float(info.get("fiftyTwoWeekHigh") or getattr(fast_info, "year_high", 0.0)),
+            "fiftyTwoWeekLow": safe_float(info.get("fiftyTwoWeekLow") or getattr(fast_info, "year_low", 0.0)),
+            "volume": info.get("regularMarketVolume") or getattr(fast_info, "last_volume", 0),
+            "currency": info.get("currency", "USD"),
+            "lastUpdated": datetime.utcnow().isoformat() + "Z"
+        }
+        return data
+    except Exception as e:
+        logging.warning(f"Fehler beim Abrufen von {ticker_symbol}: {e}")
+        return None
+
+def main():
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     results = []
 
-    for idx, ticker in enumerate(tickers, start=1):
-        sym = ticker.strip().upper()
-        print(f"[{idx}/{len(tickers)}] Lade {sym}...")
-        try:
-            t = yf.Ticker(sym)
-            info = t.info or {}
+    for symbol in TICKERS:
+        stock_data = fetch_stock_overview(symbol)
+        if stock_data:
+            results.append(stock_data)
+        # Kurze Pause zur Vermeidung von Rate-Limits
+        time.sleep(0.5)
 
-            price = clean_val(info.get("currentPrice") or info.get("regularMarketPrice"), 2)
-            prev_close = clean_val(info.get("regularMarketPreviousClose") or info.get("previousClose"), 2)
+    if not results:
+        logging.error("Keine Aktiendaten abgerufen. Vorgang abgebrochen.")
+        return
 
-            day_change = None
-            if price is not None and prev_close is not None and prev_close > 0:
-                day_change = clean_val(((price - prev_close) / prev_close) * 100, 2)
-            elif info.get("regularMarketChangePercent") is not None:
-                day_change = clean_val(info.get("regularMarketChangePercent"), 2)
-
-            div_yield = info.get("dividendYield")
-            if div_yield is not None:
-                div_yield = clean_val(div_yield, 4)
-
-            record = {
-                "ticker": sym,
-                "name": info.get("shortName") or info.get("longName") or sym,
-                "sector": info.get("sector") or "-",
-                "industry": info.get("industry") or "-",
-                "currency": info.get("currency", "USD"),
-                "price": price,
-                "dayChange": day_change,
-                "marketCap": clean_val(info.get("marketCap"), 0),
-                "pe": clean_val(info.get("trailingPE"), 2),
-                "forwardPE": clean_val(info.get("forwardPE"), 2),
-                "priceToSales": clean_val(info.get("priceToSalesTrailing12Months"), 2),
-                "priceToBook": clean_val(info.get("priceToBook"), 2),
-                "dividendYield": div_yield,
-                "beta": clean_val(info.get("beta"), 2),
-                "fiftyTwoWeekLow": clean_val(info.get("fiftyTwoWeekLow"), 2),
-                "fiftyTwoWeekHigh": clean_val(info.get("fiftyTwoWeekHigh"), 2)
-            }
-            results.append(record)
-            time.sleep(0.5)
-        except Exception as e:
-            print(f"Fehler bei {sym}: {e}")
-
-    payload = {
-        "lastUpdated": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "count": len(results),
-        "stocks": results
-    }
-
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2, ensure_ascii=False)
-
-    print(f"Erfolgreich {len(results)} Aktien in {OUTPUT_FILE} gespeichert.")
+    # Atomares Schreiben, um unvollständige Dateien zu verhindern
+    temp_file = OUTPUT_FILE + ".tmp"
+    with open(temp_file, "w", encoding="utf-8") as f:
+        json.dump({"stocks": results, "updatedAt": datetime.utcnow().isoformat() + "Z"}, f, indent=2, ensure_ascii=False)
+    
+    os.replace(temp_file, OUTPUT_FILE)
+    logging.info(f"Erfolgreich {len(results)} Aktien in {OUTPUT_FILE} gespeichert.")
 
 if __name__ == "__main__":
-    ticker_args = sys.argv[1:] if len(sys.argv) > 1 else DEFAULT_TICKERS
-    fetch_screener_summary(ticker_args)
+    main()
