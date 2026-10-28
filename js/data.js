@@ -1,74 +1,99 @@
-/* ==========================================================================
-   Finanz-Dashboard - Daten-Service (DataService)
-   Lädt die aggregierten Daten (stocks.json) und Detaildaten (details/*.json)
-   ========================================================================== */
-
+/**
+ * Data Service Module
+ * Handles loading stock data and stock details with caching and fallback support.
+ */
 const DataService = {
-    // Cache für bereits geladene Daten
     _cache: {
         stocks: null,
-        details: {}
+        details: {},
+        lastFetch: null
     },
 
+    // Abwärtskompatible Eigenschaften
+    stocks: [],
+    detailsCache: {},
+
     /**
-     * Ermittelt die Basis-URL zum Repository-Root dynamisch anhand des Pfads
-     * von data.js selbst, sodass es immer zuverlässig auf GitHub Pages und lokal funktioniert.
+     * Ermittelt die Basis-URL der Anwendung absolut zum Repository-Root.
+     * Erkennt gezielt nur das eigene Skript (/js/data.js), um Verwechslungen
+     * mit fallback-data.js oder stock-data.js auszuschließen.
      */
     _getBaseUrl() {
         const scripts = document.getElementsByTagName('script');
         for (let i = 0; i < scripts.length; i++) {
-            const src = scripts[i].src;
-            if (src && src.includes('data.js')) {
-                // data.js liegt unter .../js/data.js -> zwei Ebenen nach oben ist das Root-Verzeichnis
+            const src = scripts[i].src || '';
+            const path = src.split('?')[0].split('#')[0];
+            if (path.endsWith('/js/data.js') || path === 'js/data.js') {
                 return new URL('../', src).href;
             }
         }
-        // Fallback über pathname
-        const pathname = window.location.pathname.toLowerCase();
-        if (pathname.includes('/views/')) {
-            return '../';
-        }
-        return './';
+
+        // Fallback über window.location.pathname
+        const pathname = window.location.pathname;
+        const dir = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+        return window.location.origin + dir;
     },
 
     /**
-     * Lädt die Übersichtsdaten aller Aktien (stocks.json)
-     * @returns {Promise<Array>} Array von Aktien-Objekten
+     * Synchroner Abruf aller bereits geladenen Aktien (rückwärtskompatibel).
+     * @returns {Array} Array aller Aktien oder leeres Array
+     */
+    getAllStocks() {
+        return this._cache.stocks || this.stocks || [];
+    },
+
+    /**
+     * Lädt die Aktienliste aus data/stocks.json oder greift auf Fallback-Daten zurück.
+     * Wirft niemals Exceptions nach außen.
+     * @returns {Promise<Array>}
      */
     async loadStocks() {
-        if (this._cache.stocks) {
+        if (this._cache.stocks && this._cache.stocks.length > 0) {
+            this.stocks = this._cache.stocks;
             return this._cache.stocks;
         }
 
         try {
             const baseUrl = this._getBaseUrl();
             const response = await fetch(`${baseUrl}data/stocks.json`);
+
             if (!response.ok) {
-                throw new Error(`HTTP-Fehler: ${response.status}`);
+                throw new Error(`HTTP-Fehler ${response.status} beim Laden von stocks.json`);
             }
+
             const data = await response.json();
-            this._cache.stocks = data;
-            return data;
-        } catch (error) {
-            console.warn('Konnte stocks.json nicht laden, nutze Fallback-Daten:', error.message);
-            if (typeof FALLBACK_STOCKS !== 'undefined') {
-                this._cache.stocks = FALLBACK_STOCKS;
-                return FALLBACK_STOCKS;
+            const stockList = Array.isArray(data) ? data : (data.stocks || []);
+
+            if (!stockList || stockList.length === 0) {
+                throw new Error('Empfangene Aktienliste ist leer oder ungültig');
             }
-            throw error;
+
+            this._cache.stocks = stockList;
+            this.stocks = stockList;
+            this._cache.lastFetch = Date.now();
+            return this._cache.stocks;
+        } catch (error) {
+            console.warn('Verwende Fallback-Aktiendaten:', error.message);
+            const fallback = (typeof FALLBACK_STOCKS !== 'undefined' && Array.isArray(FALLBACK_STOCKS))
+                ? FALLBACK_STOCKS
+                : [];
+
+            this._cache.stocks = fallback;
+            this.stocks = fallback;
+            return this._cache.stocks;
         }
     },
 
     /**
-     * Lädt die Detaildaten für eine bestimmte Aktie
-     * @param {string} symbol - Das Tickersymbol (z. B. "NVDA")
-     * @returns {Promise<Object>} Detail-Objekt der Aktie
+     * Lädt Detailinformationen zu einer Aktie anhand ihres Symbols.
+     * @param {string} symbol
+     * @returns {Promise<Object|null>}
      */
     async loadStockDetails(symbol) {
         if (!symbol) return null;
-        
+
         const cleanSymbol = symbol.toUpperCase().trim();
-        
+
         if (this._cache.details[cleanSymbol]) {
             return this._cache.details[cleanSymbol];
         }
@@ -76,123 +101,123 @@ const DataService = {
         try {
             const baseUrl = this._getBaseUrl();
             const response = await fetch(`${baseUrl}data/details/${cleanSymbol}.json`);
-            if (!response.ok) {
-                throw new Error(`HTTP-Fehler: ${response.status}`);
-            }
-            const data = await response.json();
-            this._cache.details[cleanSymbol] = data;
-            return data;
-        } catch (error) {
-            console.warn(`Detaildaten für ${cleanSymbol} nicht gefunden, prüfe Fallback:`, error.message);
-            
-            if (typeof FALLBACK_DETAILS !== 'undefined' && FALLBACK_DETAILS[cleanSymbol]) {
-                const data = FALLBACK_DETAILS[cleanSymbol];
-                this._cache.details[cleanSymbol] = data;
-                return data;
-            }
 
-            const stocks = await this.loadStocks();
-            const baseStock = stocks.find(s => s.symbol.toUpperCase() === cleanSymbol);
-            
-            if (baseStock) {
-                const syntheticDetails = this._createSyntheticDetails(baseStock);
-                this._cache.details[cleanSymbol] = syntheticDetails;
-                return syntheticDetails;
+            if (response.ok) {
+                const details = await response.json();
+                this._cache.details[cleanSymbol] = details;
+                this.detailsCache[cleanSymbol] = details;
+                return details;
             }
-
-            throw new Error(`Keine Daten für Symbol "${cleanSymbol}" verfügbar`);
+        } catch (e) {
+            // Weiter zu Fallbacks
         }
+
+        if (typeof FALLBACK_DETAILS !== 'undefined' && FALLBACK_DETAILS[cleanSymbol]) {
+            const fallbackDetail = FALLBACK_DETAILS[cleanSymbol];
+            this._cache.details[cleanSymbol] = fallbackDetail;
+            this.detailsCache[cleanSymbol] = fallbackDetail;
+            return fallbackDetail;
+        }
+
+        const stocks = this.getAllStocks();
+        const baseStock = stocks.find(s => s.symbol && s.symbol.toUpperCase() === cleanSymbol);
+
+        if (baseStock) {
+            const synthetic = this._createSyntheticDetails(baseStock);
+            this._cache.details[cleanSymbol] = synthetic;
+            this.detailsCache[cleanSymbol] = synthetic;
+            return synthetic;
+        }
+
+        return null;
     },
 
     /**
-     * Erstellt minimale Detaildaten aus dem Basis-Aktienobjekt
+     * Erzeugt ein synthetisches Detail-Objekt aus den Basisdaten einer Aktie.
+     * @param {Object} stock
+     * @returns {Object}
      */
     _createSyntheticDetails(stock) {
         return {
             symbol: stock.symbol,
-            name: stock.name,
+            name: stock.name || stock.symbol,
             sector: stock.sector || 'Unbekannt',
-            industry: stock.industry || 'Unbekannt',
-            description: `${stock.name} ist ein Unternehmen im Sektor ${stock.sector || 'N/A'}. Detaillierte Unternehmensinformationen sind derzeit nicht verfügbar.`,
-            website: '#',
-            employees: 0,
+            industry: stock.industry || stock.sector || 'Unbekannt',
+            price: stock.price || 0,
+            change: stock.change || 0,
+            marketCap: stock.marketCap || 0,
+            pe: stock.pe || null,
+            dividendYield: stock.dividendYield || 0,
+            description: `${stock.name || stock.symbol} ist ein Unternehmen im Sektor ${stock.sector || 'Unbekannt'}.`,
+            website: '',
+            employees: null,
+            country: 'USA',
             financials: {
                 revenue: [],
-                earnings: [],
-                freeCashFlow: [],
-                operatingCashFlow: [],
-                margins: {
-                    gross: stock.profitMargin ? stock.profitMargin * 1.5 : 0,
-                    operating: stock.operatingMargin || 0,
-                    net: stock.profitMargin || 0
-                },
-                ratios: {
-                    pe: stock.pe || 0,
-                    fwdPe: stock.pe ? stock.pe * 0.9 : 0,
-                    ps: stock.ps || 0,
-                    pb: 0,
-                    evEbitda: 0,
-                    debtToEquity: stock.debtToEquity || 0,
-                    currentRatio: stock.currentRatio || 0,
-                    quickRatio: 0,
-                    roe: stock.roe || 0,
-                    roa: stock.roa || 0,
-                    dividendYield: stock.dividendYield || 0,
-                    payoutRatio: 0
-                }
+                netIncome: [],
+                freeCashFlow: []
+            },
+            ratios: {
+                pe: stock.pe || null,
+                forwardPe: null,
+                ps: null,
+                pb: null,
+                roe: null,
+                debtToEquity: null
             },
             analystRatings: {
-                consensus: 'Hold',
-                targetMean: stock.price ? stock.price * 1.1 : 0,
-                targetHigh: stock.price ? stock.price * 1.3 : 0,
-                targetLow: stock.price ? stock.price * 0.9 : 0,
-                numberOfAnalysts: 0,
-                history: []
+                buy: 0,
+                hold: 0,
+                sell: 0,
+                targetPrice: null
             },
-            news: [],
-            insiderTransactions: []
+            isSynthetic: true
         };
     },
 
     /**
-     * Sucht Aktien anhand eines Suchbegriffs
-     * @param {string} query - Suchbegriff (Name oder Symbol)
-     * @returns {Promise<Array>} Gefilterte Liste
+     * Durchsucht die Aktienliste anhand eines Suchbegriffs.
+     * @param {string} query
+     * @returns {Array}
      */
-    async searchStocks(query) {
-        const stocks = await this.loadStocks();
-        if (!query || query.trim() === '') return stocks;
-        
+    searchStocks(query) {
+        const stocks = this.getAllStocks();
+        if (!query || typeof query !== 'string') return stocks;
+
         const q = query.toLowerCase().trim();
-        return stocks.filter(s => 
-            s.name.toLowerCase().includes(q) || 
-            s.symbol.toLowerCase().includes(q) ||
-            (s.sector && s.sector.toLowerCase().includes(q))
+        return stocks.filter(stock =>
+            (stock.symbol && stock.symbol.toLowerCase().includes(q)) ||
+            (stock.name && stock.name.toLowerCase().includes(q)) ||
+            (stock.sector && stock.sector.toLowerCase().includes(q))
         );
     },
 
     /**
-     * Gibt eine Liste aller verfügbaren Sektoren zurück
-     * @returns {Promise<Array<string>>}
+     * Liefert alle eindeutigen Sektoren sortiert zurück.
+     * @returns {Array<string>}
      */
-    async getSectors() {
-        const stocks = await this.loadStocks();
+    getSectors() {
+        const stocks = this.getAllStocks();
         const sectors = new Set();
-        stocks.forEach(s => {
-            if (s.sector) sectors.add(s.sector);
+        stocks.forEach(stock => {
+            if (stock.sector) sectors.add(stock.sector);
         });
         return Array.from(sectors).sort();
     },
 
     /**
-     * Cache leeren
+     * Leert den internen Cache.
      */
     clearCache() {
-        this._cache.stocks = null;
-        this._cache.details = {};
+        this._cache = {
+            stocks: null,
+            details: {},
+            lastFetch: null
+        };
+        this.stocks = [];
+        this.detailsCache = {};
     }
 };
 
-// Global verfügbar machen (sowohl als DataService als auch als DataModule zur Abwärtskompatibilität)
 window.DataService = DataService;
 window.DataModule = DataService;
