@@ -113,6 +113,8 @@ window.App.Screener = (function () {
       list = list.filter(function (s) { return s.pe && s.pe > 0 && s.pe <= 18; });
     } else if (currentPreset === 'undervalued') {
       list = list.filter(isUndervalued);
+    } else if (currentPreset === 'turnaround') {
+      list = list.filter(isTurnaround);
     } else if (currentPreset === 'growth') {
       list = list.filter(function (s) { return (s.revGrowth || 0) >= 0.10; });
     } else if (currentPreset === 'top_performer') {
@@ -177,6 +179,18 @@ window.App.Screener = (function () {
     return true;
   }
 
+  /**
+   * "Turnaround": aktuell Verlust (negatives/fehlendes KGV), aber niedriges Forward-KGV,
+   * moderate Verschuldung und Kurs im unteren Bereich der 52W-Spanne. Hohes Risiko!
+   */
+  function isTurnaround(s) {
+    if (!isLoss(s)) return false;
+    if (!(s.forwardPe > 0 && s.forwardPe <= 12)) return false;
+    if (s.debtToEquity !== null && s.debtToEquity !== undefined && s.debtToEquity > 150) return false;
+    if (s.rangePos === null || s.rangePos === undefined || s.rangePos > 50) return false;
+    return true;
+  }
+
   function peRank(s) {
     if (isLoss(s)) {
       var depth = (s.pe < 0) ? s.pe : (s.profitMargins || 0);
@@ -219,7 +233,7 @@ window.App.Screener = (function () {
               '<div class="stock-tags">' +
                 '<span class="ticker-badge">' + stock.ticker + '</span>' +
                 '<span class="sector-label">• ' + (stock.sector || 'Markt') + '</span>' +
-                (currentPreset === 'undervalued' && stock.upside !== null && stock.upside !== undefined ? '<span class="sector-label" style="color: var(--bullish); font-weight: 700;">• Ziel ' + (stock.upside >= 0 ? '+' : '') + window.App.Format.number(stock.upside, 0) + ' %</span>' : '') +
+                ((currentPreset === 'undervalued' || currentPreset === 'turnaround') && stock.upside !== null && stock.upside !== undefined ? '<span class="sector-label" style="color: var(--bullish); font-weight: 700;">• Ziel ' + (stock.upside >= 0 ? '+' : '') + window.App.Format.number(stock.upside, 0) + ' %</span>' : '') +
                 (isLoss(stock) ? '<span class="sector-label" style="color: var(--bearish); font-weight: 700;">• KGV neg.</span>' : '') +
               '</div>' +
             '</div>' +
@@ -321,6 +335,7 @@ window.App.Screener = (function () {
           '<button class="chip-btn" data-preset="high_dividend">💰 Hohe Dividende</button>' +
           '<button class="chip-btn" data-preset="value">💎 Value (KGV &lt; 18)</button>' +
           '<button class="chip-btn" data-preset="undervalued">🔎 Unterbewertet</button>' +
+          '<button class="chip-btn" data-preset="turnaround">🔄 Turnaround</button>' +
           '<button class="chip-btn" data-preset="growth">🚀 Growth</button>' +
           '<button class="chip-btn" data-preset="top_performer">📈 Top Performer</button>' +
         '</div>' +
