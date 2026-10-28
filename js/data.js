@@ -18,10 +18,10 @@ window.App.Data = (function () {
     LAST_TICKER: 'app_last_ticker'
   };
 
-  // Konfiguration: Eigener GitHub-Benutzer & Repo für Raw-Abfragen
+  // Konfiguration angepasst auf deine GitHub-Pages-Struktur
   var DEFAULT_CONFIG = {
     githubUser: 'spamispam018-lab',
-    githubRepo: 'spamispam018-lab.github.io'
+    githubRepo: 'spamispam018-lab.github.io',
     githubBranch: 'main'
   };
 
@@ -49,11 +49,11 @@ window.App.Data = (function () {
   }
 
   /**
-   * Erzeugt die Raw-GitHub-URL für Datenabrufe.
+   * Erzeugt die Raw-GitHub-URL für Datenabrufe (mit Cache-Buster).
    */
   function getRawUrl(fileName) {
     var cfg = getConfig();
-    return 'https://raw.githubusercontent.com/' + cfg.githubUser + '/' + cfg.githubRepo + '/' + cfg.githubBranch + '/data/' + fileName;
+    return 'https://raw.githubusercontent.com/' + cfg.githubUser + '/' + cfg.githubRepo + '/' + cfg.githubBranch + '/data/' + fileName + '?t=' + Date.now();
   }
 
   /**
@@ -63,10 +63,10 @@ window.App.Data = (function () {
   function getUniverse() {
     var url = getRawUrl('universe.json');
 
-    return fetch(url, { cache: 'no-cache' })
+    return fetch(url)
       .then(function (response) {
         if (!response.ok) {
-          throw new Error('Netzwerk-Fehler beim Laden von universe.json');
+          throw new Error('HTTP ' + response.status + ' beim Laden von ' + url);
         }
         return response.json();
       })
@@ -79,7 +79,9 @@ window.App.Data = (function () {
         }
         throw new Error('Ungültiges Datenformat');
       })
-      .catch(function () {
+      .catch(function (err) {
+        console.warn('GitHub-Fetch fehlgeschlagen (' + err.message + '). Prüfe Cache / Fallback.');
+
         // Fallback 1: Aus localStorage laden
         try {
           var cached = localStorage.getItem(STORAGE_KEYS.UNIVERSE);
@@ -112,7 +114,7 @@ window.App.Data = (function () {
     var storageKey = STORAGE_KEYS.STOCK_PREFIX + cleanTicker;
     var url = getRawUrl(cleanTicker + '.json');
 
-    return fetch(url, { cache: 'no-cache' })
+    return fetch(url)
       .then(function (response) {
         if (!response.ok) {
           throw new Error('Aktie ' + cleanTicker + ' nicht auf Remote gefunden');
