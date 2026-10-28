@@ -1,0 +1,40 @@
+<!-- Views/compare.html - Peer-Vergleich Template (2 bis 4 Aktien) -->
+<div class="view-container">
+  <!-- Seitenkopf mit Beschreibung -->
+  <div style="margin-bottom: 16px;">
+    <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 4px;">Aktienvergleich</h2>
+    <div style="font-size: 0.78rem; color: var(--text-dim);">
+      Direkter Kennzahlen- &amp; Performance-Vergleich von 2 bis 4 Unternehmen
+    </div>
+  </div>
+
+  <!-- Ticker-Auswahl & Schnellhinzufügen -->
+  <div class="card" style="padding: 12px; margin-bottom: 14px;">
+    <div style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; font-weight: 600;">
+      Vergleichsgruppe (max. 4)
+    </div>
+    <div id="compare-chips-container" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;"></div>
+    
+    <div style="display: flex; gap: 8px; margin-top: 10px;">
+      <input 
+        type="text" 
+        id="compare-add-input" 
+        class="search-input" 
+        placeholder="Ticker hinzufügen (z. B. NVDA, SAP.DE)..." 
+        style="height: 38px; padding-left: 14px;"
+        autocomplete="off"
+      >
+      <button id="compare-add-btn" class="chip-btn active" style="border-radius: var(--radius-md); padding: 0 16px;">
+        + Hinzufügen
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamischer Inhaltsbereich für Charts & Kennzahlenmatrix -->
+  <div id="compare-content-area">
+    <div class="state-box">
+      <div class="spinner"></div>
+      <p>Lade Vergleichsdaten...</p>
+    </div>
+  </div>
+</div>
