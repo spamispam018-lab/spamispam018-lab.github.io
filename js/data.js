@@ -1,8 +1,10 @@
 /**
  * js/data.js
- * Daten-Provider & Caching-Schicht.
- * Lädt Daten prioritär von GitHub Raw, cacht im localStorage
- * und fällt bei file://-Offline-Betrieb auf window.UNIVERSE_DATA und window.STOCK_DATA zurück.
+ * Robuste Daten-Provider & Caching-Schicht:
+ * 1. Prüft relativen Pfad (./data/...)
+ * 2. Fallback auf GitHub Raw (überbrückt Pages-Deployment-Verzögerungen)
+ * 3. Fallback auf localStorage Cache
+ * 4. Fallback auf window.STOCK_DATA
  */
 
 window.App = window.App || {};
@@ -10,66 +12,47 @@ window.App = window.App || {};
 window.App.Data = (function () {
   'use strict';
 
+  var GITHUB_USER = 'spamispam018-lab';
+  var GITHUB_REPO = 'spamispam018-lab.github.io';
+  var GITHUB_BRANCH = 'main';
+
   var STORAGE_KEYS = {
     UNIVERSE: 'app_data_universe',
     STOCK_PREFIX: 'app_data_stock_',
     WATCHLIST: 'app_watchlist',
-    SETTINGS: 'app_settings',
     LAST_TICKER: 'app_last_ticker'
   };
 
-  // Konfiguration angepasst auf deine GitHub-Pages-Struktur
-  var DEFAULT_CONFIG = {
-    githubUser: 'spamispam018-lab',
-    githubRepo: 'spamispam018-lab.github.io',
-    githubBranch: 'main'
-  };
-
-  /**
-   * Lädt Konfiguration aus localStorage oder Standardwerte.
-   */
-  function getConfig() {
-    try {
-      var raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-      if (raw) {
-        var parsed = JSON.parse(raw);
-        return Object.assign({}, DEFAULT_CONFIG, parsed);
-      }
-    } catch (e) {}
-    return DEFAULT_CONFIG;
+  function getLocalUrl(fileName) {
+    return './data/' + fileName + '?v=' + Date.now();
   }
 
-  /**
-   * Speichert geänderte Konfiguration.
-   */
-  function saveConfig(cfg) {
-    try {
-      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(cfg));
-    } catch (e) {}
-  }
-
-  /**
-   * Erzeugt die Raw-GitHub-URL für Datenabrufe (mit Cache-Buster).
-   */
   function getRawUrl(fileName) {
-    var cfg = getConfig();
-    return 'https://raw.githubusercontent.com/' + cfg.githubUser + '/' + cfg.githubRepo + '/' + cfg.githubBranch + '/data/' + fileName + '?t=' + Date.now();
+    return 'https://raw.githubusercontent.com/' + GITHUB_USER + '/' + GITHUB_REPO + '/' + GITHUB_BRANCH + '/data/' + fileName + '?v=' + Date.now();
   }
 
   /**
-   * Lädt das Screener-Universum.
-   * Ablauf: 1. Remote GitHub Fetch -> 2. localStorage Cache -> 3. window.UNIVERSE_DATA
+   * Lädt eine Datei erst per relativem Pfad, bei Fehler direkt von GitHub Raw.
    */
-  function getUniverse() {
-    var url = getRawUrl('universe.json');
-
-    return fetch(url)
-      .then(function (response) {
-        if (!response.ok) {
-          throw new Error('HTTP ' + response.status + ' beim Laden von ' + url);
-        }
-        return response.json();
+  function fetchWithFallback(fileName) {
+    return fetch(getLocalUrl(fileName))
+      .then(function (res) {
+        if (res.ok) return res.json();
+        throw new Error('Local 404');
       })
+      .catch(function () {
+        // Fallback direkt auf GitHub Raw
+        return fetch(getRawUrl(fileName)).then(function (rawRes) {
+          if (!rawRes.ok) {
+            throw new Error('HTTP ' + rawRes.status);
+          }
+          return rawRes.json();
+        });
+      });
+  }
+
+  function getUniverse() {
+    return fetchWithFallback('universe.json')
       .then(function (data) {
         if (Array.isArray(data) && data.length > 0) {
           try {
@@ -77,34 +60,24 @@ window.App.Data = (function () {
           } catch (e) {}
           return data;
         }
-        throw new Error('Ungültiges Datenformat');
+        throw new Error('Ungültiges Universum-Format');
       })
       .catch(function (err) {
-        console.warn('GitHub-Fetch fehlgeschlagen (' + err.message + '). Prüfe Cache / Fallback.');
-
-        // Fallback 1: Aus localStorage laden
         try {
           var cached = localStorage.getItem(STORAGE_KEYS.UNIVERSE);
           if (cached) {
             var parsed = JSON.parse(cached);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              return parsed;
-            }
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
           }
         } catch (e) {}
 
-        // Fallback 2: data/fallback.js nutzen
         if (window.UNIVERSE_DATA && Array.isArray(window.UNIVERSE_DATA)) {
           return window.UNIVERSE_DATA;
         }
-
         return [];
       });
   }
 
-  /**
-   * Lädt Detaildaten für einen einzelnen Ticker.
-   */
   function getStock(ticker) {
     if (!ticker) {
       return Promise.reject(new Error('Kein Ticker angegeben'));
@@ -112,62 +85,47 @@ window.App.Data = (function () {
 
     var cleanTicker = ticker.toUpperCase().trim();
     var storageKey = STORAGE_KEYS.STOCK_PREFIX + cleanTicker;
-    var url = getRawUrl(cleanTicker + '.json');
 
-    return fetch(url)
-      .then(function (response) {
-        if (!response.ok) {
-          throw new Error('Aktie ' + cleanTicker + ' nicht auf Remote gefunden');
-        }
-        return response.json();
-      })
+    return fetchWithFallback(cleanTicker + '.json')
       .then(function (data) {
-        if (data && data.ticker) {
+        if (data && (data.ticker || data.profile)) {
           try {
             localStorage.setItem(storageKey, JSON.stringify(data));
           } catch (e) {}
           return data;
         }
-        throw new Error('Ungültige Aktiendaten erhalten');
+        throw new Error('Ungültige Aktiendaten');
       })
-      .catch(function () {
-        // Fallback 1: localStorage Cache
+      .catch(function (err) {
+        // Fallback 1: localStorage
         try {
           var cached = localStorage.getItem(storageKey);
           if (cached) {
             var parsed = JSON.parse(cached);
-            if (parsed && parsed.ticker) {
-              return parsed;
-            }
+            if (parsed && (parsed.ticker || parsed.profile)) return parsed;
           }
         } catch (e) {}
 
-        // Fallback 2: window.STOCK_DATA aus fallback.js
+        // Fallback 2: data/fallback.js
         if (window.STOCK_DATA && window.STOCK_DATA[cleanTicker]) {
           return window.STOCK_DATA[cleanTicker];
         }
 
-        throw new Error('Keine Offline- oder Cachedaten für ' + cleanTicker + ' vorhanden.');
+        throw new Error('Keine Offline- oder Onlinedaten für "' + cleanTicker + '" verfügbar.');
       });
   }
 
-  /**
-   * Watchlist-Funktionen.
-   */
   function getWatchlist() {
     try {
       var raw = localStorage.getItem(STORAGE_KEYS.WATCHLIST);
-      if (raw) {
-        return JSON.parse(raw);
-      }
+      if (raw) return JSON.parse(raw);
     } catch (e) {}
     return ['AAPL', 'NVDA', 'SAP.DE'];
   }
 
   function isWatchlisted(ticker) {
     if (!ticker) return false;
-    var list = getWatchlist();
-    return list.indexOf(ticker.toUpperCase().trim()) !== -1;
+    return getWatchlist().indexOf(ticker.toUpperCase().trim()) !== -1;
   }
 
   function toggleWatchlist(ticker) {
@@ -191,9 +149,6 @@ window.App.Data = (function () {
     return added;
   }
 
-  /**
-   * Zuletzt geöffneten Ticker merken.
-   */
   function setLastTicker(ticker) {
     if (!ticker) return;
     try {
@@ -215,8 +170,6 @@ window.App.Data = (function () {
     isWatchlisted: isWatchlisted,
     toggleWatchlist: toggleWatchlist,
     getLastTicker: getLastTicker,
-    setLastTicker: setLastTicker,
-    getConfig: getConfig,
-    saveConfig: saveConfig
+    setLastTicker: setLastTicker
   };
 })();
