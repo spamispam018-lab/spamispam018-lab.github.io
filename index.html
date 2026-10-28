@@ -8,6 +8,238 @@
   <!-- Basis & Komponenten-Styles -->
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/stock.css">
+
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-purple: #8b5cf6;
+      --accent-hover: #7c3aed;
+      --green: #10b981;
+      --red: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body.screener-body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-header {
+      background-color: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+    }
+
+    .header-main-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-icon {
+      font-size: 20px;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .action-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: var(--border-color);
+    }
+
+    .search-bar-wrapper {
+      margin-bottom: 10px;
+    }
+
+    .search-input-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0 12px;
+    }
+
+    .search-input-box:focus-within {
+      border-color: var(--accent-purple);
+    }
+
+    .search-icon {
+      color: var(--text-muted);
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .screener-search-field {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      padding: 10px 0;
+      font-size: 0.95rem;
+    }
+
+    .screener-search-field::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-clear-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: none;
+      padding: 4px;
+    }
+
+    .toggle-tabs-group {
+      display: flex;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .view-tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .view-tab-btn.active {
+      background: var(--accent-purple);
+      color: #ffffff;
+    }
+
+    .controls-section {
+      padding: 10px 16px;
+      background: var(--bg-dark);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .filters-scroll-bar {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+    }
+
+    .form-select-dark {
+      flex: 1;
+      background: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .form-select-dark:focus {
+      border-color: var(--accent-purple);
+    }
+
+    .main-content-area {
+      flex: 1;
+      padding: 16px;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 0;
+    }
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--accent-purple);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-banner {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--red);
+      color: #fca5a5;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+  </style>
 </head>
 <body class="screener-body">
 
@@ -96,19 +328,17 @@
       <span class="error-text" id="screenerErrorText">Fehler beim Laden.</span>
     </div>
 
-    <!-- Liste der Aktienkarten (mit Direktklick auf Views/stock.html) -->
-    <div class="stock-cards-grid" id="stockListContainer">
-      <!-- Wird dynamisch durch js/ui.js gerendert -->
-    </div>
+    <!-- Liste der Aktienkarten -->
+    <div class="stock-cards-grid" id="stockListContainer"></div>
   </main>
 
-  <!-- Bibliotheken (lokal in js/lib/, kein CDN) -->
+  <!-- Bibliotheken -->
   <script src="js/lib/chart.umd.js"></script>
 
   <!-- Fallback-Daten falls offline geladen wird -->
   <script src="data/fallback-data.js"></script>
 
-  <!-- App-Module (klassische Skripte für file:// Kompatibilität) -->
+  <!-- App-Module -->
   <script src="js/data.js"></script>
   <script src="js/filters.js"></script>
   <script src="js/watchlist.js"></script>
@@ -131,15 +361,35 @@
       let allStocks = [];
       let isWatchlistActive = false;
 
+      function getRawFallback() {
+        if (window.Data && typeof window.Data.getFallbackList === "function") {
+          return window.Data.getFallbackList();
+        }
+        if (window.FALLBACK_DATA) {
+          return window.FALLBACK_DATA.stocks || (Array.isArray(window.FALLBACK_DATA) ? window.FALLBACK_DATA : []);
+        }
+        if (window.STOCK_DATA) {
+          return window.STOCK_DATA.stocks || (Array.isArray(window.STOCK_DATA) ? window.STOCK_DATA : []);
+        }
+        return [];
+      }
+
       function updateView() {
         let list = isWatchlistActive
-          ? allStocks.filter(function (s) { return window.Watchlist && window.Watchlist.isFavorite(s.ticker || s.symbol); })
+          ? allStocks.filter(function (s) {
+              const sym = s.ticker || s.symbol;
+              return window.Watchlist && typeof window.Watchlist.isFavorite === "function"
+                ? window.Watchlist.isFavorite(sym)
+                : false;
+            })
           : allStocks.slice();
 
-        // Sektor-Filter anwenden
+        // Sektor-Filter
         const selectedSector = sectorFilter ? sectorFilter.value : "";
         if (selectedSector) {
-          list = list.filter(function (s) { return (s.sector || "") === selectedSector; });
+          list = list.filter(function (s) {
+            return (s.sector || "") === selectedSector;
+          });
         }
 
         // Textsuche
@@ -152,42 +402,82 @@
           });
         }
 
-        // Sortierung anwenden
+        // Sortierung
         const sortMode = sortSelect ? sortSelect.value : "marketCap_desc";
         list.sort(function (a, b) {
-          if (sortMode === "marketCap_desc") return (b.marketCap || 0) - (a.marketCap || 0);
-          if (sortMode === "dayChange_desc") return (b.dayChange || b.change || 0) - (a.dayChange || a.change || 0);
-          if (sortMode === "dayChange_asc") return (a.dayChange || a.change || 0) - (b.dayChange || b.change || 0);
-          if (sortMode === "pe_asc") return (a.pe || a.trailingPE || 999) - (b.pe || b.trailingPE || 999);
-          if (sortMode === "dividendYield_desc") return (b.dividendYield || 0) - (a.dividendYield || 0);
+          const capA = a.marketCap || 0;
+          const capB = b.marketCap || 0;
+          const chgA = typeof a.dayChange !== "undefined" ? a.dayChange : (a.change || 0);
+          const chgB = typeof b.dayChange !== "undefined" ? b.dayChange : (b.change || 0);
+          const peA = a.pe || a.trailingPE || 999;
+          const peB = b.pe || b.trailingPE || 999;
+          const divA = a.dividendYield || a.dividend || 0;
+          const divB = b.dividendYield || b.dividend || 0;
+
+          if (sortMode === "marketCap_desc") return capB - capA;
+          if (sortMode === "dayChange_desc") return chgB - chgA;
+          if (sortMode === "dayChange_asc") return chgA - chgB;
+          if (sortMode === "pe_asc") return peA - peB;
+          if (sortMode === "dividendYield_desc") return divB - divA;
           return 0;
         });
 
-        window.UI.renderStockList(list, "stockListContainer");
+        if (window.UI && typeof window.UI.renderStockList === "function") {
+          window.UI.renderStockList(list, "stockListContainer");
+        } else {
+          // Basis-Renderer falls UI-Modul noch lädt oder fehlt
+          const container = document.getElementById("stockListContainer");
+          if (container) {
+            if (list.length === 0) {
+              container.innerHTML = '<div class="empty-state">Keine Aktien gefunden, die den Kriterien entsprechen.</div>';
+            } else {
+              container.innerHTML = list.map(function (s) {
+                const sym = s.ticker || s.symbol || "";
+                const chg = typeof s.dayChange !== "undefined" ? s.dayChange : (s.change || 0);
+                const chgColor = chg >= 0 ? "var(--green)" : "var(--red)";
+                const chgSign = chg > 0 ? "+" : "";
+                return '<div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; padding:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="location.href=\'Views/stock.html?ticker=' + encodeURIComponent(sym) + '\'">' +
+                  '<div>' +
+                    '<div style="font-weight:700; font-size:1rem;">' + sym + '</div>' +
+                    '<div style="font-size:0.85rem; color:var(--text-muted);">' + (s.name || '') + '</div>' +
+                  '</div>' +
+                  '<div style="text-align:right;">' +
+                    '<div style="font-weight:600;">' + (s.price ? (s.price.toFixed ? s.price.toFixed(2) : s.price) + ' €' : '-') + '</div>' +
+                    '<div style="font-size:0.85rem; font-weight:600; color:' + chgColor + ';">' + chgSign + (chg.toFixed ? chg.toFixed(2) : chg) + '%</div>' +
+                  '</div>' +
+                '</div>';
+              }).join("");
+            }
+          }
+        }
       }
 
       function loadData(forceRefresh) {
         if (loadingEl) loadingEl.style.display = "flex";
         if (errorEl) errorEl.style.display = "none";
 
-        const fetchPromise = window.Data && window.Data.fetchStocks 
-          ? window.Data.fetchStocks(forceRefresh)
-          : Promise.resolve(window.FALLBACK_DATA ? window.FALLBACK_DATA.stocks : []);
+        let fetchPromise;
+        if (window.Data && typeof window.Data.fetchStocks === "function") {
+          fetchPromise = window.Data.fetchStocks(forceRefresh);
+        } else if (window.App && window.App.DataService && typeof window.App.DataService.fetchStocks === "function") {
+          fetchPromise = window.App.DataService.fetchStocks(forceRefresh);
+        } else {
+          fetchPromise = Promise.resolve(getRawFallback());
+        }
 
         fetchPromise
           .then(function (stocks) {
-            allStocks = stocks || [];
+            allStocks = (stocks && stocks.length > 0) ? stocks : getRawFallback();
             updateView();
           })
           .catch(function (err) {
+            console.warn("Ladefehler:", err);
             if (errorEl && errorText) {
               errorText.textContent = "Offline-Modus oder Ladefehler: Zeige Fallback-Daten.";
               errorEl.style.display = "flex";
             }
-            if (window.FALLBACK_DATA && window.FALLBACK_DATA.stocks) {
-              allStocks = window.FALLBACK_DATA.stocks;
-              updateView();
-            }
+            allStocks = getRawFallback();
+            updateView();
           })
           .finally(function () {
             if (loadingEl) loadingEl.style.display = "none";
@@ -204,7 +494,11 @@
           if (e.key === "Enter") {
             const sym = this.value.trim().toUpperCase();
             if (sym) {
-              window.UI.openStockDetail(sym);
+              if (window.UI && typeof window.UI.openStockDetail === "function") {
+                window.UI.openStockDetail(sym);
+              } else {
+                window.location.href = "Views/stock.html?ticker=" + encodeURIComponent(sym);
+              }
             }
           }
         });
