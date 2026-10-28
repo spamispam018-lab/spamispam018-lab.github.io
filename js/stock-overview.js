@@ -1,83 +1,103 @@
 /**
- * Render- und Event-Steuerung für die Aktien-Übersichtsseite (Overview)
+ * Controller für die Kopfdaten, Bewertungsmetriken und das Firmenprofil im Dark-Mode
  */
 const StockOverview = (function () {
-  function setText(id, text) {
-    const el = document.getElementById(id);
-    if (el) {
-      el.textContent = text !== undefined && text !== null ? text : "N/A";
-    }
+  function formatEuroPrice(val) {
+    if (val === null || val === undefined || isNaN(val)) return "-";
+    return Number(val).toLocaleString("de-DE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }) + " €";
   }
 
-  function setHTML(id, html) {
-    const el = document.getElementById(id);
-    if (el) {
-      el.innerHTML = html;
-    }
+  function formatPercent(val) {
+    if (val === null || val === undefined || isNaN(val)) return "-";
+    const sign = val > 0 ? "+" : "";
+    return `${sign}${Number(val).toFixed(2).replace(".", ",")}%`;
   }
 
-  function updatePriceDisplay(price, change, changePct) {
-    setText("stock-price", window.StockDataHandler.formatCurrency(price));
+  function formatLargeNumber(num) {
+    if (num === null || num === undefined || isNaN(num)) return "-";
+    const val = Math.abs(num);
+    const sign = num < 0 ? "-" : "";
 
+    if (val >= 1e12) {
+      return `${sign}${(val / 1e12).toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bio. €`;
+    }
+    if (val >= 1e9) {
+      return `${sign}${(val / 1e9).toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Mrd. €`;
+    }
+    if (val >= 1e6) {
+      return `${sign}${(val / 1e6).toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Mio. €`;
+    }
+    return `${sign}${Number(num).toLocaleString("de-DE")} €`;
+  }
+
+  function renderHeaderAndMetrics(stock) {
+    if (!stock) return;
+
+    // Header-Texte
+    const nameEl = document.getElementById("stock-name");
+    const symbolEl = document.getElementById("stock-symbol");
+    const industryEl = document.getElementById("stock-industry");
+    const subEl = document.getElementById("stock-sector-sub");
+
+    if (nameEl) nameEl.textContent = stock.name || stock.symbol;
+    if (symbolEl) symbolEl.textContent = stock.symbol || "";
+    if (industryEl) industryEl.textContent = stock.industry || stock.sector || "Aktie";
+    if (subEl) subEl.textContent = `${stock.sector || "Markt"} • ${stock.country || "Global"}`;
+
+    // Kurs & Performance
+    const priceEl = document.getElementById("stock-price");
     const changeEl = document.getElementById("stock-change");
+
+    if (priceEl) priceEl.textContent = formatEuroPrice(stock.price);
+
     if (changeEl) {
-      const isPositive = (change || 0) >= 0;
-      const sign = isPositive ? "+" : "";
-      changeEl.textContent = `${sign}${window.StockDataHandler.formatNumber(change)} (${window.StockDataHandler.formatPercent(changePct)})`;
-      changeEl.className = isPositive ? "metric-change positive" : "metric-change negative";
+      const isPositive = (stock.changePercent || 0) >= 0;
+      changeEl.className = `detail-change-pill ${isPositive ? "positive" : "negative"}`;
+      changeEl.textContent = formatPercent(stock.changePercent);
     }
-  }
 
-  function renderScoreBadge(scoreResult) {
-    const badgeEl = document.getElementById("stock-score-badge");
-    if (!badgeEl) return;
+    // Score Badge
+    const scoreBadgeEl = document.getElementById("stock-score-badge");
+    if (scoreBadgeEl && window.StockScorer) {
+      const score = window.StockScorer.calculateScore(stock);
+      scoreBadgeEl.textContent = `${score.total} / 100`;
+    }
 
-    badgeEl.textContent = `${scoreResult.total} / 100 (${scoreResult.rating})`;
-    badgeEl.className = `score-badge ${scoreResult.colorClass}`;
+    // Bewertungskennzahlen
+    const val = stock.valuation || {};
+    const setVal = (id, text) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    setVal("val-market-cap", formatLargeNumber(val.marketCap || stock.marketCap));
+    setVal("val-pe", val.trailingPE ? Number(val.trailingPE).toFixed(2).replace(".", ",") : (stock.peRatio ? Number(stock.peRatio).toFixed(2).replace(".", ",") : "-"));
+    setVal("val-fpe", val.forwardPE ? Number(val.forwardPE).toFixed(2).replace(".", ",") : "-");
+    setVal("val-peg", val.pegRatio ? Number(val.pegRatio).toFixed(2).replace(".", ",") : "-");
+    setVal("val-pb", val.priceToBook ? Number(val.priceToBook).toFixed(2).replace(".", ",") : "-");
+
+    // Unternehmensbeschreibung
+    const descEl = document.getElementById("stock-description");
+    if (descEl) {
+      descEl.textContent = stock.summary || stock.description || "Für dieses Unternehmen ist noch keine detaillierte Beschreibung hinterlegt.";
+    }
   }
 
   async function init() {
-    const loader = document.getElementById("loading-indicator");
-    if (loader) loader.style.display = "block";
+    let stock = window.StockDataHandler ? window.StockDataHandler.getCurrentStock() : null;
+    if (!stock && window.StockDataHandler) {
+      stock = await window.StockDataHandler.initCurrentStock();
+    }
+    if (!stock) return;
 
-    try {
-      const stock = await window.StockDataHandler.initCurrentStock();
-      if (!stock) {
-        setText("stock-name", "Aktie nicht gefunden");
-        return;
-      }
+    renderHeaderAndMetrics(stock);
 
-      // Basis-Kopfdaten
-      setText("stock-symbol", stock.symbol);
-      setText("stock-name", stock.name);
-      setText("stock-sector", stock.sector);
-      setText("stock-industry", stock.industry);
-      setText("stock-description", stock.description || "Keine Unternehmensbeschreibung hinterlegt.");
-
-      // Kurs- und Bewertungskennzahlen
-      updatePriceDisplay(stock.price, stock.change, stock.changePercent);
-
-      const val = stock.valuation || {};
-      setText("val-market-cap", window.StockDataHandler.formatLargeNumber(val.marketCap));
-      setText("val-pe", window.StockDataHandler.formatNumber(val.trailingPE));
-      setText("val-fpe", window.StockDataHandler.formatNumber(val.forwardPE));
-      setText("val-peg", window.StockDataHandler.formatNumber(val.pegRatio));
-      setText("val-pb", window.StockDataHandler.formatNumber(val.priceToBook));
-
-      // Score berechnen & anzeigen
-      if (window.StockScorer) {
-        const score = window.StockScorer.calculateScore(stock);
-        renderScoreBadge(score);
-      }
-
-      // Chart zeichnen
-      if (window.StockCharts && Array.isArray(stock.history)) {
-        window.StockCharts.renderPriceHistoryChart("priceHistoryChart", stock.history);
-      }
-    } catch (err) {
-      console.error("Fehler beim Initialisieren der Aktienübersicht:", err);
-    } finally {
-      if (loader) loader.style.display = "none";
+    // Kurschart rendern
+    if (window.StockCharts && Array.isArray(stock.history)) {
+      window.StockCharts.renderPriceHistory("priceHistoryChart", stock.history);
     }
   }
 
@@ -86,12 +106,10 @@ const StockOverview = (function () {
   };
 })();
 
-// Automatisch beim Laden des DOMs ausführen
 document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("stock-overview-container")) {
+  if (document.getElementById("stock-overview-container") || document.getElementById("stock-name")) {
     StockOverview.init();
   }
 });
 
-// Global verfügbar machen
 window.StockOverview = StockOverview;
