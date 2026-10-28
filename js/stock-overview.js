@@ -1,7 +1,8 @@
 /**
  * js/stock-overview.js
  * Verwaltet den Tab "Overview" der Aktiendetailansicht:
- * - Bewertungs- und Marktkennzahlen (mit sauberer Behandlung von fehlendem/negativem KGV)
+ * - Bewertungs- und Marktkennzahlen im responsiven 2-Spalten-Grid
+ * - Abfangen negativer/fehlender KGV-Werte
  * - 52-Wochen-Spannenbalken
  * - Inline-Chart mit Umschalt-Pillen (1M, 3M, 6M, 1J)
  * - Kompakte Insider-Aktivitätskarte mit Stimmungsbalken
@@ -30,7 +31,7 @@ window.App.StockOverview = (function () {
     var insider = stock.insider || { summary: {}, trades: [] };
     var financials = stock.financials || {};
 
-    // Trailing-KGV prüfen: Wenn kein positiver Wert vorliegt, aber ein Forward-KGV existiert oder Verluste vorliegen
+    // Trailing-KGV prüfen: Bei Verlusten oder fehlendem Wert sauber kennzeichnen
     var peTrailingDisplay;
     if (ratios.peTrailing !== null && ratios.peTrailing !== undefined && ratios.peTrailing > 0) {
       peTrailingDisplay = window.App.Format.number(ratios.peTrailing, 1);
@@ -44,16 +45,20 @@ window.App.StockOverview = (function () {
       ? window.App.Format.number(ratios.peForward, 1)
       : '—';
 
-    var divYieldDisplay = (ratios.dividendYield !== null && ratios.dividendYield !== undefined && ratios.dividendYield > 0)
-      ? window.App.Format.number(ratios.dividendYield * 100, 2) + ' %'
-      : '0,00 %';
+    // Dividendenrendite abfangen (Unterscheidung zwischen Roh-Faktor 0.0046 vs. Prozent 0.46)
+    var divYieldDisplay = '0,00 %';
+    if (ratios.dividendYield !== null && ratios.dividendYield !== undefined && ratios.dividendYield > 0) {
+      var rawY = ratios.dividendYield;
+      var yPct = rawY > 1 ? rawY : rawY * 100;
+      divYieldDisplay = window.App.Format.number(yPct, 2) + ' %';
+    }
 
     var html = '' +
       '<!-- 1. Bewertungs- & Marktkennzahlen -->' +
       '<div class="card">' +
         '<div class="card-header-dotted">' +
-          '<span class="card-title">Bewertungs- &amp; Marktkennzahlen</span>' +
-          '<span class="period-tag">Aktuell</span>' +
+          '<span class="card-title">BEWERTUNGS- &amp; MARKTKENNZAHLEN</span>' +
+          '<span class="period-tag">AKTUELL</span>' +
         '</div>' +
         '<div class="metrics-grid-2col">' +
           '<div class="metric-cell">' +
@@ -87,7 +92,7 @@ window.App.StockOverview = (function () {
       '<!-- 2. Kursverlauf Chart -->' +
       '<div class="card">' +
         '<div class="card-header-dotted">' +
-          '<span class="card-title">Kursverlauf</span>' +
+          '<span class="card-title">KURSVERLAUF</span>' +
           '<div class="pill-group" id="overview-period-pills">' +
             '<button class="pill-btn ' + (currentPeriod === '1M' ? 'active' : '') + '" data-period="1M">1M</button>' +
             '<button class="pill-btn ' + (currentPeriod === '3M' ? 'active' : '') + '" data-period="3M">3M</button>' +
@@ -95,49 +100,44 @@ window.App.StockOverview = (function () {
             '<button class="pill-btn ' + (currentPeriod === '1Y' ? 'active' : '') + '" data-period="1Y">1J</button>' +
           '</div>' +
         '</div>' +
-        '<div style="height: 180px; width: 100%; position: relative; margin-top: 8px;">' +
+        '<div style="height: 180px; width: 100%; position: relative; margin-top: 12px;">' +
           '<canvas id="overview-price-canvas"></canvas>' +
         '</div>' +
       '</div>' +
 
-      '<!-- 3. Insider-Aktivität Kurzüberblick -->' +
+      '<!-- 3. Insider Activity -->' +
       '<div class="card">' +
         '<div class="card-header-dotted">' +
-          '<span class="card-title">Insider Activity</span>' +
-          '<span class="period-tag">Letzte 2Q</span>' +
+          '<span class="card-title">INSIDER ACTIVITY</span>' +
+          '<span class="period-tag">LETZTE 2Q</span>' +
           '<span style="margin-left: auto; font-size: 0.75rem; font-weight: 700; color: ' + getSentimentColor(insider.summary.sentiment) + ';">' + (insider.summary.sentiment || 'Neutral') + '</span>' +
         '</div>' +
         renderInsiderSummaryBar(insider.summary) +
-        '<div style="margin-top: 10px; font-size: 0.75rem; color: var(--text-dim); text-align: right;">' +
+        '<div style="margin-top: 12px; font-size: 0.75rem; text-align: right;">' +
           '<a href="#/stock/' + stock.ticker + '/insider" style="color: var(--accent-purple-light); text-decoration: none; font-weight: 600;">View Insider Tab &rarr;</a>' +
         '</div>' +
       '</div>' +
 
-      '<!-- 4. Quartals-Trend (Finanzen) -->' +
+      '<!-- 4. Quartals-Trend Finanzen -->' +
       '<div class="card">' +
         '<div class="card-header-dotted">' +
-          '<span class="card-title">Financials Trend</span>' +
-          '<span class="period-tag">TTM / Quartale</span>' +
+          '<span class="card-title">FINANCIALS TREND</span>' +
+          '<span class="period-tag">TTM / QUARTALE</span>' +
         '</div>' +
-        '<div style="height: 160px; width: 100%; position: relative; margin-top: 8px;">' +
+        '<div style="height: 160px; width: 100%; position: relative; margin-top: 12px;">' +
           '<canvas id="overview-financials-canvas"></canvas>' +
         '</div>' +
       '</div>';
 
     container.innerHTML = html;
 
-    // Charts zeichnen und Events verdrahten
     drawPriceChart();
     drawFinancialsChart(financials);
     bindPeriodPillEvents(container);
   }
 
-  /**
-   * Rendert den 52-Wochen-Spannenbalken mit relativem Zeiger auf den aktuellen Kurs.
-   */
   function renderFiftyTwoWeekRange(price, low, high, currency) {
     if (!price || !low || !high || high <= low) return '';
-
     var pct = Math.max(0, Math.min(100, ((price - low) / (high - low)) * 100));
 
     return '' +
@@ -153,9 +153,6 @@ window.App.StockOverview = (function () {
       '</div>';
   }
 
-  /**
-   * Rendert das Verhältnis von Insider-Käufen zu -Verkäufen.
-   */
   function renderInsiderSummaryBar(sum) {
     if (!sum) sum = { buysCount2Q: 0, sellsCount2Q: 0, buyValueTotal: 0, sellValueTotal: 0 };
     var buyVal = sum.buyValueTotal || 0;
@@ -166,7 +163,7 @@ window.App.StockOverview = (function () {
     var sellPct = total > 0 ? (sellVal / total) * 100 : 50;
 
     return '' +
-      '<div style="margin-top: 6px;">' +
+      '<div style="margin-top: 8px;">' +
         '<div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 6px;">' +
           '<span style="color: var(--bullish); font-weight: 700;">' + sum.buysCount2Q + ' Käufe (' + window.App.Format.compactNumber(buyVal, 'EUR') + ')</span>' +
           '<span style="color: var(--bearish); font-weight: 700;">' + sum.sellsCount2Q + ' Verkäufe (' + window.App.Format.compactNumber(sellVal, 'EUR') + ')</span>' +
@@ -178,9 +175,6 @@ window.App.StockOverview = (function () {
       '</div>';
   }
 
-  /**
-   * Zeichnet den Kursverlauf über window.App.Charts.
-   */
   function drawPriceChart() {
     var canvas = document.getElementById('overview-price-canvas');
     if (!canvas || !currentStock) return;
@@ -188,17 +182,12 @@ window.App.StockOverview = (function () {
     var fullHistory = currentStock.chartHistory || [];
     var filtered = sliceHistoryByPeriod(fullHistory, currentPeriod);
 
-    var cur = currentStock.quote ? currentStock.quote.currency : 'EUR';
-    window.App.Charts.renderLineChart(canvas, {
-      labels: filtered.map(function (p) { return p.date; }),
-      values: filtered.map(function (p) { return p.close; }),
-      formatY: function (v) { return window.App.Format.currency(v, cur, 0); }
+    window.App.Charts.renderPriceChart(canvas, filtered, {
+      currency: currentStock.quote ? currentStock.quote.currency : 'EUR',
+      height: 180
     });
   }
 
-  /**
-   * Schneidet den Kursverlauf auf die gewählte Periode zu.
-   */
   function sliceHistoryByPeriod(history, period) {
     if (!history || history.length === 0) return [];
     var count = history.length;
@@ -212,9 +201,6 @@ window.App.StockOverview = (function () {
     }
   }
 
-  /**
-   * Zeichnet den Quartals-Umsatztrend.
-   */
   function drawFinancialsChart(financials) {
     var canvas = document.getElementById('overview-financials-canvas');
     if (!canvas) return;
@@ -241,16 +227,14 @@ window.App.StockOverview = (function () {
       return item.Total_Revenue || item.Operating_Revenue || 0;
     });
 
-    window.App.Charts.renderGroupedBarChart(canvas, {
+    window.App.Charts.renderBarChart(canvas, {
       labels: labels,
-      series: [{ name: 'Umsatz', data: revenues, color: 'rgba(99, 102, 241, 0.85)' }],
-      formatY: function (v) { return window.App.Format.compactNumber(v); }
+      data: revenues,
+      currency: 'EUR',
+      barColor: 'rgba(99, 102, 241, 0.85)'
     });
   }
 
-  /**
-   * Bindet die Klick-Events auf die Zeitbereich-Pillen (1M, 3M, 6M, 1J).
-   */
   function bindPeriodPillEvents(container) {
     var pills = container.querySelectorAll('#overview-period-pills .pill-btn');
     pills.forEach(function (pill) {
