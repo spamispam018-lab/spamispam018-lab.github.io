@@ -2,742 +2,252 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Aktien Screener</title>
+
+  <!-- Basis & Komponenten-Styles -->
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/stock.css">
 </head>
-<body>
+<body class="screener-body">
 
-  <!-- Haupt-Container für die dynamisch gerenderten Views -->
-  <main id="appViewContainer"></main>
-
-  <!-- Feste Bottom-Navigation -->
-  <nav class="bottom-nav">
-    <a href="#screener" class="nav-item active" id="navScreener">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-      </svg>
-      <span>Screener</span>
-    </a>
-    <a href="#watchlist" class="nav-item" id="navWatchlist">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-      </svg>
-      <span>Watchlist</span>
-    </a>
-  </nav>
-
-  <!-- ==================== TEMPLATE 1: SCREENER ==================== -->
-  <template id="view-template-screener">
-    <div class="header-bar">
-      <div class="header-title-wrap">
-        <h1>Aktien-Screener</h1>
-        <div class="header-subtitle" id="lastUpdatedLabel">Lade Marktdaten...</div>
+  <!-- Header & Navigation -->
+  <header class="app-header">
+    <div class="header-main-row">
+      <div class="app-brand">
+        <span class="brand-icon">📈</span>
+        <h1 class="brand-title">Aktien Screener</h1>
       </div>
       <div class="header-actions">
-        <!-- Öffnet die separate Filter-Seite -->
-        <a href="#filters" class="icon-btn" aria-label="Filter anpassen">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-          </svg>
-        </a>
-      </div>
-    </div>
-
-    <div class="container">
-      <div class="hero-card">
-        <div class="hero-label">MARKTÜBERSICHT (AKTIENUNIVERSUM)</div>
-        <div class="hero-value" id="heroTotalCount">0 Titel</div>
-        <div class="hero-stats-row">
-          <div>
-            <div class="hero-substat-label">Top-Gewinner</div>
-            <div class="hero-substat-val" id="heroTopGainer" style="color: #6ee7b7;">-</div>
-          </div>
-          <div>
-            <div class="hero-substat-label">Ø KGV</div>
-            <div class="hero-substat-val" id="heroAvgPe">-</div>
-          </div>
-          <div>
-            <div class="hero-substat-label">Ø Div.-Rendite</div>
-            <div class="hero-substat-val" id="heroAvgDiv">-</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="search-container">
-        <div class="search-input-wrap">
-          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input type="text" id="searchInput" class="search-input" placeholder="Name oder Ticker suchen..." autocomplete="off" autocapitalize="off" spellcheck="false">
-          <button id="searchClearBtn" class="search-clear-btn" aria-label="Suche leeren">✕</button>
-        </div>
-      </div>
-
-      <div class="chips-scroll-row" id="presetChipsRow">
-        <button class="chip-btn active" data-preset="all">Alle</button>
-        <button class="chip-btn" data-preset="dividend">💰 Hohe Dividende</button>
-        <button class="chip-btn" data-preset="value">💎 Value (KGV &lt; 18)</button>
-        <button class="chip-btn" data-preset="growth">🚀 52W Gewinner</button>
-        <button class="chip-btn" data-preset="gainers">📈 Tagesgewinner</button>
-        <button class="chip-btn" data-preset="losers">📉 Tagesverlierer</button>
-      </div>
-
-      <div class="status-bar-row">
-        <span id="resultCountLabel">0 Ergebnisse</span>
-        <select id="sortSelect" class="sort-select">
-          <option value="marketCap_desc">Marktkapitalisierung (Höchste)</option>
-          <option value="change_desc">Tagesänderung (+%)</option>
-          <option value="change_asc">Tagesänderung (-%)</option>
-          <option value="pe_asc">KGV (Günstigste)</option>
-          <option value="div_desc">Dividendenrendite (Höchste)</option>
-          <option value="perf52w_desc">52-Wochen-Performance</option>
-          <option value="name_asc">Name (A-Z)</option>
-        </select>
-      </div>
-
-      <div id="stocksList" class="stocks-list"></div>
-    </div>
-  </template>
-
-  <!-- ==================== TEMPLATE 2: FILTER-SEITE (EXTRA VIEW) ==================== -->
-  <template id="view-template-filters">
-    <div class="header-bar">
-      <div class="header-actions">
-        <button class="icon-btn" id="filterBackBtn" aria-label="Zurück zum Screener">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </button>
-      </div>
-      <div class="header-title-wrap" style="text-align: center;">
-        <h1>Filter anpassen</h1>
-        <div class="header-subtitle">Kriterien für den Screener definieren</div>
-      </div>
-      <div class="header-actions" style="width: 42px;"></div>
-    </div>
-
-    <div class="container" style="padding-bottom: 90px;">
-      <!-- Branche / Sektor -->
-      <div class="filter-section-card">
-        <div class="filter-section-header">
-          <span class="filter-section-title">Branche / Sektor</span>
-        </div>
-        <select id="pageFilterSector" class="filter-select-full"></select>
-      </div>
-
-      <!-- Land / Region -->
-      <div class="filter-section-card">
-        <div class="filter-section-header">
-          <span class="filter-section-title">Land / Region</span>
-        </div>
-        <select id="pageFilterCountry" class="filter-select-full"></select>
-      </div>
-
-      <!-- Maximales KGV -->
-      <div class="filter-section-card">
-        <div class="filter-section-header">
-          <span class="filter-section-title">Maximales KGV (P/E)</span>
-          <span id="pagePeDisplay" class="filter-slider-val">Beliebig</span>
-        </div>
-        <input type="range" id="pageFilterMaxPe" class="filter-slider" min="10" max="100" step="5" value="100">
-      </div>
-
-      <!-- Mindest-Dividendenrendite -->
-      <div class="filter-section-card">
-        <div class="filter-section-header">
-          <span class="filter-section-title">Mindest-Dividendenrendite</span>
-          <span id="pageDivDisplay" class="filter-slider-val">0 %</span>
-        </div>
-        <input type="range" id="pageFilterMinDiv" class="filter-slider" min="0" max="8" step="0.5" value="0">
-      </div>
-
-      <!-- Mindest-Marktkapitalisierung -->
-      <div class="filter-section-card">
-        <div class="filter-section-header">
-          <span class="filter-section-title">Min. Marktkapitalisierung</span>
-          <span id="pageMcapDisplay" class="filter-slider-val">Alle Größen</span>
-        </div>
-        <input type="range" id="pageFilterMinMcap" class="filter-slider" min="0" max="100" step="10" value="0">
-      </div>
-
-      <!-- Mindest 52-Wochen-Performance -->
-      <div class="filter-section-card">
-        <div class="filter-section-header">
-          <span class="filter-section-title">Min. 52-Wochen-Trend</span>
-          <span id="pagePerfDisplay" class="filter-slider-val">Beliebig</span>
-        </div>
-        <input type="range" id="pageFilterMinPerf" class="filter-slider" min="-50" max="100" step="10" value="-50">
-      </div>
-    </div>
-
-    <!-- Fixierte Aktionsleiste unten mit Treffer-Vorschau -->
-    <div class="filter-footer-bar">
-      <button id="pageFilterResetBtn" class="btn-secondary">Zurücksetzen</button>
-      <button id="pageFilterApplyBtn" class="btn-primary">
-        <span id="pageFilterCountPreview">Treffer anzeigen</span>
-      </button>
-    </div>
-  </template>
-
-  <!-- ==================== TEMPLATE 3: DETAILANSICHT ==================== -->
-  <template id="view-template-detail">
-    <div class="header-bar">
-      <div class="header-actions">
-        <button class="icon-btn" id="detailBackBtn" aria-label="Zurück">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </button>
-      </div>
-      <div class="header-title-wrap" style="text-align: center;">
-        <h1 id="detailStockTicker" style="font-size: 1.15rem;">-</h1>
-        <div class="header-subtitle" id="detailStockSector">-</div>
-      </div>
-      <div class="header-actions">
-        <button class="icon-btn" id="detailWatchlistBtn" aria-label="Zur Watchlist hinzufügen">
-          <svg id="detailWatchlistIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        <button type="button" class="action-btn" id="refreshAllBtn" title="Daten neu laden" aria-label="Aktualisieren">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
           </svg>
         </button>
       </div>
     </div>
 
-    <div class="container">
-      <div style="margin: 12px 0 8px 0;">
-        <h2 id="detailStockName" style="font-size: 1.45rem; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">-</h2>
-        <div style="display: flex; align-items: baseline; gap: 12px; margin-top: 6px;">
-          <span id="detailStockPrice" style="font-size: 2.1rem; font-weight: 800; letter-spacing: -0.02em;">-</span>
-          <span id="detailStockChange" class="stock-badge" style="font-size: 0.95rem; padding: 4px 10px;">-</span>
-        </div>
-      </div>
-
-      <div class="chart-box">
-        <div class="chart-header">
-          <span id="detailChartTitle" style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Kursentwicklung (1J)</span>
-          <span id="detailChartPerfBadge" class="stock-badge" style="font-size: 0.75rem;">-</span>
-        </div>
-
-        <div class="range-selector-row">
-          <button class="range-pill-btn" data-range="1W">1W</button>
-          <button class="range-pill-btn" data-range="1M">1M</button>
-          <button class="range-pill-btn" data-range="6M">6M</button>
-          <button class="range-pill-btn active" data-range="1J">1J</button>
-        </div>
-
-        <div class="chart-canvas-wrap">
-          <canvas id="detailChartCanvas"></canvas>
-        </div>
-      </div>
-
-      <div style="margin-top: 20px;">
-        <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">
-          Fundamentaldaten &amp; Kennzahlen
-        </div>
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <div class="metric-label">Marktkapitalisierung</div>
-            <div class="metric-val" id="metricMarketCap">-</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">KGV (P/E)</div>
-            <div class="metric-val" id="metricPeRatio">-</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Dividendenrendite</div>
-            <div class="metric-val" id="metricDividendYield">-</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">52W Performance</div>
-            <div class="metric-val" id="metricPerf52w">-</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Land / Region</div>
-            <div class="metric-val" id="metricCountry">-</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Währung</div>
-            <div class="metric-val" id="metricCurrency">EUR</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </template>
-
-  <!-- ==================== TEMPLATE 4: WATCHLIST ==================== -->
-  <template id="view-template-watchlist">
-    <div class="header-bar">
-      <div class="header-title-wrap">
-        <h1>Meine Watchlist</h1>
-        <div class="header-subtitle">Persönliche Favoriten &amp; Beobachtung</div>
-      </div>
-      <div class="header-actions">
-        <button class="icon-btn" id="watchlistRefreshBtn" aria-label="Watchlist aktualisieren">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
-          </svg>
-        </button>
+    <!-- Suchfeld für Schnelleinstieg in die Detailansicht oder Filterung -->
+    <div class="search-bar-wrapper">
+      <div class="search-input-box">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input 
+          type="text" 
+          id="screenerSearchInput" 
+          class="screener-search-field" 
+          placeholder="Aktie suchen (z. B. AAPL, NVDA)..." 
+          autocomplete="off" 
+          autocapitalize="characters" 
+          spellcheck="false"
+        >
+        <button type="button" class="search-clear-btn" id="searchClearBtn" aria-label="Suche zurücksetzen">&times;</button>
       </div>
     </div>
 
-    <div class="container">
-      <div class="hero-card">
-        <div class="hero-label">BEOBACHTETE TITEL</div>
-        <div class="hero-value" id="watchlistHeroCount">0 Positionen</div>
-        <div class="hero-stats-row">
-          <div>
-            <div class="hero-substat-label">Tages-Trend</div>
-            <div class="hero-substat-val" id="watchlistAvgDayChange">-</div>
-          </div>
-          <div>
-            <div class="hero-substat-label">Top-Performer</div>
-            <div class="hero-substat-val" id="watchlistTopPerformer" style="color: #6ee7b7;">-</div>
-          </div>
-          <div>
-            <div class="hero-substat-label">Ø 52W Rendite</div>
-            <div class="hero-substat-val" id="watchlistAvgPerf52w">-</div>
-          </div>
-        </div>
+    <!-- Screener / Watchlist Umschalter -->
+    <nav class="view-toggle-nav" aria-label="Ansicht umschalten">
+      <div class="toggle-tabs-group">
+        <button type="button" class="view-tab-btn active" id="tabShowScreener">Screener</button>
+        <button type="button" class="view-tab-btn" id="tabShowWatchlist">Watchlist</button>
       </div>
+    </nav>
+  </header>
 
-      <div class="status-bar-row">
-        <span id="watchlistCountLabel">0 Titel gespeichert</span>
-        <span style="font-size: 0.78rem; color: var(--text-muted);">Lokal auf diesem Gerät</span>
-      </div>
+  <!-- Filter- und Sortier-Leiste -->
+  <section class="controls-section" id="controlsSection">
+    <div class="filters-scroll-bar">
+      <!-- Sektor-Filter -->
+      <select id="filterSector" class="form-select-dark">
+        <option value="">Alle Sektoren</option>
+        <option value="Technology">Technologie</option>
+        <option value="Healthcare">Gesundheit</option>
+        <option value="Financial Services">Finanzen</option>
+        <option value="Consumer Cyclical">Konsum zyklisch</option>
+        <option value="Communication Services">Kommunikation</option>
+        <option value="Industrials">Industrie</option>
+      </select>
 
-      <div id="watchlistStocksList" class="stocks-list"></div>
+      <!-- Sortierung -->
+      <select id="sortBySelect" class="form-select-dark">
+        <option value="marketCap_desc">Marktkapitalisierung ↓</option>
+        <option value="dayChange_desc">Tagesgewinner ↑</option>
+        <option value="dayChange_asc">Tagesverlierer ↓</option>
+        <option value="pe_asc">KGV niedrig ↑</option>
+        <option value="dividendYield_desc">Dividende hoch ↓</option>
+      </select>
     </div>
-  </template>
+  </section>
 
-  <!-- Scripts -->
-  <script src="data/fallback-data.js"></script>
+  <!-- Hauptcontainer -->
+  <main class="main-content-area">
+    <!-- Ladeanzeige -->
+    <div class="loading-state" id="screenerLoading" style="display: none;">
+      <div class="spinner"></div>
+      <p style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">Lade Aktienliste...</p>
+    </div>
+
+    <!-- Fehlerhinweis -->
+    <div class="error-banner" id="screenerError" style="display: none;">
+      <span class="error-icon">⚠️</span>
+      <span class="error-text" id="screenerErrorText">Fehler beim Laden.</span>
+    </div>
+
+    <!-- Liste der Aktienkarten (mit Direktklick auf Views/stock.html) -->
+    <div class="stock-cards-grid" id="stockListContainer">
+      <!-- Wird dynamisch durch js/ui.js gerendert -->
+    </div>
+  </main>
+
+  <!-- Bibliotheken (lokal in js/lib/, kein CDN) -->
   <script src="js/lib/chart.umd.js"></script>
+
+  <!-- Fallback-Daten falls offline geladen wird -->
+  <script src="data/fallback-data.js"></script>
+
+  <!-- App-Module (klassische Skripte für file:// Kompatibilität) -->
   <script src="js/data.js"></script>
-  <script src="js/watchlist.js"></script>
   <script src="js/filters.js"></script>
-  <script src="js/charts.js"></script>
+  <script src="js/watchlist.js"></script>
   <script src="js/ui.js"></script>
 
-  <!-- Router & Logik -->
+  <!-- Initialisierungsskript -->
   <script>
-    (function () {
-      'use strict';
+    document.addEventListener("DOMContentLoaded", function () {
+      const searchInput = document.getElementById("screenerSearchInput");
+      const searchClear = document.getElementById("searchClearBtn");
+      const sectorFilter = document.getElementById("filterSector");
+      const sortSelect = document.getElementById("sortBySelect");
+      const refreshBtn = document.getElementById("refreshAllBtn");
+      const tabScreener = document.getElementById("tabShowScreener");
+      const tabWatchlist = document.getElementById("tabShowWatchlist");
+      const loadingEl = document.getElementById("screenerLoading");
+      const errorEl = document.getElementById("screenerError");
+      const errorText = document.getElementById("screenerErrorText");
 
-      var currentStocks = [];
-      var currentSelectedRange = '1J';
+      let allStocks = [];
+      let isWatchlistActive = false;
 
-      function getHashRoute() {
-        var hash = window.location.hash.replace('#', '') || 'screener';
-        var parts = hash.split('/');
-        return {
-          view: parts[0] || 'screener',
-          param: parts[1] || null
-        };
-      }
+      function updateView() {
+        let list = isWatchlistActive
+          ? allStocks.filter(function (s) { return window.Watchlist && window.Watchlist.isFavorite(s.ticker || s.symbol); })
+          : allStocks.slice();
 
-      function updateNav(routeView) {
-        var navScreener = document.getElementById('navScreener');
-        var navWatchlist = document.getElementById('navWatchlist');
-
-        if (navScreener && navWatchlist) {
-          navScreener.classList.toggle('active', routeView === 'screener' || routeView === 'detail' || routeView === 'filters');
-          navWatchlist.classList.toggle('active', routeView === 'watchlist');
-        }
-      }
-
-      function updateScreenerHero(stocks) {
-        var countEl = document.getElementById('heroTotalCount');
-        var gainerEl = document.getElementById('heroTopGainer');
-        var avgPeEl = document.getElementById('heroAvgPe');
-        var avgDivEl = document.getElementById('heroAvgDiv');
-        var updatedLabel = document.getElementById('lastUpdatedLabel');
-
-        if (updatedLabel && window.App.DataService.currentData) {
-          var rawDate = window.App.DataService.currentData.lastUpdated;
-          if (rawDate) {
-            var d = new Date(rawDate);
-            updatedLabel.textContent = 'Stand: ' + d.toLocaleDateString('de-DE') + ' ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-          } else {
-            updatedLabel.textContent = 'Offline-Bestand aktiv';
-          }
+        // Sektor-Filter anwenden
+        const selectedSector = sectorFilter ? sectorFilter.value : "";
+        if (selectedSector) {
+          list = list.filter(function (s) { return (s.sector || "") === selectedSector; });
         }
 
-        if (!countEl) return;
-        countEl.textContent = stocks.length + ' Titel';
-
-        if (stocks.length === 0) return;
-
-        var topGainer = stocks.slice().sort(function(a, b) {
-          return (b.changePercent || 0) - (a.changePercent || 0);
-        })[0];
-
-        if (topGainer && gainerEl) {
-          gainerEl.textContent = topGainer.ticker + ' (' + window.App.UIController.formatPercent(topGainer.changePercent) + ')';
-        }
-
-        var peSum = 0;
-        var peCount = 0;
-        var divSum = 0;
-
-        for (var i = 0; i < stocks.length; i++) {
-          if (stocks[i].peRatio && stocks[i].peRatio > 0) {
-            peSum += stocks[i].peRatio;
-            peCount++;
-          }
-          if (stocks[i].dividendYield) {
-            divSum += stocks[i].dividendYield;
-          }
-        }
-
-        if (avgPeEl) {
-          avgPeEl.textContent = peCount > 0 ? (peSum / peCount).toFixed(1) : '-';
-        }
-        if (avgDivEl) {
-          avgDivEl.textContent = (divSum / stocks.length).toFixed(1) + ' %';
-        }
-      }
-
-      function renderScreenerView() {
-        var container = document.getElementById('appViewContainer');
-        var template = document.getElementById('view-template-screener');
-        container.innerHTML = template.innerHTML;
-
-        var searchInput = document.getElementById('searchInput');
-        var searchClearBtn = document.getElementById('searchClearBtn');
-        var sortSelect = document.getElementById('sortSelect');
-        var chips = document.querySelectorAll('.chip-btn');
-        var resultCountLabel = document.getElementById('resultCountLabel');
-
-        function refreshList() {
-          var filtered = window.App.FilterEngine.process(currentStocks);
-          resultCountLabel.textContent = filtered.length + ' Ergebnisse';
-          window.App.UIController.renderStockList('stocksList', filtered, function(ticker) {
-            window.location.hash = 'detail/' + ticker;
+        // Textsuche
+        const term = (searchInput ? searchInput.value : "").trim().toUpperCase();
+        if (term) {
+          list = list.filter(function (s) {
+            const sym = (s.ticker || s.symbol || "").toUpperCase();
+            const name = (s.name || "").toUpperCase();
+            return sym.includes(term) || name.includes(term);
           });
         }
 
-        searchInput.value = window.App.FilterEngine.state.searchQuery || '';
-        searchClearBtn.style.display = searchInput.value ? 'block' : 'none';
-
-        searchInput.addEventListener('input', function() {
-          window.App.FilterEngine.state.searchQuery = this.value;
-          searchClearBtn.style.display = this.value ? 'block' : 'none';
-          refreshList();
+        // Sortierung anwenden
+        const sortMode = sortSelect ? sortSelect.value : "marketCap_desc";
+        list.sort(function (a, b) {
+          if (sortMode === "marketCap_desc") return (b.marketCap || 0) - (a.marketCap || 0);
+          if (sortMode === "dayChange_desc") return (b.dayChange || b.change || 0) - (a.dayChange || a.change || 0);
+          if (sortMode === "dayChange_asc") return (a.dayChange || a.change || 0) - (b.dayChange || b.change || 0);
+          if (sortMode === "pe_asc") return (a.pe || a.trailingPE || 999) - (b.pe || b.trailingPE || 999);
+          if (sortMode === "dividendYield_desc") return (b.dividendYield || 0) - (a.dividendYield || 0);
+          return 0;
         });
 
-        searchClearBtn.addEventListener('click', function() {
-          searchInput.value = '';
-          window.App.FilterEngine.state.searchQuery = '';
-          searchClearBtn.style.display = 'none';
-          refreshList();
-        });
-
-        for (var i = 0; i < chips.length; i++) {
-          chips[i].addEventListener('click', function() {
-            for (var j = 0; j < chips.length; j++) chips[j].classList.remove('active');
-            this.classList.add('active');
-            var preset = this.getAttribute('data-preset');
-            window.App.FilterEngine.applyPreset(preset);
-            sortSelect.value = window.App.FilterEngine.state.sortBy;
-            refreshList();
-          });
-        }
-
-        sortSelect.value = window.App.FilterEngine.state.sortBy;
-        sortSelect.addEventListener('change', function() {
-          window.App.FilterEngine.state.sortBy = this.value;
-          refreshList();
-        });
-
-        updateScreenerHero(currentStocks);
-        refreshList();
+        window.UI.renderStockList(list, "stockListContainer");
       }
 
-      function renderFiltersView() {
-        var container = document.getElementById('appViewContainer');
-        var template = document.getElementById('view-template-filters');
-        container.innerHTML = template.innerHTML;
+      function loadData(forceRefresh) {
+        if (loadingEl) loadingEl.style.display = "flex";
+        if (errorEl) errorEl.style.display = "none";
 
-        document.getElementById('filterBackBtn').addEventListener('click', function() {
-          window.location.hash = 'screener';
-        });
+        const fetchPromise = window.Data && window.Data.fetchStocks 
+          ? window.Data.fetchStocks(forceRefresh)
+          : Promise.resolve(window.FALLBACK_DATA ? window.FALLBACK_DATA.stocks : []);
 
-        var sectorSelect = document.getElementById('pageFilterSector');
-        var countrySelect = document.getElementById('pageFilterCountry');
-        var peInput = document.getElementById('pageFilterMaxPe');
-        var divInput = document.getElementById('pageFilterMinDiv');
-        var mcapInput = document.getElementById('pageFilterMinMcap');
-        var perfInput = document.getElementById('pageFilterMinPerf');
-
-        var peDisplay = document.getElementById('pagePeDisplay');
-        var divDisplay = document.getElementById('pageDivDisplay');
-        var mcapDisplay = document.getElementById('pageMcapDisplay');
-        var perfDisplay = document.getElementById('pagePerfDisplay');
-        var previewBtn = document.getElementById('pageFilterCountPreview');
-
-        // Dropdowns befüllen
-        var sectors = window.App.DataService.getSectors();
-        var sHtml = ['<option value="">Alle Branchen</option>'];
-        for (var i = 0; i < sectors.length; i++) {
-          sHtml.push('<option value="' + sectors[i] + '">' + sectors[i] + '</option>');
-        }
-        sectorSelect.innerHTML = sHtml.join('');
-
-        var countries = window.App.DataService.getCountries();
-        var cHtml = ['<option value="">Alle Regionen</option>'];
-        for (var j = 0; j < countries.length; j++) {
-          cHtml.push('<option value="' + countries[j] + '">' + countries[j] + '</option>');
-        }
-        countrySelect.innerHTML = cHtml.join('');
-
-        // Aktuelle Zustände laden
-        var state = window.App.FilterEngine.state;
-        sectorSelect.value = state.sector || '';
-        countrySelect.value = state.country || '';
-        peInput.value = state.maxPe || 100;
-        divInput.value = state.minDividendYield || 0;
-        mcapInput.value = state.minMarketCap || 0;
-        perfInput.value = state.minPerf52w !== undefined ? state.minPerf52w : -50;
-
-        function updateLabelsAndPreview() {
-          peDisplay.textContent = peInput.value >= 100 ? 'Beliebig' : '≤ ' + peInput.value;
-          divDisplay.textContent = divInput.value == 0 ? 'Beliebig' : '≥ ' + divInput.value + ' %';
-          mcapDisplay.textContent = mcapInput.value == 0 ? 'Alle Größen' : '≥ ' + mcapInput.value + ' Mrd. €';
-          perfDisplay.textContent = perfInput.value <= -50 ? 'Beliebig' : '≥ ' + perfInput.value + ' %';
-
-          // Temporär simulieren für Trefferanzahl-Button
-          var tempState = {
-            searchQuery: state.searchQuery,
-            sector: sectorSelect.value,
-            country: countrySelect.value,
-            maxPe: parseFloat(peInput.value),
-            minDividendYield: parseFloat(divInput.value),
-            minMarketCap: parseFloat(mcapInput.value),
-            minPerf52w: parseFloat(perfInput.value),
-            sortBy: state.sortBy
-          };
-
-          var matches = currentStocks.filter(function(s) {
-            if (tempState.sector && s.sector !== tempState.sector) return false;
-            if (tempState.country && s.country !== tempState.country) return false;
-            if (tempState.minMarketCap > 0 && (s.marketCap || 0) < tempState.minMarketCap * 1000000000) return false;
-            if (tempState.maxPe < 100 && ((s.peRatio || 0) <= 0 || (s.peRatio || 0) > tempState.maxPe)) return false;
-            if (tempState.minDividendYield > 0 && (s.dividendYield || 0) < tempState.minDividendYield) return false;
-            if (tempState.minPerf52w > -50 && (s.perf52w || 0) < tempState.minPerf52w) return false;
-            return true;
-          });
-
-          previewBtn.textContent = matches.length + ' Aktien anzeigen';
-        }
-
-        sectorSelect.addEventListener('change', updateLabelsAndPreview);
-        countrySelect.addEventListener('change', updateLabelsAndPreview);
-        peInput.addEventListener('input', updateLabelsAndPreview);
-        divInput.addEventListener('input', updateLabelsAndPreview);
-        mcapInput.addEventListener('input', updateLabelsAndPreview);
-        perfInput.addEventListener('input', updateLabelsAndPreview);
-
-        updateLabelsAndPreview();
-
-        document.getElementById('pageFilterApplyBtn').addEventListener('click', function() {
-          window.App.FilterEngine.state.sector = sectorSelect.value;
-          window.App.FilterEngine.state.country = countrySelect.value;
-          window.App.FilterEngine.state.maxPe = parseFloat(peInput.value);
-          window.App.FilterEngine.state.minDividendYield = parseFloat(divInput.value);
-          window.App.FilterEngine.state.minMarketCap = parseFloat(mcapInput.value);
-          window.App.FilterEngine.state.minPerf52w = parseFloat(perfInput.value);
-
-          window.location.hash = 'screener';
-        });
-
-        document.getElementById('pageFilterResetBtn').addEventListener('click', function() {
-          window.App.FilterEngine.reset();
-          sectorSelect.value = '';
-          countrySelect.value = '';
-          peInput.value = 100;
-          divInput.value = 0;
-          mcapInput.value = 0;
-          perfInput.value = -50;
-          updateLabelsAndPreview();
-        });
-      }
-
-      function updateRangeChart(stock, rangeKey) {
-        currentSelectedRange = rangeKey;
-
-        var dataSeries = [];
-        if (stock.ranges && stock.ranges[rangeKey] && stock.ranges[rangeKey].length > 0) {
-          dataSeries = stock.ranges[rangeKey];
-        } else if (stock.history && stock.history.length > 0) {
-          dataSeries = stock.history;
-        }
-
-        var perfVal = 0;
-        if (dataSeries.length >= 2) {
-          var startP = dataSeries[0];
-          var endP = dataSeries[dataSeries.length - 1];
-          perfVal = startP > 0 ? ((endP - startP) / startP) * 100 : 0;
-        } else {
-          perfVal = stock.perf52w || 0;
-        }
-
-        var chartTitleEl = document.getElementById('detailChartTitle');
-        var perfBadge = document.getElementById('detailChartPerfBadge');
-
-        if (chartTitleEl) chartTitleEl.textContent = 'Kursentwicklung (' + rangeKey + ')';
-        if (perfBadge) {
-          perfBadge.textContent = rangeKey + ': ' + window.App.UIController.formatPercent(perfVal);
-          perfBadge.className = 'stock-badge ' + (perfVal >= 0 ? 'pos' : 'neg');
-        }
-
-        var chartPayload = {
-          ticker: stock.ticker,
-          history: dataSeries
-        };
-
-        window.App.ChartService.renderDetailChart('detailChartCanvas', chartPayload);
-      }
-
-      function renderDetailView(ticker) {
-        var container = document.getElementById('appViewContainer');
-        var template = document.getElementById('view-template-detail');
-        container.innerHTML = template.innerHTML;
-
-        var stock = window.App.DataService.getStockByTicker(ticker);
-        if (!stock) {
-          window.location.hash = 'screener';
-          return;
-        }
-
-        document.getElementById('detailBackBtn').addEventListener('click', function() {
-          window.history.back();
-        });
-
-        document.getElementById('detailStockTicker').textContent = stock.ticker;
-        document.getElementById('detailStockSector').textContent = (stock.sector || '') + ' • ' + (stock.country || '');
-        document.getElementById('detailStockName').textContent = stock.name;
-        document.getElementById('detailStockPrice').textContent = window.App.UIController.formatCurrency(stock.price, stock.currency);
-
-        var changeEl = document.getElementById('detailStockChange');
-        changeEl.textContent = window.App.UIController.formatPercent(stock.changePercent);
-        changeEl.className = 'stock-badge ' + (stock.changePercent >= 0 ? 'pos' : 'neg');
-
-        document.getElementById('metricMarketCap').textContent = window.App.UIController.formatMarketCap(stock.marketCap);
-        document.getElementById('metricPeRatio').textContent = stock.peRatio ? stock.peRatio.toFixed(1) : 'k. A.';
-        document.getElementById('metricDividendYield').textContent = stock.dividendYield ? stock.dividendYield.toFixed(2) + ' %' : '0,00 %';
-        document.getElementById('metricPerf52w').textContent = window.App.UIController.formatPercent(stock.perf52w);
-        document.getElementById('metricCountry').textContent = stock.country || '-';
-        document.getElementById('metricCurrency').textContent = stock.currency || 'EUR';
-
-        var wlBtn = document.getElementById('detailWatchlistBtn');
-        var wlIcon = document.getElementById('detailWatchlistIcon');
-
-        function updateWatchlistState() {
-          var isWl = window.App.WatchlistService.isWatchlisted(stock.ticker);
-          wlBtn.classList.toggle('active', isWl);
-          if (isWl) {
-            wlIcon.setAttribute('fill', '#ffffff');
-          } else {
-            wlIcon.setAttribute('fill', 'none');
-          }
-        }
-
-        updateWatchlistState();
-
-        wlBtn.addEventListener('click', function() {
-          window.App.WatchlistService.toggle(stock.ticker);
-          updateWatchlistState();
-        });
-
-        var rangeButtons = document.querySelectorAll('.range-pill-btn');
-        for (var i = 0; i < rangeButtons.length; i++) {
-          rangeButtons[i].addEventListener('click', function() {
-            for (var k = 0; k < rangeButtons.length; k++) {
-              rangeButtons[k].classList.remove('active');
+        fetchPromise
+          .then(function (stocks) {
+            allStocks = stocks || [];
+            updateView();
+          })
+          .catch(function (err) {
+            if (errorEl && errorText) {
+              errorText.textContent = "Offline-Modus oder Ladefehler: Zeige Fallback-Daten.";
+              errorEl.style.display = "flex";
             }
-            this.classList.add('active');
-            var selectedRange = this.getAttribute('data-range');
-            updateRangeChart(stock, selectedRange);
+            if (window.FALLBACK_DATA && window.FALLBACK_DATA.stocks) {
+              allStocks = window.FALLBACK_DATA.stocks;
+              updateView();
+            }
+          })
+          .finally(function () {
+            if (loadingEl) loadingEl.style.display = "none";
           });
-        }
-
-        currentSelectedRange = '1J';
-        setTimeout(function() {
-          updateRangeChart(stock, '1J');
-        }, 50);
       }
 
-      function renderWatchlistView() {
-        var container = document.getElementById('appViewContainer');
-        var template = document.getElementById('view-template-watchlist');
-        container.innerHTML = template.innerHTML;
-
-        var wlStocks = window.App.WatchlistService.getWatchlistStocks();
-        var heroCount = document.getElementById('watchlistHeroCount');
-        var countLabel = document.getElementById('watchlistCountLabel');
-        var avgChangeEl = document.getElementById('watchlistAvgDayChange');
-        var topPerfEl = document.getElementById('watchlistTopPerformer');
-        var avg52wEl = document.getElementById('watchlistAvgPerf52w');
-
-        heroCount.textContent = wlStocks.length + ' Positionen';
-        countLabel.textContent = wlStocks.length + ' Titel gespeichert';
-
-        if (wlStocks.length > 0) {
-          var daySum = 0;
-          var perf52Sum = 0;
-          var topStock = wlStocks[0];
-
-          for (var i = 0; i < wlStocks.length; i++) {
-            var s = wlStocks[i];
-            daySum += (s.changePercent || 0);
-            perf52Sum += (s.perf52w || 0);
-            if ((s.perf52w || 0) > (topStock.perf52w || 0)) {
-              topStock = s;
+      // Suche & Filter Events
+      if (searchInput) {
+        searchInput.addEventListener("input", function () {
+          if (searchClear) searchClear.style.display = this.value ? "block" : "none";
+          updateView();
+        });
+        searchInput.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            const sym = this.value.trim().toUpperCase();
+            if (sym) {
+              window.UI.openStockDetail(sym);
             }
           }
-
-          var avgDay = daySum / wlStocks.length;
-          avgChangeEl.textContent = window.App.UIController.formatPercent(avgDay);
-          avgChangeEl.style.color = avgDay >= 0 ? '#10b981' : '#f43f5e';
-
-          topPerfEl.textContent = topStock.ticker + ' (' + window.App.UIController.formatPercent(topStock.perf52w) + ')';
-          avg52wEl.textContent = window.App.UIController.formatPercent(perf52Sum / wlStocks.length);
-        }
-
-        window.App.UIController.renderStockList('watchlistStocksList', wlStocks, function(ticker) {
-          window.location.hash = 'detail/' + ticker;
-        });
-
-        document.getElementById('watchlistRefreshBtn').addEventListener('click', function() {
-          renderWatchlistView();
         });
       }
 
-      function router() {
-        var route = getHashRoute();
-        updateNav(route.view);
-
-        window.App.ChartService.destroyCurrentChart();
-
-        if (route.view === 'detail' && route.param) {
-          renderDetailView(route.param);
-        } else if (route.view === 'watchlist') {
-          renderWatchlistView();
-        } else if (route.view === 'filters') {
-          renderFiltersView();
-        } else {
-          renderScreenerView();
-        }
+      if (searchClear) {
+        searchClear.addEventListener("click", function () {
+          if (searchInput) {
+            searchInput.value = "";
+            this.style.display = "none";
+            updateView();
+          }
+        });
       }
 
-      window.addEventListener('hashchange', router);
+      if (sectorFilter) sectorFilter.addEventListener("change", updateView);
+      if (sortSelect) sortSelect.addEventListener("change", updateView);
 
-      window.App.DataService.loadStocks().then(function(data) {
-        currentStocks = (data && data.stocks) ? data.stocks : [];
-        router();
-      });
-    })();
+      // Watchlist / Screener Tabs
+      if (tabScreener && tabWatchlist) {
+        tabScreener.addEventListener("click", function () {
+          isWatchlistActive = false;
+          tabScreener.classList.add("active");
+          tabWatchlist.classList.remove("active");
+          updateView();
+        });
+        tabWatchlist.addEventListener("click", function () {
+          isWatchlistActive = true;
+          tabWatchlist.classList.add("active");
+          tabScreener.classList.remove("active");
+          updateView();
+        });
+      }
+
+      if (refreshBtn) {
+        refreshBtn.addEventListener("click", function () {
+          loadData(true);
+        });
+      }
+
+      // Initialer Start
+      loadData(false);
+    });
   </script>
 </body>
 </html>
