@@ -1,42 +1,77 @@
 /**
- * Navigation- und Tab-Steuerung innerhalb der Aktien-Detailseiten
+ * Zentrale Steuerung und Lifecycle-Manager für die Detailansicht
  */
 const StockNav = (function () {
   function getCurrentSymbol() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get("symbol") || "AAPL";
+    return window.StockDataHandler 
+      ? window.StockDataHandler.getCurrentSymbol() 
+      : "AAPL";
   }
 
-  function updateInternalLinks() {
-    const symbol = getCurrentSymbol();
-    // Alle internen Detail-Links mit aktuellem Symbol synchronisieren
+  function updateInternalLinks(symbol) {
+    const sym = symbol || getCurrentSymbol();
     const subLinks = document.querySelectorAll("[data-stock-link]");
     subLinks.forEach(link => {
       const baseHref = link.getAttribute("data-stock-link");
-      link.href = `${baseHref}?symbol=${encodeURIComponent(symbol)}`;
+      link.href = `${baseHref}?symbol=${encodeURIComponent(sym)}`;
     });
   }
 
-  function highlightActiveTab() {
-    const currentPath = window.location.pathname.toLowerCase();
-    const navItems = document.querySelectorAll(".nav-link, .subnav-link");
+  /**
+   * Zentrale Initialisierungsfunktion nach View-Wechsel
+   */
+  async function init(symbol) {
+    if (!window.StockDataHandler) {
+      console.error("StockDataHandler ist nicht geladen.");
+      return;
+    }
 
-    navItems.forEach(item => {
-      const href = item.getAttribute("href");
-      if (!href) return;
+    // 1. Symbol explizit setzen (bevorzugt)
+    if (symbol) {
+      window.StockDataHandler.setSymbol(symbol);
+    }
+    const activeSymbol = window.StockDataHandler.getCurrentSymbol();
 
-      const cleanHref = href.split("?")[0].toLowerCase();
-      if (currentPath.endsWith(cleanHref) || (cleanHref.includes("index") && currentPath.endsWith("/"))) {
-        item.classList.add("active");
+    // 2. Zustand zurücksetzen und Details laden
+    window.StockDataHandler.resetState();
+    const stock = await window.StockDataHandler.initCurrentStock(activeSymbol);
+
+    // 3. Fallback-Warnbanner verwalten
+    const warningEl = document.getElementById("stock-detail-warning");
+    if (warningEl) {
+      if (window.StockDataHandler.getIsFallback()) {
+        warningEl.classList.remove("hidden");
       } else {
-        item.classList.remove("active");
+        warningEl.classList.add("hidden");
       }
-    });
-  }
+    }
 
-  function init() {
-    updateInternalLinks();
-    highlightActiveTab();
+    // 4. Detail-Module explizit sequenziell initialisieren
+    if (typeof StockOverview !== "undefined" && StockOverview.init) {
+      await StockOverview.init();
+    }
+
+    if (typeof StockFinancials !== "undefined" && StockFinancials.init) {
+      StockFinancials.init();
+    }
+
+    if (typeof StockStatements !== "undefined" && StockStatements.init) {
+      StockStatements.init();
+    }
+
+    if (typeof StockHoldings !== "undefined" && StockHoldings.init) {
+      StockHoldings.init();
+    }
+
+    if (typeof StockAnalyst !== "undefined" && StockAnalyst.init) {
+      StockAnalyst.init();
+    }
+
+    if (typeof WatchlistManager !== "undefined" && WatchlistManager.initDetailPageButton) {
+      WatchlistManager.initDetailPageButton();
+    }
+
+    updateInternalLinks(activeSymbol);
   }
 
   return {
@@ -45,9 +80,12 @@ const StockNav = (function () {
   };
 })();
 
-// DOM-Ready Hook
+// DOM-Ready Hook (greift beim ersten direkten Aufruf der Seite)
 document.addEventListener("DOMContentLoaded", () => {
-  StockNav.init();
+  // Wenn stock.html direkt oder als aktive View eingebettet ist
+  if (document.getElementById("stock-name")) {
+    StockNav.init();
+  }
 });
 
 // Global verfügbar machen
