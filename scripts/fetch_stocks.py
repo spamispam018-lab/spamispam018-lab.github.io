@@ -2,6 +2,7 @@
 """
 Holt Kurs- und Fundamentaldaten fuer ca. 120 Aktien (DAX, EuroStoxx, S&P 500 / Nasdaq)
 ueber yfinance und exportiert ein harmonisiertes data/stocks.json.
+Erzeugt historische Verlaeufe fuer 1W, 1M, 6M und 1J.
 """
 
 import json
@@ -139,7 +140,6 @@ TICKERS_CONFIG = [
 
 
 def get_eur_conversion_rates():
-    """Holt die Wechselkurse fuer Waehrungen gegenueber dem Euro (Standardbasis EUR)."""
     rates = {"EUR": 1.0}
     currency_pairs = {
         "USD": "EURUSD=X",
@@ -153,7 +153,6 @@ def get_eur_conversion_rates():
             hist = ticker_obj.history(period="5d")
             if not hist.empty:
                 eur_rate = float(hist["Close"].iloc[-1])
-                # Beispiel: EURUSD = 1.08 -> 1 USD = 1 / 1.08 EUR
                 rates[curr] = 1.0 / eur_rate if eur_rate > 0 else 1.0
             else:
                 rates[curr] = 1.0
@@ -174,6 +173,17 @@ def sanitize_num(val, default=0.0):
         return default
 
 
+def sample_series(series, num_points=10, fx=1.0):
+    total = len(series)
+    if total == 0:
+        return []
+    if total <= num_points:
+        return [round(float(v) * fx, 2) for v in series]
+    step = (total - 1) / (num_points - 1)
+    indices = [int(round(i * step)) for i in range(num_points)]
+    return [round(float(series.iloc[idx]) * fx, 2) for idx in indices]
+
+
 def main():
     print(f"Starte Datenabruf fuer {len(TICKERS_CONFIG)} Aktien...")
     fx_to_eur = get_eur_conversion_rates()
@@ -184,50 +194,48 @@ def main():
         try:
             yt = yf.Ticker(symbol)
             info = yt.info or {}
-            hist = yt.history(period="1y")
+            hist_1y = yt.history(period="1y")
 
-            if hist.empty:
+            if hist_1y.empty:
                 print(f"Warnung: Keine Kursdaten fuer {symbol}")
                 continue
 
-            # Basiswaehrung des Titels ermitteln
             currency_orig = info.get("currency", "EUR").upper()
             fx_rate = fx_to_eur.get(currency_orig, 1.0)
 
-            # Letzter Kurs & Vortageskurs
-            current_price_orig = sanitize_num(info.get("regularMarketPrice") or hist["Close"].iloc[-1])
+            current_price_orig = sanitize_num(info.get("regularMarketPrice") or hist_1y["Close"].iloc[-1])
             prev_close_orig = sanitize_num(info.get("regularMarketPreviousClose"))
-            if prev_close_orig == 0.0 and len(hist) > 1:
-                prev_close_orig = sanitize_num(hist["Close"].iloc[-2])
+            if prev_close_orig == 0.0 and len(hist_1y) > 1:
+                prev_close_orig = sanitize_num(hist_1y["Close"].iloc[-2])
 
             price_eur = round(current_price_orig * fx_rate, 2)
             prev_close_eur = round(prev_close_orig * fx_rate, 2) if prev_close_orig > 0 else price_eur
 
-            # Tagesaenderung in Prozent
             if prev_close_eur > 0:
                 change_percent = round(((price_eur - prev_close_eur) / prev_close_eur) * 100.0, 2)
             else:
                 change_percent = 0.0
 
-            # 52-Wochen Performance
-            start_price_52w = float(hist["Close"].iloc[0]) * fx_rate
+            start_price_52w = float(hist_1y["Close"].iloc[0]) * fx_rate
             perf_52w = round(((price_eur - start_price_52w) / start_price_52w) * 100.0, 2) if start_price_52w > 0 else 0.0
 
-            # 10 Kurspunkte fuer Sparklines/Detail-Mini-Chart (EUR)
-            total_points = len(hist)
-            step = max(1, total_points // 10)
-            sample_indices = [min(i * step, total_points - 1) for i in range(9)] + [total_points - 1]
-            history_eur = [round(float(hist["Close"].iloc[idx]) * fx_rate, 2) for idx in sample_indices]
+            close_series = hist_1y["Close"]
+            history_1y = sample_series(close_series, 10, fx_rate)
 
-            # Marktkapitalisierung in EUR umrechnen
+            # Zeitraum-Aufteilung (1W = letzte 5 Börsentage, 1M = ~22 Tage, 6M = ~126 Tage, 1J = alles)
+            ranges_data = {
+                "1W": sample_series(close_series.tail(5), 5, fx_rate),
+                "1M": sample_series(close_series.tail(22), 8, fx_rate),
+                "6M": sample_series(close_series.tail(126), 10, fx_rate),
+                "1J": history_1y
+            }
+
             mcap_orig = sanitize_num(info.get("marketCap"), 0.0)
             mcap_eur = round(mcap_orig * fx_rate)
 
-            # KGV (Trailing oder Forward als Fallback)
             pe_val = sanitize_num(info.get("trailingPE") or info.get("forwardPE"), 0.0)
             pe_ratio = round(pe_val, 1) if pe_val > 0 else 0.0
 
-            # Dividendenrendite (in % formatiert, z. B. 0.032 -> 3.2 %)
             raw_div = sanitize_num(info.get("dividendYield"), 0.0)
             dividend_yield = round(raw_div * 100.0, 2) if raw_div < 1.0 else round(raw_div, 2)
 
@@ -243,7 +251,8 @@ def main():
                 "dividendYield": dividend_yield,
                 "perf52w": perf_52w,
                 "currency": "EUR",
-                "history": history_eur
+                "history": history_1y,
+                "ranges": ranges_data
             }
 
             results.append(stock_entry)
