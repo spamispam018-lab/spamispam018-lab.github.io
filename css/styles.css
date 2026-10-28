@@ -406,108 +406,70 @@ body {
   text-overflow: ellipsis;
 }
 
-/* ---------------- Bottom Sheet Filter-Modal ---------------- */
-.sheet-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(4, 6, 11, 0.72);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 90;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
+/* ---------------- Eigene Filter-Seite (Full View) ---------------- */
+.filter-section-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 14px;
 }
 
-.sheet-backdrop.visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.bottom-sheet {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  max-height: 86vh;
-  background: var(--bg-sheet);
-  border-top-left-radius: var(--radius-xl);
-  border-top-right-radius: var(--radius-xl);
-  border-top: 1px solid var(--border-subtle);
-  box-shadow: var(--shadow-sheet);
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  transform: translateY(105%);
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-  padding-bottom: max(16px, var(--safe-bottom));
-}
-
-.bottom-sheet.visible {
-  transform: translateY(0);
-}
-
-.sheet-header {
-  padding: 16px 20px 10px 20px;
+.filter-section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 12px;
 }
 
-.sheet-handle {
-  width: 38px;
-  height: 4px;
-  background: var(--text-muted);
-  border-radius: 4px;
-  margin: 8px auto 4px auto;
-  opacity: 0.4;
-}
-
-.sheet-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.sheet-body {
-  padding: 16px 20px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.filter-group-title {
+.filter-section-title {
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 8px;
+  letter-spacing: 0.06em;
 }
 
-.slider-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
-  font-size: 0.85rem;
+.filter-slider-val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent-purple);
 }
 
 .filter-slider {
   width: 100%;
   accent-color: var(--accent-purple);
-  margin-top: 6px;
+  height: 6px;
+  border-radius: 4px;
+  background: var(--bg-main);
+  outline: none;
 }
 
-.sheet-footer {
-  padding: 12px 20px;
+.filter-select-full {
+  width: 100%;
+  background: var(--bg-main);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.92rem;
+  outline: none;
+  font-weight: 600;
+}
+
+.filter-footer-bar {
+  position: fixed;
+  bottom: calc(var(--nav-height) + var(--safe-bottom));
+  left: 0;
+  width: 100%;
+  background: rgba(18, 22, 31, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border-subtle);
+  padding: 12px 16px;
   display: flex;
   gap: 12px;
-  border-top: 1px solid var(--border-subtle);
+  z-index: 45;
 }
 
 .btn-primary {
@@ -515,22 +477,34 @@ body {
   background: var(--accent-purple);
   color: #fff;
   border: none;
-  padding: 13px;
+  padding: 14px;
   border-radius: var(--radius-md);
   font-weight: 700;
   font-size: 0.95rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
 }
 
 .btn-secondary {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
-  padding: 13px 18px;
+  padding: 14px 18px;
   border-radius: var(--radius-md);
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
 }
 
 /* ---------------- Bottom Navigation Bar ---------------- */
@@ -577,7 +551,7 @@ body {
   height: 22px;
 }
 
-/* ---------------- Chart-Container, Canvas & Range-Pills ---------------- */
+/* ---------------- Chart-Container & Canvas ---------------- */
 .chart-box {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
