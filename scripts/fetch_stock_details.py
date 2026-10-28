@@ -1,221 +1,273 @@
-import os
+#!/usr/bin/env python3
+"""
+fetch_stock_details.py
+Lädt erweiterte Detaildaten für jede Aktie aus data/stocks.json herunter
+und speichert sie als einzelne JSON-Dateien in data/details/<SYMBOL>.json.
+"""
+
 import json
+import os
+import sys
 import time
-import logging
-from datetime import datetime
+import yfinance as yf
+import pandas as pd
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
-)
+# Pfade relativ zum Repo-Root
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+STOCKS_FILE = os.path.join(ROOT_DIR, "data", "stocks.json")
+DETAILS_DIR = os.path.join(ROOT_DIR, "data", "details")
 
-try:
-    import yfinance as yf
-    import pandas as pd
-except ImportError:
-    logging.error("Erforderliche Bibliotheken fehlen. Bitte 'pip install yfinance pandas' ausführen.")
-    raise
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
-DETAILS_DIR = os.path.join(DATA_DIR, "details")
-STOCKS_FILE = os.path.join(DATA_DIR, "stocks.json")
+def ensure_dir(path):
+    """Erstellt das Verzeichnis, falls es nicht existiert, inklusive .gitkeep."""
+    os.makedirs(path, exist_ok=True)
+    gitkeep_path = os.path.join(path, ".gitkeep")
+    if not os.path.exists(gitkeep_path):
+        with open(gitkeep_path, "w", encoding="utf-8") as f:
+            f.write("")
 
-# Alle 20 Standard-Ticker aus fetch_stocks.py als robuster Fallback
-FALLBACK_TICKER_ITEMS = [
-    {"symbol": "AAPL", "fullTicker": "AAPL"},
-    {"symbol": "MSFT", "fullTicker": "MSFT"},
-    {"symbol": "GOOGL", "fullTicker": "GOOGL"},
-    {"symbol": "AMZN", "fullTicker": "AMZN"},
-    {"symbol": "NVDA", "fullTicker": "NVDA"},
-    {"symbol": "META", "fullTicker": "META"},
-    {"symbol": "TSLA", "fullTicker": "TSLA"},
-    {"symbol": "SAP", "fullTicker": "SAP.DE"},
-    {"symbol": "ALV", "fullTicker": "ALV.DE"},
-    {"symbol": "BMW", "fullTicker": "BMW.DE"},
-    {"symbol": "SIE", "fullTicker": "SIE.DE"},
-    {"symbol": "MBG", "fullTicker": "MBG.DE"},
-    {"symbol": "DTE", "fullTicker": "DTE.DE"},
-    {"symbol": "JNJ", "fullTicker": "JNJ"},
-    {"symbol": "PG", "fullTicker": "PG"},
-    {"symbol": "KO", "fullTicker": "KO"},
-    {"symbol": "PEP", "fullTicker": "PEP"},
-    {"symbol": "V", "fullTicker": "V"},
-    {"symbol": "MA", "fullTicker": "MA"},
-    {"symbol": "UNH", "fullTicker": "UNH"}
-]
 
-def sanitize_value(val):
-    if pd.isna(val) or val is None:
-        return None
-    if isinstance(val, (int, float)):
-        return round(float(val), 4)
-    return str(val)
+def fetch_ticker_with_retry(symbol, retries=3, delay=2):
+    """Holt Ticker-Daten mit Wiederholungsversuchen."""
+    for attempt in range(retries):
+        try:
+            ticker = yf.Ticker(symbol)
+            info = ticker.info
+            if info and isinstance(info, dict) and len(info) > 5:
+                return ticker, info
+        except Exception as e:
+            print(f"  [Warnung] Versuch {attempt + 1}/{retries} für {symbol} fehlgeschlagen: {e}")
+        if attempt < retries - 1:
+            time.sleep(delay)
+    return None, None
 
-def dataframe_to_clean_dict(df):
-    if df is None or df.empty:
-        return {}
-    
-    clean_dict = {}
+
+def extract_analyst_ratings(ticker, info):
+    """Extrahiert Analysten-Bewertungen, Kursziele und Historie robust."""
+    ratings = {
+        "consensus": None,
+        "targetLow": None,
+        "targetMean": None,
+        "targetHigh": None,
+        "numberOfAnalysts": None,
+        "buy": 0,
+        "hold": 0,
+        "sell": 0,
+        "history": []
+    }
+
     try:
-        df_copy = df.copy()
-        for col in df_copy.columns:
-            col_name = str(col)[:10] if hasattr(col, "strftime") else str(col)
-            clean_dict[col_name] = {}
-            for idx in df_copy.index:
-                idx_name = str(idx).replace(" ", "_")
-                val = df_copy.loc[idx, col]
-                clean_dict[col_name][idx_name] = sanitize_value(val)
-    except Exception as e:
-        logging.warning(f"Fehler bei DataFrame-Konvertierung: {e}")
-    return clean_dict
+        ratings["consensus"] = info.get("recommendationKey")
+    except Exception:
+        pass
 
-def fetch_details_for_ticker(full_ticker, clean_symbol):
-    logging.info(f"Hole Detaildaten für: {full_ticker} (Symbol: {clean_symbol})")
-    ticker = yf.Ticker(full_ticker)
-    
     try:
-        info = ticker.info or {}
-    except Exception as e:
-        logging.error(f"Konnte Info für {full_ticker} nicht laden: {e}")
-        return None
+        ratings["targetLow"] = info.get("targetLowPrice")
+        ratings["targetMean"] = info.get("targetMeanPrice")
+        ratings["targetHigh"] = info.get("targetHighPrice")
+        ratings["numberOfAnalysts"] = info.get("numberOfAnalystOpinions")
+    except Exception:
+        pass
 
-    # Kurs und prozentuale Tagesveränderung
-    price = info.get("currentPrice") or info.get("regularMarketPrice") or 0.0
-    previous_close = info.get("previousClose") or info.get("regularMarketPreviousClose") or price
-    
-    change_percent = 0.0
-    if previous_close and previous_close > 0 and price:
-        change_percent = round(((price - previous_close) / previous_close) * 100, 2)
-
-    # Dividendenrendite (yfinance liefert bereits den Prozentwert)
-    div_rate = info.get("dividendYield")
-    div_yield = round(float(div_rate), 2) if div_rate is not None else 0.0
-
-    # Historische Finanzberichte
-    try:
-        income_stmt = dataframe_to_clean_dict(ticker.financials)
-        balance_sheet = dataframe_to_clean_dict(ticker.balance_sheet)
-        cashflow = dataframe_to_clean_dict(ticker.cashflow)
-    except Exception as e:
-        logging.warning(f"Fehler beim Laden der Finanzberichte für {full_ticker}: {e}")
-        income_stmt, balance_sheet, cashflow = {}, {}, {}
-
-    # Analysten-Empfehlungen
-    recommendations = []
+    # Aktuelle Empfehlungen (strongBuy, buy, hold, sell, strongSell)
     try:
         recs = ticker.recommendations
         if recs is not None and not recs.empty:
-            recs_tail = recs.tail(10).reset_index()
-            for _, row in recs_tail.iterrows():
-                rec_item = {}
-                for k, v in row.items():
-                    key = str(k)[:10] if hasattr(k, "strftime") else str(k)
-                    rec_item[key] = sanitize_value(v)
-                recommendations.append(rec_item)
-    except Exception as e:
-        logging.warning(f"Empfehlungen für {full_ticker} nicht verfügbar: {e}")
+            latest = recs.iloc[0] if isinstance(recs, pd.DataFrame) else recs
+            strong_buy = int(latest.get("strongBuy", 0) or 0)
+            buy = int(latest.get("buy", 0) or 0)
+            hold = int(latest.get("hold", 0) or 0)
+            sell = int(latest.get("sell", 0) or 0)
+            strong_sell = int(latest.get("strongSell", 0) or 0)
 
-    # Historischer Kursverlauf (letzte 12 Monate für Charts)
-    history_data = []
+            ratings["buy"] = strong_buy + buy
+            ratings["hold"] = hold
+            ratings["sell"] = sell + strong_sell
+    except Exception as e:
+        print(f"    - Fehler beim Lesen von recommendations: {e}")
+
+    # Historie der Upgrades / Downgrades (die letzten 10)
     try:
-        hist = ticker.history(period="1y")
-        if hist is not None and not hist.empty:
-            for idx, row in hist.iterrows():
-                date_str = idx.strftime("%Y-%m-%d") if hasattr(idx, "strftime") else str(idx)[:10]
-                history_data.append({
-                    "date": date_str,
-                    "close": sanitize_value(row.get("Close")),
-                    "volume": sanitize_value(row.get("Volume"))
-                })
+        upgrades = ticker.upgrades_downgrades
+        if upgrades is not None and not upgrades.empty:
+            # Neueste Einträge zuerst nehmen
+            top10 = upgrades.head(10)
+            history = []
+            for idx, row in top10.iterrows():
+                try:
+                    date_val = idx.strftime("%Y-%m-%d") if hasattr(idx, "strftime") else str(idx)[:10]
+                    history.append({
+                        "date": date_val,
+                        "firm": str(row.get("Firm", "")),
+                        "toGrade": str(row.get("ToGrade", row.get("toGrade", "")))
+                    })
+                except Exception:
+                    continue
+            ratings["history"] = history
     except Exception as e:
-        logging.warning(f"Historie für {full_ticker} konnte nicht geladen werden: {e}")
+        print(f"    - Fehler beim Lesen von upgrades_downgrades: {e}")
 
-    details = {
-        "symbol": clean_symbol,
-        "fullTicker": full_ticker,
-        "name": info.get("shortName") or info.get("longName") or clean_symbol,
-        "price": round(float(price), 2) if price else 0.0,
-        "changePercent": change_percent,
-        "currency": info.get("currency", "EUR"),
-        "dividendYield": div_yield,
-        "marketCap": info.get("marketCap") or 0,
-        "description": info.get("longBusinessSummary", ""),
-        "sector": info.get("sector", "N/A"),
-        "industry": info.get("industry", "N/A"),
-        "website": info.get("website", ""),
-        "country": info.get("country", ""),
-        "employees": info.get("fullTimeEmployees", None),
-        "valuation": {
-            "marketCap": sanitize_value(info.get("marketCap")),
-            "enterpriseValue": sanitize_value(info.get("enterpriseValue")),
-            "trailingPE": sanitize_value(info.get("trailingPE")),
-            "forwardPE": sanitize_value(info.get("forwardPE")),
-            "pegRatio": sanitize_value(info.get("pegRatio")),
-            "priceToBook": sanitize_value(info.get("priceToBook")),
-            "evToEbitda": sanitize_value(info.get("enterpriseToEbitda"))
+    return ratings
+
+
+def extract_financials(ticker, info):
+    """Extrahiert Kennzahlen und Finanzreihen."""
+    data = {
+        "revenue": [],
+        "earnings": [],
+        "freeCashFlow": [],
+        "operatingCashFlow": [],
+        "margins": {
+            "gross": info.get("grossMargins"),
+            "operating": info.get("operatingMargins"),
+            "net": info.get("profitMargins")
         },
-        "financials": {
-            "incomeStatement": income_stmt,
-            "balanceSheet": balance_sheet,
-            "cashflow": cashflow
-        },
-        "recommendations": recommendations,
-        "history": history_data,
-        "lastUpdated": datetime.utcnow().isoformat() + "Z"
+        "ratios": {
+            "pe": info.get("trailingPE"),
+            "fwdPe": info.get("forwardPE"),
+            "ps": info.get("priceToSalesTrailing12Months"),
+            "pb": info.get("priceToBook"),
+            "evEbitda": info.get("enterpriseToEbitda"),
+            "debtToEquity": info.get("debtToEquity"),
+            "currentRatio": info.get("currentRatio"),
+            "quickRatio": info.get("quickRatio"),
+            "roe": info.get("returnOnEquity"),
+            "roa": info.get("returnOnAssets"),
+            "dividendYield": info.get("dividendYield"),
+            "payoutRatio": info.get("payoutRatio")
+        }
     }
 
-    return details
+    try:
+        fin = ticker.financials
+        if fin is not None and not fin.empty:
+            for col in fin.columns[:5]:
+                year_str = col.strftime("%Y") if hasattr(col, "strftime") else str(col)[:4]
+                try:
+                    rev = fin.loc["Total Revenue", col] if "Total Revenue" in fin.index else None
+                    if rev is not None and pd.notna(rev):
+                        data["revenue"].append({"year": year_str, "value": float(rev)})
+                except Exception:
+                    pass
+                try:
+                    net_inc = fin.loc["Net Income", col] if "Net Income" in fin.index else None
+                    if net_inc is not None and pd.notna(net_inc):
+                        data["earnings"].append({"year": year_str, "value": float(net_inc)})
+                except Exception:
+                    pass
+    except Exception as e:
+        print(f"    - Fehler beim Lesen von financials: {e}")
 
-def ensure_gitkeep():
-    gitkeep_file = os.path.join(DETAILS_DIR, ".gitkeep")
-    if not os.path.exists(gitkeep_file):
-        with open(gitkeep_file, "w", encoding="utf-8") as f:
-            f.write("")
-        logging.info("Angelegt: data/details/.gitkeep")
+    try:
+        cf = ticker.cashflow
+        if cf is not None and not cf.empty:
+            for col in cf.columns[:5]:
+                year_str = col.strftime("%Y") if hasattr(col, "strftime") else str(col)[:4]
+                try:
+                    fcf = cf.loc["Free Cash Flow", col] if "Free Cash Flow" in cf.index else None
+                    if fcf is not None and pd.notna(fcf):
+                        data["freeCashFlow"].append({"year": year_str, "value": float(fcf)})
+                except Exception:
+                    pass
+                try:
+                    ocf = cf.loc["Operating Cash Flow", col] if "Operating Cash Flow" in cf.index else None
+                    if ocf is not None and pd.notna(ocf):
+                        data["operatingCashFlow"].append({"year": year_str, "value": float(ocf)})
+                except Exception:
+                    pass
+    except Exception as e:
+        print(f"    - Fehler beim Lesen von cashflow: {e}")
+
+    return data
+
+
+def extract_insider_transactions(ticker):
+    """Extrahiert die letzten Insider-Transaktionen."""
+    transactions = []
+    try:
+        insiders = ticker.insider_transactions
+        if insiders is not None and not insiders.empty:
+            for _, row in insiders.head(10).iterrows():
+                try:
+                    d_val = row.get("Start Date") or row.get("Date")
+                    date_str = d_val.strftime("%Y-%m-%d") if hasattr(d_val, "strftime") else str(d_val)[:10]
+                    shares = row.get("Shares")
+                    transactions.append({
+                        "date": date_str,
+                        "insider": str(row.get("Insider", "")),
+                        "position": str(row.get("Position", row.get("Text", ""))),
+                        "transaction": str(row.get("Transaction", "")),
+                        "shares": int(shares) if pd.notna(shares) else None,
+                        "value": float(row.get("Value")) if pd.notna(row.get("Value")) else None
+                    })
+                except Exception:
+                    continue
+    except Exception as e:
+        print(f"    - Fehler beim Lesen von insider_transactions: {e}")
+    return transactions
+
+
+def process_stock(stock_entry):
+    symbol = stock_entry.get("symbol")
+    if not symbol:
+        return
+
+    clean_symbol = symbol.upper().strip()
+    out_file = os.path.join(DETAILS_DIR, f"{clean_symbol}.json")
+
+    print(f"Verarbeite Detaildaten für {clean_symbol}...")
+    ticker, info = fetch_ticker_with_retry(clean_symbol)
+
+    if not info:
+        print(f"  [Übersprungen] Keine gültigen Daten für {clean_symbol} erhalten.")
+        if os.path.exists(out_file):
+            print(f"  -> Bestehende Datei {out_file} bleibt unberührt.")
+        return
+
+    analyst_ratings = extract_analyst_ratings(ticker, info)
+    financials = extract_financials(ticker, info)
+    insider_tx = extract_insider_transactions(ticker)
+
+    stock_detail = {
+        "symbol": clean_symbol,
+        "name": info.get("shortName") or stock_entry.get("name") or clean_symbol,
+        "sector": info.get("sector") or stock_entry.get("sector"),
+        "industry": info.get("industry") or stock_entry.get("industry"),
+        "description": info.get("longBusinessSummary", ""),
+        "website": info.get("website", ""),
+        "employees": info.get("fullTimeEmployees", 0),
+        "marketCap": info.get("marketCap") or stock_entry.get("marketCap"),
+        "price": info.get("currentPrice") or stock_entry.get("price"),
+        "financials": financials,
+        "analystRatings": analyst_ratings,
+        "insiderTransactions": insider_tx
+    }
+
+    try:
+        with open(out_file, "w", encoding="utf-8") as f:
+            json.dump(stock_detail, f, indent=2, ensure_ascii=False)
+        print(f"  -> Gespeichert: {out_file}")
+    except Exception as e:
+        print(f"  [Fehler] Konnte {out_file} nicht schreiben: {e}")
+
 
 def main():
-    os.makedirs(DETAILS_DIR, exist_ok=True)
-    ensure_gitkeep()
+    ensure_dir(DETAILS_DIR)
 
-    items = []
-    if os.path.exists(STOCKS_FILE):
-        try:
-            with open(STOCKS_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                # stocks.json ist eine LISTE von Objekten
-                if isinstance(data, list):
-                    for item in data:
-                        sym = item.get("symbol")
-                        full = item.get("fullTicker") or sym
-                        if sym:
-                            items.append({"symbol": sym, "fullTicker": full})
-                elif isinstance(data, dict):
-                    stock_list = data.get("stocks", [])
-                    for item in stock_list:
-                        sym = item.get("symbol")
-                        full = item.get("fullTicker") or sym
-                        if sym:
-                            items.append({"symbol": sym, "fullTicker": full})
-        except Exception as e:
-            logging.error(f"Fehler beim Lesen von {STOCKS_FILE}: {e}")
+    if not os.path.exists(STOCKS_FILE):
+        print(f"Fehler: {STOCKS_FILE} nicht gefunden!")
+        sys.exit(1)
 
-    # Fallback auf alle 20 Standard-Ticker
-    if not items:
-        logging.info("Verwende Fallback-Liste für Ticker.")
-        items = FALLBACK_TICKER_ITEMS
+    with open(STOCKS_FILE, "r", encoding="utf-8") as f:
+        stocks = json.load(f)
 
-    for item in items:
-        clean_symbol = item["symbol"]
-        full_ticker = item.get("fullTicker") or clean_symbol
-        data = fetch_details_for_ticker(full_ticker, clean_symbol)
-        if data:
-            filepath = os.path.join(DETAILS_DIR, f"{clean_symbol}.json")
-            temp_filepath = filepath + ".tmp"
-            with open(temp_filepath, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
-            os.replace(temp_filepath, filepath)
-            logging.info(f"Gespeichert: {filepath}")
-        time.sleep(1.0)
+    print(f"Starte Detail-Download für {len(stocks)} Aktien...")
+    for entry in stocks:
+        process_stock(entry)
+        time.sleep(1)  # Kurze Pause, um API-Ratenlimits zu vermeiden
+
+    print("Verarbeitung abgeschlossen.")
+
 
 if __name__ == "__main__":
     main()
