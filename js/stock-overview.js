@@ -12,7 +12,7 @@ const StockOverview = (function () {
 
   function formatPercent(val) {
     if (val === null || val === undefined || isNaN(val)) return "-";
-    const sign = val > 0 ? "+" : "";
+    const sign = Number(val) > 0 ? "+" : "";
     return `${sign}${Number(val).toFixed(2).replace(".", ",")}%`;
   }
 
@@ -47,16 +47,17 @@ const StockOverview = (function () {
     if (industryEl) industryEl.textContent = stock.industry || stock.sector || "Aktie";
     if (subEl) subEl.textContent = `${stock.sector || "Markt"} • ${stock.country || "Global"}`;
 
-    // Kurs & Performance
+    // Kurs & Performance (unterstützt Detail-JSON changePercent sowie stocks.json change)
     const priceEl = document.getElementById("stock-price");
     const changeEl = document.getElementById("stock-change");
 
     if (priceEl) priceEl.textContent = formatEuroPrice(stock.price);
 
+    const changeVal = stock.changePercent !== undefined ? stock.changePercent : stock.change;
     if (changeEl) {
-      const isPositive = (stock.changePercent || 0) >= 0;
+      const isPositive = (changeVal || 0) >= 0;
       changeEl.className = `detail-change-pill ${isPositive ? "positive" : "negative"}`;
-      changeEl.textContent = formatPercent(stock.changePercent);
+      changeEl.textContent = formatPercent(changeVal);
     }
 
     // Score Badge
@@ -73,16 +74,18 @@ const StockOverview = (function () {
       if (el) el.textContent = text;
     };
 
+    const peVal = val.trailingPE || stock.pe || stock.peRatio;
     setVal("val-market-cap", formatLargeNumber(val.marketCap || stock.marketCap));
-    setVal("val-pe", val.trailingPE ? Number(val.trailingPE).toFixed(2).replace(".", ",") : (stock.peRatio ? Number(stock.peRatio).toFixed(2).replace(".", ",") : "-"));
+    setVal("val-pe", peVal ? Number(peVal).toFixed(2).replace(".", ",") : "-");
     setVal("val-fpe", val.forwardPE ? Number(val.forwardPE).toFixed(2).replace(".", ",") : "-");
     setVal("val-peg", val.pegRatio ? Number(val.pegRatio).toFixed(2).replace(".", ",") : "-");
     setVal("val-pb", val.priceToBook ? Number(val.priceToBook).toFixed(2).replace(".", ",") : "-");
+    setVal("val-div", stock.dividendYield ? `${Number(stock.dividendYield).toFixed(2).replace(".", ",")}%` : "-");
 
     // Unternehmensbeschreibung
     const descEl = document.getElementById("stock-description");
     if (descEl) {
-      descEl.textContent = stock.summary || stock.description || "Für dieses Unternehmen ist noch keine detaillierte Beschreibung hinterlegt.";
+      descEl.textContent = stock.description || stock.summary || "Für dieses Unternehmen ist noch keine detaillierte Beschreibung hinterlegt.";
     }
   }
 
@@ -96,7 +99,7 @@ const StockOverview = (function () {
     renderHeaderAndMetrics(stock);
 
     // Kurschart rendern
-    if (window.StockCharts && Array.isArray(stock.history)) {
+    if (window.StockCharts && Array.isArray(stock.history) && stock.history.length > 0) {
       window.StockCharts.renderPriceHistory("priceHistoryChart", stock.history);
     }
   }
@@ -105,11 +108,5 @@ const StockOverview = (function () {
     init
   };
 })();
-
-document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("stock-overview-container") || document.getElementById("stock-name")) {
-    StockOverview.init();
-  }
-});
 
 window.StockOverview = StockOverview;
