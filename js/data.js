@@ -11,12 +11,21 @@ const DataModule = {
     },
 
     /**
-     * Ermittelt den relativen Basis-Pfad zum Repository-Root,
-     * unabhängig davon, ob die Seite im Root (index.html) oder in /Views/ aufgerufen wird.
+     * Ermittelt die Basis-URL zum Repository-Root dynamisch anhand des Pfads
+     * von data.js selbst, sodass es immer zuverlässig auf GitHub Pages und lokal funktioniert.
      */
-    _getBasePath() {
-        const path = window.location.pathname;
-        if (path.includes('/Views/')) {
+    _getBaseUrl() {
+        const scripts = document.getElementsByTagName('script');
+        for (let i = 0; i < scripts.length; i++) {
+            const src = scripts[i].src;
+            if (src && src.includes('data.js')) {
+                // data.js liegt unter .../js/data.js -> zwei Ebenen nach oben ist das Root-Verzeichnis
+                return new URL('../', src).href;
+            }
+        }
+        // Fallback über pathname, falls Script-Tag nicht greift
+        const pathname = window.location.pathname.toLowerCase();
+        if (pathname.includes('/views/')) {
             return '../';
         }
         return './';
@@ -32,8 +41,8 @@ const DataModule = {
         }
 
         try {
-            const basePath = this._getBasePath();
-            const response = await fetch(`${basePath}data/stocks.json`);
+            const baseUrl = this._getBaseUrl();
+            const response = await fetch(`${baseUrl}data/stocks.json`);
             if (!response.ok) {
                 throw new Error(`HTTP-Fehler: ${response.status}`);
             }
@@ -42,7 +51,6 @@ const DataModule = {
             return data;
         } catch (error) {
             console.warn('Konnte stocks.json nicht laden, nutze Fallback-Daten:', error.message);
-            // Fallback nutzen, falls vorhanden
             if (typeof FALLBACK_STOCKS !== 'undefined') {
                 this._cache.stocks = FALLBACK_STOCKS;
                 return FALLBACK_STOCKS;
@@ -66,8 +74,8 @@ const DataModule = {
         }
 
         try {
-            const basePath = this._getBasePath();
-            const response = await fetch(`${basePath}data/details/${cleanSymbol}.json`);
+            const baseUrl = this._getBaseUrl();
+            const response = await fetch(`${baseUrl}data/details/${cleanSymbol}.json`);
             if (!response.ok) {
                 throw new Error(`HTTP-Fehler: ${response.status}`);
             }
@@ -77,14 +85,12 @@ const DataModule = {
         } catch (error) {
             console.warn(`Detaildaten für ${cleanSymbol} nicht gefunden, prüfe Fallback:`, error.message);
             
-            // Versuche Fallback-Details
             if (typeof FALLBACK_DETAILS !== 'undefined' && FALLBACK_DETAILS[cleanSymbol]) {
                 const data = FALLBACK_DETAILS[cleanSymbol];
                 this._cache.details[cleanSymbol] = data;
                 return data;
             }
 
-            // Wenn keine Details da sind, versuche Basis-Daten aus stocks.json zu konstruieren
             const stocks = await this.loadStocks();
             const baseStock = stocks.find(s => s.symbol.toUpperCase() === cleanSymbol);
             
