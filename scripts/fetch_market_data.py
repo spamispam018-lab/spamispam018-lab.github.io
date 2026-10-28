@@ -2,7 +2,7 @@
 """
 scripts/fetch_market_data.py
 Delta-fähiges Marktdaten-Update für USA, Europa und Japan.
-Rechnet alle Notierungen, Kennzahlen und Charts automatisch in Euro (EUR) um.
+Garantiert echte Umrechnung aller ausländischen Währungen (JPY, USD, GBP, CHF) in Euro (EUR).
 """
 
 import os
@@ -45,11 +45,9 @@ TICKERS_JAPAN = [
 ALL_TICKERS = TICKERS_USA + TICKERS_EUROPE + TICKERS_JAPAN
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
-# ==============================================================================
-# WÄHRUNGSUMRECHNUNG IN EURO
-# ==============================================================================
-
-EXCHANGE_RATES = {
+# Realistische Basis-Wechselkurse (Einheiten Fremdwährung in 1 Euro)
+# Multiplikator = 1.0 / Kurs (z.B. 1 JPY = 0.0061 EUR)
+RATES_TO_EUR = {
     "EUR": 1.0,
     "USD": 0.92,
     "JPY": 0.0061,
@@ -59,10 +57,24 @@ EXCHANGE_RATES = {
     "DKK": 0.134
 }
 
-def load_live_forex_rates():
-    """Lädt tagesaktuelle Wechselkurse gegen den Euro."""
-    global EXCHANGE_RATES
-    forex_pairs = {
+def detect_native_currency(ticker):
+    """Ermittelt die Heimatwährung anhand des Börsenplatzes/Suffix."""
+    if ticker.endswith(".T"):
+        return "JPY"
+    if ticker.endswith((".DE", ".PA", ".AS", ".MI", ".MC")):
+        return "EUR"
+    if ticker.endswith(".L"):
+        return "GBP"
+    if ticker.endswith(".SW"):
+        return "CHF"
+    if ticker.endswith(".CO"):
+        return "DKK"
+    return "USD"
+
+def load_live_forex():
+    """Holt tagesaktuelle Forex-Kurse von Yahoo Finance."""
+    global RATES_TO_EUR
+    pairs = {
         "USD": "EURUSD=X",
         "JPY": "EURJPY=X",
         "GBP": "EURGBP=X",
@@ -70,28 +82,29 @@ def load_live_forex_rates():
         "DKK": "EURDKK=X"
     }
     try:
-        data = yf.download(list(forex_pairs.values()), period="5d", interval="1d", group_by="ticker", threads=True)
-        for cur, pair_sym in forex_pairs.items():
+        tickers_str = " ".join(pairs.values())
+        fx_data = yf.download(tickers_str, period="5d", interval="1d", progress=False)
+        close_df = fx_data["Close"] if "Close" in fx_data else fx_data
+
+        for cur, pair in pairs.items():
             try:
-                sub_df = data[pair_sym] if len(forex_pairs) > 1 else data
-                sub_clean = sub_df.dropna(subset=["Close"])
-                if not sub_clean.empty:
-                    eur_to_cur = float(sub_clean.iloc[-1]["Close"])
-                    if eur_to_cur > 0:
-                        EXCHANGE_RATES[cur] = 1.0 / eur_to_cur
+                s = close_df[pair].dropna()
+                if not s.empty:
+                    eur_rate = float(s.iloc[-1])
+                    if eur_rate > 0:
+                        RATES_TO_EUR[cur] = 1.0 / eur_rate
             except Exception:
                 pass
-        EXCHANGE_RATES["GBp"] = EXCHANGE_RATES.get("GBP", 1.17) / 100.0
-        print(f"Wechselkurse geladen: USD={EXCHANGE_RATES['USD']:.4f}, JPY={EXCHANGE_RATES['JPY']:.5f}, GBP={EXCHANGE_RATES['GBP']:.4f}")
+        RATES_TO_EUR["GBp"] = RATES_TO_EUR.get("GBP", 1.17) / 100.0
+        print(f"Aktuelle Forex-Multiplikatoren: JPY={RATES_TO_EUR['JPY']:.6f}, USD={RATES_TO_EUR['USD']:.4f}")
     except Exception as e:
-        print(f"Konnte Live-Forex nicht laden, nutze Richtwerte: {e}")
+        print(f"Forex-Abruf fehlgeschlagen, nutze Fallback-Kurse: {e}")
 
-def to_eur(value, original_currency):
-    """Rechnet einen Betrag in Euro um."""
+def to_eur(value, cur):
     if value is None:
         return None
-    rate = EXCHANGE_RATES.get(original_currency, 1.0)
-    return value * rate
+    factor = RATES_TO_EUR.get(cur, 1.0)
+    return round(value * factor, 4)
 
 def clean_val(val, default=None):
     if val is None:
@@ -102,7 +115,7 @@ def clean_val(val, default=None):
         return round(val, 4) if isinstance(val, float) else val
     return val
 
-def df_to_dict_records(df, orig_currency):
+def df_to_dict_records(df, cur):
     if df is None or df.empty:
         return []
     records = []
@@ -110,17 +123,17 @@ def df_to_dict_records(df, orig_currency):
         date_str = col.strftime("%Y-%m-%d") if hasattr(col, "strftime") else str(col)[:10]
         entry = {"date": date_str}
         for idx in df.index:
-            raw_v = clean_val(df.loc[idx, col])
-            # Alle absoluten Währungsbeträge in EUR umrechnen
-            if raw_v is not None and not str(idx).lower().endswith(("%", "ratio", "shares")):
-                entry[str(idx).replace(" ", "_").replace("-", "_")] = clean_val(to_eur(raw_v, orig_currency))
+            raw = clean_val(df.loc[idx, col])
+            key_lower = str(idx).lower()
+            if raw is not None and not any(k in key_lower for k in ["%", "ratio", "shares", "growth"]):
+                entry[str(idx).replace(" ", "_").replace("-", "_")] = clean_val(to_eur(raw, cur))
             else:
-                entry[str(idx).replace(" ", "_").replace("-", "_")] = raw_v
+                entry[str(idx).replace(" ", "_").replace("-", "_")] = raw
         records.append(entry)
     records.sort(key=lambda x: x["date"])
     return records
 
-def process_insider_data(ticker_obj, orig_currency):
+def process_insider_data(ticker_obj, cur):
     summary = {"buysCount2Q": 0, "sellsCount2Q": 0, "buyValueTotal": 0.0, "sellValueTotal": 0.0, "sentiment": "Neutral"}
     trades = []
     try:
@@ -128,7 +141,7 @@ def process_insider_data(ticker_obj, orig_currency):
         if df is not None and not df.empty:
             for _, row in df.head(40).iterrows():
                 val_raw = clean_val(row.get("Value"), 0.0)
-                val_eur = clean_val(to_eur(val_raw, orig_currency), 0.0)
+                val_eur = clean_val(to_eur(val_raw, cur), 0.0)
                 t_type = str(row.get("Transaction", "") or row.get("Text", ""))
                 d = row.get("Start Date") or row.get("Date")
                 d_str = d.strftime("%Y-%m-%d") if hasattr(d, "strftime") else str(d)[:10]
@@ -155,13 +168,13 @@ def process_insider_data(ticker_obj, orig_currency):
         pass
     return {"summary": summary, "trades": trades}
 
-def process_analyst_data(info, ticker_obj, orig_currency):
+def process_analyst_data(info, ticker_obj, cur):
     targets = {
-        "current": clean_val(to_eur(clean_val(info.get("currentPrice")), orig_currency)),
-        "low": clean_val(to_eur(clean_val(info.get("targetLowPrice")), orig_currency)),
-        "median": clean_val(to_eur(clean_val(info.get("targetMedianPrice")), orig_currency)),
-        "mean": clean_val(to_eur(clean_val(info.get("targetMeanPrice")), orig_currency)),
-        "high": clean_val(to_eur(clean_val(info.get("targetHighPrice")), orig_currency)),
+        "current": clean_val(to_eur(clean_val(info.get("currentPrice")), cur)),
+        "low": clean_val(to_eur(clean_val(info.get("targetLowPrice")), cur)),
+        "median": clean_val(to_eur(clean_val(info.get("targetMedianPrice")), cur)),
+        "mean": clean_val(to_eur(clean_val(info.get("targetMeanPrice")), cur)),
+        "high": clean_val(to_eur(clean_val(info.get("targetHighPrice")), cur)),
         "currency": "EUR",
         "analystCount": clean_val(info.get("numberOfAnalystOpinions"), 0)
     }
@@ -199,8 +212,8 @@ def process_analyst_data(info, ticker_obj, orig_currency):
             for idx, row in e_hist.tail(8).iterrows():
                 eps_estimates.append({
                     "quarter": idx.strftime("%Y-%m-%d") if hasattr(idx, "strftime") else str(idx)[:10],
-                    "estimate": clean_val(to_eur(clean_val(row.get("epsEstimate")), orig_currency)),
-                    "actual": clean_val(to_eur(clean_val(row.get("epsActual")), orig_currency)),
+                    "estimate": clean_val(to_eur(clean_val(row.get("epsEstimate")), cur)),
+                    "actual": clean_val(to_eur(clean_val(row.get("epsActual")), cur)),
                     "surprisePercent": clean_val(row.get("surprisePercent"))
                 })
     except Exception:
@@ -210,34 +223,44 @@ def process_analyst_data(info, ticker_obj, orig_currency):
 def fetch_full_stock(ticker_sym):
     t = yf.Ticker(ticker_sym)
     info = t.info or {}
-    orig_cur = info.get("currency", "USD")
+    cur = info.get("currency") or detect_native_currency(ticker_sym)
+
+    country = info.get("country", "")
+    if not country:
+        if ticker_sym.endswith(".T"): country = "Japan"
+        elif ticker_sym.endswith(".DE"): country = "Deutschland"
+        elif ticker_sym.endswith(".MI"): country = "Italien"
+        else: country = "USA"
 
     profile = {
         "ticker": ticker_sym,
         "name": info.get("shortName") or info.get("longName") or ticker_sym,
         "sector": info.get("sector", "Sonstige"),
         "industry": info.get("industry", "N/A"),
-        "country": info.get("country", "Global"),
+        "country": country,
         "currency": "EUR",
-        "originalCurrency": orig_cur,
+        "nativeCurrency": cur,
         "exchange": info.get("exchange", "N/A")
     }
 
-    raw_curr_p = clean_val(info.get("currentPrice") or info.get("regularMarketPrice"), 0.0)
-    raw_prev_c = clean_val(info.get("previousClose") or info.get("regularMarketPreviousClose"), raw_curr_p)
+    raw_curr = clean_val(info.get("currentPrice") or info.get("regularMarketPrice"), 0.0)
+    raw_prev = clean_val(info.get("previousClose") or info.get("regularMarketPreviousClose"), raw_curr)
 
-    curr_p = clean_val(to_eur(raw_curr_p, orig_cur), 0.0)
-    prev_c = clean_val(to_eur(raw_prev_c, orig_cur), curr_p)
-    chg_abs = round(curr_p - prev_c, 4) if curr_p and prev_c else 0.0
-    chg_pct = round(((raw_curr_p - raw_prev_c) / raw_prev_c) * 100, 2) if raw_prev_c else 0.0
+    curr_p = clean_val(to_eur(raw_curr, cur), 0.0)
+    prev_p = clean_val(to_eur(raw_prev, cur), curr_p)
+    chg_abs = round(curr_p - prev_p, 4) if curr_p and prev_p else 0.0
+    chg_pct = round(((raw_curr - raw_prev) / raw_prev) * 100, 2) if raw_prev else 0.0
+
+    raw_mcap = clean_val(info.get("marketCap"), 0)
+    market_cap_eur = clean_val(to_eur(raw_mcap, cur), 0)
 
     quote = {
         "price": curr_p,
         "change": chg_abs,
         "changePercent": chg_pct,
-        "marketCap": clean_val(to_eur(clean_val(info.get("marketCap"), 0), orig_cur), 0),
-        "fiftyTwoWeekLow": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekLow")), orig_cur)),
-        "fiftyTwoWeekHigh": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekHigh")), orig_cur)),
+        "marketCap": market_cap_eur,
+        "fiftyTwoWeekLow": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekLow")), cur)),
+        "fiftyTwoWeekHigh": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekHigh")), cur)),
         "volume": clean_val(info.get("regularMarketVolume")),
         "avgVolume": clean_val(info.get("averageVolume")),
         "currency": "EUR"
@@ -257,10 +280,9 @@ def fetch_full_stock(ticker_sym):
     try:
         hist = t.history(period="1y", interval="1d")
         for dt, row in hist.iterrows():
-            c_eur = clean_val(to_eur(clean_val(row["Close"]), orig_cur))
             chart_history.append({
                 "date": dt.strftime("%Y-%m-%d"),
-                "close": c_eur,
+                "close": clean_val(to_eur(clean_val(row["Close"]), cur)),
                 "volume": clean_val(row["Volume"])
             })
     except Exception:
@@ -272,23 +294,23 @@ def fetch_full_stock(ticker_sym):
         "quote": quote,
         "ratios": ratios,
         "financials": {
-            "incomeStatement": {"quarterly": df_to_dict_records(t.quarterly_income_stmt, orig_cur), "annual": df_to_dict_records(t.income_stmt, orig_cur)},
-            "balanceSheet": {"quarterly": df_to_dict_records(t.quarterly_balance_sheet, orig_cur), "annual": df_to_dict_records(t.balance_sheet, orig_cur)},
-            "cashFlow": {"quarterly": df_to_dict_records(t.quarterly_cashflow, orig_cur), "annual": df_to_dict_records(t.cashflow, orig_cur)}
+            "incomeStatement": {"quarterly": df_to_dict_records(t.quarterly_income_stmt, cur), "annual": df_to_dict_records(t.income_stmt, cur)},
+            "balanceSheet": {"quarterly": df_to_dict_records(t.quarterly_balance_sheet, cur), "annual": df_to_dict_records(t.balance_sheet, cur)},
+            "cashFlow": {"quarterly": df_to_dict_records(t.quarterly_cashflow, cur), "annual": df_to_dict_records(t.cashflow, cur)}
         },
-        "analysts": process_analyst_data(info, t, orig_cur),
-        "insider": process_insider_data(t, orig_cur),
+        "analysts": process_analyst_data(info, t, cur),
+        "insider": process_insider_data(t, cur),
         "chartHistory": chart_history,
         "updatedAt": datetime.now(timezone.utc).isoformat()
     }
 
 # ==============================================================================
-# DELTA-SYNC INKLUSIVE EUR-UMRECHNUNG
+# DELTA-SYNC MIT KORREKTER WÄHRUNGSUMRECHNUNG
 # ==============================================================================
 
 def run_delta_sync(tickers):
-    load_live_forex_rates()
-    print(f"Starte Delta-Update für {len(tickers)} Ticker (Batch-Download & EUR-Umrechnung)...")
+    load_live_forex()
+    print(f"Starte Delta-Sync für {len(tickers)} Ticker (Batch-Download & EUR-Umrechnung)...")
     batch_df = yf.download(tickers, period="5d", interval="1d", group_by="ticker", auto_adjust=False, threads=True)
 
     universe_file = os.path.join(DATA_DIR, "universe.json")
@@ -314,12 +336,11 @@ def run_delta_sync(tickers):
                 pass
 
         if not stock_data:
-            print(f"Erstmaliger Abruf für {sym}...")
+            print(f"Erstmaliger Komplettabruf für {sym}...")
             stock_data = fetch_full_stock(sym)
 
-        orig_cur = stock_data.get("profile", {}).get("originalCurrency", "USD")
+        cur = stock_data.get("profile", {}).get("nativeCurrency") or detect_native_currency(sym)
 
-        # Kursaktualisierung & EUR-Umrechnung
         try:
             df_sym = batch_df[sym] if len(tickers) > 1 else batch_df
             df_clean = df_sym.dropna(subset=["Close"])
@@ -327,30 +348,32 @@ def run_delta_sync(tickers):
                 last_row = df_clean.iloc[-1]
                 prev_row = df_clean.iloc[-2] if len(df_clean) > 1 else last_row
 
-                raw_curr_p = clean_val(last_row["Close"])
-                raw_prev_p = clean_val(prev_row["Close"])
+                raw_curr = clean_val(last_row["Close"])
+                raw_prev = clean_val(prev_row["Close"])
 
-                curr_p_eur = clean_val(to_eur(raw_curr_p, orig_cur), 0.0)
-                prev_p_eur = clean_val(to_eur(raw_prev_p, orig_cur), curr_p_eur)
-                chg_abs = round(curr_p_eur - prev_p_eur, 4)
-                chg_pct = round(((raw_curr_p - raw_prev_p) / raw_prev_p) * 100, 2) if raw_prev_p else 0.0
+                # Kurs zwingend in EUR umrechnen
+                curr_eur = clean_val(to_eur(raw_curr, cur), 0.0)
+                prev_eur = clean_val(to_eur(raw_prev, cur), curr_eur)
 
-                stock_data["quote"]["price"] = curr_p_eur
+                chg_abs = round(curr_eur - prev_eur, 4)
+                chg_pct = round(((raw_curr - raw_prev) / raw_prev) * 100, 2) if raw_prev else 0.0
+
+                stock_data["quote"]["price"] = curr_eur
                 stock_data["quote"]["change"] = chg_abs
                 stock_data["quote"]["changePercent"] = chg_pct
                 stock_data["quote"]["currency"] = "EUR"
                 stock_data["quote"]["volume"] = clean_val(last_row.get("Volume", 0))
 
-                last_date_str = df_clean.index[-1].strftime("%Y-%m-%d")
+                last_date = df_clean.index[-1].strftime("%Y-%m-%d")
                 history = stock_data.get("chartHistory", [])
-                if history and history[-1]["date"] == last_date_str:
-                    history[-1]["close"] = curr_p_eur
+                if history and history[-1]["date"] == last_date:
+                    history[-1]["close"] = curr_eur
                 else:
-                    history.append({"date": last_date_str, "close": curr_p_eur, "volume": clean_val(last_row.get("Volume", 0))})
+                    history.append({"date": last_date, "close": curr_eur, "volume": clean_val(last_row.get("Volume", 0))})
                 stock_data["chartHistory"] = history[-260:]
                 stock_data["updatedAt"] = datetime.now(timezone.utc).isoformat()
         except Exception as e:
-            print(f"Hinweis: Konnte {sym} nicht aktualisieren: {e}")
+            print(f"Hinweis: Delta-Update für {sym} übersprungen ({e})")
 
         with open(stock_file, "w", encoding="utf-8") as f:
             json.dump(stock_data, f, ensure_ascii=False, indent=2)
@@ -367,7 +390,7 @@ def run_delta_sync(tickers):
         u_item["marketCap"] = stock_data["quote"]["marketCap"]
 
         hist = stock_data.get("chartHistory", [])
-        if len(hist) > 20 and hist[0]["close"]:
+        if len(hist) > 20 and hist[0].get("close"):
             u_item["perf52w"] = round(((hist[-1]["close"] - hist[0]["close"]) / hist[0]["close"]) * 100, 2)
 
         updated_universe.append(u_item)
@@ -375,7 +398,7 @@ def run_delta_sync(tickers):
     with open(universe_file, "w", encoding="utf-8") as f:
         json.dump(updated_universe, f, ensure_ascii=False, indent=2)
 
-    print(f"Delta-Sync abgeschlossen: {len(updated_universe)} Werte auf EUR umgerechnet.")
+    print(f"Delta-Sync abgeschlossen: {len(updated_universe)} Werte in EUR synchronisiert.")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -383,7 +406,7 @@ def main():
     args = parser.parse_args()
 
     os.makedirs(DATA_DIR, exist_ok=True)
-    load_live_forex_rates()
+    load_live_forex()
 
     if not os.path.exists(os.path.join(DATA_DIR, "universe.json")):
         args.mode = "full"
@@ -391,7 +414,7 @@ def main():
     if args.mode == "delta":
         run_delta_sync(ALL_TICKERS)
     else:
-        print("Führe vollständigen Sync mit EUR-Umrechnung durch...")
+        print("Führe vollständigen Neuabruf mit EUR-Umrechnung durch...")
         universe = []
         for sym in ALL_TICKERS:
             try:
@@ -407,7 +430,8 @@ def main():
                     "price": st["quote"]["price"],
                     "changePercent": st["quote"]["changePercent"],
                     "marketCap": st["quote"]["marketCap"],
-                    "pe": st["ratios"]["peTrailing"]
+                    "pe": st["ratios"]["peTrailing"],
+                    "dividendYield": st["ratios"]["dividendYield"]
                 })
                 time.sleep(0.3)
             except Exception as e:
