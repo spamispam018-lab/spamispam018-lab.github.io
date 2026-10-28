@@ -1,318 +1,128 @@
-// js/stock-financials.js
-// Visualisiert fundamentale Kennzahlen im Financials-Tab unter "Charts".
-// Beinhaltet Zeitraum- (1Y, 3Y, 5Y, 10Y, MAX) und Periodenfilter (Quarterly, Annual, TTM)
-// für alle geforderten Diagrammkategorien (Erträge, Cashflows, Multiples, Margen, Liquidität, Verschuldung).
+/**
+ * Aufbereitung und tabellarische/visuelle Darstellung von Finanzberichten
+ */
+const StockFinancials = (function () {
+  function formatValue(val) {
+    if (val === null || val === undefined || isNaN(val)) return "-";
+    return window.StockDataHandler
+      ? window.StockDataHandler.formatLargeNumber(val)
+      : val.toLocaleString("de-DE");
+  }
 
-(function () {
-  "use strict";
+  function getSortedYears(statementObj = {}) {
+    return Object.keys(statementObj).sort();
+  }
 
-  let currentTimeframe = "5Y";
-  let currentPeriod = "Quarterly"; // Quarterly | Annual | TTM
-
-  function render(stockData) {
-    const container = document.getElementById("financialChartsGrid");
+  function renderStatementTable(tableContainerId, statementObj = {}, rowDefinitions = []) {
+    const container = document.getElementById(tableContainerId);
     if (!container) return;
 
-    if (!stockData || !stockData.financialsHistory || stockData.financialsHistory.length === 0) {
-      container.innerHTML = '<div class="empty-data-hint">Keine Finanzhistorie verfügbar.</div>';
+    const years = getSortedYears(statementObj);
+    if (years.length === 0) {
+      container.innerHTML = '<p class="text-muted">Keine Finanzdaten vorhanden.</p>';
       return;
     }
 
-    // Controls synchronisieren
-    initControls(stockData);
+    let html = '<div class="table-responsive"><table class="financial-table"><thead><tr><th>Position</th>';
+    years.forEach(year => {
+      html += `<th>${year}</th>`;
+    });
+    html += '</tr></thead><tbody>';
 
-    // Daten aggregieren und filtern
-    const seriesData = prepareFinancialSeries(stockData.financialsHistory, currentTimeframe, currentPeriod, stockData.overview);
-
-    if (seriesData.labels.length === 0) {
-      container.innerHTML = '<div class="empty-data-hint">Keine Daten für den gewählten Zeitraum vorhanden.</div>';
-      return;
-    }
-
-    const badgeLabel = currentPeriod;
-
-    // Erzeuge HTML für alle Diagrammkarten
-    container.innerHTML =
-      // 1. Revenue & Gross Profit
-      window.StockCharts.createChartCardHTML({
-        id: "fin_chart_rev_gp",
-        title: "Umsatz & Bruttogewinn",
-        badge: badgeLabel,
-        series: [
-          { label: "Umsatz", color: window.StockCharts.PALETTE.blue },
-          { label: "Bruttogewinn", color: window.StockCharts.PALETTE.green }
-        ]
-      }) +
-
-      // 2. Operating Income & Net Income
-      window.StockCharts.createChartCardHTML({
-        id: "fin_chart_income",
-        title: "Operatives Ergebnis & Reingewinn",
-        badge: badgeLabel,
-        series: [
-          { label: "Operatives Ergebnis", color: window.StockCharts.PALETTE.yellow },
-          { label: "Reingewinn", color: window.StockCharts.PALETTE.purple }
-        ]
-      }) +
-
-      // 3. Cash Flow (Operating Cash Flow & Free Cash Flow)
-      window.StockCharts.createChartCardHTML({
-        id: "fin_chart_cf",
-        title: "Cashflow (OCF & FCF)",
-        badge: badgeLabel,
-        series: [
-          { label: "Operativer Cashflow", color: window.StockCharts.PALETTE.green },
-          { label: "Free Cashflow", color: window.StockCharts.PALETTE.blue }
-        ]
-      }) +
-
-      // 4. Margins (Gross, Operating, Net, FCF)
-      window.StockCharts.createChartCardHTML({
-        id: "fin_chart_margins",
-        title: "Margenverlauf",
-        badge: badgeLabel,
-        series: [
-          { label: "Bruttomarge", color: window.StockCharts.PALETTE.blue },
-          { label: "Operative Marge", color: window.StockCharts.PALETTE.yellow },
-          { label: "Nettomarge", color: window.StockCharts.PALETTE.purple },
-          { label: "FCF-Marge", color: window.StockCharts.PALETTE.green }
-        ]
-      }) +
-
-      // 5. Returns on Capital (ROE & ROIC)
-      window.StockCharts.createChartCardHTML({
-        id: "fin_chart_returns",
-        title: "Kapitalrenditen (ROE & ROIC)",
-        badge: badgeLabel,
-        series: [
-          { label: "ROE", color: window.StockCharts.PALETTE.pink },
-          { label: "ROIC", color: window.StockCharts.PALETTE.green }
-        ]
-      }) +
-
-      // 6. Liquidity (Current Ratio & Quick Ratio)
-      window.StockCharts.createChartCardHTML({
-        id: "fin_chart_liquidity",
-        title: "Liquiditätskennzahlen",
-        badge: badgeLabel,
-        series: [
-          { label: "Current Ratio", color: window.StockCharts.PALETTE.blue },
-          { label: "Assets / Liabilities", color: window.StockCharts.PALETTE.yellow }
-        ]
-      }) +
-
-      // 7. Cash vs. Debt
-      window.StockCharts.createChartCardHTML({
-        id: "fin_chart_debt",
-        title: "Liquide Mittel vs. Gesamtverschuldung",
-        badge: badgeLabel,
-        series: [
-          { label: "Cash & Äquivalente", color: window.StockCharts.PALETTE.green },
-          { label: "Finanzschulden", color: window.StockCharts.PALETTE.red }
-        ]
-      }) +
-
-      // 8. Capital Intensity (CapEx / Umsatz)
-      window.StockCharts.createChartCardHTML({
-        id: "fin_chart_capex",
-        title: "Kapitalintensität (CapEx / Umsatz)",
-        badge: badgeLabel,
-        series: [
-          { label: "CapEx Quote", color: window.StockCharts.PALETTE.orange }
-        ]
+    rowDefinitions.forEach(def => {
+      html += `<tr><td class="metric-label">${def.label}</td>`;
+      years.forEach(year => {
+        const rowData = statementObj[year] || {};
+        const val = rowData[def.key];
+        html += `<td>${formatValue(val)}</td>`;
       });
-
-    // Diagramme zeichnen
-    drawCharts(seriesData);
-  }
-
-  function initControls(stockData) {
-    const tfSelect = document.getElementById("chartTimeframeSelect");
-    const periodSelect = document.getElementById("chartPeriodSelect");
-
-    if (tfSelect && !tfSelect.dataset.listenerAttached) {
-      tfSelect.value = currentTimeframe;
-      tfSelect.addEventListener("change", function () {
-        currentTimeframe = this.value;
-        render(stockData);
-      });
-      tfSelect.dataset.listenerAttached = "true";
-    }
-
-    if (periodSelect && !periodSelect.dataset.listenerAttached) {
-      periodSelect.value = currentPeriod;
-      periodSelect.addEventListener("change", function () {
-        currentPeriod = this.value;
-        render(stockData);
-      });
-      periodSelect.dataset.listenerAttached = "true";
-    }
-  }
-
-  function prepareFinancialSeries(history, timeframe, period) {
-    let sorted = history.slice().sort(function (a, b) {
-      return (a.date || "").localeCompare(b.date || "");
+      html += '</tr>';
     });
 
-    // Aggregation: Falls Annual oder TTM gewählt ist
-    let processed = [];
-    if (period === "Annual") {
-      const yearMap = {};
-      sorted.forEach(function (row) {
-        const y = (row.date || "").split("-")[0];
-        if (!y) return;
-        if (!yearMap[y]) {
-          yearMap[y] = Object.assign({}, row, { date: y, periodCount: 0 });
-        }
-        yearMap[y].revenue = (yearMap[y].revenue || 0) + (row.revenue || 0);
-        yearMap[y].grossProfit = (yearMap[y].grossProfit || 0) + (row.grossProfit || 0);
-        yearMap[y].operatingIncome = (yearMap[y].operatingIncome || 0) + (row.operatingIncome || 0);
-        yearMap[y].netIncome = (yearMap[y].netIncome || 0) + (row.netIncome || 0);
-        yearMap[y].operatingCashFlow = (yearMap[y].operatingCashFlow || 0) + (row.operatingCashFlow || 0);
-        yearMap[y].freeCashFlow = (yearMap[y].freeCashFlow || 0) + (row.freeCashFlow || 0);
-        yearMap[y].capitalExpenditure = (yearMap[y].capitalExpenditure || 0) + (row.capitalExpenditure || 0);
-        // Bilanzwerte zum Jahresende übernehmen
-        yearMap[y].totalAssets = row.totalAssets != null ? row.totalAssets : yearMap[y].totalAssets;
-        yearMap[y].currentAssets = row.currentAssets != null ? row.currentAssets : yearMap[y].currentAssets;
-        yearMap[y].totalLiabilities = row.totalLiabilities != null ? row.totalLiabilities : yearMap[y].totalLiabilities;
-        yearMap[y].currentLiabilities = row.currentLiabilities != null ? row.currentLiabilities : yearMap[y].currentLiabilities;
-        yearMap[y].stockholdersEquity = row.stockholdersEquity != null ? row.stockholdersEquity : yearMap[y].stockholdersEquity;
-        yearMap[y].totalDebt = row.totalDebt != null ? row.totalDebt : yearMap[y].totalDebt;
-        yearMap[y].cashAndEquivalents = row.cashAndEquivalents != null ? row.cashAndEquivalents : yearMap[y].cashAndEquivalents;
-        yearMap[y].periodCount++;
-      });
-      processed = Object.keys(yearMap).map(function (k) { return yearMap[k]; });
-    } else if (period === "TTM") {
-      for (let i = 0; i < sorted.length; i++) {
-        const windowSlice = sorted.slice(Math.max(0, i - 3), i + 1);
-        const latest = sorted[i];
-        let revTTM = 0, gpTTM = 0, opTTM = 0, netTTM = 0, ocfTTM = 0, fcfTTM = 0, capexTTM = 0;
-        windowSlice.forEach(function (item) {
-          revTTM += (item.revenue || 0);
-          gpTTM += (item.grossProfit || 0);
-          opTTM += (item.operatingIncome || 0);
-          netTTM += (item.netIncome || 0);
-          ocfTTM += (item.operatingCashFlow || 0);
-          fcfTTM += (item.freeCashFlow || 0);
-          capexTTM += (item.capitalExpenditure || 0);
-        });
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+  }
 
-        processed.push(Object.assign({}, latest, {
-          revenue: revTTM,
-          grossProfit: gpTTM,
-          operatingIncome: opTTM,
-          netIncome: netTTM,
-          operatingCashFlow: ocfTTM,
-          freeCashFlow: fcfTTM,
-          capitalExpenditure: capexTTM
-        }));
+  function renderRevenueProfitChart(canvasId, incomeStmt = {}) {
+    if (!window.StockCharts) return;
+
+    const years = getSortedYears(incomeStmt);
+    if (years.length === 0) return;
+
+    const revenues = [];
+    const profits = [];
+
+    years.forEach(year => {
+      const data = incomeStmt[year] || {};
+      revenues.push(data["Total_Revenue"] || data["TotalRevenue"] || 0);
+      profits.push(data["Net_Income"] || data["NetIncome"] || 0);
+    });
+
+    const datasets = [
+      {
+        label: "Umsatz",
+        data: revenues,
+        backgroundColor: "rgba(59, 130, 246, 0.7)",
+        borderColor: "#3b82f6",
+        borderWidth: 1
+      },
+      {
+        label: "Nettogewinn",
+        data: profits,
+        backgroundColor: "rgba(16, 185, 129, 0.7)",
+        borderColor: "#10b981",
+        borderWidth: 1
       }
-    } else {
-      processed = sorted;
-    }
+    ];
 
-    // Zeitraum filtern (z. B. 1Y = 4 Q, 3Y = 12 Q, 5Y = 20 Q, 10Y = 40 Q)
-    let limit = processed.length;
-    if (period === "Annual") {
-      if (timeframe === "1Y") limit = 2;
-      else if (timeframe === "3Y") limit = 3;
-      else if (timeframe === "5Y") limit = 5;
-      else if (timeframe === "10Y") limit = 10;
-    } else {
-      if (timeframe === "1Y") limit = 4;
-      else if (timeframe === "3Y") limit = 12;
-      else if (timeframe === "5Y") limit = 20;
-      else if (timeframe === "10Y") limit = 40;
-    }
-
-    const filtered = processed.slice(-limit);
-
-    const labels = filtered.map(function (item) {
-      if (!item.date) return "";
-      if (period === "Annual") return item.date;
-      const parts = item.date.split("-");
-      return parts.length >= 2 ? (parts[1] + "/" + parts[0].slice(2)) : item.date;
-    });
-
-    return {
-      labels: labels,
-      revenue: filtered.map(function (d) { return d.revenue != null ? d.revenue : null; }),
-      grossProfit: filtered.map(function (d) { return d.grossProfit != null ? d.grossProfit : null; }),
-      operatingIncome: filtered.map(function (d) { return d.operatingIncome != null ? d.operatingIncome : null; }),
-      netIncome: filtered.map(function (d) { return d.netIncome != null ? d.netIncome : null; }),
-      ocf: filtered.map(function (d) { return d.operatingCashFlow != null ? d.operatingCashFlow : null; }),
-      fcf: filtered.map(function (d) { return d.freeCashFlow != null ? d.freeCashFlow : null; }),
-      grossMargin: filtered.map(function (d) { return (d.revenue && d.grossProfit) ? (d.grossProfit / d.revenue) * 100 : null; }),
-      operatingMargin: filtered.map(function (d) { return (d.revenue && d.operatingIncome) ? (d.operatingIncome / d.revenue) * 100 : null; }),
-      netMargin: filtered.map(function (d) { return (d.revenue && d.netIncome) ? (d.netIncome / d.revenue) * 100 : null; }),
-      fcfMargin: filtered.map(function (d) { return (d.revenue && d.freeCashFlow) ? (d.freeCashFlow / d.revenue) * 100 : null; }),
-      roe: filtered.map(function (d) { return (d.stockholdersEquity && d.stockholdersEquity > 0 && d.netIncome) ? (d.netIncome / d.stockholdersEquity) * 100 : null; }),
-      roic: filtered.map(function (d) {
-        const invCap = (d.totalAssets != null && d.currentLiabilities != null) ? (d.totalAssets - d.currentLiabilities) : null;
-        return (invCap && invCap > 0 && d.operatingIncome) ? (d.operatingIncome / invCap) * 100 : null;
-      }),
-      currentRatio: filtered.map(function (d) { return (d.currentAssets && d.currentLiabilities) ? (d.currentAssets / d.currentLiabilities) : null; }),
-      assetsToLiabilities: filtered.map(function (d) { return (d.totalAssets && d.totalLiabilities) ? (d.totalAssets / d.totalLiabilities) : null; }),
-      cash: filtered.map(function (d) { return d.cashAndEquivalents != null ? d.cashAndEquivalents : null; }),
-      debt: filtered.map(function (d) { return d.totalDebt != null ? d.totalDebt : null; }),
-      capexRatio: filtered.map(function (d) { return (d.revenue && d.capitalExpenditure) ? (Math.abs(d.capitalExpenditure) / d.revenue) * 100 : null; })
-    };
+    window.StockCharts.renderFinancialsBarChart(canvasId, "Umsatz- und Gewinnentwicklung", years, datasets);
   }
 
-  function drawCharts(data) {
-    const P = window.StockCharts.PALETTE;
+  async function init() {
+    let stock = window.StockDataHandler ? window.StockDataHandler.getCurrentStock() : null;
+    if (!stock && window.StockDataHandler) {
+      stock = await window.StockDataHandler.initCurrentStock();
+    }
+    if (!stock || !stock.financials) return;
 
-    // 1. Umsatz & Bruttogewinn (Balken)
-    window.StockCharts.renderBarChart("fin_chart_rev_gp_canvas", data.labels, [
-      { label: "Umsatz", data: data.revenue, color: P.blue },
-      { label: "Bruttogewinn", data: data.grossProfit, color: P.green }
-    ], "currency");
+    const { incomeStatement, balanceSheet, cashflow } = stock.financials;
 
-    // 2. Operatives Ergebnis & Reingewinn (Balken)
-    window.StockCharts.renderBarChart("fin_chart_income_canvas", data.labels, [
-      { label: "Operatives Ergebnis", data: data.operatingIncome, color: P.yellow },
-      { label: "Reingewinn", data: data.netIncome, color: P.purple }
-    ], "currency");
+    // Gewinn- und Verlustrechnung
+    renderStatementTable("income-statement-table", incomeStatement, [
+      { key: "Total_Revenue", label: "Gesamtumsatz" },
+      { key: "Operating_Income", label: "Betriebsergebnis (EBIT)" },
+      { key: "Net_Income", label: "Jahresüberschuss (Net Income)" }
+    ]);
 
-    // 3. Cashflow OCF & FCF (Balken)
-    window.StockCharts.renderBarChart("fin_chart_cf_canvas", data.labels, [
-      { label: "Operativer Cashflow", data: data.ocf, color: P.green },
-      { label: "Free Cashflow", data: data.fcf, color: P.blue }
-    ], "currency");
+    // Bilanz
+    renderStatementTable("balance-sheet-table", balanceSheet, [
+      { key: "Total_Assets", label: "Gesamtvermögen" },
+      { key: "Total_Liabilities_Net_Minority_Interest", label: "Gesamtverbindlichkeiten" },
+      { key: "Stockholders_Equity", label: "Eigenkapital" }
+    ]);
 
-    // 4. Margenverlauf (Linie)
-    window.StockCharts.renderLineChart("fin_chart_margins_canvas", data.labels, [
-      { label: "Bruttomarge", data: data.grossMargin, color: P.blue, fill: false },
-      { label: "Operative Marge", data: data.operatingMargin, color: P.yellow, fill: false },
-      { label: "Nettomarge", data: data.netMargin, color: P.purple, fill: false },
-      { label: "FCF-Marge", data: data.fcfMargin, color: P.green, fill: true }
-    ], "percent");
+    // Cashflow
+    renderStatementTable("cashflow-table", cashflow, [
+      { key: "Operating_Cash_Flow", label: "Operativer Cashflow" },
+      { key: "Investing_Cash_Flow", label: "Cashflow aus Investition" },
+      { key: "Free_Cash_Flow", label: "Freier Cashflow" }
+    ]);
 
-    // 5. Kapitalrenditen ROE & ROIC (Linie)
-    window.StockCharts.renderLineChart("fin_chart_returns_canvas", data.labels, [
-      { label: "ROE", data: data.roe, color: P.pink, fill: false },
-      { label: "ROIC", data: data.roic, color: P.green, fill: true }
-    ], "percent");
-
-    // 6. Liquidität (Linie)
-    window.StockCharts.renderLineChart("fin_chart_liquidity_canvas", data.labels, [
-      { label: "Current Ratio", data: data.currentRatio, color: P.blue, fill: false },
-      { label: "Assets / Liabilities", data: data.assetsToLiabilities, color: P.yellow, fill: false }
-    ], "multiple");
-
-    // 7. Cash vs. Debt (Balken)
-    window.StockCharts.renderBarChart("fin_chart_debt_canvas", data.labels, [
-      { label: "Cash & Äquivalente", data: data.cash, color: P.green },
-      { label: "Finanzschulden", data: data.debt, color: P.red }
-    ], "currency");
-
-    // 8. Kapitalintensität CapEx Quote (Linie)
-    window.StockCharts.renderLineChart("fin_chart_capex_canvas", data.labels, [
-      { label: "CapEx / Umsatz", data: data.capexRatio, color: P.orange, fill: true }
-    ], "percent");
+    // Bar Chart zeichnen
+    renderRevenueProfitChart("financialsBarChart", incomeStatement);
   }
 
-  window.StockFinancials = {
-    render: render
+  return {
+    init
   };
 })();
+
+// Bei Bedarf nach DOM-Load starten
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("income-statement-table")) {
+    StockFinancials.init();
+  }
+});
+
+// Global verfügbar machen
+window.StockFinancials = StockFinancials;
