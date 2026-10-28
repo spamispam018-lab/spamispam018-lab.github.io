@@ -1,50 +1,48 @@
-<!-- ==========================================================================
-     Watchlist-Ansicht
-     Enthält: Hero-Kachel für persönliche Favoriten, Performance-Durchschnitt,
-     Schnellbereinigung sowie die Liste der beobachteten Aktien.
-     ========================================================================== -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Watchlist | Deine beobachteten Aktien</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased">
+  <!-- Hauptnavigation -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="../index.html" class="nav-brand">Aktien-Hub</a>
+      <nav class="nav-links">
+        <a href="../index.html" class="nav-link">Übersicht</a>
+        <a href="screener.html" class="nav-link">Screener</a>
+        <a href="watchlist.html" class="nav-link active">Watchlist</a>
+      </nav>
+    </div>
+  </header>
 
-<div class="header-bar">
-  <div class="header-title-wrap">
-    <h1>Meine Watchlist</h1>
-    <div class="header-subtitle">Persönliche Favoriten &amp; Beobachtung</div>
-  </div>
-  <div class="header-actions">
-    <button class="icon-btn" id="watchlistRefreshBtn" aria-label="Watchlist aktualisieren">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
-      </svg>
-    </button>
-  </div>
-</div>
+  <main class="container py-8">
+    <div class="page-header mb-6">
+      <h1 class="text-2xl font-bold">Deine Watchlist</h1>
+      <p class="text-muted">Behalte deine favorisierten Unternehmen, Kurse und Tagesentwicklungen im Blick.</p>
+    </div>
 
-<div class="container">
-  <!-- Hero-Kachel im Design des Gesamtsaldos -->
-  <div class="hero-card">
-    <div class="hero-label">BEOBACHTETE TITEL</div>
-    <div class="hero-value" id="watchlistHeroCount">0 Positionen</div>
-    <div class="hero-stats-row">
-      <div>
-        <div class="hero-substat-label">Tages-Trend</div>
-        <div class="hero-substat-val" id="watchlistAvgDayChange">-</div>
-      </div>
-      <div>
-        <div class="hero-substat-label">Top-Performer</div>
-        <div class="hero-substat-val" id="watchlistTopPerformer" style="color: #6ee7b7;">-</div>
-      </div>
-      <div>
-        <div class="hero-substat-label">Ø 52W Rendite</div>
-        <div class="hero-substat-val" id="watchlistAvgPerf52w">-</div>
+    <!-- Watchlist Container -->
+    <div class="card">
+      <div id="watchlist-container">
+        <p class="text-center py-6 text-muted">Lade Watchlist...</p>
       </div>
     </div>
-  </div>
+  </main>
 
-  <!-- Statuszeile -->
-  <div class="status-bar-row">
-    <span id="watchlistCountLabel">0 Titel gespeichert</span>
-    <span style="font-size: 0.78rem; color: var(--text-muted);">Lokal auf diesem Gerät</span>
-  </div>
+  <footer class="footer py-6 text-center text-sm text-muted">
+    <div class="container">
+      <p>&copy; Aktien-Analyse Dashboard &bull; Gespeichert lokal in deinem Browser.</p>
+    </div>
+  </footer>
 
-  <!-- Ergebnisliste der Watchlist -->
-  <div id="watchlistStocksList" class="stocks-list"></div>
-</div>
+  <!-- Daten & Services -->
+  <script src="../data/fallback-data.js"></script>
+  <script src="../js/data.js"></script>
+  <script src="../js/stock-data.js"></script>
+  <script src="../js/watchlist.js"></script>
+</body>
+</html>
