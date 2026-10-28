@@ -1,53 +1,51 @@
-name: Update Stock Screener Data
+name: Update Financial Data
 
 on:
   schedule:
-    # Mo–Fr um 04:00 UTC (vor Börsenöffnung)
-    - cron: '0 4 * * 1-5'
+    # Ausführung jeden Samstag um 03:00 UTC zur vollständigen Wochenaktualisierung
+    - cron: '0 3 * * 6'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  update-data:
+  refresh-data:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Repository auschecken
+      - name: Quellcode auschecken
         uses: actions/checkout@v4
 
-      - name: Python 3.11 einrichten
+      - name: Python 3.11 konfigurieren
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Abhängigkeiten installieren
+      - name: Pakete installieren
         run: |
           python -m pip install --upgrade pip
-          pip install yfinance requests pandas numpy
+          pip install yfinance pandas
 
-      - name: Screener-Übersicht aktualisieren (falls vorhanden)
+      - name: Marktübersicht aktualisieren
         run: |
-          if [ -f scripts/fetch_screener.py ]; then
-            python scripts/fetch_screener.py
-          elif [ -f scripts/update_screener.py ]; then
-            python scripts/update_screener.py
-          fi
+          python scripts/fetch_stocks.py
 
-      - name: Detaildaten pro Aktie abrufen
+      - name: Detaillierte Finanzberichte und Kennzahlen aktualisieren
         run: |
           python scripts/fetch_stock_details.py
 
-      - name: Änderungen committen und pushen
+      - name: Datensätze committen und synchronisieren
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
           git add data/
+          
           if git diff --staged --quiet; then
-            echo "Keine Datenänderungen vorhanden."
+            echo "Keine Änderungen an den JSON-Daten festgestellt. Kein Push erforderlich."
           else
-            git commit -m "Auto-Update: Stock Data $(date +'%Y-%m-%d %H:%M')"
+            git commit -m "chore(data): wöchentliche Aktualisierung der Finanzkennzahlen [skip ci]"
             git push
           fi
