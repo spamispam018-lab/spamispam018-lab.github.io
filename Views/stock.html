@@ -1,0 +1,59 @@
+<!-- Views/stock.html - Detailanalyse-Container für Aktien -->
+<div class="view-container">
+  <!-- Ticker-Suchfeld & Schnellwechsel -->
+  <div class="search-bar-wrapper" style="margin-bottom: 10px;">
+    <svg class="search-icon-left" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <input type="text" id="stock-detail-search" class="search-input" placeholder="Ticker eingeben (z. B. NVDA, MSFT)..." autocomplete="off">
+  </div>
+
+  <!-- Unternehmens-Header -->
+  <div class="card" style="padding: 14px 16px; margin-bottom: 14px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h2 id="stock-header-name" style="font-size: 1.2rem; font-weight: 800; line-height: 1.2;">Lade...</h2>
+          <button id="stock-header-star" class="star-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem;">
+          <span id="stock-header-ticker" class="ticker-badge">—</span>
+          <span id="stock-header-sector" class="sector-label">• —</span>
+          <span id="stock-header-exchange" class="sector-label" style="opacity: 0.7;">• —</span>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+        <div id="stock-header-price" style="font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums;">—</div>
+        <div id="stock-header-change" class="badge-pill">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Haupt-Tabs: Stock | Compare -->
+  <div class="main-tabs-row">
+    <button id="main-tab-stock" class="main-tab-btn active">Stock</button>
+    <button id="main-tab-compare" class="main-tab-btn">Compare</button>
+  </div>
+
+  <!-- Unter-Tabs von 'Stock': Overview, Score, Insider, Analyst, Financials -->
+  <div class="horizontal-scroll-row" id="stock-subtabs-row" style="margin-bottom: 14px;">
+    <button class="sub-tab-btn active" data-stock-sub="overview">Overview</button>
+    <button class="sub-tab-btn" data-stock-sub="score">Score</button>
+    <button class="sub-tab-btn" data-stock-sub="insider">Insider</button>
+    <button class="sub-tab-btn" data-stock-sub="analyst">Analyst</button>
+    <button class="sub-tab-btn" data-stock-sub="financials">Financials</button>
+  </div>
+
+  <!-- Dynamischer Inhaltsbereich für den aktiven Unter-Tab -->
+  <div id="stock-subtab-content">
+    <div class="state-box">
+      <div class="spinner"></div>
+      <p>Lade Aktiendaten...</p>
+    </div>
+  </div>
+</div>
