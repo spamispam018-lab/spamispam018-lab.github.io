@@ -303,6 +303,18 @@
         var gainerEl = document.getElementById('heroTopGainer');
         var avgPeEl = document.getElementById('heroAvgPe');
         var avgDivEl = document.getElementById('heroAvgDiv');
+        var updatedLabel = document.getElementById('lastUpdatedLabel');
+
+        // Dynamische Anzeige des Datenstands (Datum und Uhrzeit)
+        if (updatedLabel && window.App.DataService.currentData) {
+          var rawDate = window.App.DataService.currentData.lastUpdated;
+          if (rawDate) {
+            var d = new Date(rawDate);
+            updatedLabel.textContent = 'Stand: ' + d.toLocaleDateString('de-DE') + ' ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+          } else {
+            updatedLabel.textContent = 'Offline-Bestand aktiv';
+          }
+        }
 
         if (!countEl) return;
         countEl.textContent = stocks.length + ' Titel';
