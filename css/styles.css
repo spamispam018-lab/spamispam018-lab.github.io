@@ -401,6 +401,9 @@ body {
   font-weight: 700;
   color: var(--text-primary);
   margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ---------------- Bottom Sheet Filter-Modal ---------------- */
@@ -574,7 +577,7 @@ body {
   height: 22px;
 }
 
-/* ---------------- Chart-Container ---------------- */
+/* ---------------- Chart-Container & Canvas ---------------- */
 .chart-box {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -582,6 +585,7 @@ body {
   padding: 16px 12px;
   margin: 16px 0;
   position: relative;
+  overflow: hidden;
 }
 
 .chart-header {
@@ -594,7 +598,14 @@ body {
 .chart-canvas-wrap {
   position: relative;
   width: 100%;
-  height: 210px;
+  height: 200px;
+  overflow: hidden;
+}
+
+.chart-canvas-wrap canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* ---------------- Leerzustände & Loader ---------------- */
