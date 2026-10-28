@@ -1,10 +1,8 @@
 /**
  * js/data.js
  * Robuste Daten-Provider & Caching-Schicht:
- * 1. Prüft relativen Pfad (./data/...)
- * 2. Fallback auf GitHub Raw (überbrückt Pages-Deployment-Verzögerungen)
- * 3. Fallback auf localStorage Cache
- * 4. Fallback auf window.STOCK_DATA
+ * Lädt primär über den absoluten Pfad /data/<TICKER>.json.
+ * Fällt bei Verzögerungen des GitHub-Pages-Deployments sofort auf GitHub-Raw zurück.
  */
 
 window.App = window.App || {};
@@ -23,26 +21,24 @@ window.App.Data = (function () {
     LAST_TICKER: 'app_last_ticker'
   };
 
-  function getLocalUrl(fileName) {
-    return './data/' + fileName + '?v=' + Date.now();
-  }
-
-  function getRawUrl(fileName) {
-    return 'https://raw.githubusercontent.com/' + GITHUB_USER + '/' + GITHUB_REPO + '/' + GITHUB_BRANCH + '/data/' + fileName + '?v=' + Date.now();
-  }
-
   /**
-   * Lädt eine Datei erst per relativem Pfad, bei Fehler direkt von GitHub Raw.
+   * Lädt eine JSON-Datei mit Fallback-Kette:
+   * 1. Direkter Webserver-Pfad /data/...
+   * 2. GitHub Raw (falls Pages noch deployt)
    */
-  function fetchWithFallback(fileName) {
-    return fetch(getLocalUrl(fileName))
+  function fetchJsonWithFallback(fileName) {
+    var bust = '?v=' + Date.now();
+    var primaryUrl = '/data/' + fileName + bust;
+    var rawUrl = 'https://raw.githubusercontent.com/' + GITHUB_USER + '/' + GITHUB_REPO + '/' + GITHUB_BRANCH + '/data/' + fileName + bust;
+
+    return fetch(primaryUrl)
       .then(function (res) {
         if (res.ok) return res.json();
-        throw new Error('Local 404');
+        throw new Error('Primary 404');
       })
       .catch(function () {
         // Fallback direkt auf GitHub Raw
-        return fetch(getRawUrl(fileName)).then(function (rawRes) {
+        return fetch(rawUrl).then(function (rawRes) {
           if (!rawRes.ok) {
             throw new Error('HTTP ' + rawRes.status);
           }
@@ -52,7 +48,7 @@ window.App.Data = (function () {
   }
 
   function getUniverse() {
-    return fetchWithFallback('universe.json')
+    return fetchJsonWithFallback('universe.json')
       .then(function (data) {
         if (Array.isArray(data) && data.length > 0) {
           try {
@@ -60,7 +56,7 @@ window.App.Data = (function () {
           } catch (e) {}
           return data;
         }
-        throw new Error('Ungültiges Universum-Format');
+        throw new Error('Ungültiges Format für Universum');
       })
       .catch(function (err) {
         try {
@@ -86,7 +82,7 @@ window.App.Data = (function () {
     var cleanTicker = ticker.toUpperCase().trim();
     var storageKey = STORAGE_KEYS.STOCK_PREFIX + cleanTicker;
 
-    return fetchWithFallback(cleanTicker + '.json')
+    return fetchJsonWithFallback(cleanTicker + '.json')
       .then(function (data) {
         if (data && (data.ticker || data.profile)) {
           try {
@@ -94,7 +90,7 @@ window.App.Data = (function () {
           } catch (e) {}
           return data;
         }
-        throw new Error('Ungültige Aktiendaten');
+        throw new Error('Ungültige Daten für ' + cleanTicker);
       })
       .catch(function (err) {
         // Fallback 1: localStorage
@@ -106,12 +102,12 @@ window.App.Data = (function () {
           }
         } catch (e) {}
 
-        // Fallback 2: data/fallback.js
+        // Fallback 2: fallback.js
         if (window.STOCK_DATA && window.STOCK_DATA[cleanTicker]) {
           return window.STOCK_DATA[cleanTicker];
         }
 
-        throw new Error('Keine Offline- oder Onlinedaten für "' + cleanTicker + '" verfügbar.');
+        throw new Error('Keine Daten für "' + cleanTicker + '" verfügbar (' + err.message + ').');
       });
   }
 
