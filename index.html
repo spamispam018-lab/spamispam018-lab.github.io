@@ -2,546 +2,93 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aktien Screener</title>
-
-  <!-- Basis & Komponenten-Styles -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aktien-Hub | Dashboard & Marktübersicht</title>
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/stock.css">
-
-  <style>
-    :root {
-      --bg-dark: #0f172a;
-      --card-bg: #1e293b;
-      --border-color: #334155;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent-purple: #8b5cf6;
-      --accent-hover: #7c3aed;
-      --green: #10b981;
-      --red: #ef4444;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body.screener-body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .app-header {
-      background-color: rgba(15, 23, 42, 0.95);
-      border-bottom: 1px solid var(--border-color);
-      padding: 12px 16px;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      backdrop-filter: blur(8px);
-    }
-
-    .header-main-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .app-brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .brand-icon {
-      font-size: 20px;
-    }
-
-    .brand-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--text-main);
-      letter-spacing: -0.02em;
-    }
-
-    .action-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 8px;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .action-btn:hover {
-      background: var(--border-color);
-    }
-
-    .search-bar-wrapper {
-      margin-bottom: 10px;
-    }
-
-    .search-input-box {
-      position: relative;
-      display: flex;
-      align-items: center;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 0 12px;
-    }
-
-    .search-input-box:focus-within {
-      border-color: var(--accent-purple);
-    }
-
-    .search-icon {
-      color: var(--text-muted);
-      margin-right: 8px;
-      flex-shrink: 0;
-    }
-
-    .screener-search-field {
-      width: 100%;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text-main);
-      padding: 10px 0;
-      font-size: 0.95rem;
-    }
-
-    .screener-search-field::placeholder {
-      color: var(--text-muted);
-    }
-
-    .search-clear-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.2rem;
-      cursor: pointer;
-      display: none;
-      padding: 4px;
-    }
-
-    .toggle-tabs-group {
-      display: flex;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 3px;
-      gap: 4px;
-    }
-
-    .view-tab-btn {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      padding: 8px 12px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .view-tab-btn.active {
-      background: var(--accent-purple);
-      color: #ffffff;
-    }
-
-    .controls-section {
-      padding: 10px 16px;
-      background: var(--bg-dark);
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .filters-scroll-bar {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-    }
-
-    .form-select-dark {
-      flex: 1;
-      background: var(--card-bg);
-      color: var(--text-main);
-      border: 1px solid var(--border-color);
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .form-select-dark:focus {
-      border-color: var(--accent-purple);
-    }
-
-    .main-content-area {
-      flex: 1;
-      padding: 16px;
-      max-width: 900px;
-      width: 100%;
-      margin: 0 auto;
-    }
-
-    .loading-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 0;
-    }
-
-    .spinner {
-      width: 28px;
-      height: 28px;
-      border: 3px solid var(--border-color);
-      border-top-color: var(--accent-purple);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .error-banner {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid var(--red);
-      color: #fca5a5;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 48px 16px;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-    }
-  </style>
 </head>
-<body class="screener-body">
-
-  <!-- Header & Navigation -->
-  <header class="app-header">
-    <div class="header-main-row">
-      <div class="app-brand">
-        <span class="brand-icon">📈</span>
-        <h1 class="brand-title">Aktien Screener</h1>
-      </div>
-      <div class="header-actions">
-        <button type="button" class="action-btn" id="refreshAllBtn" title="Daten neu laden" aria-label="Aktualisieren">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10"></polyline>
-            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-          </svg>
-        </button>
-      </div>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased">
+  <!-- Hauptnavigation -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">Aktien-Hub</a>
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link active">Übersicht</a>
+        <a href="Views/screener.html" class="nav-link">Screener</a>
+        <a href="Views/watchlist.html" class="nav-link">Watchlist</a>
+      </nav>
     </div>
-
-    <!-- Suchfeld für Schnelleinstieg in die Detailansicht oder Filterung -->
-    <div class="search-bar-wrapper">
-      <div class="search-input-box">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <input 
-          type="text" 
-          id="screenerSearchInput" 
-          class="screener-search-field" 
-          placeholder="Aktie suchen (z. B. AAPL, NVDA)..." 
-          autocomplete="off" 
-          autocapitalize="characters" 
-          spellcheck="false"
-        >
-        <button type="button" class="search-clear-btn" id="searchClearBtn" aria-label="Suche zurücksetzen">&times;</button>
-      </div>
-    </div>
-
-    <!-- Screener / Watchlist Umschalter -->
-    <nav class="view-toggle-nav" aria-label="Ansicht umschalten">
-      <div class="toggle-tabs-group">
-        <button type="button" class="view-tab-btn active" id="tabShowScreener">Screener</button>
-        <button type="button" class="view-tab-btn" id="tabShowWatchlist">Watchlist</button>
-      </div>
-    </nav>
   </header>
 
-  <!-- Filter- und Sortier-Leiste -->
-  <section class="controls-section" id="controlsSection">
-    <div class="filters-scroll-bar">
-      <!-- Sektor-Filter -->
-      <select id="filterSector" class="form-select-dark">
-        <option value="">Alle Sektoren</option>
-        <option value="Technology">Technologie</option>
-        <option value="Healthcare">Gesundheit</option>
-        <option value="Financial Services">Finanzen</option>
-        <option value="Consumer Cyclical">Konsum zyklisch</option>
-        <option value="Communication Services">Kommunikation</option>
-        <option value="Industrials">Industrie</option>
-      </select>
-
-      <!-- Sortierung -->
-      <select id="sortBySelect" class="form-select-dark">
-        <option value="marketCap_desc">Marktkapitalisierung ↓</option>
-        <option value="dayChange_desc">Tagesgewinner ↑</option>
-        <option value="dayChange_asc">Tagesverlierer ↓</option>
-        <option value="pe_asc">KGV niedrig ↑</option>
-        <option value="dividendYield_desc">Dividende hoch ↓</option>
-      </select>
-    </div>
-  </section>
-
-  <!-- Hauptcontainer -->
-  <main class="main-content-area">
-    <!-- Ladeanzeige -->
-    <div class="loading-state" id="screenerLoading" style="display: none;">
-      <div class="spinner"></div>
-      <p style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">Lade Aktienliste...</p>
+  <main class="container py-8">
+    <!-- Hero / Begrüßung -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold tracking-tight">Marktübersicht</h1>
+      <p class="text-muted text-sm mt-1">Echtzeit- und Fundamentaldaten führender Aktientitel auf einen Blick.</p>
     </div>
 
-    <!-- Fehlerhinweis -->
-    <div class="error-banner" id="screenerError" style="display: none;">
-      <span class="error-icon">⚠️</span>
-      <span class="error-text" id="screenerErrorText">Fehler beim Laden.</span>
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-3 gap-6 mb-8">
+      <div class="card stat-card">
+        <span class="text-xs uppercase tracking-wider text-muted font-bold">Beobachtete Titel</span>
+        <div class="stat-value mt-2" id="stat-total-stocks">-</div>
+        <p class="text-xs text-muted mt-1">Im Datenbestand erfasst</p>
+      </div>
+      <div class="card stat-card">
+        <span class="text-xs uppercase tracking-wider text-muted font-bold">Top Gewinner</span>
+        <div class="stat-value text-green mt-2" id="stat-top-gainer">-</div>
+        <p class="text-xs text-muted mt-1" id="stat-top-gainer-symbol">Höchster Tagesgewinn</p>
+      </div>
+      <div class="card stat-card">
+        <span class="text-xs uppercase tracking-wider text-muted font-bold">Top Verlierer</span>
+        <div class="stat-value text-red mt-2" id="stat-top-loser">-</div>
+        <p class="text-xs text-muted mt-1" id="stat-top-loser-symbol">Stärkster Tagesverlust</p>
+      </div>
     </div>
 
-    <!-- Liste der Aktienkarten -->
-    <div class="stock-cards-grid" id="stockListContainer"></div>
+    <!-- Markttabelle / Dashboard Übersicht -->
+    <div class="card mb-8">
+      <div class="flex-between flex-align-center mb-4">
+        <h2 class="text-xl font-bold">Aktuelle Marktbewegungen</h2>
+        <a href="Views/screener.html" class="text-sm font-bold text-primary">Alle anzeigen &rarr;</a>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Unternehmen</th>
+              <th>Sektor</th>
+              <th>Kurs</th>
+              <th>Tagesänderung</th>
+              <th>Marktkapitalisierung</th>
+              <th>Aktion</th>
+            </tr>
+          </thead>
+          <tbody id="dashboard-stock-table">
+            <tr>
+              <td colspan="7" class="text-center py-6 text-muted">Lade Marktdaten...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </main>
 
-  <!-- Bibliotheken -->
-  <script src="js/lib/chart.umd.js"></script>
+  <footer class="footer py-6 text-center text-sm text-muted">
+    <div class="container">
+      <p>&copy; Aktien-Analyse Dashboard &bull; Alle Kursdaten ohne Gewähr.</p>
+    </div>
+  </footer>
 
-  <!-- Fallback-Daten falls offline geladen wird -->
+  <!-- Bibliotheken & Fallbacks -->
+  <script src="js/lib/chart.umd.js"></script>
   <script src="data/fallback-data.js"></script>
 
-  <!-- App-Module -->
+  <!-- Core Services -->
   <script src="js/data.js"></script>
-  <script src="js/filters.js"></script>
+  <script src="js/stock-data.js"></script>
   <script src="js/watchlist.js"></script>
+  <script src="js/charts.js"></script>
   <script src="js/ui.js"></script>
-
-  <!-- Initialisierungsskript -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const searchInput = document.getElementById("screenerSearchInput");
-      const searchClear = document.getElementById("searchClearBtn");
-      const sectorFilter = document.getElementById("filterSector");
-      const sortSelect = document.getElementById("sortBySelect");
-      const refreshBtn = document.getElementById("refreshAllBtn");
-      const tabScreener = document.getElementById("tabShowScreener");
-      const tabWatchlist = document.getElementById("tabShowWatchlist");
-      const loadingEl = document.getElementById("screenerLoading");
-      const errorEl = document.getElementById("screenerError");
-      const errorText = document.getElementById("screenerErrorText");
-
-      let allStocks = [];
-      let isWatchlistActive = false;
-
-      function getRawFallback() {
-        if (window.Data && typeof window.Data.getFallbackList === "function") {
-          return window.Data.getFallbackList();
-        }
-        if (window.FALLBACK_DATA) {
-          return window.FALLBACK_DATA.stocks || (Array.isArray(window.FALLBACK_DATA) ? window.FALLBACK_DATA : []);
-        }
-        if (window.STOCK_DATA) {
-          return window.STOCK_DATA.stocks || (Array.isArray(window.STOCK_DATA) ? window.STOCK_DATA : []);
-        }
-        return [];
-      }
-
-      function updateView() {
-        let list = isWatchlistActive
-          ? allStocks.filter(function (s) {
-              const sym = s.ticker || s.symbol;
-              return window.Watchlist && typeof window.Watchlist.isFavorite === "function"
-                ? window.Watchlist.isFavorite(sym)
-                : false;
-            })
-          : allStocks.slice();
-
-        // Sektor-Filter
-        const selectedSector = sectorFilter ? sectorFilter.value : "";
-        if (selectedSector) {
-          list = list.filter(function (s) {
-            return (s.sector || "") === selectedSector;
-          });
-        }
-
-        // Textsuche
-        const term = (searchInput ? searchInput.value : "").trim().toUpperCase();
-        if (term) {
-          list = list.filter(function (s) {
-            const sym = (s.ticker || s.symbol || "").toUpperCase();
-            const name = (s.name || "").toUpperCase();
-            return sym.includes(term) || name.includes(term);
-          });
-        }
-
-        // Sortierung
-        const sortMode = sortSelect ? sortSelect.value : "marketCap_desc";
-        list.sort(function (a, b) {
-          const capA = a.marketCap || 0;
-          const capB = b.marketCap || 0;
-          const chgA = typeof a.dayChange !== "undefined" ? a.dayChange : (a.change || 0);
-          const chgB = typeof b.dayChange !== "undefined" ? b.dayChange : (b.change || 0);
-          const peA = a.pe || a.trailingPE || 999;
-          const peB = b.pe || b.trailingPE || 999;
-          const divA = a.dividendYield || a.dividend || 0;
-          const divB = b.dividendYield || b.dividend || 0;
-
-          if (sortMode === "marketCap_desc") return capB - capA;
-          if (sortMode === "dayChange_desc") return chgB - chgA;
-          if (sortMode === "dayChange_asc") return chgA - chgB;
-          if (sortMode === "pe_asc") return peA - peB;
-          if (sortMode === "dividendYield_desc") return divB - divA;
-          return 0;
-        });
-
-        if (window.UI && typeof window.UI.renderStockList === "function") {
-          window.UI.renderStockList(list, "stockListContainer");
-        } else {
-          // Basis-Renderer falls UI-Modul noch lädt oder fehlt
-          const container = document.getElementById("stockListContainer");
-          if (container) {
-            if (list.length === 0) {
-              container.innerHTML = '<div class="empty-state">Keine Aktien gefunden, die den Kriterien entsprechen.</div>';
-            } else {
-              container.innerHTML = list.map(function (s) {
-                const sym = s.ticker || s.symbol || "";
-                const chg = typeof s.dayChange !== "undefined" ? s.dayChange : (s.change || 0);
-                const chgColor = chg >= 0 ? "var(--green)" : "var(--red)";
-                const chgSign = chg > 0 ? "+" : "";
-                return '<div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; padding:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="location.href=\'Views/stock.html?ticker=' + encodeURIComponent(sym) + '\'">' +
-                  '<div>' +
-                    '<div style="font-weight:700; font-size:1rem;">' + sym + '</div>' +
-                    '<div style="font-size:0.85rem; color:var(--text-muted);">' + (s.name || '') + '</div>' +
-                  '</div>' +
-                  '<div style="text-align:right;">' +
-                    '<div style="font-weight:600;">' + (s.price ? (s.price.toFixed ? s.price.toFixed(2) : s.price) + ' €' : '-') + '</div>' +
-                    '<div style="font-size:0.85rem; font-weight:600; color:' + chgColor + ';">' + chgSign + (chg.toFixed ? chg.toFixed(2) : chg) + '%</div>' +
-                  '</div>' +
-                '</div>';
-              }).join("");
-            }
-          }
-        }
-      }
-
-      function loadData(forceRefresh) {
-        if (loadingEl) loadingEl.style.display = "flex";
-        if (errorEl) errorEl.style.display = "none";
-
-        let fetchPromise;
-        if (window.Data && typeof window.Data.fetchStocks === "function") {
-          fetchPromise = window.Data.fetchStocks(forceRefresh);
-        } else if (window.App && window.App.DataService && typeof window.App.DataService.fetchStocks === "function") {
-          fetchPromise = window.App.DataService.fetchStocks(forceRefresh);
-        } else {
-          fetchPromise = Promise.resolve(getRawFallback());
-        }
-
-        fetchPromise
-          .then(function (stocks) {
-            allStocks = (stocks && stocks.length > 0) ? stocks : getRawFallback();
-            updateView();
-          })
-          .catch(function (err) {
-            console.warn("Ladefehler:", err);
-            if (errorEl && errorText) {
-              errorText.textContent = "Offline-Modus oder Ladefehler: Zeige Fallback-Daten.";
-              errorEl.style.display = "flex";
-            }
-            allStocks = getRawFallback();
-            updateView();
-          })
-          .finally(function () {
-            if (loadingEl) loadingEl.style.display = "none";
-          });
-      }
-
-      // Suche & Filter Events
-      if (searchInput) {
-        searchInput.addEventListener("input", function () {
-          if (searchClear) searchClear.style.display = this.value ? "block" : "none";
-          updateView();
-        });
-        searchInput.addEventListener("keydown", function (e) {
-          if (e.key === "Enter") {
-            const sym = this.value.trim().toUpperCase();
-            if (sym) {
-              if (window.UI && typeof window.UI.openStockDetail === "function") {
-                window.UI.openStockDetail(sym);
-              } else {
-                window.location.href = "Views/stock.html?ticker=" + encodeURIComponent(sym);
-              }
-            }
-          }
-        });
-      }
-
-      if (searchClear) {
-        searchClear.addEventListener("click", function () {
-          if (searchInput) {
-            searchInput.value = "";
-            this.style.display = "none";
-            updateView();
-          }
-        });
-      }
-
-      if (sectorFilter) sectorFilter.addEventListener("change", updateView);
-      if (sortSelect) sortSelect.addEventListener("change", updateView);
-
-      // Watchlist / Screener Tabs
-      if (tabScreener && tabWatchlist) {
-        tabScreener.addEventListener("click", function () {
-          isWatchlistActive = false;
-          tabScreener.classList.add("active");
-          tabWatchlist.classList.remove("active");
-          updateView();
-        });
-        tabWatchlist.addEventListener("click", function () {
-          isWatchlistActive = true;
-          tabWatchlist.classList.add("active");
-          tabScreener.classList.remove("active");
-          updateView();
-        });
-      }
-
-      if (refreshBtn) {
-        refreshBtn.addEventListener("click", function () {
-          loadData(true);
-        });
-      }
-
-      // Initialer Start
-      loadData(false);
-    });
-  </script>
 </body>
 </html>
