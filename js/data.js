@@ -3,8 +3,8 @@
  * 
  * Strategie:
  * 1. Prüft localStorage auf bestehende Daten.
- * 2. Versucht im Hintergrund oder beim Start, frische Daten von raw.githubusercontent.com zu laden.
- * 3. Fällt bei Verbindungsabbruch oder Erststart ohne Internet transparent auf window.STOCK_DATA zurück.
+ * 2. Versucht beim Start, frische Daten von raw.githubusercontent.com zu laden.
+ * 3. Fällt bei Verbindungsabbruch oder Erststart transparent auf window.STOCK_DATA zurück.
  */
 
 window.App = window.App || {};
@@ -13,7 +13,7 @@ window.App = window.App || {};
   'use strict';
 
   var STORAGE_KEY = 'stockscreener_data_cache';
-  var GITHUB_REPO_PATH = 'DEIN_GITHUB_USERNAME/DEIN_REPO_NAME/main/data/stocks.json';
+  var GITHUB_REPO_PATH = 'spamispam018-lab/spamispam018-lab.github.io/main/data/stocks.json';
 
   var DataService = {
     currentData: null,
@@ -59,7 +59,7 @@ window.App = window.App || {};
           self.currentData = window.STOCK_DATA;
         }
 
-        // 3. Online-Abruf via GitHub Raw (unterstützt CORS auch unter file://)
+        // 3. Online-Abruf via GitHub Raw (unterstützt CORS auch unter file:// und Pages)
         var onlineUrl = 'https://raw.githubusercontent.com/' + GITHUB_REPO_PATH + '?t=' + Date.now();
 
         fetch(onlineUrl)
@@ -83,7 +83,6 @@ window.App = window.App || {};
             }
           })
           .catch(function(err) {
-            // Offline oder kein Netzwerk: Vorhandene Daten nutzen
             console.info('Offline-Modus aktiv oder GitHub nicht erreichbar:', err.message);
             resolve(self.getSafeData());
           });
