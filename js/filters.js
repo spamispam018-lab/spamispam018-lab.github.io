@@ -1,5 +1,5 @@
 /**
- * Filter-, Statistik- und Card-Rendering-Logik für den Screener im Mobile-App-Style
+ * Filter- und Rendering-Logik für den Screener
  */
 const ScreenerController = (function () {
   let allStocks = [];
@@ -7,8 +7,8 @@ const ScreenerController = (function () {
   let activeChip = "all";
 
   function getDetailUrl(symbol) {
-    const path = window.location.pathname;
-    if (path.includes("/Views/") || path.includes("/views/")) {
+    const pathname = window.location.pathname;
+    if (pathname.includes("/Views/") || pathname.includes("/views/")) {
       return `stock.html?symbol=${encodeURIComponent(symbol)}`;
     }
     return `Views/stock.html?symbol=${encodeURIComponent(symbol)}`;
@@ -51,14 +51,14 @@ const ScreenerController = (function () {
       }
     }
 
-    // Durchschnitts-KGV (nur positive Werte einbeziehen)
+    // Ø KGV
     const validPEs = stocks.filter(s => typeof s.peRatio === "number" && s.peRatio > 0 && s.peRatio < 150);
     if (validPEs.length > 0 && avgPeEl) {
       const avgPe = validPEs.reduce((acc, curr) => acc + curr.peRatio, 0) / validPEs.length;
       avgPeEl.textContent = avgPe.toFixed(1).replace(".", ",");
     }
 
-    // Durchschnittliche Dividendenrendite
+    // Ø Dividendenrendite
     const validDivs = stocks.filter(s => typeof s.dividendYield === "number" && !isNaN(s.dividendYield));
     if (validDivs.length > 0 && avgDivEl) {
       const avgDiv = validDivs.reduce((acc, curr) => acc + curr.dividendYield, 0) / validDivs.length;
@@ -84,11 +84,11 @@ const ScreenerController = (function () {
       // 2. Chip-Filter
       switch (activeChip) {
         case "dividend":
-          return typeof stock.dividendYield === "number" && stock.dividendYield >= 2.5;
+          return typeof stock.dividendYield === "number" && stock.dividendYield >= 2.0;
         case "value":
           return typeof stock.peRatio === "number" && stock.peRatio > 0 && stock.peRatio < 18.0;
         case "growth":
-          return typeof stock.changePercent === "number" && stock.changePercent > 2.0;
+          return typeof stock.changePercent === "number" && stock.changePercent > 1.0;
         case "all":
         default:
           return true;
@@ -193,9 +193,7 @@ const ScreenerController = (function () {
       attachListeners();
       applyFilters();
     } catch (err) {
-      console.error("Fehler beim Laden der Screener-Daten:", err);
-      const sub = document.getElementById("status-subtitle");
-      if (sub) sub.textContent = "Fehler beim Laden der Marktdaten";
+      console.error("Fehler beim Initialisieren des Screeners:", err);
     }
   }
 
@@ -204,7 +202,6 @@ const ScreenerController = (function () {
   };
 })();
 
-// DOM-Ready Initialisierung
 document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("stock-list-container")) {
     ScreenerController.init();
