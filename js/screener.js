@@ -127,9 +127,8 @@ window.App.Screener = (function () {
         case 'change_asc':
           return (a.changePercent || 999) - (b.changePercent || 999);
         case 'pe_asc':
-          var peA = (a.pe && a.pe > 0) ? a.pe : 9999;
-          var peB = (b.pe && b.pe > 0) ? b.pe : 9999;
-          return peA - peB;
+          // Verlust (negatives KGV) zuerst, dann positives KGV aufsteigend, unbekannt zuletzt
+          return peRank(a) - peRank(b);
         case 'dividend_desc':
           return (b.dividendYield || 0) - (a.dividendYield || 0);
         case 'perf52w_desc':
@@ -150,6 +149,23 @@ window.App.Screener = (function () {
     }
 
     renderStockCards(filteredStocks);
+  }
+
+  /**
+   * KGV-Sortierung: negatives KGV (Verlust) < positives KGV < unbekannt.
+   */
+  function isLoss(s) {
+    if (s.pe !== null && s.pe !== undefined) return s.pe < 0;
+    return s.profitMargins !== null && s.profitMargins !== undefined && s.profitMargins < 0;
+  }
+
+  function peRank(s) {
+    if (isLoss(s)) {
+      var depth = (s.pe < 0) ? s.pe : (s.profitMargins || 0);
+      return -1e6 + depth;
+    }
+    if (s.pe && s.pe > 0) return s.pe;
+    return 1e9;
   }
 
   /**
@@ -185,6 +201,7 @@ window.App.Screener = (function () {
               '<div class="stock-tags">' +
                 '<span class="ticker-badge">' + stock.ticker + '</span>' +
                 '<span class="sector-label">• ' + (stock.sector || 'Markt') + '</span>' +
+                (isLoss(stock) ? '<span class="sector-label" style="color: var(--bearish); font-weight: 700;">• KGV neg.</span>' : '') +
               '</div>' +
             '</div>' +
           '</div>' +
