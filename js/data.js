@@ -1,77 +1,191 @@
-// js/data.js - Daten-Lade- und Verarbeitungslogik
+/* ==========================================================================
+   Finanz-Dashboard - Daten-Modul (Erweitert)
+   Lädt die aggregierten Daten (stocks.json) und Detaildaten (details/*.json)
+   ========================================================================== */
 
-const DataService = {
-  stocks: [],
-  detailsCache: {},
+const DataModule = {
+    // Cache für bereits geladene Daten
+    _cache: {
+        stocks: null,
+        details: {}
+    },
 
-  /**
-   * Lädt die Haupt-Aktiendaten. Versucht zuerst die JSON-Datei,
-   * fällt bei Fehlern (z. B. 404 auf GitHub Pages) auf FALLBACK_STOCKS zurück.
-   */
-  async loadStocks() {
-    try {
-      // Relative Pfad-Absicherung für GitHub Pages
-      const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-      const url = new URL('data/stocks.json', window.location.origin + basePath).href;
+    /**
+     * Ermittelt den relativen Basis-Pfad zum Repository-Root,
+     * unabhängig davon, ob die Seite im Root (index.html) oder in /Views/ aufgerufen wird.
+     */
+    _getBasePath() {
+        const path = window.location.pathname;
+        if (path.includes('/Views/')) {
+            return '../';
+        }
+        return './';
+    },
 
-      const response = await fetch(url, { cache: 'no-cache' });
-      if (!response.ok) {
-        throw new Error(`HTTP-Fehler beim Laden der Marktdaten: ${response.status}`);
-      }
-      const data = await response.json();
-      if (!Array.isArray(data) || data.length === 0) {
-        throw new Error('Empfangene Daten sind leer oder ungültig');
-      }
-      this.stocks = data;
-      console.log(`Erfolgreich ${this.stocks.length} Titel geladen.`);
-    } catch (err) {
-      console.warn('Fehler beim Laden von stocks.json. Verwende Fallback-Daten:', err);
-      if (typeof FALLBACK_STOCKS !== 'undefined' && Array.isArray(FALLBACK_STOCKS)) {
-        this.stocks = FALLBACK_STOCKS;
-      } else {
-        this.stocks = [];
-        console.error('Keine Fallback-Daten verfügbar (FALLBACK_STOCKS nicht definiert).');
-      }
+    /**
+     * Lädt die Übersichtsdaten aller Aktien (stocks.json)
+     * @returns {Promise<Array>} Array von Aktien-Objekten
+     */
+    async loadStocks() {
+        if (this._cache.stocks) {
+            return this._cache.stocks;
+        }
+
+        try {
+            const basePath = this._getBasePath();
+            const response = await fetch(`${basePath}data/stocks.json`);
+            if (!response.ok) {
+                throw new Error(`HTTP-Fehler: ${response.status}`);
+            }
+            const data = await response.json();
+            this._cache.stocks = data;
+            return data;
+        } catch (error) {
+            console.warn('Konnte stocks.json nicht laden, nutze Fallback-Daten:', error.message);
+            // Fallback nutzen, falls vorhanden
+            if (typeof FALLBACK_STOCKS !== 'undefined') {
+                this._cache.stocks = FALLBACK_STOCKS;
+                return FALLBACK_STOCKS;
+            }
+            throw error;
+        }
+    },
+
+    /**
+     * Lädt die Detaildaten für eine bestimmte Aktie
+     * @param {string} symbol - Das Tickersymbol (z. B. "NVDA")
+     * @returns {Promise<Object>} Detail-Objekt der Aktie
+     */
+    async loadStockDetails(symbol) {
+        if (!symbol) return null;
+        
+        const cleanSymbol = symbol.toUpperCase().trim();
+        
+        if (this._cache.details[cleanSymbol]) {
+            return this._cache.details[cleanSymbol];
+        }
+
+        try {
+            const basePath = this._getBasePath();
+            const response = await fetch(`${basePath}data/details/${cleanSymbol}.json`);
+            if (!response.ok) {
+                throw new Error(`HTTP-Fehler: ${response.status}`);
+            }
+            const data = await response.json();
+            this._cache.details[cleanSymbol] = data;
+            return data;
+        } catch (error) {
+            console.warn(`Detaildaten für ${cleanSymbol} nicht gefunden, prüfe Fallback:`, error.message);
+            
+            // Versuche Fallback-Details
+            if (typeof FALLBACK_DETAILS !== 'undefined' && FALLBACK_DETAILS[cleanSymbol]) {
+                const data = FALLBACK_DETAILS[cleanSymbol];
+                this._cache.details[cleanSymbol] = data;
+                return data;
+            }
+
+            // Wenn keine Details da sind, versuche Basis-Daten aus stocks.json zu konstruieren
+            const stocks = await this.loadStocks();
+            const baseStock = stocks.find(s => s.symbol.toUpperCase() === cleanSymbol);
+            
+            if (baseStock) {
+                const syntheticDetails = this._createSyntheticDetails(baseStock);
+                this._cache.details[cleanSymbol] = syntheticDetails;
+                return syntheticDetails;
+            }
+
+            throw new Error(`Keine Daten für Symbol "${cleanSymbol}" verfügbar`);
+        }
+    },
+
+    /**
+     * Erstellt minimale Detaildaten aus dem Basis-Aktienobjekt
+     */
+    _createSyntheticDetails(stock) {
+        return {
+            symbol: stock.symbol,
+            name: stock.name,
+            sector: stock.sector || 'Unbekannt',
+            industry: stock.industry || 'Unbekannt',
+            description: `${stock.name} ist ein Unternehmen im Sektor ${stock.sector || 'N/A'}. Detaillierte Unternehmensinformationen sind derzeit nicht verfügbar.`,
+            website: '#',
+            employees: 0,
+            financials: {
+                revenue: [],
+                earnings: [],
+                freeCashFlow: [],
+                operatingCashFlow: [],
+                margins: {
+                    gross: stock.profitMargin ? stock.profitMargin * 1.5 : 0,
+                    operating: stock.operatingMargin || 0,
+                    net: stock.profitMargin || 0
+                },
+                ratios: {
+                    pe: stock.pe || 0,
+                    fwdPe: stock.pe ? stock.pe * 0.9 : 0,
+                    ps: stock.ps || 0,
+                    pb: 0,
+                    evEbitda: 0,
+                    debtToEquity: stock.debtToEquity || 0,
+                    currentRatio: stock.currentRatio || 0,
+                    quickRatio: 0,
+                    roe: stock.roe || 0,
+                    roa: stock.roa || 0,
+                    dividendYield: stock.dividendYield || 0,
+                    payoutRatio: 0
+                }
+            },
+            analystRatings: {
+                consensus: 'Hold',
+                targetMean: stock.price ? stock.price * 1.1 : 0,
+                targetHigh: stock.price ? stock.price * 1.3 : 0,
+                targetLow: stock.price ? stock.price * 0.9 : 0,
+                numberOfAnalysts: 0,
+                history: []
+            },
+            news: [],
+            insiderTransactions: []
+        };
+    },
+
+    /**
+     * Sucht Aktien anhand eines Suchbegriffs
+     * @param {string} query - Suchbegriff (Name oder Symbol)
+     * @returns {Promise<Array>} Gefilterte Liste
+     */
+    async searchStocks(query) {
+        const stocks = await this.loadStocks();
+        if (!query || query.trim() === '') return stocks;
+        
+        const q = query.toLowerCase().trim();
+        return stocks.filter(s => 
+            s.name.toLowerCase().includes(q) || 
+            s.symbol.toLowerCase().includes(q) ||
+            (s.sector && s.sector.toLowerCase().includes(q))
+        );
+    },
+
+    /**
+     * Gibt eine Liste aller verfügbaren Sektoren zurück
+     * @returns {Promise<Array<string>>}
+     */
+    async getSectors() {
+        const stocks = await this.loadStocks();
+        const sectors = new Set();
+        stocks.forEach(s => {
+            if (s.sector) sectors.add(s.sector);
+        });
+        return Array.from(sectors).sort();
+    },
+
+    /**
+     * Cache leeren
+     */
+    clearCache() {
+        this._cache.stocks = null;
+        this._cache.details = {};
     }
-    return this.stocks;
-  },
-
-  /**
-   * Lädt Detaildaten für ein bestimmtes Symbol.
-   */
-  async loadStockDetails(ticker) {
-    if (!ticker) return null;
-    const cleanTicker = ticker.toUpperCase().trim();
-
-    if (this.detailsCache[cleanTicker]) {
-      return this.detailsCache[cleanTicker];
-    }
-
-    try {
-      const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-      const url = new URL(`data/details/${cleanTicker}.json`, window.location.origin + basePath).href;
-
-      const response = await fetch(url, { cache: 'no-cache' });
-      if (!response.ok) {
-        throw new Error(`Detaildaten für ${cleanTicker} nicht gefunden (${response.status})`);
-      }
-      const data = await response.json();
-      this.detailsCache[cleanTicker] = data;
-      return data;
-    } catch (err) {
-      console.warn(`Fehler beim Laden der Details für ${cleanTicker}. Prüfe Fallback...`, err);
-      if (typeof FALLBACK_DETAILS !== 'undefined' && FALLBACK_DETAILS[cleanTicker]) {
-        return FALLBACK_DETAILS[cleanTicker];
-      }
-      // Minimaler Fallback aus Basis-Aktienliste
-      const baseStock = this.stocks.find(s => s.symbol === cleanTicker);
-      return baseStock || null;
-    }
-  },
-
-  getAllStocks() {
-    return this.stocks;
-  }
 };
 
-window.DataService = DataService;
+// Global verfügbar machen
+window.DataModule = DataModule;
