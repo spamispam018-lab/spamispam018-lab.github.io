@@ -27,7 +27,7 @@
     </a>
   </nav>
 
-  <!-- Versteckte Inline-Templates der Views (Funktioniert 100% lokal via file:// ohne fetch-Beschränkungen) -->
+  <!-- Versteckte Inline-Templates der Views -->
   <template id="view-template-screener">
     <div class="header-bar">
       <div class="header-title-wrap">
@@ -175,11 +175,21 @@
         </div>
       </div>
 
+      <!-- Chart-Box mit Zeitspannen-Schaltern -->
       <div class="chart-box">
         <div class="chart-header">
-          <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Kursentwicklung (1J)</span>
+          <span id="detailChartTitle" style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Kursentwicklung (1J)</span>
           <span id="detailChartPerfBadge" class="stock-badge" style="font-size: 0.75rem;">-</span>
         </div>
+
+        <!-- 4-fach Segment-Schalter für Zeiträume -->
+        <div class="range-selector-row">
+          <button class="range-pill-btn" data-range="1W">1W</button>
+          <button class="range-pill-btn" data-range="1M">1M</button>
+          <button class="range-pill-btn" data-range="6M">6M</button>
+          <button class="range-pill-btn active" data-range="1J">1J</button>
+        </div>
+
         <div class="chart-canvas-wrap">
           <canvas id="detailChartCanvas"></canvas>
         </div>
@@ -263,7 +273,7 @@
     </div>
   </template>
 
-  <!-- Klassische Script-Einbindung in exakter Reihenfolge ohne Build-Tools -->
+  <!-- Klassische Script-Einbindung -->
   <script src="data/fallback-data.js"></script>
   <script src="js/lib/chart.umd.js"></script>
   <script src="js/data.js"></script>
@@ -272,12 +282,13 @@
   <script src="js/charts.js"></script>
   <script src="js/ui.js"></script>
 
-  <!-- App-Initialisierung & Hash-Routing -->
+  <!-- App-Initialisierung, Router & Interaktive Chart-Zeitspannen -->
   <script>
     (function () {
       'use strict';
 
       var currentStocks = [];
+      var currentSelectedRange = '1J';
 
       function getHashRoute() {
         var hash = window.location.hash.replace('#', '') || 'screener';
@@ -305,7 +316,6 @@
         var avgDivEl = document.getElementById('heroAvgDiv');
         var updatedLabel = document.getElementById('lastUpdatedLabel');
 
-        // Dynamische Anzeige des Datenstands (Datum und Uhrzeit)
         if (updatedLabel && window.App.DataService.currentData) {
           var rawDate = window.App.DataService.currentData.lastUpdated;
           if (rawDate) {
@@ -372,7 +382,6 @@
           });
         }
 
-        // Live-Suche
         searchInput.value = window.App.FilterEngine.state.searchQuery || '';
         searchClearBtn.style.display = searchInput.value ? 'block' : 'none';
 
@@ -389,7 +398,6 @@
           refreshList();
         });
 
-        // Preset Chips
         for (var i = 0; i < chips.length; i++) {
           chips[i].addEventListener('click', function() {
             for (var j = 0; j < chips.length; j++) chips[j].classList.remove('active');
@@ -401,14 +409,12 @@
           });
         }
 
-        // Sortierung
         sortSelect.value = window.App.FilterEngine.state.sortBy;
         sortSelect.addEventListener('change', function() {
           window.App.FilterEngine.state.sortBy = this.value;
           refreshList();
         });
 
-        // Bottom-Sheet Event Listener
         var openFilterBtn = document.getElementById('openFilterBtn');
         var closeFilterBtn = document.getElementById('closeFilterBtn');
         var sheetBackdrop = document.getElementById('sheetBackdrop');
@@ -492,6 +498,44 @@
         refreshList();
       }
 
+      function updateRangeChart(stock, rangeKey) {
+        currentSelectedRange = rangeKey;
+
+        // Passende Kursserie ermitteln
+        var dataSeries = [];
+        if (stock.ranges && stock.ranges[rangeKey] && stock.ranges[rangeKey].length > 0) {
+          dataSeries = stock.ranges[rangeKey];
+        } else if (stock.history && stock.history.length > 0) {
+          dataSeries = stock.history;
+        }
+
+        // Performance des gewählten Zeitraums berechnen
+        var perfVal = 0;
+        if (dataSeries.length >= 2) {
+          var startP = dataSeries[0];
+          var endP = dataSeries[dataSeries.length - 1];
+          perfVal = startP > 0 ? ((endP - startP) / startP) * 100 : 0;
+        } else {
+          perfVal = stock.perf52w || 0;
+        }
+
+        var chartTitleEl = document.getElementById('detailChartTitle');
+        var perfBadge = document.getElementById('detailChartPerfBadge');
+
+        if (chartTitleEl) chartTitleEl.textContent = 'Kursentwicklung (' + rangeKey + ')';
+        if (perfBadge) {
+          perfBadge.textContent = rangeKey + ': ' + window.App.UIController.formatPercent(perfVal);
+          perfBadge.className = 'stock-badge ' + (perfVal >= 0 ? 'pos' : 'neg');
+        }
+
+        var chartPayload = {
+          ticker: stock.ticker,
+          history: dataSeries
+        };
+
+        window.App.ChartService.renderDetailChart('detailChartCanvas', chartPayload);
+      }
+
       function renderDetailView(ticker) {
         var container = document.getElementById('appViewContainer');
         var template = document.getElementById('view-template-detail');
@@ -515,10 +559,6 @@
         var changeEl = document.getElementById('detailStockChange');
         changeEl.textContent = window.App.UIController.formatPercent(stock.changePercent);
         changeEl.className = 'stock-badge ' + (stock.changePercent >= 0 ? 'pos' : 'neg');
-
-        var perfBadge = document.getElementById('detailChartPerfBadge');
-        perfBadge.textContent = '52W: ' + window.App.UIController.formatPercent(stock.perf52w);
-        perfBadge.className = 'stock-badge ' + (stock.perf52w >= 0 ? 'pos' : 'neg');
 
         document.getElementById('metricMarketCap').textContent = window.App.UIController.formatMarketCap(stock.marketCap);
         document.getElementById('metricPeRatio').textContent = stock.peRatio ? stock.peRatio.toFixed(1) : 'k. A.';
@@ -548,9 +588,23 @@
           updateWatchlistState();
         });
 
-        // Detail Chart rendern
+        // Event-Listener für Zeitraum-Buttons (1W, 1M, 6M, 1J)
+        var rangeButtons = document.querySelectorAll('.range-pill-btn');
+        for (var i = 0; i < rangeButtons.length; i++) {
+          rangeButtons[i].addEventListener('click', function() {
+            for (var k = 0; k < rangeButtons.length; k++) {
+              rangeButtons[k].classList.remove('active');
+            }
+            this.classList.add('active');
+            var selectedRange = this.getAttribute('data-range');
+            updateRangeChart(stock, selectedRange);
+          });
+        }
+
+        // Standardmäßig 1J initialisieren
+        currentSelectedRange = '1J';
         setTimeout(function() {
-          window.App.ChartService.renderDetailChart('detailChartCanvas', stock);
+          updateRangeChart(stock, '1J');
         }, 50);
       }
 
@@ -617,7 +671,6 @@
 
       window.addEventListener('hashchange', router);
 
-      // App-Start
       window.App.DataService.loadStocks().then(function(data) {
         currentStocks = (data && data.stocks) ? data.stocks : [];
         router();
