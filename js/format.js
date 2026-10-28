@@ -1,7 +1,7 @@
 /**
  * js/format.js
- * Deutsche Zahlen-, Währungs-, Prozent- und Einheiten-Formatierung.
- * Alle Funktionen arbeiten defensiv und fangen null/undefined/NaN sauber ab.
+ * Deutsche Formatierungs-Helfer für Zahlen, Währungen, Prozentwerte und Datumsangaben.
+ * Konvertiert alle Beträge einheitlich in deutsche Zahlenformate mit Euro (€) als Standardwährung.
  */
 
 window.App = window.App || {};
@@ -9,110 +9,146 @@ window.App = window.App || {};
 window.App.Format = (function () {
   'use strict';
 
-  var GERMAN_LOCALE = 'de-DE';
+  var LOCALE = 'de-DE';
 
   /**
-   * Formatiert Dezimalzahlen nach deutschem Standard (z.B. 1.234,56).
+   * Formatiert eine Zahl nach deutschem Standard (z. B. 1.234,56).
+   * @param {number|string} value - Zu formatierender numerischer Wert
+   * @param {number} [decimals=2] - Anzahl der Nachkommastellen
+   * @returns {string} Formatierte Zahl oder '—'
    */
-  function number(val, decimals) {
-    if (val === null || val === undefined || isNaN(val)) return '—';
-    var d = typeof decimals === 'number' ? decimals : 2;
-    return new Intl.NumberFormat(GERMAN_LOCALE, {
+  function number(value, decimals) {
+    if (value === null || value === undefined || value === '' || isNaN(Number(value))) {
+      return '—';
+    }
+    var num = Number(value);
+    var d = decimals !== undefined ? decimals : 2;
+    return new Intl.NumberFormat(LOCALE, {
       minimumFractionDigits: d,
       maximumFractionDigits: d
-    }).format(val);
+    }).format(num);
   }
 
   /**
-   * Formatiert Währungsbeträge mit Symbol (z.B. 215,20 € oder $ 215,20).
+   * Formatiert einen Betrag als Währung.
+   * Standardmäßig wird immer auf Euro ('EUR') formatiert.
+   * @param {number|string} value - Betrag
+   * @param {string} [currencyCode='EUR'] - Währungscode (z. B. 'EUR', 'USD')
+   * @param {number} [decimals=2] - Nachkommastellen
+   * @returns {string} Formatierter Währungsbetrag (z. B. '123,45 €')
    */
-  function currency(val, curr, decimals) {
-    if (val === null || val === undefined || isNaN(val)) return '—';
-    var c = curr || 'EUR';
-    var d = typeof decimals === 'number' ? decimals : 2;
+  function currency(value, currencyCode, decimals) {
+    if (value === null || value === undefined || value === '' || isNaN(Number(value))) {
+      return '—';
+    }
+    var num = Number(value);
+    var code = (currencyCode && typeof currencyCode === 'string' && currencyCode.length === 3)
+      ? currencyCode.toUpperCase()
+      : 'EUR';
+    var d = decimals !== undefined ? decimals : 2;
+
     try {
-      return new Intl.NumberFormat(GERMAN_LOCALE, {
+      return new Intl.NumberFormat(LOCALE, {
         style: 'currency',
-        currency: c,
+        currency: code,
         minimumFractionDigits: d,
         maximumFractionDigits: d
-      }).format(val);
+      }).format(num);
     } catch (e) {
-      return number(val, d) + ' ' + c;
+      return number(num, d) + ' €';
     }
   }
 
   /**
-   * Formatiert Prozentwerte mit Vorzeichen und % (z.B. +3,40 % oder -1,25 %).
+   * Formatiert große Zahlen kompakt auf Deutsch (Tsd., Mio., Mrd., Bio.) immer in Euro.
+   * @param {number|string} value - Große Kennzahl (z. B. Marktkapitalisierung, Umsatz)
+   * @param {string} [currencyCode='EUR'] - Währungscode
+   * @returns {string} Kompakte Darstellung (z. B. '1,45 Mrd. €')
    */
-  function percent(val, showSign, decimals) {
-    if (val === null || val === undefined || isNaN(val)) return '—';
-    var d = typeof decimals === 'number' ? decimals : 2;
+  function compactNumber(value, currencyCode) {
+    if (value === null || value === undefined || value === '' || isNaN(Number(value))) {
+      return '—';
+    }
+    var num = Number(value);
+    var abs = Math.abs(num);
+    var sign = num < 0 ? '-' : '';
+    var suffix = ' €';
+
+    if (abs >= 1e12) {
+      return sign + number(abs / 1e12, 2) + ' Bio.' + suffix;
+    }
+    if (abs >= 1e9) {
+      return sign + number(abs / 1e9, 2) + ' Mrd.' + suffix;
+    }
+    if (abs >= 1e6) {
+      return sign + number(abs / 1e6, 2) + ' Mio.' + suffix;
+    }
+    if (abs >= 1e3) {
+      return sign + number(abs / 1e3, 1) + ' Tsd.' + suffix;
+    }
+    return currency(num, 'EUR', 2);
+  }
+
+  /**
+   * Formatiert Prozentwerte mit optionalem Vorzeichen (+/-).
+   * @param {number|string} value - Prozentwert (z. B. 3.42 für 3,42 %)
+   * @param {boolean} [showSign=false] - Bei true wird ein positives Vorzeichen '+' vorangestellt
+   * @param {number} [decimals=2] - Nachkommastellen
+   * @returns {string} Formatierter Prozentstring (z. B. '+3,42 %')
+   */
+  function percent(value, showSign, decimals) {
+    if (value === null || value === undefined || value === '' || isNaN(Number(value))) {
+      return '—';
+    }
+    var num = Number(value);
+    var d = decimals !== undefined ? decimals : 2;
     var sign = '';
-    if (showSign && val > 0) {
+    if (showSign && num > 0) {
       sign = '+';
     }
-    return sign + number(val, d) + ' %';
+    return sign + number(num, d) + ' %';
   }
 
   /**
-   * Kompakte deutsche Notation für große Zahlen (Mrd. / Mio. / Tsd.).
-   * z.B. 3.420.000.000.000 -> 3,42 Bio., 12.300.000.000 -> 12,30 Mrd.
-   */
-  function compactNumber(val, curr) {
-    if (val === null || val === undefined || isNaN(val)) return '—';
-    var absVal = Math.abs(val);
-    var suffix = '';
-    var divisor = 1;
-
-    if (absVal >= 1e12) {
-      divisor = 1e12;
-      suffix = ' Bio.';
-    } else if (absVal >= 1e9) {
-      divisor = 1e9;
-      suffix = ' Mrd.';
-    } else if (absVal >= 1e6) {
-      divisor = 1e6;
-      suffix = ' Mio.';
-    } else if (absVal >= 1e3) {
-      divisor = 1e3;
-      suffix = ' Tsd.';
-    }
-
-    var formatted = number(val / divisor, 2) + suffix;
-    if (curr) {
-      formatted += ' ' + (curr === 'EUR' ? '€' : curr);
-    }
-    return formatted;
-  }
-
-  /**
-   * Formatiert ISO-Datumsstrings (YYYY-MM-DD) ins deutsche Format (DD.MM.YYYY).
+   * Formatiert ein ISO-Datum oder Datums-String ins deutsche Format (TT.MM.JJJJ).
+   * @param {string} dateStr - Eingangsdatum
+   * @returns {string} TT.MM.JJJJ oder Ursprungswert
    */
   function date(dateStr) {
     if (!dateStr) return '—';
-    var parts = String(dateStr).slice(0, 10).split('-');
-    if (parts.length === 3) {
-      return parts[2] + '.' + parts[1] + '.' + parts[0];
+    try {
+      var d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString(LOCALE, {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch (e) {
+      return dateStr;
     }
-    return String(dateStr);
   }
 
   /**
-   * Gibt CSS-Klassen für Kursänderungen zurück (Bullish / Bearish).
+   * Ermittelt die CSS-Klasse basierend auf Kursänderung / Performance.
+   * @param {number|string} value - Prozentuale oder absolute Veränderung
+   * @returns {string} 'badge-bullish', 'badge-bearish' oder 'change-neutral'
    */
-  function changeClass(val) {
-    if (val === null || val === undefined || isNaN(val)) return '';
-    if (val > 0) return 'badge-bullish';
-    if (val < 0) return 'badge-bearish';
-    return '';
+  function changeClass(value) {
+    if (value === null || value === undefined || value === '' || isNaN(Number(value))) {
+      return 'change-neutral';
+    }
+    var num = Number(value);
+    if (num > 0) return 'badge-bullish';
+    if (num < 0) return 'badge-bearish';
+    return 'change-neutral';
   }
 
   return {
     number: number,
     currency: currency,
-    percent: percent,
     compactNumber: compactNumber,
+    percent: percent,
     date: date,
     changeClass: changeClass
   };
