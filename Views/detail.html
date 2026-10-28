@@ -1,81 +1,18 @@
-<!-- ==========================================================================
-     Detailansicht fuer eine ausgewaehlte Aktie
-     Enthaelt: Zurueck-Button, Watchlist-Toggle, Kurs- und Tagesaenderungs-Header,
-     interaktiven Kurschart und ein 6-teiliges Kennzahlen-Grid.
-     ========================================================================== -->
-
-<div class="header-bar">
-  <div class="header-actions">
-    <button class="icon-btn" id="detailBackBtn" aria-label="Zurück zur Übersicht">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="15 18 9 12 15 6"></polyline>
-      </svg>
-    </button>
-  </div>
-  <div class="header-title-wrap" style="text-align: center;">
-    <h1 id="detailStockTicker" style="font-size: 1.15rem;">-</h1>
-    <div class="header-subtitle" id="detailStockSector">-</div>
-  </div>
-  <div class="header-actions">
-    <button class="icon-btn" id="detailWatchlistBtn" aria-label="Zur Watchlist hinzufügen">
-      <svg id="detailWatchlistIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-      </svg>
-    </button>
-  </div>
-</div>
-
-<div class="container">
-  <!-- Kurs- und Performance-Headerkarte -->
-  <div style="margin: 12px 0 8px 0;">
-    <h2 id="detailStockName" style="font-size: 1.45rem; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">-</h2>
-    <div style="display: flex; align-items: baseline; gap: 12px; margin-top: 6px;">
-      <span id="detailStockPrice" style="font-size: 2.1rem; font-weight: 800; letter-spacing: -0.02em;">-</span>
-      <span id="detailStockChange" class="stock-badge" style="font-size: 0.95rem; padding: 4px 10px;">-</span>
-    </div>
-  </div>
-
-  <!-- Chart-Container -->
-  <div class="chart-box">
-    <div class="chart-header">
-      <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Kursentwicklung (1J)</span>
-      <span id="detailChartPerfBadge" class="stock-badge" style="font-size: 0.75rem;">-</span>
-    </div>
-    <div class="chart-canvas-wrap">
-      <canvas id="detailChartCanvas"></canvas>
-    </div>
-  </div>
-
-  <!-- Kennzahlen-Grid (Haushaltsbuch-Kartenstil) -->
-  <div style="margin-top: 20px;">
-    <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">
-      Fundamentaldaten & Kennzahlen
-    </div>
-    <div class="metrics-grid">
-      <div class="metric-card">
-        <div class="metric-label">Marktkapitalisierung</div>
-        <div class="metric-val" id="metricMarketCap">-</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">KGV (P/E)</div>
-        <div class="metric-val" id="metricPeRatio">-</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">Dividendenrendite</div>
-        <div class="metric-val" id="metricDividendYield">-</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">52W Performance</div>
-        <div class="metric-val" id="metricPerf52w">-</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">Land / Region</div>
-        <div class="metric-val" id="metricCountry">-</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">Währung</div>
-        <div class="metric-val" id="metricCurrency">EUR</div>
-      </div>
-    </div>
-  </div>
-</div>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weiterleitung zur Aktienansicht</title>
+  <script>
+    // Leitet Aufrufe der alten detail.html automatisch auf die neue modulare stock.html weiter
+    (function() {
+      var params = window.location.search || "";
+      window.location.replace("stock.html" + params);
+    })();
+  </script>
+</head>
+<body style="background-color: #0e1117; color: #8b949e; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+  <p>Leite zur Aktien-Detailansicht weiter... <a href="stock.html" style="color: #388bfd;">Hier klicken</a>, falls die Weiterleitung nicht automatisch erfolgt.</p>
+</body>
+</html>
