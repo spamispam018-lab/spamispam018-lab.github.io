@@ -1,13 +1,13 @@
 /**
- * Data Service für das Laden und Verwalten von Aktiendaten
+ * Zentraler Datenservice zum Laden von Bestandsdaten und Fallbacks
  */
 const DataService = (function () {
   let cachedStocks = null;
-  let cachedDetails = new Map();
 
-  function getBaseDataPath() {
-    const path = window.location.pathname;
-    if (path.includes("/Views/") || path.includes("/views/")) {
+  // Ermittelt den relativen Pfad zum /data/-Ordner abhängig von der URL
+  function getDataBasePath() {
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes("/views/")) {
       return "../data/";
     }
     return "data/";
@@ -18,89 +18,64 @@ const DataService = (function () {
       return cachedStocks;
     }
 
-    const dataPath = `${getBaseDataPath()}stocks.json`;
+    const basePath = getDataBasePath();
+    const possibleUrls = [
+      `${basePath}stocks.json`,
+      `${basePath}stocks-summary.json`,
+      `${basePath}stocks_overview.json`
+    ];
 
-    try {
-      const response = await fetch(dataPath);
-      if (!response.ok) {
-        throw new Error(`HTTP Error: ${response.status}`);
+    for (const url of possibleUrls) {
+      try {
+        const response = await fetch(url);
+        if (response.ok) {
+          const data = await response.json();
+          const list = Array.isArray(data) ? data : (data.stocks || data.data || []);
+          if (list.length > 0) {
+            cachedStocks = list;
+            return cachedStocks;
+          }
+        }
+      } catch (e) {
+        // Nächsten Pfad versuchen
       }
-      const json = await response.json();
-      if (json && Array.isArray(json.stocks) && json.stocks.length > 0) {
-        cachedStocks = json.stocks;
-        return cachedStocks;
-      }
-      throw new Error("Format in stocks.json ungültig oder leer.");
-    } catch (err) {
-      console.warn(`Konnte ${dataPath} nicht laden. Verwende Fallback-Daten. Grund:`, err);
-      if (typeof FALLBACK_STOCKS !== "undefined" && Array.isArray(FALLBACK_STOCKS)) {
-        cachedStocks = FALLBACK_STOCKS;
-        return cachedStocks;
-      }
-      return [];
     }
+
+    // Fallback nutzen, falls Fetch fehlschlägt oder Dateien noch nicht generiert wurden
+    if (typeof window.FALLBACK_STOCKS !== "undefined" && Array.isArray(window.FALLBACK_STOCKS)) {
+      console.warn("Nutze Offline-/Fallback-Aktienbestand.");
+      cachedStocks = window.FALLBACK_STOCKS;
+      return cachedStocks;
+    }
+
+    return [];
   }
 
   async function loadStockDetails(symbol) {
     if (!symbol) return null;
-    const upperSymbol = symbol.toUpperCase();
-
-    if (cachedDetails.has(upperSymbol)) {
-      return cachedDetails.get(upperSymbol);
-    }
-
-    const detailPath = `${getBaseDataPath()}details/${upperSymbol}.json`;
+    const cleanSym = symbol.toUpperCase();
+    const basePath = getDataBasePath();
 
     try {
-      const response = await fetch(detailPath);
-      if (!response.ok) {
-        throw new Error(`HTTP Error: ${response.status}`);
+      const response = await fetch(`${basePath}details/${cleanSym}.json`);
+      if (response.ok) {
+        return await response.json();
       }
-      const details = await response.json();
-      cachedDetails.set(upperSymbol, details);
-      return details;
-    } catch (err) {
-      console.warn(`Detaildaten für ${upperSymbol} konnten nicht geladen werden:`, err);
-      
-      // Fallback: Grunddaten aus der Übersicht heranziehen
-      const stocks = await loadStocks();
-      const basic = stocks.find(s => s.symbol.toUpperCase() === upperSymbol);
-      if (basic) {
-        const minimalFallback = {
-          symbol: basic.symbol,
-          name: basic.name,
-          sector: basic.sector,
-          industry: basic.industry,
-          price: basic.price,
-          change: basic.change,
-          changePercent: basic.changePercent,
-          valuation: {
-            marketCap: basic.marketCap,
-            trailingPE: basic.peRatio,
-            forwardPE: basic.forwardPE
-          },
-          financials: { incomeStatement: {}, balanceSheet: {}, cashflow: {} },
-          recommendations: [],
-          history: []
-        };
-        cachedDetails.set(upperSymbol, minimalFallback);
-        return minimalFallback;
-      }
-      return null;
+    } catch (e) {
+      // Weiter zum Fallback
     }
-  }
 
-  function getStockBySymbolSync(symbol) {
-    if (!cachedStocks || !symbol) return null;
-    return cachedStocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase()) || null;
+    // Detail-Fallback aus dem Hauptdatenbestand rekonstruieren
+    const all = await loadStocks();
+    const found = all.find(s => s.symbol && s.symbol.toUpperCase() === cleanSym);
+    return found || null;
   }
 
   return {
     loadStocks,
     loadStockDetails,
-    getStockBySymbolSync
+    getDataBasePath
   };
 })();
 
-// Global verfügbar machen
 window.DataService = DataService;
