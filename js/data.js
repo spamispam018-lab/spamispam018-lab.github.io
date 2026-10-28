@@ -1,185 +1,106 @@
 /**
- * Daten-Layer: Verwaltet das Laden, Cachen und Bereitstellen der Aktiendaten.
- * Unterstützt window.Data (für index.html) und window.App.DataService.
+ * Data Service für das Laden und Verwalten von Aktiendaten
  */
+const DataService = (function () {
+  let cachedStocks = null;
+  let cachedDetails = new Map();
 
-window.App = window.App || {};
+  function getBaseDataPath() {
+    const path = window.location.pathname;
+    if (path.includes("/Views/") || path.includes("/views/")) {
+      return "../data/";
+    }
+    return "data/";
+  }
 
-(function () {
-  'use strict';
+  async function loadStocks() {
+    if (cachedStocks && cachedStocks.length > 0) {
+      return cachedStocks;
+    }
 
-  var STORAGE_KEY = 'stockscreener_data_cache';
-  var GITHUB_RAW_URL = 'https://raw.githubusercontent.com/spamispam018-lab/spamispam018-lab.github.io/main/data/stocks.json';
-  var LOCAL_DATA_PATH = 'data/stocks.json';
+    const dataPath = `${getBaseDataPath()}stocks.json`;
 
-  var DataService = {
-    currentData: null,
-
-    /**
-     * Ermittelt statische Daten aus dem Fallback-Skript
-     */
-    getFallbackList: function () {
-      if (window.STOCK_DATA && Array.isArray(window.STOCK_DATA.stocks)) {
-        return window.STOCK_DATA.stocks;
+    try {
+      const response = await fetch(dataPath);
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
       }
-      if (window.FALLBACK_DATA && Array.isArray(window.FALLBACK_DATA.stocks)) {
-        return window.FALLBACK_DATA.stocks;
+      const json = await response.json();
+      if (json && Array.isArray(json.stocks) && json.stocks.length > 0) {
+        cachedStocks = json.stocks;
+        return cachedStocks;
       }
-      if (Array.isArray(window.STOCK_DATA)) {
-        return window.STOCK_DATA;
-      }
-      if (Array.isArray(window.FALLBACK_DATA)) {
-        return window.FALLBACK_DATA;
+      throw new Error("Format in stocks.json ungültig oder leer.");
+    } catch (err) {
+      console.warn(`Konnte ${dataPath} nicht laden. Verwende Fallback-Daten. Grund:`, err);
+      if (typeof FALLBACK_STOCKS !== "undefined" && Array.isArray(FALLBACK_STOCKS)) {
+        cachedStocks = FALLBACK_STOCKS;
+        return cachedStocks;
       }
       return [];
-    },
+    }
+  }
 
-    /**
-     * Hauptladefunktion
-     * @param {boolean} forceRefresh
-     * @returns {Promise<Array>}
-     */
-    fetchStocks: function (forceRefresh) {
-      var self = this;
+  async function loadStockDetails(symbol) {
+    if (!symbol) return null;
+    const upperSymbol = symbol.toUpperCase();
 
-      return new Promise(function (resolve) {
-        // 1. Aus localStorage lesen (sofern nicht forceRefresh)
-        if (!forceRefresh) {
-          try {
-            var cached = localStorage.getItem(STORAGE_KEY);
-            if (cached) {
-              var parsed = JSON.parse(cached);
-              var cachedStocks = parsed.stocks || (Array.isArray(parsed) ? parsed : null);
-              if (cachedStocks && cachedStocks.length > 0) {
-                self.currentData = { stocks: cachedStocks };
-                return resolve(cachedStocks);
-              }
-            }
-          } catch (e) {
-            console.warn('Cache-Lesefehler:', e);
-          }
-        }
+    if (cachedDetails.has(upperSymbol)) {
+      return cachedDetails.get(upperSymbol);
+    }
 
-        // 2. Netzwerk-Abruf: Erst lokaler Pfad (relativ), dann GitHub Raw
-        var tryFetch = function (url) {
-          return fetch(url + '?t=' + Date.now()).then(function (res) {
-            if (!res.ok) throw new Error('Status ' + res.status);
-            return res.json();
-          });
+    const detailPath = `${getBaseDataPath()}details/${upperSymbol}.json`;
+
+    try {
+      const response = await fetch(detailPath);
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+      const details = await response.json();
+      cachedDetails.set(upperSymbol, details);
+      return details;
+    } catch (err) {
+      console.warn(`Detaildaten für ${upperSymbol} konnten nicht geladen werden:`, err);
+      
+      // Fallback: Grunddaten aus der Übersicht heranziehen
+      const stocks = await loadStocks();
+      const basic = stocks.find(s => s.symbol.toUpperCase() === upperSymbol);
+      if (basic) {
+        const minimalFallback = {
+          symbol: basic.symbol,
+          name: basic.name,
+          sector: basic.sector,
+          industry: basic.industry,
+          price: basic.price,
+          change: basic.change,
+          changePercent: basic.changePercent,
+          valuation: {
+            marketCap: basic.marketCap,
+            trailingPE: basic.peRatio,
+            forwardPE: basic.forwardPE
+          },
+          financials: { incomeStatement: {}, balanceSheet: {}, cashflow: {} },
+          recommendations: [],
+          history: []
         };
-
-        tryFetch(LOCAL_DATA_PATH)
-          .catch(function () {
-            return tryFetch(GITHUB_RAW_URL);
-          })
-          .then(function (data) {
-            var stocks = (data && data.stocks) ? data.stocks : (Array.isArray(data) ? data : []);
-            if (stocks.length > 0) {
-              self.currentData = { stocks: stocks, lastUpdated: (data && data.lastUpdated) || new Date().toISOString() };
-              try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(self.currentData));
-              } catch (e) {
-                console.warn('Cache-Schreibfehler:', e);
-              }
-              resolve(stocks);
-            } else {
-              resolve(self.getSafeStocks());
-            }
-          })
-          .catch(function (err) {
-            console.warn('Netzwerkabruf fehlgeschlagen, nutze Fallback-Daten:', err.message);
-            resolve(self.getSafeStocks());
-          });
-      });
-    },
-
-    /**
-     * loadStocks für Kompatibilität mit bestehenden Ansichten
-     */
-    loadStocks: function (forceRefresh) {
-      var self = this;
-      return this.fetchStocks(forceRefresh).then(function (stocks) {
-        return self.getSafeData();
-      });
-    },
-
-    /**
-     * Liefert garantiert eine Liste von Aktienobjekten
-     */
-    getSafeStocks: function () {
-      if (this.currentData && Array.isArray(this.currentData.stocks) && this.currentData.stocks.length > 0) {
-        return this.currentData.stocks;
-      }
-      var fallback = this.getFallbackList();
-      if (fallback.length > 0) {
-        this.currentData = { stocks: fallback };
-        return fallback;
-      }
-      return [];
-    },
-
-    /**
-     * Liefert das Gesamtobjekt inkl. Metadaten
-     */
-    getSafeData: function () {
-      var stocks = this.getSafeStocks();
-      return {
-        lastUpdated: (this.currentData && this.currentData.lastUpdated) || new Date().toISOString(),
-        currency: (this.currentData && this.currentData.currency) || 'EUR',
-        stocks: stocks
-      };
-    },
-
-    /**
-     * Sucht eine Aktie anhand ihres Symbols / Tickers
-     */
-    getStockByTicker: function (ticker) {
-      if (!ticker) return null;
-      var clean = ticker.trim().toUpperCase();
-      var list = this.getSafeStocks();
-      for (var i = 0; i < list.length; i++) {
-        var sym = (list[i].ticker || list[i].symbol || '').toUpperCase();
-        if (sym === clean) {
-          return list[i];
-        }
+        cachedDetails.set(upperSymbol, minimalFallback);
+        return minimalFallback;
       }
       return null;
-    },
-
-    /**
-     * Eindeutige Sektoren
-     */
-    getSectors: function () {
-      var list = this.getSafeStocks();
-      var map = {};
-      var sectors = [];
-      list.forEach(function (s) {
-        if (s.sector && !map[s.sector]) {
-          map[s.sector] = true;
-          sectors.push(s.sector);
-        }
-      });
-      return sectors.sort();
-    },
-
-    /**
-     * Eindeutige Länder
-     */
-    getCountries: function () {
-      var list = this.getSafeStocks();
-      var map = {};
-      var countries = [];
-      list.forEach(function (s) {
-        if (s.country && !map[s.country]) {
-          map[s.country] = true;
-          countries.push(s.country);
-        }
-      });
-      return countries.sort();
     }
-  };
+  }
 
-  // Bereitstellung für beide Zugriffsmuster
-  window.Data = DataService;
-  window.App.DataService = DataService;
+  function getStockBySymbolSync(symbol) {
+    if (!cachedStocks || !symbol) return null;
+    return cachedStocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase()) || null;
+  }
+
+  return {
+    loadStocks,
+    loadStockDetails,
+    getStockBySymbolSync
+  };
 })();
+
+// Global verfügbar machen
+window.DataService = DataService;
