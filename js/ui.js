@@ -12,8 +12,26 @@ const AppUI = {
       FilterService.init(stocks);
     }
 
-    // 3. Initiale View laden
-    await this.loadView(this.currentView);
+    // 3. Hash-Routing unterstützen (Zurück-Button, Reloads, Direktlinks)
+    window.addEventListener('hashchange', () => this.handleHashRoute());
+
+    if (window.location.hash) {
+      await this.handleHashRoute();
+    } else {
+      await this.loadView(this.currentView);
+    }
+  },
+
+  async handleHashRoute() {
+    const hash = window.location.hash || '';
+    if (hash.startsWith('#stock/')) {
+      const symbol = hash.replace('#stock/', '').trim();
+      await this.openStockView(symbol);
+    } else if (hash === '#watchlist') {
+      Navigation.navigate('watchlist', false);
+    } else {
+      Navigation.navigate('screener', false);
+    }
   },
 
   async loadView(viewName) {
@@ -22,7 +40,7 @@ const AppUI = {
     if (!container) return;
 
     try {
-      // View-HTML über Fetch laden
+      // Relative Pfad-Absicherung für GitHub Pages (Views/ ist case-sensitiv)
       const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
       const url = new URL(`Views/${viewName}.html`, window.location.origin + basePath).href;
       
@@ -42,8 +60,8 @@ const AppUI = {
       if (viewName === 'screener') {
         this.initScreenerView();
       } else if (viewName === 'watchlist') {
-        if (typeof WatchlistView !== 'undefined' && WatchlistView.init) {
-          WatchlistView.init();
+        if (typeof WatchlistManager !== 'undefined' && WatchlistManager.renderWatchlistCards) {
+          WatchlistManager.renderWatchlistCards('watchlist-container');
         }
       }
     } catch (err) {
@@ -57,11 +75,17 @@ const AppUI = {
     }
   },
 
+  async openStockView(symbol) {
+    this.currentView = 'stock';
+    await this.loadView('stock');
+    if (typeof StockNav !== 'undefined' && StockNav.init) {
+      await StockNav.init(symbol);
+    }
+  },
+
   initScreenerView() {
-    // Marktzahlen aktualisieren
     this.updateMarketOverview();
 
-    // Event-Listener für Suche & Filter verknüpfen
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
@@ -78,7 +102,6 @@ const AppUI = {
       });
     }
 
-    // Initiales Rendern der Liste
     this.renderStockList();
   },
 
@@ -95,7 +118,6 @@ const AppUI = {
     }
 
     if (stocks.length > 0) {
-      // Top-Gewinner ermitteln
       const sortedByChange = [...stocks].sort((a, b) => (b.change || 0) - (a.change || 0));
       if (topGainerEl && sortedByChange[0]) {
         const top = sortedByChange[0];
@@ -103,14 +125,12 @@ const AppUI = {
         topGainerEl.textContent = `${top.symbol} (${changeVal})`;
       }
 
-      // Durchschnittlicher KGV (nur Werte > 0)
       const validPeStocks = stocks.filter(s => s.pe && s.pe > 0);
       const avgPe = validPeStocks.length 
         ? (validPeStocks.reduce((sum, s) => sum + s.pe, 0) / validPeStocks.length).toFixed(1)
         : '-';
       if (avgPeEl) avgPeEl.textContent = avgPe;
 
-      // Durchschnittliche Dividendenrendite
       const validDivStocks = stocks.filter(s => s.dividendYield && s.dividendYield >= 0);
       const avgDiv = validDivStocks.length
         ? (validDivStocks.reduce((sum, s) => sum + s.dividendYield, 0) / validDivStocks.length).toFixed(2) + '%'
@@ -184,7 +204,7 @@ const AppUI = {
 };
 
 const Navigation = {
-  navigate(viewName) {
+  navigate(viewName, updateHash = true) {
     const screenerBtn = document.getElementById('navScreenerBtn');
     const watchlistBtn = document.getElementById('navWatchlistBtn');
 
@@ -193,21 +213,22 @@ const Navigation = {
       screenerBtn?.classList.add('text-blue-500');
       watchlistBtn?.classList.remove('text-blue-500');
       watchlistBtn?.classList.add('text-slate-400');
-    } else {
+      if (updateHash) window.location.hash = '';
+    } else if (viewName === 'watchlist') {
       watchlistBtn?.classList.remove('text-slate-400');
       watchlistBtn?.classList.add('text-blue-500');
       screenerBtn?.classList.remove('text-blue-500');
       screenerBtn?.classList.add('text-slate-400');
+      if (updateHash) window.location.hash = '#watchlist';
     }
 
     AppUI.loadView(viewName);
   },
 
   async openStock(symbol) {
-    await AppUI.loadView('stock');
-    if (typeof StockNav !== 'undefined' && StockNav.init) {
-      StockNav.init(symbol);
-    }
+    const clean = (symbol || 'AAPL').toUpperCase().trim();
+    window.location.hash = `#stock/${clean}`;
+    await AppUI.openStockView(clean);
   }
 };
 
