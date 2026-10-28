@@ -1,81 +1,88 @@
 /**
- * Aufbereitung und tabellarische/visuelle Darstellung von Finanzberichten
+ * Controller zur Aufbereitung und Darstellung der Finanzdaten im Dark-Mode
  */
 const StockFinancials = (function () {
-  function formatValue(val) {
+  function formatFinancialVal(val) {
     if (val === null || val === undefined || isNaN(val)) return "-";
-    return window.StockDataHandler
-      ? window.StockDataHandler.formatLargeNumber(val)
-      : val.toLocaleString("de-DE");
+    const num = Math.abs(val);
+    const sign = val < 0 ? "-" : "";
+
+    if (num >= 1e9) {
+      return `${sign}${(num / 1e9).toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Mrd. €`;
+    }
+    if (num >= 1e6) {
+      return `${sign}${(num / 1e6).toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Mio. €`;
+    }
+    return `${sign}${Number(val).toLocaleString("de-DE")} €`;
   }
 
-  function getSortedYears(statementObj = {}) {
-    return Object.keys(statementObj).sort();
-  }
-
-  function renderStatementTable(tableContainerId, statementObj = {}, rowDefinitions = []) {
-    const container = document.getElementById(tableContainerId);
+  function renderTable(containerId, dataMap, rowConfig) {
+    const container = document.getElementById(containerId);
     if (!container) return;
 
-    const years = getSortedYears(statementObj);
-    if (years.length === 0) {
-      container.innerHTML = '<p class="text-muted">Keine Finanzdaten vorhanden.</p>';
+    if (!dataMap || typeof dataMap !== "object" || Object.keys(dataMap).length === 0) {
+      container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.82rem; text-align: center; padding: 1rem 0;">Keine Berichtsdaten hinterlegt.</p>';
       return;
     }
 
-    let html = '<div class="table-responsive"><table class="financial-table"><thead><tr><th>Position</th>';
-    years.forEach(year => {
-      html += `<th>${year}</th>`;
-    });
-    html += '</tr></thead><tbody>';
+    const periods = Object.keys(dataMap).sort();
+    let html = `
+      <div style="overflow-x: auto; width: 100%; scrollbar-width: none;">
+        <table class="financial-table-dark">
+          <thead>
+            <tr>
+              <th>Position</th>
+    `;
 
-    rowDefinitions.forEach(def => {
-      html += `<tr><td class="metric-label">${def.label}</td>`;
-      years.forEach(year => {
-        const rowData = statementObj[year] || {};
-        const val = rowData[def.key];
-        html += `<td>${formatValue(val)}</td>`;
+    periods.forEach(p => {
+      html += `<th>${p}</th>`;
+    });
+    html += `</tr></thead><tbody>`;
+
+    rowConfig.forEach(row => {
+      html += `<tr><td>${row.label}</td>`;
+      periods.forEach(p => {
+        const item = dataMap[p] || {};
+        let val = null;
+        for (const k of row.keys) {
+          if (item[k] !== undefined && item[k] !== null && !isNaN(item[k])) {
+            val = Number(item[k]);
+            break;
+          }
+        }
+        html += `<td>${formatFinancialVal(val)}</td>`;
       });
-      html += '</tr>';
+      html += `</tr>`;
     });
 
-    html += '</tbody></table></div>';
+    html += `</tbody></table></div>`;
     container.innerHTML = html;
   }
 
-  function renderRevenueProfitChart(canvasId, incomeStmt = {}) {
-    if (!window.StockCharts) return;
+  function renderIncomeStatement(incomeData) {
+    renderTable("income-statement-table", incomeData, [
+      { label: "Umsatzerlöse", keys: ["Total_Revenue", "TotalRevenue", "Operating_Revenue"] },
+      { label: "Bruttoergebnis", keys: ["Gross_Profit", "GrossProfit"] },
+      { label: "Operatives Ergebnis (EBIT)", keys: ["Operating_Income", "OperatingIncome"] },
+      { label: "Nettogewinn", keys: ["Net_Income", "NetIncome"] }
+    ]);
+  }
 
-    const years = getSortedYears(incomeStmt);
-    if (years.length === 0) return;
+  function renderBalanceSheet(balanceData) {
+    renderTable("balance-sheet-table", balanceData, [
+      { label: "Gesamtaktiva (Assets)", keys: ["Total_Assets", "TotalAssets"] },
+      { label: "Verbindlichkeiten", keys: ["Total_Liabilities_Net_Minority_Interest", "Total_Liabilities"] },
+      { label: "Eigenkapital", keys: ["Stockholders_Equity", "Total_Stockholder_Equity"] },
+      { label: "Zahlungsmittelbestand", keys: ["Cash_And_Cash_Equivalents", "CashAndCashEquivalents"] }
+    ]);
+  }
 
-    const revenues = [];
-    const profits = [];
-
-    years.forEach(year => {
-      const data = incomeStmt[year] || {};
-      revenues.push(data["Total_Revenue"] || data["TotalRevenue"] || 0);
-      profits.push(data["Net_Income"] || data["NetIncome"] || 0);
-    });
-
-    const datasets = [
-      {
-        label: "Umsatz",
-        data: revenues,
-        backgroundColor: "rgba(59, 130, 246, 0.7)",
-        borderColor: "#3b82f6",
-        borderWidth: 1
-      },
-      {
-        label: "Nettogewinn",
-        data: profits,
-        backgroundColor: "rgba(16, 185, 129, 0.7)",
-        borderColor: "#10b981",
-        borderWidth: 1
-      }
-    ];
-
-    window.StockCharts.renderFinancialsBarChart(canvasId, "Umsatz- und Gewinnentwicklung", years, datasets);
+  function renderCashflow(cashflowData) {
+    renderTable("cashflow-table", cashflowData, [
+      { label: "Operativer Cashflow", keys: ["Operating_Cash_Flow", "Total_Cash_From_Operating_Activities"] },
+      { label: "Investitionsausgaben (CapEx)", keys: ["Capital_Expenditure", "CapitalExpenditures"] },
+      { label: "Freier Cashflow (FCF)", keys: ["Free_Cash_Flow", "FreeCashFlow"] }
+    ]);
   }
 
   async function init() {
@@ -85,31 +92,13 @@ const StockFinancials = (function () {
     }
     if (!stock || !stock.financials) return;
 
-    const { incomeStatement, balanceSheet, cashflow } = stock.financials;
+    renderIncomeStatement(stock.financials.incomeStatement);
+    renderBalanceSheet(stock.financials.balanceSheet);
+    renderCashflow(stock.financials.cashflow);
 
-    // Gewinn- und Verlustrechnung
-    renderStatementTable("income-statement-table", incomeStatement, [
-      { key: "Total_Revenue", label: "Gesamtumsatz" },
-      { key: "Operating_Income", label: "Betriebsergebnis (EBIT)" },
-      { key: "Net_Income", label: "Jahresüberschuss (Net Income)" }
-    ]);
-
-    // Bilanz
-    renderStatementTable("balance-sheet-table", balanceSheet, [
-      { key: "Total_Assets", label: "Gesamtvermögen" },
-      { key: "Total_Liabilities_Net_Minority_Interest", label: "Gesamtverbindlichkeiten" },
-      { key: "Stockholders_Equity", label: "Eigenkapital" }
-    ]);
-
-    // Cashflow
-    renderStatementTable("cashflow-table", cashflow, [
-      { key: "Operating_Cash_Flow", label: "Operativer Cashflow" },
-      { key: "Investing_Cash_Flow", label: "Cashflow aus Investition" },
-      { key: "Free_Cash_Flow", label: "Freier Cashflow" }
-    ]);
-
-    // Bar Chart zeichnen
-    renderRevenueProfitChart("financialsBarChart", incomeStatement);
+    if (window.StockCharts && typeof window.StockCharts.renderFinancialsBarChart === "function") {
+      window.StockCharts.renderFinancialsBarChart("financialsBarChart", stock.financials);
+    }
   }
 
   return {
@@ -117,12 +106,10 @@ const StockFinancials = (function () {
   };
 })();
 
-// Bei Bedarf nach DOM-Load starten
 document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("income-statement-table")) {
     StockFinancials.init();
   }
 });
 
-// Global verfügbar machen
 window.StockFinancials = StockFinancials;
