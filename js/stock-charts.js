@@ -1,62 +1,53 @@
 /**
- * Visualisierungs-Engine für Aktienkurs- und Finanzdiagramme (Chart.js)
+ * Visualisierungs-Engine für Aktiencharts im Dark-Mode
  */
 const StockCharts = (function () {
-  let activeCharts = {};
+  let priceChartInstance = null;
+  let financialsChartInstance = null;
 
-  function destroyChart(id) {
-    if (activeCharts[id]) {
-      activeCharts[id].destroy();
-      delete activeCharts[id];
+  function destroyChart(instance) {
+    if (instance) {
+      instance.destroy();
     }
   }
 
-  function renderPriceHistoryChart(canvasId, historyData = []) {
-    if (typeof Chart === "undefined") {
-      console.error("Chart.js ist nicht geladen.");
-      return null;
-    }
+  function renderPriceHistory(canvasId, historyData = []) {
+    if (typeof Chart === "undefined") return null;
 
     const canvas = document.getElementById(canvasId);
-    if (!canvas) {
-      console.warn(`Canvas #${canvasId} nicht im DOM gefunden.`);
-      return null;
-    }
+    if (!canvas) return null;
 
-    destroyChart(canvasId);
+    destroyChart(priceChartInstance);
 
-    if (!Array.isArray(historyData) || historyData.length === 0) {
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.font = "14px sans-serif";
-      ctx.fillStyle = "#888";
-      ctx.textAlign = "center";
-      ctx.fillText("Keine historischen Kursdaten verfügbar", canvas.width / 2, canvas.height / 2);
-      return null;
-    }
+    if (!Array.isArray(historyData) || historyData.length === 0) return null;
 
     const labels = historyData.map(item => item.date);
     const prices = historyData.map(item => item.close);
 
-    const isPositive = prices.length >= 2 ? prices[prices.length - 1] >= prices[0] : true;
-    const strokeColor = isPositive ? "#10b981" : "#ef4444";
-    const fillColor = isPositive ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.1)";
-
     const ctx = canvas.getContext("2d");
-    activeCharts[canvasId] = new Chart(ctx, {
+
+    // Weicher Farbverlauf für die Fläche unter der Linie
+    const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+    gradient.addColorStop(0, "rgba(99, 102, 241, 0.35)");
+    gradient.addColorStop(1, "rgba(99, 102, 241, 0.0)");
+
+    priceChartInstance = new Chart(ctx, {
       type: "line",
       data: {
         labels: labels,
         datasets: [{
-          label: "Schlusskurs",
+          label: "Schlusskurs (€)",
           data: prices,
-          borderColor: strokeColor,
-          backgroundColor: fillColor,
+          borderColor: "#6366f1",
+          backgroundColor: gradient,
           fill: true,
-          tension: 0.15,
-          borderWidth: 2,
+          borderWidth: 2.2,
           pointRadius: 0,
-          pointHoverRadius: 4
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: "#ffffff",
+          pointHoverBorderColor: "#6366f1",
+          pointHoverBorderWidth: 2,
+          tension: 0.2
         }]
       },
       options: {
@@ -69,10 +60,17 @@ const StockCharts = (function () {
         plugins: {
           legend: { display: false },
           tooltip: {
+            backgroundColor: "#1e2433",
+            titleColor: "#94a3b8",
+            bodyColor: "#f8fafc",
+            borderColor: "#334155",
+            borderWidth: 1,
+            padding: 10,
+            displayColors: false,
             callbacks: {
               label: function (context) {
                 const val = context.parsed.y;
-                return `Kurs: $${val !== null ? val.toFixed(2) : "N/A"}`;
+                return `${Number(val).toLocaleString("de-DE", { minimumFractionDigits: 2 })} €`;
               }
             }
           }
@@ -81,16 +79,21 @@ const StockCharts = (function () {
           x: {
             grid: { display: false },
             ticks: {
-              maxTicksLimit: 8,
-              font: { size: 11 }
+              color: "#64748b",
+              font: { size: 10 },
+              maxTicksLimit: 6
             }
           },
           y: {
-            grid: { color: "rgba(200, 200, 200, 0.15)" },
+            position: "right",
+            grid: {
+              color: "rgba(255, 255, 255, 0.06)"
+            },
             ticks: {
-              font: { size: 11 },
-              callback: function (value) {
-                return "$" + value;
+              color: "#64748b",
+              font: { size: 10 },
+              callback: function (val) {
+                return `${val} €`;
               }
             }
           }
@@ -98,60 +101,108 @@ const StockCharts = (function () {
       }
     });
 
-    return activeCharts[canvasId];
+    return priceChartInstance;
   }
 
-  function renderFinancialsBarChart(canvasId, title, labels = [], datasetList = []) {
+  function renderFinancialsBarChart(canvasId, financialsData = {}) {
     if (typeof Chart === "undefined") return null;
 
     const canvas = document.getElementById(canvasId);
     if (!canvas) return null;
 
-    destroyChart(canvasId);
+    destroyChart(financialsChartInstance);
+
+    const income = financialsData.incomeStatement || {};
+    const periods = Object.keys(income).sort();
+
+    if (periods.length === 0) return null;
+
+    const revenues = [];
+    const netIncomes = [];
+
+    periods.forEach(p => {
+      const yearData = income[p] || {};
+      const rev = yearData.Total_Revenue || yearData.TotalRevenue || yearData.Operating_Revenue || 0;
+      const net = yearData.Net_Income || yearData.NetIncome || 0;
+
+      // In Milliarden bzw. Millionen skalieren zur besseren Lesbarkeit
+      revenues.push(rev ? Number((rev / 1e9).toFixed(2)) : 0);
+      netIncomes.push(net ? Number((net / 1e9).toFixed(2)) : 0);
+    });
 
     const ctx = canvas.getContext("2d");
-    activeCharts[canvasId] = new Chart(ctx, {
+    financialsChartInstance = new Chart(ctx, {
       type: "bar",
       data: {
-        labels: labels,
-        datasets: datasetList
+        labels: periods,
+        datasets: [
+          {
+            label: "Umsatz (Mrd. €)",
+            data: revenues,
+            backgroundColor: "#6366f1",
+            borderRadius: 4
+          },
+          {
+            label: "Nettogewinn (Mrd. €)",
+            data: netIncomes,
+            backgroundColor: "#10b981",
+            borderRadius: 4
+          }
+        ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: {
-            display: !!title,
-            text: title
+          legend: {
+            position: "top",
+            labels: {
+              color: "#94a3b8",
+              font: { size: 11 },
+              boxWidth: 12
+            }
           },
           tooltip: {
-            mode: "index",
-            intersect: false
+            backgroundColor: "#1e2433",
+            titleColor: "#94a3b8",
+            bodyColor: "#f8fafc",
+            borderColor: "#334155",
+            borderWidth: 1,
+            callbacks: {
+              label: function (context) {
+                return `${context.dataset.label}: ${context.parsed.y} Mrd. €`;
+              }
+            }
           }
         },
         scales: {
-          x: { grid: { display: false } },
-          y: {
-            grid: { color: "rgba(200, 200, 200, 0.15)" },
+          x: {
+            grid: { display: false },
             ticks: {
-              callback: function (val) {
-                return (val / 1e9).toFixed(1) + " Mrd.";
-              }
+              color: "#64748b",
+              font: { size: 11 }
+            }
+          },
+          y: {
+            grid: {
+              color: "rgba(255, 255, 255, 0.06)"
+            },
+            ticks: {
+              color: "#64748b",
+              font: { size: 10 }
             }
           }
         }
       }
     });
 
-    return activeCharts[canvasId];
+    return financialsChartInstance;
   }
 
   return {
-    renderPriceHistoryChart,
-    renderFinancialsBarChart,
-    destroyChart
+    renderPriceHistory,
+    renderFinancialsBarChart
   };
 })();
 
-// Global verfügbar machen
 window.StockCharts = StockCharts;
