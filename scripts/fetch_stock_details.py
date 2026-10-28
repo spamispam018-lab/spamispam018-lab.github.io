@@ -64,7 +64,7 @@ def safe_retry(call_fn, retries=3, delay=2):
     for i in range(retries):
         try:
             return call_fn()
-        except Exception as e:
+        except Exception:
             if i == retries - 1:
                 return None
             time.sleep(delay)
@@ -181,18 +181,29 @@ def process_stock(stock_item, output_dir):
         change_percent = round(float(info["regularMarketChangePercent"]), 2)
 
     raw_div_yield = sanitize_value(info.get("dividendYield"))
-    dividend_yield_pct = None
+    dividend_yield_val = None
     if raw_div_yield is not None:
-        dividend_yield_pct = round(raw_div_yield * 100 if raw_div_yield < 1 else raw_div_yield, 2)
+        if raw_div_yield < 0.2:
+            dividend_yield_val = round(raw_div_yield * 100, 2)
+        else:
+            dividend_yield_val = round(raw_div_yield, 2)
+
+    trailing_pe = sanitize_value(info.get("trailingPE"))
+    forward_pe = sanitize_value(info.get("forwardPE"))
+    peg_ratio = sanitize_value(info.get("pegRatio"))
+    price_to_book = sanitize_value(info.get("priceToBook"))
+    enterprise_value = sanitize_value(info.get("enterpriseValue"))
+    ev_to_ebitda = sanitize_value(info.get("enterpriseToEbitda"))
+    market_cap = sanitize_value(info.get("marketCap"))
 
     valuation = {
-        "marketCap": sanitize_value(info.get("marketCap")),
-        "enterpriseValue": sanitize_value(info.get("enterpriseValue")),
-        "trailingPE": sanitize_value(info.get("trailingPE")),
-        "forwardPE": sanitize_value(info.get("forwardPE")),
-        "pegRatio": sanitize_value(info.get("pegRatio")),
-        "priceToBook": sanitize_value(info.get("priceToBook")),
-        "evToEbitda": sanitize_value(info.get("enterpriseToEbitda"))
+        "marketCap": market_cap,
+        "enterpriseValue": enterprise_value,
+        "trailingPE": trailing_pe,
+        "forwardPE": forward_pe,
+        "pegRatio": peg_ratio,
+        "priceToBook": price_to_book,
+        "evToEbitda": ev_to_ebitda
     }
 
     margins = {
@@ -233,8 +244,15 @@ def process_stock(stock_item, output_dir):
         "currency": info.get("currency"),
         "price": current_price,
         "changePercent": change_percent,
-        "marketCap": sanitize_value(info.get("marketCap")),
-        "dividendYield": dividend_yield_pct,
+        "marketCap": market_cap,
+        "dividendYield": dividend_yield_val,
+        "peRatio": trailing_pe,
+        "trailingPE": trailing_pe,
+        "forwardPE": forward_pe,
+        "pegRatio": peg_ratio,
+        "priceToBook": price_to_book,
+        "enterpriseValue": enterprise_value,
+        "evToEbitda": ev_to_ebitda,
         "debtToEquity": sanitize_value(info.get("debtToEquity")),
         "currentRatio": sanitize_value(info.get("currentRatio")),
         "margins": margins,
