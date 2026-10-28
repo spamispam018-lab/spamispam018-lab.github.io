@@ -389,6 +389,11 @@ def run_delta_sync(tickers):
         u_item["changePercent"] = stock_data["quote"]["changePercent"]
         u_item["marketCap"] = stock_data["quote"]["marketCap"]
 
+        ratios = stock_data.get("ratios", {}) or {}
+        u_item["pe"] = ratios.get("peTrailing")
+        u_item["dividendYield"] = ratios.get("dividendYield")
+        u_item["revGrowth"] = ratios.get("revenueGrowth")
+
         hist = stock_data.get("chartHistory", [])
         if len(hist) > 20 and hist[0].get("close"):
             u_item["perf52w"] = round(((hist[-1]["close"] - hist[0]["close"]) / hist[0]["close"]) * 100, 2)
@@ -431,7 +436,10 @@ def main():
                     "changePercent": st["quote"]["changePercent"],
                     "marketCap": st["quote"]["marketCap"],
                     "pe": st["ratios"]["peTrailing"],
-                    "dividendYield": st["ratios"]["dividendYield"]
+                    "dividendYield": st["ratios"]["dividendYield"],
+                    "revGrowth": st["ratios"].get("revenueGrowth"),
+                    "perf52w": (round(((st["chartHistory"][-1]["close"] - st["chartHistory"][0]["close"]) / st["chartHistory"][0]["close"]) * 100, 2)
+                                if len(st.get("chartHistory", [])) > 20 and st["chartHistory"][0].get("close") else None)
                 })
                 time.sleep(0.3)
             except Exception as e:
