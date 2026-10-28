@@ -1,0 +1,99 @@
+<!-- Views/screener.html - Screener & Filter Bottom-Sheet Template -->
+<div class="view-container">
+  <!-- Marktübersicht Hero Banner -->
+  <div class="hero-banner">
+    <div class="hero-tag">Marktübersicht (Aktienuniversum)</div>
+    <div class="hero-count" id="screener-hero-count">Lade Titel...</div>
+    <div class="hero-stats-grid">
+      <div>
+        <div class="hero-stat-label">Top-Gewinner</div>
+        <div class="hero-stat-value" id="screener-hero-winner" style="color: #6ee7b7;">—</div>
+      </div>
+      <div>
+        <div class="hero-stat-label">Ø KGV</div>
+        <div class="hero-stat-value" id="screener-hero-pe">—</div>
+      </div>
+      <div>
+        <div class="hero-stat-label">Ø Div.-Rendite</div>
+        <div class="hero-stat-value" id="screener-hero-yield">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sucheingabe -->
+  <div class="search-bar-wrapper">
+    <svg class="search-icon-left" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <input type="text" id="screener-search-input" class="search-input" placeholder="Name oder Ticker suchen..." autocomplete="off">
+  </div>
+
+  <!-- Schnellfilter Preset-Chips -->
+  <div class="horizontal-scroll-row">
+    <button class="chip-btn active" data-preset="all">Alle</button>
+    <button class="chip-btn" data-preset="high_dividend">💰 Hohe Dividende</button>
+    <button class="chip-btn" data-preset="value">💎 Value (KGV &lt; 18)</button>
+    <button class="chip-btn" data-preset="growth">🚀 Growth</button>
+    <button class="chip-btn" data-preset="top_performer">📈 Top Performer</button>
+  </div>
+
+  <!-- Sub-Header mit Zähler und Sortier-Dropdown -->
+  <div class="sub-header-bar">
+    <span id="screener-result-count">0 Ergebnisse</span>
+    <select id="screener-sort-select" class="sort-select">
+      <option value="marketCap_desc">Marktkapitalisierung (Höchste)</option>
+      <option value="change_desc">Tagesgewinner (%)</option>
+      <option value="change_asc">Tagesverlierer (%)</option>
+      <option value="pe_asc">KGV (Niedrigste)</option>
+      <option value="dividend_desc">Dividendenrendite (Höchste)</option>
+      <option value="perf52w_desc">52W-Performance (Beste)</option>
+    </select>
+  </div>
+
+  <!-- Ergebnisliste der Aktienkarten -->
+  <div id="screener-list-container">
+    <div class="state-box">
+      <div class="spinner"></div>
+      <p>Lade Screener-Daten...</p>
+    </div>
+  </div>
+</div>
+
+<!-- Filter Bottom-Sheet Backdrop -->
+<div id="filter-sheet-backdrop" class="sheet-backdrop"></div>
+
+<!-- Filter Bottom-Sheet -->
+<div id="filter-bottom-sheet" class="bottom-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <h3 style="font-size: 1.1rem; font-weight: 700;">Filter anpassen</h3>
+    <button id="sheet-reset-btn" class="chip-btn" style="padding: 4px 10px;">Zurücksetzen</button>
+  </div>
+
+  <div class="filter-group">
+    <div class="filter-label">
+      <span>Maximales KGV</span>
+      <span id="label-max-pe">Beliebig</span>
+    </div>
+    <input type="range" id="filter-slider-pe" class="range-slider" min="5" max="80" step="5" value="80">
+  </div>
+
+  <div class="filter-group">
+    <div class="filter-label">
+      <span>Mindest-Dividendenrendite</span>
+      <span id="label-min-yield">0 %</span>
+    </div>
+    <input type="range" id="filter-slider-yield" class="range-slider" min="0" max="8" step="0.5" value="0">
+  </div>
+
+  <div class="filter-group">
+    <div class="filter-label">
+      <span>Mindest-Performance 52W</span>
+      <span id="label-min-perf">-100 %</span>
+    </div>
+    <input type="range" id="filter-slider-perf" class="range-slider" min="-50" max="100" step="10" value="-50">
+  </div>
+
+  <button id="sheet-apply-btn" class="btn-primary" style="margin-top: 12px;">Filter anwenden</button>
+</div>
