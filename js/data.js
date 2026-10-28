@@ -1,9 +1,9 @@
 /* ==========================================================================
-   Finanz-Dashboard - Daten-Modul (Erweitert)
+   Finanz-Dashboard - Daten-Service (DataService)
    Lädt die aggregierten Daten (stocks.json) und Detaildaten (details/*.json)
    ========================================================================== */
 
-const DataModule = {
+const DataService = {
     // Cache für bereits geladene Daten
     _cache: {
         stocks: null,
@@ -23,7 +23,7 @@ const DataModule = {
                 return new URL('../', src).href;
             }
         }
-        // Fallback über pathname, falls Script-Tag nicht greift
+        // Fallback über pathname
         const pathname = window.location.pathname.toLowerCase();
         if (pathname.includes('/views/')) {
             return '../';
@@ -193,5 +193,6 @@ const DataModule = {
     }
 };
 
-// Global verfügbar machen
-window.DataModule = DataModule;
+// Global verfügbar machen (sowohl als DataService als auch als DataModule zur Abwärtskompatibilität)
+window.DataService = DataService;
+window.DataModule = DataService;
