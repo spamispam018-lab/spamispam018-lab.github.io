@@ -271,7 +271,7 @@ window.App.Compare = (function () {
     var labels = [];
     var baseDateList = (stocks[0].chartHistory || []).slice(-minLen);
     baseDateList.forEach(function (pt) {
-      labels.push(pt.date ? pt.date.slice(5) : '');
+      labels.push(pt.date ? pt.date.slice(5, 7) + '/' + pt.date.slice(2, 4) : '');
     });
 
     // Erster Kurs jedes Titels = 100 %
@@ -290,11 +290,11 @@ window.App.Compare = (function () {
       });
     });
 
-    // Erstes Set als Referenzlinie rendern
+    // Alle Titel als eigene Linien rendern
     if (seriesData.length > 0) {
-      window.App.Charts.renderLineChart(canvas, {
+      window.App.Charts.renderMultiLineChart(canvas, {
         labels: labels,
-        values: seriesData[0].values,
+        series: seriesData.map(function (sd) { return { name: sd.ticker, color: sd.color, values: sd.values }; }),
         formatY: function (v) { return v.toFixed(0) + ' %'; }
       });
     }
