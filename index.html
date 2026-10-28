@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Aktien Screener</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Haupt-Container für die dynamisch gerenderten Views -->
+  <main id="appViewContainer"></main>
+
+  <!-- Feste Bottom-Navigation (Dark-Finance Look) -->
+  <nav class="bottom-nav">
+    <a href="#screener" class="nav-item active" id="navScreener">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+      </svg>
+      <span>Screener</span>
+    </a>
+    <a href="#watchlist" class="nav-item" id="navWatchlist">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      </svg>
+      <span>Watchlist</span>
+    </a>
+  </nav>
+
+  <!-- Versteckte Inline-Templates der Views (Funktioniert 100% lokal via file:// ohne fetch-Beschränkungen) -->
+  <template id="view-template-screener">
+    <div class="header-bar">
+      <div class="header-title-wrap">
+        <h1>Aktien-Screener</h1>
+        <div class="header-subtitle" id="lastUpdatedLabel">Lade Marktdaten...</div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="openFilterBtn" aria-label="Filter öffnen">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="hero-card">
+        <div class="hero-label">MARKTÜBERSICHT (AKTIENUNIVERSUM)</div>
+        <div class="hero-value" id="heroTotalCount">0 Titel</div>
+        <div class="hero-stats-row">
+          <div>
+            <div class="hero-substat-label">Top-Gewinner</div>
+            <div class="hero-substat-val" id="heroTopGainer" style="color: #6ee7b7;">-</div>
+          </div>
+          <div>
+            <div class="hero-substat-label">Ø KGV</div>
+            <div class="hero-substat-val" id="heroAvgPe">-</div>
+          </div>
+          <div>
+            <div class="hero-substat-label">Ø Div.-Rendite</div>
+            <div class="hero-substat-val" id="heroAvgDiv">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="search-container">
+        <div class="search-input-wrap">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="Name oder Ticker suchen..." autocomplete="off" autocapitalize="off" spellcheck="false">
+          <button id="searchClearBtn" class="search-clear-btn" aria-label="Suche leeren">✕</button>
+        </div>
+      </div>
+
+      <div class="chips-scroll-row" id="presetChipsRow">
+        <button class="chip-btn active" data-preset="all">Alle</button>
+        <button class="chip-btn" data-preset="dividend">💰 Hohe Dividende</button>
+        <button class="chip-btn" data-preset="value">💎 Value (KGV &lt; 18)</button>
+        <button class="chip-btn" data-preset="growth">🚀 52W Gewinner</button>
+        <button class="chip-btn" data-preset="gainers">📈 Tagesgewinner</button>
+        <button class="chip-btn" data-preset="losers">📉 Tagesverlierer</button>
+      </div>
+
+      <div class="status-bar-row">
+        <span id="resultCountLabel">0 Ergebnisse</span>
+        <select id="sortSelect" class="sort-select">
+          <option value="marketCap_desc">Marktkapitalisierung (Höchste)</option>
+          <option value="change_desc">Tagesänderung (+%)</option>
+          <option value="change_asc">Tagesänderung (-%)</option>
+          <option value="pe_asc">KGV (Günstigste)</option>
+          <option value="div_desc">Dividendenrendite (Höchste)</option>
+          <option value="perf52w_desc">52-Wochen-Performance</option>
+          <option value="name_asc">Name (A-Z)</option>
+        </select>
+      </div>
+
+      <div id="stocksList" class="stocks-list"></div>
+    </div>
+
+    <div id="sheetBackdrop" class="sheet-backdrop"></div>
+    <div id="filterSheet" class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div class="sheet-title">Filterkriterien</div>
+        <button id="closeFilterBtn" class="icon-btn" style="width: 32px; height: 32px;" aria-label="Schließen">✕</button>
+      </div>
+      <div class="sheet-body">
+        <div>
+          <div class="filter-group-title">Branche / Sektor</div>
+          <select id="filterSector" class="sort-select" style="width: 100%; padding: 10px; font-size: 0.9rem;"></select>
+        </div>
+        <div>
+          <div class="filter-group-title">Region / Land</div>
+          <select id="filterCountry" class="sort-select" style="width: 100%; padding: 10px; font-size: 0.9rem;"></select>
+        </div>
+        <div>
+          <div class="slider-row">
+            <span class="filter-group-title" style="margin: 0;">Maximales KGV</span>
+            <span id="peValueDisplay" style="font-weight: 700; color: var(--accent-purple);">Beliebig</span>
+          </div>
+          <input type="range" id="filterMaxPe" class="filter-slider" min="10" max="100" step="5" value="100">
+        </div>
+        <div>
+          <div class="slider-row">
+            <span class="filter-group-title" style="margin: 0;">Mindest-Dividendenrendite</span>
+            <span id="divValueDisplay" style="font-weight: 700; color: var(--accent-purple);">0 %</span>
+          </div>
+          <input type="range" id="filterMinDiv" class="filter-slider" min="0" max="8" step="0.5" value="0">
+        </div>
+        <div>
+          <div class="slider-row">
+            <span class="filter-group-title" style="margin: 0;">Min. Marktkapitalisierung</span>
+            <span id="mcapValueDisplay" style="font-weight: 700; color: var(--accent-purple);">Alle Größen</span>
+          </div>
+          <input type="range" id="filterMinMcap" class="filter-slider" min="0" max="100" step="10" value="0">
+        </div>
+      </div>
+      <div class="sheet-footer">
+        <button id="resetFiltersBtn" class="btn-secondary">Zurücksetzen</button>
+        <button id="applyFiltersBtn" class="btn-primary">Filter anwenden</button>
+      </div>
+    </div>
+  </template>
+
+  <template id="view-template-detail">
+    <div class="header-bar">
+      <div class="header-actions">
+        <button class="icon-btn" id="detailBackBtn" aria-label="Zurück zur Übersicht">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+      </div>
+      <div class="header-title-wrap" style="text-align: center;">
+        <h1 id="detailStockTicker" style="font-size: 1.15rem;">-</h1>
+        <div class="header-subtitle" id="detailStockSector">-</div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="detailWatchlistBtn" aria-label="Zur Watchlist hinzufügen">
+          <svg id="detailWatchlistIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div style="margin: 12px 0 8px 0;">
+        <h2 id="detailStockName" style="font-size: 1.45rem; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">-</h2>
+        <div style="display: flex; align-items: baseline; gap: 12px; margin-top: 6px;">
+          <span id="detailStockPrice" style="font-size: 2.1rem; font-weight: 800; letter-spacing: -0.02em;">-</span>
+          <span id="detailStockChange" class="stock-badge" style="font-size: 0.95rem; padding: 4px 10px;">-</span>
+        </div>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-header">
+          <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Kursentwicklung (1J)</span>
+          <span id="detailChartPerfBadge" class="stock-badge" style="font-size: 0.75rem;">-</span>
+        </div>
+        <div class="chart-canvas-wrap">
+          <canvas id="detailChartCanvas"></canvas>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">
+          Fundamentaldaten &amp; Kennzahlen
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Marktkapitalisierung</div>
+            <div class="metric-val" id="metricMarketCap">-</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">KGV (P/E)</div>
+            <div class="metric-val" id="metricPeRatio">-</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Dividendenrendite</div>
+            <div class="metric-val" id="metricDividendYield">-</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">52W Performance</div>
+            <div class="metric-val" id="metricPerf52w">-</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Land / Region</div>
+            <div class="metric-val" id="metricCountry">-</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Währung</div>
+            <div class="metric-val" id="metricCurrency">EUR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="view-template-watchlist">
+    <div class="header-bar">
+      <div class="header-title-wrap">
+        <h1>Meine Watchlist</h1>
+        <div class="header-subtitle">Persönliche Favoriten &amp; Beobachtung</div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="watchlistRefreshBtn" aria-label="Watchlist aktualisieren">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="hero-card">
+        <div class="hero-label">BEOBACHTETE TITEL</div>
+        <div class="hero-value" id="watchlistHeroCount">0 Positionen</div>
+        <div class="hero-stats-row">
+          <div>
+            <div class="hero-substat-label">Tages-Trend</div>
+            <div class="hero-substat-val" id="watchlistAvgDayChange">-</div>
+          </div>
+          <div>
+            <div class="hero-substat-label">Top-Performer</div>
+            <div class="hero-substat-val" id="watchlistTopPerformer" style="color: #6ee7b7;">-</div>
+          </div>
+          <div>
+            <div class="hero-substat-label">Ø 52W Rendite</div>
+            <div class="hero-substat-val" id="watchlistAvgPerf52w">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-bar-row">
+        <span id="watchlistCountLabel">0 Titel gespeichert</span>
+        <span style="font-size: 0.78rem; color: var(--text-muted);">Lokal auf diesem Gerät</span>
+      </div>
+
+      <div id="watchlistStocksList" class="stocks-list"></div>
+    </div>
+  </template>
+
+  <!-- Klassische Script-Einbindung in exakter Reihenfolge ohne Build-Tools -->
+  <script src="data/fallback-data.js"></script>
+  <script src="js/lib/chart.umd.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/watchlist.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/ui.js"></script>
+
+  <!-- App-Initialisierung & Hash-Routing -->
+  <script>
+    (function () {
+      'use strict';
+
+      var currentStocks = [];
+
+      function getHashRoute() {
+        var hash = window.location.hash.replace('#', '') || 'screener';
+        var parts = hash.split('/');
+        return {
+          view: parts[0] || 'screener',
+          param: parts[1] || null
+        };
+      }
+
+      function updateNav(routeView) {
+        var navScreener = document.getElementById('navScreener');
+        var navWatchlist = document.getElementById('navWatchlist');
+
+        if (navScreener && navWatchlist) {
+          navScreener.classList.toggle('active', routeView === 'screener' || routeView === 'detail');
+          navWatchlist.classList.toggle('active', routeView === 'watchlist');
+        }
+      }
+
+      function updateScreenerHero(stocks) {
+        var countEl = document.getElementById('heroTotalCount');
+        var gainerEl = document.getElementById('heroTopGainer');
+        var avgPeEl = document.getElementById('heroAvgPe');
+        var avgDivEl = document.getElementById('heroAvgDiv');
+
+        if (!countEl) return;
+        countEl.textContent = stocks.length + ' Titel';
+
+        if (stocks.length === 0) return;
+
+        var topGainer = stocks.slice().sort(function(a, b) {
+          return (b.changePercent || 0) - (a.changePercent || 0);
+        })[0];
+
+        if (topGainer && gainerEl) {
+          gainerEl.textContent = topGainer.ticker + ' (' + window.App.UIController.formatPercent(topGainer.changePercent) + ')';
+        }
+
+        var peSum = 0;
+        var peCount = 0;
+        var divSum = 0;
+
+        for (var i = 0; i < stocks.length; i++) {
+          if (stocks[i].peRatio && stocks[i].peRatio > 0) {
+            peSum += stocks[i].peRatio;
+            peCount++;
+          }
+          if (stocks[i].dividendYield) {
+            divSum += stocks[i].dividendYield;
+          }
+        }
+
+        if (avgPeEl) {
+          avgPeEl.textContent = peCount > 0 ? (peSum / peCount).toFixed(1) : '-';
+        }
+        if (avgDivEl) {
+          avgDivEl.textContent = (divSum / stocks.length).toFixed(1) + ' %';
+        }
+      }
+
+      function renderScreenerView() {
+        var container = document.getElementById('appViewContainer');
+        var template = document.getElementById('view-template-screener');
+        container.innerHTML = template.innerHTML;
+
+        window.App.UIController.populateFilterDropdowns();
+
+        var searchInput = document.getElementById('searchInput');
+        var searchClearBtn = document.getElementById('searchClearBtn');
+        var sortSelect = document.getElementById('sortSelect');
+        var chips = document.querySelectorAll('.chip-btn');
+        var resultCountLabel = document.getElementById('resultCountLabel');
+
+        function refreshList() {
+          var filtered = window.App.FilterEngine.process(currentStocks);
+          resultCountLabel.textContent = filtered.length + ' Ergebnisse';
+          window.App.UIController.renderStockList('stocksList', filtered, function(ticker) {
+            window.location.hash = 'detail/' + ticker;
+          });
+        }
+
+        // Live-Suche
+        searchInput.value = window.App.FilterEngine.state.searchQuery || '';
+        searchClearBtn.style.display = searchInput.value ? 'block' : 'none';
+
+        searchInput.addEventListener('input', function() {
+          window.App.FilterEngine.state.searchQuery = this.value;
+          searchClearBtn.style.display = this.value ? 'block' : 'none';
+          refreshList();
+        });
+
+        searchClearBtn.addEventListener('click', function() {
+          searchInput.value = '';
+          window.App.FilterEngine.state.searchQuery = '';
+          searchClearBtn.style.display = 'none';
+          refreshList();
+        });
+
+        // Preset Chips
+        for (var i = 0; i < chips.length; i++) {
+          chips[i].addEventListener('click', function() {
+            for (var j = 0; j < chips.length; j++) chips[j].classList.remove('active');
+            this.classList.add('active');
+            var preset = this.getAttribute('data-preset');
+            window.App.FilterEngine.applyPreset(preset);
+            sortSelect.value = window.App.FilterEngine.state.sortBy;
+            refreshList();
+          });
+        }
+
+        // Sortierung
+        sortSelect.value = window.App.FilterEngine.state.sortBy;
+        sortSelect.addEventListener('change', function() {
+          window.App.FilterEngine.state.sortBy = this.value;
+          refreshList();
+        });
+
+        // Bottom-Sheet Event Listener
+        var openFilterBtn = document.getElementById('openFilterBtn');
+        var closeFilterBtn = document.getElementById('closeFilterBtn');
+        var sheetBackdrop = document.getElementById('sheetBackdrop');
+        var applyFiltersBtn = document.getElementById('applyFiltersBtn');
+        var resetFiltersBtn = document.getElementById('resetFiltersBtn');
+
+        var filterSector = document.getElementById('filterSector');
+        var filterCountry = document.getElementById('filterCountry');
+        var filterMaxPe = document.getElementById('filterMaxPe');
+        var filterMinDiv = document.getElementById('filterMinDiv');
+        var filterMinMcap = document.getElementById('filterMinMcap');
+
+        var peValueDisplay = document.getElementById('peValueDisplay');
+        var divValueDisplay = document.getElementById('divValueDisplay');
+        var mcapValueDisplay = document.getElementById('mcapValueDisplay');
+
+        filterMaxPe.addEventListener('input', function() {
+          peValueDisplay.textContent = this.value >= 100 ? 'Beliebig' : '≤ ' + this.value;
+        });
+
+        filterMinDiv.addEventListener('input', function() {
+          divValueDisplay.textContent = '≥ ' + this.value + ' %';
+        });
+
+        filterMinMcap.addEventListener('input', function() {
+          mcapValueDisplay.textContent = this.value == 0 ? 'Alle Größen' : '≥ ' + this.value + ' Mrd. €';
+        });
+
+        openFilterBtn.addEventListener('click', function() {
+          filterSector.value = window.App.FilterEngine.state.sector;
+          filterCountry.value = window.App.FilterEngine.state.country;
+          filterMaxPe.value = window.App.FilterEngine.state.maxPe;
+          filterMinDiv.value = window.App.FilterEngine.state.minDividendYield;
+          filterMinMcap.value = window.App.FilterEngine.state.minMarketCap;
+
+          peValueDisplay.textContent = filterMaxPe.value >= 100 ? 'Beliebig' : '≤ ' + filterMaxPe.value;
+          divValueDisplay.textContent = '≥ ' + filterMinDiv.value + ' %';
+          mcapValueDisplay.textContent = filterMinMcap.value == 0 ? 'Alle Größen' : '≥ ' + filterMinMcap.value + ' Mrd. €';
+
+          window.App.UIController.toggleBottomSheet(true);
+        });
+
+        closeFilterBtn.addEventListener('click', function() {
+          window.App.UIController.toggleBottomSheet(false);
+        });
+
+        sheetBackdrop.addEventListener('click', function() {
+          window.App.UIController.toggleBottomSheet(false);
+        });
+
+        applyFiltersBtn.addEventListener('click', function() {
+          window.App.FilterEngine.state.sector = filterSector.value;
+          window.App.FilterEngine.state.country = filterCountry.value;
+          window.App.FilterEngine.state.maxPe = parseFloat(filterMaxPe.value);
+          window.App.FilterEngine.state.minDividendYield = parseFloat(filterMinDiv.value);
+          window.App.FilterEngine.state.minMarketCap = parseFloat(filterMinMcap.value);
+
+          window.App.UIController.toggleBottomSheet(false);
+          refreshList();
+        });
+
+        resetFiltersBtn.addEventListener('click', function() {
+          window.App.FilterEngine.reset();
+          filterSector.value = '';
+          filterCountry.value = '';
+          filterMaxPe.value = 100;
+          filterMinDiv.value = 0;
+          filterMinMcap.value = 0;
+          peValueDisplay.textContent = 'Beliebig';
+          divValueDisplay.textContent = '0 %';
+          mcapValueDisplay.textContent = 'Alle Größen';
+
+          for (var k = 0; k < chips.length; k++) chips[k].classList.remove('active');
+          chips[0].classList.add('active');
+
+          window.App.UIController.toggleBottomSheet(false);
+          refreshList();
+        });
+
+        updateScreenerHero(currentStocks);
+        refreshList();
+      }
+
+      function renderDetailView(ticker) {
+        var container = document.getElementById('appViewContainer');
+        var template = document.getElementById('view-template-detail');
+        container.innerHTML = template.innerHTML;
+
+        var stock = window.App.DataService.getStockByTicker(ticker);
+        if (!stock) {
+          window.location.hash = 'screener';
+          return;
+        }
+
+        document.getElementById('detailBackBtn').addEventListener('click', function() {
+          window.history.back();
+        });
+
+        document.getElementById('detailStockTicker').textContent = stock.ticker;
+        document.getElementById('detailStockSector').textContent = (stock.sector || '') + ' • ' + (stock.country || '');
+        document.getElementById('detailStockName').textContent = stock.name;
+        document.getElementById('detailStockPrice').textContent = window.App.UIController.formatCurrency(stock.price, stock.currency);
+
+        var changeEl = document.getElementById('detailStockChange');
+        changeEl.textContent = window.App.UIController.formatPercent(stock.changePercent);
+        changeEl.className = 'stock-badge ' + (stock.changePercent >= 0 ? 'pos' : 'neg');
+
+        var perfBadge = document.getElementById('detailChartPerfBadge');
+        perfBadge.textContent = '52W: ' + window.App.UIController.formatPercent(stock.perf52w);
+        perfBadge.className = 'stock-badge ' + (stock.perf52w >= 0 ? 'pos' : 'neg');
+
+        document.getElementById('metricMarketCap').textContent = window.App.UIController.formatMarketCap(stock.marketCap);
+        document.getElementById('metricPeRatio').textContent = stock.peRatio ? stock.peRatio.toFixed(1) : 'k. A.';
+        document.getElementById('metricDividendYield').textContent = stock.dividendYield ? stock.dividendYield.toFixed(2) + ' %' : '0,00 %';
+        document.getElementById('metricPerf52w').textContent = window.App.UIController.formatPercent(stock.perf52w);
+        document.getElementById('metricCountry').textContent = stock.country || '-';
+        document.getElementById('metricCurrency').textContent = stock.currency || 'EUR';
+
+        // Watchlist Button
+        var wlBtn = document.getElementById('detailWatchlistBtn');
+        var wlIcon = document.getElementById('detailWatchlistIcon');
+
+        function updateWatchlistState() {
+          var isWl = window.App.WatchlistService.isWatchlisted(stock.ticker);
+          wlBtn.classList.toggle('active', isWl);
+          if (isWl) {
+            wlIcon.setAttribute('fill', '#ffffff');
+          } else {
+            wlIcon.setAttribute('fill', 'none');
+          }
+        }
+
+        updateWatchlistState();
+
+        wlBtn.addEventListener('click', function() {
+          window.App.WatchlistService.toggle(stock.ticker);
+          updateWatchlistState();
+        });
+
+        // Detail Chart rendern
+        setTimeout(function() {
+          window.App.ChartService.renderDetailChart('detailChartCanvas', stock);
+        }, 50);
+      }
+
+      function renderWatchlistView() {
+        var container = document.getElementById('appViewContainer');
+        var template = document.getElementById('view-template-watchlist');
+        container.innerHTML = template.innerHTML;
+
+        var wlStocks = window.App.WatchlistService.getWatchlistStocks();
+        var heroCount = document.getElementById('watchlistHeroCount');
+        var countLabel = document.getElementById('watchlistCountLabel');
+        var avgChangeEl = document.getElementById('watchlistAvgDayChange');
+        var topPerfEl = document.getElementById('watchlistTopPerformer');
+        var avg52wEl = document.getElementById('watchlistAvgPerf52w');
+
+        heroCount.textContent = wlStocks.length + ' Positionen';
+        countLabel.textContent = wlStocks.length + ' Titel gespeichert';
+
+        if (wlStocks.length > 0) {
+          var daySum = 0;
+          var perf52Sum = 0;
+          var topStock = wlStocks[0];
+
+          for (var i = 0; i < wlStocks.length; i++) {
+            var s = wlStocks[i];
+            daySum += (s.changePercent || 0);
+            perf52Sum += (s.perf52w || 0);
+            if ((s.perf52w || 0) > (topStock.perf52w || 0)) {
+              topStock = s;
+            }
+          }
+
+          var avgDay = daySum / wlStocks.length;
+          avgChangeEl.textContent = window.App.UIController.formatPercent(avgDay);
+          avgChangeEl.style.color = avgDay >= 0 ? '#10b981' : '#f43f5e';
+
+          topPerfEl.textContent = topStock.ticker + ' (' + window.App.UIController.formatPercent(topStock.perf52w) + ')';
+          avg52wEl.textContent = window.App.UIController.formatPercent(perf52Sum / wlStocks.length);
+        }
+
+        window.App.UIController.renderStockList('watchlistStocksList', wlStocks, function(ticker) {
+          window.location.hash = 'detail/' + ticker;
+        });
+
+        document.getElementById('watchlistRefreshBtn').addEventListener('click', function() {
+          renderWatchlistView();
+        });
+      }
+
+      function router() {
+        var route = getHashRoute();
+        updateNav(route.view);
+
+        window.App.ChartService.destroyCurrentChart();
+
+        if (route.view === 'detail' && route.param) {
+          renderDetailView(route.param);
+        } else if (route.view === 'watchlist') {
+          renderWatchlistView();
+        } else {
+          renderScreenerView();
+        }
+      }
+
+      window.addEventListener('hashchange', router);
+
+      // App-Start
+      window.App.DataService.loadStocks().then(function(data) {
+        currentStocks = (data && data.stocks) ? data.stocks : [];
+        router();
+      });
+    })();
+  </script>
+</body>
+</html>
