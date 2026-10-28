@@ -40,9 +40,9 @@ def fetch_all_stocks():
             pe = info.get("trailingPE") or info.get("forwardPE")
             pe_val = round(pe, 2) if pe else None
 
-            # Dividendenrendite in Prozent
+            # Dividendenrendite in Prozent (yfinance liefert bereits Prozent, keine Multiplikation mit 100)
             div_rate = info.get("dividendYield")
-            div_yield = round(div_rate * 100, 2) if div_rate is not None else 0.0
+            div_yield = round(float(div_rate), 2) if div_rate is not None else 0.0
 
             # Marktkapitalisierung
             market_cap = info.get("marketCap") or 0
@@ -61,7 +61,7 @@ def fetch_all_stocks():
             }
 
             stock_list.append(item)
-            print(f"✓ {clean_symbol}: {price} | KGV: {pe_val}")
+            print(f"✓ {clean_symbol}: {price} | KGV: {pe_val} | Div: {div_yield}%")
 
         except Exception as e:
             print(f"✗ Fehler bei {ticker_symbol}: {e}", file=sys.stderr)
