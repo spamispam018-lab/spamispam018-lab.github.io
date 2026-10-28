@@ -22,7 +22,7 @@ const WatchlistManager = (function () {
     }
   }
 
-  function isInWatchlist(symbol) {
+  function isWatched(symbol) {
     if (!symbol) return false;
     const list = getWatchlist();
     return list.some(item => item.toUpperCase() === symbol.toUpperCase());
@@ -32,8 +32,8 @@ const WatchlistManager = (function () {
     if (!symbol) return false;
     const cleanSymbol = symbol.toUpperCase();
     let list = getWatchlist();
+    const exists = list.some(item => item.toUpperCase() === cleanSymbol);
 
-    const exists = list.includes(cleanSymbol);
     if (exists) {
       list = list.filter(item => item !== cleanSymbol);
     } else {
@@ -51,21 +51,13 @@ const WatchlistManager = (function () {
       if (isWatched) {
         btn.classList.add("active");
         btn.setAttribute("aria-label", "Aus Watchlist entfernen");
-        btn.textContent = btn.dataset.activeText || "★ In Watchlist";
+        btn.textContent = btn.dataset.activeText || "★ Gemerkt";
       } else {
         btn.classList.remove("active");
         btn.setAttribute("aria-label", "Zur Watchlist hinzufügen");
-        btn.textContent = btn.dataset.inactiveText || "☆ Auf Watchlist";
+        btn.textContent = btn.dataset.inactiveText || "☆ Merken";
       }
     });
-  }
-
-  function getDetailUrl(symbol) {
-    const path = window.location.pathname;
-    if (path.includes("/Views/") || path.includes("/views/")) {
-      return `stock.html?symbol=${encodeURIComponent(symbol)}`;
-    }
-    return `Views/stock.html?symbol=${encodeURIComponent(symbol)}`;
   }
 
   function formatEuroPrice(val) {
@@ -78,18 +70,18 @@ const WatchlistManager = (function () {
 
   function formatPercent(val) {
     if (val === null || val === undefined || isNaN(val)) return "-";
-    const sign = val > 0 ? "+" : "";
+    const sign = Number(val) > 0 ? "+" : "";
     return `${sign}${Number(val).toFixed(2).replace(".", ",")}%`;
   }
 
-  function updateWatchlistHeroStats(watchedStocks) {
+  function updateWatchlistHeroStats(watchedStocks = []) {
+    const total = watchedStocks.length;
     const countTitle = document.getElementById("watchlist-count-title");
+    const resultsCount = document.getElementById("watchlist-results-count");
     const avgPerfEl = document.getElementById("watchlist-avg-perf");
     const topPerfEl = document.getElementById("watchlist-top-performer");
     const worstPerfEl = document.getElementById("watchlist-worst-performer");
-    const resultsCount = document.getElementById("watchlist-results-count");
 
-    const total = watchedStocks.length;
     if (countTitle) countTitle.textContent = `${total} Titel`;
     if (resultsCount) resultsCount.textContent = `${total} Favoriten gespeichert`;
 
@@ -100,25 +92,32 @@ const WatchlistManager = (function () {
       return;
     }
 
-    const validStocks = watchedStocks.filter(s => typeof s.changePercent === "number" && !isNaN(s.changePercent));
+    const validStocks = watchedStocks.filter(s => {
+      const p = s.changePercent !== undefined ? s.changePercent : s.change;
+      return typeof p === "number" && !isNaN(p);
+    });
+
     if (validStocks.length > 0) {
-      const avg = validStocks.reduce((acc, curr) => acc + curr.changePercent, 0) / validStocks.length;
+      const getChange = s => (s.changePercent !== undefined ? s.changePercent : s.change);
+      const avg = validStocks.reduce((acc, curr) => acc + getChange(curr), 0) / validStocks.length;
       if (avgPerfEl) {
         const sign = avg > 0 ? "+" : "";
         avgPerfEl.textContent = `${sign}${avg.toFixed(2).replace(".", ",")} %`;
       }
 
-      validStocks.sort((a, b) => b.changePercent - a.changePercent);
+      validStocks.sort((a, b) => getChange(b) - getChange(a));
       const top = validStocks[0];
       const worst = validStocks[validStocks.length - 1];
 
       if (topPerfEl) {
-        const sign = top.changePercent > 0 ? "+" : "";
-        topPerfEl.textContent = `${top.symbol} (${sign}${top.changePercent.toFixed(1)}%)`;
+        const ch = getChange(top);
+        const sign = ch > 0 ? "+" : "";
+        topPerfEl.textContent = `${top.symbol} (${sign}${ch.toFixed(1)}%)`;
       }
       if (worstPerfEl) {
-        const sign = worst.changePercent > 0 ? "+" : "";
-        worstPerfEl.textContent = `${worst.symbol} (${sign}${worst.changePercent.toFixed(1)}%)`;
+        const ch = getChange(worst);
+        const sign = ch > 0 ? "+" : "";
+        worstPerfEl.textContent = `${worst.symbol} (${sign}${ch.toFixed(1)}%)`;
       }
     }
   }
@@ -131,11 +130,11 @@ const WatchlistManager = (function () {
     if (list.length === 0) {
       updateWatchlistHeroStats([]);
       container.innerHTML = `
-        <div class="empty-box">
+        <div class="empty-box py-12 text-center text-slate-400">
           <p style="margin-bottom: 1rem;">Deine Watchlist ist noch leer.</p>
-          <a href="screener.html" class="chip-btn active" style="text-decoration: none; display: inline-block;">
+          <button onclick="Navigation.navigate('screener')" class="chip-btn active px-4 py-2 bg-blue-600 rounded-xl text-white">
             Aktien im Screener entdecken
-          </a>
+          </button>
         </div>
       `;
       return;
@@ -147,11 +146,14 @@ const WatchlistManager = (function () {
     }
 
     const watchedStocks = list.map(symbol => {
-      return allStocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase()) || {
+      const found = allStocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase());
+      if (found) return found;
+      return {
         symbol: symbol,
         name: symbol,
         sector: "Aktie",
         price: null,
+        change: null,
         changePercent: null
       };
     });
@@ -160,77 +162,59 @@ const WatchlistManager = (function () {
 
     let html = "";
     watchedStocks.forEach(stock => {
-      const isPositive = (stock.changePercent || 0) >= 0;
+      const ch = stock.changePercent !== undefined ? stock.changePercent : stock.change;
+      const isPositive = (ch || 0) >= 0;
       const changeClass = isPositive ? "positive" : "negative";
 
       html += `
-        <div class="stock-card" style="position: relative;">
-          <a href="${getDetailUrl(stock.symbol)}" style="text-decoration: none; color: inherit; display: flex; justify-content: space-between; align-items: center; width: calc(100% - 35px);">
+        <div class="stock-card" style="position: relative; cursor: pointer;" onclick="Navigation.openStock('${stock.symbol}')">
+          <div style="display: flex; justify-content: space-between; align-items: center; width: calc(100% - 35px);">
             <div class="stock-info">
-              <span class="stock-name">${stock.name || stock.symbol}</span>
-              <div class="stock-tags">
-                <span class="stock-badge-ticker">${stock.symbol}</span>
+              <span class="stock-name font-bold text-white">${stock.name || stock.symbol}</span>
+              <div class="stock-tags text-xs text-slate-400">
+                <span class="stock-badge-ticker font-semibold text-blue-400">${stock.symbol}</span>
                 <span>•</span>
                 <span>${stock.sector || "Aktie"}</span>
               </div>
             </div>
-            <div class="stock-price-box">
-              <div class="stock-price-val">${formatEuroPrice(stock.price)}</div>
-              <div class="stock-change-pill ${changeClass}">${formatPercent(stock.changePercent)}</div>
+            <div class="stock-price-box text-right">
+              <div class="stock-price-val font-bold text-white">${formatEuroPrice(stock.price)}</div>
+              <div class="stock-change-pill ${changeClass}">${formatPercent(ch)}</div>
             </div>
-          </a>
-          <button class="remove-favorite-btn" data-remove-sym="${stock.symbol}" title="Aus Favoriten entfernen" style="background: none; border: none; color: var(--text-sub); font-size: 1.1rem; cursor: pointer; padding: 0.25rem 0.5rem; margin-left: 0.5rem;">
-            ✕
+          </div>
+          <button class="remove-fav-btn" onclick="event.stopPropagation(); WatchlistManager.toggleWatchlist('${stock.symbol}'); WatchlistManager.renderWatchlistCards('${containerId}');" aria-label="Löschen" style="background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 1.25rem;">
+            &times;
           </button>
         </div>
       `;
     });
 
     container.innerHTML = html;
-
-    // Klick-Handler für Entfernen-Buttons
-    container.querySelectorAll("[data-remove-sym]").forEach(btn => {
-      btn.addEventListener("click", e => {
-        e.stopPropagation();
-        const sym = btn.getAttribute("data-remove-sym");
-        toggleWatchlist(sym);
-        renderWatchlistCards(containerId);
-      });
-    });
   }
 
   function initDetailPageButton() {
-    const symbol = window.StockDataHandler ? window.StockDataHandler.getQueryParam("symbol") : null;
-    if (!symbol) return;
-
     const btn = document.getElementById("detail-watchlist-toggle");
-    if (btn) {
-      btn.setAttribute("data-watchlist-symbol", symbol.toUpperCase());
-      const watched = isInWatchlist(symbol);
-      updateWatchlistButtons(symbol.toUpperCase(), watched);
+    if (!btn) return;
 
-      btn.addEventListener("click", () => {
-        toggleWatchlist(symbol);
-      });
-    }
+    const symbol = window.StockDataHandler ? window.StockDataHandler.getCurrentSymbol() : "AAPL";
+    const watched = isWatched(symbol);
+
+    btn.setAttribute("data-watchlist-symbol", symbol.toUpperCase());
+    updateWatchlistButtons(symbol.toUpperCase(), watched);
+
+    btn.onclick = () => {
+      const nowWatched = toggleWatchlist(symbol.toUpperCase());
+      updateWatchlistButtons(symbol.toUpperCase(), nowWatched);
+    };
   }
 
   return {
     getWatchlist,
+    isWatched,
     toggleWatchlist,
-    isInWatchlist,
     renderWatchlistCards,
-    initDetailPageButton,
-    updateWatchlistButtons
+    initDetailPageButton
   };
 })();
-
-// DOM-Ready Hook
-document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("watchlist-container")) {
-    WatchlistManager.renderWatchlistCards("watchlist-container");
-  }
-  WatchlistManager.initDetailPageButton();
-});
 
 window.WatchlistManager = WatchlistManager;
