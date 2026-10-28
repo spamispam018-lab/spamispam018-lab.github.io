@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """
 scripts/fetch_market_data.py
-Liest Marktdaten für USA, Europa und Japan aus und generiert:
-- data/universe.json (Screener-Datenbank)
-- data/<TICKER>.json (Detaillierte Analyse-Daten)
+Delta-fähiges Marktdaten-Update für USA, Europa und Japan.
+Rechnet alle Notierungen, Kennzahlen und Charts automatisch in Euro (EUR) um.
 """
 
 import os
@@ -14,11 +13,6 @@ import argparse
 from datetime import datetime, timezone
 import yfinance as yf
 
-# ==============================================================================
-# TICKER-UNIVERSUM: USA, EUROPA & JAPAN
-# ==============================================================================
-
-# 1. USA (Auswahl S&P 500 & Nasdaq 100)
 TICKERS_USA = [
     "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "BRK-B", "JPM", "V",
     "MA", "UNH", "JNJ", "PG", "HD", "COST", "ABBV", "CRM", "AMD", "NFLX",
@@ -28,60 +22,76 @@ TICKERS_USA = [
     "RTX", "HON", "BA", "LMT", "DE", "UNP", "INTU", "ISRG", "BKNG", "MDLZ"
 ]
 
-# 2. EUROPA (DAX, MDAX, EuroStoxx 50, CAC40, FTSE, SMI inkl. Stellantis)
 TICKERS_EUROPE = [
-    # Deutschland (.DE)
     "ADS.DE", "AIR.DE", "ALV.DE", "BAS.DE", "BAYN.DE", "BEI.DE", "BMW.DE", "BNR.DE",
     "CBK.DE", "CON.DE", "1COV.DE", "DTG.DE", "DB1.DE", "DBK.DE", "DHL.DE", "DTE.DE",
     "EOAN.DE", "FRE.DE", "HEI.DE", "HEN3.DE", "HNR1.DE", "IFX.DE", "MBG.DE", "MRK.DE",
     "MTX.DE", "MUV2.DE", "PAH3.DE", "QIA.DE", "RHM.DE", "RWE.DE", "SAP.DE", "SRT3.DE",
     "SIE.DE", "ENR.DE", "SY1.DE", "VOW3.DE", "VNA.DE", "ZAL.DE", "P911.DE", "SHL.DE",
-    # Frankreich (.PA)
     "MC.PA", "OR.PA", "RMS.PA", "SAN.PA", "TTE.PA", "AIR.PA", "SU.PA", "AI.PA",
     "BNP.PA", "EL.PA", "CS.PA", "DG.PA", "KER.PA", "SAF.PA",
-    # Niederlande (.AS)
     "ASML.AS", "INGA.AS", "PRX.AS", "AD.AS", "UNA.AS", "HEIA.AS", "ASM.AS",
-    # Schweiz (.SW)
     "NESN.SW", "ROG.SW", "NOVN.SW", "UBSG.SW", "ABBN.SW", "ZURN.SW", "CFR.SW",
-    # Großbritannien (.L)
     "AZN.L", "SHEL.L", "HSBA.L", "ULVR.L", "BP.L", "GSK.L", "RIO.L", "REL.L",
-    # Italien / Spanien / Skandinavien
-    "STLAM.MI",  # Stellantis N.V. (Hauptnotierung Borsa Italiana)
-    "NOVO-B.CO", "ITX.MC", "SAN.MC", "IBE.MC", "ENEL.MI", "ISP.MI", "RACE.MI"
+    "STLAM.MI", "NOVO-B.CO", "ITX.MC", "SAN.MC", "IBE.MC", "ENEL.MI", "ISP.MI", "RACE.MI"
 ]
 
-# 3. JAPAN (Nikkei 225 / TOPIX Leaders mit Suffix .T)
 TICKERS_JAPAN = [
-    "7203.T",  # Toyota Motor
-    "6758.T",  # Sony Group
-    "6861.T",  # Keyence
-    "9983.T",  # Fast Retailing (Uniqlo)
-    "9984.T",  # SoftBank Group
-    "8306.T",  # Mitsubishi UFJ Financial
-    "8058.T",  # Mitsubishi Corp.
-    "8035.T",  # Tokyo Electron
-    "6501.T",  # Hitachi
-    "7974.T",  # Nintendo
-    "4063.T",  # Shin-Etsu Chemical
-    "6098.T",  # Recruit Holdings
-    "4502.T",  # Takeda Pharmaceutical
-    "6902.T",  # Denso
-    "7267.T",  # Honda Motor
-    "8001.T",  # Itochu
-    "9432.T",  # Nippon Telegraph & Telephone (NTT)
-    "6954.T",  # Fanuc
-    "7741.T",  # Hoya Corp.
-    "6367.T",  # Daikin Industries
-    "4568.T",  # Daiichi Sankyo
-    "6981.T",  # Murata Manufacturing
-    "8766.T",  # Tokio Marine
-    "7751.T",  # Canon
-    "6503.T"   # Mitsubishi Electric
+    "7203.T", "6758.T", "6861.T", "9983.T", "9984.T", "8306.T", "8058.T", "8035.T",
+    "6501.T", "7974.T", "4063.T", "6098.T", "4502.T", "6902.T", "7267.T", "8001.T",
+    "9432.T", "6954.T", "7741.T", "6367.T", "4568.T", "6981.T", "8766.T", "7751.T", "6503.T"
 ]
 
 ALL_TICKERS = TICKERS_USA + TICKERS_EUROPE + TICKERS_JAPAN
-
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
+
+# ==============================================================================
+# WÄHRUNGSUMRECHNUNG IN EURO
+# ==============================================================================
+
+EXCHANGE_RATES = {
+    "EUR": 1.0,
+    "USD": 0.92,
+    "JPY": 0.0061,
+    "GBP": 1.17,
+    "GBp": 0.0117,
+    "CHF": 1.04,
+    "DKK": 0.134
+}
+
+def load_live_forex_rates():
+    """Lädt tagesaktuelle Wechselkurse gegen den Euro."""
+    global EXCHANGE_RATES
+    forex_pairs = {
+        "USD": "EURUSD=X",
+        "JPY": "EURJPY=X",
+        "GBP": "EURGBP=X",
+        "CHF": "EURCHF=X",
+        "DKK": "EURDKK=X"
+    }
+    try:
+        data = yf.download(list(forex_pairs.values()), period="5d", interval="1d", group_by="ticker", threads=True)
+        for cur, pair_sym in forex_pairs.items():
+            try:
+                sub_df = data[pair_sym] if len(forex_pairs) > 1 else data
+                sub_clean = sub_df.dropna(subset=["Close"])
+                if not sub_clean.empty:
+                    eur_to_cur = float(sub_clean.iloc[-1]["Close"])
+                    if eur_to_cur > 0:
+                        EXCHANGE_RATES[cur] = 1.0 / eur_to_cur
+            except Exception:
+                pass
+        EXCHANGE_RATES["GBp"] = EXCHANGE_RATES.get("GBP", 1.17) / 100.0
+        print(f"Wechselkurse geladen: USD={EXCHANGE_RATES['USD']:.4f}, JPY={EXCHANGE_RATES['JPY']:.5f}, GBP={EXCHANGE_RATES['GBP']:.4f}")
+    except Exception as e:
+        print(f"Konnte Live-Forex nicht laden, nutze Richtwerte: {e}")
+
+def to_eur(value, original_currency):
+    """Rechnet einen Betrag in Euro um."""
+    if value is None:
+        return None
+    rate = EXCHANGE_RATES.get(original_currency, 1.0)
+    return value * rate
 
 def clean_val(val, default=None):
     if val is None:
@@ -92,7 +102,7 @@ def clean_val(val, default=None):
         return round(val, 4) if isinstance(val, float) else val
     return val
 
-def df_to_dict_records(df):
+def df_to_dict_records(df, orig_currency):
     if df is None or df.empty:
         return []
     records = []
@@ -100,50 +110,43 @@ def df_to_dict_records(df):
         date_str = col.strftime("%Y-%m-%d") if hasattr(col, "strftime") else str(col)[:10]
         entry = {"date": date_str}
         for idx in df.index:
-            metric_key = str(idx).replace(" ", "_").replace("-", "_")
-            entry[metric_key] = clean_val(df.loc[idx, col])
+            raw_v = clean_val(df.loc[idx, col])
+            # Alle absoluten Währungsbeträge in EUR umrechnen
+            if raw_v is not None and not str(idx).lower().endswith(("%", "ratio", "shares")):
+                entry[str(idx).replace(" ", "_").replace("-", "_")] = clean_val(to_eur(raw_v, orig_currency))
+            else:
+                entry[str(idx).replace(" ", "_").replace("-", "_")] = raw_v
         records.append(entry)
     records.sort(key=lambda x: x["date"])
     return records
 
-def process_insider_data(ticker_obj):
-    summary = {
-        "buysCount2Q": 0, "sellsCount2Q": 0,
-        "buyValueTotal": 0.0, "sellValueTotal": 0.0,
-        "sentiment": "Neutral"
-    }
+def process_insider_data(ticker_obj, orig_currency):
+    summary = {"buysCount2Q": 0, "sellsCount2Q": 0, "buyValueTotal": 0.0, "sellValueTotal": 0.0, "sentiment": "Neutral"}
     trades = []
     try:
-        insider_df = ticker_obj.insider_transactions
-        if insider_df is not None and not insider_df.empty:
-            for _, row in insider_df.head(40).iterrows():
-                shares = clean_val(row.get("Shares"), 0)
-                val = clean_val(row.get("Value"), 0.0)
-                trans_text = str(row.get("Transaction", "") or row.get("Text", "")).strip()
-                t_date = row.get("Start Date") or row.get("Date")
-                date_str = t_date.strftime("%Y-%m-%d") if hasattr(t_date, "strftime") else str(t_date)[:10]
-
-                trade_type = "Other"
-                if "Sale" in trans_text or "Sell" in trans_text:
-                    trade_type = "Sell"
-                    summary["sellsCount2Q"] += 1
-                    summary["sellValueTotal"] += abs(val or 0.0)
-                elif "Buy" in trans_text or "Purchase" in trans_text:
-                    trade_type = "Buy"
+        df = ticker_obj.insider_transactions
+        if df is not None and not df.empty:
+            for _, row in df.head(40).iterrows():
+                val_raw = clean_val(row.get("Value"), 0.0)
+                val_eur = clean_val(to_eur(val_raw, orig_currency), 0.0)
+                t_type = str(row.get("Transaction", "") or row.get("Text", ""))
+                d = row.get("Start Date") or row.get("Date")
+                d_str = d.strftime("%Y-%m-%d") if hasattr(d, "strftime") else str(d)[:10]
+                trade_type = "Sell" if "Sale" in t_type or "Sell" in t_type else ("Buy" if "Buy" in t_type or "Purchase" in t_type else "Other")
+                if trade_type == "Buy":
                     summary["buysCount2Q"] += 1
-                    summary["buyValueTotal"] += abs(val or 0.0)
-                elif "Award" in trans_text or "Grant" in trans_text:
-                    trade_type = "Award"
-
+                    summary["buyValueTotal"] += abs(val_eur or 0.0)
+                elif trade_type == "Sell":
+                    summary["sellsCount2Q"] += 1
+                    summary["sellValueTotal"] += abs(val_eur or 0.0)
                 trades.append({
-                    "date": date_str,
+                    "date": d_str,
                     "insider": str(row.get("Insider", "Unbekannt")),
                     "position": str(row.get("Position", "")),
                     "type": trade_type,
-                    "shares": shares,
-                    "value": val
+                    "shares": clean_val(row.get("Shares"), 0),
+                    "value": val_eur
                 })
-
             if summary["buyValueTotal"] > summary["sellValueTotal"] * 1.2:
                 summary["sentiment"] = "Bullish"
             elif summary["sellValueTotal"] > summary["buyValueTotal"] * 1.2:
@@ -152,14 +155,14 @@ def process_insider_data(ticker_obj):
         pass
     return {"summary": summary, "trades": trades}
 
-def process_analyst_data(info, ticker_obj):
+def process_analyst_data(info, ticker_obj, orig_currency):
     targets = {
-        "current": clean_val(info.get("currentPrice")),
-        "low": clean_val(info.get("targetLowPrice")),
-        "median": clean_val(info.get("targetMedianPrice")),
-        "mean": clean_val(info.get("targetMeanPrice")),
-        "high": clean_val(info.get("targetHighPrice")),
-        "currency": info.get("currency", "EUR"),
+        "current": clean_val(to_eur(clean_val(info.get("currentPrice")), orig_currency)),
+        "low": clean_val(to_eur(clean_val(info.get("targetLowPrice")), orig_currency)),
+        "median": clean_val(to_eur(clean_val(info.get("targetMedianPrice")), orig_currency)),
+        "mean": clean_val(to_eur(clean_val(info.get("targetMeanPrice")), orig_currency)),
+        "high": clean_val(to_eur(clean_val(info.get("targetHighPrice")), orig_currency)),
+        "currency": "EUR",
         "analystCount": clean_val(info.get("numberOfAnalystOpinions"), 0)
     }
     recommendations = {
@@ -184,205 +187,233 @@ def process_analyst_data(info, ticker_obj):
                 latest = recommendations["history"][-1]
                 recommendations["breakdown"] = {
                     "strongBuy": latest["strongBuy"], "buy": latest["buy"],
-                    "hold": latest["hold"], "sell": latest["sell"],
-                    "strongSell": latest["strongSell"]
+                    "hold": latest["hold"], "sell": latest["sell"], "strongSell": latest["strongSell"]
                 }
     except Exception:
         pass
 
     eps_estimates = []
     try:
-        earnings_hist = ticker_obj.earnings_history
-        if earnings_hist is not None and not earnings_hist.empty:
-            for idx, row in earnings_hist.tail(8).iterrows():
-                q_date = idx.strftime("%Y-%m-%d") if hasattr(idx, "strftime") else str(idx)[:10]
+        e_hist = ticker_obj.earnings_history
+        if e_hist is not None and not e_hist.empty:
+            for idx, row in e_hist.tail(8).iterrows():
                 eps_estimates.append({
-                    "quarter": q_date,
-                    "estimate": clean_val(row.get("epsEstimate")),
-                    "actual": clean_val(row.get("epsActual")),
+                    "quarter": idx.strftime("%Y-%m-%d") if hasattr(idx, "strftime") else str(idx)[:10],
+                    "estimate": clean_val(to_eur(clean_val(row.get("epsEstimate")), orig_currency)),
+                    "actual": clean_val(to_eur(clean_val(row.get("epsActual")), orig_currency)),
                     "surprisePercent": clean_val(row.get("surprisePercent"))
                 })
     except Exception:
         pass
+    return {"targets": targets, "recommendations": recommendations, "epsEstimates": eps_estimates}
 
-    return {
-        "targets": targets,
-        "recommendations": recommendations,
-        "epsEstimates": eps_estimates
-    }
-
-def fetch_single_ticker(ticker_sym):
+def fetch_full_stock(ticker_sym):
     t = yf.Ticker(ticker_sym)
     info = t.info or {}
-
-    country = info.get("country", "")
-    if not country:
-        if ticker_sym.endswith(".T"):
-            country = "Japan"
-        elif ticker_sym.endswith(".DE"):
-            country = "Deutschland"
-        elif ticker_sym.endswith(".PA"):
-            country = "Frankreich"
-        elif ticker_sym.endswith(".SW"):
-            country = "Schweiz"
-        elif ticker_sym.endswith(".AS"):
-            country = "Niederlande"
-        elif ticker_sym.endswith(".L"):
-            country = "Großbritannien"
-        elif ticker_sym.endswith(".MI"):
-            country = "Italien"
-        else:
-            country = "USA"
+    orig_cur = info.get("currency", "USD")
 
     profile = {
         "ticker": ticker_sym,
         "name": info.get("shortName") or info.get("longName") or ticker_sym,
         "sector": info.get("sector", "Sonstige"),
         "industry": info.get("industry", "N/A"),
-        "country": country,
-        "currency": info.get("currency", "EUR" if ticker_sym.endswith((".DE", ".PA", ".AS", ".MI")) else "USD"),
-        "exchange": info.get("exchange", "N/A"),
-        "website": info.get("website", ""),
-        "summary": info.get("longBusinessSummary", "")
+        "country": info.get("country", "Global"),
+        "currency": "EUR",
+        "originalCurrency": orig_cur,
+        "exchange": info.get("exchange", "N/A")
     }
 
-    curr_price = clean_val(info.get("currentPrice") or info.get("regularMarketPrice"), 0.0)
-    prev_close = clean_val(info.get("previousClose") or info.get("regularMarketPreviousClose"), curr_price)
-    change_abs = round(curr_price - prev_close, 4) if curr_price and prev_close else 0.0
-    change_pct = round((change_abs / prev_close) * 100, 2) if prev_close else 0.0
+    raw_curr_p = clean_val(info.get("currentPrice") or info.get("regularMarketPrice"), 0.0)
+    raw_prev_c = clean_val(info.get("previousClose") or info.get("regularMarketPreviousClose"), raw_curr_p)
+
+    curr_p = clean_val(to_eur(raw_curr_p, orig_cur), 0.0)
+    prev_c = clean_val(to_eur(raw_prev_c, orig_cur), curr_p)
+    chg_abs = round(curr_p - prev_c, 4) if curr_p and prev_c else 0.0
+    chg_pct = round(((raw_curr_p - raw_prev_c) / raw_prev_c) * 100, 2) if raw_prev_c else 0.0
 
     quote = {
-        "price": curr_price,
-        "change": change_abs,
-        "changePercent": change_pct,
-        "marketCap": clean_val(info.get("marketCap"), 0),
-        "fiftyTwoWeekLow": clean_val(info.get("fiftyTwoWeekLow")),
-        "fiftyTwoWeekHigh": clean_val(info.get("fiftyTwoWeekHigh")),
+        "price": curr_p,
+        "change": chg_abs,
+        "changePercent": chg_pct,
+        "marketCap": clean_val(to_eur(clean_val(info.get("marketCap"), 0), orig_cur), 0),
+        "fiftyTwoWeekLow": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekLow")), orig_cur)),
+        "fiftyTwoWeekHigh": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekHigh")), orig_cur)),
         "volume": clean_val(info.get("regularMarketVolume")),
         "avgVolume": clean_val(info.get("averageVolume")),
-        "currency": profile["currency"]
+        "currency": "EUR"
     }
 
     ratios = {
         "peTrailing": clean_val(info.get("trailingPE")),
         "peForward": clean_val(info.get("forwardPE")),
         "pegRatio": clean_val(info.get("pegRatio")),
-        "priceToBook": clean_val(info.get("priceToBook")),
-        "priceToSales": clean_val(info.get("priceToSalesTrailing12Months")),
-        "evToEbitda": clean_val(info.get("enterpriseToEbitda")),
         "dividendYield": clean_val(info.get("dividendYield")),
         "profitMargins": clean_val(info.get("profitMargins")),
-        "operatingMargins": clean_val(info.get("operatingMargins")),
-        "grossMargins": clean_val(info.get("grossMargins")),
-        "returnOnEquity": clean_val(info.get("returnOnEquity")),
-        "returnOnAssets": clean_val(info.get("returnOnAssets")),
         "debtToEquity": clean_val(info.get("debtToEquity")),
-        "currentRatio": clean_val(info.get("currentRatio")),
-        "quickRatio": clean_val(info.get("quickRatio")),
-        "revenueGrowth": clean_val(info.get("revenueGrowth")),
-        "earningsGrowth": clean_val(info.get("earningsGrowth")),
-        "freeCashflow": clean_val(info.get("freeCashflow")),
-        "operatingCashflow": clean_val(info.get("operatingCashflow")),
-        "totalRevenue": clean_val(info.get("totalRevenue")),
-        "netIncome": clean_val(info.get("netIncomeToCommon"))
+        "revenueGrowth": clean_val(info.get("revenueGrowth"))
     }
-
-    inc_q = df_to_dict_records(t.quarterly_income_stmt)
-    inc_a = df_to_dict_records(t.income_stmt)
-    bal_q = df_to_dict_records(t.quarterly_balance_sheet)
-    bal_a = df_to_dict_records(t.balance_sheet)
-    cf_q = df_to_dict_records(t.quarterly_cashflow)
-    cf_a = df_to_dict_records(t.cashflow)
 
     chart_history = []
     try:
         hist = t.history(period="1y", interval="1d")
         for dt, row in hist.iterrows():
+            c_eur = clean_val(to_eur(clean_val(row["Close"]), orig_cur))
             chart_history.append({
                 "date": dt.strftime("%Y-%m-%d"),
-                "close": clean_val(row["Close"]),
+                "close": c_eur,
                 "volume": clean_val(row["Volume"])
             })
     except Exception:
         pass
 
-    perf_52w = 0.0
-    if len(chart_history) > 20:
-        first_c = chart_history[0]["close"]
-        last_c = chart_history[-1]["close"]
-        if first_c and last_c:
-            perf_52w = round(((last_c - first_c) / first_c) * 100, 2)
-
-    insider = process_insider_data(t)
-    analysts = process_analyst_data(info, t)
-
-    full_data = {
+    return {
         "ticker": ticker_sym,
         "profile": profile,
         "quote": quote,
         "ratios": ratios,
         "financials": {
-            "incomeStatement": {"quarterly": inc_q, "annual": inc_a},
-            "balanceSheet": {"quarterly": bal_q, "annual": bal_a},
-            "cashFlow": {"quarterly": cf_q, "annual": cf_a}
+            "incomeStatement": {"quarterly": df_to_dict_records(t.quarterly_income_stmt, orig_cur), "annual": df_to_dict_records(t.income_stmt, orig_cur)},
+            "balanceSheet": {"quarterly": df_to_dict_records(t.quarterly_balance_sheet, orig_cur), "annual": df_to_dict_records(t.balance_sheet, orig_cur)},
+            "cashFlow": {"quarterly": df_to_dict_records(t.quarterly_cashflow, orig_cur), "annual": df_to_dict_records(t.cashflow, orig_cur)}
         },
-        "analysts": analysts,
-        "insider": insider,
+        "analysts": process_analyst_data(info, t, orig_cur),
+        "insider": process_insider_data(t, orig_cur),
         "chartHistory": chart_history,
         "updatedAt": datetime.now(timezone.utc).isoformat()
     }
 
-    screener_item = {
-        "ticker": ticker_sym,
-        "name": profile["name"],
-        "sector": profile["sector"],
-        "country": profile["country"],
-        "marketCap": quote["marketCap"],
-        "price": quote["price"],
-        "changePercent": quote["changePercent"],
-        "perf52w": perf_52w,
-        "currency": profile["currency"],
-        "pe": ratios["peTrailing"],
-        "forwardPe": ratios["peForward"],
-        "dividendYield": ratios["dividendYield"],
-        "revGrowth": ratios["revenueGrowth"],
-        "netMargin": ratios["profitMargins"],
-        "debtToEquity": ratios["debtToEquity"],
-        "ratingScore": analysts["recommendations"]["score"]
-    }
+# ==============================================================================
+# DELTA-SYNC INKLUSIVE EUR-UMRECHNUNG
+# ==============================================================================
 
-    return screener_item, full_data
+def run_delta_sync(tickers):
+    load_live_forex_rates()
+    print(f"Starte Delta-Update für {len(tickers)} Ticker (Batch-Download & EUR-Umrechnung)...")
+    batch_df = yf.download(tickers, period="5d", interval="1d", group_by="ticker", auto_adjust=False, threads=True)
+
+    universe_file = os.path.join(DATA_DIR, "universe.json")
+    universe_map = {}
+    if os.path.exists(universe_file):
+        try:
+            with open(universe_file, "r", encoding="utf-8") as f:
+                for item in json.load(f):
+                    universe_map[item["ticker"]] = item
+        except Exception:
+            pass
+
+    updated_universe = []
+
+    for sym in tickers:
+        stock_file = os.path.join(DATA_DIR, f"{sym}.json")
+        stock_data = None
+        if os.path.exists(stock_file):
+            try:
+                with open(stock_file, "r", encoding="utf-8") as f:
+                    stock_data = json.load(f)
+            except Exception:
+                pass
+
+        if not stock_data:
+            print(f"Erstmaliger Abruf für {sym}...")
+            stock_data = fetch_full_stock(sym)
+
+        orig_cur = stock_data.get("profile", {}).get("originalCurrency", "USD")
+
+        # Kursaktualisierung & EUR-Umrechnung
+        try:
+            df_sym = batch_df[sym] if len(tickers) > 1 else batch_df
+            df_clean = df_sym.dropna(subset=["Close"])
+            if not df_clean.empty:
+                last_row = df_clean.iloc[-1]
+                prev_row = df_clean.iloc[-2] if len(df_clean) > 1 else last_row
+
+                raw_curr_p = clean_val(last_row["Close"])
+                raw_prev_p = clean_val(prev_row["Close"])
+
+                curr_p_eur = clean_val(to_eur(raw_curr_p, orig_cur), 0.0)
+                prev_p_eur = clean_val(to_eur(raw_prev_p, orig_cur), curr_p_eur)
+                chg_abs = round(curr_p_eur - prev_p_eur, 4)
+                chg_pct = round(((raw_curr_p - raw_prev_p) / raw_prev_p) * 100, 2) if raw_prev_p else 0.0
+
+                stock_data["quote"]["price"] = curr_p_eur
+                stock_data["quote"]["change"] = chg_abs
+                stock_data["quote"]["changePercent"] = chg_pct
+                stock_data["quote"]["currency"] = "EUR"
+                stock_data["quote"]["volume"] = clean_val(last_row.get("Volume", 0))
+
+                last_date_str = df_clean.index[-1].strftime("%Y-%m-%d")
+                history = stock_data.get("chartHistory", [])
+                if history and history[-1]["date"] == last_date_str:
+                    history[-1]["close"] = curr_p_eur
+                else:
+                    history.append({"date": last_date_str, "close": curr_p_eur, "volume": clean_val(last_row.get("Volume", 0))})
+                stock_data["chartHistory"] = history[-260:]
+                stock_data["updatedAt"] = datetime.now(timezone.utc).isoformat()
+        except Exception as e:
+            print(f"Hinweis: Konnte {sym} nicht aktualisieren: {e}")
+
+        with open(stock_file, "w", encoding="utf-8") as f:
+            json.dump(stock_data, f, ensure_ascii=False, indent=2)
+
+        u_item = universe_map.get(sym, {
+            "ticker": sym,
+            "name": stock_data["profile"]["name"],
+            "sector": stock_data["profile"]["sector"],
+            "country": stock_data["profile"]["country"]
+        })
+        u_item["currency"] = "EUR"
+        u_item["price"] = stock_data["quote"]["price"]
+        u_item["changePercent"] = stock_data["quote"]["changePercent"]
+        u_item["marketCap"] = stock_data["quote"]["marketCap"]
+
+        hist = stock_data.get("chartHistory", [])
+        if len(hist) > 20 and hist[0]["close"]:
+            u_item["perf52w"] = round(((hist[-1]["close"] - hist[0]["close"]) / hist[0]["close"]) * 100, 2)
+
+        updated_universe.append(u_item)
+
+    with open(universe_file, "w", encoding="utf-8") as f:
+        json.dump(updated_universe, f, ensure_ascii=False, indent=2)
+
+    print(f"Delta-Sync abgeschlossen: {len(updated_universe)} Werte auf EUR umgerechnet.")
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument("--mode", choices=["delta", "full"], default="delta")
     args = parser.parse_args()
 
     os.makedirs(DATA_DIR, exist_ok=True)
-    tickers = ALL_TICKERS[:args.limit] if args.limit else ALL_TICKERS
+    load_live_forex_rates()
 
-    print(f"Starte Download für {len(tickers)} globale Ticker (inkl. Stellantis)...")
-    universe = []
+    if not os.path.exists(os.path.join(DATA_DIR, "universe.json")):
+        args.mode = "full"
 
-    for idx, sym in enumerate(tickers, 1):
-        print(f"[{idx}/{len(tickers)}] Lade {sym}...")
-        try:
-            scr_item, full_stock = fetch_single_ticker(sym)
-            universe.append(scr_item)
-
-            out_file = os.path.join(DATA_DIR, f"{sym}.json")
-            with open(out_file, "w", encoding="utf-8") as f:
-                json.dump(full_stock, f, ensure_ascii=False, indent=2)
-
-            time.sleep(0.4)
-        except Exception as err:
-            print(f"Fehler bei {sym}: {err}")
-
-    universe_file = os.path.join(DATA_DIR, "universe.json")
-    with open(universe_file, "w", encoding="utf-8") as f:
-        json.dump(universe, f, ensure_ascii=False, indent=2)
-
-    print(f"Abgeschlossen: {len(universe)} Aktien weltweit erfolgreich generiert.")
+    if args.mode == "delta":
+        run_delta_sync(ALL_TICKERS)
+    else:
+        print("Führe vollständigen Sync mit EUR-Umrechnung durch...")
+        universe = []
+        for sym in ALL_TICKERS:
+            try:
+                st = fetch_full_stock(sym)
+                with open(os.path.join(DATA_DIR, f"{sym}.json"), "w", encoding="utf-8") as f:
+                    json.dump(st, f, ensure_ascii=False, indent=2)
+                universe.append({
+                    "ticker": sym,
+                    "name": st["profile"]["name"],
+                    "sector": st["profile"]["sector"],
+                    "country": st["profile"]["country"],
+                    "currency": "EUR",
+                    "price": st["quote"]["price"],
+                    "changePercent": st["quote"]["changePercent"],
+                    "marketCap": st["quote"]["marketCap"],
+                    "pe": st["ratios"]["peTrailing"]
+                })
+                time.sleep(0.3)
+            except Exception as e:
+                print(f"Fehler bei {sym}: {e}")
+        with open(os.path.join(DATA_DIR, "universe.json"), "w", encoding="utf-8") as f:
+            json.dump(universe, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
     main()
