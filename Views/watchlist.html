@@ -1,0 +1,50 @@
+<!-- ==========================================================================
+     Watchlist-Ansicht
+     Enthält: Hero-Kachel für persönliche Favoriten, Performance-Durchschnitt,
+     Schnellbereinigung sowie die Liste der beobachteten Aktien.
+     ========================================================================== -->
+
+<div class="header-bar">
+  <div class="header-title-wrap">
+    <h1>Meine Watchlist</h1>
+    <div class="header-subtitle">Persönliche Favoriten &amp; Beobachtung</div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="watchlistRefreshBtn" aria-label="Watchlist aktualisieren">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Hero-Kachel im Design des Gesamtsaldos -->
+  <div class="hero-card">
+    <div class="hero-label">BEOBACHTETE TITEL</div>
+    <div class="hero-value" id="watchlistHeroCount">0 Positionen</div>
+    <div class="hero-stats-row">
+      <div>
+        <div class="hero-substat-label">Tages-Trend</div>
+        <div class="hero-substat-val" id="watchlistAvgDayChange">-</div>
+      </div>
+      <div>
+        <div class="hero-substat-label">Top-Performer</div>
+        <div class="hero-substat-val" id="watchlistTopPerformer" style="color: #6ee7b7;">-</div>
+      </div>
+      <div>
+        <div class="hero-substat-label">Ø 52W Rendite</div>
+        <div class="hero-substat-val" id="watchlistAvgPerf52w">-</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statuszeile -->
+  <div class="status-bar-row">
+    <span id="watchlistCountLabel">0 Titel gespeichert</span>
+    <span style="font-size: 0.78rem; color: var(--text-muted);">Lokal auf diesem Gerät</span>
+  </div>
+
+  <!-- Ergebnisliste der Watchlist -->
+  <div id="watchlistStocksList" class="stocks-list"></div>
+</div>
