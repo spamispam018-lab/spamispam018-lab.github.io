@@ -253,11 +253,14 @@
             renderSubTabContent(stock, activeTab);
           })
           .catch(function (err) {
+            console.error('Detailansicht ' + ticker + ':', err);
             container.innerHTML = '' +
               '<div class="view-container">' +
                 '<div class="state-box">' +
                   '<p style="color: var(--bearish); font-weight: 700;">Aktie nicht gefunden</p>' +
                   '<p style="font-size: 0.85rem;">Keine Offline- oder Onlinedaten für "' + ticker + '" verfügbar.</p>' +
+                  '<p style="font-size: 0.75rem; opacity: 0.7; word-break: break-word;">Technisch: ' + String((err && err.message) || err).replace(/</g, '&lt;') + '</p>' +
+                  '<button class="chip-btn" style="margin-top: 10px;" onclick="window.App.Router.navigate(\'/stock/' + ticker + '/overview\')">Erneut laden</button>' +
                   '<button class="chip-btn active" style="margin-top: 10px;" onclick="window.App.Router.navigate(\'/screener\')">&larr; Zurück zum Screener</button>' +
                 '</div>' +
               '</div>';
