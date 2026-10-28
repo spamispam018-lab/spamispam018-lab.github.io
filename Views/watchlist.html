@@ -1,0 +1,19 @@
+<!-- Views/watchlist.html - Favoriten & Watchlist Template -->
+<div class="view-container">
+  <!-- Kopfbereich mit Gesamtzahl -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px;">
+    <div>
+      <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 2px;">Meine Watchlist</h2>
+      <div id="watchlist-count-badge" style="font-size: 0.78rem; color: var(--text-dim);">Lade Favoriten...</div>
+    </div>
+    <div style="font-size: 0.72rem; color: var(--text-dim);">Live-Status</div>
+  </div>
+
+  <!-- Container für Favoriten-Karten mit Sparklines oder Leerzustand -->
+  <div id="watchlist-cards-container">
+    <div class="state-box">
+      <div class="spinner"></div>
+      <p>Lade gespeicherte Aktien...</p>
+    </div>
+  </div>
+</div>
