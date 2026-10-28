@@ -1,14 +1,12 @@
 /**
- * Filter- und Sortiersteuerung für den Aktien-Screener
+ * Filter-, Statistik- und Card-Rendering-Logik für den Screener im Mobile-App-Style
  */
-const ScreenerFilters = (function () {
+const ScreenerController = (function () {
   let allStocks = [];
   let filteredStocks = [];
+  let activeChip = "all";
 
   function getDetailUrl(symbol) {
-    if (window.UIController && typeof window.UIController.getDetailUrl === "function") {
-      return window.UIController.getDetailUrl(symbol);
-    }
     const path = window.location.pathname;
     if (path.includes("/Views/") || path.includes("/views/")) {
       return `stock.html?symbol=${encodeURIComponent(symbol)}`;
@@ -16,143 +14,173 @@ const ScreenerFilters = (function () {
     return `Views/stock.html?symbol=${encodeURIComponent(symbol)}`;
   }
 
-  function populateSectorDropdown() {
-    const select = document.getElementById("sector-filter");
-    if (!select) return;
+  function formatEuroPrice(val) {
+    if (val === null || val === undefined || isNaN(val)) return "-";
+    return Number(val).toLocaleString("de-DE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }) + " €";
+  }
 
-    const sectors = new Set();
-    allStocks.forEach(stock => {
-      if (stock.sector && stock.sector !== "N/A") {
-        sectors.add(stock.sector);
+  function formatPercent(val) {
+    if (val === null || val === undefined || isNaN(val)) return "-";
+    const sign = val > 0 ? "+" : "";
+    return `${sign}${Number(val).toFixed(2).replace(".", ",")}%`;
+  }
+
+  function updateHeroStats(stocks) {
+    const totalEl = document.getElementById("stat-total-title");
+    const topGainerEl = document.getElementById("stat-top-gainer");
+    const avgPeEl = document.getElementById("stat-avg-pe");
+    const avgDivEl = document.getElementById("stat-avg-div");
+    const subtitleEl = document.getElementById("status-subtitle");
+
+    if (subtitleEl) subtitleEl.textContent = "Live-Marktdaten synchronisiert";
+    if (totalEl) totalEl.textContent = `${stocks.length} Titel`;
+
+    if (stocks.length === 0) return;
+
+    // Top Gewinner
+    const validGainers = [...stocks].filter(s => typeof s.changePercent === "number" && !isNaN(s.changePercent));
+    if (validGainers.length > 0) {
+      validGainers.sort((a, b) => b.changePercent - a.changePercent);
+      const top = validGainers[0];
+      const sign = top.changePercent > 0 ? "+" : "";
+      if (topGainerEl) {
+        topGainerEl.textContent = `${top.symbol} (${sign}${top.changePercent.toFixed(2).replace(".", ",")} %)`;
       }
-    });
+    }
 
-    // Vorhandene dynamische Optionen leeren (nur 'all' behalten)
-    select.innerHTML = '<option value="all">Alle Sektoren</option>';
-    Array.from(sectors).sort().forEach(sector => {
-      const opt = document.createElement("option");
-      opt.value = sector;
-      opt.textContent = sector;
-      select.appendChild(opt);
-    });
+    // Durchschnitts-KGV (nur positive Werte einbeziehen)
+    const validPEs = stocks.filter(s => typeof s.peRatio === "number" && s.peRatio > 0 && s.peRatio < 150);
+    if (validPEs.length > 0 && avgPeEl) {
+      const avgPe = validPEs.reduce((acc, curr) => acc + curr.peRatio, 0) / validPEs.length;
+      avgPeEl.textContent = avgPe.toFixed(1).replace(".", ",");
+    }
+
+    // Durchschnittliche Dividendenrendite
+    const validDivs = stocks.filter(s => typeof s.dividendYield === "number" && !isNaN(s.dividendYield));
+    if (validDivs.length > 0 && avgDivEl) {
+      const avgDiv = validDivs.reduce((acc, curr) => acc + curr.dividendYield, 0) / validDivs.length;
+      avgDivEl.textContent = `${avgDiv.toFixed(1).replace(".", ",")} %`;
+    }
   }
 
   function applyFilters() {
     const searchInput = document.getElementById("search-input");
-    const sectorFilter = document.getElementById("sector-filter");
     const sortSelect = document.getElementById("sort-select");
 
     const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
-    const selectedSector = sectorFilter ? sectorFilter.value : "all";
     const sortMode = sortSelect ? sortSelect.value : "marketCap_desc";
 
     filteredStocks = allStocks.filter(stock => {
-      const matchSearch =
-        !query ||
+      // 1. Textsuche
+      const matchesSearch = !query ||
         (stock.symbol && stock.symbol.toLowerCase().includes(query)) ||
         (stock.name && stock.name.toLowerCase().includes(query));
 
-      const matchSector =
-        selectedSector === "all" ||
-        (stock.sector && stock.sector === selectedSector);
+      if (!matchesSearch) return false;
 
-      return matchSearch && matchSector;
+      // 2. Chip-Filter
+      switch (activeChip) {
+        case "dividend":
+          return typeof stock.dividendYield === "number" && stock.dividendYield >= 2.5;
+        case "value":
+          return typeof stock.peRatio === "number" && stock.peRatio > 0 && stock.peRatio < 18.0;
+        case "growth":
+          return typeof stock.changePercent === "number" && stock.changePercent > 2.0;
+        case "all":
+        default:
+          return true;
+      }
     });
 
-    // Sortierung
+    // 3. Sortierung
     filteredStocks.sort((a, b) => {
       switch (sortMode) {
         case "marketCap_desc":
           return (b.marketCap || 0) - (a.marketCap || 0);
-        case "marketCap_asc":
-          return (a.marketCap || 0) - (b.marketCap || 0);
+        case "change_desc":
+          return (b.changePercent || -999) - (a.changePercent || -999);
+        case "change_asc":
+          return (a.changePercent || 999) - (b.changePercent || 999);
         case "pe_asc":
           return (a.peRatio || 9999) - (b.peRatio || 9999);
         case "dividend_desc":
           return (b.dividendYield || 0) - (a.dividendYield || 0);
-        case "change_desc":
-          return (b.changePercent || -999) - (a.changePercent || -999);
         default:
           return 0;
       }
     });
 
-    renderTable();
+    renderList();
   }
 
-  function renderTable() {
-    const tbody = document.getElementById("screener-table-body");
-    const noResults = document.getElementById("no-results-msg");
-    if (!tbody) return;
+  function renderList() {
+    const container = document.getElementById("stock-list-container");
+    const countEl = document.getElementById("results-count");
+    if (!container) return;
 
-    if (filteredStocks.length === 0) {
-      tbody.innerHTML = "";
-      if (noResults) noResults.style.display = "block";
-      return;
+    if (countEl) {
+      countEl.textContent = `${filteredStocks.length} Ergebnisse`;
     }
 
-    if (noResults) noResults.style.display = "none";
+    if (filteredStocks.length === 0) {
+      container.innerHTML = `
+        <div class="empty-box">
+          <p>Keine passenden Titel für diese Filterung gefunden.</p>
+        </div>
+      `;
+      return;
+    }
 
     let html = "";
     filteredStocks.forEach(stock => {
       const isPositive = (stock.changePercent || 0) >= 0;
-      const changeClass = isPositive ? "text-green" : "text-red";
-      const sign = isPositive ? "+" : "";
-
-      const priceStr = window.StockDataHandler
-        ? window.StockDataHandler.formatCurrency(stock.price)
-        : `$${stock.price || "N/A"}`;
-
-      const changeStr = typeof stock.changePercent === "number"
-        ? `${sign}${stock.changePercent.toFixed(2)} %`
-        : "N/A";
-
-      const peStr = typeof stock.peRatio === "number"
-        ? stock.peRatio.toFixed(2)
-        : "-";
-
-      const divStr = typeof stock.dividendYield === "number"
-        ? `${stock.dividendYield.toFixed(2)} %`
-        : "-";
-
-      const capStr = window.StockDataHandler
-        ? window.StockDataHandler.formatLargeNumber(stock.marketCap)
-        : stock.marketCap || "N/A";
+      const changeClass = isPositive ? "positive" : "negative";
 
       html += `
-        <tr>
-          <td><a href="${getDetailUrl(stock.symbol)}" class="font-bold">${stock.symbol}</a></td>
-          <td>${stock.name || "-"}</td>
-          <td><span class="badge-sector">${stock.sector || "N/A"}</span></td>
-          <td>${priceStr}</td>
-          <td class="${changeClass}">${changeStr}</td>
-          <td>${peStr}</td>
-          <td>${divStr}</td>
-          <td>${capStr}</td>
-          <td>
-            <a href="${getDetailUrl(stock.symbol)}" class="btn btn-sm btn-outline">Details</a>
-          </td>
-        </tr>
+        <a href="${getDetailUrl(stock.symbol)}" class="stock-card">
+          <div class="stock-info">
+            <span class="stock-name">${stock.name || stock.symbol}</span>
+            <div class="stock-tags">
+              <span class="stock-badge-ticker">${stock.symbol}</span>
+              <span>•</span>
+              <span>${stock.sector || "Aktie"}</span>
+            </div>
+          </div>
+          <div class="stock-price-box">
+            <div class="stock-price-val">${formatEuroPrice(stock.price)}</div>
+            <div class="stock-change-pill ${changeClass}">${formatPercent(stock.changePercent)}</div>
+          </div>
+        </a>
       `;
     });
 
-    tbody.innerHTML = html;
+    container.innerHTML = html;
   }
 
-  function attachEventListeners() {
+  function attachListeners() {
     const searchInput = document.getElementById("search-input");
-    const sectorFilter = document.getElementById("sector-filter");
     const sortSelect = document.getElementById("sort-select");
+    const chips = document.querySelectorAll(".chip-btn");
 
     if (searchInput) {
       searchInput.addEventListener("input", applyFilters);
     }
-    if (sectorFilter) {
-      sectorFilter.addEventListener("change", applyFilters);
-    }
+
     if (sortSelect) {
       sortSelect.addEventListener("change", applyFilters);
     }
+
+    chips.forEach(chip => {
+      chip.addEventListener("click", () => {
+        chips.forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        activeChip = chip.dataset.filter || "all";
+        applyFilters();
+      });
+    });
   }
 
   async function init() {
@@ -161,11 +189,13 @@ const ScreenerFilters = (function () {
     try {
       allStocks = await window.DataService.loadStocks();
       filteredStocks = [...allStocks];
-      populateSectorDropdown();
-      attachEventListeners();
+      updateHeroStats(allStocks);
+      attachListeners();
       applyFilters();
     } catch (err) {
-      console.error("Fehler beim Initialisieren des Screeners:", err);
+      console.error("Fehler beim Laden der Screener-Daten:", err);
+      const sub = document.getElementById("status-subtitle");
+      if (sub) sub.textContent = "Fehler beim Laden der Marktdaten";
     }
   }
 
@@ -174,12 +204,11 @@ const ScreenerFilters = (function () {
   };
 })();
 
-// DOM-Ready Hook
+// DOM-Ready Initialisierung
 document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("screener-table-body")) {
-    ScreenerFilters.init();
+  if (document.getElementById("stock-list-container")) {
+    ScreenerController.init();
   }
 });
 
-// Global verfügbar machen
-window.ScreenerFilters = ScreenerFilters;
+window.ScreenerController = ScreenerController;
