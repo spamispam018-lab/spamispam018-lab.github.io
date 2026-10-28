@@ -5,6 +5,15 @@ on:
     # Börsentäglich um 22:30 UTC
     - cron: '30 22 * * 1-5'
   workflow_dispatch:
+    inputs:
+      sync_mode:
+        description: 'Update-Modus auswählen'
+        required: true
+        default: 'delta'
+        type: choice
+        options:
+          - delta
+          - full
 
 jobs:
   update-market-data:
@@ -15,6 +24,8 @@ jobs:
     steps:
       - name: Repository auschecken
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Python 3.11 einrichten
         uses: actions/setup-python@v5
@@ -26,9 +37,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install yfinance pandas
 
-      - name: Marktdaten herunterladen und JSON generieren
+      - name: Marktdaten aktualisieren
         run: |
-          python scripts/fetch_market_data.py
+          MODE="${{ github.event.inputs.sync_mode || 'delta' }}"
+          echo "Starte Modus: $MODE"
+          python scripts/fetch_market_data.py --mode "$MODE"
 
       - name: Änderungen committen und pushen
         run: |
@@ -38,6 +51,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Keine neuen Marktdaten vorhanden."
           else
-            git commit -m "Auto-Update Marktdaten: $(date -u +'%Y-%m-%d %H:%M UTC')"
-            git push
+            git commit -m "Auto-Update Marktdaten (${{ github.event.inputs.sync_mode || 'delta' }}): $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git pull --rebase origin main
+            git push origin main
           fi
