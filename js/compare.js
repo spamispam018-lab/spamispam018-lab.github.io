@@ -225,7 +225,7 @@ window.App.Compare = (function () {
       { label: 'KGV (Trailing)', fn: function (s) { return window.App.Format.number(s.ratios.peTrailing, 1); } },
       { label: 'Forward KGV', fn: function (s) { return window.App.Format.number(s.ratios.peForward, 1); } },
       { label: 'PEG Ratio', fn: function (s) { return window.App.Format.number(s.ratios.pegRatio, 2); } },
-      { label: 'Dividendenrendite', fn: function (s) { return window.App.Format.percent((s.ratios.dividendYield || 0) * 100, false, 2); } },
+      { label: 'Dividendenrendite', fn: function (s) { return window.App.Format.percent((s.ratios.dividendYield || 0), false, 2); } },
       { label: 'Umsatzwachstum YoY', fn: function (s) { return window.App.Format.percent((s.ratios.revenueGrowth || 0) * 100, true, 1); } },
       { label: 'Nettomarge', fn: function (s) { return window.App.Format.percent((s.ratios.profitMargins || 0) * 100, false, 1); } },
       { label: 'Eigenkapitalrendite (ROE)', fn: function (s) { return window.App.Format.percent((s.ratios.returnOnEquity || 0) * 100, false, 1); } },
