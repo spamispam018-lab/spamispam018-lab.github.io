@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Aktien Screener &amp; Analyse</title>
+
+  <!-- Lokale Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- App Header mit dynamischem Seitentitel und Filter-Icon -->
+  <header class="app-header">
+    <div class="header-title-group">
+      <div id="app-header-title" class="header-title">Aktien-Screener</div>
+      <div id="app-header-subtitle" class="header-subtitle">Marktübersicht &amp; Analyse</div>
+    </div>
+    <div>
+      <button id="btn-header-filter" class="icon-btn" aria-label="Filter öffnen">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Zentraler Anzeigebereich für dynamisch gerenderte Views -->
+  <main id="app-view-content"></main>
+
+  <!-- Feste Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <a href="#/screener" class="nav-item active" data-route="screener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+      </svg>
+      <span>Screener</span>
+    </a>
+    <a href="#/stock" id="nav-item-stock" class="nav-item" data-route="stock">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <line x1="18" y1="20" x2="18" y2="10"></line>
+        <line x1="12" y1="20" x2="12" y2="4"></line>
+        <line x1="6" y1="20" x2="6" y2="14"></line>
+      </svg>
+      <span>Detail</span>
+    </a>
+    <a href="#/compare" class="nav-item" data-route="compare">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+      </svg>
+      <span>Vergleich</span>
+    </a>
+    <a href="#/watchlist" class="nav-item" data-route="watchlist">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      </svg>
+      <span>Watchlist</span>
+    </a>
+  </nav>
+
+  <!-- 1. Offline- & Fallback-Daten (zwingend vor allen App-Skripten) -->
+  <script src="data/fallback.js"></script>
+
+  <!-- 2. Basis-Helfer & Core-Infrastruktur -->
+  <script src="js/format.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/stock-score.js"></script>
+  <script src="js/router.js"></script>
+
+  <!-- 3. Feature- & View-Module -->
+  <script src="js/screener.js"></script>
+  <script src="js/watchlist.js"></script>
+  <script src="js/stock-overview.js"></script>
+  <script src="js/stock-insider.js"></script>
+  <script src="js/stock-analyst.js"></script>
+  <script src="js/stock-financials.js"></script>
+  <script src="js/compare.js"></script>
+
+  <!-- 4. Orchestrierung & Bootstrap (Hash-Routen verknüpfen) -->
+  <script>
+    (function () {
+      'use strict';
+
+      var headerTitle = document.getElementById('app-header-title');
+      var headerSubtitle = document.getElementById('app-header-subtitle');
+      var stockNavLink = document.getElementById('nav-item-stock');
+
+      // Detail-Link in Nav bar mit zuletzt gewähltem Ticker synchronisieren
+      function syncStockNavTarget(ticker) {
+        if (stockNavLink) {
+          stockNavLink.setAttribute('href', '#/stock/' + ticker + '/overview');
+        }
+      }
+
+      // Route 1: Screener
+      window.App.Router.register('/screener', function () {
+        if (headerTitle) headerTitle.textContent = 'Aktien-Screener';
+        if (headerSubtitle) headerSubtitle.textContent = 'Marktübersicht & Filter';
+        window.App.Screener.initView();
+      });
+
+      // Route 2: Watchlist
+      window.App.Router.register('/watchlist', function () {
+        if (headerTitle) headerTitle.textContent = 'Watchlist';
+        if (headerSubtitle) headerSubtitle.textContent = 'Gespeicherte Favoriten';
+        window.App.Watchlist.initView();
+      });
+
+      // Route 3: Peer-Vergleich
+      window.App.Router.register('/compare', function () {
+        if (headerTitle) headerTitle.textContent = 'Aktienvergleich';
+        if (headerSubtitle) headerSubtitle.textContent = 'Kennzahlen im Vergleich';
+        window.App.Compare.initView();
+      });
+
+      // Route 4: Direkter Einstieg /stock -> leitet auf letzten Ticker weiter
+      window.App.Router.register('/stock', function () {
+        var last = window.App.Data.getLastTicker();
+        window.App.Router.navigate('/stock/' + last + '/overview');
+      });
+
+      // Route 5: Aktien-Detailansicht mit Tabs (#/stock/:ticker/:tab)
+      window.App.Router.register('/stock/:ticker/:tab', function (params) {
+        var ticker = (params.ticker || window.App.Data.getLastTicker()).toUpperCase();
+        var tab = params.tab || 'overview';
+        window.App.Data.setLastTicker(ticker);
+        syncStockNavTarget(ticker);
+
+        var headerFilterBtn = document.getElementById('btn-header-filter');
+        if (headerFilterBtn) headerFilterBtn.style.display = 'none';
+
+        if (headerTitle) headerTitle.textContent = ticker;
+        if (headerSubtitle) headerSubtitle.textContent = 'Detailanalyse';
+
+        renderStockDetailShell(ticker, tab);
+      });
+
+      /**
+       * Erzeugt das Shell-Layout für die Aktiendetailseite und bindet die Reiter ein
+       */
+      function renderStockDetailShell(ticker, activeTab) {
+        var container = document.getElementById('app-view-content');
+        if (!container) return;
+
+        window.App.Data.getStock(ticker)
+          .then(function (stock) {
+            var profile = stock.profile || {};
+            var quote = stock.quote || {};
+            var isStarred = window.App.Data.isWatchlisted(ticker);
+            var chgCls = window.App.Format.changeClass(quote.changePercent);
+            var sign = (quote.changePercent || 0) >= 0 ? '+' : '';
+
+            var html = '' +
+              '<div class="view-container">' +
+                '<!-- Ticker-Suchfeld -->' +
+                '<div class="search-bar-wrapper" style="margin-bottom: 10px;">' +
+                  '<svg class="search-icon-left" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+                    '<circle cx="11" cy="11" r="8"></circle>' +
+                    '<line x1="21" y1="21" x2="16.65" y2="16.65"></line>' +
+                  '</svg>' +
+                  '<input type="text" id="detail-quick-search" class="search-input" placeholder="Ticker eingeben (z. B. NVDA, SAP.DE)..." autocomplete="off">' +
+                '</div>' +
+
+                '<!-- Firmen-Kopfzeile -->' +
+                '<div class="card" style="padding: 14px 16px; margin-bottom: 14px;">' +
+                  '<div style="display: flex; justify-content: space-between; align-items: flex-start;">' +
+                    '<div style="display: flex; flex-direction: column; gap: 4px;">' +
+                      '<div style="display: flex; align-items: center; gap: 8px;">' +
+                        '<h2 style="font-size: 1.2rem; font-weight: 800; line-height: 1.2;">' + (profile.name || ticker) + '</h2>' +
+                        '<button id="detail-star-btn" class="star-btn ' + (isStarred ? 'active' : '') + '">' +
+                          '<svg width="20" height="20" viewBox="0 0 24 24" fill="' + (isStarred ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2">' +
+                            '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>' +
+                          '</svg>' +
+                        '</button>' +
+                      '</div>' +
+                      '<div style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem;">' +
+                        '<span class="ticker-badge">' + ticker + '</span>' +
+                        '<span class="sector-label">• ' + (profile.sector || 'Markt') + '</span>' +
+                        '<span class="sector-label" style="opacity: 0.7;">• ' + (profile.exchange || '') + '</span>' +
+                      '</div>' +
+                    '</div>' +
+                    '<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">' +
+                      '<div style="font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums;">' + window.App.Format.currency(quote.price, quote.currency) + '</div>' +
+                      '<div class="badge-pill ' + chgCls + '">' + sign + window.App.Format.number(quote.changePercent, 2) + ' %</div>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+
+                '<!-- Haupt-Tabs: Stock | Compare -->' +
+                '<div class="main-tabs-row">' +
+                  '<button class="main-tab-btn active">Stock</button>' +
+                  '<button class="main-tab-btn" id="btn-switch-compare">Compare</button>' +
+                '</div>' +
+
+                '<!-- Unter-Tabs -->' +
+                '<div class="horizontal-scroll-row" id="stock-subtabs-bar" style="margin-bottom: 14px;">' +
+                  '<button class="sub-tab-btn ' + (activeTab === 'overview' ? 'active' : '') + '" data-tab="overview">Overview</button>' +
+                  '<button class="sub-tab-btn ' + (activeTab === 'score' ? 'active' : '') + '" data-tab="score">Score</button>' +
+                  '<button class="sub-tab-btn ' + (activeTab === 'insider' ? 'active' : '') + '" data-tab="insider">Insider</button>' +
+                  '<button class="sub-tab-btn ' + (activeTab === 'analyst' ? 'active' : '') + '" data-tab="analyst">Analyst</button>' +
+                  '<button class="sub-tab-btn ' + (activeTab === 'financials' ? 'active' : '') + '" data-tab="financials">Financials</button>' +
+                '</div>' +
+
+                '<!-- Subtab Ziel-Container -->' +
+                '<div id="stock-active-subtab-area"></div>' +
+              '</div>';
+
+            container.innerHTML = html;
+
+            // Events für Suchleiste binden
+            var searchInput = document.getElementById('detail-quick-search');
+            if (searchInput) {
+              searchInput.onkeydown = function (e) {
+                if (e.key === 'Enter') {
+                  var newTick = (searchInput.value || '').trim().toUpperCase();
+                  if (newTick) {
+                    window.App.Router.navigate('/stock/' + newTick + '/overview');
+                  }
+                }
+              };
+            }
+
+            // Star Toggle
+            var starBtn = document.getElementById('detail-star-btn');
+            if (starBtn) {
+              starBtn.onclick = function () {
+                var nowStarred = window.App.Data.toggleWatchlist(ticker);
+                starBtn.classList.toggle('active', nowStarred);
+                var svg = starBtn.querySelector('svg');
+                if (svg) svg.setAttribute('fill', nowStarred ? 'currentColor' : 'none');
+              };
+            }
+
+            // Wechsel zu Compare
+            var cmpBtn = document.getElementById('btn-switch-compare');
+            if (cmpBtn) {
+              cmpBtn.onclick = function () {
+                window.App.Router.navigate('/compare');
+              };
+            }
+
+            // Unter-Tab Wechsellogik
+            var subTabBtns = container.querySelectorAll('[data-tab]');
+            subTabBtns.forEach(function (btn) {
+              btn.onclick = function () {
+                var targetTab = btn.getAttribute('data-tab');
+                window.App.Router.navigate('/stock/' + ticker + '/' + targetTab);
+              };
+            });
+
+            // Aktiven Subtab rendern
+            renderSubTabContent(stock, activeTab);
+          })
+          .catch(function (err) {
+            container.innerHTML = '' +
+              '<div class="view-container">' +
+                '<div class="state-box">' +
+                  '<p style="color: var(--bearish); font-weight: 700;">Aktie nicht gefunden</p>' +
+                  '<p style="font-size: 0.85rem;">Keine Offline- oder Onlinedaten für "' + ticker + '" verfügbar.</p>' +
+                  '<button class="chip-btn active" style="margin-top: 10px;" onclick="window.App.Router.navigate(\'/screener\')">&larr; Zurück zum Screener</button>' +
+                '</div>' +
+              '</div>';
+          });
+      }
+
+      /**
+       * Delegiert das Rendering an das jeweilige Untermodul
+       */
+      function renderSubTabContent(stock, activeTab) {
+        var subArea = document.getElementById('stock-active-subtab-area');
+        if (!subArea) return;
+
+        switch (activeTab) {
+          case 'overview':
+            window.App.StockOverview.render(subArea, stock);
+            break;
+          case 'score':
+            renderScoreView(subArea, stock);
+            break;
+          case 'insider':
+            window.App.StockInsider.render(subArea, stock);
+            break;
+          case 'analyst':
+            window.App.StockAnalyst.render(subArea, stock);
+            break;
+          case 'financials':
+            window.App.StockFinancials.render(subArea, stock);
+            break;
+          default:
+            window.App.StockOverview.render(subArea, stock);
+            break;
+        }
+      }
+
+      /**
+       * Rendert die Score-Ansicht (Verlauf, Kategorien 0-5, Segmentbalken)
+       */
+      function renderScoreView(container, stock) {
+        var scoreData = window.App.Score.calculateTotalScore(stock);
+        var html = '' +
+          '<div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px;">' +
+            '<div>' +
+              '<div style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Gesamt-Score</div>' +
+              '<div style="font-size: 1.05rem; font-weight: 800; color: #fff;">' + (scoreData.totalScore >= 3.5 ? 'Solides Profil' : 'Gemischtes Profil') + '</div>' +
+            '</div>' +
+            '<div class="score-badge-large">' + scoreData.totalScore.toFixed(1) + '</div>' +
+          '</div>';
+
+        scoreData.categories.forEach(function (cat) {
+          html += '' +
+            '<div class="card">' +
+              '<div class="card-header-dotted">' +
+                '<span class="card-title">' + cat.category + '</span>' +
+                '<span style="font-weight: 800; font-size: 0.95rem; color: var(--accent-purple-light);">' + cat.score.toFixed(1) + ' / 5.0</span>' +
+              '</div>' +
+              window.App.Score.renderSegmentBarHtml(cat.score) +
+              '<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px; font-size: 0.8rem;">';
+
+          cat.metrics.forEach(function (m) {
+            html += '' +
+              '<div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--border-subtle);">' +
+                '<span style="color: var(--text-muted);">' + m.name + '</span>' +
+                '<strong style="font-variant-numeric: tabular-nums;">' + m.value + '</strong>' +
+              '</div>';
+          });
+
+          html += '</div></div>';
+        });
+
+        container.innerHTML = html;
+      }
+
+      // App initialisieren
+      window.addEventListener('DOMContentLoaded', function () {
+        syncStockNavTarget(window.App.Data.getLastTicker());
+        window.App.Router.init();
+      });
+    })();
+  </script>
+</body>
+</html>
