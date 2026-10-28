@@ -2,210 +2,152 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aktien Detailansicht</title>
-  
-  <link rel="stylesheet" href="../css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aktien-Analyse | Details</title>
+  <link rel="stylesheet" href="../css/styles.css">
   <link rel="stylesheet" href="../css/stock.css">
 </head>
-<body class="stock-detail-body">
-
-  <!-- Header & Ticker Search Bar -->
-  <header class="stock-header">
-    <div class="header-top-row">
-      <a href="../index.html" class="nav-back-btn" title="Zurück zum Screener" aria-label="Zurück">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-      </a>
-
-      <!-- Suchfeld mit Ticker-Chip -->
-      <div class="search-chip-container">
-        <div class="ticker-chip" id="currentTickerChip">
-          <span class="chip-text" id="chipTickerSymbol">AAPL</span>
-          <button type="button" class="chip-clear-btn" id="chipClearBtn" aria-label="Ticker entfernen">&times;</button>
-        </div>
-        <input 
-          type="text" 
-          id="tickerSearchInput" 
-          class="ticker-search-input" 
-          placeholder="Ticker suchen..." 
-          autocomplete="off" 
-          autocapitalize="characters" 
-          spellcheck="false"
-        >
-        <button type="button" class="search-submit-btn" id="tickerSearchBtn" aria-label="Suchen">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </button>
-      </div>
-
-      <button type="button" class="refresh-data-btn" id="refreshStockBtn" title="Aktualisieren" aria-label="Aktualisieren">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="23 4 23 10 17 10"></polyline>
-          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-        </svg>
-      </button>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased">
+  <!-- Hauptnavigation -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="../index.html" class="nav-brand">Aktien-Hub</a>
+      <nav class="nav-links">
+        <a href="../index.html" class="nav-link">Übersicht</a>
+        <a href="screener.html" class="nav-link">Screener</a>
+        <a href="watchlist.html" class="nav-link">Watchlist</a>
+      </nav>
     </div>
-
-    <!-- Live Status / Ticker Headline -->
-    <div class="stock-title-bar" id="stockTitleBar">
-      <div class="title-left">
-        <h1 class="stock-company-name" id="stockCompanyName">Lädt...</h1>
-        <div class="stock-meta-row">
-          <span class="badge sector-badge" id="stockSectorBadge">-</span>
-          <span class="meta-dot">•</span>
-          <span class="stock-currency" id="stockCurrency">USD</span>
-        </div>
-      </div>
-      <div class="title-right">
-        <div class="stock-current-price" id="stockCurrentPrice">--</div>
-        <div class="stock-price-change" id="stockPriceChange">--</div>
-      </div>
-    </div>
-
-    <!-- Horizontal scrollbare Haupt-Tabs -->
-    <nav class="stock-tabs-nav" aria-label="Detail Navigation">
-      <div class="tabs-scroll-wrapper">
-        <button type="button" class="tab-btn active" data-tab="overview">Overview</button>
-        <button type="button" class="tab-btn" data-tab="score">Score</button>
-        <button type="button" class="tab-btn" data-tab="holdings">Holdings</button>
-        <button type="button" class="tab-btn" data-tab="analyst">Analyst</button>
-        <button type="button" class="tab-btn" data-tab="financials">Financials</button>
-        <button type="button" class="tab-btn" data-tab="compare">Compare</button>
-      </div>
-    </nav>
   </header>
 
-  <!-- Globaler Lade- und Fehlerstatus -->
-  <div class="loading-overlay" id="loadingOverlay">
+  <!-- Ladeindikator -->
+  <div id="loading-indicator" class="loading-overlay" style="display: none;">
     <div class="spinner"></div>
-    <p class="loading-text" id="loadingText">Lade Aktiendaten...</p>
+    <p>Lade Unternehmensdaten...</p>
   </div>
 
-  <div class="error-banner" id="errorBanner" style="display: none;">
-    <span class="error-icon">⚠️</span>
-    <span class="error-message" id="errorMessage">Fehler beim Laden.</span>
-    <button type="button" class="error-dismiss" id="errorDismissBtn">&times;</button>
-  </div>
-
-  <!-- Tab Contents Container -->
-  <main class="stock-content-container">
-
-    <!-- 1. OVERVIEW TAB -->
-    <section class="tab-pane active" id="tab-overview">
-      <div class="overview-grid" id="overviewGrid">
-        <!-- Dynamisch befüllt durch js/stock-overview.js -->
-      </div>
-    </section>
-
-    <!-- 2. SCORE TAB -->
-    <section class="tab-pane" id="tab-score">
-      <div class="score-summary-header" id="scoreSummaryHeader">
-        <!-- Gesamtscore & Radar/History Chart -->
-      </div>
-      <div class="score-categories-list" id="scoreCategoriesList">
-        <!-- 4 Kategorien mit je 5 Kacheln -->
-      </div>
-    </section>
-
-    <!-- 3. HOLDINGS TAB -->
-    <section class="tab-pane" id="tab-holdings">
-      <div class="holdings-section-wrapper" id="holdingsWrapper">
-        <!-- Insider Activity & Funds Activity (ohne Politician) -->
-      </div>
-    </section>
-
-    <!-- 4. ANALYST TAB -->
-    <section class="tab-pane" id="tab-analyst">
-      <div class="analyst-view-wrapper" id="analystWrapper">
-        <!-- Kursziel-Gauge, Kurs vs Ziel, Valuation, EPS Estimates & Recommendations Donut -->
-      </div>
-    </section>
-
-    <!-- 5. FINANCIALS TAB -->
-    <section class="tab-pane" id="tab-financials">
-      <!-- Unter-Umschalter: Charts vs. Statements -->
-      <div class="sub-nav-bar">
-        <button type="button" class="sub-nav-btn active" data-subtab="financial-charts">Charts</button>
-        <button type="button" class="sub-nav-btn" data-subtab="financial-statements">Statements</button>
-      </div>
-
-      <!-- Unter-Tab 1: Financial Charts -->
-      <div class="subtab-pane active" id="subtab-financial-charts">
-        <div class="charts-controls-bar">
-          <div class="control-group">
-            <label for="chartTimeframeSelect">Zeitraum:</label>
-            <select id="chartTimeframeSelect" class="form-select-dark">
-              <option value="1Y">1J</option>
-              <option value="3Y">3J</option>
-              <option value="5Y" selected>5J</option>
-              <option value="10Y">10J</option>
-              <option value="MAX">Max</option>
-            </select>
+  <main class="container py-8" id="stock-overview-container">
+    <!-- Header-Bereich: Aktie & Kurs -->
+    <div class="stock-header card mb-6">
+      <div class="stock-header-main">
+        <div>
+          <div class="flex-align-center gap-2">
+            <h1 id="stock-name" class="stock-title">Aktie</h1>
+            <span id="stock-symbol" class="badge-symbol">TICKER</span>
           </div>
-          <div class="control-group">
-            <label for="chartPeriodSelect">Periode:</label>
-            <select id="chartPeriodSelect" class="form-select-dark">
-              <option value="Quarterly" selected>Quartal</option>
-              <option value="Annual">Jährlich</option>
-              <option value="TTM">TTM</option>
-            </select>
-          </div>
+          <p class="stock-meta text-muted">
+            <span id="stock-sector">-</span> &bull; <span id="stock-industry">-</span>
+          </p>
         </div>
-        <div class="financial-charts-grid" id="financialChartsGrid">
-          <!-- Alle geforderten Diagrammkarten (Revenue, Margins, Liquidity, etc.) -->
+        <div class="stock-actions">
+          <button id="detail-watchlist-toggle" class="btn btn-outline" data-watchlist-symbol="" data-active-text="★ In Watchlist" data-inactive-text="☆ Auf Watchlist">
+            ☆ Auf Watchlist
+          </button>
         </div>
       </div>
 
-      <!-- Unter-Tab 2: Statements (GuV, Bilanz, Cashflow) -->
-      <div class="subtab-pane" id="subtab-financial-statements">
-        <div class="statements-controls-bar">
-          <div class="statement-type-tabs">
-            <button type="button" class="stmt-toggle-btn active" data-stmt="income">GuV</button>
-            <button type="button" class="stmt-toggle-btn" data-stmt="balance">Bilanz</button>
-            <button type="button" class="stmt-toggle-btn" data-stmt="cashflow">Cashflow</button>
-          </div>
-          <div class="control-group">
-            <select id="stmtPeriodSelect" class="form-select-dark">
-              <option value="Quarterly" selected>Quartalsweise</option>
-              <option value="Annual">Jährlich</option>
-            </select>
-          </div>
+      <div class="stock-header-pricing mt-4">
+        <div class="price-box">
+          <div id="stock-price" class="metric-price">-</div>
+          <div id="stock-change" class="metric-change">-</div>
         </div>
-        <div class="table-scroll-container" id="statementTableContainer">
-          <!-- Dynamische Sticky-Tabelle -->
+        <div class="score-box">
+          <span class="text-sm text-muted">Gesamtscore</span>
+          <div id="stock-score-badge" class="score-badge">-</div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- 6. COMPARE TAB -->
-    <section class="tab-pane" id="tab-compare">
-      <div class="compare-view-wrapper" id="compareWrapper">
-        <!-- Ticker-Auswahl (bis zu 4) und Metrik-Vergleich -->
+    <!-- Chart-Sektion -->
+    <div class="card mb-6">
+      <h3 class="card-title mb-4">Kursverlauf (12 Monate)</h3>
+      <div class="chart-container" style="position: relative; height: 350px;">
+        <canvas id="priceHistoryChart"></canvas>
       </div>
-    </section>
+    </div>
 
+    <!-- Kennzahlen & Bewertung -->
+    <div class="grid grid-2 mb-6">
+      <div class="card">
+        <h3 class="card-title mb-4">Bewertungskennzahlen</h3>
+        <dl class="data-list">
+          <div class="data-item">
+            <dt>Marktkapitalisierung</dt>
+            <dd id="val-market-cap">-</dd>
+          </div>
+          <div class="data-item">
+            <dt>KGV (P/E trailing)</dt>
+            <dd id="val-pe">-</dd>
+          </div>
+          <div class="data-item">
+            <dt>Forward KGV</dt>
+            <dd id="val-fpe">-</dd>
+          </div>
+          <div class="data-item">
+            <dt>PEG Ratio</dt>
+            <dd id="val-peg">-</dd>
+          </div>
+          <div class="data-item">
+            <dt>KBV (P/B)</dt>
+            <dd id="val-pb">-</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title mb-4">Unternehmensprofil</h3>
+        <p id="stock-description" class="text-sm leading-relaxed text-gray-700">
+          Wird geladen...
+        </p>
+      </div>
+    </div>
+
+    <!-- Finanzberichte & Diagramm -->
+    <div class="card mb-6">
+      <h3 class="card-title mb-4">Finanzentwicklung</h3>
+      <div class="chart-container mb-6" style="position: relative; height: 300px;">
+        <canvas id="financialsBarChart"></canvas>
+      </div>
+
+      <h4 class="font-bold text-md mb-2">Gewinn- & Verlustrechnung</h4>
+      <div id="income-statement-table" class="mb-4"></div>
+
+      <h4 class="font-bold text-md mb-2">Bilanz</h4>
+      <div id="balance-sheet-table" class="mb-4"></div>
+
+      <h4 class="font-bold text-md mb-2">Cashflow</h4>
+      <div id="cashflow-table"></div>
+    </div>
+
+    <!-- Analysten-Empfehlungen -->
+    <div class="card mb-6">
+      <h3 class="card-title mb-4">Analysten-Einschätzungen</h3>
+      <div id="analyst-summary" class="mb-4"></div>
+      <div id="analyst-recommendations-list"></div>
+    </div>
   </main>
 
-  <!-- Bibliotheken (lokal im js/lib/ Ordner, kein CDN) -->
-  <script src="../js/lib/chart.umd.js"></script>
+  <footer class="footer py-6 text-center text-sm text-muted">
+    <div class="container">
+      <p>&copy; Aktien-Analyse Dashboard &bull; Alle Kursdaten ohne Gewähr.</p>
+    </div>
+  </footer>
 
-  <!-- Anwendungslogik & Module (klassische Script-Tags für file:// Kompatibilität) -->
+  <!-- Externe und Basis-Bibliotheken -->
+  <script src="../js/lib/chart.umd.js"></script>
+  <script src="../data/fallback-data.js"></script>
+
+  <!-- Core Services & Helpers -->
   <script src="../js/score-config.js"></script>
+  <script src="../js/data.js"></script>
   <script src="../js/stock-data.js"></script>
   <script src="../js/stock-charts.js"></script>
-  <script src="../js/stock-nav.js"></script>
-  <script src="../js/stock-overview.js"></script>
   <script src="../js/stock-score.js"></script>
-  <script src="../js/stock-holdings.js"></script>
-  <script src="../js/stock-analyst.js"></script>
-  <script src="../js/stock-financials.js"></script>
-  <script src="../js/stock-statements.js"></script>
-  <script src="../js/stock-compare.js"></script>
+  <script src="../js/watchlist.js"></script>
 
+  <!-- Feature Controller -->
+  <script src="../js/stock-overview.js"></script>
+  <script src="../js/stock-financials.js"></script>
+  <script src="../js/stock-analyst.js"></script>
 </body>
 </html>
-
