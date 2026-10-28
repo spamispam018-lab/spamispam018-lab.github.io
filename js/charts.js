@@ -184,6 +184,61 @@ window.App.Charts = (function () {
   }
 
   /**
+   * 1b. Mehrlinien-Chart (z. B. normierter Kursvergleich mehrerer Titel).
+   * opts: { labels: [], series: [{ name: '', color: '', values: [] }], formatY: fn }
+   */
+  function renderMultiLineChart(canvas, opts) {
+    var setup = setupCanvas(canvas);
+    if (!setup) return;
+    var ctx = setup.ctx;
+    var w = setup.width;
+    var h = setup.height;
+
+    var series = (opts.series || []).filter(function (sr) { return sr.values && sr.values.length > 0; });
+    var labels = opts.labels || [];
+    if (series.length === 0) return;
+
+    var padding = { top: 20, right: 15, bottom: 25, left: 45 };
+    var allVals = [];
+    series.forEach(function (sr) { allVals = allVals.concat(sr.values); });
+    var minVal = Math.min.apply(null, allVals);
+    var maxVal = Math.max.apply(null, allVals);
+    var buffer = (maxVal - minVal) * 0.1 || (maxVal * 0.05) || 1;
+    minVal -= buffer;
+    maxVal += buffer;
+
+    drawGridAndYAxis(ctx, w, h, minVal, maxVal, padding, opts.formatY);
+
+    var chartW = w - padding.left - padding.right;
+    var chartH = h - padding.top - padding.bottom;
+
+    series.forEach(function (sr) {
+      var n = sr.values.length;
+      var stepX = n > 1 ? chartW / (n - 1) : chartW;
+      ctx.beginPath();
+      for (var i = 0; i < n; i++) {
+        var x = padding.left + i * stepX;
+        var y = padding.top + chartH - ((sr.values[i] - minVal) / (maxVal - minVal)) * chartH;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = sr.color || THEME.purpleLight;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([]);
+      ctx.stroke();
+    });
+
+    // X-Achsen-Labels (Start, Mitte, Ende)
+    ctx.font = '10px ' + THEME.fontFamily;
+    ctx.fillStyle = THEME.textColor;
+    ctx.textAlign = 'center';
+    var n0 = series[0].values.length;
+    var stepX0 = n0 > 1 ? chartW / (n0 - 1) : chartW;
+    [0, Math.floor(n0 / 2), n0 - 1].forEach(function (idx) {
+      if (labels[idx]) ctx.fillText(labels[idx], padding.left + idx * stepX0, h - 6);
+    });
+  }
+
+  /**
    * 2. Gruppiertes Balkendiagramm (z. B. Revenue, OCF, Net Income letzte 4 Quartale).
    * opts: { labels: ['Q2', 'Q3', 'Q4', 'Q1'], series: [{ name: '', data: [], color: '' }] }
    */
@@ -344,6 +399,7 @@ window.App.Charts = (function () {
 
   return {
     renderLineChart: renderLineChart,
+    renderMultiLineChart: renderMultiLineChart,
     renderGroupedBarChart: renderGroupedBarChart,
     renderDonutChart: renderDonutChart,
     renderStackedBarChart: renderStackedBarChart
