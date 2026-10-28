@@ -2,93 +2,103 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aktien-Hub | Dashboard & Marktübersicht</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Aktien-Screener</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans antialiased">
-  <!-- Hauptnavigation -->
-  <header class="navbar">
-    <div class="container nav-container">
-      <a href="index.html" class="nav-brand">Aktien-Hub</a>
-      <nav class="nav-links">
-        <a href="index.html" class="nav-link active">Übersicht</a>
-        <a href="Views/screener.html" class="nav-link">Screener</a>
-        <a href="Views/watchlist.html" class="nav-link">Watchlist</a>
-      </nav>
-    </div>
-  </header>
-
-  <main class="container py-8">
-    <!-- Hero / Begrüßung -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold tracking-tight">Marktübersicht</h1>
-      <p class="text-muted text-sm mt-1">Echtzeit- und Fundamentaldaten führender Aktientitel auf einen Blick.</p>
-    </div>
-
-    <!-- Quick Stats Grid -->
-    <div class="grid grid-3 gap-6 mb-8">
-      <div class="card stat-card">
-        <span class="text-xs uppercase tracking-wider text-muted font-bold">Beobachtete Titel</span>
-        <div class="stat-value mt-2" id="stat-total-stocks">-</div>
-        <p class="text-xs text-muted mt-1">Im Datenbestand erfasst</p>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="top-header">
+      <div>
+        <h1 class="app-title">Aktien-Screener</h1>
+        <p class="app-subtitle" id="status-subtitle">Lade Marktdaten...</p>
       </div>
-      <div class="card stat-card">
-        <span class="text-xs uppercase tracking-wider text-muted font-bold">Top Gewinner</span>
-        <div class="stat-value text-green mt-2" id="stat-top-gainer">-</div>
-        <p class="text-xs text-muted mt-1" id="stat-top-gainer-symbol">Höchster Tagesgewinn</p>
+      <button class="icon-button" id="filter-modal-toggle" aria-label="Filter Optionen">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Hero Card (Marktübersicht) -->
+    <section class="hero-card">
+      <span class="hero-label">Marktübersicht (Aktienuniversum)</span>
+      <div class="hero-main-stat" id="stat-total-title">-- Titel</div>
+      <div class="hero-grid">
+        <div>
+          <span class="hero-sub-label">Top-Gewinner</span>
+          <div class="hero-sub-val" id="stat-top-gainer">-</div>
+        </div>
+        <div>
+          <span class="hero-sub-label">Ø KGV</span>
+          <div class="hero-sub-val" id="stat-avg-pe">-</div>
+        </div>
+        <div>
+          <span class="hero-sub-label">Ø Div.-Rendite</span>
+          <div class="hero-sub-val" id="stat-avg-div">-</div>
+        </div>
       </div>
-      <div class="card stat-card">
-        <span class="text-xs uppercase tracking-wider text-muted font-bold">Top Verlierer</span>
-        <div class="stat-value text-red mt-2" id="stat-top-loser">-</div>
-        <p class="text-xs text-muted mt-1" id="stat-top-loser-symbol">Stärkster Tagesverlust</p>
-      </div>
+    </section>
+
+    <!-- Suche -->
+    <div class="search-wrapper">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="search-input" class="search-input" placeholder="Name oder Ticker suchen..." autocomplete="off">
     </div>
 
-    <!-- Markttabelle / Dashboard Übersicht -->
-    <div class="card mb-8">
-      <div class="flex-between flex-align-center mb-4">
-        <h2 class="text-xl font-bold">Aktuelle Marktbewegungen</h2>
-        <a href="Views/screener.html" class="text-sm font-bold text-primary">Alle anzeigen &rarr;</a>
-      </div>
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Symbol</th>
-              <th>Unternehmen</th>
-              <th>Sektor</th>
-              <th>Kurs</th>
-              <th>Tagesänderung</th>
-              <th>Marktkapitalisierung</th>
-              <th>Aktion</th>
-            </tr>
-          </thead>
-          <tbody id="dashboard-stock-table">
-            <tr>
-              <td colspan="7" class="text-center py-6 text-muted">Lade Marktdaten...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- Filter Pills / Chips -->
+    <div class="filter-chips">
+      <button class="chip-btn active" data-filter="all">Alle</button>
+      <button class="chip-btn" data-filter="dividend">💰 Hohe Dividende</button>
+      <button class="chip-btn" data-filter="value">💎 Value (KGV &lt; 18)</button>
+      <button class="chip-btn" data-filter="growth">🚀 Growth</button>
     </div>
-  </main>
 
-  <footer class="footer py-6 text-center text-sm text-muted">
-    <div class="container">
-      <p>&copy; Aktien-Analyse Dashboard &bull; Alle Kursdaten ohne Gewähr.</p>
+    <!-- Meta-Zeile: Trefferanzahl & Sortier-Dropdown -->
+    <div class="list-meta-bar">
+      <span class="results-count" id="results-count">Lade Ergebnisse...</span>
+      <select id="sort-select" class="sort-select">
+        <option value="marketCap_desc">Marktkapitalisierung (Höchste)</option>
+        <option value="change_desc">Tagesgewinner</option>
+        <option value="change_asc">Tagesverlierer</option>
+        <option value="pe_asc">KGV (Niedrigste)</option>
+        <option value="dividend_desc">Dividendenrendite</option>
+      </select>
     </div>
-  </footer>
 
-  <!-- Bibliotheken & Fallbacks -->
-  <script src="js/lib/chart.umd.js"></script>
+    <!-- Liste der Aktienkarten -->
+    <main>
+      <div id="stock-list-container" class="stock-list">
+        <div class="loading-box">Lade Aktienliste...</div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="bottom-nav-item active">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+      </svg>
+      <span>Screener</span>
+    </a>
+    <a href="Views/watchlist.html" class="bottom-nav-item">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      </svg>
+      <span>Watchlist</span>
+    </a>
+  </nav>
+
+  <!-- Skripte -->
   <script src="data/fallback-data.js"></script>
-
-  <!-- Core Services -->
   <script src="js/data.js"></script>
   <script src="js/stock-data.js"></script>
   <script src="js/watchlist.js"></script>
-  <script src="js/charts.js"></script>
-  <script src="js/ui.js"></script>
+  <script src="js/filters.js"></script>
 </body>
 </html>
