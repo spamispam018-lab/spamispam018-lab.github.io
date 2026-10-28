@@ -20,7 +20,7 @@ window.App.Data = (function () {
 
   // Konfiguration: Eigener GitHub-Benutzer & Repo für Raw-Abfragen
   var DEFAULT_CONFIG = {
-    githubUser: 'pam018-lab',
+    githubUser: 'spamispam018-lab',
     githubRepo: 'stock-app-data',
     githubBranch: 'main'
   };
