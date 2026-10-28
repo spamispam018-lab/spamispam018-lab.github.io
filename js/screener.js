@@ -111,6 +111,8 @@ window.App.Screener = (function () {
       list = list.filter(function (s) { return (s.dividendYield || 0) >= 3; });
     } else if (currentPreset === 'value') {
       list = list.filter(function (s) { return s.pe && s.pe > 0 && s.pe <= 18; });
+    } else if (currentPreset === 'undervalued') {
+      list = list.filter(isUndervalued);
     } else if (currentPreset === 'growth') {
       list = list.filter(function (s) { return (s.revGrowth || 0) >= 0.10; });
     } else if (currentPreset === 'top_performer') {
@@ -129,6 +131,8 @@ window.App.Screener = (function () {
         case 'pe_asc':
           // Verlust (negatives KGV) zuerst, dann positives KGV aufsteigend, unbekannt zuletzt
           return peRank(a) - peRank(b);
+        case 'upside_desc':
+          return (b.upside === null || b.upside === undefined ? -999 : b.upside) - (a.upside === null || a.upside === undefined ? -999 : a.upside);
         case 'dividend_desc':
           return (b.dividendYield || 0) - (a.dividendYield || 0);
         case 'perf52w_desc':
@@ -157,6 +161,20 @@ window.App.Screener = (function () {
   function isLoss(s) {
     if (s.pe !== null && s.pe !== undefined) return s.pe < 0;
     return s.profitMargins !== null && s.profitMargins !== undefined && s.profitMargins < 0;
+  }
+
+  /**
+   * "Unterbewertet": günstiges KGV bei solider Qualität und Kurs im unteren Hälfte der 52W-Spanne.
+   * Fehlende Werte (PEG, Verschuldung – z. B. bei Banken) schließen eine Aktie nicht aus.
+   */
+  function isUndervalued(s) {
+    if (!(s.pe > 0 && s.pe <= 18)) return false;
+    if (s.peg !== null && s.peg !== undefined && !(s.peg > 0 && s.peg <= 1.5)) return false;
+    if (!(s.profitMargins > 0)) return false;
+    if (s.debtToEquity !== null && s.debtToEquity !== undefined && s.debtToEquity > 150) return false;
+    if ((s.revGrowth || 0) < 0) return false;
+    if (s.rangePos === null || s.rangePos === undefined || s.rangePos > 50) return false;
+    return true;
   }
 
   function peRank(s) {
@@ -201,6 +219,7 @@ window.App.Screener = (function () {
               '<div class="stock-tags">' +
                 '<span class="ticker-badge">' + stock.ticker + '</span>' +
                 '<span class="sector-label">• ' + (stock.sector || 'Markt') + '</span>' +
+                (currentPreset === 'undervalued' && stock.upside !== null && stock.upside !== undefined ? '<span class="sector-label" style="color: var(--bullish); font-weight: 700;">• Ziel ' + (stock.upside >= 0 ? '+' : '') + window.App.Format.number(stock.upside, 0) + ' %</span>' : '') +
                 (isLoss(stock) ? '<span class="sector-label" style="color: var(--bearish); font-weight: 700;">• KGV neg.</span>' : '') +
               '</div>' +
             '</div>' +
@@ -301,6 +320,7 @@ window.App.Screener = (function () {
           '<button class="chip-btn active" data-preset="all">Alle</button>' +
           '<button class="chip-btn" data-preset="high_dividend">💰 Hohe Dividende</button>' +
           '<button class="chip-btn" data-preset="value">💎 Value (KGV &lt; 18)</button>' +
+          '<button class="chip-btn" data-preset="undervalued">🔎 Unterbewertet</button>' +
           '<button class="chip-btn" data-preset="growth">🚀 Growth</button>' +
           '<button class="chip-btn" data-preset="top_performer">📈 Top Performer</button>' +
         '</div>' +
@@ -313,6 +333,7 @@ window.App.Screener = (function () {
             '<option value="change_asc">Tagesverlierer (%)</option>' +
             '<option value="name_asc">Name (A–Z)</option>' +
             '<option value="pe_asc">KGV (Niedrigste)</option>' +
+            '<option value="upside_desc">Kursziel-Potenzial (Höchstes)</option>' +
             '<option value="dividend_desc">Dividendenrendite (Höchste)</option>' +
             '<option value="perf52w_desc">52W-Performance (Beste)</option>' +
           '</select>' +
