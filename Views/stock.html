@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Aktien Detailansicht</title>
+  
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/stock.css">
+</head>
+<body class="stock-detail-body">
+
+  <!-- Header & Ticker Search Bar -->
+  <header class="stock-header">
+    <div class="header-top-row">
+      <a href="../index.html" class="nav-back-btn" title="Zurück zum Screener" aria-label="Zurück">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </a>
+
+      <!-- Suchfeld mit Ticker-Chip -->
+      <div class="search-chip-container">
+        <div class="ticker-chip" id="currentTickerChip">
+          <span class="chip-text" id="chipTickerSymbol">AAPL</span>
+          <button type="button" class="chip-clear-btn" id="chipClearBtn" aria-label="Ticker entfernen">&times;</button>
+        </div>
+        <input 
+          type="text" 
+          id="tickerSearchInput" 
+          class="ticker-search-input" 
+          placeholder="Ticker suchen..." 
+          autocomplete="off" 
+          autocapitalize="characters" 
+          spellcheck="false"
+        >
+        <button type="button" class="search-submit-btn" id="tickerSearchBtn" aria-label="Suchen">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+      </div>
+
+      <button type="button" class="refresh-data-btn" id="refreshStockBtn" title="Aktualisieren" aria-label="Aktualisieren">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Live Status / Ticker Headline -->
+    <div class="stock-title-bar" id="stockTitleBar">
+      <div class="title-left">
+        <h1 class="stock-company-name" id="stockCompanyName">Lädt...</h1>
+        <div class="stock-meta-row">
+          <span class="badge sector-badge" id="stockSectorBadge">-</span>
+          <span class="meta-dot">•</span>
+          <span class="stock-currency" id="stockCurrency">USD</span>
+        </div>
+      </div>
+      <div class="title-right">
+        <div class="stock-current-price" id="stockCurrentPrice">--</div>
+        <div class="stock-price-change" id="stockPriceChange">--</div>
+      </div>
+    </div>
+
+    <!-- Horizontal scrollbare Haupt-Tabs -->
+    <nav class="stock-tabs-nav" aria-label="Detail Navigation">
+      <div class="tabs-scroll-wrapper">
+        <button type="button" class="tab-btn active" data-tab="overview">Overview</button>
+        <button type="button" class="tab-btn" data-tab="score">Score</button>
+        <button type="button" class="tab-btn" data-tab="holdings">Holdings</button>
+        <button type="button" class="tab-btn" data-tab="analyst">Analyst</button>
+        <button type="button" class="tab-btn" data-tab="financials">Financials</button>
+        <button type="button" class="tab-btn" data-tab="compare">Compare</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Globaler Lade- und Fehlerstatus -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p class="loading-text" id="loadingText">Lade Aktiendaten...</p>
+  </div>
+
+  <div class="error-banner" id="errorBanner" style="display: none;">
+    <span class="error-icon">⚠️</span>
+    <span class="error-message" id="errorMessage">Fehler beim Laden.</span>
+    <button type="button" class="error-dismiss" id="errorDismissBtn">&times;</button>
+  </div>
+
+  <!-- Tab Contents Container -->
+  <main class="stock-content-container">
+
+    <!-- 1. OVERVIEW TAB -->
+    <section class="tab-pane active" id="tab-overview">
+      <div class="overview-grid" id="overviewGrid">
+        <!-- Dynamisch befüllt durch js/stock-overview.js -->
+      </div>
+    </section>
+
+    <!-- 2. SCORE TAB -->
+    <section class="tab-pane" id="tab-score">
+      <div class="score-summary-header" id="scoreSummaryHeader">
+        <!-- Gesamtscore & Radar/History Chart -->
+      </div>
+      <div class="score-categories-list" id="scoreCategoriesList">
+        <!-- 4 Kategorien mit je 5 Kacheln -->
+      </div>
+    </section>
+
+    <!-- 3. HOLDINGS TAB -->
+    <section class="tab-pane" id="tab-holdings">
+      <div class="holdings-section-wrapper" id="holdingsWrapper">
+        <!-- Insider Activity & Funds Activity (ohne Politician) -->
+      </div>
+    </section>
+
+    <!-- 4. ANALYST TAB -->
+    <section class="tab-pane" id="tab-analyst">
+      <div class="analyst-view-wrapper" id="analystWrapper">
+        <!-- Kursziel-Gauge, Kurs vs Ziel, Valuation, EPS Estimates & Recommendations Donut -->
+      </div>
+    </section>
+
+    <!-- 5. FINANCIALS TAB -->
+    <section class="tab-pane" id="tab-financials">
+      <!-- Unter-Umschalter: Charts vs. Statements -->
+      <div class="sub-nav-bar">
+        <button type="button" class="sub-nav-btn active" data-subtab="financial-charts">Charts</button>
+        <button type="button" class="sub-nav-btn" data-subtab="financial-statements">Statements</button>
+      </div>
+
+      <!-- Unter-Tab 1: Financial Charts -->
+      <div class="subtab-pane active" id="subtab-financial-charts">
+        <div class="charts-controls-bar">
+          <div class="control-group">
+            <label for="chartTimeframeSelect">Zeitraum:</label>
+            <select id="chartTimeframeSelect" class="form-select-dark">
+              <option value="1Y">1J</option>
+              <option value="3Y">3J</option>
+              <option value="5Y" selected>5J</option>
+              <option value="10Y">10J</option>
+              <option value="MAX">Max</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="chartPeriodSelect">Periode:</label>
+            <select id="chartPeriodSelect" class="form-select-dark">
+              <option value="Quarterly" selected>Quartal</option>
+              <option value="Annual">Jährlich</option>
+              <option value="TTM">TTM</option>
+            </select>
+          </div>
+        </div>
+        <div class="financial-charts-grid" id="financialChartsGrid">
+          <!-- Alle geforderten Diagrammkarten (Revenue, Margins, Liquidity, etc.) -->
+        </div>
+      </div>
+
+      <!-- Unter-Tab 2: Statements (GuV, Bilanz, Cashflow) -->
+      <div class="subtab-pane" id="subtab-financial-statements">
+        <div class="statements-controls-bar">
+          <div class="statement-type-tabs">
+            <button type="button" class="stmt-toggle-btn active" data-stmt="income">GuV</button>
+            <button type="button" class="stmt-toggle-btn" data-stmt="balance">Bilanz</button>
+            <button type="button" class="stmt-toggle-btn" data-stmt="cashflow">Cashflow</button>
+          </div>
+          <div class="control-group">
+            <select id="stmtPeriodSelect" class="form-select-dark">
+              <option value="Quarterly" selected>Quartalsweise</option>
+              <option value="Annual">Jährlich</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-scroll-container" id="statementTableContainer">
+          <!-- Dynamische Sticky-Tabelle -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. COMPARE TAB -->
+    <section class="tab-pane" id="tab-compare">
+      <div class="compare-view-wrapper" id="compareWrapper">
+        <!-- Ticker-Auswahl (bis zu 4) und Metrik-Vergleich -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bibliotheken (lokal im js/lib/ Ordner, kein CDN) -->
+  <script src="../js/lib/chart.umd.js"></script>
+
+  <!-- Anwendungslogik & Module (klassische Script-Tags für file:// Kompatibilität) -->
+  <script src="../js/score-config.js"></script>
+  <script src="../js/stock-data.js"></script>
+  <script src="../js/stock-charts.js"></script>
+  <script src="../js/stock-nav.js"></script>
+  <script src="../js/stock-overview.js"></script>
+  <script src="../js/stock-score.js"></script>
+  <script src="../js/stock-holdings.js"></script>
+  <script src="../js/stock-analyst.js"></script>
+  <script src="../js/stock-financials.js"></script>
+  <script src="../js/stock-statements.js"></script>
+  <script src="../js/stock-compare.js"></script>
+
+</body>
+</html>
