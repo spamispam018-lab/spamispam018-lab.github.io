@@ -1,104 +1,113 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aktien-Screener</title>
-  <link rel="stylesheet" href="../css/styles.css">
-</head>
-<body>
-  <div class="app-container">
-    <!-- Header -->
-    <header class="top-header">
+<!-- Views/screener.html -->
+<div class="space-y-4">
+
+  <!-- Kennzahlen-Karte / Marktübersicht -->
+  <div class="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 shadow-xl shadow-indigo-950/40 border border-white/10 text-white">
+    <div class="text-[11px] font-semibold tracking-wider uppercase opacity-80 mb-1">
+      Marktübersicht (Aktienuniversum)
+    </div>
+    
+    <div id="totalStocksCount" class="text-3xl font-extrabold tracking-tight mb-4">
+      0 Titel
+    </div>
+
+    <div class="grid grid-cols-3 gap-2 pt-3 border-t border-white/15 text-xs">
       <div>
-        <h1 class="app-title">Aktien-Screener</h1>
-        <p class="app-subtitle" id="status-subtitle">Lade Marktdaten...</p>
+        <div class="text-white/70 text-[11px]">Top-Gewinner</div>
+        <div id="topGainer" class="font-bold text-emerald-300 truncate mt-0.5">-</div>
       </div>
-      <button class="icon-button" id="filter-modal-toggle" aria-label="Filter Optionen">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-        </svg>
-      </button>
-    </header>
-
-    <!-- Hero Card (Marktübersicht) -->
-    <section class="hero-card">
-      <span class="hero-label">Marktübersicht (Aktienuniversum)</span>
-      <div class="hero-main-stat" id="stat-total-title">-- Titel</div>
-      <div class="hero-grid">
-        <div>
-          <span class="hero-sub-label">Top-Gewinner</span>
-          <div class="hero-sub-val" id="stat-top-gainer">-</div>
-        </div>
-        <div>
-          <span class="hero-sub-label">Ø KGV</span>
-          <div class="hero-sub-val" id="stat-avg-pe">-</div>
-        </div>
-        <div>
-          <span class="hero-sub-label">Ø Div.-Rendite</span>
-          <div class="hero-sub-val" id="stat-avg-div">-</div>
-        </div>
+      <div>
+        <div class="text-white/70 text-[11px]">Ø KGV</div>
+        <div id="avgPe" class="font-bold text-white mt-0.5">-</div>
       </div>
-    </section>
-
-    <!-- Suche -->
-    <div class="search-wrapper">
-      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      </svg>
-      <input type="text" id="search-input" class="search-input" placeholder="Name oder Ticker suchen..." autocomplete="off">
+      <div>
+        <div class="text-white/70 text-[11px]">Ø Div.-Rendite</div>
+        <div id="avgDiv" class="font-bold text-white mt-0.5">-</div>
+      </div>
     </div>
+  </div>
 
-    <!-- Filter Pills / Chips -->
-    <div class="filter-chips">
-      <button class="chip-btn active" data-filter="all">Alle</button>
-      <button class="chip-btn" data-filter="dividend">💰 Hohe Dividende</button>
-      <button class="chip-btn" data-filter="value">💎 Value (KGV &lt; 18)</button>
-      <button class="chip-btn" data-filter="growth">🚀 Growth</button>
-    </div>
+  <!-- Sucheingabe -->
+  <div class="relative">
+    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+    <input 
+      type="text" 
+      id="searchInput"
+      placeholder="Name oder Ticker suchen..." 
+      class="w-full bg-[#131b2e] border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
+    >
+  </div>
 
-    <!-- Meta-Zeile: Trefferanzahl & Sortier-Dropdown -->
-    <div class="list-meta-bar">
-      <span class="results-count" id="results-count">Lade Ergebnisse...</span>
-      <select id="sort-select" class="sort-select">
+  <!-- Schnellfilter Chips -->
+  <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
+    <button 
+      id="chipDividend"
+      onclick="FilterService.toggleFilterChip('dividend'); updateChipStyles(); AppUI.renderStockList();"
+      class="chip-btn px-3 py-1.5 rounded-full border border-slate-800 bg-slate-900/60 text-slate-300 font-medium whitespace-nowrap hover:border-slate-700 transition"
+    >
+      Dividende
+    </button>
+    <button 
+      id="chipValue"
+      onclick="FilterService.toggleFilterChip('value'); updateChipStyles(); AppUI.renderStockList();"
+      class="chip-btn px-3 py-1.5 rounded-full border border-slate-800 bg-slate-900/60 text-slate-300 font-medium whitespace-nowrap hover:border-slate-700 transition"
+    >
+      💎 Value (KGV &lt; 18)
+    </button>
+    <button 
+      id="chipGrowth"
+      onclick="FilterService.toggleFilterChip('growth'); updateChipStyles(); AppUI.renderStockList();"
+      class="chip-btn px-3 py-1.5 rounded-full border border-slate-800 bg-slate-900/60 text-slate-300 font-medium whitespace-nowrap hover:border-slate-700 transition"
+    >
+      🚀 Growth
+    </button>
+  </div>
+
+  <!-- Ergebnisse & Sortierung -->
+  <div class="flex items-center justify-between text-xs text-slate-400 pt-1">
+    <div id="resultCount" class="font-medium">0 Ergebnisse</div>
+    <div class="flex items-center gap-1.5">
+      <select 
+        id="sortSelect" 
+        class="bg-[#131b2e] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-blue-500"
+      >
         <option value="marketCap_desc">Marktkapitalisierung (Höchste)</option>
-        <option value="change_desc">Tagesgewinner</option>
-        <option value="change_asc">Tagesverlierer</option>
-        <option value="pe_asc">KGV (Niedrigste)</option>
+        <option value="marketCap_asc">Marktkapitalisierung (Niedrigste)</option>
+        <option value="pe_asc">KGV (Niedrigstes zuerst)</option>
+        <option value="pe_desc">KGV (Höchstes zuerst)</option>
+        <option value="change_desc">Performance (Beste zuerst)</option>
+        <option value="change_asc">Performance (Schlechteste)</option>
         <option value="dividend_desc">Dividendenrendite</option>
       </select>
     </div>
-
-    <!-- Liste der Aktienkarten -->
-    <main>
-      <div id="stock-list-container" class="stock-list">
-        <div class="loading-box">Lade Aktienliste...</div>
-      </div>
-    </main>
   </div>
 
-  <!-- Bottom Navigation Bar -->
-  <nav class="bottom-nav">
-    <a href="screener.html" class="bottom-nav-item active">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-      </svg>
-      <span>Screener</span>
-    </a>
-    <a href="watchlist.html" class="bottom-nav-item">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-      </svg>
-      <span>Watchlist</span>
-    </a>
-  </nav>
+  <!-- Aktienliste -->
+  <div id="stockList" class="space-y-3 pt-1">
+    <!-- Wird dynamisch durch AppUI.renderStockList() befüllt -->
+  </div>
 
-  <!-- Skripte -->
-  <script src="../data/fallback-data.js"></script>
-  <script src="../js/data.js"></script>
-  <script src="../js/stock-data.js"></script>
-  <script src="../js/watchlist.js"></script>
-  <script src="../js/filters.js"></script>
-</body>
-</html>
+</div>
+
+<script>
+  function updateChipStyles() {
+    const activeChip = FilterService.activeFilterChip;
+    const chips = {
+      'dividend': document.getElementById('chipDividend'),
+      'value': document.getElementById('chipValue'),
+      'growth': document.getElementById('chipGrowth')
+    };
+
+    Object.keys(chips).forEach(key => {
+      const el = chips[key];
+      if (!el) return;
+      if (activeChip === key) {
+        el.classList.add('bg-blue-600/20', 'border-blue-500', 'text-blue-400');
+        el.classList.remove('bg-slate-900/60', 'border-slate-800', 'text-slate-300');
+      } else {
+        el.classList.remove('bg-blue-600/20', 'border-blue-500', 'text-blue-400');
+        el.classList.add('bg-slate-900/60', 'border-slate-800', 'text-slate-300');
+      }
+    });
+  }
+</script>
