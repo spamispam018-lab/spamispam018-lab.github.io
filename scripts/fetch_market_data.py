@@ -308,6 +308,26 @@ def fetch_full_stock(ticker_sym):
 # DELTA-SYNC MIT KORREKTER WÄHRUNGSUMRECHNUNG
 # ==============================================================================
 
+def screener_extras(st):
+    """Zusatzfelder fürs Universum (Screener-Filter 'Unterbewertet')."""
+    ratios = st.get("ratios", {}) or {}
+    quote = st.get("quote", {}) or {}
+    out = {
+        "forwardPe": ratios.get("peForward"),
+        "peg": ratios.get("pegRatio"),
+        "debtToEquity": ratios.get("debtToEquity"),
+        "rangePos": None,
+        "upside": None,
+    }
+    lo, hi, px = quote.get("fiftyTwoWeekLow"), quote.get("fiftyTwoWeekHigh"), quote.get("price")
+    if lo is not None and hi is not None and px is not None and hi > lo:
+        out["rangePos"] = round(max(0.0, min(100.0, (px - lo) / (hi - lo) * 100)), 1)
+    tgt = ((st.get("analysts") or {}).get("targets") or {}).get("mean")
+    if tgt and px:
+        out["upside"] = round((tgt / px - 1) * 100, 1)
+    return out
+
+
 def run_delta_sync(tickers):
     load_live_forex()
     print(f"Starte Delta-Sync für {len(tickers)} Ticker (Batch-Download & EUR-Umrechnung)...")
@@ -394,6 +414,7 @@ def run_delta_sync(tickers):
         u_item["dividendYield"] = ratios.get("dividendYield")
         u_item["revGrowth"] = ratios.get("revenueGrowth")
         u_item["profitMargins"] = ratios.get("profitMargins")
+        u_item.update(screener_extras(stock_data))
 
         hist = stock_data.get("chartHistory", [])
         if len(hist) > 20 and hist[0].get("close"):
@@ -440,6 +461,7 @@ def main():
                     "dividendYield": st["ratios"]["dividendYield"],
                     "revGrowth": st["ratios"].get("revenueGrowth"),
                     "profitMargins": st["ratios"].get("profitMargins"),
+                    **screener_extras(st),
                     "perf52w": (round(((st["chartHistory"][-1]["close"] - st["chartHistory"][0]["close"]) / st["chartHistory"][0]["close"]) * 100, 2)
                                 if len(st.get("chartHistory", [])) > 20 and st["chartHistory"][0].get("close") else None)
                 })
