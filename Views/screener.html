@@ -1,0 +1,136 @@
+<!-- ==========================================================================
+     Screener-Hauptansicht
+     Enthält: Hero-Kachel, Suchleiste, Preset-Chips, Filter-Status,
+     Aktien-Ergebnisliste sowie das ausfahrbare Filter-Bottom-Sheet.
+     ========================================================================== -->
+
+<div class="header-bar">
+  <div class="header-title-wrap">
+    <h1>Aktien-Screener</h1>
+    <div class="header-subtitle" id="lastUpdatedLabel">Lade Marktdaten...</div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="openFilterBtn" aria-label="Filter öffnen">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Hero-Kachel im Haushaltsbuch-Stil -->
+  <div class="hero-card">
+    <div class="hero-label">MARKTÜBERSICHT (AKTIENUNIVERSUM)</div>
+    <div class="hero-value" id="heroTotalCount">0 Titel</div>
+    <div class="hero-stats-row">
+      <div>
+        <div class="hero-substat-label">Top-Gewinner</div>
+        <div class="hero-substat-val" id="heroTopGainer" style="color: #6ee7b7;">-</div>
+      </div>
+      <div>
+        <div class="hero-substat-label">Ø KGV</div>
+        <div class="hero-substat-val" id="heroAvgPe">-</div>
+      </div>
+      <div>
+        <div class="hero-substat-label">Ø Div.-Rendite</div>
+        <div class="hero-substat-val" id="heroAvgDiv">-</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suche -->
+  <div class="search-container">
+    <div class="search-input-wrap">
+      <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="searchInput" class="search-input" placeholder="Name oder Ticker suchen (z. B. SAP, Apple)..." autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button id="searchClearBtn" class="search-clear-btn" aria-label="Suche leeren">✕</button>
+    </div>
+  </div>
+
+  <!-- Schnellauswahl-Chips -->
+  <div class="chips-scroll-row">
+    <button class="chip-btn active" data-preset="all">Alle</button>
+    <button class="chip-btn" data-preset="dividend">💰 Hohe Dividende</button>
+    <button class="chip-btn" data-preset="value">💎 Value (KGV &lt; 18)</button>
+    <button class="chip-btn" data-preset="growth">🚀 52W Gewinner</button>
+    <button class="chip-btn" data-preset="gainers">📈 Tagesgewinner</button>
+    <button class="chip-btn" data-preset="losers">📉 Tagesverlierer</button>
+  </div>
+
+  <!-- Sortier- und Statusleiste -->
+  <div class="status-bar-row">
+    <span id="resultCountLabel">0 Ergebnisse</span>
+    <select id="sortSelect" class="sort-select">
+      <option value="marketCap_desc">Marktkapitalisierung (Höchste)</option>
+      <option value="change_desc">Tagesänderung (+%)</option>
+      <option value="change_asc">Tagesänderung (-%)</option>
+      <option value="pe_asc">KGV (Günstigste)</option>
+      <option value="div_desc">Dividendenrendite (Höchste)</option>
+      <option value="perf52w_desc">52-Wochen-Performance</option>
+      <option value="name_asc">Name (A-Z)</option>
+    </select>
+  </div>
+
+  <!-- Dynamische Ergebnisliste -->
+  <div id="stocksList" class="stocks-list"></div>
+</div>
+
+<!-- Bottom-Sheet Filter-Backdrop -->
+<div id="sheetBackdrop" class="sheet-backdrop"></div>
+
+<!-- Bottom-Sheet Filter Modal -->
+<div id="filterSheet" class="bottom-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title">Filterkriterien</div>
+    <button id="closeFilterBtn" class="icon-btn" style="width: 32px; height: 32px;" aria-label="Schließen">✕</button>
+  </div>
+  <div class="sheet-body">
+    <!-- Branche -->
+    <div>
+      <div class="filter-group-title">Branche / Sektor</div>
+      <select id="filterSector" class="sort-select" style="width: 100%; padding: 10px; font-size: 0.9rem;"></select>
+    </div>
+
+    <!-- Region / Land -->
+    <div>
+      <div class="filter-group-title">Region / Land</div>
+      <select id="filterCountry" class="sort-select" style="width: 100%; padding: 10px; font-size: 0.9rem;"></select>
+    </div>
+
+    <!-- KGV Obergrenze -->
+    <div>
+      <div class="slider-row">
+        <span class="filter-group-title" style="margin: 0;">Maximales KGV</span>
+        <span id="peValueDisplay" style="font-weight: 700; color: var(--accent-purple);">Beliebig</span>
+      </div>
+      <input type="range" id="filterMaxPe" class="filter-slider" min="10" max="100" step="5" value="100">
+    </div>
+
+    <!-- Mindest-Dividendenrendite -->
+    <div>
+      <div class="slider-row">
+        <span class="filter-group-title" style="margin: 0;">Mindest-Dividendenrendite</span>
+        <span id="divValueDisplay" style="font-weight: 700; color: var(--accent-purple);">0 %</span>
+      </div>
+      <input type="range" id="filterMinDiv" class="filter-slider" min="0" max="8" step="0.5" value="0">
+    </div>
+
+    <!-- Mindest-Marktkapitalisierung -->
+    <div>
+      <div class="slider-row">
+        <span class="filter-group-title" style="margin: 0;">Min. Marktkapitalisierung</span>
+        <span id="mcapValueDisplay" style="font-weight: 700; color: var(--accent-purple);">Alle Größen</span>
+      </div>
+      <input type="range" id="filterMinMcap" class="filter-slider" min="0" max="100" step="10" value="0">
+    </div>
+  </div>
+  <div class="sheet-footer">
+    <button id="resetFiltersBtn" class="btn-secondary">Zurücksetzen</button>
+    <button id="applyFiltersBtn" class="btn-primary">Filter anwenden</button>
+  </div>
+</div>
