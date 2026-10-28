@@ -1,193 +1,112 @@
-// js/stock-analyst.js
-// Visualisiert Kursziel-Spanne (Gauge/Bar), Kurs vs. Analystenziel,
-// EPS-Estimates & Surprises sowie Analysten-Empfehlungen als Donut- und Verlaufs-Chart.
+/**
+ * Aufbereitung und Darstellung von Analysten-Empfehlungen und Preiszielen
+ */
+const StockAnalyst = (function () {
+  function renderRecommendations(recommendations = []) {
+    const container = document.getElementById("analyst-recommendations-list");
+    const summaryContainer = document.getElementById("analyst-summary");
 
-(function () {
-  "use strict";
-
-  function render(stockData) {
-    const container = document.getElementById("analystWrapper");
     if (!container) return;
 
-    if (!stockData || !stockData.analyst) {
-      container.innerHTML = '<div class="empty-data-hint">Keine Analystendaten verfügbar.</div>';
+    if (!Array.isArray(recommendations) || recommendations.length === 0) {
+      container.innerHTML = '<p class="text-muted">Keine aktuellen Analystenbewertungen vorhanden.</p>';
+      if (summaryContainer) summaryContainer.innerHTML = '';
       return;
     }
 
-    const analyst = stockData.analyst;
-    const targets = analyst.targets || {};
-    const recommendations = analyst.recommendations || {};
-    const epsEstimates = analyst.epsEstimates || [];
-    const overview = stockData.overview || {};
+    // Zählung für Konsens-Auswertung
+    let buyCount = 0;
+    let holdCount = 0;
+    let sellCount = 0;
 
-    const currentPrice = targets.current != null ? Number(targets.current) : (overview.price != null ? Number(overview.price) : null);
-    const lowPrice = targets.targetLow != null ? Number(targets.targetLow) : null;
-    const meanPrice = targets.targetMean != null ? Number(targets.targetMean) : null;
-    const highPrice = targets.targetHigh != null ? Number(targets.targetHigh) : null;
-    const analystCount = targets.numberOfAnalysts != null ? targets.numberOfAnalysts : "-";
+    let html = '<div class="table-responsive"><table class="analyst-table"><thead><tr>';
+    html += '<th>Datum / Periode</th><th>Firma / Analyst</th><th>Einstufung</th><th>Aktion</th>';
+    html += '</tr></thead><tbody>';
 
-    // Upside / Downside zum Durchschnittsziel berechnen
-    let upsidePct = null;
-    let upsideClass = "val-neutral";
-    if (currentPrice && meanPrice) {
-      upsidePct = ((meanPrice - currentPrice) / currentPrice) * 100;
-      upsideClass = upsidePct >= 0 ? "val-positive" : "val-negative";
-    }
+    recommendations.forEach(rec => {
+      const firm = rec.Firm || rec.firm || "-";
+      const toGrade = rec["To Grade"] || rec.toGrade || rec.grade || "-";
+      const action = rec.Action || rec.action || "-";
+      const date = rec.Date || rec.date || "-";
 
-    // Kursziel-Gauge Position (0% bis 100% relative Position des aktuellen Kurses)
-    let gaugePosition = 50;
-    if (lowPrice !== null && highPrice !== null && highPrice > lowPrice && currentPrice !== null) {
-      gaugePosition = Math.min(100, Math.max(0, ((currentPrice - lowPrice) / (highPrice - lowPrice)) * 100));
-    }
+      const gradeUpper = String(toGrade).toUpperCase();
+      let badgeClass = "badge-neutral";
+      if (gradeUpper.includes("BUY") || gradeUpper.includes("OUTPERFORM") || gradeUpper.includes("OVERWEIGHT")) {
+        badgeClass = "badge-success";
+        buyCount++;
+      } else if (gradeUpper.includes("SELL") || gradeUpper.includes("UNDERPERFORM") || gradeUpper.includes("UNDERWEIGHT")) {
+        badgeClass = "badge-danger";
+        sellCount++;
+      } else {
+        holdCount++;
+      }
 
-    container.innerHTML =
-      // 1. KURSZIEL GAUGE / KACHEL
-      '<div class="info-card" style="margin-bottom: 14px;">' +
-        '<div class="chart-header">' +
-          '<div class="chart-title-group">' +
-            '<span class="chart-title">Analysten-Kursziele</span>' +
-            '<span class="chart-badge">' + analystCount + ' Analysten</span>' +
-          '</div>' +
-          '<span class="' + upsideClass + '" style="font-weight: 700; font-size: 13px;">' +
-            (upsidePct !== null ? ((upsidePct >= 0 ? "+" : "") + upsidePct.toFixed(1) + "% Potential") : "-") +
-          '</span>' +
-        '</div>' +
-
-        '<div style="margin: 14px 4px 6px 4px;">' +
-          '<div style="position: relative; height: 8px; background-color: var(--bg-chip); border-radius: 4px;">' +
-            '<div style="position: absolute; left: 0; top: 0; bottom: 0; width: ' + gaugePosition + '%; background-color: var(--color-blue); border-radius: 4px;"></div>' +
-            '<div style="position: absolute; left: ' + gaugePosition + '%; top: -4px; width: 4px; height: 16px; background-color: var(--color-yellow); border-radius: 2px; transform: translateX(-50%);"></div>' +
-          '</div>' +
-          '<div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 8px;">' +
-            '<div>Tief: <strong style="color: var(--text-main);">' + (lowPrice ? lowPrice.toFixed(2) : "-") + '</strong></div>' +
-            '<div>Mittel: <strong style="color: var(--color-yellow);">' + (meanPrice ? meanPrice.toFixed(2) : "-") + '</strong></div>' +
-            '<div>Hoch: <strong style="color: var(--text-main);">' + (highPrice ? highPrice.toFixed(2) : "-") + '</strong></div>' +
-          '</div>' +
-        '</div>' +
-      '</div>' +
-
-      // 2. FORWARD VALUATION KACHEL
-      '<div class="info-card" style="margin-bottom: 14px;">' +
-        '<div class="chart-header">' +
-          '<div class="chart-title-group">' +
-            '<span class="chart-title">Forward Valuation</span>' +
-            '<span class="chart-badge">P/E Spanne</span>' +
-          '</div>' +
-        '</div>' +
-        '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; text-align: center;">' +
-          '<div style="background-color: var(--bg-chip); padding: 8px; border-radius: 6px;">' +
-            '<div style="font-size: 10px; color: var(--text-muted);">Trailing P/E</div>' +
-            '<div style="font-weight: 700; font-size: 14px; margin-top: 2px;">' + (overview.trailingPE ? Number(overview.trailingPE).toFixed(1) + "x" : "-") + '</div>' +
-          '</div>' +
-          '<div style="background-color: var(--bg-chip); padding: 8px; border-radius: 6px;">' +
-            '<div style="font-size: 10px; color: var(--text-muted);">Forward P/E</div>' +
-            '<div style="font-weight: 700; font-size: 14px; margin-top: 2px; color: var(--color-yellow);">' + (overview.forwardPE ? Number(overview.forwardPE).toFixed(1) + "x" : "-") + '</div>' +
-          '</div>' +
-          '<div style="background-color: var(--bg-chip); padding: 8px; border-radius: 6px;">' +
-            '<div style="font-size: 10px; color: var(--text-muted);">PEG Ratio</div>' +
-            '<div style="font-weight: 700; font-size: 14px; margin-top: 2px;">' + (overview.trailingPE && overview.forwardPE ? (overview.trailingPE / overview.forwardPE).toFixed(2) : "-") + '</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>' +
-
-      // 3. EPS ESTIMATES & SURPRISES CHART
-      window.StockCharts.createChartCardHTML({
-        id: "analyst_eps_chart",
-        title: "EPS: Schätzung vs. Ist",
-        badge: "Quartale",
-        series: [
-          { label: "Schätzung", color: window.StockCharts.PALETTE.blue },
-          { label: "Tatsächlich", color: window.StockCharts.PALETTE.green }
-        ]
-      }) +
-
-      // 4. ANALYST RECOMMENDATIONS (DONUT & MONATLICHE BALKEN)
-      '<div class="info-card">' +
-        '<div class="chart-header">' +
-          '<div class="chart-title-group">' +
-            '<span class="chart-title">Analysten-Empfehlungen</span>' +
-            '<span class="chart-badge">' + (recommendations.consensus ? recommendations.consensus.toUpperCase() : "RATINGS") + '</span>' +
-          '</div>' +
-        '</div>' +
-        '<div style="position: relative; height: 180px; margin: 10px 0;">' +
-          '<canvas id="analyst_recs_donut_canvas"></canvas>' +
-        '</div>' +
-        '<div id="analystRecsLegend" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; font-size: 10px; text-align: center; margin-top: 6px;">' +
-          // Legende wird dynamisch befüllt
-        '</div>' +
-      '</div>';
-
-    renderEpsChart(epsEstimates);
-    renderRecsDonut(recommendations);
-  }
-
-  function renderEpsChart(epsEstimates) {
-    if (!epsEstimates || epsEstimates.length === 0) return;
-
-    const sorted = epsEstimates.slice(-6); // Letzte 6 Quartale
-    const labels = sorted.map(function (item) {
-      const p = (item.date || "").split("-");
-      return p.length >= 2 ? (p[1] + "/" + p[0].slice(2)) : item.date;
+      html += `<tr>
+        <td>${date}</td>
+        <td><strong>${firm}</strong></td>
+        <td><span class="analyst-badge ${badgeClass}">${toGrade}</span></td>
+        <td>${action}</td>
+      </tr>`;
     });
 
-    const estData = sorted.map(function (item) { return item.epsEstimate != null ? Number(item.epsEstimate) : null; });
-    const repData = sorted.map(function (item) { return item.reportedEps != null ? Number(item.reportedEps) : null; });
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
 
-    window.StockCharts.renderBarChart(
-      "analyst_eps_chart_canvas",
-      labels,
-      [
-        { label: "Schätzung", data: estData, color: window.StockCharts.PALETTE.blue },
-        { label: "Tatsächlich", data: repData, color: window.StockCharts.PALETTE.green }
-      ],
-      "multiple"
-    );
-  }
+    // Konsens-Zusammenfassung rendern
+    if (summaryContainer) {
+      const total = buyCount + holdCount + sellCount;
+      if (total > 0) {
+        let consensusText = "Halten";
+        let consensusClass = "text-yellow";
 
-  function renderRecsDonut(recommendations) {
-    const cur = recommendations.currentMonth || {};
-    const sBuy = Number(cur.strongBuy || 0);
-    const buy = Number(cur.buy || 0);
-    const hold = Number(cur.hold || 0);
-    const sell = Number(cur.sell || 0);
-    const sSell = Number(cur.strongSell || 0);
-    const total = sBuy + buy + hold + sell + sSell;
+        if (buyCount > holdCount && buyCount > sellCount) {
+          consensusText = "Kaufen (Buy)";
+          consensusClass = "text-green";
+        } else if (sellCount > buyCount && sellCount > holdCount) {
+          consensusText = "Verkaufen (Sell)";
+          consensusClass = "text-red";
+        }
 
-    const data = [sBuy, buy, hold, sell, sSell];
-    const labels = ["Strong Buy", "Buy", "Hold", "Sell", "Strong Sell"];
-    const colors = [
-      window.StockCharts.PALETTE.green,
-      "#3fb950",
-      window.StockCharts.PALETTE.yellow,
-      window.StockCharts.PALETTE.orange,
-      window.StockCharts.PALETTE.red
-    ];
-
-    window.StockCharts.renderDonutChart(
-      "analyst_recs_donut_canvas",
-      labels,
-      data,
-      colors,
-      total > 0 ? String(total) : "-"
-    );
-
-    const legendContainer = document.getElementById("analystRecsLegend");
-    if (legendContainer && total > 0) {
-      legendContainer.innerHTML = labels.map(function (lbl, idx) {
-        const cnt = data[idx];
-        const pct = ((cnt / total) * 100).toFixed(0);
-        return (
-          '<div style="background-color: var(--bg-chip); padding: 4px 2px; border-radius: 4px; border-top: 2px solid ' + colors[idx] + ';">' +
-            '<div style="color: var(--text-muted); font-size: 9px;">' + lbl + '</div>' +
-            '<div style="font-weight: 700; color: var(--text-main); margin-top: 2px;">' + cnt + '</div>' +
-            '<div style="font-size: 9px; color: var(--text-muted);">' + pct + '%</div>' +
-          '</div>'
-        );
-      }).join("");
+        summaryContainer.innerHTML = `
+          <div class="analyst-summary-card">
+            <h4>Analysten-Konsens: <span class="${consensusClass}">${consensusText}</span></h4>
+            <div class="analyst-bar-wrapper">
+              <span class="bar-part bg-green" style="width: ${(buyCount / total) * 100}%" title="Kaufen: ${buyCount}"></span>
+              <span class="bar-part bg-yellow" style="width: ${(holdCount / total) * 100}%" title="Halten: ${holdCount}"></span>
+              <span class="bar-part bg-red" style="width: ${(sellCount / total) * 100}%" title="Verkaufen: ${sellCount}"></span>
+            </div>
+            <div class="analyst-legend">
+              <span class="legend-item"><span class="dot bg-green"></span> Kaufen: ${buyCount}</span>
+              <span class="legend-item"><span class="dot bg-yellow"></span> Halten: ${holdCount}</span>
+              <span class="legend-item"><span class="dot bg-red"></span> Verkaufen: ${sellCount}</span>
+            </div>
+          </div>
+        `;
+      }
     }
   }
 
-  window.StockAnalyst = {
-    render: render
+  async function init() {
+    let stock = window.StockDataHandler ? window.StockDataHandler.getCurrentStock() : null;
+    if (!stock && window.StockDataHandler) {
+      stock = await window.StockDataHandler.initCurrentStock();
+    }
+    if (!stock) return;
+
+    renderRecommendations(stock.recommendations);
+  }
+
+  return {
+    init
   };
 })();
+
+// DOM-Ready Hook
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("analyst-recommendations-list")) {
+    StockAnalyst.init();
+  }
+});
+
+// Global verfügbar machen
+window.StockAnalyst = StockAnalyst;
