@@ -2,50 +2,39 @@ name: Update Financial Data
 
 on:
   schedule:
-    # Ausführung jeden Samstag um 03:00 UTC zur vollständigen Wochenaktualisierung
-    - cron: '0 3 * * 6'
-  workflow_dispatch:
+    # Jeden Tag um 06:00 UTC ausführen
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Manuelles Ausführen ermöglichen
 
 permissions:
   contents: write
 
 jobs:
-  refresh-data:
+  update-data:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Quellcode auschecken
+      - name: Repository auschecken
         uses: actions/checkout@v4
 
-      - name: Python 3.11 konfigurieren
+      - name: Python einrichten
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Pakete installieren
+      - name: Abhängigkeiten installieren
         run: |
           python -m pip install --upgrade pip
-          pip install yfinance pandas
+          pip install -r requirements.txt
 
-      - name: Marktübersicht aktualisieren
+      - name: Finanzdaten aktualisieren
         run: |
           python scripts/fetch_stocks.py
 
-      - name: Detaillierte Finanzberichte und Kennzahlen aktualisieren
+      - name: Änderungen committen und pushen
         run: |
-          python scripts/fetch_stock_details.py
-
-      - name: Datensätze committen und synchronisieren
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add data/
-          
-          if git diff --staged --quiet; then
-            echo "Keine Änderungen an den JSON-Daten festgestellt. Kein Push erforderlich."
-          else
-            git commit -m "chore(data): wöchentliche Aktualisierung der Finanzkennzahlen [skip ci]"
-            git push
-          fi
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Automatisches Update der Finanzdaten [skip ci]" && git pull --rebase && git push)
