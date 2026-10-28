@@ -1,116 +1,145 @@
 /**
  * Daten-Layer: Verwaltet das Laden, Cachen und Bereitstellen der Aktiendaten.
- * 
- * Strategie:
- * 1. Prüft localStorage auf bestehende Daten.
- * 2. Versucht beim Start, frische Daten von raw.githubusercontent.com zu laden.
- * 3. Fällt bei Verbindungsabbruch oder Erststart transparent auf window.STOCK_DATA zurück.
+ * Unterstützt window.Data (für index.html) und window.App.DataService.
  */
 
 window.App = window.App || {};
 
-(function(App) {
+(function () {
   'use strict';
 
   var STORAGE_KEY = 'stockscreener_data_cache';
-  var GITHUB_REPO_PATH = 'spamispam018-lab/spamispam018-lab.github.io/main/data/stocks.json';
+  var GITHUB_RAW_URL = 'https://raw.githubusercontent.com/spamispam018-lab/spamispam018-lab.github.io/main/data/stocks.json';
+  var LOCAL_DATA_PATH = 'data/stocks.json';
 
   var DataService = {
     currentData: null,
 
     /**
-     * Konfiguriert das Ziel-Repository für den Live-Abruf
+     * Ermittelt statische Daten aus dem Fallback-Skript
      */
-    setRepoPath: function(userRepoBranchPath) {
-      if (userRepoBranchPath) {
-        GITHUB_REPO_PATH = userRepoBranchPath;
+    getFallbackList: function () {
+      if (window.STOCK_DATA && Array.isArray(window.STOCK_DATA.stocks)) {
+        return window.STOCK_DATA.stocks;
       }
+      if (window.FALLBACK_DATA && Array.isArray(window.FALLBACK_DATA.stocks)) {
+        return window.FALLBACK_DATA.stocks;
+      }
+      if (Array.isArray(window.STOCK_DATA)) {
+        return window.STOCK_DATA;
+      }
+      if (Array.isArray(window.FALLBACK_DATA)) {
+        return window.FALLBACK_DATA;
+      }
+      return [];
     },
 
     /**
-     * Lädt die Daten mit mehrstufigem Fallback-Verfahren
-     * @returns {Promise<Object>}
+     * Hauptladefunktion
+     * @param {boolean} forceRefresh
+     * @returns {Promise<Array>}
      */
-    loadStocks: function() {
+    fetchStocks: function (forceRefresh) {
       var self = this;
 
-      return new Promise(function(resolve) {
-        // 1. Zunächst gecachte Daten aus localStorage prüfen
-        var cachedRaw = null;
-        try {
-          cachedRaw = localStorage.getItem(STORAGE_KEY);
-        } catch (e) {
-          console.warn('localStorage Zugriff fehlgeschlagen:', e);
-        }
-
-        if (cachedRaw) {
+      return new Promise(function (resolve) {
+        // 1. Aus localStorage lesen (sofern nicht forceRefresh)
+        if (!forceRefresh) {
           try {
-            var parsed = JSON.parse(cachedRaw);
-            if (parsed && parsed.stocks && parsed.stocks.length > 0) {
-              self.currentData = parsed;
+            var cached = localStorage.getItem(STORAGE_KEY);
+            if (cached) {
+              var parsed = JSON.parse(cached);
+              var cachedStocks = parsed.stocks || (Array.isArray(parsed) ? parsed : null);
+              if (cachedStocks && cachedStocks.length > 0) {
+                self.currentData = { stocks: cachedStocks };
+                return resolve(cachedStocks);
+              }
             }
           } catch (e) {
-            console.error('Cache-Parsing fehlgeschlagen:', e);
+            console.warn('Cache-Lesefehler:', e);
           }
         }
 
-        // 2. Falls noch keine Daten vorhanden, window.STOCK_DATA (Fallback-Datei) nutzen
-        if (!self.currentData && window.STOCK_DATA && window.STOCK_DATA.stocks) {
-          self.currentData = window.STOCK_DATA;
-        }
+        // 2. Netzwerk-Abruf: Erst lokaler Pfad (relativ), dann GitHub Raw
+        var tryFetch = function (url) {
+          return fetch(url + '?t=' + Date.now()).then(function (res) {
+            if (!res.ok) throw new Error('Status ' + res.status);
+            return res.json();
+          });
+        };
 
-        // 3. Online-Abruf via GitHub Raw (unterstützt CORS auch unter file:// und Pages)
-        var onlineUrl = 'https://raw.githubusercontent.com/' + GITHUB_REPO_PATH + '?t=' + Date.now();
-
-        fetch(onlineUrl)
-          .then(function(response) {
-            if (!response.ok) {
-              throw new Error('Netzwerk-Antwort war nicht OK: ' + response.status);
-            }
-            return response.json();
+        tryFetch(LOCAL_DATA_PATH)
+          .catch(function () {
+            return tryFetch(GITHUB_RAW_URL);
           })
-          .then(function(remoteData) {
-            if (remoteData && remoteData.stocks && remoteData.stocks.length > 0) {
-              self.currentData = remoteData;
+          .then(function (data) {
+            var stocks = (data && data.stocks) ? data.stocks : (Array.isArray(data) ? data : []);
+            if (stocks.length > 0) {
+              self.currentData = { stocks: stocks, lastUpdated: (data && data.lastUpdated) || new Date().toISOString() };
               try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(remoteData));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(self.currentData));
               } catch (e) {
-                console.warn('Speichern in localStorage fehlgeschlagen:', e);
+                console.warn('Cache-Schreibfehler:', e);
               }
-              resolve(self.currentData);
+              resolve(stocks);
             } else {
-              resolve(self.getSafeData());
+              resolve(self.getSafeStocks());
             }
           })
-          .catch(function(err) {
-            console.info('Offline-Modus aktiv oder GitHub nicht erreichbar:', err.message);
-            resolve(self.getSafeData());
+          .catch(function (err) {
+            console.warn('Netzwerkabruf fehlgeschlagen, nutze Fallback-Daten:', err.message);
+            resolve(self.getSafeStocks());
           });
       });
     },
 
     /**
-     * Gibt verlässlich ein Datenobjekt zurück
+     * loadStocks für Kompatibilität mit bestehenden Ansichten
      */
-    getSafeData: function() {
-      if (this.currentData && this.currentData.stocks) {
-        return this.currentData;
-      }
-      if (window.STOCK_DATA && window.STOCK_DATA.stocks) {
-        this.currentData = window.STOCK_DATA;
-        return this.currentData;
-      }
-      return { lastUpdated: new Date().toISOString(), currency: 'EUR', stocks: [] };
+    loadStocks: function (forceRefresh) {
+      var self = this;
+      return this.fetchStocks(forceRefresh).then(function (stocks) {
+        return self.getSafeData();
+      });
     },
 
     /**
-     * Sucht eine Aktie anhand ihres Tickers
+     * Liefert garantiert eine Liste von Aktienobjekten
      */
-    getStockByTicker: function(ticker) {
-      var data = this.getSafeData();
-      var list = data.stocks || [];
+    getSafeStocks: function () {
+      if (this.currentData && Array.isArray(this.currentData.stocks) && this.currentData.stocks.length > 0) {
+        return this.currentData.stocks;
+      }
+      var fallback = this.getFallbackList();
+      if (fallback.length > 0) {
+        this.currentData = { stocks: fallback };
+        return fallback;
+      }
+      return [];
+    },
+
+    /**
+     * Liefert das Gesamtobjekt inkl. Metadaten
+     */
+    getSafeData: function () {
+      var stocks = this.getSafeStocks();
+      return {
+        lastUpdated: (this.currentData && this.currentData.lastUpdated) || new Date().toISOString(),
+        currency: (this.currentData && this.currentData.currency) || 'EUR',
+        stocks: stocks
+      };
+    },
+
+    /**
+     * Sucht eine Aktie anhand ihres Symbols / Tickers
+     */
+    getStockByTicker: function (ticker) {
+      if (!ticker) return null;
+      var clean = ticker.trim().toUpperCase();
+      var list = this.getSafeStocks();
       for (var i = 0; i < list.length; i++) {
-        if (list[i].ticker === ticker) {
+        var sym = (list[i].ticker || list[i].symbol || '').toUpperCase();
+        if (sym === clean) {
           return list[i];
         }
       }
@@ -118,13 +147,13 @@ window.App = window.App || {};
     },
 
     /**
-     * Liefert alle einzigartigen Branchen/Sektoren für die Filterauswahl
+     * Eindeutige Sektoren
      */
-    getSectors: function() {
-      var data = this.getSafeData();
+    getSectors: function () {
+      var list = this.getSafeStocks();
       var map = {};
       var sectors = [];
-      (data.stocks || []).forEach(function(s) {
+      list.forEach(function (s) {
         if (s.sector && !map[s.sector]) {
           map[s.sector] = true;
           sectors.push(s.sector);
@@ -134,13 +163,13 @@ window.App = window.App || {};
     },
 
     /**
-     * Liefert alle Länder für die Filterauswahl
+     * Eindeutige Länder
      */
-    getCountries: function() {
-      var data = this.getSafeData();
+    getCountries: function () {
+      var list = this.getSafeStocks();
       var map = {};
       var countries = [];
-      (data.stocks || []).forEach(function(s) {
+      list.forEach(function (s) {
         if (s.country && !map[s.country]) {
           map[s.country] = true;
           countries.push(s.country);
@@ -150,5 +179,7 @@ window.App = window.App || {};
     }
   };
 
-  App.DataService = DataService;
-})(window.App);
+  // Bereitstellung für beide Zugriffsmuster
+  window.Data = DataService;
+  window.App.DataService = DataService;
+})();
