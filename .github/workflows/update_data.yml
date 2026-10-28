@@ -2,9 +2,9 @@ name: Tägliches Marktdaten-Update
 
 on:
   schedule:
-    # Läuft börsentäglich (Montag bis Freitag) um 22:30 UTC nach US-Börsenschluss
+    # Börsentäglich um 22:30 UTC
     - cron: '30 22 * * 1-5'
-  workflow_dispatch: # Ermöglicht manuelles Starten über die GitHub-Weboberfläche
+  workflow_dispatch:
 
 jobs:
   update-market-data:
@@ -20,7 +20,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
 
       - name: Abhängigkeiten installieren
         run: |
