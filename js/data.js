@@ -1,80 +1,77 @@
-/**
- * Zentraler Datenservice für die Datenabfrage mit Pfaderkennung
- */
-const DataService = (function () {
-  let cachedStocks = null;
+// js/data.js - Daten-Lade- und Verarbeitungslogik
 
-  // Bestimmt den relativen Datenpfad anhand des aktuellen Pfads
-  function getDataBasePath() {
-    const pathname = window.location.pathname;
-    // Wenn wir uns im Unterordner Views befinden
-    if (pathname.includes("/Views/") || pathname.includes("/views/")) {
-      return "../data/";
-    }
-    return "data/";
-  }
+const DataService = {
+  stocks: [],
+  detailsCache: {},
 
-  async function loadStocks() {
-    if (cachedStocks && cachedStocks.length > 0) {
-      return cachedStocks;
-    }
+  /**
+   * Lädt die Haupt-Aktiendaten. Versucht zuerst die JSON-Datei,
+   * fällt bei Fehlern (z. B. 404 auf GitHub Pages) auf FALLBACK_STOCKS zurück.
+   */
+  async loadStocks() {
+    try {
+      // Relative Pfad-Absicherung für GitHub Pages
+      const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+      const url = new URL('data/stocks.json', window.location.origin + basePath).href;
 
-    const basePath = getDataBasePath();
-    const urlsToTry = [
-      `${basePath}stocks.json`,
-      `${basePath}stocks-summary.json`,
-      `${basePath}stocks_overview.json`
-    ];
-
-    for (const url of urlsToTry) {
-      try {
-        const response = await fetch(url);
-        if (response.ok) {
-          const data = await response.json();
-          const list = Array.isArray(data) ? data : (data.stocks || data.data || []);
-          if (list.length > 0) {
-            cachedStocks = list;
-            return cachedStocks;
-          }
-        }
-      } catch (err) {
-        // Nächste URL probieren
+      const response = await fetch(url, { cache: 'no-cache' });
+      if (!response.ok) {
+        throw new Error(`HTTP-Fehler beim Laden der Marktdaten: ${response.status}`);
+      }
+      const data = await response.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        throw new Error('Empfangene Daten sind leer oder ungültig');
+      }
+      this.stocks = data;
+      console.log(`Erfolgreich ${this.stocks.length} Titel geladen.`);
+    } catch (err) {
+      console.warn('Fehler beim Laden von stocks.json. Verwende Fallback-Daten:', err);
+      if (typeof FALLBACK_STOCKS !== 'undefined' && Array.isArray(FALLBACK_STOCKS)) {
+        this.stocks = FALLBACK_STOCKS;
+      } else {
+        this.stocks = [];
+        console.error('Keine Fallback-Daten verfügbar (FALLBACK_STOCKS nicht definiert).');
       }
     }
+    return this.stocks;
+  },
 
-    // Wenn GitHub Actions noch keine Daten generiert hat: Fallback nutzen
-    if (typeof window.FALLBACK_STOCKS !== "undefined" && Array.isArray(window.FALLBACK_STOCKS)) {
-      console.warn("Nutze Fallback-Aktienbestand.");
-      cachedStocks = window.FALLBACK_STOCKS;
-      return cachedStocks;
+  /**
+   * Lädt Detaildaten für ein bestimmtes Symbol.
+   */
+  async loadStockDetails(ticker) {
+    if (!ticker) return null;
+    const cleanTicker = ticker.toUpperCase().trim();
+
+    if (this.detailsCache[cleanTicker]) {
+      return this.detailsCache[cleanTicker];
     }
-
-    return [];
-  }
-
-  async function loadStockDetails(symbol) {
-    if (!symbol) return null;
-    const cleanSym = symbol.toUpperCase();
-    const basePath = getDataBasePath();
 
     try {
-      const response = await fetch(`${basePath}details/${cleanSym}.json`);
-      if (response.ok) {
-        return await response.json();
+      const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+      const url = new URL(`data/details/${cleanTicker}.json`, window.location.origin + basePath).href;
+
+      const response = await fetch(url, { cache: 'no-cache' });
+      if (!response.ok) {
+        throw new Error(`Detaildaten für ${cleanTicker} nicht gefunden (${response.status})`);
       }
-    } catch (e) {
-      // Fallback
+      const data = await response.json();
+      this.detailsCache[cleanTicker] = data;
+      return data;
+    } catch (err) {
+      console.warn(`Fehler beim Laden der Details für ${cleanTicker}. Prüfe Fallback...`, err);
+      if (typeof FALLBACK_DETAILS !== 'undefined' && FALLBACK_DETAILS[cleanTicker]) {
+        return FALLBACK_DETAILS[cleanTicker];
+      }
+      // Minimaler Fallback aus Basis-Aktienliste
+      const baseStock = this.stocks.find(s => s.symbol === cleanTicker);
+      return baseStock || null;
     }
+  },
 
-    const all = await loadStocks();
-    return all.find(s => s.symbol && s.symbol.toUpperCase() === cleanSym) || null;
+  getAllStocks() {
+    return this.stocks;
   }
-
-  return {
-    loadStocks,
-    loadStockDetails,
-    getDataBasePath
-  };
-})();
+};
 
 window.DataService = DataService;
