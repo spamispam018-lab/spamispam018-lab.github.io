@@ -1,13 +1,14 @@
 /**
- * Zentraler Datenservice zum Laden von Bestandsdaten und Fallbacks
+ * Zentraler Datenservice für die Datenabfrage mit Pfaderkennung
  */
 const DataService = (function () {
   let cachedStocks = null;
 
-  // Ermittelt den relativen Pfad zum /data/-Ordner abhängig von der URL
+  // Bestimmt den relativen Datenpfad anhand des aktuellen Pfads
   function getDataBasePath() {
-    const path = window.location.pathname.toLowerCase();
-    if (path.includes("/views/")) {
+    const pathname = window.location.pathname;
+    // Wenn wir uns im Unterordner Views befinden
+    if (pathname.includes("/Views/") || pathname.includes("/views/")) {
       return "../data/";
     }
     return "data/";
@@ -19,13 +20,13 @@ const DataService = (function () {
     }
 
     const basePath = getDataBasePath();
-    const possibleUrls = [
+    const urlsToTry = [
       `${basePath}stocks.json`,
       `${basePath}stocks-summary.json`,
       `${basePath}stocks_overview.json`
     ];
 
-    for (const url of possibleUrls) {
+    for (const url of urlsToTry) {
       try {
         const response = await fetch(url);
         if (response.ok) {
@@ -36,14 +37,14 @@ const DataService = (function () {
             return cachedStocks;
           }
         }
-      } catch (e) {
-        // Nächsten Pfad versuchen
+      } catch (err) {
+        // Nächste URL probieren
       }
     }
 
-    // Fallback nutzen, falls Fetch fehlschlägt oder Dateien noch nicht generiert wurden
+    // Wenn GitHub Actions noch keine Daten generiert hat: Fallback nutzen
     if (typeof window.FALLBACK_STOCKS !== "undefined" && Array.isArray(window.FALLBACK_STOCKS)) {
-      console.warn("Nutze Offline-/Fallback-Aktienbestand.");
+      console.warn("Nutze Fallback-Aktienbestand.");
       cachedStocks = window.FALLBACK_STOCKS;
       return cachedStocks;
     }
@@ -62,13 +63,11 @@ const DataService = (function () {
         return await response.json();
       }
     } catch (e) {
-      // Weiter zum Fallback
+      // Fallback
     }
 
-    // Detail-Fallback aus dem Hauptdatenbestand rekonstruieren
     const all = await loadStocks();
-    const found = all.find(s => s.symbol && s.symbol.toUpperCase() === cleanSym);
-    return found || null;
+    return all.find(s => s.symbol && s.symbol.toUpperCase() === cleanSym) || null;
   }
 
   return {
