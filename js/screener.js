@@ -82,9 +82,9 @@ window.App.Screener = (function () {
     if (peEl) peEl.textContent = avgPe > 0 ? window.App.Format.number(avgPe, 1) : '—';
 
     // Durchschnitts-Dividendenrendite berechnen
-    var divValues = stocks.filter(function (s) { return s.dividendYield && s.dividendYield > 0 && s.dividendYield < 0.25; });
+    var divValues = stocks.filter(function (s) { return s.dividendYield && s.dividendYield > 0 && s.dividendYield < 25; });
     var avgYield = divValues.length > 0
-      ? (divValues.reduce(function (sum, s) { return sum + s.dividendYield; }, 0) / divValues.length) * 100
+      ? (divValues.reduce(function (sum, s) { return sum + s.dividendYield; }, 0) / divValues.length)
       : 0;
     if (yieldEl) yieldEl.textContent = avgYield > 0 ? window.App.Format.number(avgYield, 1) + ' %' : '—';
   }
@@ -108,7 +108,7 @@ window.App.Screener = (function () {
 
     // 2. Preset Filter
     if (currentPreset === 'high_dividend') {
-      list = list.filter(function (s) { return (s.dividendYield || 0) >= 0.03; });
+      list = list.filter(function (s) { return (s.dividendYield || 0) >= 3; });
     } else if (currentPreset === 'value') {
       list = list.filter(function (s) { return s.pe && s.pe > 0 && s.pe <= 18; });
     } else if (currentPreset === 'growth') {
