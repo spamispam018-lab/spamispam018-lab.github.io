@@ -393,6 +393,7 @@ def run_delta_sync(tickers):
         u_item["pe"] = ratios.get("peTrailing")
         u_item["dividendYield"] = ratios.get("dividendYield")
         u_item["revGrowth"] = ratios.get("revenueGrowth")
+        u_item["profitMargins"] = ratios.get("profitMargins")
 
         hist = stock_data.get("chartHistory", [])
         if len(hist) > 20 and hist[0].get("close"):
@@ -438,6 +439,7 @@ def main():
                     "pe": st["ratios"]["peTrailing"],
                     "dividendYield": st["ratios"]["dividendYield"],
                     "revGrowth": st["ratios"].get("revenueGrowth"),
+                    "profitMargins": st["ratios"].get("profitMargins"),
                     "perf52w": (round(((st["chartHistory"][-1]["close"] - st["chartHistory"][0]["close"]) / st["chartHistory"][0]["close"]) * 100, 2)
                                 if len(st.get("chartHistory", [])) > 20 and st["chartHistory"][0].get("close") else None)
                 })
