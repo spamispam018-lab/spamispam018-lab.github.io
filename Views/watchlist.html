@@ -2,44 +2,76 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Watchlist | Deine beobachteten Aktien</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Watchlist | Deine beobachteten Werte</title>
   <link rel="stylesheet" href="../css/styles.css">
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans antialiased">
-  <!-- Hauptnavigation -->
-  <header class="navbar">
-    <div class="container nav-container">
-      <a href="../index.html" class="nav-brand">Aktien-Hub</a>
-      <nav class="nav-links">
-        <a href="../index.html" class="nav-link">Übersicht</a>
-        <a href="screener.html" class="nav-link">Screener</a>
-        <a href="watchlist.html" class="nav-link active">Watchlist</a>
-      </nav>
-    </div>
-  </header>
-
-  <main class="container py-8">
-    <div class="page-header mb-6">
-      <h1 class="text-2xl font-bold">Deine Watchlist</h1>
-      <p class="text-muted">Behalte deine favorisierten Unternehmen, Kurse und Tagesentwicklungen im Blick.</p>
-    </div>
-
-    <!-- Watchlist Container -->
-    <div class="card">
-      <div id="watchlist-container">
-        <p class="text-center py-6 text-muted">Lade Watchlist...</p>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="top-header">
+      <div>
+        <h1 class="app-title">Watchlist</h1>
+        <p class="app-subtitle" id="watchlist-subtitle">Gespeicherte Favoriten</p>
       </div>
-    </div>
-  </main>
+      <a href="screener.html" class="icon-button" aria-label="Zurück zum Screener">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </a>
+    </header>
 
-  <footer class="footer py-6 text-center text-sm text-muted">
-    <div class="container">
-      <p>&copy; Aktien-Analyse Dashboard &bull; Gespeichert lokal in deinem Browser.</p>
-    </div>
-  </footer>
+    <!-- Hero Card (Watchlist Summary) -->
+    <section class="hero-card">
+      <span class="hero-label">Persönliche Auswahl</span>
+      <div class="hero-main-stat" id="watchlist-count-title">0 Titel</div>
+      <div class="hero-grid">
+        <div>
+          <span class="hero-sub-label">Ø Performance</span>
+          <div class="hero-sub-val" id="watchlist-avg-perf">-</div>
+        </div>
+        <div>
+          <span class="hero-sub-label">Bester Wert</span>
+          <div class="hero-sub-val" id="watchlist-top-performer">-</div>
+        </div>
+        <div>
+          <span class="hero-sub-label">Schwächster</span>
+          <div class="hero-sub-val" id="watchlist-worst-performer">-</div>
+        </div>
+      </div>
+    </section>
 
-  <!-- Daten & Services -->
+    <!-- Meta-Zeile -->
+    <div class="list-meta-bar">
+      <span class="results-count" id="watchlist-results-count">Lade Favoriten...</span>
+    </div>
+
+    <!-- Liste der Watchlist-Karten -->
+    <main>
+      <div id="watchlist-container" class="stock-list">
+        <div class="loading-box">Lade Watchlist...</div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <a href="screener.html" class="bottom-nav-item">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+      </svg>
+      <span>Screener</span>
+    </a>
+    <a href="watchlist.html" class="bottom-nav-item active">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      </svg>
+      <span>Watchlist</span>
+    </a>
+  </nav>
+
+  <!-- Skripte -->
   <script src="../data/fallback-data.js"></script>
   <script src="../js/data.js"></script>
   <script src="../js/stock-data.js"></script>
