@@ -259,7 +259,7 @@ window.App.StockChart = (function () {
     var signalRows = signals.map(function (s) {
       return '<div class="chart-signal-row">' +
         '<span class="chart-dot" style="background:' + COLORS[s.state] + ';"></span>' +
-        '<div class="chart-signal-text"><div class="chart-signal-label">' + s.label + '</div>' +
+        '<div class="chart-signal-text"><div class="chart-signal-label">' + termLink(s.label) + '</div>' +
         '<div class="chart-signal-value">' + s.text + '</div></div>' +
       '</div>';
     }).join('');
@@ -387,6 +387,7 @@ window.App.StockChart = (function () {
       '</div>';
 
     container.innerHTML = html;
+    bindTerms(container);
 
     // ---- Charts zeichnen ----
     var labels = dates.map(shortLabel);
@@ -481,10 +482,78 @@ window.App.StockChart = (function () {
     return { plus: plus, minus: minus };
   }
 
+  /** Glossar: kurze, neutrale Erklärungen zu Kürzeln und Kennzahlen. */
+  var GLOSSARY = {
+    KGV: { name: 'KGV (Kurs-Gewinn-Verhältnis)', text: 'Der Aktienkurs geteilt durch den Gewinn je Aktie der letzten zwölf Monate. Er zeigt, wie viele Jahresgewinne du für den Kurs zahlst. Vergleiche nur innerhalb einer Branche.' },
+    PEG: { name: 'PEG', text: 'Das KGV geteilt durch das erwartete Gewinnwachstum. Als Faustregel gilt: Unter 1 ist der Preis im Verhältnis zum Wachstum niedrig, über 2 ist er hoch.' },
+    Gewinnmarge: { name: 'Gewinnmarge', text: 'Der Anteil des Gewinns am Umsatz in Prozent. 20 % bedeutet: Von jedem Euro Umsatz bleiben 20 Cent als Gewinn.' },
+    Verschuldung: { name: 'Verschuldung (Debt/Equity)', text: 'Das Fremdkapital im Verhältnis zum Eigenkapital in Prozent. Hohe Werte bedeuten, dass das Unternehmen im Verhältnis zu seinem Eigenkapital viele Schulden hat.' },
+    Umsatzwachstum: { name: 'Umsatzwachstum', text: 'Die prozentuale Veränderung des Umsatzes gegenüber dem Vorjahr.' },
+    Verlust: { name: 'Verlust', text: 'Das Unternehmen hat im letzten Jahr mehr ausgegeben als eingenommen. Die Gewinnmarge ist dann negativ, und ein KGV lässt sich nicht bilden.' },
+    Spanne: { name: '52-Wochen-Spanne', text: 'Die Kursspanne zwischen dem tiefsten und dem höchsten Kurs der letzten zwölf Monate. Der Balken zeigt, wo der aktuelle Kurs darin liegt.' },
+    SMA: { name: 'SMA (gleitender Durchschnitt)', text: 'Der Durchschnittskurs der letzten 50 bzw. 200 Handelstage. Liegt der Kurs darüber, gilt das als Hinweis auf einen Aufwärtstrend, darunter auf einen Abwärtstrend.' },
+    Cross: { name: 'Golden Cross / Death Cross', text: 'Golden Cross: Die 50-Tage-Linie kreuzt die 200-Tage-Linie von unten nach oben. Death Cross: Die Kreuzung verläuft umgekehrt. Beides gilt als Trendhinweis, keine Prognose.' },
+    RSI: { name: 'RSI (14)', text: 'Der Relative Strength Index misst, wie stark der Kurs in den letzten 14 Tagen gestiegen oder gefallen ist. Die Skala reicht von 0 bis 100. Über 70 gilt als überkauft, unter 30 als überverkauft.' },
+    MACD: { name: 'MACD', text: 'Die Differenz zweier gleitender Durchschnitte (12 und 26 Tage). Liegt die MACD-Linie über der Signallinie, ist der kurzfristige Trend nach oben gerichtet.' },
+    Momentum: { name: 'Momentum (3 Monate)', text: 'Die prozentuale Kursveränderung der letzten rund drei Monate, also etwa 63 Handelstage.' },
+    Volatilität: { name: 'Volatilität', text: 'Wie stark der Kurs schwankt, aufs Jahr hochgerechnet. Höhere Werte bedeuten größere Ausschläge in beide Richtungen.' },
+    Drawdown: { name: 'Maximaler Drawdown', text: 'Der größte Rückgang vom zwischenzeitlichen Hoch bis zum folgenden Tief innerhalb des Jahres.' },
+    Volumen: { name: 'Volumentrend', text: 'Vergleicht das durchschnittliche Handelsvolumen der letzten 20 Tage mit dem der letzten 60 Tage. Ein positiver Wert bedeutet mehr Handel als sonst.' },
+    Support: { name: 'Unterstützung und Widerstand', text: 'Unterstützung ist der tiefste, Widerstand der höchste Kurs der letzten drei Monate. An diesen Marken hat der Kurs in der Vergangenheit gedreht.' }
+  };
+
+  var TERM_RULES = [
+    [/^KGV/, 'KGV'], [/PEG/, 'PEG'], [/Gewinnmarge/, 'Gewinnmarge'], [/Verschuldung/, 'Verschuldung'],
+    [/Umsatz/, 'Umsatzwachstum'], [/Verlust/, 'Verlust'], [/Jahrestief|Spanne/, 'Spanne'],
+    [/RSI/, 'RSI'], [/MACD/, 'MACD'], [/Kreuz|Golden|Death|SMA 50 vs/, 'Cross'], [/SMA|Tage-Linie/, 'SMA'],
+    [/Momentum/, 'Momentum'], [/Volatilität/, 'Volatilität'], [/Drawdown/, 'Drawdown'], [/Volumen/, 'Volumen'],
+    [/Unterstützung|Widerstand/, 'Support']
+  ];
+
+  function termKeyFor(label) {
+    for (var i = 0; i < TERM_RULES.length; i++) {
+      if (TERM_RULES[i][0].test(label)) return TERM_RULES[i][1];
+    }
+    return null;
+  }
+
+  /** Beschriftung mit antippbarem Kürzel, falls ein Glossar-Eintrag existiert. */
+  function termLink(label) {
+    var key = termKeyFor(label);
+    if (!key || !GLOSSARY[key]) return label;
+    return '<span class="term-link" data-term="' + key + '" style="cursor: pointer; border-bottom: 1px dotted var(--text-dim);">' +
+      label + ' <span style="font-size: 0.7em; opacity: 0.6;">ⓘ</span></span>';
+  }
+
+  function bindTerms(container) {
+    if (container.__termBound) return;
+    container.__termBound = true;
+    container.addEventListener('click', function (ev) {
+      var link = ev.target && ev.target.closest ? ev.target.closest('.term-link') : null;
+      if (!link) return;
+      var key = link.getAttribute('data-term');
+      var card = link.closest('.card');
+      if (!card || !GLOSSARY[key]) return;
+      var box = container.querySelector('#term-info');
+      if (box && box.getAttribute('data-term') === key && box.previousElementSibling === card) {
+        box.parentNode.removeChild(box);
+        return;
+      }
+      if (!box) {
+        box = document.createElement('div');
+        box.id = 'term-info';
+      }
+      box.setAttribute('data-term', key);
+      box.setAttribute('style', 'margin: -6px 0 16px; padding: 12px 14px; border-radius: var(--radius-sm); background-color: var(--bg-secondary); border: 1px solid var(--border-subtle); font-size: 0.8rem; color: var(--text-main); line-height: 1.45;');
+      box.innerHTML = '<div style="font-weight: 700; margin-bottom: 4px;">' + GLOSSARY[key].name + '</div>' + GLOSSARY[key].text;
+      card.parentNode.insertBefore(box, card.nextSibling);
+    });
+  }
+
   function auffColHtml(items, emptyText) {
     if (!items.length) return '<div class="auff-empty" style="font-size: 0.72rem; color: var(--text-dim); margin-top: 8px;">' + emptyText + '</div>';
     return items.map(function (it) {
-      return '<div class="auff-item" style="margin-top: 8px;"><div class="auff-item-title" style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);">' + it.t + '</div>' +
+      return '<div class="auff-item" style="margin-top: 8px;"><div class="auff-item-title" style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);">' + termLink(it.t) + '</div>' +
         '<div class="auff-item-text" style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4; margin-top: 2px;">' + it.d + '</div></div>';
     }).join('');
   }
@@ -499,7 +568,7 @@ window.App.StockChart = (function () {
   }
 
   function metric(label, value) {
-    return '<div class="metric-cell"><span class="metric-label">' + label + '</span>' +
+    return '<div class="metric-cell"><span class="metric-label">' + termLink(label) + '</span>' +
       '<span class="metric-value">' + value + '</span></div>';
   }
 
