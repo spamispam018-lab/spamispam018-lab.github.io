@@ -6,7 +6,7 @@
  * - Inline-Chart mit Umschalt-Pillen (1M, 3M, 6M, 1J)
  * - Kompakte Insider-Aktivitätskarte mit Stimmungsbalken
  * - Quartalsweiser Finanztrend (Umsatz & Nettoergebnis)
- * - KI-Analyse Banner (öffnet Gemini mit generiertem Prompt)
+ * - KI-Analyse Banner (öffnet Gemini mit generiertem Prompt inkl. technischem Bild)
  */
 
 window.App = window.App || {};
@@ -155,14 +155,53 @@ window.App.StockOverview = (function () {
         var sChange = window.App.Format.number(currentStock.quote.changePercent, 2) + ' %';
         var sPe = (currentStock.ratios && currentStock.ratios.peTrailing) ? window.App.Format.number(currentStock.ratios.peTrailing, 1) : 'unbekannt';
 
-        // Dynamischer Prompt mit Ergänzung am Anfang
+        // Prompt aufbauen
         var promptText = "Hallo Gemini! Bitte prüfe zuerst meine Daten. Kannst du mir danach bitte erklären, warum sich der Aktienkurs von " + sName + " (" + sTicker + ") aktuell so verhält? " +
-                         "Der Kurs liegt bei " + sPrice + " mit einer heutigen Änderung von " + sChange + ". Das KGV beträgt " + sPe + ". " +
-                         "Bitte gib mir eine Bewertung der Aktie anhand dieser Daten und der aktuellen Marktlage.";
+                         "Der Kurs liegt bei " + sPrice + " mit einer heutigen Änderung von " + sChange + ". Das KGV beträgt " + sPe + ". ";
+
+        // Technisches Bild berechnen und hinzufügen
+        if (currentStock.chartHistory && currentStock.chartHistory.length > 60 && window.App.StockChart) {
+            var hist = currentStock.chartHistory.filter(function (p) { return p && p.close > 0; });
+            var closes = hist.map(function (p) { return p.close; });
+            var n = closes.length;
+            var cPrice = closes[n - 1];
+
+            var s50 = window.App.StockChart._sma(closes, 50);
+            var s200 = window.App.StockChart._sma(closes, 200);
+            var rsiArr = window.App.StockChart._rsi(closes, 14);
+            var m = window.App.StockChart._macd(closes);
+
+            function lastValid(arr) {
+                for (var i = arr.length - 1; i >= 0; i--) {
+                    if (arr[i] !== null && arr[i] !== undefined && isFinite(arr[i])) return arr[i];
+                }
+                return null;
+            }
+
+            var s50Last = lastValid(s50);
+            var s200Last = lastValid(s200);
+            var rsiLast = lastValid(rsiArr);
+            var macdLast = lastValid(m.line);
+            var sigLast = lastValid(m.signal);
+            var mom3m = n > 63 ? (cPrice / closes[n - 1 - 63] - 1) * 100 : null;
+
+            var techText = "Hier ist das aktuelle technische Bild: ";
+            if (s200Last !== null) techText += "Der Abstand zur 200-Tage-Linie beträgt " + window.App.Format.number((cPrice / s200Last - 1) * 100, 1) + " %. ";
+            if (s50Last !== null) techText += "Der Abstand zur 50-Tage-Linie beträgt " + window.App.Format.number((cPrice / s50Last - 1) * 100, 1) + " %. ";
+            if (rsiLast !== null) techText += "Der RSI (14) liegt bei " + window.App.Format.number(rsiLast, 0) + ". ";
+            if (macdLast !== null && sigLast !== null) {
+                techText += "Der MACD liegt " + (macdLast > sigLast ? "über" : "unter") + " der Signallinie. ";
+            }
+            if (mom3m !== null) techText += "Das Momentum auf 3 Monate liegt bei " + window.App.Format.number(mom3m, 1) + " %. ";
+
+            promptText += techText;
+        }
+
+        promptText += "Bitte gib mir eine Bewertung der Aktie anhand dieser fundamentalen und technischen Daten und der aktuellen Marktlage.";
         
         var geminiUrl = "https://gemini.google.com/app?q=" + encodeURIComponent(promptText);
         
-        // Text als Backup in die Zwischenablage kopieren (falls der URL-Parameter blockiert wird) und Tab öffnen
+        // Text als Backup in die Zwischenablage kopieren und Tab öffnen
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(promptText).then(function() {
                 window.open(geminiUrl, '_blank');
