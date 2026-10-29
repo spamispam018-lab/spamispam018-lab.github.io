@@ -178,6 +178,7 @@ window.App.StockChart = (function () {
     var dates = hist.map(function (p) { return p.date; });
     var n = closes.length;
     var price = closes[n - 1];
+    var auff = auffaelligkeiten(stock);
 
     var s50 = sma(closes, 50);
     var s200 = sma(closes, 200);
@@ -263,6 +264,18 @@ window.App.StockChart = (function () {
       '</div>';
     }).join('');
 
+    // ---- Chart-Erkenntnisse in die Auffälligkeiten übernehmen ----
+    // Bullische Signale links, bärische rechts; Extremwerte des RSI rechts.
+    signals.forEach(function (sg) {
+      if (sg.state === 'bull') auff.plus.push({ t: sg.label, d: sg.text });
+      else if (sg.state === 'bear') auff.minus.push({ t: sg.label, d: sg.text });
+    });
+    if (rsiLast !== null && rsiLast >= 70) {
+      auff.minus.push({ t: 'RSI überkauft', d: 'RSI bei ' + fmt(rsiLast, 0) + ': der Kurs ist kurzfristig stark gestiegen. Solche Stände gehen oft mit größeren Schwankungen einher.' });
+    } else if (rsiLast !== null && rsiLast <= 30) {
+      auff.minus.push({ t: 'RSI überverkauft', d: 'RSI bei ' + fmt(rsiLast, 0) + ': der Kurs ist kurzfristig stark gefallen.' });
+    }
+
     // ---- Risiko & Volumen ----
     var rets = [];
     for (var i = 1; i < n; i++) rets.push(closes[i] / closes[i - 1] - 1);
@@ -291,6 +304,25 @@ window.App.StockChart = (function () {
         '</div>' +
         '<div class="chart-signal-list">' + signalRows + '</div>' +
         '<div class="chart-note">' + bulls + ' von ' + rated + ' Signalen positiv. Reine Auswertung vergangener Kurse, keine Anlageberatung.</div>' +
+      '</div>' +
+
+      '<!-- Auffälligkeiten (neutral, ohne Kaufbezug) -->' +
+      '<div class="card">' +
+        '<div class="card-header-dotted">' +
+          '<span class="card-title">Auffälligkeiten</span>' +
+          '<span class="period-tag">Kennzahlen</span>' +
+        '</div>' +
+        '<div class="auff-grid">' +
+          '<div class="auff-col auff-col-plus">' +
+            '<div class="auff-col-head">Auffällig günstig / stark</div>' +
+            auffColHtml(auff.plus, 'Keine Auffälligkeit nach diesen Kriterien.') +
+          '</div>' +
+          '<div class="auff-col auff-col-minus">' +
+            '<div class="auff-col-head">Auffällig teuer / schwach</div>' +
+            auffColHtml(auff.minus, 'Keine Auffälligkeit nach diesen Kriterien.') +
+          '</div>' +
+        '</div>' +
+        '<div class="chart-note">Feste Regeln, keine Bewertung und keine Anlageberatung. Kennzahlen aus der Übersicht (Stand letzter Handelstag), technische Punkte aus dem Kursverlauf des letzten Jahres.</div>' +
       '</div>' +
 
       '<!-- Kurs + SMA -->' +
@@ -396,6 +428,65 @@ window.App.StockChart = (function () {
       refLines: [{ value: 0, color: 'rgba(255, 255, 255, 0.25)' }],
       formatY: function (v) { return fmt(v, Math.abs(v) < 10 ? 1 : 0); }
     });
+  }
+
+  /**
+   * Auffälligkeiten aus den bereits vorliegenden Kennzahlen (keine Neuberechnung).
+   * Links: auffällig günstig/stark, rechts: auffällig schwach/riskant. Feste Schwellen, keine Bewertung.
+   */
+  function has(x) { return x !== null && x !== undefined && isFinite(x); }
+
+  function auffaelligkeiten(stock) {
+    var r = stock.ratios || {};
+    var q = stock.quote || {};
+    var plus = [];
+    var minus = [];
+    var pe = r.peTrailing, peg = r.pegRatio, pm = r.profitMargins;
+    var de = r.debtToEquity, g = r.revenueGrowth;
+    var lo = q.fiftyTwoWeekLow, hi = q.fiftyTwoWeekHigh, px = q.price;
+    var rangePos = (has(lo) && has(hi) && has(px) && hi > lo) ? (px - lo) / (hi - lo) * 100 : null;
+
+    if (has(pe) && pe > 0 && pe < 12) {
+      plus.push({ t: 'KGV unter 12', d: 'Der Preis liegt beim ' + fmt(pe, 1) + '-fachen des letzten Jahresgewinns. Niedrige Werte sind branchenabhängig und sagen allein wenig.' });
+    }
+    if (has(peg) && peg > 0 && peg < 1) {
+      plus.push({ t: 'PEG unter 1', d: 'Das KGV ist im Verhältnis zum erwarteten Gewinnwachstum niedrig.' });
+    }
+    if (has(pm) && pm > 0.2) {
+      plus.push({ t: 'Gewinnmarge über 20 %', d: 'Vom Umsatz bleiben mehr als 20 Cent je Euro als Gewinn.' });
+    }
+    if (has(g) && g > 0.10) {
+      plus.push({ t: 'Umsatzwachstum über 10 %', d: 'Der Umsatz ist im letzten Jahr deutlich gewachsen.' });
+    }
+
+    if (has(pm) && pm < 0) {
+      minus.push({ t: 'Verlust', d: 'Die Gewinnmarge ist negativ, das Unternehmen macht aktuell Verlust.' });
+    }
+    if (has(de) && de > 150) {
+      minus.push({ t: 'Hohe Verschuldung', d: 'Die Schulden liegen über 150 % des Eigenkapitals, das erhöht das Risiko bei sinkenden Erträgen.' });
+    }
+    if (has(g) && g < 0) {
+      minus.push({ t: 'Umsatz schrumpft', d: 'Der Umsatz ist im letzten Jahr gesunken.' });
+    }
+    if (has(pe) && pe > 35) {
+      minus.push({ t: 'KGV über 35', d: 'Der Preis liegt beim ' + fmt(pe, 1) + '-fachen des letzten Jahresgewinns. Hohe Erwartungen sind eingepreist.' });
+    }
+    if (has(peg) && peg > 2) {
+      minus.push({ t: 'PEG über 2', d: 'Der Preis ist im Verhältnis zum erwarteten Wachstum hoch.' });
+    }
+    if (rangePos !== null && rangePos <= 10) {
+      minus.push({ t: 'Kurs nahe am Jahrestief', d: 'Der Kurs liegt im untersten Zehntel der 52-Wochen-Spanne. Das zeigt die aktuelle Stimmung, nicht deren Ursache.' });
+    }
+
+    return { plus: plus, minus: minus };
+  }
+
+  function auffColHtml(items, emptyText) {
+    if (!items.length) return '<div class="auff-empty">' + emptyText + '</div>';
+    return items.map(function (it) {
+      return '<div class="auff-item"><div class="auff-item-title">' + it.t + '</div>' +
+        '<div class="auff-item-text">' + it.d + '</div></div>';
+    }).join('');
   }
 
   function avg(arr) {
