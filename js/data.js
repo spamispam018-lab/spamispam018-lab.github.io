@@ -111,6 +111,26 @@ window.App.Data = (function () {
       });
   }
 
+  var longCache = {};
+
+  /**
+   * Lädt die wöchentliche 10-Jahres-Historie (data/long/<TICKER>.json).
+   * Liefert [{date, close}, ...] oder [] wenn (noch) nicht vorhanden.
+   */
+  function getLongHistory(ticker) {
+    if (!ticker) return Promise.resolve([]);
+    var clean = ticker.toUpperCase().trim();
+    if (longCache[clean]) return Promise.resolve(longCache[clean]);
+    return fetchJsonWithFallback('long/' + clean + '.json')
+      .then(function (data) {
+        var pts = (data && Array.isArray(data.points)) ? data.points : [];
+        var out = pts.map(function (p) { return { date: p[0], close: p[1] }; });
+        longCache[clean] = out;
+        return out;
+      })
+      .catch(function () { return []; });
+  }
+
   function getWatchlist() {
     try {
       var raw = localStorage.getItem(STORAGE_KEYS.WATCHLIST);
@@ -162,6 +182,7 @@ window.App.Data = (function () {
   return {
     getUniverse: getUniverse,
     getStock: getStock,
+    getLongHistory: getLongHistory,
     getWatchlist: getWatchlist,
     isWatchlisted: isWatchlisted,
     toggleWatchlist: toggleWatchlist,
