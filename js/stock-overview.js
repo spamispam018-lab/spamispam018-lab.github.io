@@ -6,6 +6,7 @@
  * - Inline-Chart mit Umschalt-Pillen (1M, 3M, 6M, 1J)
  * - Kompakte Insider-Aktivitätskarte mit Stimmungsbalken
  * - Quartalsweiser Finanztrend (Umsatz & Nettoergebnis)
+ * - KI-Analyse Banner (öffnet Gemini mit generiertem Prompt)
  */
 
 window.App = window.App || {};
@@ -50,6 +51,20 @@ window.App.StockOverview = (function () {
       : '0,00 %';
 
     var html = '' +
+      '<!-- KI-Analyse mit Gemini -->' +
+      '<div class="card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%); border: 1px solid var(--accent-purple); padding: 14px;">' +
+        '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+          '<div style="flex: 1; padding-right: 12px;">' +
+            '<div style="font-size: 0.9rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px; display: flex; align-items: center; gap: 6px;">' +
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple-light)" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>' +
+              'KI-Analyse' +
+            '</div>' +
+            '<div style="font-size: 0.72rem; color: var(--text-muted);">Frage Gemini nach den Gründen für die Kursentwicklung und einer Bewertung.</div>' +
+          '</div>' +
+          '<button id="btn-ask-gemini" class="chip-btn active" style="background: var(--accent-purple); border-color: var(--accent-purple); font-size: 0.75rem; flex-shrink: 0; box-shadow: 0 4px 14px var(--accent-purple-glow);">Fragen</button>' +
+        '</div>' +
+      '</div>' +
+
       '<!-- 1. Bewertungs- & Marktkennzahlen -->' +
       '<div class="card">' +
         '<div class="card-header-dotted">' +
@@ -129,6 +144,36 @@ window.App.StockOverview = (function () {
       '</div>';
 
     container.innerHTML = html;
+
+    // Gemini Event Listener binden
+    var geminiBtn = container.querySelector('#btn-ask-gemini');
+    if (geminiBtn) {
+      geminiBtn.onclick = function() {
+        var sName = currentStock.profile.name || currentStock.ticker;
+        var sTicker = currentStock.ticker;
+        var sPrice = window.App.Format.currency(currentStock.quote.price, currentStock.quote.currency);
+        var sChange = window.App.Format.number(currentStock.quote.changePercent, 2) + ' %';
+        var sPe = (currentStock.ratios && currentStock.ratios.peTrailing) ? window.App.Format.number(currentStock.ratios.peTrailing, 1) : 'unbekannt';
+
+        // Dynamischer Prompt
+        var promptText = "Hallo Gemini! Kannst du mir bitte erklären, warum sich der Aktienkurs von " + sName + " (" + sTicker + ") aktuell so verhält? " +
+                         "Der Kurs liegt bei " + sPrice + " mit einer heutigen Änderung von " + sChange + ". Das KGV beträgt " + sPe + ". " +
+                         "Bitte gib mir eine Bewertung der Aktie anhand dieser Daten und der aktuellen Marktlage.";
+        
+        var geminiUrl = "https://gemini.google.com/app?q=" + encodeURIComponent(promptText);
+        
+        // Text als Backup in die Zwischenablage kopieren (falls der URL-Parameter blockiert wird) und Tab öffnen
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(promptText).then(function() {
+                window.open(geminiUrl, '_blank');
+            }).catch(function() {
+                window.open(geminiUrl, '_blank');
+            });
+        } else {
+            window.open(geminiUrl, '_blank');
+        }
+      };
+    }
 
     // Charts zeichnen und Events verdrahten
     longHistory = null;
