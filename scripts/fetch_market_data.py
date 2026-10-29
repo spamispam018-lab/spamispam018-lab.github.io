@@ -10,6 +10,7 @@ import json
 import math
 import time
 import argparse
+import sys
 from datetime import datetime, timezone
 import yfinance as yf
 
@@ -42,7 +43,12 @@ TICKERS_JAPAN = [
     "9432.T", "6954.T", "7741.T", "6367.T", "4568.T", "6981.T", "8766.T", "7751.T", "6503.T"
 ]
 
-ALL_TICKERS = TICKERS_USA + TICKERS_EUROPE + TICKERS_JAPAN
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from index_lists import SP500, DAX, MDAX, dedupe  # noqa: E402
+
+# Gesamtuniversum: handgepflegte Listen + S&P 500 + DAX + MDAX (ohne Doppelungen)
+ALL_TICKERS = dedupe(TICKERS_USA, TICKERS_EUROPE, TICKERS_JAPAN, DAX, MDAX, SP500)
+print(f"Universum: {len(ALL_TICKERS)} Ticker")
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
 # Realistische Basis-Wechselkurse (Einheiten Fremdwährung in 1 Euro)
@@ -428,56 +434,157 @@ def run_delta_sync(tickers):
     print(f"Delta-Sync abgeschlossen: {len(updated_universe)} Werte in EUR synchronisiert.")
 
 LONG_DIR = os.path.join(DATA_DIR, "long")
-LONG_MAX_AGE_DAYS = 6
+LONG_OVERLAP_TOLERANCE = 0.02  # max. 2 % Abweichung am Überlappungspunkt, sonst Split/Neufassung
+
+
+def _long_file(sym):
+    return os.path.join(LONG_DIR, f"{sym}.json")
+
+
+def _load_long(sym):
+    f = _long_file(sym)
+    if not os.path.exists(f):
+        return None
+    try:
+        with open(f, "r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception:
+        return None
+
+
+def _native_currency(sym):
+    sf = os.path.join(DATA_DIR, f"{sym}.json")
+    if os.path.exists(sf):
+        try:
+            with open(sf, "r", encoding="utf-8") as fh:
+                return (json.load(fh).get("profile", {}) or {}).get("nativeCurrency") or detect_native_currency(sym)
+        except Exception:
+            pass
+    return detect_native_currency(sym)
+
+
+def _series_to_points(close, cur):
+    points = []
+    for idx, val in close.items():
+        v = clean_val(to_eur(clean_val(float(val)), cur))
+        if v is not None:
+            points.append([idx.strftime("%Y-%m-%d"), v])
+    return points
+
+
+def _write_long(sym, points):
+    os.makedirs(LONG_DIR, exist_ok=True)
+    with open(_long_file(sym), "w", encoding="utf-8") as fh:
+        json.dump({"ticker": sym, "interval": "1wk", "currency": "EUR",
+                   "updatedAt": datetime.now(timezone.utc).isoformat(),
+                   "points": points}, fh, ensure_ascii=False, separators=(",", ":"))
+
+
+def _extract_close(df, sym, multi):
+    sub = df[sym] if multi else df
+    return sub["Close"].dropna()
 
 
 def update_long_histories(tickers):
-    """Wöchentliche 10-Jahres-Kurshistorie (EUR) je Ticker nach data/long/<TICKER>.json.
-    Nur Ticker ohne Datei oder mit Datei älter als LONG_MAX_AGE_DAYS werden neu geladen."""
-    os.makedirs(LONG_DIR, exist_ok=True)
-    now = time.time()
-    todo = []
-    for sym in tickers:
-        f = os.path.join(LONG_DIR, f"{sym}.json")
-        if not os.path.exists(f) or (now - os.path.getmtime(f)) > LONG_MAX_AGE_DAYS * 86400:
-            todo.append(sym)
-    if not todo:
-        print("Langzeit-Historien aktuell, nichts zu laden.")
-        return
-    print(f"Lade 10-Jahres-Wochenkurse für {len(todo)} Ticker...")
-    try:
-        df = yf.download(todo, period="10y", interval="1wk", group_by="ticker",
-                         auto_adjust=False, threads=True, progress=False)
-    except Exception as e:
-        print(f"Langzeit-Download fehlgeschlagen: {e}")
-        return
+    """10-Jahres-Wochenkurse (EUR) je Ticker in data/long/<TICKER>.json.
 
-    for sym in todo:
+    - Fehlt die Datei: einmaliger Voll-Download der 10 Jahre.
+    - Datei vorhanden: nur die letzten Wochen laden, den Überlappungspunkt prüfen
+      und neue Wochen anhängen. Ältere Punkte bleiben unverändert.
+    - Weicht der Überlappungspunkt ab (Split, Kapitalmaßnahme), wird dieser Ticker einmal
+      vollständig neu geladen.
+    """
+    os.makedirs(LONG_DIR, exist_ok=True)
+    existing = {sym: _load_long(sym) for sym in tickers}
+    full_needed = [sym for sym in tickers if not existing[sym] or not existing[sym].get("points")]
+    delta_needed = [sym for sym in tickers if sym not in full_needed]
+
+    # 1) Voll-Download für neue Ticker
+    if full_needed:
+        print(f"Voll-Download 10 Jahre für {len(full_needed)} neue Ticker...")
+        _download_full(full_needed)
+
+    # 2) Delta für bestehende Ticker
+    if delta_needed:
+        print(f"Delta-Update Langzeit für {len(delta_needed)} Ticker...")
+        refetch = _download_delta(delta_needed, existing)
+        if refetch:
+            print(f"Neufassung (Split/Abweichung) für {len(refetch)} Ticker...")
+            _download_full(refetch)
+
+    if not full_needed and not delta_needed:
+        print("Keine Langzeit-Ticker vorhanden.")
+
+
+DOWNLOAD_CHUNK = 50
+
+
+def _chunks(lst, n=DOWNLOAD_CHUNK):
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
+
+def _download_full(syms):
+    """Voll-Download 10 Jahre, in Blöcken, damit ein Fehler nicht das ganze Universum trifft."""
+    for chunk in _chunks(syms):
         try:
-            sub = df[sym] if len(todo) > 1 else df
-            close = sub["Close"].dropna()
-            if close.empty:
-                print(f"Keine Langzeitdaten für {sym}")
-                continue
-            cur = detect_native_currency(sym)
-            sf = os.path.join(DATA_DIR, f"{sym}.json")
-            if os.path.exists(sf):
-                try:
-                    with open(sf, "r", encoding="utf-8") as fh:
-                        cur = (json.load(fh).get("profile", {}) or {}).get("nativeCurrency") or cur
-                except Exception:
-                    pass
-            points = []
-            for idx, val in close.items():
-                v = clean_val(to_eur(clean_val(float(val)), cur))
-                if v is not None:
-                    points.append([idx.strftime("%Y-%m-%d"), v])
-            with open(os.path.join(LONG_DIR, f"{sym}.json"), "w", encoding="utf-8") as fh:
-                json.dump({"ticker": sym, "interval": "1wk", "currency": "EUR",
-                           "updatedAt": datetime.now(timezone.utc).isoformat(),
-                           "points": points}, fh, ensure_ascii=False, separators=(",", ":"))
+            df = yf.download(chunk, period="10y", interval="1wk", group_by="ticker",
+                             auto_adjust=False, threads=True, progress=False)
         except Exception as e:
-            print(f"Langzeitdaten für {sym} übersprungen ({e})")
+            print(f"Voll-Download Block fehlgeschlagen ({len(chunk)} Ticker): {e}")
+            continue
+        multi = len(chunk) > 1
+        for sym in chunk:
+            try:
+                close = _extract_close(df, sym, multi)
+                if close.empty:
+                    print(f"Keine Langzeitdaten für {sym}")
+                    continue
+                _write_long(sym, _series_to_points(close, _native_currency(sym)))
+            except Exception as e:
+                print(f"Langzeitdaten für {sym} übersprungen ({e})")
+        time.sleep(1)
+
+
+def _download_delta(syms, existing):
+    """Lädt die letzten Wochen in Blöcken, hängt neue Punkte an. Gibt Ticker für Neufassung zurück."""
+    refetch = []
+    for chunk in _chunks(syms):
+        try:
+            df = yf.download(chunk, period="2mo", interval="1wk", group_by="ticker",
+                             auto_adjust=False, threads=True, progress=False)
+        except Exception as e:
+            print(f"Delta-Download Block fehlgeschlagen ({len(chunk)} Ticker): {e}")
+            continue
+        multi = len(chunk) > 1
+        for sym in chunk:
+            try:
+                close = _extract_close(df, sym, multi)
+                if close.empty:
+                    continue
+                cur = _native_currency(sym)
+                new_pts = _series_to_points(close, cur)
+                old_pts = existing[sym]["points"]
+                old_map = {d: v for d, v in old_pts}
+                overlap = [(d, v) for d, v in new_pts if d in old_map]
+                if overlap:
+                    d, v = overlap[-1]
+                    ref = old_map[d]
+                    if ref and abs(v / ref - 1) > LONG_OVERLAP_TOLERANCE:
+                        refetch.append(sym)
+                        continue
+                last_old = old_pts[-1][0]
+                appended = [p for p in new_pts if p[0] > last_old]
+                updated = [p for p in new_pts if p[0] == last_old]
+                if updated:
+                    old_pts[-1] = updated[0]
+                if appended or updated:
+                    old_pts.extend(appended)
+                    _write_long(sym, old_pts)
+            except Exception as e:
+                print(f"Delta Langzeit {sym} übersprungen ({e})")
+        time.sleep(1)
+    return refetch
 
 
 def main():
