@@ -893,3 +893,72 @@ input, button, select, textarea {
 
 .perf-cell.up .perf-value { color: var(--bullish); }
 .perf-cell.down .perf-value { color: var(--bearish); }
+
+
+/* ==========================================================================
+   Chart-Analyse-Tab
+   ========================================================================== */
+
+.badge-neutral {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.chart-signal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.chart-signal-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.chart-dot {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  margin-top: 5px;
+  border-radius: 50%;
+}
+
+.chart-signal-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.chart-signal-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.chart-signal-value {
+  font-size: 0.85rem;
+  color: var(--text-main);
+  overflow-wrap: anywhere;
+}
+
+.chart-note {
+  margin-top: 12px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
