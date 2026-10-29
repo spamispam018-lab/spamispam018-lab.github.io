@@ -5,6 +5,7 @@
  * - Normierter Kursvergleich (Basis 100 %) als Canvas-Liniendiagramm
  * - Gegenüberstellung der Kernmetriken (Bewertung, Wachstum, Margen, Verschuldung)
  * - Margenvergleich als gruppiertes Balkendiagramm
+ * - KI-Vergleichsanalyse mit Gemini (inkl. technischem Bild aller Werte)
  */
 
 window.App = window.App || {};
@@ -175,6 +176,20 @@ window.App.Compare = (function () {
    */
   function renderComparisonResults(container, stocks) {
     var html = '' +
+      '<!-- KI-Analyse mit Gemini -->' +
+      '<div class="card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%); border: 1px solid var(--accent-purple); padding: 14px; margin-bottom: 14px;">' +
+        '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+          '<div style="flex: 1; padding-right: 12px;">' +
+            '<div style="font-size: 0.9rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px; display: flex; align-items: center; gap: 6px;">' +
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple-light)" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>' +
+              'KI-Vergleichsanalyse' +
+            '</div>' +
+            '<div style="font-size: 0.72rem; color: var(--text-muted);">Lass Gemini die Aktien vergleichen und den besten Einstieg finden.</div>' +
+          '</div>' +
+          '<button id="btn-compare-gemini" class="chip-btn active" style="background: var(--accent-purple); border-color: var(--accent-purple); font-size: 0.75rem; flex-shrink: 0; box-shadow: 0 4px 14px var(--accent-purple-glow);">Analysieren</button>' +
+        '</div>' +
+      '</div>' +
+
       '<!-- Normierter Kursvergleich Chart -->' +
       '<div class="card">' +
         '<div class="card-header-dotted">' +
@@ -209,6 +224,76 @@ window.App.Compare = (function () {
       '</div>';
 
     container.innerHTML = html;
+
+    // Gemini Event Listener
+    var geminiBtn = container.querySelector('#btn-compare-gemini');
+    if (geminiBtn) {
+      geminiBtn.onclick = function() {
+        var promptText = "Hallo Gemini! Bitte prüfe zuerst meine bereitgestellten Daten zu den folgenden Aktien auf Plausibilität. " +
+                         "Erkläre mir anschließend basierend auf den Fundamentaldaten und dem technischen Bild, welche dieser Aktien aktuell für einen Einstieg am besten geeignet ist " +
+                         "und wie sich das langfristige Potenzial der Unternehmen weiterentwickeln könnte.\n\n";
+
+        stocks.forEach(function(s) {
+            var sName = s.profile ? (s.profile.name || s.ticker) : s.ticker;
+            var sPrice = window.App.Format.currency(s.quote.price, s.quote.currency);
+            var sChange = window.App.Format.number(s.quote.changePercent, 2) + " %";
+            var sPe = (s.ratios && s.ratios.peTrailing) ? window.App.Format.number(s.ratios.peTrailing, 1) : "unbekannt";
+
+            promptText += "### " + sName + " (" + s.ticker + ") ###\n" +
+                          "- Kurs: " + sPrice + " (Änderung heute: " + sChange + ")\n" +
+                          "- KGV (Trailing): " + sPe + "\n";
+
+            if (s.chartHistory && s.chartHistory.length > 60 && window.App.StockChart) {
+                var hist = s.chartHistory.filter(function (p) { return p && p.close > 0; });
+                var closes = hist.map(function (p) { return p.close; });
+                var n = closes.length;
+                var cPrice = closes[n - 1];
+
+                var s50 = window.App.StockChart._sma(closes, 50);
+                var s200 = window.App.StockChart._sma(closes, 200);
+                var rsiArr = window.App.StockChart._rsi(closes, 14);
+                var m = window.App.StockChart._macd(closes);
+
+                function lastValid(arr) {
+                    for (var i = arr.length - 1; i >= 0; i--) {
+                        if (arr[i] !== null && arr[i] !== undefined && isFinite(arr[i])) return arr[i];
+                    }
+                    return null;
+                }
+
+                var s50Last = lastValid(s50);
+                var s200Last = lastValid(s200);
+                var rsiLast = lastValid(rsiArr);
+                var macdLast = lastValid(m.line);
+                var sigLast = lastValid(m.signal);
+                var mom3m = n > 63 ? (cPrice / closes[n - 1 - 63] - 1) * 100 : null;
+
+                promptText += "- Technisches Bild: ";
+                if (s200Last !== null) promptText += "Abstand 200-Tage-Linie " + window.App.Format.number((cPrice / s200Last - 1) * 100, 1) + " %. ";
+                if (s50Last !== null) promptText += "Abstand 50-Tage-Linie " + window.App.Format.number((cPrice / s50Last - 1) * 100, 1) + " %. ";
+                if (rsiLast !== null) promptText += "RSI (14) bei " + window.App.Format.number(rsiLast, 0) + ". ";
+                if (macdLast !== null && sigLast !== null) {
+                    promptText += "MACD " + (macdLast > sigLast ? "über" : "unter") + " Signallinie. ";
+                }
+                if (mom3m !== null) promptText += "Momentum 3M bei " + window.App.Format.number(mom3m, 1) + " %.";
+                promptText += "\n";
+            }
+            promptText += "\n";
+        });
+        
+        var geminiUrl = "https://gemini.google.com/app?q=" + encodeURIComponent(promptText);
+        
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(promptText).then(function() {
+                window.open(geminiUrl, '_blank');
+            }).catch(function() {
+                window.open(geminiUrl, '_blank');
+            });
+        } else {
+            window.open(geminiUrl, '_blank');
+        }
+      };
+    }
 
     // Charts zeichnen
     initNormalizedPerformanceChart(stocks);
