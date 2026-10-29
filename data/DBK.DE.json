@@ -11,18 +11,18 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 28.875,
-    "change": 0.17,
-    "changePercent": 0.59,
+    "price": 30.02,
+    "change": 1.145,
+    "changePercent": 3.97,
     "marketCap": 56407584768.0,
     "fiftyTwoWeekLow": 23.815,
     "fiftyTwoWeekHigh": 35.845,
-    "volume": 4091218.0,
+    "volume": 7429784,
     "avgVolume": 4953476,
     "currency": "EUR"
   },
   "ratios": {
-    "peTrailing": 9.0695,
+    "peTrailing": 9.1246,
     "peForward": 7.7996,
     "pegRatio": 1.5,
     "dividendYield": 3.48,
@@ -1427,12 +1427,6 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-09-30",
-        "estimate": 0.7283,
-        "actual": 0.8359,
-        "surprisePercent": 0.1477
-      },
-      {
         "quarter": "2025-12-31",
         "estimate": 0.6056,
         "actual": 0.7189,
@@ -1449,6 +1443,12 @@
         "estimate": 0.7341,
         "actual": 0.8475,
         "surprisePercent": 0.1544
+      },
+      {
+        "quarter": "2026-09-30",
+        "estimate": 0.8061,
+        "actual": 0.8232,
+        "surprisePercent": 0.0213
       }
     ]
   },
@@ -2730,14 +2730,9 @@
     },
     {
       "date": "2026-10-28",
-      "close": 30.02,
+      "close": null,
       "volume": 7429784.0
-    },
-    {
-      "date": "2026-10-27",
-      "close": 28.875,
-      "volume": 4091218.0
     }
   ],
-  "updatedAt": "2026-10-29T04:36:53.710329+00:00"
+  "updatedAt": "2026-10-29T06:01:57.357849+00:00"
 }

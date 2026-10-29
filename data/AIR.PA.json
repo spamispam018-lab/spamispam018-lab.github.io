@@ -11,13 +11,13 @@
     "exchange": "PAR"
   },
   "quote": {
-    "price": 192.74,
-    "change": -0.66,
-    "changePercent": -0.34,
+    "price": 191.92,
+    "change": -0.82,
+    "changePercent": -0.43,
     "marketCap": 151900946432.0,
     "fiftyTwoWeekLow": 157.42,
     "fiftyTwoWeekHigh": 221.3,
-    "volume": 1270723.0,
+    "volume": 798148,
     "avgVolume": 972336,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 25.5553,
     "peForward": 22.0081,
     "pegRatio": 1.4,
-    "dividendYield": 1.65,
+    "dividendYield": 1.66,
     "profitMargins": 0.0771,
     "debtToEquity": 54.988,
     "revenueGrowth": 0.277
@@ -1783,12 +1783,6 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-09-30",
-        "estimate": 1.6267,
-        "actual": 1.82,
-        "surprisePercent": 0.1188
-      },
-      {
         "quarter": "2025-12-31",
         "estimate": 2.6072,
         "actual": 2.92,
@@ -1805,6 +1799,12 @@
         "estimate": 1.9702,
         "actual": 2.28,
         "surprisePercent": 0.1572
+      },
+      {
+        "quarter": "2026-09-30",
+        "estimate": 1.6788,
+        "actual": 1.6648,
+        "surprisePercent": -0.0083
       }
     ]
   },
@@ -3096,14 +3096,9 @@
     },
     {
       "date": "2026-10-28",
-      "close": 191.92,
+      "close": null,
       "volume": 798148.0
-    },
-    {
-      "date": "2026-10-27",
-      "close": 192.74,
-      "volume": 1270723.0
     }
   ],
-  "updatedAt": "2026-10-29T04:36:53.811085+00:00"
+  "updatedAt": "2026-10-29T06:02:46.846013+00:00"
 }
