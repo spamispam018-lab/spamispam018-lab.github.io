@@ -72,6 +72,7 @@
   <script src="js/screener.js"></script>
   <script src="js/watchlist.js"></script>
   <script src="js/stock-overview.js"></script>
+  <script src="js/stock-chart.js"></script>
   <script src="js/stock-insider.js"></script>
   <script src="js/stock-analyst.js"></script>
   <script src="js/stock-financials.js"></script>
@@ -196,6 +197,7 @@
                 '<!-- Unter-Tabs -->' +
                 '<div class="horizontal-scroll-row" id="stock-subtabs-bar" style="margin-bottom: 14px;">' +
                   '<button class="sub-tab-btn ' + (activeTab === 'overview' ? 'active' : '') + '" data-tab="overview">Overview</button>' +
+                  '<button class="sub-tab-btn ' + (activeTab === 'chart' ? 'active' : '') + '" data-tab="chart">Chart</button>' +
                   '<button class="sub-tab-btn ' + (activeTab === 'score' ? 'active' : '') + '" data-tab="score">Score</button>' +
                   '<button class="sub-tab-btn ' + (activeTab === 'insider' ? 'active' : '') + '" data-tab="insider">Insider</button>' +
                   '<button class="sub-tab-btn ' + (activeTab === 'analyst' ? 'active' : '') + '" data-tab="analyst">Analyst</button>' +
@@ -277,6 +279,9 @@
         switch (activeTab) {
           case 'overview':
             window.App.StockOverview.render(subArea, stock);
+            break;
+          case 'chart':
+            window.App.StockChart.render(subArea, stock);
             break;
           case 'score':
             renderScoreView(subArea, stock);
