@@ -851,3 +851,45 @@ input, button, select, textarea {
   background-color: var(--accent-purple);
   color: #fff;
 }
+
+
+/* Performance-Raster unter dem Kursverlauf */
+.perf-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.perf-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 6px;
+}
+
+.perf-cell.selected {
+  border-color: var(--accent-purple);
+}
+
+.perf-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.perf-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.perf-cell.up .perf-value { color: var(--bullish); }
+.perf-cell.down .perf-value { color: var(--bearish); }
