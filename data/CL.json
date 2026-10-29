@@ -17,7 +17,7 @@
     "marketCap": 65608076718.7946,
     "fiftyTwoWeekLow": 66.9161,
     "fiftyTwoWeekHigh": 89.1586,
-    "volume": 4647800.0,
+    "volume": 4647735,
     "avgVolume": 4815981,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 36.0984,
     "peForward": 22.4336,
     "pegRatio": 1.68,
-    "dividendYield": 2.3,
+    "dividendYield": 2.31,
     "profitMargins": 0.0968,
     "debtToEquity": 1388.163,
     "revenueGrowth": 0.049
@@ -251,7 +251,7 @@
         {
           "date": "2026-06-30",
           "Tax_Effect_Of_Unusual_Items": 0.0,
-          "Tax_Rate_For_Calcs": 0.2181,
+          "Tax_Rate_For_Calcs": 0.2183,
           "Normalized_EBITDA": 1047499216.583,
           "Net_Income_From_Continuing_Operation_Net_Minority_Interest": 693000000.0,
           "Reconciled_Depreciation": 139128002.2025,
@@ -990,8 +990,8 @@
         {
           "date": "2026-06-30",
           "Treasury_Shares_Number": null,
-          "Ordinary_Shares_Number": 797172829.0,
-          "Share_Issued": 715542342.6381,
+          "Ordinary_Shares_Number": 800189310.0,
+          "Share_Issued": 718249936.0266,
           "Net_Debt": 5822731292.1796,
           "Total_Debt": 7052443311.6472,
           "Tangible_Book_Value": -3912638461.941,
@@ -2170,9 +2170,9 @@
   "insider": {
     "summary": {
       "buysCount2Q": 0,
-      "sellsCount2Q": 10,
+      "sellsCount2Q": 11,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 41034456.95200001,
+      "sellValueTotal": 49313280.39190001,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -2188,25 +2188,17 @@
         "date": "2026-08-06",
         "insider": "CAHILL JOHN T",
         "position": "Director",
-        "type": "Other",
-        "shares": 4170,
-        "value": 267848.3322
-      },
-      {
-        "date": "2026-08-06",
-        "insider": "CAHILL JOHN T",
-        "position": "Director",
         "type": "Sell",
         "shares": 4170,
         "value": 349487.7463
       },
       {
-        "date": "2026-08-05",
-        "insider": "WALLACE NOEL R",
-        "position": "Chief Executive Officer",
+        "date": "2026-08-06",
+        "insider": "CAHILL JOHN T",
+        "position": "Director",
         "type": "Other",
-        "shares": 322042,
-        "value": 20896501.7324
+        "shares": 4170,
+        "value": 267848.3322
       },
       {
         "date": "2026-08-05",
@@ -2217,12 +2209,12 @@
         "value": 26657479.0412
       },
       {
-        "date": "2026-07-01",
-        "insider": "BILBREY JOHN P.",
-        "position": "Director",
+        "date": "2026-08-05",
+        "insider": "WALLACE NOEL R",
+        "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 265,
-        "value": 21276.7107
+        "shares": 322042,
+        "value": 20896501.7324
       },
       {
         "date": "2026-07-01",
@@ -2241,36 +2233,20 @@
         "value": 23525.1988
       },
       {
+        "date": "2026-07-01",
+        "insider": "BILBREY JOHN P.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 265,
+        "value": 21276.7107
+      },
+      {
         "date": "2026-05-15",
         "insider": "MALCOLM GREGORY",
         "position": "Officer",
         "type": "Sell",
         "shares": 2300,
         "value": 182582.6141
-      },
-      {
-        "date": "2026-05-11",
-        "insider": "BILBREY JOHN P.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2075,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-11",
-        "insider": "HUND-MEJEAN MARTINA",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2075,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-11",
-        "insider": "CAHILL JOHN T",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2075,
-        "value": 0.0
       },
       {
         "date": "2026-05-11",
@@ -2282,7 +2258,31 @@
       },
       {
         "date": "2026-05-11",
+        "insider": "HARRIS C. MARTIN M.D.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1556,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-11",
+        "insider": "NORRINGTON LORRIE M",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2075,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-11",
         "insider": "EDWARDS LISA MARIE",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2075,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-11",
+        "insider": "BILBREY JOHN P.",
         "position": "Director",
         "type": "Other",
         "shares": 2075,
@@ -2306,15 +2306,15 @@
       },
       {
         "date": "2026-05-11",
-        "insider": "HARRIS C. MARTIN M.D.",
+        "insider": "CAHILL JOHN T",
         "position": "Director",
         "type": "Other",
-        "shares": 1556,
+        "shares": 2075,
         "value": 0.0
       },
       {
         "date": "2026-05-11",
-        "insider": "NORRINGTON LORRIE M",
+        "insider": "HUND-MEJEAN MARTINA",
         "position": "Director",
         "type": "Other",
         "shares": 2075,
@@ -2327,6 +2327,14 @@
         "type": "Sell",
         "shares": 8599,
         "value": 674665.7915
+      },
+      {
+        "date": "2026-04-01",
+        "insider": "NEWMAN BRIAN",
+        "position": "Director",
+        "type": "Other",
+        "shares": 210,
+        "value": 16785.1203
       },
       {
         "date": "2026-04-01",
@@ -2343,30 +2351,6 @@
         "type": "Other",
         "shares": 294,
         "value": 23500.066
-      },
-      {
-        "date": "2026-04-01",
-        "insider": "NEWMAN BRIAN",
-        "position": "Director",
-        "type": "Other",
-        "shares": 210,
-        "value": 16785.1203
-      },
-      {
-        "date": "2026-02-23",
-        "insider": "WALLACE NOEL R",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 136710,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-23",
-        "insider": "DANIELS JENNIFER M.",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 25742,
-        "value": 0.0
       },
       {
         "date": "2026-02-23",
@@ -2402,6 +2386,22 @@
       },
       {
         "date": "2026-02-23",
+        "insider": "WALLACE NOEL R",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 136710,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-23",
+        "insider": "DANIELS JENNIFER M.",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 25742,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-23",
         "insider": "TSOURAPAS PANAGIOTIS",
         "position": "Officer",
         "type": "Other",
@@ -2412,25 +2412,17 @@
         "date": "2026-02-12",
         "insider": "TSOURAPAS PANAGIOTIS",
         "position": "Officer",
-        "type": "Other",
-        "shares": 50000,
-        "value": 3429280.8543
-      },
-      {
-        "date": "2026-02-12",
-        "insider": "TSOURAPAS PANAGIOTIS",
-        "position": "Officer",
         "type": "Sell",
         "shares": 50000,
         "value": 4289124.2215
       },
       {
-        "date": "2026-02-10",
-        "insider": "HAZLIN JOHN",
+        "date": "2026-02-12",
+        "insider": "TSOURAPAS PANAGIOTIS",
         "position": "Officer",
         "type": "Other",
-        "shares": 20989,
-        "value": 1439543.0772
+        "shares": 50000,
+        "value": 3429280.8543
       },
       {
         "date": "2026-02-10",
@@ -2441,12 +2433,12 @@
         "value": 1775642.2217
       },
       {
-        "date": "2026-02-06",
-        "insider": "MALCOLM GREGORY",
+        "date": "2026-02-10",
+        "insider": "HAZLIN JOHN",
         "position": "Officer",
         "type": "Other",
-        "shares": 12747,
-        "value": 874260.6186
+        "shares": 20989,
+        "value": 1439543.0772
       },
       {
         "date": "2026-02-06",
@@ -2457,12 +2449,12 @@
         "value": 1085936.2444
       },
       {
-        "date": "2026-02-05",
-        "insider": "MASSEY SALLY",
+        "date": "2026-02-06",
+        "insider": "MALCOLM GREGORY",
         "position": "Officer",
         "type": "Other",
-        "shares": 15851,
-        "value": 1087150.6972
+        "shares": 12747,
+        "value": 874260.6186
       },
       {
         "date": "2026-02-05",
@@ -2473,20 +2465,28 @@
         "value": 1352043.2326
       },
       {
+        "date": "2026-02-05",
+        "insider": "MASSEY SALLY",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 15851,
+        "value": 1087150.6972
+      },
+      {
+        "date": "2026-02-04",
+        "insider": "SUTULA STANLEY J III",
+        "position": "Chief Financial Officer",
+        "type": "Sell",
+        "shares": 97843,
+        "value": 8278823.4399
+      },
+      {
         "date": "2026-02-04",
         "insider": "SUTULA STANLEY J III",
         "position": "Chief Financial Officer",
         "type": "Other",
         "shares": 97843,
         "value": 7182237.1713
-      },
-      {
-        "date": "2026-02-04",
-        "insider": "DANIELS JENNIFER M.",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 22000,
-        "value": 1427525.1106
       },
       {
         "date": "2026-02-04",
@@ -2771,7 +2771,7 @@
     },
     {
       "date": "2026-01-16",
-      "close": 74.0876,
+      "close": 74.0877,
       "volume": 6949600.0
     },
     {
@@ -2896,7 +2896,7 @@
     },
     {
       "date": "2026-02-24",
-      "close": 86.5268,
+      "close": 86.5269,
       "volume": 5419700.0
     },
     {
@@ -3071,7 +3071,7 @@
     },
     {
       "date": "2026-04-15",
-      "close": 73.6329,
+      "close": 73.633,
       "volume": 5064000.0
     },
     {
@@ -3755,5 +3755,5 @@
       "volume": 4647800.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.479867+00:00"
+  "updatedAt": "2026-10-29T10:14:22.394208+00:00"
 }

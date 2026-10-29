@@ -14,10 +14,10 @@
     "price": 32.1431,
     "change": 0.6463,
     "changePercent": 2.05,
-    "marketCap": 21116876007.0819,
+    "marketCap": 20792477559.86,
     "fiftyTwoWeekLow": 17.4852,
     "fiftyTwoWeekHigh": 48.5422,
-    "volume": 29856100.0,
+    "volume": 29094921,
     "avgVolume": 42141421,
     "currency": "EUR"
   },
@@ -1463,7 +1463,7 @@
           "Depreciation": null,
           "Operating_Gains_Losses": 21860150.7461,
           "Earnings_Losses_From_Equity_Investments": 7417766.5174,
-          "Net_Foreign_Currency_Exchange_Gain_Loss": null,
+          "Net_Foreign_Currency_Exchange_Gain_Loss": 14442384.2286,
           "Net_Income_From_Continuing_Operations": 195154000.0
         },
         {
@@ -1522,7 +1522,7 @@
           "Depreciation": 18496843.4928,
           "Operating_Gains_Losses": -817713.6129,
           "Earnings_Losses_From_Equity_Investments": 95145.6015,
-          "Net_Foreign_Currency_Exchange_Gain_Loss": null,
+          "Net_Foreign_Currency_Exchange_Gain_Loss": -912859.2145,
           "Net_Income_From_Continuing_Operations": 168285000.0
         },
         {
@@ -1581,7 +1581,7 @@
           "Depreciation": 20121499.5185,
           "Operating_Gains_Losses": 1497196.8237,
           "Earnings_Losses_From_Equity_Investments": 441619.207,
-          "Net_Foreign_Currency_Exchange_Gain_Loss": null,
+          "Net_Foreign_Currency_Exchange_Gain_Loss": 1055577.6167,
           "Net_Income_From_Continuing_Operations": 400564000.0
         },
         {
@@ -1640,7 +1640,7 @@
           "Depreciation": 20583763.5259,
           "Operating_Gains_Losses": -3493459.2553,
           "Earnings_Losses_From_Equity_Investments": 623832.0099,
-          "Net_Foreign_Currency_Exchange_Gain_Loss": null,
+          "Net_Foreign_Currency_Exchange_Gain_Loss": -4117291.2652,
           "Net_Income_From_Continuing_Operations": 483387000.0
         },
         {
@@ -2140,6 +2140,14 @@
     "trades": [
       {
         "date": "2026-09-04",
+        "insider": "LIU LIANG CHIU-CHU SARA",
+        "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
+        "type": "Sell",
+        "shares": 200000,
+        "value": 6928201.1081
+      },
+      {
+        "date": "2026-09-04",
         "insider": "LIANG CHARLES",
         "position": "Chief Executive Officer",
         "type": "Sell",
@@ -2147,12 +2155,20 @@
         "value": 6928201.1081
       },
       {
-        "date": "2026-09-04",
+        "date": "2026-08-17",
         "insider": "LIU LIANG CHIU-CHU SARA",
         "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
-        "type": "Sell",
-        "shares": 200000,
-        "value": 6928201.1081
+        "type": "Other",
+        "shares": 3650,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-17",
+        "insider": "LIANG CHARLES",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 3650,
+        "value": 0.0
       },
       {
         "date": "2026-08-17",
@@ -2168,22 +2184,6 @@
         "position": "Chief Financial Officer",
         "type": "Other",
         "shares": 6500,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-17",
-        "insider": "LIANG CHARLES",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 3650,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-17",
-        "insider": "LIU LIANG CHIU-CHU SARA",
-        "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
-        "type": "Other",
-        "shares": 3650,
         "value": 0.0
       },
       {
@@ -2212,6 +2212,22 @@
       },
       {
         "date": "2026-08-10",
+        "insider": "LIU LIANG CHIU-CHU SARA",
+        "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
+        "type": "Other",
+        "shares": 3134,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-10",
+        "insider": "LIANG CHARLES",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 3134,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-10",
         "insider": "CHEUNG KENNETH",
         "position": "Officer",
         "type": "Other",
@@ -2236,14 +2252,6 @@
       },
       {
         "date": "2026-08-10",
-        "insider": "LIU LIANG CHIU-CHU SARA",
-        "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
-        "type": "Other",
-        "shares": 3134,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-10",
         "insider": "MALYALA VIKRANTH",
         "position": "Officer",
         "type": "Other",
@@ -2259,11 +2267,19 @@
         "value": 0.0
       },
       {
-        "date": "2026-08-10",
+        "date": "2026-07-01",
+        "insider": "LIU LIANG CHIU-CHU SARA",
+        "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
+        "type": "Other",
+        "shares": 1613,
+        "value": 0.0
+      },
+      {
+        "date": "2026-07-01",
         "insider": "LIANG CHARLES",
         "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 3134,
+        "shares": 1613,
         "value": 0.0
       },
       {
@@ -2276,26 +2292,10 @@
       },
       {
         "date": "2026-07-01",
-        "insider": "LIU LIANG CHIU-CHU SARA",
-        "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
-        "type": "Other",
-        "shares": 1613,
-        "value": 0.0
-      },
-      {
-        "date": "2026-07-01",
         "insider": "MALYALA VIKRANTH",
         "position": "Officer",
         "type": "Other",
         "shares": 7740,
-        "value": 0.0
-      },
-      {
-        "date": "2026-07-01",
-        "insider": "LIANG CHARLES",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 1613,
         "value": 0.0
       },
       {
@@ -2372,6 +2372,22 @@
       },
       {
         "date": "2026-05-08",
+        "insider": "LIU LIANG CHIU-CHU SARA",
+        "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
+        "type": "Other",
+        "shares": 6218,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-08",
+        "insider": "LIANG CHARLES",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 6218,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-08",
         "insider": "CHEUNG KENNETH",
         "position": "Officer",
         "type": "Other",
@@ -2396,22 +2412,6 @@
       },
       {
         "date": "2026-05-08",
-        "insider": "LIANG CHARLES",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 6218,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-08",
-        "insider": "LIU LIANG CHIU-CHU SARA",
-        "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
-        "type": "Other",
-        "shares": 6218,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-08",
         "insider": "XIAO JIN",
         "position": "Officer",
         "type": "Other",
@@ -2420,14 +2420,6 @@
       },
       {
         "date": "2026-02-27",
-        "insider": "LIANG CHARLES",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 20980,
-        "value": 79751.7613
-      },
-      {
-        "date": "2026-02-27",
         "insider": "LIU LIANG CHIU-CHU SARA",
         "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
         "type": "Other",
@@ -2435,27 +2427,35 @@
         "value": 79751.7613
       },
       {
-        "date": "2026-02-17",
-        "insider": "CHEUNG KENNETH",
-        "position": "Officer",
+        "date": "2026-02-27",
+        "insider": "LIANG CHARLES",
+        "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 2250,
+        "shares": 20980,
+        "value": 79751.7613
+      },
+      {
+        "date": "2026-02-17",
+        "insider": "LIU LIANG CHIU-CHU SARA",
+        "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
+        "type": "Other",
+        "shares": 3650,
         "value": 0.0
       },
       {
         "date": "2026-02-17",
-        "insider": "CLEGG DON W",
-        "position": "Officer",
+        "insider": "LIANG CHARLES",
+        "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 1750,
+        "shares": 3650,
         "value": 0.0
       },
       {
         "date": "2026-02-17",
-        "insider": "WEIGAND DAVID E",
-        "position": "Chief Financial Officer",
+        "insider": "LIAW YIH SHYAN WALLY",
+        "position": "Director",
         "type": "Other",
-        "shares": 6500,
+        "shares": 3400,
         "value": 0.0
       }
     ]
@@ -3717,5 +3717,5 @@
       "volume": 29856100.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.927762+00:00"
+  "updatedAt": "2026-10-29T10:23:34.119285+00:00"
 }

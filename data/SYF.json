@@ -17,7 +17,7 @@
     "marketCap": 22009105931.7348,
     "fiftyTwoWeekLow": 56.6206,
     "fiftyTwoWeekHigh": 79.68,
-    "volume": 3007400.0,
+    "volume": 3007417,
     "avgVolume": 3170241,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 7.8664,
     "peForward": 7.1838,
     "pegRatio": 0.93,
-    "dividendYield": 1.82,
+    "dividendYield": 1.8,
     "profitMargins": 0.3407,
     "debtToEquity": null,
     "revenueGrowth": -0.047
@@ -1610,10 +1610,18 @@
       "buysCount2Q": 1,
       "sellsCount2Q": 8,
       "buyValueTotal": 796.1712,
-      "sellValueTotal": 5290365.621499999,
+      "sellValueTotal": 5290365.6215,
       "sentiment": "Bearish"
     },
     "trades": [
+      {
+        "date": "2026-09-30",
+        "insider": "COVIELLO ARTHUR W JR",
+        "position": "Director",
+        "type": "Other",
+        "shares": 846,
+        "value": 53892.8025
+      },
       {
         "date": "2026-09-30",
         "insider": "GUTHRIE ROY A",
@@ -1632,15 +1640,7 @@
       },
       {
         "date": "2026-09-30",
-        "insider": "COVIELLO ARTHUR W JR",
-        "position": "Director",
-        "type": "Other",
-        "shares": 846,
-        "value": 53892.8025
-      },
-      {
-        "date": "2026-09-30",
-        "insider": "ALVES PAGET LEONARD",
+        "insider": "ZANE ELLEN M",
         "position": "Director",
         "type": "Other",
         "shares": 846,
@@ -1656,7 +1656,7 @@
       },
       {
         "date": "2026-09-30",
-        "insider": "PARKER PAUL W",
+        "insider": "ALVES PAGET LEONARD",
         "position": "Director",
         "type": "Other",
         "shares": 846,
@@ -1672,7 +1672,7 @@
       },
       {
         "date": "2026-09-30",
-        "insider": "ZANE ELLEN M",
+        "insider": "PARKER PAUL W",
         "position": "Director",
         "type": "Other",
         "shares": 846,
@@ -1690,25 +1690,17 @@
         "date": "2026-08-13",
         "insider": "CASELLAS ALBERTO B",
         "position": "Officer",
-        "type": "Other",
-        "shares": 5456,
-        "value": 164206.9466
-      },
-      {
-        "date": "2026-08-13",
-        "insider": "CASELLAS ALBERTO B",
-        "position": "Officer",
         "type": "Sell",
         "shares": 5456,
         "value": 391784.4542
       },
       {
-        "date": "2026-08-03",
-        "insider": "OWENS DARRELL",
+        "date": "2026-08-13",
+        "insider": "CASELLAS ALBERTO B",
         "position": "Officer",
-        "type": "Sell",
-        "shares": 610,
-        "value": 42012.1687
+        "type": "Other",
+        "shares": 5456,
+        "value": 164206.9466
       },
       {
         "date": "2026-08-03",
@@ -1720,6 +1712,14 @@
       },
       {
         "date": "2026-08-03",
+        "insider": "OWENS DARRELL",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 610,
+        "value": 42012.1687
+      },
+      {
+        "date": "2026-08-03",
         "insider": "GENTLEMAN COURTNEY",
         "position": "Officer",
         "type": "Sell",
@@ -1728,63 +1728,7 @@
       },
       {
         "date": "2026-06-30",
-        "insider": "GUTHRIE ROY A",
-        "position": "Director",
-        "type": "Other",
-        "shares": 789,
-        "value": 53858.6937
-      },
-      {
-        "date": "2026-06-30",
-        "insider": "ELLINGER DEBORAH G.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 789,
-        "value": 53858.6937
-      },
-      {
-        "date": "2026-06-30",
         "insider": "COVIELLO ARTHUR W JR",
-        "position": "Director",
-        "type": "Other",
-        "shares": 789,
-        "value": 53858.6937
-      },
-      {
-        "date": "2026-06-30",
-        "insider": "ALVES PAGET LEONARD",
-        "position": "Director",
-        "type": "Other",
-        "shares": 789,
-        "value": 53858.6937
-      },
-      {
-        "date": "2026-06-30",
-        "insider": "NAYLOR JEFFREY G",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1200,
-        "value": 81914.9773
-      },
-      {
-        "date": "2026-06-30",
-        "insider": "PARKER PAUL W",
-        "position": "Director",
-        "type": "Other",
-        "shares": 789,
-        "value": 53858.6937
-      },
-      {
-        "date": "2026-06-30",
-        "insider": "AGUIRRE FERNANDO",
-        "position": "Director",
-        "type": "Other",
-        "shares": 789,
-        "value": 53858.6937
-      },
-      {
-        "date": "2026-06-30",
-        "insider": "ZANE ELLEN M",
         "position": "Director",
         "type": "Other",
         "shares": 789,
@@ -1808,11 +1752,83 @@
       },
       {
         "date": "2026-06-30",
+        "insider": "GUTHRIE ROY A",
+        "position": "Director",
+        "type": "Other",
+        "shares": 789,
+        "value": 53858.6937
+      },
+      {
+        "date": "2026-06-30",
+        "insider": "ELLINGER DEBORAH G.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 789,
+        "value": 53858.6937
+      },
+      {
+        "date": "2026-06-30",
+        "insider": "ZANE ELLEN M",
+        "position": "Director",
+        "type": "Other",
+        "shares": 789,
+        "value": 53858.6937
+      },
+      {
+        "date": "2026-06-30",
+        "insider": "NAYLOR JEFFREY G",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1200,
+        "value": 81914.9773
+      },
+      {
+        "date": "2026-06-30",
         "insider": "COLAO DANIEL O",
         "position": "Director",
         "type": "Other",
         "shares": 789,
         "value": 53858.6937
+      },
+      {
+        "date": "2026-06-30",
+        "insider": "ALVES PAGET LEONARD",
+        "position": "Director",
+        "type": "Other",
+        "shares": 789,
+        "value": 53858.6937
+      },
+      {
+        "date": "2026-06-30",
+        "insider": "AGUIRRE FERNANDO",
+        "position": "Director",
+        "type": "Other",
+        "shares": 789,
+        "value": 53858.6937
+      },
+      {
+        "date": "2026-06-30",
+        "insider": "PARKER PAUL W",
+        "position": "Director",
+        "type": "Other",
+        "shares": 789,
+        "value": 53858.6937
+      },
+      {
+        "date": "2026-05-15",
+        "insider": "OWENS DARRELL",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 74,
+        "value": 4741.1233
+      },
+      {
+        "date": "2026-05-15",
+        "insider": "MOTHNER JONATHAN S",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 51258,
+        "value": 3277233.6951
       },
       {
         "date": "2026-05-15",
@@ -1824,7 +1840,7 @@
       },
       {
         "date": "2026-05-15",
-        "insider": "PARKER PAUL W",
+        "insider": "COLAO DANIEL O",
         "position": "Director",
         "type": "Other",
         "shares": 14,
@@ -1840,43 +1856,11 @@
       },
       {
         "date": "2026-05-15",
-        "insider": "OWENS DARRELL",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 74,
-        "value": 4741.1233
-      },
-      {
-        "date": "2026-05-15",
-        "insider": "COLAO DANIEL O",
+        "insider": "PARKER PAUL W",
         "position": "Director",
         "type": "Other",
         "shares": 14,
         "value": 896.7024
-      },
-      {
-        "date": "2026-05-15",
-        "insider": "MOTHNER JONATHAN S",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 51258,
-        "value": 3277233.6951
-      },
-      {
-        "date": "2026-05-01",
-        "insider": "CASELLAS ALBERTO B",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 5794,
-        "value": 178383.6412
-      },
-      {
-        "date": "2026-05-01",
-        "insider": "CASELLAS ALBERTO B",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 5794,
-        "value": 398113.4319
       },
       {
         "date": "2026-05-01",
@@ -1888,11 +1872,51 @@
       },
       {
         "date": "2026-05-01",
+        "insider": "CASELLAS ALBERTO B",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 5794,
+        "value": 398113.4319
+      },
+      {
+        "date": "2026-05-01",
+        "insider": "CASELLAS ALBERTO B",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 5794,
+        "value": 178383.6412
+      },
+      {
+        "date": "2026-05-01",
         "insider": "COVIELLO ARTHUR W JR",
         "position": "Director",
         "type": "Sell",
         "shares": 4000,
         "value": 274845.1244
+      },
+      {
+        "date": "2026-03-31",
+        "insider": "RICHIE LAUREL J",
+        "position": "Director",
+        "type": "Other",
+        "shares": 883,
+        "value": 53911.6521
+      },
+      {
+        "date": "2026-03-31",
+        "insider": "CHYTIL KAMILA K",
+        "position": "Director",
+        "type": "Other",
+        "shares": 883,
+        "value": 53911.6521
+      },
+      {
+        "date": "2026-03-31",
+        "insider": "COVIELLO ARTHUR W JR",
+        "position": "Director",
+        "type": "Other",
+        "shares": 883,
+        "value": 53911.6521
       },
       {
         "date": "2026-03-31",
@@ -1909,30 +1933,6 @@
         "type": "Other",
         "shares": 883,
         "value": 53911.6521
-      },
-      {
-        "date": "2026-03-31",
-        "insider": "COVIELLO ARTHUR W JR",
-        "position": "Director",
-        "type": "Other",
-        "shares": 883,
-        "value": 53911.6521
-      },
-      {
-        "date": "2026-03-31",
-        "insider": "ALVES PAGET LEONARD",
-        "position": "Director",
-        "type": "Other",
-        "shares": 883,
-        "value": 53911.6521
-      },
-      {
-        "date": "2026-03-31",
-        "insider": "NAYLOR JEFFREY G",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1343,
-        "value": 81996.6589
       }
     ]
   },
@@ -1974,7 +1974,7 @@
     },
     {
       "date": "2025-11-07",
-      "close": 64.8844,
+      "close": 64.8845,
       "volume": 3710600.0
     },
     {
@@ -2014,12 +2014,12 @@
     },
     {
       "date": "2025-11-19",
-      "close": 64.317,
+      "close": 64.3171,
       "volume": 5567700.0
     },
     {
       "date": "2025-11-20",
-      "close": 64.0511,
+      "close": 64.051,
       "volume": 5452200.0
     },
     {
@@ -3193,5 +3193,5 @@
       "volume": 3007400.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.933342+00:00"
+  "updatedAt": "2026-10-29T10:23:36.143447+00:00"
 }

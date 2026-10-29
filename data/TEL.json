@@ -14,10 +14,10 @@
     "price": 198.585,
     "change": -3.6892,
     "changePercent": -1.82,
-    "marketCap": 57492990400.1424,
+    "marketCap": 57577878716.9806,
     "fiftyTwoWeekLow": 170.7864,
     "fiftyTwoWeekHigh": 226.6979,
-    "volume": 4415600.0,
+    "volume": 4415622,
     "avgVolume": 2028944,
     "currency": "EUR"
   },
@@ -25,10 +25,10 @@
     "peTrailing": 19.9855,
     "peForward": 15.2238,
     "pegRatio": 0.96,
-    "dividendYield": 1.38,
-    "profitMargins": 0.1561,
-    "debtToEquity": 43.441,
-    "revenueGrowth": 0.138
+    "dividendYield": 1.41,
+    "profitMargins": 0.1636,
+    "debtToEquity": 41.092,
+    "revenueGrowth": 0.119
   },
   "financials": {
     "incomeStatement": {
@@ -695,7 +695,7 @@
           "Other_Current_Liabilities": null,
           "Current_Deferred_Liabilities": null,
           "Current_Deferred_Revenue": null,
-          "Current_Debt_And_Capital_Lease_Obligation": null,
+          "Current_Debt_And_Capital_Lease_Obligation": 763857612.0926,
           "Current_Capital_Lease_Obligation": null,
           "Current_Debt": 763857612.0926,
           "Other_Current_Borrowings": null,
@@ -776,7 +776,7 @@
           "Other_Current_Liabilities": 567283208.9807,
           "Current_Deferred_Liabilities": 103224001.6341,
           "Current_Deferred_Revenue": 103224001.6341,
-          "Current_Debt_And_Capital_Lease_Obligation": null,
+          "Current_Debt_And_Capital_Lease_Obligation": 877852813.8973,
           "Current_Capital_Lease_Obligation": 113097601.7904,
           "Current_Debt": 764755212.1068,
           "Other_Current_Borrowings": 764755212.1068,
@@ -857,7 +857,7 @@
           "Other_Current_Liabilities": null,
           "Current_Deferred_Liabilities": null,
           "Current_Deferred_Revenue": null,
-          "Current_Debt_And_Capital_Lease_Obligation": null,
+          "Current_Debt_And_Capital_Lease_Obligation": 764755212.1068,
           "Current_Capital_Lease_Obligation": null,
           "Current_Debt": 764755212.1068,
           "Other_Current_Borrowings": null,
@@ -938,7 +938,7 @@
           "Other_Current_Liabilities": null,
           "Current_Deferred_Liabilities": null,
           "Current_Deferred_Revenue": null,
-          "Current_Debt_And_Capital_Lease_Obligation": null,
+          "Current_Debt_And_Capital_Lease_Obligation": 91555201.4494,
           "Current_Capital_Lease_Obligation": null,
           "Current_Debt": 91555201.4494,
           "Other_Current_Borrowings": null,
@@ -1138,6 +1138,7 @@
           "Finished_Goods": 1095072017.3361,
           "Work_In_Process": 956841615.1478,
           "Raw_Materials": 350064005.5419,
+          "Receivables": 2571624040.7114,
           "Accounts_Receivable": 2571624040.7114,
           "Allowance_For_Doubtful_Accounts_Receivable": -40392000.6394,
           "Gross_Accounts_Receivable": 2612016041.3508,
@@ -1219,6 +1220,7 @@
           "Finished_Goods": 897600014.2099,
           "Work_In_Process": 1063656016.8387,
           "Raw_Materials": 329419205.215,
+          "Receivables": 2663179242.1608,
           "Accounts_Receivable": 2663179242.1608,
           "Allowance_For_Doubtful_Accounts_Receivable": -26928000.4263,
           "Gross_Accounts_Receivable": 2690107242.5871,
@@ -1300,6 +1302,7 @@
           "Finished_Goods": 1010697616.0003,
           "Work_In_Process": 954148815.1051,
           "Raw_Materials": 294412804.6608,
+          "Receivables": 2742168043.4112,
           "Accounts_Receivable": 2742168043.4112,
           "Allowance_For_Doubtful_Accounts_Receivable": -28723200.4547,
           "Gross_Accounts_Receivable": 2770891243.866,
@@ -1381,6 +1384,7 @@
           "Finished_Goods": 1078017617.0661,
           "Work_In_Process": 967612815.3183,
           "Raw_Materials": 376992005.9682,
+          "Receivables": 3054532848.3563,
           "Accounts_Receivable": 3054532848.3563,
           "Allowance_For_Doubtful_Accounts_Receivable": -39494400.6252,
           "Gross_Accounts_Receivable": 3094027248.9815,
@@ -2071,9 +2075,9 @@
   "insider": {
     "summary": {
       "buysCount2Q": 0,
-      "sellsCount2Q": 10,
+      "sellsCount2Q": 11,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 23303440.4055,
+      "sellValueTotal": 41560692.9121,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -2081,17 +2085,17 @@
         "date": "2026-06-01",
         "insider": "KROEGER SHADRAK W",
         "position": "Officer",
-        "type": "Other",
+        "type": "Sell",
         "shares": 9400,
-        "value": 789997.5197
+        "value": 1814049.6287
       },
       {
         "date": "2026-06-01",
         "insider": "KROEGER SHADRAK W",
         "position": "Officer",
-        "type": "Sell",
+        "type": "Other",
         "shares": 9400,
-        "value": 1814049.6287
+        "value": 789997.5197
       },
       {
         "date": "2026-05-15",
@@ -2105,20 +2109,12 @@
         "date": "2026-05-06",
         "insider": "KROEGER SHADRAK W",
         "position": "Officer",
-        "type": "Other",
-        "shares": 9400,
-        "value": 789997.5197
-      },
-      {
-        "date": "2026-05-06",
-        "insider": "KROEGER SHADRAK W",
-        "position": "Officer",
         "type": "Sell",
         "shares": 9400,
         "value": 1814049.6287
       },
       {
-        "date": "2026-04-08",
+        "date": "2026-05-06",
         "insider": "KROEGER SHADRAK W",
         "position": "Officer",
         "type": "Other",
@@ -2134,7 +2130,7 @@
         "value": 1883769.8122
       },
       {
-        "date": "2026-03-02",
+        "date": "2026-04-08",
         "insider": "KROEGER SHADRAK W",
         "position": "Officer",
         "type": "Other",
@@ -2150,12 +2146,20 @@
         "value": 1877475.8409
       },
       {
-        "date": "2026-02-13",
+        "date": "2026-03-02",
         "insider": "KROEGER SHADRAK W",
         "position": "Officer",
         "type": "Other",
         "shares": 9400,
         "value": 789997.5197
+      },
+      {
+        "date": "2026-02-13",
+        "insider": "SHAFFER REUBEN M",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 1425,
+        "value": 299666.4575
       },
       {
         "date": "2026-02-13",
@@ -2175,11 +2179,11 @@
       },
       {
         "date": "2026-02-13",
-        "insider": "SHAFFER REUBEN M",
+        "insider": "KROEGER SHADRAK W",
         "position": "Officer",
-        "type": "Sell",
-        "shares": 1425,
-        "value": 299666.4575
+        "type": "Other",
+        "shares": 9400,
+        "value": 789997.5197
       },
       {
         "date": "2026-02-09",
@@ -2191,14 +2195,6 @@
       },
       {
         "date": "2025-12-19",
-        "insider": "CURTIN TERRENCE R",
-        "position": "Chief Executive Officer",
-        "type": "Sell",
-        "shares": 41634,
-        "value": 8485733.7071
-      },
-      {
-        "date": "2025-12-19",
         "insider": "MITTS HEATH A",
         "position": "Chief Financial Officer",
         "type": "Sell",
@@ -2206,19 +2202,27 @@
         "value": 2548044.0883
       },
       {
+        "date": "2025-12-19",
+        "insider": "CURTIN TERRENCE R",
+        "position": "Chief Executive Officer",
+        "type": "Sell",
+        "shares": 41634,
+        "value": 8485733.7071
+      },
+      {
         "date": "2025-12-16",
-        "insider": "STUCKI AARON KYLE",
-        "position": "Officer",
+        "insider": "MITTS HEATH A",
+        "position": "Chief Financial Officer",
         "type": "Other",
-        "shares": 9823,
+        "shares": 21801,
         "value": 0.0
       },
       {
         "date": "2025-12-16",
-        "insider": "SAGAR MALAVIKA",
-        "position": "Officer",
+        "insider": "CURTIN TERRENCE R",
+        "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 1838,
+        "shares": 73676,
         "value": 0.0
       },
       {
@@ -2239,18 +2243,18 @@
       },
       {
         "date": "2025-12-16",
-        "insider": "MITTS HEATH A",
-        "position": "Chief Financial Officer",
+        "insider": "STUCKI AARON KYLE",
+        "position": "Officer",
         "type": "Other",
-        "shares": 21801,
+        "shares": 9823,
         "value": 0.0
       },
       {
         "date": "2025-12-16",
-        "insider": "CURTIN TERRENCE R",
-        "position": "Chief Executive Officer",
+        "insider": "SAGAR MALAVIKA",
+        "position": "Officer",
         "type": "Other",
-        "shares": 73676,
+        "shares": 1838,
         "value": 0.0
       },
       {
@@ -2279,7 +2283,7 @@
       },
       {
         "date": "2025-11-13",
-        "insider": "ELDESSOUKY SAM",
+        "insider": "DUGLE LYNN A",
         "position": "Director",
         "type": "Other",
         "shares": 838,
@@ -2287,7 +2291,7 @@
       },
       {
         "date": "2025-11-13",
-        "insider": "CLAMADIEU JEAN-PIERRE",
+        "insider": "TRUDEAU MARK C",
         "position": "Director",
         "type": "Other",
         "shares": 838,
@@ -2304,30 +2308,6 @@
       {
         "date": "2025-11-13",
         "insider": "LIN SYARU SHIRLEY",
-        "position": "Director",
-        "type": "Other",
-        "shares": 838,
-        "value": 0.0
-      },
-      {
-        "date": "2025-11-13",
-        "insider": "TRUDEAU MARK C",
-        "position": "Director",
-        "type": "Other",
-        "shares": 838,
-        "value": 0.0
-      },
-      {
-        "date": "2025-11-13",
-        "insider": "ELDESSOUKY OSAMA A",
-        "position": "Director",
-        "type": "Other",
-        "shares": 838,
-        "value": 0.0
-      },
-      {
-        "date": "2025-11-13",
-        "insider": "WILLOUGHBY DAWN C.",
         "position": "Director",
         "type": "Other",
         "shares": 838,
@@ -2359,7 +2339,31 @@
       },
       {
         "date": "2025-11-13",
-        "insider": "DUGLE LYNN A",
+        "insider": "ELDESSOUKY OSAMA A",
+        "position": "Director",
+        "type": "Other",
+        "shares": 838,
+        "value": 0.0
+      },
+      {
+        "date": "2025-11-13",
+        "insider": "WILLOUGHBY DAWN C.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 838,
+        "value": 0.0
+      },
+      {
+        "date": "2025-11-13",
+        "insider": "ELDESSOUKY SAM",
+        "position": "Director",
+        "type": "Other",
+        "shares": 838,
+        "value": 0.0
+      },
+      {
+        "date": "2025-11-13",
+        "insider": "CLAMADIEU JEAN-PIERRE",
         "position": "Director",
         "type": "Other",
         "shares": 838,
@@ -2383,11 +2387,11 @@
       },
       {
         "date": "2025-11-03",
-        "insider": "JENKINS JOHN S.",
-        "position": "General Counsel",
-        "type": "Other",
-        "shares": 22124,
-        "value": 2517357.8367
+        "insider": "MITTS HEATH A",
+        "position": "Chief Financial Officer",
+        "type": "Sell",
+        "shares": 82300,
+        "value": 18257252.5066
       },
       {
         "date": "2025-11-03",
@@ -2462,7 +2466,7 @@
     },
     {
       "date": "2025-11-14",
-      "close": 210.7359,
+      "close": 210.736,
       "volume": 2006100.0
     },
     {
@@ -2517,7 +2521,7 @@
     },
     {
       "date": "2025-12-02",
-      "close": 203.8278,
+      "close": 203.8277,
       "volume": 2968800.0
     },
     {
@@ -2622,7 +2626,7 @@
     },
     {
       "date": "2026-01-02",
-      "close": 207.0866,
+      "close": 207.0865,
       "volume": 1370300.0
     },
     {
@@ -2762,7 +2766,7 @@
     },
     {
       "date": "2026-02-12",
-      "close": 200.1784,
+      "close": 200.1783,
       "volume": 1907100.0
     },
     {
@@ -2912,7 +2916,7 @@
     },
     {
       "date": "2026-03-27",
-      "close": 180.0392,
+      "close": 180.0393,
       "volume": 1711600.0
     },
     {
@@ -2927,7 +2931,7 @@
     },
     {
       "date": "2026-04-01",
-      "close": 188.5273,
+      "close": 188.5272,
       "volume": 1642300.0
     },
     {
@@ -3087,7 +3091,7 @@
     },
     {
       "date": "2026-05-18",
-      "close": 178.5874,
+      "close": 178.5875,
       "volume": 1850800.0
     },
     {
@@ -3097,7 +3101,7 @@
     },
     {
       "date": "2026-05-20",
-      "close": 179.3713,
+      "close": 179.3712,
       "volume": 1875100.0
     },
     {
@@ -3656,5 +3660,5 @@
       "volume": 4415600.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.981345+00:00"
+  "updatedAt": "2026-10-29T10:23:54.149043+00:00"
 }

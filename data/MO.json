@@ -17,7 +17,7 @@
     "marketCap": 109394646310.9491,
     "fiftyTwoWeekLow": 49.0987,
     "fiftyTwoWeekHigh": 69.1691,
-    "volume": 8055300.0,
+    "volume": 8055494,
     "avgVolume": 8575667,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 15.3663,
     "peForward": 12.4154,
     "pegRatio": 2.82,
-    "dividendYield": 6.04,
+    "dividendYield": 6.08,
     "profitMargins": 0.39,
     "debtToEquity": null,
     "revenueGrowth": 0.012
@@ -2092,14 +2092,6 @@
     "trades": [
       {
         "date": "2026-05-26",
-        "insider": "KELLY-ENNIS DEBRA J",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 5790,
-        "value": 375482.2427
-      },
-      {
-        "date": "2026-05-26",
         "insider": "STRAHLMAN ELLEN",
         "position": "Director",
         "type": "Sell",
@@ -2107,8 +2099,16 @@
         "value": 130257.9189
       },
       {
+        "date": "2026-05-26",
+        "insider": "KELLY-ENNIS DEBRA J",
+        "position": "Director",
+        "type": "Sell",
+        "shares": 5790,
+        "value": 375482.2427
+      },
+      {
         "date": "2026-05-14",
-        "insider": "YZAGUIRRE MARIO MAX",
+        "insider": "DAVIS ROBERT MATTHEWS",
         "position": "Director",
         "type": "Other",
         "shares": 2571,
@@ -2116,15 +2116,15 @@
       },
       {
         "date": "2026-05-14",
-        "insider": "MCQUADE KATHRYN ANN BOVA",
+        "insider": "CLARKE IAN L.T.",
         "position": "Director",
         "type": "Other",
-        "shares": 4656,
+        "shares": 2571,
         "value": 0.0
       },
       {
         "date": "2026-05-14",
-        "insider": "SHANKS VIRGINIA E",
+        "insider": "KELLY-ENNIS DEBRA J",
         "position": "Director",
         "type": "Other",
         "shares": 2571,
@@ -2156,7 +2156,7 @@
       },
       {
         "date": "2026-05-14",
-        "insider": "DAVIS ROBERT MATTHEWS",
+        "insider": "YZAGUIRRE MARIO MAX",
         "position": "Director",
         "type": "Other",
         "shares": 2571,
@@ -2164,7 +2164,7 @@
       },
       {
         "date": "2026-05-14",
-        "insider": "CLARKE IAN L.T.",
+        "insider": "SHANKS VIRGINIA E",
         "position": "Director",
         "type": "Other",
         "shares": 2571,
@@ -2172,10 +2172,10 @@
       },
       {
         "date": "2026-05-14",
-        "insider": "KELLY-ENNIS DEBRA J",
+        "insider": "MCQUADE KATHRYN ANN BOVA",
         "position": "Director",
         "type": "Other",
-        "shares": 2571,
+        "shares": 4656,
         "value": 0.0
       },
       {
@@ -2196,38 +2196,6 @@
       },
       {
         "date": "2026-02-26",
-        "insider": "GIFFORD WILLIAM F JR",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 70364,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-26",
-        "insider": "MANCUSO SALVATORE",
-        "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 17166,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-26",
-        "insider": "BEGLEY JODY L",
-        "position": "Chief Operating Officer",
-        "type": "Other",
-        "shares": 17166,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-26",
-        "insider": "WHITAKER CHARLES N",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 9711,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-26",
         "insider": "NEWMAN HEATHER A",
         "position": "Officer",
         "type": "Other",
@@ -2243,27 +2211,35 @@
         "value": 0.0
       },
       {
-        "date": "2026-02-25",
+        "date": "2026-02-26",
         "insider": "MANCUSO SALVATORE",
         "position": "Chief Financial Officer",
         "type": "Other",
-        "shares": 25376,
+        "shares": 17166,
         "value": 0.0
       },
       {
-        "date": "2026-02-25",
-        "insider": "BEGLEY JODY L",
-        "position": "Chief Operating Officer",
-        "type": "Other",
-        "shares": 22448,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-25",
+        "date": "2026-02-26",
         "insider": "WHITAKER CHARLES N",
         "position": "Officer",
         "type": "Other",
-        "shares": 13534,
+        "shares": 9711,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-26",
+        "insider": "BEGLEY JODY L",
+        "position": "Chief Operating Officer",
+        "type": "Other",
+        "shares": 17166,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-26",
+        "insider": "GIFFORD WILLIAM F JR",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 70364,
         "value": 0.0
       },
       {
@@ -2288,6 +2264,30 @@
         "position": "Officer",
         "type": "Other",
         "shares": 1432,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-25",
+        "insider": "MANCUSO SALVATORE",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 25376,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-25",
+        "insider": "WHITAKER CHARLES N",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 13534,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-25",
+        "insider": "BEGLEY JODY L",
+        "position": "Chief Operating Officer",
+        "type": "Other",
+        "shares": 22448,
         "value": 0.0
       },
       {
@@ -2332,7 +2332,7 @@
       },
       {
         "date": "2025-05-15",
-        "insider": "YZAGUIRRE MARIO MAX",
+        "insider": "DAVIS ROBERT MATTHEWS",
         "position": "Director",
         "type": "Other",
         "shares": 3219,
@@ -2340,31 +2340,7 @@
       },
       {
         "date": "2025-05-15",
-        "insider": "KELLY-ENNIS DEBRA J",
-        "position": "Director",
-        "type": "Other",
-        "shares": 3219,
-        "value": 0.0
-      },
-      {
-        "date": "2025-05-15",
-        "insider": "MCQUADE KATHRYN ANN BOVA",
-        "position": "Director",
-        "type": "Other",
-        "shares": 5828,
-        "value": 0.0
-      },
-      {
-        "date": "2025-05-15",
-        "insider": "SHANKS VIRGINIA E",
-        "position": "Director",
-        "type": "Other",
-        "shares": 3219,
-        "value": 0.0
-      },
-      {
-        "date": "2025-05-15",
-        "insider": "MUNOZ GEORGE",
+        "insider": "CLARKE IAN L.T.",
         "position": "Director",
         "type": "Other",
         "shares": 3219,
@@ -2396,7 +2372,7 @@
       },
       {
         "date": "2025-05-15",
-        "insider": "DAVIS ROBERT MATTHEWS",
+        "insider": "KELLY-ENNIS DEBRA J",
         "position": "Director",
         "type": "Other",
         "shares": 3219,
@@ -2404,10 +2380,34 @@
       },
       {
         "date": "2025-05-15",
-        "insider": "CLARKE IAN L.T.",
+        "insider": "YZAGUIRRE MARIO MAX",
         "position": "Director",
         "type": "Other",
         "shares": 3219,
+        "value": 0.0
+      },
+      {
+        "date": "2025-05-15",
+        "insider": "MUNOZ GEORGE",
+        "position": "Director",
+        "type": "Other",
+        "shares": 3219,
+        "value": 0.0
+      },
+      {
+        "date": "2025-05-15",
+        "insider": "SHANKS VIRGINIA E",
+        "position": "Director",
+        "type": "Other",
+        "shares": 3219,
+        "value": 0.0
+      },
+      {
+        "date": "2025-05-15",
+        "insider": "MCQUADE KATHRYN ANN BOVA",
+        "position": "Director",
+        "type": "Other",
+        "shares": 5828,
         "value": 0.0
       }
     ]
@@ -2475,7 +2475,7 @@
     },
     {
       "date": "2025-11-14",
-      "close": 48.9226,
+      "close": 48.9227,
       "volume": 7788000.0
     },
     {
@@ -2500,7 +2500,7 @@
     },
     {
       "date": "2025-11-21",
-      "close": 48.9226,
+      "close": 48.9227,
       "volume": 9461000.0
     },
     {
@@ -2510,7 +2510,7 @@
     },
     {
       "date": "2025-11-25",
-      "close": 49.0487,
+      "close": 49.0488,
       "volume": 9621300.0
     },
     {
@@ -2540,7 +2540,7 @@
     },
     {
       "date": "2025-12-04",
-      "close": 49.0487,
+      "close": 49.0488,
       "volume": 6733800.0
     },
     {
@@ -2930,7 +2930,7 @@
     },
     {
       "date": "2026-03-30",
-      "close": 58.339,
+      "close": 58.3391,
       "volume": 8841000.0
     },
     {
@@ -3090,7 +3090,7 @@
     },
     {
       "date": "2026-05-14",
-      "close": 63.0308,
+      "close": 63.0309,
       "volume": 8674800.0
     },
     {
@@ -3669,5 +3669,5 @@
       "volume": 8055300.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.037629+00:00"
+  "updatedAt": "2026-10-29T10:11:30.312528+00:00"
 }

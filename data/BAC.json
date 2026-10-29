@@ -17,7 +17,7 @@
     "marketCap": 315972308403.9348,
     "fiftyTwoWeekLow": 41.3973,
     "fiftyTwoWeekHigh": 58.5504,
-    "volume": 25780500.0,
+    "volume": 25787517,
     "avgVolume": 35375518,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 12.136,
     "peForward": 9.7937,
     "pegRatio": 0.92,
-    "dividendYield": 2.53,
+    "dividendYield": 2.52,
     "profitMargins": 0.2806,
     "debtToEquity": null,
     "revenueGrowth": 0.071
@@ -36,7 +36,7 @@
         {
           "date": "2025-03-31",
           "Tax_Effect_Of_Unusual_Items": 0.0,
-          "Tax_Rate_For_Calcs": null,
+          "Tax_Rate_For_Calcs": 0.1634,
           "Net_Income_From_Continuing_Operation_Net_Minority_Interest": 7360000000.0,
           "Reconciled_Depreciation": 507144008.0286,
           "Net_Interest_Income": 12964037005.2336,
@@ -216,7 +216,7 @@
         {
           "date": "2026-06-30",
           "Tax_Effect_Of_Unusual_Items": null,
-          "Tax_Rate_For_Calcs": 0.193,
+          "Tax_Rate_For_Calcs": null,
           "Net_Income_From_Continuing_Operation_Net_Minority_Interest": null,
           "Reconciled_Depreciation": null,
           "Net_Interest_Income": null,
@@ -1637,7 +1637,7 @@
       },
       {
         "date": "2026-05-04",
-        "insider": "ALMEIDA JOSE E.",
+        "insider": "DONALD ARNOLD WAYNE",
         "position": "Director",
         "type": "Other",
         "shares": 5365,
@@ -1653,7 +1653,7 @@
       },
       {
         "date": "2026-05-04",
-        "insider": "DONALD ARNOLD WAYNE",
+        "insider": "ALMEIDA JOSE E.",
         "position": "Director",
         "type": "Other",
         "shares": 5365,
@@ -1717,50 +1717,10 @@
       },
       {
         "date": "2026-02-27",
-        "insider": "BORTHWICK ALASTAIR M.",
-        "position": "Chief Financial Officer",
+        "insider": "MOYNIHAN BRIAN T",
+        "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 32000,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-27",
-        "insider": "BRONSTEIN SHERI B",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 39551,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-27",
-        "insider": "NGUYEN THONG M",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 99917,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-27",
-        "insider": "MENSAH BERNARD AMPONSAH",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 1432,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-27",
-        "insider": "DEMARE JAMES P.",
-        "position": "President",
-        "type": "Other",
-        "shares": 149876,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-27",
-        "insider": "SCRIVENER THOMAS M",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 37469,
+        "shares": 395504,
         "value": 0.0
       },
       {
@@ -1776,7 +1736,47 @@
         "insider": "BORTHWICK ALASTAIR M.",
         "position": "Chief Financial Officer",
         "type": "Other",
+        "shares": 32000,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-27",
+        "insider": "BORTHWICK ALASTAIR M.",
+        "position": "Chief Financial Officer",
+        "type": "Sell",
+        "shares": 68000,
+        "value": 3066488.8805
+      },
+      {
+        "date": "2026-02-27",
+        "insider": "BORTHWICK ALASTAIR M.",
+        "position": "Chief Financial Officer",
+        "type": "Other",
         "shares": 79101,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-27",
+        "insider": "MENSAH BERNARD AMPONSAH",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 1432,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-27",
+        "insider": "SCRIVENER THOMAS M",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 37469,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-27",
+        "insider": "DEMARE JAMES P.",
+        "position": "President",
+        "type": "Other",
+        "shares": 149876,
         "value": 0.0
       },
       {
@@ -1797,6 +1797,22 @@
       },
       {
         "date": "2026-02-27",
+        "insider": "NGUYEN THONG M",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 99917,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-27",
+        "insider": "BRONSTEIN SHERI B",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 39551,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-27",
         "insider": "THOMPSON BRUCE R",
         "position": "Officer",
         "type": "Other",
@@ -1804,27 +1820,11 @@
         "value": 0.0
       },
       {
-        "date": "2026-02-27",
+        "date": "2026-02-13",
         "insider": "MOYNIHAN BRIAN T",
         "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 395504,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-27",
-        "insider": "BORTHWICK ALASTAIR M.",
-        "position": "Chief Financial Officer",
-        "type": "Sell",
-        "shares": 68000,
-        "value": 3066488.8805
-      },
-      {
-        "date": "2026-02-13",
-        "insider": "BRONSTEIN SHERI B",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 119277,
+        "shares": 166296,
         "value": 0.0
       },
       {
@@ -1837,10 +1837,18 @@
       },
       {
         "date": "2026-02-13",
-        "insider": "NGUYEN THONG M",
+        "insider": "MOGENSEN LAUREN A",
         "position": "Officer",
         "type": "Other",
-        "shares": 160764,
+        "shares": 112062,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-13",
+        "insider": "BORTHWICK ALASTAIR M.",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 116948,
         "value": 0.0
       },
       {
@@ -1849,6 +1857,14 @@
         "position": "Officer",
         "type": "Other",
         "shares": 190487,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-13",
+        "insider": "SCRIVENER THOMAS M",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 101523,
         "value": 0.0
       },
       {
@@ -1865,22 +1881,6 @@
         "position": "Chief Technology Officer",
         "type": "Other",
         "shares": 128483,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-13",
-        "insider": "SCRIVENER THOMAS M",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 101523,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-13",
-        "insider": "MOGENSEN LAUREN A",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 112062,
         "value": 0.0
       }
     ]
@@ -2218,7 +2218,7 @@
     },
     {
       "date": "2026-02-04",
-      "close": 48.9245,
+      "close": 48.9246,
       "volume": 54522500.0
     },
     {
@@ -3142,5 +3142,5 @@
       "volume": 25780500.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.204647+00:00"
+  "updatedAt": "2026-10-29T10:12:35.321069+00:00"
 }

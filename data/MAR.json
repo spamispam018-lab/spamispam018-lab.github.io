@@ -17,7 +17,7 @@
     "marketCap": 92314774306.7978,
     "fiftyTwoWeekLow": 230.4678,
     "fiftyTwoWeekHigh": 368.8957,
-    "volume": 1143000.0,
+    "volume": 1125270,
     "avgVolume": 1577361,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 40.8282,
     "peForward": 29.9657,
     "pegRatio": 1.95,
-    "dividendYield": 0.75,
+    "dividendYield": 0.74,
     "profitMargins": 0.3503,
     "debtToEquity": null,
     "revenueGrowth": 0.111
@@ -1384,7 +1384,7 @@
           "Net_Short_Term_Debt_Issuance": -973896015.4177,
           "Net_Long_Term_Debt_Issuance": 1276387220.2065,
           "Long_Term_Debt_Payments": -2692800.0426,
-          "Long_Term_Debt_Issuance": null,
+          "Long_Term_Debt_Issuance": 1279080020.2491,
           "Investing_Cash_Flow": -133742402.1173,
           "Cash_Flow_From_Continuing_Investing_Activities": -133742402.1173,
           "Net_Other_Investing_Changes": -18849600.2984,
@@ -1392,7 +1392,7 @@
           "Sale_Of_PPE": 1795200.0284,
           "Capital_Expenditure_Reported": -116688001.8473,
           "Operating_Cash_Flow": 770140812.1921,
-          "Cash_Flow_From_Continuing_Operating_Activities": null,
+          "Cash_Flow_From_Continuing_Operating_Activities": 770140812.1921,
           "Change_In_Working_Capital": -325828805.1582,
           "Other_Non_Cash_Items": 232478403.6804,
           "Stock_Based_Compensation": 51163200.81,
@@ -1776,14 +1776,6 @@
       },
       {
         "date": "2026-09-25",
-        "insider": "MARRIOTT DAVID SHEETS",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 3500,
-        "value": 1106124.1663
-      },
-      {
-        "date": "2026-09-25",
         "insider": "HARRISON DEBORAH MARRIOTT",
         "position": "Director",
         "type": "Sell",
@@ -1791,12 +1783,12 @@
         "value": 1106124.1663
       },
       {
-        "date": "2026-06-30",
-        "insider": "LEWIS AYLWIN B",
+        "date": "2026-09-25",
+        "insider": "MARRIOTT DAVID SHEETS",
         "position": "Director",
-        "type": "Other",
-        "shares": 9,
-        "value": 3253.8001
+        "type": "Sell",
+        "shares": 3500,
+        "value": 1106124.1663
       },
       {
         "date": "2026-06-30",
@@ -1805,6 +1797,14 @@
         "type": "Other",
         "shares": 39,
         "value": 13029.5618
+      },
+      {
+        "date": "2026-06-30",
+        "insider": "LEWIS AYLWIN B",
+        "position": "Director",
+        "type": "Other",
+        "shares": 9,
+        "value": 3253.8001
       },
       {
         "date": "2026-05-18",
@@ -1832,63 +1832,7 @@
       },
       {
         "date": "2026-05-11",
-        "insider": "HENDERSON FREDERICK A",
-        "position": "Director",
-        "type": "Other",
-        "shares": 670,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-11",
-        "insider": "LEWIS AYLWIN B",
-        "position": "Director",
-        "type": "Other",
-        "shares": 670,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-11",
-        "insider": "HARRISON DEBORAH MARRIOTT",
-        "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
-        "type": "Other",
-        "shares": 670,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-11",
-        "insider": "SCHWAB SUSAN C",
-        "position": "Director",
-        "type": "Other",
-        "shares": 670,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-11",
         "insider": "REID GRANT F",
-        "position": "Director",
-        "type": "Other",
-        "shares": 670,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-11",
-        "insider": "ROZANSKI HORACIO",
-        "position": "Director",
-        "type": "Other",
-        "shares": 670,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-11",
-        "insider": "HOBART LAUREN R",
-        "position": "Director",
-        "type": "Other",
-        "shares": 670,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-11",
-        "insider": "GOREN ISABELLA D.",
         "position": "Director",
         "type": "Other",
         "shares": 670,
@@ -1912,7 +1856,63 @@
       },
       {
         "date": "2026-05-11",
+        "insider": "ROZANSKI HORACIO",
+        "position": "Director",
+        "type": "Other",
+        "shares": 670,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-11",
+        "insider": "HOBART LAUREN R",
+        "position": "Director",
+        "type": "Other",
+        "shares": 670,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-11",
         "insider": "MCCARTHY MARGARET M",
+        "position": "Director",
+        "type": "Other",
+        "shares": 670,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-11",
+        "insider": "HARRISON DEBORAH MARRIOTT",
+        "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
+        "type": "Other",
+        "shares": 670,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-11",
+        "insider": "GOREN ISABELLA D.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 670,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-11",
+        "insider": "HENDERSON FREDERICK A",
+        "position": "Director",
+        "type": "Other",
+        "shares": 670,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-11",
+        "insider": "SCHWAB SUSAN C",
+        "position": "Director",
+        "type": "Other",
+        "shares": 670,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-11",
+        "insider": "LEWIS AYLWIN B",
         "position": "Director",
         "type": "Other",
         "shares": 670,
@@ -1944,22 +1944,6 @@
       },
       {
         "date": "2026-02-18",
-        "insider": "MENON RAJEEV",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 8530,
-        "value": 1607520.8414
-      },
-      {
-        "date": "2026-02-18",
-        "insider": "BROWN WILLIAM P",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 9456,
-        "value": 3040729.5553
-      },
-      {
-        "date": "2026-02-18",
         "insider": "BRELAND BENJAMIN T",
         "position": "Officer",
         "type": "Sell",
@@ -1975,20 +1959,28 @@
         "value": 2027150.6433
       },
       {
+        "date": "2026-02-18",
+        "insider": "MENON RAJEEV",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 8530,
+        "value": 1607520.8414
+      },
+      {
+        "date": "2026-02-18",
+        "insider": "BROWN WILLIAM P",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 9456,
+        "value": 3040729.5553
+      },
+      {
         "date": "2026-02-17",
         "insider": "PINTO DREW",
         "position": "Chief Technology Officer",
         "type": "Sell",
         "shares": 4000,
         "value": 1291876.2061
-      },
-      {
-        "date": "2026-02-17",
-        "insider": "MARRIOTT DAVID SHEETS",
-        "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
-        "type": "Sell",
-        "shares": 4747,
-        "value": 1533938.2851
       },
       {
         "date": "2026-02-17",
@@ -1999,28 +1991,12 @@
         "value": 20313615.5424
       },
       {
-        "date": "2026-02-13",
-        "insider": "REISS RENA HOZORE",
-        "position": "General Counsel",
+        "date": "2026-02-17",
+        "insider": "MARRIOTT DAVID SHEETS",
+        "position": "Director and Beneficial Owner of more than 10% of a Class of Security",
         "type": "Sell",
-        "shares": 2512,
-        "value": 804953.3311
-      },
-      {
-        "date": "2026-02-13",
-        "insider": "CAPUANO ANTHONY G",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 13044,
-        "value": 4152112.7601
-      },
-      {
-        "date": "2026-02-13",
-        "insider": "MAO YIBING",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 1059,
-        "value": 337096.3781
+        "shares": 4747,
+        "value": 1533938.2851
       },
       {
         "date": "2026-02-13",
@@ -2072,6 +2048,30 @@
       },
       {
         "date": "2026-02-13",
+        "insider": "HILL DAVID SHAWN",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 846,
+        "value": 269295.2635
+      },
+      {
+        "date": "2026-02-13",
+        "insider": "HILL DAVID SHAWN",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 676,
+        "value": 215181.6514
+      },
+      {
+        "date": "2026-02-13",
+        "insider": "REISS RENA HOZORE",
+        "position": "General Counsel",
+        "type": "Sell",
+        "shares": 2512,
+        "value": 804953.3311
+      },
+      {
+        "date": "2026-02-13",
         "insider": "REISS RENA HOZORE",
         "position": "General Counsel",
         "type": "Other",
@@ -2080,11 +2080,11 @@
       },
       {
         "date": "2026-02-13",
-        "insider": "HILL DAVID SHAWN",
+        "insider": "LEE FELITIA",
         "position": "Officer",
         "type": "Other",
-        "shares": 846,
-        "value": 269295.2635
+        "shares": 891,
+        "value": 283619.1645
       }
     ]
   },
@@ -2101,12 +2101,12 @@
     },
     {
       "date": "2025-10-31",
-      "close": 231.965,
+      "close": 231.9651,
       "volume": 1439900.0
     },
     {
       "date": "2025-11-03",
-      "close": 234.9115,
+      "close": 234.9116,
       "volume": 2242900.0
     },
     {
@@ -3345,5 +3345,5 @@
       "volume": 1143000.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.365590+00:00"
+  "updatedAt": "2026-10-29T10:19:58.309031+00:00"
 }

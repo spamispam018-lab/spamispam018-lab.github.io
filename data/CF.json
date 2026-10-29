@@ -17,7 +17,7 @@
     "marketCap": 16290065795.3215,
     "fiftyTwoWeekLow": 67.697,
     "fiftyTwoWeekHigh": 127.4233,
-    "volume": 1330000.0,
+    "volume": 1329999,
     "avgVolume": 2477389,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 8.8961,
     "peForward": 10.5535,
     "pegRatio": 0.52,
-    "dividendYield": 1.99,
+    "dividendYield": 2.0,
     "profitMargins": 0.2712,
     "debtToEquity": 40.504,
     "revenueGrowth": 0.176
@@ -1043,7 +1043,7 @@
           "Machinery_Furniture_Equipment": 12578966599.1375,
           "Buildings_And_Improvements": 940684814.892,
           "Land_And_Improvements": 96940801.5347,
-          "Properties": null,
+          "Properties": 0.0,
           "Current_Assets": 3043761648.1858,
           "Other_Current_Assets": 205550403.2541,
           "Prepaid_Assets": 20644800.3268,
@@ -1808,7 +1808,7 @@
           "Operating_Cash_Flow": 445209607.0481,
           "Cash_Flow_From_Continuing_Operating_Activities": 445209607.0481,
           "Change_In_Working_Capital": -101428801.6057,
-          "Change_In_Other_Working_Capital": null,
+          "Change_In_Other_Working_Capital": 178622402.8278,
           "Change_In_Payables_And_Accrued_Expense": -67320001.0657,
           "Change_In_Inventory": 1795200.0284,
           "Change_In_Receivables": -214526403.3962,
@@ -2303,9 +2303,9 @@
   "insider": {
     "summary": {
       "buysCount2Q": 0,
-      "sellsCount2Q": 21,
+      "sellsCount2Q": 22,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 53854076.3978,
+      "sellValueTotal": 54350964.428100005,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -2319,15 +2319,7 @@
       },
       {
         "date": "2026-04-28",
-        "insider": "ARZBAECHER ROBERT C",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1390,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-28",
-        "insider": "TOELLE MICHAEL",
+        "insider": "WHITE CELSO L",
         "position": "Director",
         "type": "Other",
         "shares": 1390,
@@ -2343,7 +2335,7 @@
       },
       {
         "date": "2026-04-28",
-        "insider": "WHITE CELSO L",
+        "insider": "TOELLE MICHAEL",
         "position": "Director",
         "type": "Other",
         "shares": 1390,
@@ -2406,12 +2398,20 @@
         "value": 0.0
       },
       {
+        "date": "2026-04-28",
+        "insider": "ARZBAECHER ROBERT C",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1390,
+        "value": 0.0
+      },
+      {
         "date": "2026-03-17",
-        "insider": "FROST BERT A",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 6000,
-        "value": 678585.6107
+        "insider": "WILL W ANTHONY",
+        "position": "Director",
+        "type": "Other",
+        "shares": 17654,
+        "value": 0.0
       },
       {
         "date": "2026-03-17",
@@ -2423,27 +2423,19 @@
       },
       {
         "date": "2026-03-17",
+        "insider": "FROST BERT A",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 6000,
+        "value": 678585.6107
+      },
+      {
+        "date": "2026-03-17",
         "insider": "MAYER ERIK M.",
         "position": "Officer",
         "type": "Sell",
         "shares": 1500,
         "value": 167882.6187
-      },
-      {
-        "date": "2026-03-17",
-        "insider": "WILL W ANTHONY",
-        "position": "Director",
-        "type": "Other",
-        "shares": 17654,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-13",
-        "insider": "WILL W ANTHONY",
-        "position": "Director",
-        "type": "Other",
-        "shares": 96858,
-        "value": 0.0
       },
       {
         "date": "2026-03-13",
@@ -2454,12 +2446,12 @@
         "value": 9275461.9468
       },
       {
-        "date": "2026-03-12",
-        "insider": "MENZEL SUSAN L",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 18041,
-        "value": 2203350.4237
+        "date": "2026-03-13",
+        "insider": "WILL W ANTHONY",
+        "position": "Director",
+        "type": "Other",
+        "shares": 96858,
+        "value": 0.0
       },
       {
         "date": "2026-03-12",
@@ -2468,6 +2460,14 @@
         "type": "Sell",
         "shares": 6250,
         "value": 766834.0537
+      },
+      {
+        "date": "2026-03-12",
+        "insider": "MENZEL SUSAN L",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 18041,
+        "value": 2203350.4237
       },
       {
         "date": "2026-03-09",
@@ -2495,19 +2495,27 @@
       },
       {
         "date": "2026-03-05",
-        "insider": "MENZEL SUSAN L",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 7200,
-        "value": 717361.9314
-      },
-      {
-        "date": "2026-03-05",
         "insider": "WILL W ANTHONY",
         "position": "Director",
         "type": "Sell",
         "shares": 57364,
         "value": 5630614.3707
+      },
+      {
+        "date": "2026-03-05",
+        "insider": "HOKER RICHARD A.",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 6184,
+        "value": 606864.6768
+      },
+      {
+        "date": "2026-03-05",
+        "insider": "MENZEL SUSAN L",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 7200,
+        "value": 717361.9314
       },
       {
         "date": "2026-03-05",
@@ -2527,27 +2535,11 @@
       },
       {
         "date": "2026-03-05",
-        "insider": "HOKER RICHARD A.",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 6184,
-        "value": 606864.6768
-      },
-      {
-        "date": "2026-03-05",
         "insider": "ARZBAECHER ROBERT C",
         "position": "Director",
         "type": "Other",
         "shares": 11600,
         "value": 0.0
-      },
-      {
-        "date": "2026-03-03",
-        "insider": "MENZEL SUSAN L",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 3914,
-        "value": 372728.4059
       },
       {
         "date": "2026-03-03",
@@ -2559,19 +2551,19 @@
       },
       {
         "date": "2026-03-03",
+        "insider": "MENZEL SUSAN L",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 3914,
+        "value": 372728.4059
+      },
+      {
+        "date": "2026-03-03",
         "insider": "MCGRANE MICHAEL PATRICK",
         "position": "General Counsel",
         "type": "Sell",
         "shares": 2766,
         "value": 261583.9817
-      },
-      {
-        "date": "2026-03-02",
-        "insider": "MENZEL SUSAN L",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 6858,
-        "value": 640197.0533
       },
       {
         "date": "2026-03-02",
@@ -2591,6 +2583,14 @@
       },
       {
         "date": "2026-03-02",
+        "insider": "MENZEL SUSAN L",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 6858,
+        "value": 640197.0533
+      },
+      {
+        "date": "2026-03-02",
         "insider": "MALIK ASHRAF KHAN",
         "position": "Officer",
         "type": "Sell",
@@ -2599,10 +2599,10 @@
       },
       {
         "date": "2026-02-27",
-        "insider": "FROST BERT A",
-        "position": "Officer",
+        "insider": "WILL W ANTHONY",
+        "position": "Former",
         "type": "Other",
-        "shares": 9871,
+        "shares": 40647,
         "value": 0.0
       },
       {
@@ -2615,19 +2615,19 @@
       },
       {
         "date": "2026-02-27",
-        "insider": "MENZEL SUSAN L",
+        "insider": "HOKER RICHARD A.",
         "position": "Officer",
         "type": "Other",
-        "shares": 6968,
+        "shares": 1973,
         "value": 0.0
       },
       {
         "date": "2026-02-27",
-        "insider": "BOHN CHRISTOPHER D",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 10452,
-        "value": 0.0
+        "insider": "HOKER RICHARD A.",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 5620,
+        "value": 496888.0303
       }
     ]
   },
@@ -2654,7 +2654,7 @@
     },
     {
       "date": "2025-11-04",
-      "close": 74.3533,
+      "close": 74.3532,
       "volume": 2694700.0
     },
     {
@@ -2694,7 +2694,7 @@
     },
     {
       "date": "2025-11-14",
-      "close": 75.2303,
+      "close": 75.2302,
       "volume": 1978100.0
     },
     {
@@ -2799,7 +2799,7 @@
     },
     {
       "date": "2025-12-16",
-      "close": 68.6042,
+      "close": 68.6043,
       "volume": 2309600.0
     },
     {
@@ -2989,7 +2989,7 @@
     },
     {
       "date": "2026-02-11",
-      "close": 85.7486,
+      "close": 85.7487,
       "volume": 1589200.0
     },
     {
@@ -3888,5 +3888,5 @@
       "volume": 1330000.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.375064+00:00"
+  "updatedAt": "2026-10-29T10:13:41.883434+00:00"
 }

@@ -14,10 +14,10 @@
     "price": 597.4067,
     "change": 9.4877,
     "changePercent": 1.61,
-    "marketCap": 27693187405.5531,
+    "marketCap": 27677334037.1869,
     "fiftyTwoWeekLow": 433.5588,
     "fiftyTwoWeekHigh": 626.2286,
-    "volume": 321700.0,
+    "volume": 321726,
     "avgVolume": 300700,
     "currency": "EUR"
   },
@@ -1669,7 +1669,7 @@
           "Purchase_Of_PPE": -26209920.4149,
           "Operating_Cash_Flow": null,
           "Cash_Flow_From_Continuing_Operating_Activities": 307966564.8754,
-          "Change_In_Working_Capital": null,
+          "Change_In_Working_Capital": 23427360.3709,
           "Change_In_Other_Working_Capital": -1615680.0256,
           "Change_In_Payables_And_Accrued_Expense": 64178401.016,
           "Change_In_Accrued_Expense": 54663840.8654,
@@ -1710,7 +1710,7 @@
           "Purchase_Of_PPE": -35724480.5656,
           "Operating_Cash_Flow": null,
           "Cash_Flow_From_Continuing_Operating_Activities": 340190405.3856,
-          "Change_In_Working_Capital": null,
+          "Change_In_Working_Capital": 62562720.9904,
           "Change_In_Other_Working_Capital": 25671360.4064,
           "Change_In_Payables_And_Accrued_Expense": 40302240.638,
           "Change_In_Accrued_Expense": 20824320.3297,
@@ -1751,7 +1751,7 @@
           "Purchase_Of_PPE": -26658720.422,
           "Operating_Cash_Flow": null,
           "Cash_Flow_From_Continuing_Operating_Activities": 210038403.3251,
-          "Change_In_Working_Capital": null,
+          "Change_In_Working_Capital": -90119041.4267,
           "Change_In_Other_Working_Capital": 10501920.1663,
           "Change_In_Payables_And_Accrued_Expense": 14989920.2373,
           "Change_In_Accrued_Expense": -39225120.621,
@@ -2183,20 +2183,12 @@
   "insider": {
     "summary": {
       "buysCount2Q": 0,
-      "sellsCount2Q": 13,
+      "sellsCount2Q": 14,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 39637491.5315,
+      "sellValueTotal": 43033737.11489999,
       "sentiment": "Bearish"
     },
     "trades": [
-      {
-        "date": "2026-08-12",
-        "insider": "VON SCHACK WESLEY W",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 468,
-        "value": 288437.4814
-      },
       {
         "date": "2026-08-12",
         "insider": "LORNE SIMON M",
@@ -2206,40 +2198,16 @@
         "value": 3938249.6831
       },
       {
-        "date": "2026-04-22",
-        "insider": "MALONE ROBERT A",
-        "position": "Director",
-        "type": "Other",
-        "shares": 319,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-22",
+        "date": "2026-08-12",
         "insider": "VON SCHACK WESLEY W",
         "position": "Director",
-        "type": "Other",
-        "shares": 319,
-        "value": 0.0
+        "type": "Sell",
+        "shares": 468,
+        "value": 288437.4814
       },
       {
         "date": "2026-04-22",
-        "insider": "SMITH MICHAEL T.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 319,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-22",
-        "insider": "KUMBIER MICHELLE A",
-        "position": "Director",
-        "type": "Other",
-        "shares": 319,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-22",
-        "insider": "MORALES VINCENT J",
+        "insider": "LORNE SIMON M",
         "position": "Director",
         "type": "Other",
         "shares": 319,
@@ -2263,14 +2231,6 @@
       },
       {
         "date": "2026-04-22",
-        "insider": "LORNE SIMON M",
-        "position": "Director",
-        "type": "Other",
-        "shares": 319,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-22",
         "insider": "VANWEES JASON",
         "position": "Officer",
         "type": "Other",
@@ -2278,12 +2238,44 @@
         "value": 0.0
       },
       {
-        "date": "2026-02-03",
-        "insider": "VANWEES JASON",
-        "position": "Officer",
+        "date": "2026-04-22",
+        "insider": "KUMBIER MICHELLE A",
+        "position": "Director",
         "type": "Other",
-        "shares": 7500,
-        "value": 1138560.738
+        "shares": 319,
+        "value": 0.0
+      },
+      {
+        "date": "2026-04-22",
+        "insider": "MORALES VINCENT J",
+        "position": "Director",
+        "type": "Other",
+        "shares": 319,
+        "value": 0.0
+      },
+      {
+        "date": "2026-04-22",
+        "insider": "VON SCHACK WESLEY W",
+        "position": "Director",
+        "type": "Other",
+        "shares": 319,
+        "value": 0.0
+      },
+      {
+        "date": "2026-04-22",
+        "insider": "SMITH MICHAEL T.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 319,
+        "value": 0.0
+      },
+      {
+        "date": "2026-04-22",
+        "insider": "MALONE ROBERT A",
+        "position": "Director",
+        "type": "Other",
+        "shares": 319,
+        "value": 0.0
       },
       {
         "date": "2026-02-03",
@@ -2292,6 +2284,14 @@
         "type": "Sell",
         "shares": 7500,
         "value": 4246350.888
+      },
+      {
+        "date": "2026-02-03",
+        "insider": "VANWEES JASON",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 7500,
+        "value": 1138560.738
       },
       {
         "date": "2026-01-29",
@@ -2329,17 +2329,17 @@
         "date": "2025-07-30",
         "insider": "BOBB GEORGE C. III",
         "position": "Chief Executive Officer",
-        "type": "Other",
+        "type": "Sell",
         "shares": 6735,
-        "value": 1314195.928
+        "value": 3357615.5716
       },
       {
         "date": "2025-07-30",
         "insider": "BOBB GEORGE C. III",
         "position": "Chief Executive Officer",
-        "type": "Sell",
+        "type": "Other",
         "shares": 6735,
-        "value": 3357615.5716
+        "value": 1314195.928
       },
       {
         "date": "2025-07-28",
@@ -2367,47 +2367,7 @@
       },
       {
         "date": "2025-04-23",
-        "insider": "DAHLBERG KENNETH C",
-        "position": "Director",
-        "type": "Other",
-        "shares": 468,
-        "value": 0.0
-      },
-      {
-        "date": "2025-04-23",
-        "insider": "MALONE ROBERT A",
-        "position": "Director",
-        "type": "Other",
-        "shares": 468,
-        "value": 0.0
-      },
-      {
-        "date": "2025-04-23",
-        "insider": "VON SCHACK WESLEY W",
-        "position": "Director",
-        "type": "Other",
-        "shares": 468,
-        "value": 0.0
-      },
-      {
-        "date": "2025-04-23",
-        "insider": "SMITH MICHAEL T.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 468,
-        "value": 0.0
-      },
-      {
-        "date": "2025-04-23",
-        "insider": "KUMBIER MICHELLE A",
-        "position": "Director",
-        "type": "Other",
-        "shares": 468,
-        "value": 0.0
-      },
-      {
-        "date": "2025-04-23",
-        "insider": "MORALES VINCENT J",
+        "insider": "LORNE SIMON M",
         "position": "Director",
         "type": "Other",
         "shares": 468,
@@ -2431,7 +2391,47 @@
       },
       {
         "date": "2025-04-23",
-        "insider": "LORNE SIMON M",
+        "insider": "KUMBIER MICHELLE A",
+        "position": "Director",
+        "type": "Other",
+        "shares": 468,
+        "value": 0.0
+      },
+      {
+        "date": "2025-04-23",
+        "insider": "MORALES VINCENT J",
+        "position": "Director",
+        "type": "Other",
+        "shares": 468,
+        "value": 0.0
+      },
+      {
+        "date": "2025-04-23",
+        "insider": "VON SCHACK WESLEY W",
+        "position": "Director",
+        "type": "Other",
+        "shares": 468,
+        "value": 0.0
+      },
+      {
+        "date": "2025-04-23",
+        "insider": "SMITH MICHAEL T.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 468,
+        "value": 0.0
+      },
+      {
+        "date": "2025-04-23",
+        "insider": "MALONE ROBERT A",
+        "position": "Director",
+        "type": "Other",
+        "shares": 468,
+        "value": 0.0
+      },
+      {
+        "date": "2025-04-23",
+        "insider": "DAHLBERG KENNETH C",
         "position": "Director",
         "type": "Other",
         "shares": 468,
@@ -2441,17 +2441,17 @@
         "date": "2025-03-03",
         "insider": "VANWEES JASON",
         "position": "Officer",
-        "type": "Other",
+        "type": "Sell",
         "shares": 3700,
-        "value": 409759.7921
+        "value": 1727166.4353
       },
       {
         "date": "2025-03-03",
         "insider": "VANWEES JASON",
         "position": "Officer",
-        "type": "Sell",
+        "type": "Other",
         "shares": 3700,
-        "value": 1727166.4353
+        "value": 409759.7921
       },
       {
         "date": "2025-03-03",
@@ -2465,17 +2465,17 @@
         "date": "2025-02-07",
         "insider": "MEHRABIAN ROBERT",
         "position": "Officer and Director",
-        "type": "Other",
+        "type": "Sell",
         "shares": 31537,
-        "value": 5435061.4364
+        "value": 14499507.4935
       },
       {
         "date": "2025-02-07",
         "insider": "MEHRABIAN ROBERT",
         "position": "Officer and Director",
-        "type": "Sell",
+        "type": "Other",
         "shares": 31537,
-        "value": 14499507.4935
+        "value": 5435061.4364
       },
       {
         "date": "2025-01-31",
@@ -2489,25 +2489,25 @@
         "date": "2025-01-29",
         "insider": "CIBIK MELANIE SUSAN",
         "position": "General Counsel",
-        "type": "Other",
-        "shares": 2699,
-        "value": 526654.2419
-      },
-      {
-        "date": "2025-01-29",
-        "insider": "CIBIK MELANIE SUSAN",
-        "position": "General Counsel",
         "type": "Sell",
         "shares": 2699,
         "value": 1235602.0708
       },
       {
+        "date": "2025-01-29",
+        "insider": "CIBIK MELANIE SUSAN",
+        "position": "General Counsel",
+        "type": "Other",
+        "shares": 2699,
+        "value": 526654.2419
+      },
+      {
         "date": "2025-01-28",
         "insider": "CIBIK MELANIE SUSAN",
         "position": "Chief Operating Officer",
-        "type": "Other",
+        "type": "Sell",
         "shares": 7403,
-        "value": 1444541.8117
+        "value": 3396245.5834
       }
     ]
   },
@@ -3768,5 +3768,5 @@
       "volume": 321700.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.986639+00:00"
+  "updatedAt": "2026-10-29T10:23:56.270914+00:00"
 }

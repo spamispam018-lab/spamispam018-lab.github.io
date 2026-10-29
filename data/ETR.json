@@ -17,7 +17,7 @@
     "marketCap": 46264665779.4556,
     "fiftyTwoWeekLow": 81.5649,
     "fiftyTwoWeekHigh": 106.3207,
-    "volume": 2410200.0,
+    "volume": 2410009,
     "avgVolume": 2640078,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 27.5908,
     "peForward": 21.1333,
     "pegRatio": 1.67,
-    "dividendYield": 2.36,
+    "dividendYield": 2.37,
     "profitMargins": 0.1333,
     "debtToEquity": 186.77,
     "revenueGrowth": 0.059
@@ -35,8 +35,8 @@
       "quarterly": [
         {
           "date": "2025-03-31",
-          "Tax_Effect_Of_Unusual_Items": null,
-          "Tax_Rate_For_Calcs": null,
+          "Tax_Effect_Of_Unusual_Items": 8534280.4039,
+          "Tax_Rate_For_Calcs": 0.1939,
           "Normalized_EBITDA": 1230431894.679,
           "Total_Unusual_Items": 39510557.4255,
           "Total_Unusual_Items_Excluding_Goodwill": 39510557.4255,
@@ -48,7 +48,7 @@
           "Net_Interest_Income": -266035180.2116,
           "Interest_Expense": 296020406.2863,
           "Interest_Income": 29985226.0747,
-          "Normalized_Income": null,
+          "Normalized_Income": 294333715.3284,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 362422000.0,
           "Total_Expenses": 1926940782.5054,
           "Total_Operating_Income_As_Reported": 628413360.3484,
@@ -285,8 +285,8 @@
         },
         {
           "date": "2026-06-30",
-          "Tax_Effect_Of_Unusual_Items": 10465866.2665,
-          "Tax_Rate_For_Calcs": 0.1912,
+          "Tax_Effect_Of_Unusual_Items": null,
+          "Tax_Rate_For_Calcs": null,
           "Normalized_EBITDA": null,
           "Total_Unusual_Items": null,
           "Total_Unusual_Items_Excluding_Goodwill": null,
@@ -298,7 +298,7 @@
           "Net_Interest_Income": null,
           "Interest_Expense": null,
           "Interest_Income": null,
-          "Normalized_Income": 399197582.8205,
+          "Normalized_Income": null,
           "Net_Income_From_Continuing_And_Discontinued_Operation": null,
           "Total_Expenses": null,
           "Total_Operating_Income_As_Reported": null,
@@ -2150,17 +2150,17 @@
         "date": "2026-09-14",
         "insider": "VIAMONTES ELIECER",
         "position": "Officer",
-        "type": "Other",
-        "shares": 6928,
-        "value": 363513.6442
+        "type": "Sell",
+        "shares": 9068,
+        "value": 845931.4646
       },
       {
         "date": "2026-09-14",
         "insider": "VIAMONTES ELIECER",
         "position": "Officer",
-        "type": "Sell",
-        "shares": 9068,
-        "value": 845931.4646
+        "type": "Other",
+        "shares": 6928,
+        "value": 363513.6442
       },
       {
         "date": "2026-09-10",
@@ -2172,47 +2172,7 @@
       },
       {
         "date": "2026-08-31",
-        "insider": "ROPP RALPH LEWIS",
-        "position": "Director",
-        "type": "Other",
-        "shares": 218,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-31",
-        "insider": "CALDWELL JAMES FRANK JR",
-        "position": "Director",
-        "type": "Other",
-        "shares": 218,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-31",
-        "insider": "BLACK JOHN H",
-        "position": "Director",
-        "type": "Other",
-        "shares": 218,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-31",
-        "insider": "ELLIS BRIAN W",
-        "position": "Director",
-        "type": "Other",
-        "shares": 218,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-31",
         "insider": "FREDERICKSON PHILIP L",
-        "position": "Director",
-        "type": "Other",
-        "shares": 218,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-31",
-        "insider": "PUCKETT KAREN ANN",
         "position": "Director",
         "type": "Other",
         "shares": 218,
@@ -2235,6 +2195,46 @@
         "value": 0.0
       },
       {
+        "date": "2026-08-31",
+        "insider": "PUCKETT KAREN ANN",
+        "position": "Director",
+        "type": "Other",
+        "shares": 218,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-31",
+        "insider": "BLACK JOHN H",
+        "position": "Director",
+        "type": "Other",
+        "shares": 218,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-31",
+        "insider": "ROPP RALPH LEWIS",
+        "position": "Director",
+        "type": "Other",
+        "shares": 218,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-31",
+        "insider": "CALDWELL JAMES FRANK JR",
+        "position": "Director",
+        "type": "Other",
+        "shares": 218,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-31",
+        "insider": "ELLIS BRIAN W",
+        "position": "Director",
+        "type": "Other",
+        "shares": 218,
+        "value": 0.0
+      },
+      {
         "date": "2026-08-06",
         "insider": "ROPP RALPH LEWIS",
         "position": "Director",
@@ -2246,17 +2246,17 @@
         "date": "2026-07-30",
         "insider": "CHAPMAN JASON",
         "position": "Chief Technology Officer",
-        "type": "Other",
+        "type": "Sell",
         "shares": 9447,
-        "value": 504187.3136
+        "value": 924788.3186
       },
       {
         "date": "2026-07-30",
         "insider": "CHAPMAN JASON",
         "position": "Chief Technology Officer",
-        "type": "Sell",
+        "type": "Other",
         "shares": 9447,
-        "value": 924788.3186
+        "value": 504187.3136
       },
       {
         "date": "2026-06-25",
@@ -2270,17 +2270,57 @@
         "date": "2026-06-03",
         "insider": "FISACKERLY HALEY R",
         "position": "Officer",
-        "type": "Other",
+        "type": "Sell",
         "shares": 10638,
-        "value": 503111.9888
+        "value": 1050353.5846
       },
       {
         "date": "2026-06-03",
         "insider": "FISACKERLY HALEY R",
         "position": "Officer",
-        "type": "Sell",
+        "type": "Other",
         "shares": 10638,
-        "value": 1050353.5846
+        "value": 503111.9888
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "FREDERICKSON PHILIP L",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1079,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "HYLAND MARY ELISE",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1079,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "LEVENICK STUART L",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1079,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "BURBANK JOHN R. III",
+        "position": "Director",
+        "type": "Other",
+        "shares": 858,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "PUCKETT KAREN ANN",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1079,
+        "value": 0.0
       },
       {
         "date": "2026-06-01",
@@ -2308,22 +2348,6 @@
       },
       {
         "date": "2026-06-01",
-        "insider": "BLACK JOHN H",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1079,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "BURBANK JOHN R. III",
-        "position": "Director",
-        "type": "Other",
-        "shares": 858,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
         "insider": "DONALD KIRKLAND H",
         "position": "Director",
         "type": "Other",
@@ -2340,34 +2364,50 @@
       },
       {
         "date": "2026-06-01",
+        "insider": "BLACK JOHN H",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1079,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-02",
         "insider": "FREDERICKSON PHILIP L",
         "position": "Director",
         "type": "Other",
-        "shares": 1079,
+        "shares": 217,
         "value": 0.0
       },
       {
-        "date": "2026-06-01",
-        "insider": "PUCKETT KAREN ANN",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1079,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
+        "date": "2026-03-02",
         "insider": "HYLAND MARY ELISE",
         "position": "Director",
         "type": "Other",
-        "shares": 1079,
+        "shares": 217,
         "value": 0.0
       },
       {
-        "date": "2026-06-01",
+        "date": "2026-03-02",
         "insider": "LEVENICK STUART L",
         "position": "Director",
         "type": "Other",
-        "shares": 1079,
+        "shares": 217,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-02",
+        "insider": "PUCKETT KAREN ANN",
+        "position": "Director",
+        "type": "Other",
+        "shares": 217,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-02",
+        "insider": "BLACK JOHN H",
+        "position": "Director",
+        "type": "Other",
+        "shares": 217,
         "value": 0.0
       },
       {
@@ -2396,47 +2436,7 @@
       },
       {
         "date": "2026-03-02",
-        "insider": "BLACK JOHN H",
-        "position": "Director",
-        "type": "Other",
-        "shares": 217,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-02",
         "insider": "ELLIS BRIAN W",
-        "position": "Director",
-        "type": "Other",
-        "shares": 217,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-02",
-        "insider": "FREDERICKSON PHILIP L",
-        "position": "Director",
-        "type": "Other",
-        "shares": 217,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-02",
-        "insider": "PUCKETT KAREN ANN",
-        "position": "Director",
-        "type": "Other",
-        "shares": 217,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-02",
-        "insider": "HYLAND MARY ELISE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 217,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-02",
-        "insider": "LEVENICK STUART L",
         "position": "Director",
         "type": "Other",
         "shares": 217,
@@ -3725,5 +3725,5 @@
       "volume": 2410200.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.747875+00:00"
+  "updatedAt": "2026-10-29T10:16:03.306325+00:00"
 }

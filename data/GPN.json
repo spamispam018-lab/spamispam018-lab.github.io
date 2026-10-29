@@ -17,7 +17,7 @@
     "marketCap": 19844918938.4208,
     "fiftyTwoWeekLow": 54.8972,
     "fiftyTwoWeekHigh": 86.0619,
-    "volume": 1706000.0,
+    "volume": 1706041,
     "avgVolume": 2506676,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 39.2254,
     "peForward": 5.1891,
     "pegRatio": 0.2,
-    "dividendYield": 1.23,
+    "dividendYield": 1.2,
     "profitMargins": -0.0915,
     "debtToEquity": 98.273,
     "revenueGrowth": 0.686
@@ -268,7 +268,7 @@
           "Gain_On_Sale_Of_Business": 0.0,
           "Impairment_Of_Capital_Assets": null,
           "Net_Non_Operating_Interest_Income_Expense": -187462865.3677,
-          "Interest_Expense_Non_Operating": null,
+          "Interest_Expense_Non_Operating": 217550417.844,
           "Interest_Income_Non_Operating": 30087552.4763,
           "Operating_Income": -14043849.8223,
           "Operating_Expense": 1536434510.7233,
@@ -2180,30 +2180,6 @@
       },
       {
         "date": "2026-05-01",
-        "insider": "BRUNO JOHN G.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 3179,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-01",
-        "insider": "DESKUS ARCHANA",
-        "position": "Director",
-        "type": "Other",
-        "shares": 3179,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-01",
-        "insider": "WATSON PATRICIA A",
-        "position": "Director",
-        "type": "Other",
-        "shares": 3179,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-01",
         "insider": "OSNOSS JOSEPH",
         "position": "Director",
         "type": "Other",
@@ -2236,15 +2212,7 @@
       },
       {
         "date": "2026-05-01",
-        "insider": "MCDANIEL CONNIE D",
-        "position": "Director",
-        "type": "Other",
-        "shares": 3179,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-01",
-        "insider": "JOHNSON JOIA M",
+        "insider": "BRUNO JOHN G.",
         "position": "Director",
         "type": "Other",
         "shares": 3179,
@@ -2267,20 +2235,44 @@
         "value": 0.0
       },
       {
-        "date": "2026-02-27",
-        "insider": "BREADY CAMERON M.",
-        "position": "Chief Executive Officer",
+        "date": "2026-05-01",
+        "insider": "MCDANIEL CONNIE D",
+        "position": "Director",
         "type": "Other",
-        "shares": 122815,
-        "value": 8428854.5894
+        "shares": 3179,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-01",
+        "insider": "JOHNSON JOIA M",
+        "position": "Director",
+        "type": "Other",
+        "shares": 3179,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-01",
+        "insider": "DESKUS ARCHANA",
+        "position": "Director",
+        "type": "Other",
+        "shares": 3179,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-01",
+        "insider": "WATSON PATRICIA A",
+        "position": "Director",
+        "type": "Other",
+        "shares": 3179,
+        "value": 0.0
       },
       {
         "date": "2026-02-27",
-        "insider": "SHEFFIELD DAVID M",
-        "position": "Officer",
+        "insider": "WHIPPLE JOSHUA J",
+        "position": "Chief Financial Officer",
         "type": "Other",
-        "shares": 1188,
-        "value": 81532.5997
+        "shares": 39557,
+        "value": 2714816.3758
       },
       {
         "date": "2026-02-27",
@@ -2308,35 +2300,27 @@
       },
       {
         "date": "2026-02-27",
-        "insider": "WHIPPLE JOSHUA J",
-        "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 39557,
-        "value": 2714816.3758
-      },
-      {
-        "date": "2026-02-20",
-        "insider": "JOHNSON JOIA M",
-        "position": "Director",
-        "type": "Buy",
-        "shares": 1213,
-        "value": 89172.0734
-      },
-      {
-        "date": "2026-02-20",
-        "insider": "BREADY CAMERON M.",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 72476,
-        "value": 5365041.4545
-      },
-      {
-        "date": "2026-02-20",
         "insider": "SHEFFIELD DAVID M",
         "position": "Officer",
         "type": "Other",
-        "shares": 1914,
-        "value": 141684.367
+        "shares": 1188,
+        "value": 81532.5997
+      },
+      {
+        "date": "2026-02-27",
+        "insider": "BREADY CAMERON M.",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 122815,
+        "value": 8428854.5894
+      },
+      {
+        "date": "2026-02-20",
+        "insider": "WHIPPLE JOSHUA J",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 24014,
+        "value": 1777638.4841
       },
       {
         "date": "2026-02-20",
@@ -2348,11 +2332,27 @@
       },
       {
         "date": "2026-02-20",
-        "insider": "WHIPPLE JOSHUA J",
-        "position": "Chief Financial Officer",
+        "insider": "JOHNSON JOIA M",
+        "position": "Director",
+        "type": "Buy",
+        "shares": 1213,
+        "value": 89172.0734
+      },
+      {
+        "date": "2026-02-20",
+        "insider": "SHEFFIELD DAVID M",
+        "position": "Officer",
         "type": "Other",
-        "shares": 24014,
-        "value": 1777638.4841
+        "shares": 1914,
+        "value": 141684.367
+      },
+      {
+        "date": "2026-02-20",
+        "insider": "BREADY CAMERON M.",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 72476,
+        "value": 5365041.4545
       },
       {
         "date": "2026-02-19",
@@ -2398,17 +2398,17 @@
         "date": "2025-11-12",
         "insider": "MCDANIEL CONNIE D",
         "position": "Director",
-        "type": "Other",
-        "shares": 5281,
-        "value": 311670.0625
+        "type": "Sell",
+        "shares": 4464,
+        "value": 311775.9793
       },
       {
         "date": "2025-11-12",
         "insider": "MCDANIEL CONNIE D",
         "position": "Director",
-        "type": "Sell",
-        "shares": 4464,
-        "value": 311775.9793
+        "type": "Other",
+        "shares": 5281,
+        "value": 311670.0625
       },
       {
         "date": "2025-11-07",
@@ -2468,14 +2468,6 @@
       },
       {
         "date": "2025-05-08",
-        "insider": "SHEFFIELD DAVID M",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 2500,
-        "value": 181292.7629
-      },
-      {
-        "date": "2025-05-08",
         "insider": "LOY RYAN J",
         "position": "Chief Technology Officer",
         "type": "Other",
@@ -2483,8 +2475,16 @@
         "value": 2131876.3297
       },
       {
+        "date": "2025-05-08",
+        "insider": "SHEFFIELD DAVID M",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 2500,
+        "value": 181292.7629
+      },
+      {
         "date": "2025-04-25",
-        "insider": "BRUNO JOHN G.",
+        "insider": "OSNOSS JOSEPH",
         "position": "Director",
         "type": "Other",
         "shares": 3173,
@@ -2565,12 +2565,12 @@
     },
     {
       "date": "2025-11-18",
-      "close": 63.8198,
+      "close": 63.8197,
       "volume": 2053100.0
     },
     {
       "date": "2025-11-19",
-      "close": 63.8198,
+      "close": 63.8197,
       "volume": 1661400.0
     },
     {
@@ -2920,7 +2920,7 @@
     },
     {
       "date": "2026-03-04",
-      "close": 68.9387,
+      "close": 68.9386,
       "volume": 2836600.0
     },
     {
@@ -3749,5 +3749,5 @@
       "volume": 1706000.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.007987+00:00"
+  "updatedAt": "2026-10-29T10:17:44.862981+00:00"
 }

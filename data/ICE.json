@@ -17,7 +17,7 @@
     "marketCap": 78589448577.6275,
     "fiftyTwoWeekLow": 109.3187,
     "fiftyTwoWeekHigh": 158.0225,
-    "volume": 3244500.0,
+    "volume": 3244548,
     "avgVolume": 3303106,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 22.0594,
     "peForward": 17.5542,
     "pegRatio": 1.78,
-    "dividendYield": 1.34,
+    "dividendYield": 1.33,
     "profitMargins": 0.3825,
     "debtToEquity": 69.226,
     "revenueGrowth": 0.048
@@ -1499,7 +1499,7 @@
           "Amortization_Cash_Flow": 227092803.5951,
           "Amortization_Of_Intangibles": 227092803.5951,
           "Depreciation": 127459202.0178,
-          "Operating_Gains_Losses": null,
+          "Operating_Gains_Losses": -7180800.1137,
           "Earnings_Losses_From_Equity_Investments": -5385600.0853,
           "Gain_Loss_On_Investment_Securities": null,
           "Net_Income_From_Continuing_Operations": 865000000.0
@@ -1559,7 +1559,7 @@
           "Amortization_Cash_Flow": null,
           "Amortization_Of_Intangibles": null,
           "Depreciation": null,
-          "Operating_Gains_Losses": null,
+          "Operating_Gains_Losses": -65524801.0373,
           "Earnings_Losses_From_Equity_Investments": -35904000.5684,
           "Gain_Loss_On_Investment_Securities": -29620800.4689,
           "Net_Income_From_Continuing_Operations": 831000000.0
@@ -1619,7 +1619,7 @@
           "Amortization_Cash_Flow": null,
           "Amortization_Of_Intangibles": null,
           "Depreciation": null,
-          "Operating_Gains_Losses": null,
+          "Operating_Gains_Losses": -21542400.341,
           "Earnings_Losses_From_Equity_Investments": -3590400.0568,
           "Gain_Loss_On_Investment_Securities": -17952000.2842,
           "Net_Income_From_Continuing_Operations": 862000000.0
@@ -1679,7 +1679,7 @@
           "Amortization_Cash_Flow": 212731203.3677,
           "Amortization_Of_Intangibles": 212731203.3677,
           "Depreciation": 131947202.0889,
-          "Operating_Gains_Losses": null,
+          "Operating_Gains_Losses": -372504005.8971,
           "Earnings_Losses_From_Equity_Investments": -23337600.3695,
           "Gain_Loss_On_Investment_Securities": -349166405.5277,
           "Net_Income_From_Continuing_Operations": 1432000000.0
@@ -2151,7 +2151,7 @@
       "buysCount2Q": 0,
       "sellsCount2Q": 21,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 12861251.0322,
+      "sellValueTotal": 13888531.8085,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -2162,14 +2162,6 @@
         "type": "Sell",
         "shares": 1600,
         "value": 229785.6036
-      },
-      {
-        "date": "2026-09-01",
-        "insider": "JACKSON BENJAMIN",
-        "position": "President",
-        "type": "Sell",
-        "shares": 12862,
-        "value": 1848215.8757
       },
       {
         "date": "2026-09-01",
@@ -2186,6 +2178,14 @@
         "type": "Other",
         "shares": 5000,
         "value": 257207.2841
+      },
+      {
+        "date": "2026-09-01",
+        "insider": "JACKSON BENJAMIN",
+        "position": "President",
+        "type": "Sell",
+        "shares": 12862,
+        "value": 1848215.8757
       },
       {
         "date": "2026-09-01",
@@ -2317,7 +2317,15 @@
       },
       {
         "date": "2026-05-18",
-        "insider": "FAROOQUI DURIYA M",
+        "insider": "MULHERN MARK F",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1538,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-18",
+        "insider": "NOONAN THOMAS E",
         "position": "Director",
         "type": "Other",
         "shares": 1538,
@@ -2329,38 +2337,6 @@
         "position": "Director",
         "type": "Other",
         "shares": 1698,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-18",
-        "insider": "SILVER CAROLINE LOUISE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1698,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-18",
-        "insider": "TIRINNANZI MARTHA A",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1698,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-18",
-        "insider": "BOWEN SHARON",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1538,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-18",
-        "insider": "COOPER SHANTELLA E",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1538,
         "value": 0.0
       },
       {
@@ -2381,7 +2357,7 @@
       },
       {
         "date": "2026-05-18",
-        "insider": "MULHERN MARK F",
+        "insider": "FAROOQUI DURIYA M",
         "position": "Director",
         "type": "Other",
         "shares": 1538,
@@ -2389,10 +2365,34 @@
       },
       {
         "date": "2026-05-18",
-        "insider": "NOONAN THOMAS E",
+        "insider": "BOWEN SHARON",
         "position": "Director",
         "type": "Other",
         "shares": 1538,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-18",
+        "insider": "COOPER SHANTELLA E",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1538,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-18",
+        "insider": "SILVER CAROLINE LOUISE",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1698,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-18",
+        "insider": "TIRINNANZI MARTHA A",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1698,
         "value": 0.0
       },
       {
@@ -2439,17 +2439,17 @@
         "date": "2026-02-26",
         "insider": "SURDYKOWSKI ANDREW J",
         "position": "General Counsel",
-        "type": "Sell",
-        "shares": 4571,
-        "value": 664694.3529
+        "type": "Other",
+        "shares": 200,
+        "value": 0.0
       },
       {
         "date": "2026-02-26",
         "insider": "SURDYKOWSKI ANDREW J",
         "position": "General Counsel",
-        "type": "Other",
-        "shares": 200,
-        "value": 0.0
+        "type": "Sell",
+        "shares": 4571,
+        "value": 664694.3529
       },
       {
         "date": "2026-02-26",
@@ -2469,11 +2469,11 @@
       },
       {
         "date": "2026-02-19",
-        "insider": "JACKSON BENJAMIN",
-        "position": "President",
+        "insider": "EDMONDS CHRISTOPHER SCOTT",
+        "position": "Officer",
         "type": "Sell",
-        "shares": 3865,
-        "value": 533313.5364
+        "shares": 11303,
+        "value": 1560594.3127
       }
     ]
   },
@@ -2485,7 +2485,7 @@
     },
     {
       "date": "2025-10-30",
-      "close": 131.5594,
+      "close": 131.5593,
       "volume": 6950500.0
     },
     {
@@ -2525,7 +2525,7 @@
     },
     {
       "date": "2025-11-11",
-      "close": 134.6331,
+      "close": 134.6332,
       "volume": 2854600.0
     },
     {
@@ -2680,12 +2680,12 @@
     },
     {
       "date": "2025-12-26",
-      "close": 145.2784,
+      "close": 145.2785,
       "volume": 1045000.0
     },
     {
       "date": "2025-12-29",
-      "close": 145.6872,
+      "close": 145.6871,
       "volume": 1582300.0
     },
     {
@@ -2710,7 +2710,7 @@
     },
     {
       "date": "2026-01-06",
-      "close": 147.4908,
+      "close": 147.4907,
       "volume": 2605100.0
     },
     {
@@ -2750,7 +2750,7 @@
     },
     {
       "date": "2026-01-16",
-      "close": 154.5717,
+      "close": 154.5716,
       "volume": 4415800.0
     },
     {
@@ -2825,7 +2825,7 @@
     },
     {
       "date": "2026-02-09",
-      "close": 150.5736,
+      "close": 150.5737,
       "volume": 3332300.0
     },
     {
@@ -2945,7 +2945,7 @@
     },
     {
       "date": "2026-03-16",
-      "close": 143.475,
+      "close": 143.4749,
       "volume": 3066900.0
     },
     {
@@ -3035,7 +3035,7 @@
     },
     {
       "date": "2026-04-10",
-      "close": 143.1451,
+      "close": 143.1452,
       "volume": 2754500.0
     },
     {
@@ -3045,7 +3045,7 @@
     },
     {
       "date": "2026-04-14",
-      "close": 144.4286,
+      "close": 144.4287,
       "volume": 2684500.0
     },
     {
@@ -3070,7 +3070,7 @@
     },
     {
       "date": "2026-04-21",
-      "close": 141.3892,
+      "close": 141.3893,
       "volume": 3103800.0
     },
     {
@@ -3734,5 +3734,5 @@
       "volume": 3244500.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.159471+00:00"
+  "updatedAt": "2026-10-29T10:18:42.360807+00:00"
 }

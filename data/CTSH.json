@@ -14,10 +14,10 @@
     "price": 59.5647,
     "change": 0.1256,
     "changePercent": 0.21,
-    "marketCap": 26830592470.6301,
+    "marketCap": 28174121320.8275,
     "fiftyTwoWeekLow": 33.283,
     "fiftyTwoWeekHigh": 78.1181,
-    "volume": 7655400.0,
+    "volume": 7654590,
     "avgVolume": 7303427,
     "currency": "EUR"
   },
@@ -1689,6 +1689,7 @@
           "Change_In_Receivables": null,
           "Changes_In_Account_Receivables": null,
           "Other_Non_Cash_Items": null,
+          "Stock_Based_Compensation": null,
           "Deferred_Tax": null,
           "Deferred_Income_Tax": null,
           "Depreciation_Amortization_Depletion": null,
@@ -1747,6 +1748,7 @@
           "Change_In_Receivables": -213628803.382,
           "Changes_In_Account_Receivables": -213628803.382,
           "Other_Non_Cash_Items": 40392000.6394,
+          "Stock_Based_Compensation": 234273603.7088,
           "Deferred_Tax": -245044803.8793,
           "Deferred_Income_Tax": -245044803.8793,
           "Depreciation_Amortization_Depletion": 510734408.0854,
@@ -1805,6 +1807,7 @@
           "Change_In_Receivables": -38596800.611,
           "Changes_In_Account_Receivables": -38596800.611,
           "Other_Non_Cash_Items": 897600.0142,
+          "Stock_Based_Compensation": 157977602.5009,
           "Deferred_Tax": -304286404.8172,
           "Deferred_Income_Tax": -304286404.8172,
           "Depreciation_Amortization_Depletion": 498168007.8865,
@@ -1863,6 +1866,7 @@
           "Change_In_Receivables": -43982400.6963,
           "Changes_In_Account_Receivables": -43982400.6963,
           "Other_Non_Cash_Items": 28723200.4547,
+          "Stock_Based_Compensation": 157080002.4867,
           "Deferred_Tax": -318648005.0445,
           "Deferred_Income_Tax": -318648005.0445,
           "Depreciation_Amortization_Depletion": 486499207.7018,
@@ -1921,6 +1925,7 @@
           "Change_In_Receivables": -328521605.2008,
           "Changes_In_Account_Receivables": -328521605.2008,
           "Other_Non_Cash_Items": -4488000.071,
+          "Stock_Based_Compensation": 162465602.572,
           "Deferred_Tax": 293515204.6466,
           "Deferred_Income_Tax": 293515204.6466,
           "Depreciation_Amortization_Depletion": 493680007.8154,
@@ -2019,7 +2024,7 @@
       "buysCount2Q": 1,
       "sellsCount2Q": 7,
       "buyValueTotal": 188287.7598,
-      "sellValueTotal": 897634.1229999999,
+      "sellValueTotal": 897634.123,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -2029,6 +2034,38 @@
         "position": "Officer",
         "type": "Other",
         "shares": 207,
+        "value": 0.0
+      },
+      {
+        "date": "2026-09-15",
+        "insider": "GUMMADI SURYA KUMARI",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 1995,
+        "value": 0.0
+      },
+      {
+        "date": "2026-09-15",
+        "insider": "DIAZ KATHRYN",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 749,
+        "value": 0.0
+      },
+      {
+        "date": "2026-09-15",
+        "insider": "KERDMAN ALINA",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 200,
+        "value": 0.0
+      },
+      {
+        "date": "2026-09-15",
+        "insider": "SINGISETTI RAVI KUMAR",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 5987,
         "value": 0.0
       },
       {
@@ -2045,38 +2082,6 @@
         "position": "Officer",
         "type": "Other",
         "shares": 1647,
-        "value": 0.0
-      },
-      {
-        "date": "2026-09-15",
-        "insider": "KERDMAN ALINA",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 200,
-        "value": 0.0
-      },
-      {
-        "date": "2026-09-15",
-        "insider": "DIAZ KATHRYN",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 749,
-        "value": 0.0
-      },
-      {
-        "date": "2026-09-15",
-        "insider": "GUMMADI SURYA KUMARI",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 1995,
-        "value": 0.0
-      },
-      {
-        "date": "2026-09-15",
-        "insider": "SINGISETTI RAVI KUMAR",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 5987,
         "value": 0.0
       },
       {
@@ -2097,34 +2102,10 @@
       },
       {
         "date": "2026-09-01",
-        "insider": "AYYAR BALU GANESH",
+        "insider": "GUMMADI SURYA KUMARI",
         "position": "Officer",
         "type": "Other",
-        "shares": 2058,
-        "value": 0.0
-      },
-      {
-        "date": "2026-09-01",
-        "insider": "KIM JOHN SUNSHIN",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 4402,
-        "value": 0.0
-      },
-      {
-        "date": "2026-09-01",
-        "insider": "VARRIER RAJESH",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 544,
-        "value": 0.0
-      },
-      {
-        "date": "2026-09-01",
-        "insider": "KERDMAN ALINA",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 621,
+        "shares": 5224,
         "value": 0.0
       },
       {
@@ -2145,10 +2126,18 @@
       },
       {
         "date": "2026-09-01",
-        "insider": "GUMMADI SURYA KUMARI",
+        "insider": "VARRIER RAJESH",
         "position": "Officer",
         "type": "Other",
-        "shares": 5224,
+        "shares": 544,
+        "value": 0.0
+      },
+      {
+        "date": "2026-09-01",
+        "insider": "KERDMAN ALINA",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 621,
         "value": 0.0
       },
       {
@@ -2157,6 +2146,22 @@
         "position": "Chief Executive Officer",
         "type": "Other",
         "shares": 15092,
+        "value": 0.0
+      },
+      {
+        "date": "2026-09-01",
+        "insider": "AYYAR BALU GANESH",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 2058,
+        "value": 0.0
+      },
+      {
+        "date": "2026-09-01",
+        "insider": "KIM JOHN SUNSHIN",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 4402,
         "value": 0.0
       },
       {
@@ -2169,14 +2174,6 @@
       },
       {
         "date": "2026-08-03",
-        "insider": "KIM JOHN SUNSHIN",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 2500,
-        "value": 128020.202
-      },
-      {
-        "date": "2026-08-03",
         "insider": "DALAL JATIN PRAVINCHANDRA",
         "position": "Chief Financial Officer",
         "type": "Sell",
@@ -2184,12 +2181,12 @@
         "value": 600645.2063
       },
       {
-        "date": "2026-07-01",
-        "insider": "KERDMAN ALINA",
+        "date": "2026-08-03",
+        "insider": "KIM JOHN SUNSHIN",
         "position": "Officer",
-        "type": "Other",
-        "shares": 207,
-        "value": 0.0
+        "type": "Sell",
+        "shares": 2500,
+        "value": 128020.202
       },
       {
         "date": "2026-07-01",
@@ -2200,35 +2197,19 @@
         "value": 4896.4081
       },
       {
-        "date": "2026-06-15",
-        "insider": "AYYAR BALU GANESH",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 848,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-15",
-        "insider": "KIM JOHN SUNSHIN",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 1646,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-15",
-        "insider": "VARRIER RAJESH",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 1271,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-15",
+        "date": "2026-07-01",
         "insider": "KERDMAN ALINA",
         "position": "Officer",
         "type": "Other",
-        "shares": 199,
+        "shares": 207,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-15",
+        "insider": "GUMMADI SURYA KUMARI",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 1995,
         "value": 0.0
       },
       {
@@ -2249,10 +2230,10 @@
       },
       {
         "date": "2026-06-15",
-        "insider": "GUMMADI SURYA KUMARI",
+        "insider": "VARRIER RAJESH",
         "position": "Officer",
         "type": "Other",
-        "shares": 1995,
+        "shares": 1271,
         "value": 0.0
       },
       {
@@ -2265,10 +2246,34 @@
       },
       {
         "date": "2026-06-15",
+        "insider": "KERDMAN ALINA",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 199,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-15",
         "insider": "SINGISETTI RAVI KUMAR",
         "position": "Chief Executive Officer",
         "type": "Other",
         "shares": 5987,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-15",
+        "insider": "AYYAR BALU GANESH",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 848,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-15",
+        "insider": "KIM JOHN SUNSHIN",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 1646,
         "value": 0.0
       },
       {
@@ -2289,7 +2294,7 @@
       },
       {
         "date": "2026-06-03",
-        "insider": "VELLI JOSEPH M",
+        "insider": "BALI VINITA",
         "position": "Director",
         "type": "Other",
         "shares": 2919,
@@ -2305,7 +2310,7 @@
       },
       {
         "date": "2026-06-03",
-        "insider": "BALI VINITA",
+        "insider": "PATSALOS-FOX MICHAEL",
         "position": "Director",
         "type": "Other",
         "shares": 2919,
@@ -2321,7 +2326,7 @@
       },
       {
         "date": "2026-06-03",
-        "insider": "ABDALLA ZEIN M.",
+        "insider": "VELLI JOSEPH M",
         "position": "Director",
         "type": "Other",
         "shares": 2919,
@@ -2329,7 +2334,7 @@
       },
       {
         "date": "2026-06-03",
-        "insider": "PATSALOS-FOX MICHAEL",
+        "insider": "ABDALLA ZEIN M.",
         "position": "Director",
         "type": "Other",
         "shares": 2919,
@@ -2337,10 +2342,10 @@
       },
       {
         "date": "2026-06-01",
-        "insider": "AYYAR BALU GANESH",
+        "insider": "GUMMADI SURYA KUMARI",
         "position": "Officer",
         "type": "Other",
-        "shares": 2056,
+        "shares": 5222,
         "value": 0.0
       }
     ]
@@ -2393,7 +2398,7 @@
     },
     {
       "date": "2025-11-11",
-      "close": 64.1929,
+      "close": 64.193,
       "volume": 4126200.0
     },
     {
@@ -2473,7 +2478,7 @@
     },
     {
       "date": "2025-12-04",
-      "close": 70.7069,
+      "close": 70.707,
       "volume": 4481200.0
     },
     {
@@ -3602,5 +3607,5 @@
       "volume": 7655400.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.463768+00:00"
+  "updatedAt": "2026-10-29T10:14:16.195491+00:00"
 }

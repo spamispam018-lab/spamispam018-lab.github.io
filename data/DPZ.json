@@ -17,7 +17,7 @@
     "marketCap": 9137285738.1499,
     "fiftyTwoWeekLow": 253.1232,
     "fiftyTwoWeekHigh": 397.0534,
-    "volume": 630600.0,
+    "volume": 630454,
     "avgVolume": 815741,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 17.0496,
     "peForward": 14.9992,
     "pegRatio": 1.44,
-    "dividendYield": 2.55,
+    "dividendYield": 2.57,
     "profitMargins": 0.1203,
     "debtToEquity": null,
     "revenueGrowth": 0.034
@@ -231,8 +231,8 @@
         },
         {
           "date": "2026-06-30",
-          "Tax_Effect_Of_Unusual_Items": 825410.5331,
-          "Tax_Rate_For_Calcs": 0.202,
+          "Tax_Effect_Of_Unusual_Items": 826509.1188,
+          "Tax_Rate_For_Calcs": 0.2022,
           "Normalized_EBITDA": 213221292.9755,
           "Total_Unusual_Items": 3668491.2581,
           "Total_Unusual_Items_Excluding_Goodwill": 3668491.2581,
@@ -244,7 +244,7 @@
           "Net_Interest_Income": -39892935.0315,
           "Interest_Expense": 41340763.8545,
           "Interest_Income": 1447828.8229,
-          "Normalized_Income": 119006121.204,
+          "Normalized_Income": 119007219.7897,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 135750000.0,
           "Total_Expenses": 867507973.7335,
           "Total_Operating_Income_As_Reported": 208278209.6973,
@@ -579,7 +579,7 @@
     "balanceSheet": {
       "quarterly": [
         {
-          "date": "2025-09-30",
+          "date": "2025-06-30",
           "Ordinary_Shares_Number": null,
           "Share_Issued": null,
           "Net_Debt": null,
@@ -621,7 +621,7 @@
           "Current_Accrued_Expenses": null,
           "Interest_Payable": null,
           "Payables": null,
-          "Dividends_Payable": 54917861.6694,
+          "Dividends_Payable": 54974410.4703,
           "Accounts_Payable": null,
           "Total_Assets": null,
           "Total_Non_Current_Assets": null,
@@ -651,6 +651,80 @@
           "Gross_Accounts_Receivable": null,
           "Cash_Cash_Equivalents_And_Short_Term_Investments": null,
           "Cash_And_Cash_Equivalents": null
+        },
+        {
+          "date": "2025-09-30",
+          "Ordinary_Shares_Number": 33786218.0,
+          "Share_Issued": 30326509.7569,
+          "Net_Debt": 4197237805.6464,
+          "Total_Debt": 4534419455.7844,
+          "Tangible_Book_Value": -3708848252.3148,
+          "Invested_Capital": 766403205.7329,
+          "Working_Capital": 294934310.2691,
+          "Net_Tangible_Assets": -3708848252.3148,
+          "Capital_Lease_Obligations": 211761795.3524,
+          "Common_Stock_Equity": -3556254454.699,
+          "Total_Capitalization": 761447556.0545,
+          "Total_Equity_Gross_Minority_Interest": -3556254454.699,
+          "Stockholders_Equity": -3556254454.699,
+          "Gains_Losses_Not_Affecting_Retained_Earnings": -4707912.0745,
+          "Other_Equity_Adjustments": -4707912.0745,
+          "Retained_Earnings": -3552405545.8381,
+          "Additional_Paid_In_Capital": 555614.4088,
+          "Capital_Stock": 303388.8048,
+          "Common_Stock": 303388.8048,
+          "Preferred_Stock": null,
+          "Total_Liabilities_Net_Minority_Interest": 5046519113.4914,
+          "Total_Non_Current_Liabilities_Net_Minority_Interest": 4562575373.0301,
+          "Non_Current_Accrued_Expenses": 42451992.6721,
+          "Long_Term_Debt_And_Capital_Lease_Obligation": 4488925496.6642,
+          "Long_Term_Capital_Lease_Obligation": 171223485.9106,
+          "Long_Term_Debt": 4317702010.7535,
+          "Long_Term_Provisions": 31197883.6939,
+          "Current_Liabilities": 483943740.4613,
+          "Other_Current_Liabilities": 119116009.8857,
+          "Current_Deferred_Liabilities": null,
+          "Current_Deferred_Revenue": null,
+          "Current_Debt_And_Capital_Lease_Obligation": 45493959.1202,
+          "Current_Capital_Lease_Obligation": 40538309.4418,
+          "Current_Debt": 4955649.6785,
+          "Other_Current_Borrowings": 4955649.6785,
+          "Pensionand_Other_Post_Retirement_Benefit_Plans_Current": null,
+          "Current_Provisions": 22282022.7527,
+          "Payables_And_Accrued_Expenses": 297051748.7026,
+          "Current_Accrued_Expenses": 140641355.8265,
+          "Interest_Payable": null,
+          "Payables": 156410392.8761,
+          "Dividends_Payable": 54917861.6694,
+          "Accounts_Payable": 101492531.2067,
+          "Total_Assets": 1490264658.7924,
+          "Total_Non_Current_Assets": 711386608.062,
+          "Other_Non_Current_Assets": 45346752.7179,
+          "Non_Current_Deferred_Assets": 12726173.0015,
+          "Non_Current_Deferred_Taxes_Assets": 12726173.0015,
+          "Investments_And_Advances": 39180240.6203,
+          "Long_Term_Equity_Investment": 39180240.6203,
+          "Goodwill_And_Other_Intangible_Assets": 152593797.6157,
+          "Other_Intangible_Assets": 142932031.0628,
+          "Goodwill": 9661766.553,
+          "Net_PPE": 461539644.1066,
+          "Accumulated_Depreciation": -388153662.1449,
+          "Gross_PPE": 849693306.2515,
+          "Leases": 171928999.5218,
+          "Construction_In_Progress": 14146176.2239,
+          "Other_Properties": 569678005.8186,
+          "Land_And_Improvements": 93940124.6872,
+          "Properties": 0.0,
+          "Current_Assets": 778878050.7304,
+          "Other_Current_Assets": 37114862.9876,
+          "Restricted_Cash": 303682320.0076,
+          "Inventory": 63868729.0111,
+          "Receivables": 248792283.9386,
+          "Accounts_Receivable": 248792283.9386,
+          "Allowance_For_Doubtful_Accounts_Receivable": null,
+          "Gross_Accounts_Receivable": null,
+          "Cash_Cash_Equivalents_And_Short_Term_Investments": 125419854.7855,
+          "Cash_And_Cash_Equivalents": 125419854.7855
         },
         {
           "date": "2025-12-31",
@@ -804,80 +878,6 @@
           "date": "2026-05-31",
           "Ordinary_Shares_Number": 33068845.0,
           "Share_Issued": 29682595.7419,
-          "Net_Debt": 4235602127.8538,
-          "Total_Debt": 4598272925.5952,
-          "Tangible_Book_Value": -3726456471.7935,
-          "Invested_Capital": 808928801.6061,
-          "Working_Capital": 284313906.901,
-          "Net_Tangible_Assets": -3726456471.7935,
-          "Capital_Lease_Obligations": 214714001.7991,
-          "Common_Stock_Equity": -3574630122.1899,
-          "Total_Capitalization": 802265916.7007,
-          "Total_Equity_Gross_Minority_Interest": -3574630122.1899,
-          "Stockholders_Equity": -3574630122.1899,
-          "Gains_Losses_Not_Affecting_Retained_Earnings": -5436763.2861,
-          "Other_Equity_Adjustments": -5436763.2861,
-          "Retained_Earnings": -3570245346.1205,
-          "Additional_Paid_In_Capital": 754881.612,
-          "Capital_Stock": 297105.6047,
-          "Common_Stock": 297105.6047,
-          "Preferred_Stock": null,
-          "Total_Liabilities_Net_Minority_Interest": 5157387974.4466,
-          "Total_Non_Current_Liabilities_Net_Minority_Interest": 4628997774.0816,
-          "Non_Current_Accrued_Expenses": 45683352.7232,
-          "Long_Term_Debt_And_Capital_Lease_Obligation": 4550352753.6366,
-          "Long_Term_Capital_Lease_Obligation": 173456714.746,
-          "Long_Term_Debt": 4376896038.8906,
-          "Long_Term_Provisions": 32961667.7218,
-          "Current_Liabilities": 528390200.3649,
-          "Other_Current_Liabilities": 105764209.6744,
-          "Current_Deferred_Liabilities": null,
-          "Current_Deferred_Revenue": null,
-          "Current_Debt_And_Capital_Lease_Obligation": 47920171.9586,
-          "Current_Capital_Lease_Obligation": 41257287.0531,
-          "Current_Debt": 6662884.9055,
-          "Other_Current_Borrowings": 6662884.9055,
-          "Pensionand_Other_Post_Retirement_Benefit_Plans_Current": null,
-          "Current_Provisions": 23243352.368,
-          "Payables_And_Accrued_Expenses": 351462466.364,
-          "Current_Accrued_Expenses": 167148381.8461,
-          "Interest_Payable": null,
-          "Payables": 184314084.5179,
-          "Dividends_Payable": 60957812.165,
-          "Accounts_Payable": 123356272.3529,
-          "Total_Assets": 1582757852.2566,
-          "Total_Non_Current_Assets": 770053744.9907,
-          "Other_Non_Current_Assets": 46673405.5389,
-          "Non_Current_Deferred_Assets": 15084168.2388,
-          "Non_Current_Deferred_Taxes_Assets": 15084168.2388,
-          "Investments_And_Advances": 15900086.6517,
-          "Long_Term_Equity_Investment": 15900086.6517,
-          "Goodwill_And_Other_Intangible_Assets": 151826349.6036,
-          "Other_Intangible_Assets": 144762237.4917,
-          "Goodwill": 7064112.1118,
-          "Net_PPE": 540569734.9578,
-          "Accumulated_Depreciation": -362645664.941,
-          "Gross_PPE": 903215399.8988,
-          "Leases": 167095423.4453,
-          "Construction_In_Progress": 28490722.051,
-          "Other_Properties": 553025730.3549,
-          "Land_And_Improvements": 154603524.0475,
-          "Properties": 0.0,
-          "Current_Assets": 812704107.2659,
-          "Other_Current_Assets": 49411983.1822,
-          "Restricted_Cash": 275827996.3666,
-          "Inventory": 67371164.2666,
-          "Receivables": 272136167.5082,
-          "Accounts_Receivable": 272136167.5082,
-          "Allowance_For_Doubtful_Accounts_Receivable": null,
-          "Gross_Accounts_Receivable": null,
-          "Cash_Cash_Equivalents_And_Short_Term_Investments": 147956795.9423,
-          "Cash_And_Cash_Equivalents": 147956795.9423
-        },
-        {
-          "date": "2026-06-30",
-          "Ordinary_Shares_Number": 33081735.0,
-          "Share_Issued": 29694165.8061,
           "Net_Debt": 4235602127.8538,
           "Total_Debt": 4598272925.5952,
           "Tangible_Book_Value": -3726456471.7935,
@@ -2178,22 +2178,6 @@
       },
       {
         "date": "2026-04-21",
-        "insider": "BALSON ANDREW B",
-        "position": "Director",
-        "type": "Other",
-        "shares": 515,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-21",
-        "insider": "BRANDON DAVID A.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 515,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-21",
         "insider": "FEDERICO RICHARD L",
         "position": "Director",
         "type": "Other",
@@ -2210,7 +2194,15 @@
       },
       {
         "date": "2026-04-21",
-        "insider": "LOPEZ-GARCIA PATRICIA E",
+        "insider": "BRANDON DAVID A.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 515,
+        "value": 0.0
+      },
+      {
+        "date": "2026-04-21",
+        "insider": "BALSON ANDREW B",
         "position": "Director",
         "type": "Other",
         "shares": 515,
@@ -2233,6 +2225,22 @@
         "value": 0.0
       },
       {
+        "date": "2026-04-21",
+        "insider": "LOPEZ-GARCIA PATRICIA E",
+        "position": "Director",
+        "type": "Other",
+        "shares": 515,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-13",
+        "insider": "REDDY SANDEEP",
+        "position": "Chief Financial Officer",
+        "type": "Sell",
+        "shares": 560,
+        "value": 198210.7279
+      },
+      {
         "date": "2026-03-13",
         "insider": "HEADEN CYNTHIA A.",
         "position": "Officer",
@@ -2249,12 +2257,12 @@
         "value": 33251.5925
       },
       {
-        "date": "2026-03-13",
+        "date": "2026-03-11",
         "insider": "REDDY SANDEEP",
         "position": "Chief Financial Officer",
         "type": "Sell",
-        "shares": 560,
-        "value": 198210.7279
+        "shares": 2959,
+        "value": 1061336.6184
       },
       {
         "date": "2026-03-11",
@@ -2273,19 +2281,19 @@
         "value": 204807.1904
       },
       {
-        "date": "2026-03-11",
+        "date": "2026-03-10",
         "insider": "REDDY SANDEEP",
         "position": "Chief Financial Officer",
-        "type": "Sell",
-        "shares": 2959,
-        "value": 1061336.6184
+        "type": "Other",
+        "shares": 2206,
+        "value": 0.0
       },
       {
         "date": "2026-03-10",
-        "insider": "BALSON ANDREW B",
-        "position": "Director",
+        "insider": "WEINER RUSSELL J",
+        "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 75,
+        "shares": 3995,
         "value": 0.0
       },
       {
@@ -2298,10 +2306,10 @@
       },
       {
         "date": "2026-03-10",
-        "insider": "PARRISH JESSICA L",
-        "position": "Officer",
+        "insider": "BALSON ANDREW B",
+        "position": "Director",
         "type": "Other",
-        "shares": 233,
+        "shares": 75,
         "value": 0.0
       },
       {
@@ -2335,21 +2343,13 @@
         "type": "Other",
         "shares": 531,
         "value": 0.0
-      },
-      {
-        "date": "2026-03-10",
-        "insider": "NG WEIKING",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 562,
-        "value": 0.0
       }
     ]
   },
   "chartHistory": [
     {
       "date": "2025-10-29",
-      "close": 356.5937,
+      "close": 356.5938,
       "volume": 550200.0
     },
     {
@@ -2359,7 +2359,7 @@
     },
     {
       "date": "2025-10-31",
-      "close": 350.0834,
+      "close": 350.0833,
       "volume": 716300.0
     },
     {
@@ -2389,7 +2389,7 @@
     },
     {
       "date": "2025-11-10",
-      "close": 358.105,
+      "close": 358.1049,
       "volume": 463700.0
     },
     {
@@ -2399,7 +2399,7 @@
     },
     {
       "date": "2025-11-12",
-      "close": 354.74,
+      "close": 354.7399,
       "volume": 544100.0
     },
     {
@@ -2429,7 +2429,7 @@
     },
     {
       "date": "2025-11-20",
-      "close": 348.9851,
+      "close": 348.9852,
       "volume": 486500.0
     },
     {
@@ -2459,7 +2459,7 @@
     },
     {
       "date": "2025-12-01",
-      "close": 372.3907,
+      "close": 372.3908,
       "volume": 634700.0
     },
     {
@@ -2534,7 +2534,7 @@
     },
     {
       "date": "2025-12-22",
-      "close": 377.4616,
+      "close": 377.4615,
       "volume": 644300.0
     },
     {
@@ -2549,12 +2549,12 @@
     },
     {
       "date": "2025-12-26",
-      "close": 375.4062,
+      "close": 375.4061,
       "volume": 214700.0
     },
     {
       "date": "2025-12-29",
-      "close": 371.6041,
+      "close": 371.6042,
       "volume": 326000.0
     },
     {
@@ -2564,7 +2564,7 @@
     },
     {
       "date": "2025-12-31",
-      "close": 367.6963,
+      "close": 367.6962,
       "volume": 389900.0
     },
     {
@@ -2679,7 +2679,7 @@
     },
     {
       "date": "2026-02-04",
-      "close": 354.3847,
+      "close": 354.3846,
       "volume": 1069500.0
     },
     {
@@ -2719,7 +2719,7 @@
     },
     {
       "date": "2026-02-17",
-      "close": 329.4817,
+      "close": 329.4816,
       "volume": 838100.0
     },
     {
@@ -2769,7 +2769,7 @@
     },
     {
       "date": "2026-03-03",
-      "close": 360.2509,
+      "close": 360.251,
       "volume": 806900.0
     },
     {
@@ -2779,7 +2779,7 @@
     },
     {
       "date": "2026-03-05",
-      "close": 355.2403,
+      "close": 355.2404,
       "volume": 759200.0
     },
     {
@@ -2799,12 +2799,12 @@
     },
     {
       "date": "2026-03-11",
-      "close": 346.9394,
+      "close": 346.9393,
       "volume": 1221300.0
     },
     {
       "date": "2026-03-12",
-      "close": 349.3123,
+      "close": 349.3124,
       "volume": 1161100.0
     },
     {
@@ -3603,5 +3603,5 @@
       "volume": 630600.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.657178+00:00"
+  "updatedAt": "2026-10-29T10:15:28.451337+00:00"
 }

@@ -17,7 +17,7 @@
     "marketCap": 103262936966.3901,
     "fiftyTwoWeekLow": 62.3922,
     "fiftyTwoWeekHigh": 99.3464,
-    "volume": 5575600.0,
+    "volume": 5575605,
     "avgVolume": 7899660,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 23.6711,
     "peForward": 10.5387,
     "pegRatio": 0.21,
-    "dividendYield": 2.92,
+    "dividendYield": 2.96,
     "profitMargins": 0.0118,
     "debtToEquity": 95.503,
     "revenueGrowth": 0.071
@@ -33,6 +33,52 @@
   "financials": {
     "incomeStatement": {
       "quarterly": [
+        {
+          "date": "2025-03-31",
+          "Tax_Effect_Of_Unusual_Items": null,
+          "Tax_Rate_For_Calcs": null,
+          "Normalized_EBITDA": null,
+          "Total_Unusual_Items": null,
+          "Total_Unusual_Items_Excluding_Goodwill": null,
+          "Net_Income_From_Continuing_Operation_Net_Minority_Interest": null,
+          "Reconciled_Depreciation": null,
+          "Reconciled_Cost_Of_Revenue": null,
+          "EBITDA": null,
+          "EBIT": null,
+          "Net_Interest_Income": null,
+          "Interest_Expense": null,
+          "Normalized_Income": null,
+          "Net_Income_From_Continuing_And_Discontinued_Operation": null,
+          "Total_Expenses": null,
+          "Total_Operating_Income_As_Reported": null,
+          "Diluted_Average_Shares": 1264000000.0,
+          "Basic_Average_Shares": 1261000000.0,
+          "Diluted_EPS": 1.2656,
+          "Basic_EPS": 1.2656,
+          "Diluted_NI_Availto_Com_Stockholders": null,
+          "Net_Income_Common_Stockholders": null,
+          "Net_Income": null,
+          "Minority_Interests": null,
+          "Net_Income_Including_Noncontrolling_Interests": null,
+          "Net_Income_Continuous_Operations": null,
+          "Tax_Provision": null,
+          "Pretax_Income": null,
+          "Other_Income_Expense": null,
+          "Other_Non_Operating_Income_Expenses": null,
+          "Special_Income_Charges": null,
+          "Gain_On_Sale_Of_Business": null,
+          "Impairment_Of_Capital_Assets": null,
+          "Restructuring_And_Mergern_Acquisition": null,
+          "Net_Non_Operating_Interest_Income_Expense": null,
+          "Interest_Expense_Non_Operating": null,
+          "Operating_Income": null,
+          "Operating_Expense": null,
+          "Other_Operating_Expenses": null,
+          "Gross_Profit": null,
+          "Cost_Of_Revenue": null,
+          "Total_Revenue": null,
+          "Operating_Revenue": null
+        },
         {
           "date": "2025-06-30",
           "Tax_Effect_Of_Unusual_Items": 0.0,
@@ -235,10 +281,10 @@
           "Net_Income_From_Continuing_And_Discontinued_Operation": 2979000000.0,
           "Total_Expenses": 91010358240.7844,
           "Total_Operating_Income_As_Reported": 4221412866.8292,
-          "Diluted_Average_Shares": 1287000000.0,
-          "Basic_Average_Shares": 1279000000.0,
-          "Diluted_EPS": 2.0735,
-          "Basic_EPS": 2.0914,
+          "Diluted_Average_Shares": null,
+          "Basic_Average_Shares": null,
+          "Diluted_EPS": null,
+          "Basic_EPS": null,
           "Diluted_NI_Availto_Com_Stockholders": 2673950442.3313,
           "Net_Income_Common_Stockholders": 2673950442.3313,
           "Net_Income": 2673950442.3313,
@@ -2113,35 +2159,11 @@
       },
       {
         "date": "2026-05-14",
-        "insider": "BROWN C DAVID II",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1544,
-        "value": 134640.0021
-      },
-      {
-        "date": "2026-05-14",
-        "insider": "KIRBY JOHN SCOTT",
+        "insider": "NORWALK LESLIE V",
         "position": "Director",
         "type": "Other",
         "shares": 1447,
         "value": 126181.0196
-      },
-      {
-        "date": "2026-05-14",
-        "insider": "SANSONE GUY P",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1447,
-        "value": 126181.0196
-      },
-      {
-        "date": "2026-05-14",
-        "insider": "AGUIRRE FERNANDO",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1563,
-        "value": 136296.0742
       },
       {
         "date": "2026-05-14",
@@ -2153,7 +2175,31 @@
       },
       {
         "date": "2026-05-14",
-        "insider": "NORWALK LESLIE V",
+        "insider": "KIRBY JOHN SCOTT",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1447,
+        "value": 126181.0196
+      },
+      {
+        "date": "2026-05-14",
+        "insider": "BROWN C DAVID II",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1544,
+        "value": 134640.0021
+      },
+      {
+        "date": "2026-05-14",
+        "insider": "AGUIRRE FERNANDO",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1563,
+        "value": 136296.0742
+      },
+      {
+        "date": "2026-05-14",
+        "insider": "SANSONE GUY P",
         "position": "Director",
         "type": "Other",
         "shares": 1447,
@@ -2166,30 +2212,6 @@
         "type": "Sell",
         "shares": 69551,
         "value": 5592388.2789
-      },
-      {
-        "date": "2026-03-31",
-        "insider": "JOYNER JOHN DAVID",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 86326,
-        "value": 5565059.9489
-      },
-      {
-        "date": "2026-03-31",
-        "insider": "NELSON STEVEN H",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 22277,
-        "value": 1436100.7811
-      },
-      {
-        "date": "2026-03-31",
-        "insider": "SHAH PREM S",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 25062,
-        "value": 1615637.8384
       },
       {
         "date": "2026-03-31",
@@ -2217,6 +2239,14 @@
       },
       {
         "date": "2026-03-31",
+        "insider": "SHAH PREM S",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 25062,
+        "value": 1615637.8384
+      },
+      {
+        "date": "2026-03-31",
         "insider": "KHICHI SAMRAT S",
         "position": "General Counsel",
         "type": "Other",
@@ -2240,6 +2270,22 @@
         "value": 359009.4873
       },
       {
+        "date": "2026-03-31",
+        "insider": "JOYNER JOHN DAVID",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 86326,
+        "value": 5565059.9489
+      },
+      {
+        "date": "2026-03-31",
+        "insider": "NELSON STEVEN H",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 22277,
+        "value": 1436100.7811
+      },
+      {
         "date": "2026-03-19",
         "insider": "GALLINA JOHN E",
         "position": "Director",
@@ -2249,43 +2295,19 @@
       },
       {
         "date": "2025-11-20",
-        "insider": "BROWN C DAVID II",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1775,
-        "value": 121149.9715
-      },
-      {
-        "date": "2025-11-20",
-        "insider": "KIRBY JOHN SCOTT",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1652,
-        "value": 112754.7186
-      },
-      {
-        "date": "2025-11-20",
-        "insider": "SANSONE GUY P",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1652,
-        "value": 112754.7186
-      },
-      {
-        "date": "2025-11-20",
-        "insider": "AGUIRRE FERNANDO",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1800,
-        "value": 122856.3091
-      },
-      {
-        "date": "2025-11-20",
         "insider": "FINUCANE ANNE A",
         "position": "Director",
         "type": "Other",
         "shares": 591,
         "value": 40338.1446
+      },
+      {
+        "date": "2025-11-20",
+        "insider": "NORWALK LESLIE V",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1652,
+        "value": 112754.7186
       },
       {
         "date": "2025-11-20",
@@ -2305,7 +2327,31 @@
       },
       {
         "date": "2025-11-20",
-        "insider": "NORWALK LESLIE V",
+        "insider": "KIRBY JOHN SCOTT",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1652,
+        "value": 112754.7186
+      },
+      {
+        "date": "2025-11-20",
+        "insider": "BROWN C DAVID II",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1775,
+        "value": 121149.9715
+      },
+      {
+        "date": "2025-11-20",
+        "insider": "AGUIRRE FERNANDO",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1800,
+        "value": 122856.3091
+      },
+      {
+        "date": "2025-11-20",
+        "insider": "SANSONE GUY P",
         "position": "Director",
         "type": "Other",
         "shares": 1652,
@@ -2345,43 +2391,27 @@
       },
       {
         "date": "2025-05-15",
-        "insider": "BROWN C DAVID II",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2232,
-        "value": 121148.1763
-      },
-      {
-        "date": "2025-05-15",
-        "insider": "KIRBY JOHN SCOTT",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2769,
-        "value": 150295.044
-      },
-      {
-        "date": "2025-05-15",
-        "insider": "SANSONE GUY P",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2077,
-        "value": 112734.9714
-      },
-      {
-        "date": "2025-05-15",
-        "insider": "AGUIRRE FERNANDO",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2263,
-        "value": 122831.1763
-      },
-      {
-        "date": "2025-05-15",
         "insider": "FINUCANE ANNE A",
         "position": "Director",
         "type": "Other",
         "shares": 692,
         "value": 37560.0726
+      },
+      {
+        "date": "2025-05-15",
+        "insider": "MAHONEY MICHAEL F",
+        "position": "Director",
+        "type": "Other",
+        "shares": 144,
+        "value": 7816.3009
+      },
+      {
+        "date": "2025-05-15",
+        "insider": "NORWALK LESLIE V",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2077,
+        "value": 112734.9714
       },
       {
         "date": "2025-05-15",
@@ -2401,15 +2431,31 @@
       },
       {
         "date": "2025-05-15",
-        "insider": "MAHONEY MICHAEL F",
+        "insider": "KIRBY JOHN SCOTT",
         "position": "Director",
         "type": "Other",
-        "shares": 144,
-        "value": 7816.3009
+        "shares": 2769,
+        "value": 150295.044
       },
       {
         "date": "2025-05-15",
-        "insider": "NORWALK LESLIE V",
+        "insider": "BROWN C DAVID II",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2232,
+        "value": 121148.1763
+      },
+      {
+        "date": "2025-05-15",
+        "insider": "AGUIRRE FERNANDO",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2263,
+        "value": 122831.1763
+      },
+      {
+        "date": "2025-05-15",
+        "insider": "SANSONE GUY P",
         "position": "Director",
         "type": "Other",
         "shares": 2077,
@@ -2743,7 +2789,7 @@
     },
     {
       "date": "2026-01-30",
-      "close": 65.4302,
+      "close": 65.4303,
       "volume": 10221500.0
     },
     {
@@ -2883,7 +2929,7 @@
     },
     {
       "date": "2026-03-12",
-      "close": 66.7912,
+      "close": 66.7911,
       "volume": 7721000.0
     },
     {
@@ -3003,7 +3049,7 @@
     },
     {
       "date": "2026-04-16",
-      "close": 67.4233,
+      "close": 67.4234,
       "volume": 10594500.0
     },
     {
@@ -3163,7 +3209,7 @@
     },
     {
       "date": "2026-06-02",
-      "close": 79.2727,
+      "close": 79.2728,
       "volume": 5652000.0
     },
     {
@@ -3303,7 +3349,7 @@
     },
     {
       "date": "2026-07-14",
-      "close": 94.0467,
+      "close": 94.0468,
       "volume": 11396100.0
     },
     {
@@ -3682,5 +3728,5 @@
       "volume": 5575600.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.576871+00:00"
+  "updatedAt": "2026-10-29T10:14:58.669801+00:00"
 }

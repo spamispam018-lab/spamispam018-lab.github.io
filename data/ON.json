@@ -17,13 +17,13 @@
     "marketCap": 26429083489.6819,
     "fiftyTwoWeekLow": 39.9971,
     "fiftyTwoWeekHigh": 121.1042,
-    "volume": 11173700.0,
+    "volume": 11113965,
     "avgVolume": 10192483,
     "currency": "EUR"
   },
   "ratios": {
-    "peTrailing": 48.7936,
-    "peForward": 16.6216,
+    "peTrailing": 51.1013,
+    "peForward": 16.5746,
     "pegRatio": 0.18,
     "dividendYield": 0.0,
     "profitMargins": 0.1017,
@@ -66,7 +66,7 @@
           "Pretax_Income": 181494722.8732,
           "Other_Income_Expense": -42815520.6778,
           "Other_Non_Operating_Income_Expenses": 1346400.0213,
-          "Special_Income_Charges": null,
+          "Special_Income_Charges": -44161920.6991,
           "Impairment_Of_Capital_Assets": 36442560.5769,
           "Restructuring_And_Mergern_Acquisition": 7719360.1222,
           "Net_Non_Operating_Interest_Income_Expense": 6552480.1037,
@@ -121,7 +121,7 @@
           "Pretax_Income": 245044803.8793,
           "Other_Income_Expense": -14361600.2274,
           "Other_Non_Operating_Income_Expenses": 3231360.0512,
-          "Special_Income_Charges": null,
+          "Special_Income_Charges": -17592960.2785,
           "Impairment_Of_Capital_Assets": null,
           "Restructuring_And_Mergern_Acquisition": 17592960.2785,
           "Net_Non_Operating_Interest_Income_Expense": 4488000.071,
@@ -176,7 +176,7 @@
           "Pretax_Income": 194868963.085,
           "Other_Income_Expense": -40481760.6409,
           "Other_Non_Operating_Income_Expenses": 12297120.1947,
-          "Special_Income_Charges": null,
+          "Special_Income_Charges": -52778880.8355,
           "Impairment_Of_Capital_Assets": null,
           "Restructuring_And_Mergern_Acquisition": -392430726.2126,
           "Net_Non_Operating_Interest_Income_Expense": 2962080.0469,
@@ -231,7 +231,7 @@
           "Pretax_Income": -40032960.6338,
           "Other_Income_Expense": -292168804.6253,
           "Other_Non_Operating_Income_Expenses": 3410880.054,
-          "Special_Income_Charges": null,
+          "Special_Income_Charges": -295579684.6793,
           "Impairment_Of_Capital_Assets": null,
           "Restructuring_And_Mergern_Acquisition": 295579684.6793,
           "Net_Non_Operating_Interest_Income_Expense": 4488000.071,
@@ -2197,14 +2197,6 @@
       },
       {
         "date": "2026-05-14",
-        "insider": "DEITRICH THOMAS",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1986,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-14",
         "insider": "CARTER SUSAN K",
         "position": "Director",
         "type": "Other",
@@ -2222,6 +2214,14 @@
       {
         "date": "2026-05-14",
         "insider": "WATERS GREGORY L",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1986,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-14",
+        "insider": "DEITRICH THOMAS",
         "position": "Director",
         "type": "Other",
         "shares": 1986,
@@ -2261,18 +2261,18 @@
       },
       {
         "date": "2026-02-20",
-        "insider": "KEETON SIMON",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 26046,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-20",
         "insider": "GOPALSWAMY SUDHIR",
         "position": "Officer",
         "type": "Other",
         "shares": 31834,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-20",
+        "insider": "KEETON SIMON",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 26046,
         "value": 0.0
       },
       {
@@ -2301,14 +2301,6 @@
       },
       {
         "date": "2026-02-12",
-        "insider": "KIDDOO BRUCE E",
-        "position": "Director",
-        "type": "Other",
-        "shares": 3570,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-12",
         "insider": "EL KHOURY HASSANE",
         "position": "Chief Executive Officer",
         "type": "Sell",
@@ -2324,11 +2316,11 @@
         "value": 3835422.4207
       },
       {
-        "date": "2026-02-05",
-        "insider": "KEETON SIMON",
-        "position": "Officer",
+        "date": "2026-02-12",
+        "insider": "KIDDOO BRUCE E",
+        "position": "Director",
         "type": "Other",
-        "shares": 29147,
+        "shares": 3570,
         "value": 0.0
       },
       {
@@ -2337,6 +2329,14 @@
         "position": "Officer",
         "type": "Other",
         "shares": 27508,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-05",
+        "insider": "KEETON SIMON",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 29147,
         "value": 0.0
       },
       {
@@ -2429,14 +2429,6 @@
       },
       {
         "date": "2025-05-15",
-        "insider": "DEITRICH THOMAS",
-        "position": "Director",
-        "type": "Other",
-        "shares": 5054,
-        "value": 0.0
-      },
-      {
-        "date": "2025-05-15",
         "insider": "CARTER SUSAN K",
         "position": "Director",
         "type": "Other",
@@ -2468,6 +2460,14 @@
         "value": 0.0
       },
       {
+        "date": "2025-05-15",
+        "insider": "DEITRICH THOMAS",
+        "position": "Director",
+        "type": "Other",
+        "shares": 5054,
+        "value": 0.0
+      },
+      {
         "date": "2025-04-04",
         "insider": "MASCARENAS PAUL ANTHONY",
         "position": "Director",
@@ -2485,7 +2485,7 @@
       },
       {
         "date": "2025-02-21",
-        "insider": "KEETON SIMON",
+        "insider": "GOPALSWAMY SUDHIR",
         "position": "Officer",
         "type": "Other",
         "shares": 33303,
@@ -3750,5 +3750,5 @@
       "volume": 11173700.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.589082+00:00"
+  "updatedAt": "2026-10-29T10:21:23.207796+00:00"
 }

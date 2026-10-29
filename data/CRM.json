@@ -17,13 +17,13 @@
     "marketCap": 178852657653.6105,
     "fiftyTwoWeekLow": 131.3368,
     "fiftyTwoWeekHigh": 241.5531,
-    "volume": 6546400.0,
+    "volume": 6554335,
     "avgVolume": 12050393,
     "currency": "EUR"
   },
   "ratios": {
     "peTrailing": 22.151,
-    "peForward": 15.1175,
+    "peForward": 15.1102,
     "pegRatio": 0.86,
     "dividendYield": 0.73,
     "profitMargins": 0.2199,
@@ -43,7 +43,7 @@
           "Net_Income_From_Continuing_Operation_Net_Minority_Interest": null,
           "Reconciled_Depreciation": null,
           "Reconciled_Cost_Of_Revenue": null,
-          "EBITDA": 2589576040.9956,
+          "EBITDA": null,
           "EBIT": null,
           "Net_Interest_Income": -61036800.9663,
           "Interest_Expense": 61036800.9663,
@@ -267,7 +267,7 @@
           "Basic_Average_Shares": 868000000.0,
           "Diluted_EPS": 2.1722,
           "Basic_EPS": 2.1812,
-          "Diluted_NI_Availto_Com_Stockholders": null,
+          "Diluted_NI_Availto_Com_Stockholders": 1891243229.9403,
           "Net_Income_Common_Stockholders": 1891243229.9403,
           "Net_Income": 1891243229.9403,
           "Net_Income_Including_Noncontrolling_Interests": 1891243229.9403,
@@ -308,7 +308,7 @@
           "Net_Income_From_Continuing_Operation_Net_Minority_Interest": 3526000000.0,
           "Reconciled_Depreciation": 867081613.7268,
           "Reconciled_Cost_Of_Revenue": 2377742437.642,
-          "EBITDA": null,
+          "EBITDA": 5377521685.1315,
           "EBIT": 4510440071.4047,
           "Net_Interest_Income": -424564806.7213,
           "Interest_Expense": 424564806.7213,
@@ -2136,18 +2136,18 @@
     "trades": [
       {
         "date": "2026-09-22",
-        "insider": "MILANO MIGUEL",
-        "position": "President",
-        "type": "Other",
-        "shares": 2541,
-        "value": 0.0
-      },
-      {
-        "date": "2026-09-22",
         "insider": "NILES SABASTIAN",
         "position": "President",
         "type": "Other",
         "shares": 2032,
+        "value": 0.0
+      },
+      {
+        "date": "2026-09-22",
+        "insider": "MILANO MIGUEL",
+        "position": "President",
+        "type": "Other",
+        "shares": 2541,
         "value": 0.0
       },
       {
@@ -2192,18 +2192,10 @@
       },
       {
         "date": "2026-08-21",
-        "insider": "CONWAY CRAIG",
-        "position": "Director",
+        "insider": "NILES SABASTIAN",
+        "position": "President",
         "type": "Other",
-        "shares": 441,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-21",
-        "insider": "MUNOZ OSCAR X",
-        "position": "Director",
-        "type": "Other",
-        "shares": 441,
+        "shares": 1662,
         "value": 0.0
       },
       {
@@ -2224,39 +2216,7 @@
       },
       {
         "date": "2026-08-21",
-        "insider": "NILES SABASTIAN",
-        "position": "President",
-        "type": "Other",
-        "shares": 1662,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-21",
-        "insider": "ALBER LAURA",
-        "position": "Director",
-        "type": "Other",
-        "shares": 441,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-21",
-        "insider": "DONALD ARNOLD WAYNE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 441,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-21",
         "insider": "SACHIN J. MEHRA",
-        "position": "Director",
-        "type": "Other",
-        "shares": 441,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-21",
-        "insider": "ROOS JOHN VICTOR",
         "position": "Director",
         "type": "Other",
         "shares": 441,
@@ -2272,7 +2232,47 @@
       },
       {
         "date": "2026-08-21",
+        "insider": "ROOS JOHN VICTOR",
+        "position": "Director",
+        "type": "Other",
+        "shares": 441,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-21",
+        "insider": "ALBER LAURA",
+        "position": "Director",
+        "type": "Other",
+        "shares": 441,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-21",
         "insider": "KROES NEELIE",
+        "position": "Director",
+        "type": "Other",
+        "shares": 441,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-21",
+        "insider": "CONWAY CRAIG",
+        "position": "Director",
+        "type": "Other",
+        "shares": 441,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-21",
+        "insider": "MUNOZ OSCAR X",
+        "position": "Director",
+        "type": "Other",
+        "shares": 441,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-21",
+        "insider": "DONALD ARNOLD WAYNE",
         "position": "Director",
         "type": "Other",
         "shares": 441,
@@ -2296,18 +2296,18 @@
       },
       {
         "date": "2026-06-22",
-        "insider": "MILANO MIGUEL",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 2541,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-22",
         "insider": "NILES SABASTIAN",
         "position": "President",
         "type": "Other",
         "shares": 2033,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-22",
+        "insider": "MILANO MIGUEL",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 2541,
         "value": 0.0
       },
       {
@@ -2336,18 +2336,10 @@
       },
       {
         "date": "2026-05-22",
-        "insider": "CONWAY CRAIG",
-        "position": "Director",
+        "insider": "NILES SABASTIAN",
+        "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 442,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-22",
-        "insider": "MUNOZ OSCAR X",
-        "position": "Director",
-        "type": "Other",
-        "shares": 442,
+        "shares": 1663,
         "value": 0.0
       },
       {
@@ -2368,39 +2360,7 @@
       },
       {
         "date": "2026-05-22",
-        "insider": "NILES SABASTIAN",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 1663,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-22",
-        "insider": "ALBER LAURA",
-        "position": "Director",
-        "type": "Other",
-        "shares": 442,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-22",
-        "insider": "DONALD ARNOLD WAYNE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 442,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-22",
         "insider": "SACHIN J. MEHRA",
-        "position": "Director",
-        "type": "Other",
-        "shares": 442,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-22",
-        "insider": "ROOS JOHN VICTOR",
         "position": "Director",
         "type": "Other",
         "shares": 442,
@@ -2416,7 +2376,47 @@
       },
       {
         "date": "2026-05-22",
+        "insider": "ROOS JOHN VICTOR",
+        "position": "Director",
+        "type": "Other",
+        "shares": 442,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-22",
+        "insider": "ALBER LAURA",
+        "position": "Director",
+        "type": "Other",
+        "shares": 442,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-22",
         "insider": "KROES NEELIE",
+        "position": "Director",
+        "type": "Other",
+        "shares": 442,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-22",
+        "insider": "CONWAY CRAIG",
+        "position": "Director",
+        "type": "Other",
+        "shares": 442,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-22",
+        "insider": "MUNOZ OSCAR X",
+        "position": "Director",
+        "type": "Other",
+        "shares": 442,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-22",
+        "insider": "DONALD ARNOLD WAYNE",
         "position": "Director",
         "type": "Other",
         "shares": 442,
@@ -2440,10 +2440,10 @@
       },
       {
         "date": "2026-03-20",
-        "insider": "MILANO MIGUEL",
+        "insider": "NILES SABASTIAN",
         "position": "President",
         "type": "Other",
-        "shares": 7118,
+        "shares": 16084,
         "value": 0.0
       },
       {
@@ -2619,7 +2619,7 @@
     },
     {
       "date": "2025-12-15",
-      "close": 226.5892,
+      "close": 226.5891,
       "volume": 10271800.0
     },
     {
@@ -2629,7 +2629,7 @@
     },
     {
       "date": "2025-12-17",
-      "close": 229.7578,
+      "close": 229.7577,
       "volume": 6269000.0
     },
     {
@@ -2814,7 +2814,7 @@
     },
     {
       "date": "2026-02-11",
-      "close": 164.9251,
+      "close": 164.9252,
       "volume": 16350200.0
     },
     {
@@ -2889,7 +2889,7 @@
     },
     {
       "date": "2026-03-05",
-      "close": 179.5367,
+      "close": 179.5366,
       "volume": 15860900.0
     },
     {
@@ -3713,5 +3713,5 @@
       "volume": 6546400.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:15.910882+00:00"
+  "updatedAt": "2026-10-29T10:04:02.500003+00:00"
 }

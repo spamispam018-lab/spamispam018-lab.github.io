@@ -17,15 +17,15 @@
     "marketCap": 18296777957.0354,
     "fiftyTwoWeekLow": 81.5021,
     "fiftyTwoWeekHigh": 170.5081,
-    "volume": 2830500.0,
+    "volume": 2830555,
     "avgVolume": 3071364,
     "currency": "EUR"
   },
   "ratios": {
     "peTrailing": 25.3848,
-    "peForward": 9.0537,
+    "peForward": 9.1943,
     "pegRatio": 0.4,
-    "dividendYield": 1.99,
+    "dividendYield": 1.96,
     "profitMargins": 0.0256,
     "debtToEquity": 483.357,
     "revenueGrowth": 0.11
@@ -237,7 +237,7 @@
           "date": "2026-03-31",
           "Tax_Effect_Of_Unusual_Items": -16156800.2558,
           "Tax_Rate_For_Calcs": 0.359,
-          "Normalized_EBITDA": null,
+          "Normalized_EBITDA": 758472012.0074,
           "Total_Unusual_Items": -40392000.6394,
           "Total_Unusual_Items_Excluding_Goodwill": -40392000.6394,
           "Net_Income_From_Continuing_Operation_Net_Minority_Interest": 125000000.0,
@@ -934,7 +934,7 @@
           "Working_Capital": -1727880027.3541,
           "Net_Tangible_Assets": -5806574491.9238,
           "Capital_Lease_Obligations": 182212802.8846,
-          "Common_Stock_Equity": null,
+          "Common_Stock_Equity": 3791462460.0226,
           "Preferred_Stock_Equity": 583440009.2364,
           "Total_Capitalization": 22128533150.3167,
           "Total_Equity_Gross_Minority_Interest": 4374902469.2591,
@@ -979,11 +979,11 @@
           "Investments_And_Advances": null,
           "Long_Term_Equity_Investment": null,
           "Goodwill_And_Other_Intangible_Assets": 10181476961.1829,
-          "Other_Intangible_Assets": null,
+          "Other_Intangible_Assets": 2209891234.9848,
           "Goodwill": 7971585726.1981,
           "Net_PPE": 12284553794.4767,
           "Accumulated_Depreciation": null,
-          "Gross_PPE": null,
+          "Gross_PPE": 12284553794.4767,
           "Construction_In_Progress": null,
           "Other_Properties": 12284553794.4767,
           "Current_Assets": 8905987340.9906,
@@ -1848,6 +1848,7 @@
           "Financing_Cash_Flow": null,
           "Cash_From_Discontinued_Financing_Activities": 0.0,
           "Cash_Flow_From_Continuing_Financing_Activities": null,
+          "Net_Other_Financing_Charges": null,
           "Cash_Dividends_Paid": null,
           "Common_Stock_Dividend_Paid": null,
           "Net_Preferred_Stock_Issuance": null,
@@ -1922,6 +1923,7 @@
           "Financing_Cash_Flow": 936196814.8209,
           "Cash_From_Discontinued_Financing_Activities": null,
           "Cash_Flow_From_Continuing_Financing_Activities": 936196814.8209,
+          "Net_Other_Financing_Charges": 1782633628.2209,
           "Cash_Dividends_Paid": -298003204.7177,
           "Common_Stock_Dividend_Paid": -298003204.7177,
           "Net_Preferred_Stock_Issuance": 0.0,
@@ -1996,6 +1998,7 @@
           "Financing_Cash_Flow": -359040005.684,
           "Cash_From_Discontinued_Financing_Activities": null,
           "Cash_Flow_From_Continuing_Financing_Activities": -359040005.684,
+          "Net_Other_Financing_Charges": 278256004.4051,
           "Cash_Dividends_Paid": -341985605.414,
           "Common_Stock_Dividend_Paid": -341985605.414,
           "Net_Preferred_Stock_Issuance": 569976009.0233,
@@ -2070,6 +2073,7 @@
           "Financing_Cash_Flow": -1575288024.9384,
           "Cash_From_Discontinued_Financing_Activities": null,
           "Cash_Flow_From_Continuing_Financing_Activities": -1575288024.9384,
+          "Net_Other_Financing_Charges": -278256004.4051,
           "Cash_Dividends_Paid": -363528005.755,
           "Common_Stock_Dividend_Paid": -363528005.755,
           "Net_Preferred_Stock_Issuance": 0.0,
@@ -2144,6 +2148,7 @@
           "Financing_Cash_Flow": 3182889650.3883,
           "Cash_From_Discontinued_Financing_Activities": null,
           "Cash_Flow_From_Continuing_Financing_Activities": 3182889650.3883,
+          "Net_Other_Financing_Charges": -279153604.4193,
           "Cash_Dividends_Paid": -368913605.8403,
           "Common_Stock_Dividend_Paid": -368913605.8403,
           "Net_Preferred_Stock_Issuance": 0.0,
@@ -2304,30 +2309,6 @@
       },
       {
         "date": "2026-08-03",
-        "insider": "PRUNER ALEXANDRA",
-        "position": "Director",
-        "type": "Other",
-        "shares": 112,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-03",
-        "insider": "SPENCER GERALD ALFRED",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 14,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-03",
-        "insider": "CURCI BRIAN",
-        "position": "General Counsel",
-        "type": "Other",
-        "shares": 44,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-03",
         "insider": "CHUNG BRUCE",
         "position": "Chief Financial Officer",
         "type": "Other",
@@ -2360,18 +2341,42 @@
       },
       {
         "date": "2026-08-03",
-        "insider": "POURBAIX ALEXANDER J.",
+        "insider": "CARTER MATTHEW JR.",
         "position": "Director",
         "type": "Other",
-        "shares": 44,
+        "shares": 149,
         "value": 0.0
       },
       {
         "date": "2026-08-03",
-        "insider": "COX HEATHER",
+        "insider": "CARRILLO RULE ANTONIO",
         "position": "Director",
         "type": "Other",
-        "shares": 68,
+        "shares": 65,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-03",
+        "insider": "GAUDETTE ROBERT J",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 53,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-03",
+        "insider": "KAPOOR SANJAY",
+        "position": "Director",
+        "type": "Other",
+        "shares": 13,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-03",
+        "insider": "POURBAIX ALEXANDER J.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 44,
         "value": 0.0
       },
       {
@@ -2392,34 +2397,34 @@
       },
       {
         "date": "2026-08-03",
-        "insider": "GAUDETTE ROBERT J",
-        "position": "Chief Executive Officer",
+        "insider": "COX HEATHER",
+        "position": "Director",
         "type": "Other",
-        "shares": 53,
+        "shares": 68,
         "value": 0.0
       },
       {
         "date": "2026-08-03",
-        "insider": "CARRILLO RULE ANTONIO",
-        "position": "Director",
+        "insider": "CURCI BRIAN",
+        "position": "General Counsel",
         "type": "Other",
-        "shares": 65,
+        "shares": 44,
         "value": 0.0
       },
       {
         "date": "2026-08-03",
-        "insider": "KAPOOR SANJAY",
+        "insider": "PRUNER ALEXANDRA",
         "position": "Director",
         "type": "Other",
-        "shares": 13,
+        "shares": 112,
         "value": 0.0
       },
       {
         "date": "2026-08-03",
-        "insider": "CARTER MATTHEW JR.",
-        "position": "Director",
+        "insider": "SPENCER GERALD ALFRED",
+        "position": "Officer",
         "type": "Other",
-        "shares": 149,
+        "shares": 14,
         "value": 0.0
       },
       {
@@ -2456,22 +2461,6 @@
       },
       {
         "date": "2026-06-01",
-        "insider": "FAWAZ MARWAN H",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1422,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "PRUNER ALEXANDRA",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1557,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
         "insider": "WRIGHT GLENN TRACY",
         "position": "Director",
         "type": "Other",
@@ -2480,34 +2469,10 @@
       },
       {
         "date": "2026-06-01",
-        "insider": "POURBAIX ALEXANDER J.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2619,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "COX HEATHER",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1422,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "DONOHUE ELISABETH B",
+        "insider": "CARTER MATTHEW JR.",
         "position": "Director",
         "type": "Other",
         "shares": 1499,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "ZLOTNIK MARCIE C",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1422,
         "value": 0.0
       },
       {
@@ -2528,26 +2493,50 @@
       },
       {
         "date": "2026-06-01",
-        "insider": "CARTER MATTHEW JR.",
+        "insider": "POURBAIX ALEXANDER J.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2619,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "DONOHUE ELISABETH B",
         "position": "Director",
         "type": "Other",
         "shares": 1499,
         "value": 0.0
       },
       {
-        "date": "2026-05-01",
-        "insider": "PRUNER ALEXANDRA",
+        "date": "2026-06-01",
+        "insider": "ZLOTNIK MARCIE C",
         "position": "Director",
         "type": "Other",
-        "shares": 96,
+        "shares": 1422,
         "value": 0.0
       },
       {
-        "date": "2026-05-01",
-        "insider": "CURCI BRIAN",
-        "position": "General Counsel",
+        "date": "2026-06-01",
+        "insider": "FAWAZ MARWAN H",
+        "position": "Director",
         "type": "Other",
-        "shares": 40,
+        "shares": 1422,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "COX HEATHER",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1422,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "PRUNER ALEXANDRA",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1557,
         "value": 0.0
       },
       {
@@ -2584,10 +2573,34 @@
       },
       {
         "date": "2026-05-01",
-        "insider": "SPENCER GERALD ALFRED",
-        "position": "Officer",
+        "insider": "CARTER MATTHEW JR.",
+        "position": "Director",
         "type": "Other",
-        "shares": 13,
+        "shares": 129,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-01",
+        "insider": "CARRILLO RULE ANTONIO",
+        "position": "Director",
+        "type": "Other",
+        "shares": 58,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-01",
+        "insider": "GAUDETTE ROBERT J",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 47,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-01",
+        "insider": "KAPOOR SANJAY",
+        "position": "Director",
+        "type": "Other",
+        "shares": 4,
         "value": 0.0
       },
       {
@@ -2596,14 +2609,6 @@
         "position": "Director",
         "type": "Other",
         "shares": 31,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-01",
-        "insider": "COX HEATHER",
-        "position": "Director",
-        "type": "Other",
-        "shares": 79,
         "value": 0.0
       },
       {
@@ -2669,7 +2674,7 @@
     },
     {
       "date": "2025-11-12",
-      "close": 150.0852,
+      "close": 150.0851,
       "volume": 2048500.0
     },
     {
@@ -2689,7 +2694,7 @@
     },
     {
       "date": "2025-11-18",
-      "close": 147.9607,
+      "close": 147.9606,
       "volume": 2451600.0
     },
     {
@@ -2959,7 +2964,7 @@
     },
     {
       "date": "2026-02-06",
-      "close": 136.7146,
+      "close": 136.7145,
       "volume": 2064000.0
     },
     {
@@ -3109,7 +3114,7 @@
     },
     {
       "date": "2026-03-23",
-      "close": 135.3325,
+      "close": 135.3324,
       "volume": 1844900.0
     },
     {
@@ -3159,7 +3164,7 @@
     },
     {
       "date": "2026-04-07",
-      "close": 136.4828,
+      "close": 136.4827,
       "volume": 1856400.0
     },
     {
@@ -3873,5 +3878,5 @@
       "volume": 2830500.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.547344+00:00"
+  "updatedAt": "2026-10-29T10:21:06.756112+00:00"
 }

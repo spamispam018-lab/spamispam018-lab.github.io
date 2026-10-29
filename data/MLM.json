@@ -17,7 +17,7 @@
     "marketCap": 32510971638.8026,
     "fiftyTwoWeekLow": 417.3122,
     "fiftyTwoWeekHigh": 638.1667,
-    "volume": 944400.0,
+    "volume": 944415,
     "avgVolume": 751440,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 33.1599,
     "peForward": 24.0628,
     "pegRatio": 1.91,
-    "dividendYield": 0.67,
+    "dividendYield": 0.66,
     "profitMargins": 0.3674,
     "debtToEquity": 54.945,
     "revenueGrowth": 0.21
@@ -50,7 +50,7 @@
           "Normalized_Income": null,
           "Net_Income_From_Continuing_And_Discontinued_Operation": null,
           "Total_Expenses": null,
-          "Total_Operating_Income_As_Reported": 160670402.5436,
+          "Total_Operating_Income_As_Reported": null,
           "Diluted_Average_Shares": null,
           "Basic_Average_Shares": null,
           "Diluted_EPS": null,
@@ -142,7 +142,7 @@
           "Normalized_Income": 327633978.5201,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 414000000.0,
           "Total_Expenses": 1199193618.9844,
-          "Total_Operating_Income_As_Reported": null,
+          "Total_Operating_Income_As_Reported": 453288007.176,
           "Diluted_Average_Shares": 60400000.0,
           "Basic_Average_Shares": 60300000.0,
           "Diluted_EPS": 6.1486,
@@ -188,7 +188,7 @@
           "Normalized_Income": 215887280.8371,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 279000000.0,
           "Total_Expenses": 1061860816.8103,
-          "Total_Operating_Income_As_Reported": null,
+          "Total_Operating_Income_As_Reported": 306081604.8456,
           "Diluted_Average_Shares": 60500000.0,
           "Basic_Average_Shares": 60300000.0,
           "Diluted_EPS": 4.1469,
@@ -234,7 +234,7 @@
           "Normalized_Income": 73948777.1707,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 1513000000.0,
           "Total_Expenses": 1072632016.9808,
-          "Total_Operating_Income_As_Reported": null,
+          "Total_Operating_Income_As_Reported": 145411202.302,
           "Diluted_Average_Shares": 60400000.0,
           "Basic_Average_Shares": 60300000.0,
           "Diluted_EPS": 22.4939,
@@ -1165,7 +1165,7 @@
           "Goodwill_And_Other_Intangible_Assets": 4036776543.9062,
           "Other_Intangible_Assets": 760985292.0472,
           "Goodwill": 3275791251.859,
-          "Net_PPE": null,
+          "Net_PPE": 6014099615.2092,
           "Accumulated_Depreciation": -3899443741.7321,
           "Gross_PPE": 9913543356.9412,
           "Construction_In_Progress": 303837604.8101,
@@ -1408,7 +1408,7 @@
           "Goodwill_And_Other_Intangible_Assets": 3655924857.8769,
           "Other_Intangible_Assets": 411998406.5223,
           "Goodwill": 3243926451.3546,
-          "Net_PPE": null,
+          "Net_PPE": 9565723351.4349,
           "Accumulated_Depreciation": -4523904071.6179,
           "Gross_PPE": 14089627423.0528,
           "Construction_In_Progress": 286334404.533,
@@ -2135,6 +2135,14 @@
       },
       {
         "date": "2026-08-31",
+        "insider": "LYONS MARTIN J JR",
+        "position": "Director",
+        "type": "Other",
+        "shares": 68,
+        "value": 31660.1477
+      },
+      {
+        "date": "2026-08-31",
         "insider": "WAJSGRAS DAVID C",
         "position": "Director",
         "type": "Other",
@@ -2150,20 +2158,20 @@
         "value": 30728.4389
       },
       {
-        "date": "2026-08-31",
-        "insider": "LYONS MARTIN J JR",
-        "position": "Director",
-        "type": "Other",
-        "shares": 68,
-        "value": 31660.1477
-      },
-      {
         "date": "2026-08-21",
         "insider": "NIEMANN PHILIPP",
         "position": "Director",
         "type": "Other",
         "shares": 337,
         "value": 0.0
+      },
+      {
+        "date": "2026-05-29",
+        "insider": "LYONS MARTIN J JR",
+        "position": "Director",
+        "type": "Other",
+        "shares": 61,
+        "value": 31846.8485
       },
       {
         "date": "2026-05-29",
@@ -2182,12 +2190,12 @@
         "value": 30802.9397
       },
       {
-        "date": "2026-05-29",
-        "insider": "LYONS MARTIN J JR",
+        "date": "2026-05-14",
+        "insider": "MACK MARY T.",
         "position": "Director",
         "type": "Other",
-        "shares": 61,
-        "value": 31846.8485
+        "shares": 313,
+        "value": 0.0
       },
       {
         "date": "2026-05-14",
@@ -2199,39 +2207,7 @@
       },
       {
         "date": "2026-05-14",
-        "insider": "WAJSGRAS DAVID C",
-        "position": "Director",
-        "type": "Other",
-        "shares": 313,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-14",
-        "insider": "MACK MARY T.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 313,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-14",
-        "insider": "PIKE THOMAS",
-        "position": "Director",
-        "type": "Other",
-        "shares": 313,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-14",
-        "insider": "LYONS MARTIN J JR",
-        "position": "Director",
-        "type": "Other",
-        "shares": 313,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-14",
-        "insider": "ABLES DOROTHY M",
+        "insider": "SLAGER DONALD W",
         "position": "Director",
         "type": "Other",
         "shares": 313,
@@ -2247,7 +2223,7 @@
       },
       {
         "date": "2026-05-14",
-        "insider": "PEREZ LAREE E",
+        "insider": "LYONS MARTIN J JR",
         "position": "Director",
         "type": "Other",
         "shares": 313,
@@ -2255,7 +2231,31 @@
       },
       {
         "date": "2026-05-14",
-        "insider": "SLAGER DONALD W",
+        "insider": "WAJSGRAS DAVID C",
+        "position": "Director",
+        "type": "Other",
+        "shares": 313,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-14",
+        "insider": "ABLES DOROTHY M",
+        "position": "Director",
+        "type": "Other",
+        "shares": 313,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-14",
+        "insider": "PIKE THOMAS",
+        "position": "Director",
+        "type": "Other",
+        "shares": 313,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-14",
+        "insider": "PEREZ LAREE E",
         "position": "Director",
         "type": "Other",
         "shares": 313,
@@ -2295,11 +2295,11 @@
       },
       {
         "date": "2026-02-27",
-        "insider": "PIKE THOMAS",
-        "position": "Director",
+        "insider": "MCCUNNIFF DONALD A",
+        "position": "Officer",
         "type": "Other",
-        "shares": 47,
-        "value": 28542.7829
+        "shares": 2960,
+        "value": 0.0
       },
       {
         "date": "2026-02-27",
@@ -2311,11 +2311,11 @@
       },
       {
         "date": "2026-02-27",
-        "insider": "MCCUNNIFF DONALD A",
-        "position": "Officer",
+        "insider": "PIKE THOMAS",
+        "position": "Director",
         "type": "Other",
-        "shares": 2960,
-        "value": 0.0
+        "shares": 47,
+        "value": 28542.7829
       },
       {
         "date": "2026-02-27",
@@ -2324,6 +2324,14 @@
         "type": "Other",
         "shares": 69,
         "value": 41902.6615
+      },
+      {
+        "date": "2026-02-20",
+        "insider": "CARDIN ROBERT J",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 658,
+        "value": 0.0
       },
       {
         "date": "2026-02-20",
@@ -2343,10 +2351,10 @@
       },
       {
         "date": "2026-02-20",
-        "insider": "CARDIN ROBERT J",
+        "insider": "MCCUNNIFF DONALD A",
         "position": "Officer",
         "type": "Other",
-        "shares": 658,
+        "shares": 1277,
         "value": 0.0
       },
       {
@@ -2358,11 +2366,11 @@
         "value": 1364390.6184
       },
       {
-        "date": "2026-02-20",
-        "insider": "MCCUNNIFF DONALD A",
+        "date": "2026-02-17",
+        "insider": "CARDIN ROBERT J",
         "position": "Officer",
         "type": "Other",
-        "shares": 1277,
+        "shares": 1869,
         "value": 0.0
       },
       {
@@ -2379,14 +2387,6 @@
         "position": "Chief Technology Officer",
         "type": "Other",
         "shares": 222,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-17",
-        "insider": "CARDIN ROBERT J",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 1869,
         "value": 0.0
       },
       {
@@ -2460,7 +2460,7 @@
     },
     {
       "date": "2025-10-31",
-      "close": 547.2405,
+      "close": 547.2404,
       "volume": 354200.0
     },
     {
@@ -2495,7 +2495,7 @@
     },
     {
       "date": "2025-11-11",
-      "close": 553.7564,
+      "close": 553.7563,
       "volume": 238400.0
     },
     {
@@ -2510,7 +2510,7 @@
     },
     {
       "date": "2025-11-14",
-      "close": 532.3701,
+      "close": 532.3702,
       "volume": 342700.0
     },
     {
@@ -2520,12 +2520,12 @@
     },
     {
       "date": "2025-11-18",
-      "close": 529.4602,
+      "close": 529.4603,
       "volume": 318200.0
     },
     {
       "date": "2025-11-19",
-      "close": 532.7094,
+      "close": 532.7093,
       "volume": 330700.0
     },
     {
@@ -2555,7 +2555,7 @@
     },
     {
       "date": "2025-11-28",
-      "close": 556.2913,
+      "close": 556.2912,
       "volume": 112700.0
     },
     {
@@ -2585,7 +2585,7 @@
     },
     {
       "date": "2025-12-08",
-      "close": 556.1035,
+      "close": 556.1036,
       "volume": 510100.0
     },
     {
@@ -2605,7 +2605,7 @@
     },
     {
       "date": "2025-12-12",
-      "close": 561.5108,
+      "close": 561.5109,
       "volume": 441700.0
     },
     {
@@ -2620,7 +2620,7 @@
     },
     {
       "date": "2025-12-17",
-      "close": 553.2525,
+      "close": 553.2524,
       "volume": 607300.0
     },
     {
@@ -2650,7 +2650,7 @@
     },
     {
       "date": "2025-12-26",
-      "close": 576.4905,
+      "close": 576.4904,
       "volume": 244300.0
     },
     {
@@ -2685,7 +2685,7 @@
     },
     {
       "date": "2026-01-07",
-      "close": 558.6418,
+      "close": 558.6419,
       "volume": 539300.0
     },
     {
@@ -2695,7 +2695,7 @@
     },
     {
       "date": "2026-01-09",
-      "close": 595.8495,
+      "close": 595.8494,
       "volume": 396700.0
     },
     {
@@ -2720,7 +2720,7 @@
     },
     {
       "date": "2026-01-16",
-      "close": 582.4341,
+      "close": 582.434,
       "volume": 433600.0
     },
     {
@@ -2730,7 +2730,7 @@
     },
     {
       "date": "2026-01-21",
-      "close": 573.0315,
+      "close": 573.0316,
       "volume": 438500.0
     },
     {
@@ -2745,7 +2745,7 @@
     },
     {
       "date": "2026-01-26",
-      "close": 582.5591,
+      "close": 582.5592,
       "volume": 285300.0
     },
     {
@@ -2770,7 +2770,7 @@
     },
     {
       "date": "2026-02-02",
-      "close": 584.8203,
+      "close": 584.8204,
       "volume": 322200.0
     },
     {
@@ -2785,7 +2785,7 @@
     },
     {
       "date": "2026-02-05",
-      "close": 599.6748,
+      "close": 599.6749,
       "volume": 408500.0
     },
     {
@@ -2800,7 +2800,7 @@
     },
     {
       "date": "2026-02-10",
-      "close": 632.8874,
+      "close": 632.8873,
       "volume": 642100.0
     },
     {
@@ -2830,7 +2830,7 @@
     },
     {
       "date": "2026-02-19",
-      "close": 603.6521,
+      "close": 603.6522,
       "volume": 612200.0
     },
     {
@@ -2890,7 +2890,7 @@
     },
     {
       "date": "2026-03-09",
-      "close": 548.1244,
+      "close": 548.1243,
       "volume": 667900.0
     },
     {
@@ -2905,7 +2905,7 @@
     },
     {
       "date": "2026-03-12",
-      "close": 525.6184,
+      "close": 525.6183,
       "volume": 985000.0
     },
     {
@@ -2930,7 +2930,7 @@
     },
     {
       "date": "2026-03-19",
-      "close": 507.8105,
+      "close": 507.8106,
       "volume": 736100.0
     },
     {
@@ -2970,12 +2970,12 @@
     },
     {
       "date": "2026-03-31",
-      "close": 526.7906,
+      "close": 526.7907,
       "volume": 449500.0
     },
     {
       "date": "2026-04-01",
-      "close": 535.9541,
+      "close": 535.954,
       "volume": 383700.0
     },
     {
@@ -2990,7 +2990,7 @@
     },
     {
       "date": "2026-04-07",
-      "close": 531.9362,
+      "close": 531.9361,
       "volume": 372400.0
     },
     {
@@ -3095,7 +3095,7 @@
     },
     {
       "date": "2026-05-06",
-      "close": 550.773,
+      "close": 550.7731,
       "volume": 410800.0
     },
     {
@@ -3155,7 +3155,7 @@
     },
     {
       "date": "2026-05-22",
-      "close": 480.0785,
+      "close": 480.0786,
       "volume": 520800.0
     },
     {
@@ -3704,5 +3704,5 @@
       "volume": 944400.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.376131+00:00"
+  "updatedAt": "2026-10-29T10:20:02.149255+00:00"
 }

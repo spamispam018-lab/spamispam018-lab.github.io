@@ -17,7 +17,7 @@
     "marketCap": 51678171947.5632,
     "fiftyTwoWeekLow": 70.5693,
     "fiftyTwoWeekHigh": 118.0793,
-    "volume": 4611100.0,
+    "volume": 4611121,
     "avgVolume": 4999100,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 15.2898,
     "peForward": 13.6341,
     "pegRatio": 1.64,
-    "dividendYield": 1.82,
+    "dividendYield": 1.8,
     "profitMargins": 0.0994,
     "debtToEquity": 77.592,
     "revenueGrowth": 0.056
@@ -2185,9 +2185,9 @@
   "insider": {
     "summary": {
       "buysCount2Q": 3,
-      "sellsCount2Q": 2,
+      "sellsCount2Q": 3,
       "buyValueTotal": 672505.2681999999,
-      "sellValueTotal": 4121980.3276,
+      "sellValueTotal": 4500491.9704,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -2401,10 +2401,26 @@
       },
       {
         "date": "2026-02-23",
+        "insider": "MINTERN DENIS JAMES",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 14372,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-23",
         "insider": "LAKE RANDY",
         "position": "Chief Operating Officer",
         "type": "Other",
         "shares": 73767,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-23",
+        "insider": "LAKE RANDY",
+        "position": "Chief Operating Officer",
+        "type": "Other",
+        "shares": 17064,
         "value": 0.0
       },
       {
@@ -2429,22 +2445,6 @@
         "position": "Officer",
         "type": "Other",
         "shares": 64171,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-23",
-        "insider": "MINTERN DENIS JAMES",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 14372,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-23",
-        "insider": "LAKE RANDY",
-        "position": "Chief Operating Officer",
-        "type": "Other",
-        "shares": 17064,
         "value": 0.0
       },
       {
@@ -2481,6 +2481,14 @@
       },
       {
         "date": "2025-03-03",
+        "insider": "MANIFOLD ALBERT JUDE",
+        "position": "Former",
+        "type": "Other",
+        "shares": 25942,
+        "value": 0.0
+      },
+      {
+        "date": "2025-03-03",
         "insider": "MINTERN DENIS JAMES",
         "position": "Chief Executive Officer",
         "type": "Other",
@@ -2489,27 +2497,19 @@
       },
       {
         "date": "2025-03-03",
-        "insider": "FEURY ROBERT T JR.",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 25305,
-        "value": 0.0
+        "insider": "MINTERN DENIS JAMES",
+        "position": "Chief Executive Officer",
+        "type": "Sell",
+        "shares": 4097,
+        "value": 378511.6428
       },
       {
         "date": "2025-03-03",
-        "insider": "LAKE RANDY",
-        "position": "Chief Operating Officer",
+        "insider": "MINTERN DENIS JAMES",
+        "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 87773,
-        "value": 0.0
-      },
-      {
-        "date": "2025-03-03",
-        "insider": "CONNOLLY ALAN",
-        "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 22298,
-        "value": 0.0
+        "shares": 7837,
+        "value": 703238.1951
       }
     ]
   },
@@ -2731,7 +2731,7 @@
     },
     {
       "date": "2025-12-31",
-      "close": 110.7787,
+      "close": 110.7788,
       "volume": 2675100.0
     },
     {
@@ -3770,5 +3770,5 @@
       "volume": 4611100.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.550153+00:00"
+  "updatedAt": "2026-10-29T10:14:48.654148+00:00"
 }

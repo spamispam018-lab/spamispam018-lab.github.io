@@ -12,12 +12,12 @@
   },
   "quote": {
     "price": 26.3087,
-    "change": -0.5924,
-    "changePercent": -2.2,
+    "change": -0.5879,
+    "changePercent": -2.19,
     "marketCap": 14165537039.7681,
     "fiftyTwoWeekLow": 19.9267,
     "fiftyTwoWeekHigh": 28.418,
-    "volume": 4128500.0,
+    "volume": 4128062,
     "avgVolume": 3914650,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 28.4563,
     "peForward": 19.3885,
     "pegRatio": 2.69,
-    "dividendYield": 0.65,
+    "dividendYield": 0.68,
     "profitMargins": 0.0635,
     "debtToEquity": 31.561,
     "revenueGrowth": 0.108
@@ -2188,18 +2188,10 @@
       "buysCount2Q": 0,
       "sellsCount2Q": 5,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 2862652.8932999996,
+      "sellValueTotal": 2862652.8933,
       "sentiment": "Bearish"
     },
     "trades": [
-      {
-        "date": "2026-08-17",
-        "insider": "PITOFSKY DAVID B",
-        "position": "General Counsel",
-        "type": "Sell",
-        "shares": 51423,
-        "value": 1327483.101
-      },
       {
         "date": "2026-08-17",
         "insider": "DEGRAZIO MARYGRACE",
@@ -2231,6 +2223,14 @@
         "type": "Sell",
         "shares": 1747,
         "value": 45036.1831
+      },
+      {
+        "date": "2026-08-17",
+        "insider": "PITOFSKY DAVID B",
+        "position": "General Counsel",
+        "type": "Sell",
+        "shares": 51423,
+        "value": 1327483.101
       },
       {
         "date": "2026-08-14",
@@ -2266,10 +2266,10 @@
       },
       {
         "date": "2026-08-14",
-        "insider": "PITOFSKY DAVID B",
-        "position": "General Counsel",
+        "insider": "MURDOCH KEITH RUPERT",
+        "position": "Divisional Officer",
         "type": "Other",
-        "shares": 102260,
+        "shares": 14221,
         "value": 0.0
       },
       {
@@ -2282,10 +2282,18 @@
       },
       {
         "date": "2026-08-14",
-        "insider": "MURDOCH KEITH RUPERT",
-        "position": "Divisional Officer",
+        "insider": "PITOFSKY DAVID B",
+        "position": "General Counsel",
         "type": "Other",
-        "shares": 14221,
+        "shares": 102260,
+        "value": 0.0
+      },
+      {
+        "date": "2026-07-01",
+        "insider": "MURDOCH LACHLAN K",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1747,
         "value": 0.0
       },
       {
@@ -2299,14 +2307,6 @@
       {
         "date": "2026-07-01",
         "insider": "BANCROFT NATALIE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1747,
-        "value": 0.0
-      },
-      {
-        "date": "2026-07-01",
-        "insider": "SIDDIQUI MASROOR T.",
         "position": "Director",
         "type": "Other",
         "shares": 1747,
@@ -2322,7 +2322,7 @@
       },
       {
         "date": "2026-07-01",
-        "insider": "MURDOCH LACHLAN K",
+        "insider": "SIDDIQUI MASROOR T.",
         "position": "Director",
         "type": "Other",
         "shares": 1747,
@@ -2330,6 +2330,14 @@
       },
       {
         "date": "2026-04-08",
+        "insider": "MURDOCH LACHLAN K",
+        "position": "Director",
+        "type": "Other",
+        "shares": 6,
+        "value": 0.0
+      },
+      {
+        "date": "2026-04-08",
         "insider": "AZNAR JOSE MARIA",
         "position": "Director",
         "type": "Other",
@@ -2339,14 +2347,6 @@
       {
         "date": "2026-04-08",
         "insider": "BANCROFT NATALIE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 6,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-08",
-        "insider": "SIDDIQUI MASROOR T.",
         "position": "Director",
         "type": "Other",
         "shares": 6,
@@ -2362,10 +2362,18 @@
       },
       {
         "date": "2026-04-08",
-        "insider": "MURDOCH LACHLAN K",
+        "insider": "SIDDIQUI MASROOR T.",
         "position": "Director",
         "type": "Other",
         "shares": 6,
+        "value": 0.0
+      },
+      {
+        "date": "2026-04-01",
+        "insider": "MURDOCH LACHLAN K",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1644,
         "value": 0.0
       },
       {
@@ -2379,14 +2387,6 @@
       {
         "date": "2026-04-01",
         "insider": "BANCROFT NATALIE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1644,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-01",
-        "insider": "SIDDIQUI MASROOR T.",
         "position": "Director",
         "type": "Other",
         "shares": 1644,
@@ -2402,26 +2402,10 @@
       },
       {
         "date": "2026-04-01",
-        "insider": "MURDOCH LACHLAN K",
+        "insider": "SIDDIQUI MASROOR T.",
         "position": "Director",
         "type": "Other",
         "shares": 1644,
-        "value": 0.0
-      },
-      {
-        "date": "2026-01-02",
-        "insider": "AZNAR JOSE MARIA",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2371,
-        "value": 0.0
-      },
-      {
-        "date": "2026-01-02",
-        "insider": "BANCROFT NATALIE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2371,
         "value": 0.0
       },
       {
@@ -2434,7 +2418,23 @@
       },
       {
         "date": "2026-01-02",
-        "insider": "SIDDIQUI MASROOR T.",
+        "insider": "MURDOCH LACHLAN K",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2371,
+        "value": 0.0
+      },
+      {
+        "date": "2026-01-02",
+        "insider": "AZNAR JOSE MARIA",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2371,
+        "value": 0.0
+      },
+      {
+        "date": "2026-01-02",
+        "insider": "BANCROFT NATALIE",
         "position": "Director",
         "type": "Other",
         "shares": 2371,
@@ -2450,10 +2450,18 @@
       },
       {
         "date": "2026-01-02",
-        "insider": "MURDOCH LACHLAN K",
+        "insider": "SIDDIQUI MASROOR T.",
         "position": "Director",
         "type": "Other",
         "shares": 2371,
+        "value": 0.0
+      },
+      {
+        "date": "2025-10-08",
+        "insider": "MURDOCH LACHLAN K",
+        "position": "Director",
+        "type": "Other",
+        "shares": 11,
         "value": 0.0
       },
       {
@@ -2474,14 +2482,6 @@
       },
       {
         "date": "2025-10-08",
-        "insider": "SIDDIQUI MASROOR T.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 11,
-        "value": 0.0
-      },
-      {
-        "date": "2025-10-08",
         "insider": "PESSOA ANA PAULA",
         "position": "Director",
         "type": "Other",
@@ -2490,7 +2490,7 @@
       },
       {
         "date": "2025-10-08",
-        "insider": "MURDOCH LACHLAN K",
+        "insider": "SIDDIQUI MASROOR T.",
         "position": "Director",
         "type": "Other",
         "shares": 11,
@@ -2498,7 +2498,7 @@
       },
       {
         "date": "2025-10-01",
-        "insider": "AZNAR JOSE MARIA",
+        "insider": "MURDOCH LACHLAN K",
         "position": "Director",
         "type": "Other",
         "shares": 3028,
@@ -2506,7 +2506,7 @@
       },
       {
         "date": "2025-10-01",
-        "insider": "BANCROFT NATALIE",
+        "insider": "AZNAR JOSE MARIA",
         "position": "Director",
         "type": "Other",
         "shares": 3028,
@@ -2572,7 +2572,7 @@
     },
     {
       "date": "2025-11-13",
-      "close": 23.4031,
+      "close": 23.403,
       "volume": 4795500.0
     },
     {
@@ -2607,7 +2607,7 @@
     },
     {
       "date": "2025-11-24",
-      "close": 22.4766,
+      "close": 22.4765,
       "volume": 6971800.0
     },
     {
@@ -2702,7 +2702,7 @@
     },
     {
       "date": "2025-12-22",
-      "close": 23.4031,
+      "close": 23.403,
       "volume": 3350600.0
     },
     {
@@ -3771,5 +3771,5 @@
       "volume": 4128500.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.500191+00:00"
+  "updatedAt": "2026-10-29T10:20:48.421189+00:00"
 }

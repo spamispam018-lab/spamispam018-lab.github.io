@@ -17,15 +17,15 @@
     "marketCap": 42513454404.051,
     "fiftyTwoWeekLow": 755.474,
     "fiftyTwoWeekHigh": 1861.6135,
-    "volume": 797800.0,
+    "volume": 797810,
     "avgVolume": 417507,
     "currency": "EUR"
   },
   "ratios": {
     "peTrailing": 29.0663,
-    "peForward": 20.4334,
+    "peForward": 20.0694,
     "pegRatio": 0.4,
-    "dividendYield": 0.31,
+    "dividendYield": 0.3,
     "profitMargins": 0.1301,
     "debtToEquity": 11.227,
     "revenueGrowth": 0.537
@@ -2194,7 +2194,15 @@
       },
       {
         "date": "2026-05-18",
-        "insider": "HARDY RHOMAN J",
+        "insider": "MYERS FRANKLIN",
+        "position": "Director",
+        "type": "Other",
+        "shares": 105,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-18",
+        "insider": "SANDBROOK WILLIAM J",
         "position": "Director",
         "type": "Other",
         "shares": 105,
@@ -2226,15 +2234,7 @@
       },
       {
         "date": "2026-05-18",
-        "insider": "WALLIS-LAGE CINDY L",
-        "position": "Director",
-        "type": "Other",
-        "shares": 105,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-18",
-        "insider": "MYERS FRANKLIN",
+        "insider": "BULLS HERMAN E",
         "position": "Director",
         "type": "Other",
         "shares": 105,
@@ -2250,7 +2250,7 @@
       },
       {
         "date": "2026-05-18",
-        "insider": "SANDBROOK WILLIAM J",
+        "insider": "WALLIS-LAGE CINDY L",
         "position": "Director",
         "type": "Other",
         "shares": 105,
@@ -2258,19 +2258,11 @@
       },
       {
         "date": "2026-05-18",
-        "insider": "BULLS HERMAN E",
+        "insider": "HARDY RHOMAN J",
         "position": "Director",
         "type": "Other",
         "shares": 105,
         "value": 0.0
-      },
-      {
-        "date": "2026-05-11",
-        "insider": "SHAEFF JULIE S",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 1123,
-        "value": 2016383.0335
       },
       {
         "date": "2026-05-11",
@@ -2279,6 +2271,14 @@
         "type": "Sell",
         "shares": 5000,
         "value": 8808731.4819
+      },
+      {
+        "date": "2026-05-11",
+        "insider": "SHAEFF JULIE S",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 1123,
+        "value": 2016383.0335
       },
       {
         "date": "2026-05-07",
@@ -2322,22 +2322,6 @@
       },
       {
         "date": "2026-03-23",
-        "insider": "ESLICKER RACHEL R.",
-        "position": "General Counsel",
-        "type": "Other",
-        "shares": 217,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-23",
-        "insider": "REED TERRENCE M",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 463,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-23",
         "insider": "GEORGE WILLIAMIII",
         "position": "Chief Financial Officer",
         "type": "Other",
@@ -2362,10 +2346,26 @@
       },
       {
         "date": "2026-03-23",
+        "insider": "REED TERRENCE M",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 463,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-23",
         "insider": "MCKENNA TRENT TIMOTHY",
         "position": "President",
         "type": "Other",
         "shares": 1728,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-23",
+        "insider": "ESLICKER RACHEL R.",
+        "position": "General Counsel",
+        "type": "Other",
+        "shares": 217,
         "value": 0.0
       },
       {
@@ -2378,19 +2378,19 @@
       },
       {
         "date": "2026-03-03",
-        "insider": "ANDERSON DARCY G",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 4500,
-        "value": 5532661.0764
-      },
-      {
-        "date": "2026-03-03",
         "insider": "REED TERRENCE M",
         "position": "Officer",
         "type": "Sell",
         "shares": 1787,
         "value": 2277374.5993
+      },
+      {
+        "date": "2026-03-03",
+        "insider": "ANDERSON DARCY G",
+        "position": "Director",
+        "type": "Sell",
+        "shares": 4500,
+        "value": 5532661.0764
       },
       {
         "date": "2026-02-25",
@@ -2428,17 +2428,17 @@
         "date": "2026-02-23",
         "insider": "GEORGE WILLIAMIII",
         "position": "Chief Financial Officer",
-        "type": "Other",
+        "type": "Sell",
         "shares": 9000,
-        "value": 343332.0054
+        "value": 11592277.9883
       },
       {
         "date": "2026-02-23",
         "insider": "GEORGE WILLIAMIII",
         "position": "Chief Financial Officer",
-        "type": "Sell",
+        "type": "Other",
         "shares": 9000,
-        "value": 11592277.9883
+        "value": 343332.0054
       },
       {
         "date": "2026-02-23",
@@ -2549,7 +2549,7 @@
     },
     {
       "date": "2025-11-20",
-      "close": 785.3451,
+      "close": 785.3452,
       "volume": 650100.0
     },
     {
@@ -2609,7 +2609,7 @@
     },
     {
       "date": "2025-12-09",
-      "close": 881.6278,
+      "close": 881.6277,
       "volume": 344900.0
     },
     {
@@ -2669,7 +2669,7 @@
     },
     {
       "date": "2025-12-26",
-      "close": 863.8986,
+      "close": 863.8985,
       "volume": 170500.0
     },
     {
@@ -2734,7 +2734,7 @@
     },
     {
       "date": "2026-01-15",
-      "close": 977.9191,
+      "close": 977.9192,
       "volume": 408100.0
     },
     {
@@ -2764,7 +2764,7 @@
     },
     {
       "date": "2026-01-26",
-      "close": 1010.6437,
+      "close": 1010.6438,
       "volume": 272000.0
     },
     {
@@ -2774,7 +2774,7 @@
     },
     {
       "date": "2026-01-28",
-      "close": 1047.8411,
+      "close": 1047.8409,
       "volume": 299100.0
     },
     {
@@ -2839,7 +2839,7 @@
     },
     {
       "date": "2026-02-17",
-      "close": 1199.05,
+      "close": 1199.0498,
       "volume": 425200.0
     },
     {
@@ -2854,7 +2854,7 @@
     },
     {
       "date": "2026-02-20",
-      "close": 1310.6237,
+      "close": 1310.6236,
       "volume": 923600.0
     },
     {
@@ -2864,7 +2864,7 @@
     },
     {
       "date": "2026-02-24",
-      "close": 1316.3152,
+      "close": 1316.3153,
       "volume": 507100.0
     },
     {
@@ -2879,7 +2879,7 @@
     },
     {
       "date": "2026-02-27",
-      "close": 1281.1705,
+      "close": 1281.1706,
       "volume": 489600.0
     },
     {
@@ -2889,12 +2889,12 @@
     },
     {
       "date": "2026-03-03",
-      "close": 1246.9222,
+      "close": 1246.9223,
       "volume": 614700.0
     },
     {
       "date": "2026-03-04",
-      "close": 1282.0759,
+      "close": 1282.0758,
       "volume": 390400.0
     },
     {
@@ -2904,7 +2904,7 @@
     },
     {
       "date": "2026-03-06",
-      "close": 1147.0405,
+      "close": 1147.0406,
       "volume": 557000.0
     },
     {
@@ -2934,7 +2934,7 @@
     },
     {
       "date": "2026-03-16",
-      "close": 1268.1423,
+      "close": 1268.1421,
       "volume": 288900.0
     },
     {
@@ -2944,12 +2944,12 @@
     },
     {
       "date": "2026-03-18",
-      "close": 1276.1236,
+      "close": 1276.1237,
       "volume": 425300.0
     },
     {
       "date": "2026-03-19",
-      "close": 1295.4942,
+      "close": 1295.4941,
       "volume": 415500.0
     },
     {
@@ -2969,7 +2969,7 @@
     },
     {
       "date": "2026-03-25",
-      "close": 1318.8464,
+      "close": 1318.8465,
       "volume": 279700.0
     },
     {
@@ -2999,17 +2999,17 @@
     },
     {
       "date": "2026-04-02",
-      "close": 1270.9133,
+      "close": 1270.9132,
       "volume": 283200.0
     },
     {
       "date": "2026-04-06",
-      "close": 1286.0688,
+      "close": 1286.069,
       "volume": 233400.0
     },
     {
       "date": "2026-04-07",
-      "close": 1277.8365,
+      "close": 1277.8364,
       "volume": 231400.0
     },
     {
@@ -3019,17 +3019,17 @@
     },
     {
       "date": "2026-04-09",
-      "close": 1411.9415,
+      "close": 1411.9416,
       "volume": 363500.0
     },
     {
       "date": "2026-04-10",
-      "close": 1428.4333,
+      "close": 1428.4335,
       "volume": 241200.0
     },
     {
       "date": "2026-04-13",
-      "close": 1459.794,
+      "close": 1459.7939,
       "volume": 426400.0
     },
     {
@@ -3039,7 +3039,7 @@
     },
     {
       "date": "2026-04-15",
-      "close": 1478.7608,
+      "close": 1478.7609,
       "volume": 333800.0
     },
     {
@@ -3054,12 +3054,12 @@
     },
     {
       "date": "2026-04-20",
-      "close": 1506.6777,
+      "close": 1506.6778,
       "volume": 256900.0
     },
     {
       "date": "2026-04-21",
-      "close": 1501.3598,
+      "close": 1501.36,
       "volume": 364600.0
     },
     {
@@ -3069,7 +3069,7 @@
     },
     {
       "date": "2026-04-23",
-      "close": 1590.814,
+      "close": 1590.8142,
       "volume": 604900.0
     },
     {
@@ -3109,32 +3109,32 @@
     },
     {
       "date": "2026-05-05",
-      "close": 1764.1892,
+      "close": 1764.1893,
       "volume": 449100.0
     },
     {
       "date": "2026-05-06",
-      "close": 1803.8721,
+      "close": 1803.872,
       "volume": 432500.0
     },
     {
       "date": "2026-05-07",
-      "close": 1741.5724,
+      "close": 1741.5725,
       "volume": 506100.0
     },
     {
       "date": "2026-05-08",
-      "close": 1750.8541,
+      "close": 1750.8542,
       "volume": 265700.0
     },
     {
       "date": "2026-05-11",
-      "close": 1823.1439,
+      "close": 1823.1438,
       "volume": 377100.0
     },
     {
       "date": "2026-05-12",
-      "close": 1808.1945,
+      "close": 1808.1947,
       "volume": 382000.0
     },
     {
@@ -3723,5 +3723,5 @@
       "volume": 797800.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.490611+00:00"
+  "updatedAt": "2026-10-29T10:14:26.410347+00:00"
 }

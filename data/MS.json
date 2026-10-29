@@ -17,15 +17,15 @@
     "marketCap": 267083991044.4098,
     "fiftyTwoWeekLow": 137.1533,
     "fiftyTwoWeekHigh": 208.4676,
-    "volume": 5811500.0,
+    "volume": 5812990,
     "avgVolume": 5270881,
     "currency": "EUR"
   },
   "ratios": {
     "peTrailing": 15.0777,
-    "peForward": 13.9425,
+    "peForward": 13.9278,
     "pegRatio": 1.63,
-    "dividendYield": 2.46,
+    "dividendYield": 2.42,
     "profitMargins": 0.2563,
     "debtToEquity": 517.282,
     "revenueGrowth": 0.108
@@ -1594,9 +1594,9 @@
   "insider": {
     "summary": {
       "buysCount2Q": 0,
-      "sellsCount2Q": 10,
+      "sellsCount2Q": 9,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 33276544.0115,
+      "sellValueTotal": 32559485.468900003,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -1604,17 +1604,17 @@
         "date": "2026-07-28",
         "insider": "SCHAPIRO MARY L",
         "position": "Director",
-        "type": "Sell",
-        "shares": 1000,
-        "value": 190340.571
+        "type": "Other",
+        "shares": 2325,
+        "value": 0.0
       },
       {
         "date": "2026-07-28",
         "insider": "SCHAPIRO MARY L",
         "position": "Director",
-        "type": "Other",
-        "shares": 2325,
-        "value": 0.0
+        "type": "Sell",
+        "shares": 1000,
+        "value": 190340.571
       },
       {
         "date": "2026-07-17",
@@ -1634,7 +1634,71 @@
       },
       {
         "date": "2026-06-01",
+        "insider": "SCHAPIRO MARY L",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1309,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "WILKINS RAYFORDJR",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1309,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "GLOCER THOMAS HENRY",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1821,
+        "value": 96492.0015
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "TRAQUINA PERRY M",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1678,
+        "value": 69564.0011
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "GOOD LYNN J",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1583,
+        "value": 51612.0008
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "NALLY DENNIS M",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1655,
+        "value": 65076.001
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "JAMES ERIKA HAYES",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1309,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
         "insider": "MEGAN BUTLER",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1309,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "HERZ ROBERT H",
         "position": "Director",
         "type": "Other",
         "shares": 1309,
@@ -1665,70 +1729,6 @@
         "value": 0.0
       },
       {
-        "date": "2026-06-01",
-        "insider": "NALLY DENNIS M",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1655,
-        "value": 65076.001
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "JAMES ERIKA HAYES",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1309,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "SCHAPIRO MARY L",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1309,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "WILKINS RAYFORDJR",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1309,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "GLOCER THOMAS HENRY",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1821,
-        "value": 96492.0015
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "HERZ ROBERT H",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1309,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "TRAQUINA PERRY M",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1678,
-        "value": 69564.0011
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "GOOD LYNN J",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1583,
-        "value": 51612.0008
-      },
-      {
         "date": "2026-04-20",
         "insider": "GROSSMAN ERIC F",
         "position": "Officer",
@@ -1740,16 +1740,24 @@
         "date": "2026-04-17",
         "insider": "SIMKOWITZ DANIEL A",
         "position": "President",
-        "type": "Sell",
-        "shares": 14690,
-        "value": 2495316.3707
+        "type": "Other",
+        "shares": 8000,
+        "value": 0.0
       },
       {
         "date": "2026-04-17",
         "insider": "SIMKOWITZ DANIEL A",
         "position": "President",
+        "type": "Sell",
+        "shares": 14690,
+        "value": 2495316.3707
+      },
+      {
+        "date": "2026-04-16",
+        "insider": "CRAWLEY MANDELL L.",
+        "position": "Officer",
         "type": "Other",
-        "shares": 8000,
+        "shares": 1053,
         "value": 0.0
       },
       {
@@ -1762,22 +1770,6 @@
       },
       {
         "date": "2026-04-16",
-        "insider": "SAPERSTEIN ANDREW MICHAEL",
-        "position": "President",
-        "type": "Sell",
-        "shares": 51668,
-        "value": 8746503.5657
-      },
-      {
-        "date": "2026-04-16",
-        "insider": "CRAWLEY MANDELL L.",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 1053,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-16",
         "insider": "YESHAYA SHARON",
         "position": "Chief Financial Officer",
         "type": "Other",
@@ -1785,6 +1777,30 @@
         "value": 0.0
       },
       {
+        "date": "2026-04-16",
+        "insider": "SAPERSTEIN ANDREW MICHAEL",
+        "position": "President",
+        "type": "Sell",
+        "shares": 51668,
+        "value": 8746503.5657
+      },
+      {
+        "date": "2026-03-12",
+        "insider": "PIZZI MICHAEL A",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 16432,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-12",
+        "insider": "SIMKOWITZ DANIEL A",
+        "position": "President",
+        "type": "Other",
+        "shares": 32865,
+        "value": 0.0
+      },
+      {
         "date": "2026-03-12",
         "insider": "PICK EDWARD N.",
         "position": "Chief Executive Officer",
@@ -1810,6 +1826,14 @@
       },
       {
         "date": "2026-03-12",
+        "insider": "SAPERSTEIN ANDREW MICHAEL",
+        "position": "President",
+        "type": "Other",
+        "shares": 52777,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-12",
         "insider": "GROSSMAN ERIC F",
         "position": "Officer",
         "type": "Other",
@@ -1817,15 +1841,7 @@
         "value": 0.0
       },
       {
-        "date": "2026-03-12",
-        "insider": "SIMKOWITZ DANIEL A",
-        "position": "President",
-        "type": "Other",
-        "shares": 32865,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-12",
+        "date": "2026-02-19",
         "insider": "PIZZI MICHAEL A",
         "position": "Officer",
         "type": "Other",
@@ -1833,11 +1849,11 @@
         "value": 0.0
       },
       {
-        "date": "2026-03-12",
-        "insider": "SAPERSTEIN ANDREW MICHAEL",
+        "date": "2026-02-19",
+        "insider": "SIMKOWITZ DANIEL A",
         "position": "President",
         "type": "Other",
-        "shares": 52777,
+        "shares": 32865,
         "value": 0.0
       },
       {
@@ -1866,34 +1882,18 @@
       },
       {
         "date": "2026-02-19",
-        "insider": "GROSSMAN ERIC F",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 22715,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-19",
-        "insider": "SIMKOWITZ DANIEL A",
-        "position": "President",
-        "type": "Other",
-        "shares": 32865,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-19",
-        "insider": "PIZZI MICHAEL A",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 16432,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-19",
         "insider": "SAPERSTEIN ANDREW MICHAEL",
         "position": "President",
         "type": "Other",
         "shares": 52777,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-19",
+        "insider": "GROSSMAN ERIC F",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 22715,
         "value": 0.0
       },
       {
@@ -1906,19 +1906,19 @@
       },
       {
         "date": "2026-01-20",
-        "insider": "YESHAYA SHARON",
-        "position": "Chief Financial Officer",
+        "insider": "PIZZI MICHAEL A",
+        "position": "Officer",
         "type": "Sell",
-        "shares": 15838,
-        "value": 2640897.2194
+        "shares": 20000,
+        "value": 3313041.6524
       },
       {
         "date": "2026-01-20",
-        "insider": "SMITH CHARLES AUBREY III",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 8500,
-        "value": 1389202.9756
+        "insider": "JAMES ERIKA HAYES",
+        "position": "Director",
+        "type": "Other",
+        "shares": 542,
+        "value": 0.0
       }
     ]
   },
@@ -2010,7 +2010,7 @@
     },
     {
       "date": "2025-11-21",
-      "close": 139.6715,
+      "close": 139.6714,
       "volume": 9021300.0
     },
     {
@@ -2030,7 +2030,7 @@
     },
     {
       "date": "2025-11-28",
-      "close": 149.8177,
+      "close": 149.8176,
       "volume": 2133700.0
     },
     {
@@ -2140,7 +2140,7 @@
     },
     {
       "date": "2025-12-31",
-      "close": 156.7673,
+      "close": 156.7672,
       "volume": 3098100.0
     },
     {
@@ -2200,7 +2200,7 @@
     },
     {
       "date": "2026-01-20",
-      "close": 160.8028,
+      "close": 160.8027,
       "volume": 11302600.0
     },
     {
@@ -3179,5 +3179,5 @@
       "volume": 5811500.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:16.072472+00:00"
+  "updatedAt": "2026-10-29T10:05:03.416307+00:00"
 }

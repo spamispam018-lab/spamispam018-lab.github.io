@@ -17,15 +17,15 @@
     "marketCap": 73866056593.7827,
     "fiftyTwoWeekLow": 361.0865,
     "fiftyTwoWeekHigh": 490.8795,
-    "volume": 690000.0,
+    "volume": 689999,
     "avgVolume": 796352,
     "currency": "EUR"
   },
   "ratios": {
-    "peTrailing": 29.1196,
+    "peTrailing": 29.755,
     "peForward": 25.5441,
     "pegRatio": 1.66,
-    "dividendYield": 0.87,
+    "dividendYield": 0.86,
     "profitMargins": 0.3526,
     "debtToEquity": 223.271,
     "revenueGrowth": 0.008
@@ -1385,6 +1385,7 @@
           "Total_Liabilities_Net_Minority_Interest": null,
           "Total_Non_Current_Liabilities_Net_Minority_Interest": null,
           "Other_Non_Current_Liabilities": null,
+          "Derivative_Product_Liabilities": null,
           "Employee_Benefits": null,
           "Non_Current_Pension_And_Other_Postretirement_Benefit_Plans": null,
           "Non_Current_Accrued_Expenses": null,
@@ -1478,6 +1479,7 @@
           "Total_Liabilities_Net_Minority_Interest": 10466016165.6874,
           "Total_Non_Current_Liabilities_Net_Minority_Interest": 8334216131.9389,
           "Other_Non_Current_Liabilities": 44880000.7105,
+          "Derivative_Product_Liabilities": 284539204.5045,
           "Employee_Benefits": 169646402.6857,
           "Non_Current_Pension_And_Other_Postretirement_Benefit_Plans": 169646402.6857,
           "Non_Current_Accrued_Expenses": 42187200.6679,
@@ -1571,6 +1573,7 @@
           "Total_Liabilities_Net_Minority_Interest": 10004649758.3835,
           "Total_Non_Current_Liabilities_Net_Minority_Interest": 7760649722.8588,
           "Other_Non_Current_Liabilities": 44880000.7105,
+          "Derivative_Product_Liabilities": 328521605.2008,
           "Employee_Benefits": 170544002.6999,
           "Non_Current_Pension_And_Other_Postretirement_Benefit_Plans": 170544002.6999,
           "Non_Current_Accrued_Expenses": 32313600.5116,
@@ -1664,6 +1667,7 @@
           "Total_Liabilities_Net_Minority_Interest": 10571932967.3642,
           "Total_Non_Current_Liabilities_Net_Minority_Interest": 7343265716.2512,
           "Other_Non_Current_Liabilities": 46675200.7389,
+          "Derivative_Product_Liabilities": 172339202.7283,
           "Employee_Benefits": 175032002.7709,
           "Non_Current_Pension_And_Other_Postretirement_Benefit_Plans": 175032002.7709,
           "Non_Current_Accrued_Expenses": 42187200.6679,
@@ -1757,6 +1761,7 @@
           "Total_Liabilities_Net_Minority_Interest": 10434600165.1901,
           "Total_Non_Current_Liabilities_Net_Minority_Interest": 7758854522.8304,
           "Other_Non_Current_Liabilities": 36801600.5826,
+          "Derivative_Product_Liabilities": 484704007.6733,
           "Employee_Benefits": 193881603.0693,
           "Non_Current_Pension_And_Other_Postretirement_Benefit_Plans": 193881603.0693,
           "Non_Current_Accrued_Expenses": 38596800.611,
@@ -2468,32 +2473,16 @@
       "buysCount2Q": 0,
       "sellsCount2Q": 12,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 5792051.3237,
+      "sellValueTotal": 5891550.2852,
       "sentiment": "Bearish"
     },
     "trades": [
       {
         "date": "2026-09-04",
-        "insider": "MINAYA JOSE",
+        "insider": "BERMUDEZ JORGE A",
         "position": "Director",
         "type": "Other",
-        "shares": 6,
-        "value": 0.0
-      },
-      {
-        "date": "2026-09-04",
-        "insider": "SAWICKI LISA P.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1,
-        "value": 0.0
-      },
-      {
-        "date": "2026-09-04",
-        "insider": "ESPERDY THERESE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 10,
+        "shares": 17,
         "value": 0.0
       },
       {
@@ -2506,10 +2495,18 @@
       },
       {
         "date": "2026-09-04",
-        "insider": "BERMUDEZ JORGE A",
+        "insider": "VAN SAUN BRUCE W",
         "position": "Director",
         "type": "Other",
-        "shares": 17,
+        "shares": 20,
+        "value": 0.0
+      },
+      {
+        "date": "2026-09-04",
+        "insider": "SAWICKI LISA P.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1,
         "value": 0.0
       },
       {
@@ -2522,10 +2519,18 @@
       },
       {
         "date": "2026-09-04",
-        "insider": "VAN SAUN BRUCE W",
+        "insider": "ESPERDY THERESE",
         "position": "Director",
         "type": "Other",
-        "shares": 20,
+        "shares": 10,
+        "value": 0.0
+      },
+      {
+        "date": "2026-09-04",
+        "insider": "MINAYA JOSE",
+        "position": "Director",
+        "type": "Other",
+        "shares": 6,
         "value": 0.0
       },
       {
@@ -2570,14 +2575,6 @@
       },
       {
         "date": "2026-07-01",
-        "insider": "STEELE RICHARD G",
-        "position": "General Counsel",
-        "type": "Sell",
-        "shares": 157,
-        "value": 64189.1722
-      },
-      {
-        "date": "2026-07-01",
         "insider": "FAUBER ROBERT",
         "position": "Chief Executive Officer",
         "type": "Other",
@@ -2593,27 +2590,19 @@
         "value": 0.0
       },
       {
-        "date": "2026-06-05",
-        "insider": "MINAYA JOSE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 6,
-        "value": 0.0
+        "date": "2026-07-01",
+        "insider": "STEELE RICHARD G",
+        "position": "General Counsel",
+        "type": "Sell",
+        "shares": 157,
+        "value": 64189.1722
       },
       {
         "date": "2026-06-05",
-        "insider": "SAWICKI LISA P.",
+        "insider": "BERMUDEZ JORGE A",
         "position": "Director",
         "type": "Other",
-        "shares": 1,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-05",
-        "insider": "ESPERDY THERESE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 11,
+        "shares": 20,
         "value": 0.0
       },
       {
@@ -2626,10 +2615,18 @@
       },
       {
         "date": "2026-06-05",
-        "insider": "BERMUDEZ JORGE A",
+        "insider": "VAN SAUN BRUCE W",
         "position": "Director",
         "type": "Other",
-        "shares": 20,
+        "shares": 21,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-05",
+        "insider": "SAWICKI LISA P.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1,
         "value": 0.0
       },
       {
@@ -2642,10 +2639,18 @@
       },
       {
         "date": "2026-06-05",
-        "insider": "VAN SAUN BRUCE W",
+        "insider": "ESPERDY THERESE",
         "position": "Director",
         "type": "Other",
-        "shares": 21,
+        "shares": 11,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-05",
+        "insider": "MINAYA JOSE",
+        "position": "Director",
+        "type": "Other",
+        "shares": 6,
         "value": 0.0
       },
       {
@@ -2658,14 +2663,6 @@
       },
       {
         "date": "2026-06-01",
-        "insider": "STEELE RICHARD G",
-        "position": "General Counsel",
-        "type": "Sell",
-        "shares": 158,
-        "value": 64339.969
-      },
-      {
-        "date": "2026-06-01",
         "insider": "FAUBER ROBERT",
         "position": "Chief Executive Officer",
         "type": "Other",
@@ -2673,12 +2670,12 @@
         "value": 146676.8183
       },
       {
-        "date": "2026-05-01",
-        "insider": "FAUBER ROBERT",
-        "position": "Chief Executive Officer",
+        "date": "2026-06-01",
+        "insider": "STEELE RICHARD G",
+        "position": "General Counsel",
         "type": "Sell",
-        "shares": 1467,
-        "value": 614132.5441
+        "shares": 158,
+        "value": 64339.969
       },
       {
         "date": "2026-05-01",
@@ -2692,17 +2689,17 @@
         "date": "2026-05-01",
         "insider": "FAUBER ROBERT",
         "position": "Chief Executive Officer",
+        "type": "Sell",
+        "shares": 1467,
+        "value": 614132.5441
+      },
+      {
+        "date": "2026-05-01",
+        "insider": "FAUBER ROBERT",
+        "position": "Chief Executive Officer",
         "type": "Other",
         "shares": 1167,
         "value": 146676.8183
-      },
-      {
-        "date": "2026-04-01",
-        "insider": "FAUBER ROBERT",
-        "position": "Chief Executive Officer",
-        "type": "Sell",
-        "shares": 1467,
-        "value": 576446.8075
       },
       {
         "date": "2026-04-01",
@@ -2711,6 +2708,14 @@
         "type": "Sell",
         "shares": 158,
         "value": 62085.1978
+      },
+      {
+        "date": "2026-04-01",
+        "insider": "FAUBER ROBERT",
+        "position": "Chief Executive Officer",
+        "type": "Sell",
+        "shares": 1467,
+        "value": 576446.8075
       },
       {
         "date": "2026-04-01",
@@ -2730,30 +2735,6 @@
       },
       {
         "date": "2026-03-13",
-        "insider": "MINAYA JOSE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 10,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-13",
-        "insider": "ESPERDY THERESE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 15,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-13",
-        "insider": "FORLENZA VINCENT A",
-        "position": "Director",
-        "type": "Other",
-        "shares": 22,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-13",
         "insider": "BERMUDEZ JORGE A",
         "position": "Director",
         "type": "Other",
@@ -2762,7 +2743,7 @@
       },
       {
         "date": "2026-03-13",
-        "insider": "SEIDMAN LESLIE F",
+        "insider": "FORLENZA VINCENT A",
         "position": "Director",
         "type": "Other",
         "shares": 22,
@@ -2777,20 +2758,44 @@
         "value": 0.0
       },
       {
+        "date": "2026-03-13",
+        "insider": "SEIDMAN LESLIE F",
+        "position": "Director",
+        "type": "Other",
+        "shares": 22,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-13",
+        "insider": "ESPERDY THERESE",
+        "position": "Director",
+        "type": "Other",
+        "shares": 15,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-13",
+        "insider": "MINAYA JOSE",
+        "position": "Director",
+        "type": "Other",
+        "shares": 10,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-04",
+        "insider": "PHILLIPS JASON D",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 333,
+        "value": 141315.4534
+      },
+      {
         "date": "2026-03-04",
         "insider": "WEST MICHAEL L",
         "position": "Officer",
         "type": "Sell",
         "shares": 4250,
         "value": 1807139.0062
-      },
-      {
-        "date": "2026-03-04",
-        "insider": "HEULAND NOEMIE CLEMENCE",
-        "position": "Chief Financial Officer",
-        "type": "Sell",
-        "shares": 100,
-        "value": 41816.4919
       }
     ]
   },
@@ -2817,7 +2822,7 @@
     },
     {
       "date": "2025-11-04",
-      "close": 433.7815,
+      "close": 433.7816,
       "volume": 1127000.0
     },
     {
@@ -2842,7 +2847,7 @@
     },
     {
       "date": "2025-11-11",
-      "close": 438.7116,
+      "close": 438.7115,
       "volume": 575200.0
     },
     {
@@ -2867,7 +2872,7 @@
     },
     {
       "date": "2025-11-18",
-      "close": 418.3867,
+      "close": 418.3866,
       "volume": 680700.0
     },
     {
@@ -2907,7 +2912,7 @@
     },
     {
       "date": "2025-12-01",
-      "close": 434.4465,
+      "close": 434.4464,
       "volume": 1037000.0
     },
     {
@@ -2922,7 +2927,7 @@
     },
     {
       "date": "2025-12-04",
-      "close": 436.4437,
+      "close": 436.4438,
       "volume": 466000.0
     },
     {
@@ -2947,7 +2952,7 @@
     },
     {
       "date": "2025-12-11",
-      "close": 432.904,
+      "close": 432.9039,
       "volume": 663800.0
     },
     {
@@ -2992,7 +2997,7 @@
     },
     {
       "date": "2025-12-24",
-      "close": 461.2317,
+      "close": 461.2316,
       "volume": 294500.0
     },
     {
@@ -3002,12 +3007,12 @@
     },
     {
       "date": "2025-12-29",
-      "close": 462.8186,
+      "close": 462.8187,
       "volume": 361200.0
     },
     {
       "date": "2025-12-30",
-      "close": 459.8673,
+      "close": 459.8674,
       "volume": 546800.0
     },
     {
@@ -3032,7 +3037,7 @@
     },
     {
       "date": "2026-01-07",
-      "close": 473.8574,
+      "close": 473.8573,
       "volume": 681700.0
     },
     {
@@ -3042,12 +3047,12 @@
     },
     {
       "date": "2026-01-09",
-      "close": 474.0089,
+      "close": 474.0088,
       "volume": 654000.0
     },
     {
       "date": "2026-01-12",
-      "close": 477.1386,
+      "close": 477.1385,
       "volume": 657100.0
     },
     {
@@ -3057,12 +3062,12 @@
     },
     {
       "date": "2026-01-14",
-      "close": 477.9053,
+      "close": 477.9054,
       "volume": 671100.0
     },
     {
       "date": "2026-01-15",
-      "close": 481.1421,
+      "close": 481.142,
       "volume": 701300.0
     },
     {
@@ -3092,7 +3097,7 @@
     },
     {
       "date": "2026-01-26",
-      "close": 468.4896,
+      "close": 468.4897,
       "volume": 445600.0
     },
     {
@@ -3102,12 +3107,12 @@
     },
     {
       "date": "2026-01-28",
-      "close": 460.643,
+      "close": 460.6431,
       "volume": 726600.0
     },
     {
       "date": "2026-01-29",
-      "close": 459.5999,
+      "close": 459.5998,
       "volume": 904600.0
     },
     {
@@ -4051,5 +4056,5 @@
       "volume": 690000.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.460456+00:00"
+  "updatedAt": "2026-10-29T10:20:33.996105+00:00"
 }

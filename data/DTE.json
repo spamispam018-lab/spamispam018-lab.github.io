@@ -17,15 +17,15 @@
     "marketCap": 24647469305.2915,
     "fiftyTwoWeekLow": 107.4248,
     "fiftyTwoWeekHigh": 139.8012,
-    "volume": 987400.0,
+    "volume": 987438,
     "avgVolume": 1514098,
     "currency": "EUR"
   },
   "ratios": {
-    "peTrailing": 20.8139,
+    "peTrailing": 20.9128,
     "peForward": 15.8703,
     "pegRatio": 1.71,
-    "dividendYield": 3.51,
+    "dividendYield": 3.53,
     "profitMargins": 0.08,
     "debtToEquity": 229.06,
     "revenueGrowth": -0.015
@@ -2084,7 +2084,7 @@
       "buysCount2Q": 0,
       "sellsCount2Q": 6,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 2339446.333,
+      "sellValueTotal": 2339446.3329999996,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -2114,6 +2114,14 @@
       },
       {
         "date": "2026-05-04",
+        "insider": "MCCLURE CHARLES G JR",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1424,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-04",
         "insider": "THOMAS DAVID A",
         "position": "Director",
         "type": "Other",
@@ -2130,14 +2138,6 @@
       },
       {
         "date": "2026-05-04",
-        "insider": "MCCLURE CHARLES G JR",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1424,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-04",
         "insider": "MURRAY MARK A",
         "position": "Director",
         "type": "Other",
@@ -2146,10 +2146,18 @@
       },
       {
         "date": "2026-02-04",
-        "insider": "RICHARD ROBERT A.",
+        "insider": "PAUL MATTHEW T",
         "position": "Officer",
         "type": "Other",
-        "shares": 5850,
+        "shares": 6062,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-04",
+        "insider": "MYRICK TRACY J",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 987,
         "value": 0.0
       },
       {
@@ -2178,30 +2186,6 @@
       },
       {
         "date": "2026-02-04",
-        "insider": "LAUER TREVOR FRANCIS",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 11845,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-04",
-        "insider": "PAUL MATTHEW T",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 6062,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-04",
-        "insider": "MYRICK TRACY J",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 987,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-04",
         "insider": "NORCIA GERARDO",
         "position": "Officer and Director",
         "type": "Other",
@@ -2222,6 +2206,22 @@
         "position": "Chief Financial Officer",
         "type": "Other",
         "shares": 14388,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-04",
+        "insider": "LAUER TREVOR FRANCIS",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 11845,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-04",
+        "insider": "RICHARD ROBERT A.",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 5850,
         "value": 0.0
       },
       {
@@ -2330,14 +2330,6 @@
       },
       {
         "date": "2025-02-19",
-        "insider": "MYRICK TRACY J",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 1014,
-        "value": 118248.9283
-      },
-      {
-        "date": "2025-02-19",
         "insider": "PAUL MATTHEW T",
         "position": "Officer",
         "type": "Sell",
@@ -2345,35 +2337,19 @@
         "value": 442030.3078
       },
       {
+        "date": "2025-02-19",
+        "insider": "MYRICK TRACY J",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 1014,
+        "value": 118248.9283
+      },
+      {
         "date": "2025-02-06",
         "insider": "SANTOS CASSANDRA",
         "position": "Director",
         "type": "Other",
         "shares": 1000,
-        "value": 0.0
-      },
-      {
-        "date": "2025-02-05",
-        "insider": "RICHARD ROBERT A.",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 6671,
-        "value": 0.0
-      },
-      {
-        "date": "2025-02-05",
-        "insider": "HARRIS JOI M",
-        "position": "President",
-        "type": "Other",
-        "shares": 8274,
-        "value": 0.0
-      },
-      {
-        "date": "2025-02-05",
-        "insider": "LAUER TREVOR FRANCIS",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 16516,
         "value": 0.0
       },
       {
@@ -2402,10 +2378,34 @@
       },
       {
         "date": "2025-02-05",
+        "insider": "HARRIS JOI M",
+        "position": "President",
+        "type": "Other",
+        "shares": 8274,
+        "value": 0.0
+      },
+      {
+        "date": "2025-02-05",
         "insider": "MUSCHONG LISA A",
         "position": "Officer",
         "type": "Other",
         "shares": 2189,
+        "value": 0.0
+      },
+      {
+        "date": "2025-02-05",
+        "insider": "RUUD DAVID",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 14040,
+        "value": 0.0
+      },
+      {
+        "date": "2025-02-05",
+        "insider": "STIERS MARK W.",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 15040,
         "value": 0.0
       }
     ]
@@ -2433,7 +2433,7 @@
     },
     {
       "date": "2025-11-04",
-      "close": 115.7871,
+      "close": 115.7872,
       "volume": 2353900.0
     },
     {
@@ -2578,7 +2578,7 @@
     },
     {
       "date": "2025-12-16",
-      "close": 112.6505,
+      "close": 112.6506,
       "volume": 1717600.0
     },
     {
@@ -2623,7 +2623,7 @@
     },
     {
       "date": "2025-12-30",
-      "close": 113.6311,
+      "close": 113.6312,
       "volume": 760200.0
     },
     {
@@ -2658,7 +2658,7 @@
     },
     {
       "date": "2026-01-09",
-      "close": 113.7274,
+      "close": 113.7275,
       "volume": 1174300.0
     },
     {
@@ -2688,7 +2688,7 @@
     },
     {
       "date": "2026-01-20",
-      "close": 118.7357,
+      "close": 118.7358,
       "volume": 2199300.0
     },
     {
@@ -2753,7 +2753,7 @@
     },
     {
       "date": "2026-02-06",
-      "close": 118.0441,
+      "close": 118.044,
       "volume": 1603600.0
     },
     {
@@ -3667,5 +3667,5 @@
       "volume": 987400.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.683501+00:00"
+  "updatedAt": "2026-10-29T10:15:38.327633+00:00"
 }

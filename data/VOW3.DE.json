@@ -11,19 +11,19 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 68.8,
-    "change": -0.52,
-    "changePercent": -0.75,
-    "marketCap": 34609426432.0,
+    "price": 70.56,
+    "change": 1.52,
+    "changePercent": 2.2,
+    "marketCap": 35371393024.0,
     "fiftyTwoWeekLow": 65.92,
     "fiftyTwoWeekHigh": 109.15,
-    "volume": 876373.0,
+    "volume": 376822,
     "avgVolume": 1082986,
     "currency": "EUR"
   },
   "ratios": {
-    "peTrailing": 6.613,
-    "peForward": 3.142,
+    "peTrailing": 6.7586,
+    "peForward": 3.2111,
     "pegRatio": 0.53,
     "dividendYield": 7.65,
     "profitMargins": 0.018,
@@ -886,7 +886,7 @@
           "Taxes_Receivable": null,
           "Accounts_Receivable": 92324000000.0,
           "Cash_Cash_Equivalents_And_Short_Term_Investments": 79431000000.0,
-          "Other_Short_Term_Investments": null,
+          "Other_Short_Term_Investments": 31315000000.0,
           "Cash_And_Cash_Equivalents": 48116000000.0,
           "Cash_Financial": null
         },
@@ -1880,7 +1880,7 @@
   },
   "analysts": {
     "targets": {
-      "current": 69.04,
+      "current": 70.56,
       "low": 67.3,
       "median": 105.0,
       "mean": 101.9588,
@@ -1935,12 +1935,6 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-09-30",
-        "estimate": -3.91,
-        "actual": -0.96,
-        "surprisePercent": 0.7545
-      },
-      {
         "quarter": "2025-12-31",
         "estimate": 4.22,
         "actual": 6.29,
@@ -1957,6 +1951,12 @@
         "estimate": 4.83,
         "actual": 2.56,
         "surprisePercent": -0.47
+      },
+      {
+        "quarter": "2026-09-30",
+        "estimate": -5.98,
+        "actual": -9.24,
+        "surprisePercent": -0.5452
       }
     ]
   },
@@ -1971,11 +1971,6 @@
     "trades": []
   },
   "chartHistory": [
-    {
-      "date": "2025-10-28",
-      "close": 85.7209,
-      "volume": 597573.0
-    },
     {
       "date": "2025-10-29",
       "close": 86.2459,
@@ -3238,14 +3233,14 @@
     },
     {
       "date": "2026-10-28",
-      "close": null,
-      "volume": 1121792.0
+      "close": 69.04,
+      "volume": 1121802.0
     },
     {
-      "date": "2026-10-27",
-      "close": 68.8,
-      "volume": 876373.0
+      "date": "2026-10-29",
+      "close": 70.56,
+      "volume": 376822.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:16.326932+00:00"
+  "updatedAt": "2026-10-29T10:06:41.071517+00:00"
 }

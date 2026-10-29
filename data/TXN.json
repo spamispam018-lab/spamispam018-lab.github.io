@@ -17,7 +17,7 @@
     "marketCap": 254255380654.8753,
     "fiftyTwoWeekLow": 137.0905,
     "fiftyTwoWeekHigh": 299.8253,
-    "volume": 7355100.0,
+    "volume": 7333864,
     "avgVolume": 6290041,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 40.1855,
     "peForward": 26.889,
     "pegRatio": 0.94,
-    "dividendYield": 1.97,
+    "dividendYield": 1.96,
     "profitMargins": 0.3425,
     "debtToEquity": 70.654,
     "revenueGrowth": 0.277
@@ -2280,7 +2280,7 @@
       "buysCount2Q": 0,
       "sellsCount2Q": 20,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 81433655.44610001,
+      "sellValueTotal": 81433655.44609998,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -2288,17 +2288,17 @@
         "date": "2026-08-27",
         "insider": "ABRAHAM TSEDENIYA",
         "position": "Officer",
-        "type": "Other",
-        "shares": 1365,
-        "value": 97111.3455
+        "type": "Sell",
+        "shares": 7000,
+        "value": 1662725.9351
       },
       {
         "date": "2026-08-27",
         "insider": "ABRAHAM TSEDENIYA",
         "position": "Officer",
-        "type": "Sell",
-        "shares": 7000,
-        "value": 1662725.9351
+        "type": "Other",
+        "shares": 1365,
+        "value": 97111.3455
       },
       {
         "date": "2026-07-24",
@@ -2320,17 +2320,17 @@
         "date": "2026-05-14",
         "insider": "LIZARDI RAFAEL R",
         "position": "Chief Financial Officer",
-        "type": "Other",
+        "type": "Sell",
         "shares": 47734,
-        "value": 7489916.5042
+        "value": 13200999.8186
       },
       {
         "date": "2026-05-14",
-        "insider": "BAHAI AHMAD",
-        "position": "Officer",
+        "insider": "LIZARDI RAFAEL R",
+        "position": "Chief Financial Officer",
         "type": "Other",
-        "shares": 5000,
-        "value": 494353.2078
+        "shares": 47734,
+        "value": 7489916.5042
       },
       {
         "date": "2026-05-14",
@@ -2342,19 +2342,11 @@
       },
       {
         "date": "2026-05-14",
-        "insider": "LIZARDI RAFAEL R",
-        "position": "Chief Financial Officer",
-        "type": "Sell",
-        "shares": 47734,
-        "value": 13200999.8186
-      },
-      {
-        "date": "2026-05-13",
-        "insider": "COX CARRIE SMITH",
-        "position": "Director",
+        "insider": "BAHAI AHMAD",
+        "position": "Officer",
         "type": "Other",
-        "shares": 8838,
-        "value": 850468.8327
+        "shares": 5000,
+        "value": 494353.2078
       },
       {
         "date": "2026-05-13",
@@ -2363,6 +2355,14 @@
         "type": "Sell",
         "shares": 8838,
         "value": 2430726.8689
+      },
+      {
+        "date": "2026-05-13",
+        "insider": "COX CARRIE SMITH",
+        "position": "Director",
+        "type": "Other",
+        "shares": 8838,
+        "value": 850468.8327
       },
       {
         "date": "2026-05-11",
@@ -2376,25 +2376,17 @@
         "date": "2026-05-04",
         "insider": "ILAN HAVIV",
         "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 20000,
-        "value": 1422875.5425
-      },
-      {
-        "date": "2026-05-04",
-        "insider": "ILAN HAVIV",
-        "position": "Chief Executive Officer",
         "type": "Sell",
         "shares": 20000,
         "value": 5032349.5997
       },
       {
-        "date": "2026-05-01",
-        "insider": "KNECHT JULIE C.",
-        "position": "Officer",
+        "date": "2026-05-04",
+        "insider": "ILAN HAVIV",
+        "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 5378,
-        "value": 630058.6612
+        "shares": 20000,
+        "value": 1422875.5425
       },
       {
         "date": "2026-05-01",
@@ -2405,28 +2397,12 @@
         "value": 2490647.953
       },
       {
-        "date": "2026-04-30",
-        "insider": "GARY MARK",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 13689,
-        "value": 1603731.1742
-      },
-      {
-        "date": "2026-04-30",
-        "insider": "ROBERTS MARK T",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 17831,
-        "value": 1870543.676
-      },
-      {
-        "date": "2026-04-30",
+        "date": "2026-05-01",
         "insider": "KNECHT JULIE C.",
         "position": "Officer",
         "type": "Other",
-        "shares": 175,
-        "value": 0.0
+        "shares": 5378,
+        "value": 630058.6612
       },
       {
         "date": "2026-04-30",
@@ -2438,11 +2414,43 @@
       },
       {
         "date": "2026-04-30",
+        "insider": "GARY MARK",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 13689,
+        "value": 1603731.1742
+      },
+      {
+        "date": "2026-04-30",
+        "insider": "KNECHT JULIE C.",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 175,
+        "value": 0.0
+      },
+      {
+        "date": "2026-04-30",
         "insider": "ROBERTS MARK T",
         "position": "Officer",
         "type": "Sell",
         "shares": 28080,
         "value": 7065848.0703
+      },
+      {
+        "date": "2026-04-30",
+        "insider": "ROBERTS MARK T",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 17831,
+        "value": 1870543.676
+      },
+      {
+        "date": "2026-04-29",
+        "insider": "YUNUS MOHAMMAD",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 51098,
+        "value": 12403890.614
       },
       {
         "date": "2026-04-29",
@@ -2453,12 +2461,12 @@
         "value": 7412021.8773
       },
       {
-        "date": "2026-04-29",
-        "insider": "YUNUS MOHAMMAD",
-        "position": "Officer",
+        "date": "2026-04-27",
+        "insider": "KANE KATHARINE",
+        "position": "General Counsel",
         "type": "Sell",
-        "shares": 51098,
-        "value": 12403890.614
+        "shares": 6125,
+        "value": 1486679.6443
       },
       {
         "date": "2026-04-27",
@@ -2472,25 +2480,25 @@
         "date": "2026-04-27",
         "insider": "BAHAI AHMAD",
         "position": "Officer",
-        "type": "Other",
-        "shares": 3660,
-        "value": 260386.5833
-      },
-      {
-        "date": "2026-04-27",
-        "insider": "BAHAI AHMAD",
-        "position": "Officer",
         "type": "Sell",
         "shares": 3660,
         "value": 881765.4524
       },
       {
         "date": "2026-04-27",
-        "insider": "KANE KATHARINE",
-        "position": "General Counsel",
+        "insider": "BAHAI AHMAD",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 3660,
+        "value": 260386.5833
+      },
+      {
+        "date": "2026-04-24",
+        "insider": "RON AMICHAI",
+        "position": "Officer",
         "type": "Sell",
-        "shares": 6125,
-        "value": 1486679.6443
+        "shares": 18365,
+        "value": 4490884.9575
       },
       {
         "date": "2026-04-24",
@@ -2502,11 +2510,11 @@
       },
       {
         "date": "2026-04-24",
-        "insider": "LIZARDI RAFAEL R",
-        "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 40541,
-        "value": 6158211.9903
+        "insider": "WITZSCHE CHRISTINE",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 3625,
+        "value": 896496.8638
       },
       {
         "date": "2026-04-24",
@@ -2520,25 +2528,17 @@
         "date": "2026-04-24",
         "insider": "LEONARD SHANON J",
         "position": "Officer",
+        "type": "Sell",
+        "shares": 18189,
+        "value": 4538002.675
+      },
+      {
+        "date": "2026-04-24",
+        "insider": "LEONARD SHANON J",
+        "position": "Officer",
         "type": "Other",
         "shares": 18189,
         "value": 2582828.7817
-      },
-      {
-        "date": "2026-04-24",
-        "insider": "BLUEDORN TODD M",
-        "position": "Director",
-        "type": "Other",
-        "shares": 4306,
-        "value": 425737.0723
-      },
-      {
-        "date": "2026-04-24",
-        "insider": "PATSLEY PAMELA H",
-        "position": "Director",
-        "type": "Other",
-        "shares": 4306,
-        "value": 425737.0723
       },
       {
         "date": "2026-04-24",
@@ -2550,11 +2550,35 @@
       },
       {
         "date": "2026-04-24",
+        "insider": "LIZARDI RAFAEL R",
+        "position": "Chief Financial Officer",
+        "type": "Sell",
+        "shares": 40541,
+        "value": 9979118.4236
+      },
+      {
+        "date": "2026-04-24",
+        "insider": "LIZARDI RAFAEL R",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 40541,
+        "value": 6158211.9903
+      },
+      {
+        "date": "2026-04-24",
         "insider": "BLUEDORN TODD M",
         "position": "Director",
         "type": "Sell",
         "shares": 4306,
         "value": 1060002.7848
+      },
+      {
+        "date": "2026-04-24",
+        "insider": "BLUEDORN TODD M",
+        "position": "Director",
+        "type": "Other",
+        "shares": 4306,
+        "value": 425737.0723
       },
       {
         "date": "2026-04-24",
@@ -2566,43 +2590,19 @@
       },
       {
         "date": "2026-04-24",
-        "insider": "RON AMICHAI",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 18365,
-        "value": 4490884.9575
-      },
-      {
-        "date": "2026-04-24",
-        "insider": "LIZARDI RAFAEL R",
-        "position": "Chief Financial Officer",
-        "type": "Sell",
-        "shares": 40541,
-        "value": 9979118.4236
-      },
-      {
-        "date": "2026-04-24",
-        "insider": "WITZSCHE CHRISTINE",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 3625,
-        "value": 896496.8638
-      },
-      {
-        "date": "2026-04-24",
-        "insider": "LEONARD SHANON J",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 18189,
-        "value": 4538002.675
-      },
-      {
-        "date": "2026-04-24",
         "insider": "PATSLEY PAMELA H",
         "position": "Director",
         "type": "Sell",
         "shares": 4306,
         "value": 1067172.8137
+      },
+      {
+        "date": "2026-04-24",
+        "insider": "PATSLEY PAMELA H",
+        "position": "Director",
+        "type": "Other",
+        "shares": 4306,
+        "value": 425737.0723
       }
     ]
   },
@@ -2719,7 +2719,7 @@
     },
     {
       "date": "2025-12-01",
-      "close": 148.4435,
+      "close": 148.4434,
       "volume": 6170800.0
     },
     {
@@ -2754,12 +2754,12 @@
     },
     {
       "date": "2025-12-10",
-      "close": 160.3694,
+      "close": 160.3693,
       "volume": 5268900.0
     },
     {
       "date": "2025-12-11",
-      "close": 160.3694,
+      "close": 160.3693,
       "volume": 4838000.0
     },
     {
@@ -2774,7 +2774,7 @@
     },
     {
       "date": "2025-12-16",
-      "close": 156.7413,
+      "close": 156.7412,
       "volume": 5746900.0
     },
     {
@@ -3863,5 +3863,5 @@
       "volume": 7355100.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:15.937169+00:00"
+  "updatedAt": "2026-10-29T10:04:12.643565+00:00"
 }

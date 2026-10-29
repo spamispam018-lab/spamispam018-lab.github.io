@@ -17,7 +17,7 @@
     "marketCap": 12654902583.7509,
     "fiftyTwoWeekLow": 63.568,
     "fiftyTwoWeekHigh": 148.5079,
-    "volume": 2985700.0,
+    "volume": 2870750,
     "avgVolume": 4559240,
     "currency": "EUR"
   },
@@ -889,7 +889,7 @@
           "Common_Stock": 1367942.4217,
           "Preferred_Stock": 0.0,
           "Total_Liabilities_Net_Minority_Interest": 6047065770.9311,
-          "Total_Non_Current_Liabilities_Net_Minority_Interest": null,
+          "Total_Non_Current_Liabilities_Net_Minority_Interest": 5117343345.0126,
           "Other_Non_Current_Liabilities": 132643739.6999,
           "Non_Current_Deferred_Liabilities": 49160655.1783,
           "Non_Current_Deferred_Revenue": 17888270.6832,
@@ -1676,7 +1676,7 @@
           "Change_In_Prepaid_Assets": -9062169.7435,
           "Change_In_Receivables": -84618548.5396,
           "Changes_In_Account_Receivables": -84618548.5396,
-          "Other_Non_Cash_Items": null,
+          "Other_Non_Cash_Items": 4359643.269,
           "Stock_Based_Compensation": 115504067.4285,
           "Deferred_Tax": -1569902.4249,
           "Deferred_Income_Tax": -1569902.4249,
@@ -2119,9 +2119,9 @@
   "insider": {
     "summary": {
       "buysCount2Q": 0,
-      "sellsCount2Q": 16,
+      "sellsCount2Q": 14,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 9705449.155100001,
+      "sellValueTotal": 8405067.2914,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -2199,6 +2199,14 @@
       },
       {
         "date": "2026-05-14",
+        "insider": "BURGER BAS",
+        "position": "Director",
+        "type": "Other",
+        "shares": 3028,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-14",
         "insider": "AKELLA JANAKI",
         "position": "Director",
         "type": "Other",
@@ -2211,14 +2219,6 @@
         "position": "Director",
         "type": "Other",
         "shares": 3547,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-14",
-        "insider": "BURGER BAS",
-        "position": "Director",
-        "type": "Other",
-        "shares": 3028,
         "value": 0.0
       },
       {
@@ -2239,19 +2239,19 @@
       },
       {
         "date": "2026-03-12",
-        "insider": "KARON ADAM M",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 17000,
-        "value": 1639241.1284
-      },
-      {
-        "date": "2026-03-12",
         "insider": "HOWELL LAURA",
         "position": "Officer",
         "type": "Other",
         "shares": 322,
         "value": 0.0
+      },
+      {
+        "date": "2026-03-12",
+        "insider": "KARON ADAM M",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 17000,
+        "value": 1639241.1284
       },
       {
         "date": "2026-03-11",
@@ -2279,26 +2279,10 @@
       },
       {
         "date": "2026-03-06",
-        "insider": "BLUMOFE ROBERT",
-        "position": "Chief Technology Officer",
-        "type": "Other",
-        "shares": 5116,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-06",
-        "insider": "AHOLA AARON",
-        "position": "General Counsel",
-        "type": "Other",
-        "shares": 5649,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-06",
-        "insider": "WILLIAMS ANTHONY P",
+        "insider": "HOWELL LAURA",
         "position": "Officer",
         "type": "Other",
-        "shares": 6450,
+        "shares": 2002,
         "value": 0.0
       },
       {
@@ -2311,10 +2295,26 @@
       },
       {
         "date": "2026-03-06",
+        "insider": "AHOLA AARON",
+        "position": "General Counsel",
+        "type": "Other",
+        "shares": 5649,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-06",
         "insider": "MCGOWAN EDWARD J",
         "position": "Chief Financial Officer",
         "type": "Other",
         "shares": 9008,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-06",
+        "insider": "WILLIAMS ANTHONY P",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 6450,
         "value": 0.0
       },
       {
@@ -2335,26 +2335,26 @@
       },
       {
         "date": "2026-03-06",
-        "insider": "LEIGHTON F THOMSON",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 23353,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-06",
-        "insider": "HOWELL LAURA",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 2002,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-06",
         "insider": "SALEM-JACKSON KIM",
         "position": "Officer",
         "type": "Other",
         "shares": 5783,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-06",
+        "insider": "BLUMOFE ROBERT",
+        "position": "Chief Technology Officer",
+        "type": "Other",
+        "shares": 5116,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-06",
+        "insider": "LEIGHTON F THOMSON",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 23353,
         "value": 0.0
       },
       {
@@ -2367,50 +2367,10 @@
       },
       {
         "date": "2026-03-04",
-        "insider": "SUNDARAM MANI",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 8642,
-        "value": 785395.5244
-      },
-      {
-        "date": "2026-03-04",
-        "insider": "RANGANATHAN MADHU",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 3131,
-        "value": 286659.3357
-      },
-      {
-        "date": "2026-03-04",
-        "insider": "MILLER JONATHAN FRANK",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 11000,
-        "value": 1013722.528
-      },
-      {
-        "date": "2026-03-04",
-        "insider": "BLUMOFE ROBERT",
-        "position": "Chief Technology Officer",
-        "type": "Other",
-        "shares": 3495,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-04",
-        "insider": "AHOLA AARON",
-        "position": "General Counsel",
-        "type": "Other",
-        "shares": 5033,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-04",
-        "insider": "WILLIAMS ANTHONY P",
+        "insider": "HOWELL LAURA",
         "position": "Officer",
         "type": "Other",
-        "shares": 5498,
+        "shares": 1053,
         "value": 0.0
       },
       {
@@ -2423,11 +2383,35 @@
       },
       {
         "date": "2026-03-04",
+        "insider": "AHOLA AARON",
+        "position": "General Counsel",
+        "type": "Other",
+        "shares": 5033,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-04",
         "insider": "MCGOWAN EDWARD J",
         "position": "Chief Financial Officer",
         "type": "Other",
         "shares": 6636,
         "value": 0.0
+      },
+      {
+        "date": "2026-03-04",
+        "insider": "WILLIAMS ANTHONY P",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 5498,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-04",
+        "insider": "SUNDARAM MANI",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 8642,
+        "value": 785395.5244
       },
       {
         "date": "2026-03-04",
@@ -2443,6 +2427,22 @@
         "position": "Officer",
         "type": "Other",
         "shares": 5658,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-04",
+        "insider": "SALEM-JACKSON KIM",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 4021,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-04",
+        "insider": "BLUMOFE ROBERT",
+        "position": "Chief Technology Officer",
+        "type": "Other",
+        "shares": 3495,
         "value": 0.0
       }
     ]
@@ -3704,5 +3704,5 @@
       "volume": 2985700.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:16.996134+00:00"
+  "updatedAt": "2026-10-29T10:11:13.813141+00:00"
 }

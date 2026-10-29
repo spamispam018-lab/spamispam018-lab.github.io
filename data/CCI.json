@@ -14,10 +14,10 @@
     "price": 78.7554,
     "change": -0.1167,
     "changePercent": -0.15,
-    "marketCap": 34416118563.7086,
+    "marketCap": 33506921270.0831,
     "fiftyTwoWeekLow": 58.6312,
     "fiftyTwoWeekHigh": 85.5592,
-    "volume": 5906400.0,
+    "volume": 5906765,
     "avgVolume": 4223647,
     "currency": "EUR"
   },
@@ -707,6 +707,7 @@
           "Long_Term_Debt": 19782206713.172,
           "Long_Term_Provisions": null,
           "Current_Liabilities": 3413572854.0403,
+          "Other_Current_Liabilities": null,
           "Current_Deferred_Liabilities": 124766401.9752,
           "Current_Deferred_Revenue": 124766401.9752,
           "Current_Debt_And_Capital_Lease_Obligation": 2260156835.7805,
@@ -780,6 +781,7 @@
           "Long_Term_Debt": 19343280306.2233,
           "Long_Term_Provisions": null,
           "Current_Liabilities": 3856987261.0599,
+          "Other_Current_Liabilities": null,
           "Current_Deferred_Liabilities": 131947202.0889,
           "Current_Deferred_Revenue": 131947202.0889,
           "Current_Debt_And_Capital_Lease_Obligation": 2726011243.1555,
@@ -853,6 +855,7 @@
           "Long_Term_Debt": 19346870706.2802,
           "Long_Term_Provisions": 289027204.5756,
           "Current_Liabilities": 4020350463.6461,
+          "Other_Current_Liabilities": null,
           "Current_Deferred_Liabilities": 172339202.7283,
           "Current_Deferred_Revenue": 172339202.7283,
           "Current_Debt_And_Capital_Lease_Obligation": 2738577643.3544,
@@ -926,6 +929,7 @@
           "Long_Term_Debt": 19328918705.996,
           "Long_Term_Provisions": null,
           "Current_Liabilities": 4223208066.8576,
+          "Other_Current_Liabilities": 678585610.7427,
           "Current_Deferred_Liabilities": 174134402.7567,
           "Current_Deferred_Revenue": 174134402.7567,
           "Current_Debt_And_Capital_Lease_Obligation": 3057225648.3989,
@@ -999,6 +1003,7 @@
           "Long_Term_Debt": 14342750627.06,
           "Long_Term_Provisions": null,
           "Current_Liabilities": 2953104046.7506,
+          "Other_Current_Liabilities": null,
           "Current_Deferred_Liabilities": 232478403.6804,
           "Current_Deferred_Revenue": 232478403.6804,
           "Current_Debt_And_Capital_Lease_Obligation": 2260156835.7805,
@@ -2035,7 +2040,7 @@
       "buysCount2Q": 2,
       "sellsCount2Q": 12,
       "buyValueTotal": 101644.2257,
-      "sellValueTotal": 8410779.617899999,
+      "sellValueTotal": 8410779.6179,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -2065,14 +2070,6 @@
       },
       {
         "date": "2026-05-01",
-        "insider": "COLLINS ROBERT SEAN",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 1138,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-01",
         "insider": "PICHE CATHERINE",
         "position": "Officer",
         "type": "Other",
@@ -2085,6 +2082,14 @@
         "position": "General Counsel",
         "type": "Other",
         "shares": 14490,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-01",
+        "insider": "COLLINS ROBERT SEAN",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 1138,
         "value": 0.0
       },
       {
@@ -2105,34 +2110,10 @@
       },
       {
         "date": "2026-02-25",
-        "insider": "ADAMS EDWARD B JR",
-        "position": "General Counsel",
-        "type": "Sell",
-        "shares": 4650,
-        "value": 360369.3513
-      },
-      {
-        "date": "2026-02-25",
         "insider": "KABAT KEVIN T",
         "position": "Director",
         "type": "Other",
         "shares": 2673,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-25",
-        "insider": "MELONE ANTHONY J.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2673,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-25",
-        "insider": "BARTOLO P ROBERT",
-        "position": "Director",
-        "type": "Other",
-        "shares": 4590,
         "value": 0.0
       },
       {
@@ -2184,19 +2165,35 @@
         "value": 0.0
       },
       {
+        "date": "2026-02-25",
+        "insider": "ADAMS EDWARD B JR",
+        "position": "General Counsel",
+        "type": "Sell",
+        "shares": 4650,
+        "value": 360369.3513
+      },
+      {
+        "date": "2026-02-25",
+        "insider": "MELONE ANTHONY J.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2673,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-25",
+        "insider": "BARTOLO P ROBERT",
+        "position": "Director",
+        "type": "Other",
+        "shares": 4590,
+        "value": 0.0
+      },
+      {
         "date": "2026-02-19",
         "insider": "PATEL SUNIT S",
         "position": "Chief Financial Officer",
         "type": "Other",
         "shares": 5726,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-19",
-        "insider": "COLLINS ROBERT SEAN",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 3389,
         "value": 0.0
       },
       {
@@ -2221,6 +2218,14 @@
         "position": "General Counsel",
         "type": "Other",
         "shares": 10294,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-19",
+        "insider": "COLLINS ROBERT SEAN",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 3389,
         "value": 0.0
       },
       {
@@ -2297,14 +2302,6 @@
       },
       {
         "date": "2025-05-02",
-        "insider": "COLLINS ROBERT SEAN",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 3600,
-        "value": 344850.7447
-      },
-      {
-        "date": "2025-05-02",
         "insider": "LEVENDOS CHRISTOPHER DAVID",
         "position": "Officer",
         "type": "Sell",
@@ -2328,6 +2325,14 @@
         "value": 1909735.5854
       },
       {
+        "date": "2025-05-02",
+        "insider": "COLLINS ROBERT SEAN",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 3600,
+        "value": 344850.7447
+      },
+      {
         "date": "2025-03-17",
         "insider": "MOTLAGH KATHERINE",
         "position": "Director",
@@ -2345,7 +2350,7 @@
       },
       {
         "date": "2025-02-26",
-        "insider": "MELONE ANTHONY J.",
+        "insider": "THORNTON MATTHEW III",
         "position": "Director",
         "type": "Other",
         "shares": 2510,
@@ -2353,10 +2358,10 @@
       },
       {
         "date": "2025-02-26",
-        "insider": "BARTOLO P ROBERT",
+        "insider": "JONES TAMMY K.",
         "position": "Director",
         "type": "Other",
-        "shares": 4147,
+        "shares": 2510,
         "value": 0.0
       }
     ]
@@ -2484,7 +2489,7 @@
     },
     {
       "date": "2025-12-03",
-      "close": 75.4022,
+      "close": 75.4021,
       "volume": 2507300.0
     },
     {
@@ -2714,7 +2719,7 @@
     },
     {
       "date": "2026-02-10",
-      "close": 73.0202,
+      "close": 73.0201,
       "volume": 3761400.0
     },
     {
@@ -2784,7 +2789,7 @@
     },
     {
       "date": "2026-03-03",
-      "close": 77.9607,
+      "close": 77.9608,
       "volume": 3745100.0
     },
     {
@@ -3618,5 +3623,5 @@
       "volume": 5906400.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.560809+00:00"
+  "updatedAt": "2026-10-29T10:14:52.660529+00:00"
 }

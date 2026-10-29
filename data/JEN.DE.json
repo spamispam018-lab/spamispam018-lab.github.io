@@ -11,19 +11,19 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 39.88,
-    "change": 0.8,
-    "changePercent": 2.05,
-    "marketCap": 2337604608.0,
+    "price": 40.78,
+    "change": -0.06,
+    "changePercent": -0.15,
+    "marketCap": 2334170368.0,
     "fiftyTwoWeekLow": 18.15,
     "fiftyTwoWeekHigh": 48.42,
-    "volume": 86911.0,
+    "volume": 24599,
     "avgVolume": 121441,
     "currency": "EUR"
   },
   "ratios": {
-    "peTrailing": 27.0464,
-    "peForward": 15.943,
+    "peTrailing": 27.0066,
+    "peForward": 15.9196,
     "pegRatio": 1.13,
     "dividendYield": 1.0,
     "profitMargins": 0.0831,
@@ -324,6 +324,7 @@
           "Net_Income_From_Continuing_And_Discontinued_Operation": null,
           "Total_Expenses": null,
           "Rent_Expense_Supplemental": null,
+          "Diluted_Average_Shares": null,
           "Basic_Average_Shares": null,
           "Diluted_EPS": null,
           "Basic_EPS": null,
@@ -381,6 +382,7 @@
           "Net_Income_From_Continuing_And_Discontinued_Operation": 55100000.0,
           "Total_Expenses": 861710000.0,
           "Rent_Expense_Supplemental": 225000.0,
+          "Diluted_Average_Shares": null,
           "Basic_Average_Shares": 57238115.0,
           "Diluted_EPS": 0.96,
           "Basic_EPS": 0.96,
@@ -438,6 +440,7 @@
           "Net_Income_From_Continuing_And_Discontinued_Operation": 72466000.0,
           "Total_Expenses": 924287000.0,
           "Rent_Expense_Supplemental": 937000.0,
+          "Diluted_Average_Shares": null,
           "Basic_Average_Shares": 57238115.0,
           "Diluted_EPS": 1.27,
           "Basic_EPS": 1.27,
@@ -495,6 +498,7 @@
           "Net_Income_From_Continuing_And_Discontinued_Operation": 92646000.0,
           "Total_Expenses": 972204000.0,
           "Rent_Expense_Supplemental": 1340000.0,
+          "Diluted_Average_Shares": null,
           "Basic_Average_Shares": 57238115.0,
           "Diluted_EPS": 1.62,
           "Basic_EPS": 1.62,
@@ -552,6 +556,7 @@
           "Net_Income_From_Continuing_And_Discontinued_Operation": 72002000.0,
           "Total_Expenses": 934508000.0,
           "Rent_Expense_Supplemental": 1031000.0,
+          "Diluted_Average_Shares": 57238115.0,
           "Basic_Average_Shares": 57238115.0,
           "Diluted_EPS": 1.26,
           "Basic_EPS": 1.26,
@@ -1833,7 +1838,7 @@
   },
   "analysts": {
     "targets": {
-      "current": 40.84,
+      "current": 40.78,
       "low": 42.0,
       "median": 51.0,
       "mean": 50.7778,
@@ -1924,11 +1929,6 @@
     "trades": []
   },
   "chartHistory": [
-    {
-      "date": "2025-10-28",
-      "close": 19.5392,
-      "volume": 108990.0
-    },
     {
       "date": "2025-10-29",
       "close": 19.4203,
@@ -3191,14 +3191,14 @@
     },
     {
       "date": "2026-10-28",
-      "close": null,
+      "close": 40.84,
       "volume": 87228.0
     },
     {
-      "date": "2026-10-27",
-      "close": 39.88,
-      "volume": 86911.0
+      "date": "2026-10-29",
+      "close": 40.78,
+      "volume": 24599.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:16.839394+00:00"
+  "updatedAt": "2026-10-29T10:10:05.508419+00:00"
 }

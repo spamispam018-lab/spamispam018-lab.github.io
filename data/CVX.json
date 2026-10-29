@@ -17,7 +17,7 @@
     "marketCap": 403560492111.2852,
     "fiftyTwoWeekLow": 131.4894,
     "fiftyTwoWeekHigh": 210.1102,
-    "volume": 6342700.0,
+    "volume": 6345447,
     "avgVolume": 8399280,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 22.0597,
     "peForward": 14.5838,
     "pegRatio": 0.99,
-    "dividendYield": 3.12,
+    "dividendYield": 3.11,
     "profitMargins": 0.0983,
     "debtToEquity": 18.959,
     "revenueGrowth": 0.535
@@ -48,7 +48,7 @@
           "Normalized_Income": 2235024035.3827,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 2490000000.0,
           "Total_Expenses": 36189437372.9148,
-          "Diluted_Average_Shares": null,
+          "Diluted_Average_Shares": 1724397000.0,
           "Basic_Average_Shares": 1719184000.0,
           "Diluted_EPS": 1.3015,
           "Basic_EPS": 1.3015,
@@ -90,7 +90,7 @@
           "Normalized_Income": 3176606450.2888,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 3539000000.0,
           "Total_Expenses": 39379507823.4167,
-          "Diluted_Average_Shares": null,
+          "Diluted_Average_Shares": 1946035000.0,
           "Basic_Average_Shares": 1938922000.0,
           "Diluted_EPS": 1.6336,
           "Basic_EPS": 1.6426,
@@ -132,7 +132,7 @@
           "Normalized_Income": 2486352039.3614,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 2770000000.0,
           "Total_Expenses": 37487366993.4623,
-          "Diluted_Average_Shares": null,
+          "Diluted_Average_Shares": 1996984000.0,
           "Basic_Average_Shares": 1990448000.0,
           "Diluted_EPS": 1.2477,
           "Basic_EPS": 1.2477,
@@ -174,7 +174,7 @@
           "Normalized_Income": 1983696031.4039,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 2210000000.0,
           "Total_Expenses": 39794199029.9817,
-          "Diluted_Average_Shares": null,
+          "Diluted_Average_Shares": 1985900000.0,
           "Basic_Average_Shares": 1980146000.0,
           "Diluted_EPS": 0.9963,
           "Basic_EPS": 1.0053,
@@ -2023,9 +2023,9 @@
   "insider": {
     "summary": {
       "buysCount2Q": 0,
-      "sellsCount2Q": 15,
+      "sellsCount2Q": 16,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 407595612.0303,
+      "sellValueTotal": 423341686.6764,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -2033,17 +2033,17 @@
         "date": "2026-10-20",
         "insider": "PATE ROBERT HEWITT",
         "position": "Officer",
-        "type": "Other",
+        "type": "Sell",
         "shares": 43100,
-        "value": 5133319.7277
+        "value": 8766179.8556
       },
       {
         "date": "2026-10-20",
         "insider": "PATE ROBERT HEWITT",
         "position": "Officer",
-        "type": "Sell",
+        "type": "Other",
         "shares": 43100,
-        "value": 8766179.8556
+        "value": 5133319.7277
       },
       {
         "date": "2026-08-18",
@@ -2055,11 +2055,11 @@
       },
       {
         "date": "2026-08-17",
-        "insider": "MOYO DAMBISA F",
-        "position": "Director",
-        "type": "Other",
-        "shares": 350,
-        "value": 0.0
+        "insider": "WALZ ANDREW BENJAMIN",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 16800,
+        "value": 3031942.9488
       },
       {
         "date": "2026-08-17",
@@ -2071,19 +2071,11 @@
       },
       {
         "date": "2026-08-17",
-        "insider": "WALZ ANDREW BENJAMIN",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 16800,
-        "value": 3031942.9488
-      },
-      {
-        "date": "2026-08-14",
-        "insider": "WIRTH MICHAEL K",
-        "position": "Chief Executive Officer",
+        "insider": "MOYO DAMBISA F",
+        "position": "Director",
         "type": "Other",
-        "shares": 317100,
-        "value": 25104274.6694
+        "shares": 350,
+        "value": 0.0
       },
       {
         "date": "2026-08-14",
@@ -2094,12 +2086,12 @@
         "value": 57057615.3369
       },
       {
-        "date": "2026-08-11",
-        "insider": "GUSTAVSON JEFF B.",
-        "position": "Officer",
+        "date": "2026-08-14",
+        "insider": "WIRTH MICHAEL K",
+        "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 14044,
-        "value": 1494323.6061
+        "shares": 317100,
+        "value": 25104274.6694
       },
       {
         "date": "2026-08-11",
@@ -2108,6 +2100,14 @@
         "type": "Sell",
         "shares": 14044,
         "value": 2457509.4581
+      },
+      {
+        "date": "2026-08-11",
+        "insider": "GUSTAVSON JEFF B.",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 14044,
+        "value": 1494323.6061
       },
       {
         "date": "2026-08-05",
@@ -2121,21 +2121,37 @@
         "date": "2026-08-03",
         "insider": "HESS JOHN B JR.",
         "position": "Director",
-        "type": "Other",
-        "shares": 709362,
-        "value": 45189776.837
-      },
-      {
-        "date": "2026-08-03",
-        "insider": "HESS JOHN B JR.",
-        "position": "Director",
         "type": "Sell",
         "shares": 810665,
         "value": 141254176.977
       },
       {
+        "date": "2026-08-03",
+        "insider": "HESS JOHN B JR.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 709362,
+        "value": 45189776.837
+      },
+      {
         "date": "2026-05-27",
-        "insider": "FRANK JOHN B",
+        "insider": "HERNANDEZ ENRIQUEJR",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1272,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-27",
+        "insider": "REED-KLAGES DEBRA L",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1272,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-27",
+        "insider": "HUNTSMAN JON M JR",
         "position": "Director",
         "type": "Other",
         "shares": 1272,
@@ -2159,47 +2175,7 @@
       },
       {
         "date": "2026-05-27",
-        "insider": "MOYO DAMBISA F",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1272,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-27",
-        "insider": "HUNTSMAN JON M JR",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1272,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-27",
-        "insider": "AUSTIN WANDA M",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1272,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-27",
-        "insider": "REED-KLAGES DEBRA L",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1272,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-27",
-        "insider": "HERNANDEZ ENRIQUEJR",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1272,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-27",
-        "insider": "HORTON THOMAS W",
+        "insider": "HESS JOHN B JR.",
         "position": "Director",
         "type": "Other",
         "shares": 1272,
@@ -2215,7 +2191,31 @@
       },
       {
         "date": "2026-05-27",
-        "insider": "HESS JOHN B JR.",
+        "insider": "HORTON THOMAS W",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1272,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-27",
+        "insider": "FRANK JOHN B",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1272,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-27",
+        "insider": "MOYO DAMBISA F",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1272,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-27",
+        "insider": "AUSTIN WANDA M",
         "position": "Director",
         "type": "Other",
         "shares": 1272,
@@ -2231,14 +2231,6 @@
       },
       {
         "date": "2026-05-06",
-        "insider": "MOYO DAMBISA F",
-        "position": "Director",
-        "type": "Other",
-        "shares": 780,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-06",
         "insider": "HESS JOHN B JR.",
         "position": "Director",
         "type": "Sell",
@@ -2246,12 +2238,12 @@
         "value": 32341896.4544
       },
       {
-        "date": "2026-03-30",
-        "insider": "PATE ROBERT HEWITT",
-        "position": "Officer",
+        "date": "2026-05-06",
+        "insider": "MOYO DAMBISA F",
+        "position": "Director",
         "type": "Other",
-        "shares": 40200,
-        "value": 4523069.3036
+        "shares": 780,
+        "value": 0.0
       },
       {
         "date": "2026-03-30",
@@ -2262,12 +2254,12 @@
         "value": 7696791.765
       },
       {
-        "date": "2026-03-06",
+        "date": "2026-03-30",
         "insider": "PATE ROBERT HEWITT",
         "position": "Officer",
         "type": "Other",
-        "shares": 47200,
-        "value": 4787863.103
+        "shares": 40200,
+        "value": 4523069.3036
       },
       {
         "date": "2026-03-06",
@@ -2278,12 +2270,20 @@
         "value": 8139494.3753
       },
       {
-        "date": "2026-03-02",
-        "insider": "WALZ ANDREW BENJAMIN",
+        "date": "2026-03-06",
+        "insider": "PATE ROBERT HEWITT",
         "position": "Officer",
         "type": "Other",
-        "shares": 11600,
-        "value": 1049691.1558
+        "shares": 47200,
+        "value": 4787863.103
+      },
+      {
+        "date": "2026-03-02",
+        "insider": "BONNER EIMEAR P",
+        "position": "Chief Financial Officer",
+        "type": "Sell",
+        "shares": 45800,
+        "value": 7719822.3862
       },
       {
         "date": "2026-03-02",
@@ -2295,11 +2295,27 @@
       },
       {
         "date": "2026-03-02",
-        "insider": "NELSON MARK A.",
+        "insider": "WALZ ANDREW BENJAMIN",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 11600,
+        "value": 1963515.2903
+      },
+      {
+        "date": "2026-03-02",
+        "insider": "WALZ ANDREW BENJAMIN",
         "position": "Officer",
         "type": "Other",
-        "shares": 139600,
-        "value": 13978249.6229
+        "shares": 11600,
+        "value": 1049691.1558
+      },
+      {
+        "date": "2026-03-02",
+        "insider": "PATE ROBERT HEWITT",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 93475,
+        "value": 15746074.6461
       },
       {
         "date": "2026-03-02",
@@ -2313,25 +2329,17 @@
         "date": "2026-03-02",
         "insider": "WIRTH MICHAEL K",
         "position": "Chief Executive Officer",
+        "type": "Sell",
+        "shares": 272624,
+        "value": 46336345.0648
+      },
+      {
+        "date": "2026-03-02",
+        "insider": "WIRTH MICHAEL K",
+        "position": "Chief Executive Officer",
         "type": "Other",
         "shares": 272624,
         "value": 29671382.0249
-      },
-      {
-        "date": "2026-03-02",
-        "insider": "WALZ ANDREW BENJAMIN",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 11600,
-        "value": 1963515.2903
-      },
-      {
-        "date": "2026-03-02",
-        "insider": "BONNER EIMEAR P",
-        "position": "Chief Financial Officer",
-        "type": "Sell",
-        "shares": 45800,
-        "value": 7719822.3862
       },
       {
         "date": "2026-03-02",
@@ -2340,14 +2348,6 @@
         "type": "Sell",
         "shares": 139600,
         "value": 23547436.8128
-      },
-      {
-        "date": "2026-03-02",
-        "insider": "WIRTH MICHAEL K",
-        "position": "Chief Executive Officer",
-        "type": "Sell",
-        "shares": 272624,
-        "value": 46336345.0648
       }
     ]
   },
@@ -2419,7 +2419,7 @@
     },
     {
       "date": "2025-11-17",
-      "close": 133.6981,
+      "close": 133.6982,
       "volume": 8745000.0
     },
     {
@@ -2534,7 +2534,7 @@
     },
     {
       "date": "2025-12-19",
-      "close": 129.0177,
+      "close": 129.0176,
       "volume": 21701400.0
     },
     {
@@ -2584,7 +2584,7 @@
     },
     {
       "date": "2026-01-06",
-      "close": 136.6933,
+      "close": 136.6932,
       "volume": 20564900.0
     },
     {
@@ -2834,7 +2834,7 @@
     },
     {
       "date": "2026-03-19",
-      "close": 177.6214,
+      "close": 177.6213,
       "volume": 16918400.0
     },
     {
@@ -3608,5 +3608,5 @@
       "volume": 6342700.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.396136+00:00"
+  "updatedAt": "2026-10-29T10:13:49.743729+00:00"
 }

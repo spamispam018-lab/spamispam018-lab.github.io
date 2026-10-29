@@ -14,10 +14,10 @@
     "price": 32.7444,
     "change": 0.7809,
     "changePercent": 2.44,
-    "marketCap": 16886506499.5478,
+    "marketCap": 16924921137.6215,
     "fiftyTwoWeekLow": 28.813,
     "fiftyTwoWeekHigh": 61.3689,
-    "volume": 5911600.0,
+    "volume": 5911573,
     "avgVolume": 6138686,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 5.6037,
     "peForward": 5.4874,
     "pegRatio": 0.19,
-    "dividendYield": 4.94,
+    "dividendYield": 4.82,
     "profitMargins": 0.2765,
     "debtToEquity": 132.51,
     "revenueGrowth": 0.291
@@ -51,10 +51,10 @@
           "Net_Income_From_Continuing_And_Discontinued_Operation": null,
           "Total_Expenses": null,
           "Total_Operating_Income_As_Reported": null,
-          "Diluted_Average_Shares": null,
-          "Basic_Average_Shares": null,
-          "Diluted_EPS": null,
-          "Basic_EPS": null,
+          "Diluted_Average_Shares": 531000000.0,
+          "Basic_Average_Shares": 528000000.0,
+          "Diluted_EPS": 0.1346,
+          "Basic_EPS": 0.1346,
           "Diluted_NI_Availto_Com_Stockholders": null,
           "Net_Income_Common_Stockholders": null,
           "Net_Income": null,
@@ -291,10 +291,10 @@
           "Net_Income_From_Continuing_And_Discontinued_Operation": 231000000.0,
           "Total_Expenses": 2576112040.7824,
           "Total_Operating_Income_As_Reported": 455083207.2044,
-          "Diluted_Average_Shares": 517000000.0,
-          "Basic_Average_Shares": 516000000.0,
-          "Diluted_EPS": 0.4039,
-          "Basic_EPS": 0.4039,
+          "Diluted_Average_Shares": null,
+          "Basic_Average_Shares": null,
+          "Diluted_EPS": null,
+          "Basic_EPS": null,
           "Diluted_NI_Availto_Com_Stockholders": 207345603.2825,
           "Net_Income_Common_Stockholders": 207345603.2825,
           "Net_Income": 207345603.2825,
@@ -1016,7 +1016,7 @@
           "Other_Intangible_Assets": 8679792137.4097,
           "Goodwill": 22067496349.3504,
           "Net_PPE": 999028815.8156,
-          "Accumulated_Depreciation": null,
+          "Accumulated_Depreciation": -1337424021.1728,
           "Gross_PPE": 2336452836.9884,
           "Leases": null,
           "Other_Properties": null,
@@ -2406,7 +2406,7 @@
       },
       {
         "date": "2026-06-15",
-        "insider": "CHAKRAVARTHY ANIL",
+        "insider": "LAMNECK KENNETH T",
         "position": "Director",
         "type": "Other",
         "shares": 5485,
@@ -2422,7 +2422,7 @@
       },
       {
         "date": "2026-06-15",
-        "insider": "LAMNECK KENNETH T",
+        "insider": "CHAKRAVARTHY ANIL",
         "position": "Director",
         "type": "Other",
         "shares": 5485,
@@ -2454,10 +2454,34 @@
       },
       {
         "date": "2026-02-27",
+        "insider": "FERRIS STEPHANIE",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 78567,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-27",
         "insider": "TSAI CAROLINE",
         "position": "Officer",
         "type": "Other",
         "shares": 9232,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-27",
+        "insider": "TSAI CAROLINE",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 33579,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-27",
+        "insider": "BROOKS ALEXANDRA DAWN",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 2406,
         "value": 0.0
       },
       {
@@ -2486,30 +2510,6 @@
       },
       {
         "date": "2026-02-27",
-        "insider": "BROOKS ALEXANDRA DAWN",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 2406,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-27",
-        "insider": "FERRIS STEPHANIE",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 78567,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-27",
-        "insider": "TSAI CAROLINE",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 33579,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-27",
         "insider": "KEHOE JAMES",
         "position": "Chief Financial Officer",
         "type": "Other",
@@ -2526,18 +2526,18 @@
       },
       {
         "date": "2025-11-10",
-        "insider": "TOOHEY ROBERT",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 18510,
-        "value": 0.0
-      },
-      {
-        "date": "2025-11-10",
         "insider": "BROOKS ALEXANDRA DAWN",
         "position": "Officer",
         "type": "Other",
         "shares": 3856,
+        "value": 0.0
+      },
+      {
+        "date": "2025-11-10",
+        "insider": "TOOHEY ROBERT",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 18510,
         "value": 0.0
       },
       {
@@ -2574,6 +2574,22 @@
       },
       {
         "date": "2025-06-12",
+        "insider": "LAMNECK KENNETH T",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2652,
+        "value": 0.0
+      },
+      {
+        "date": "2025-06-12",
+        "insider": "STALLINGS JAMES B JR.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2652,
+        "value": 0.0
+      },
+      {
+        "date": "2025-06-12",
         "insider": "GIBSON KOURTNEY",
         "position": "Director",
         "type": "Other",
@@ -2589,19 +2605,19 @@
         "value": 0.0
       },
       {
-        "date": "2025-06-12",
-        "insider": "STALLINGS JAMES B JR.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2652,
-        "value": 0.0
-      },
-      {
-        "date": "2025-06-12",
+        "date": "2025-06-06",
         "insider": "LAMNECK KENNETH T",
         "position": "Director",
         "type": "Other",
-        "shares": 2652,
+        "shares": 2826,
+        "value": 0.0
+      },
+      {
+        "date": "2025-06-06",
+        "insider": "ADREAN LEE",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2826,
         "value": 0.0
       },
       {
@@ -2615,22 +2631,6 @@
       {
         "date": "2025-06-06",
         "insider": "BENJAMIN MARK D.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2826,
-        "value": 0.0
-      },
-      {
-        "date": "2025-06-06",
-        "insider": "LAMNECK KENNETH T",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2826,
-        "value": 0.0
-      },
-      {
-        "date": "2025-06-06",
-        "insider": "ADREAN LEE",
         "position": "Director",
         "type": "Other",
         "shares": 2826,
@@ -2662,22 +2662,6 @@
       },
       {
         "date": "2025-03-03",
-        "insider": "TSAI CAROLINE",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 17671,
-        "value": 0.0
-      },
-      {
-        "date": "2025-03-03",
-        "insider": "BHATHENA FIRDAUS",
-        "position": "Chief Technology Officer",
-        "type": "Other",
-        "shares": 7953,
-        "value": 0.0
-      },
-      {
-        "date": "2025-03-03",
         "insider": "FERRIS STEPHANIE",
         "position": "Chief Executive Officer",
         "type": "Other",
@@ -2689,7 +2673,23 @@
         "insider": "TSAI CAROLINE",
         "position": "Officer",
         "type": "Other",
+        "shares": 17671,
+        "value": 0.0
+      },
+      {
+        "date": "2025-03-03",
+        "insider": "TSAI CAROLINE",
+        "position": "Officer",
+        "type": "Other",
         "shares": 26576,
+        "value": 0.0
+      },
+      {
+        "date": "2025-03-03",
+        "insider": "BHATHENA FIRDAUS",
+        "position": "Chief Technology Officer",
+        "type": "Other",
+        "shares": 7953,
         "value": 0.0
       },
       {
@@ -3975,5 +3975,5 @@
       "volume": 5911600.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.879449+00:00"
+  "updatedAt": "2026-10-29T10:16:56.089924+00:00"
 }

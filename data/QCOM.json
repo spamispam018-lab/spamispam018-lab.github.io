@@ -17,7 +17,7 @@
     "marketCap": 175375416895.9959,
     "fiftyTwoWeekLow": 109.4982,
     "fiftyTwoWeekHigh": 233.3042,
-    "volume": 9227800.0,
+    "volume": 9035045,
     "avgVolume": 11823712,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 21.1771,
     "peForward": 17.9622,
     "pegRatio": 0.83,
-    "dividendYield": 2.0,
+    "dividendYield": 2.01,
     "profitMargins": 0.2101,
     "debtToEquity": 55.21,
     "revenueGrowth": -0.04
@@ -353,6 +353,7 @@
           "Normalized_Income": 11907687452.5105,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 12936000000.0,
           "Total_Expenses": 25437984402.7086,
+          "Total_Operating_Income_As_Reported": 14235936225.369,
           "Diluted_Average_Shares": 1137000000.0,
           "Basic_Average_Shares": 1123000000.0,
           "Diluted_EPS": 10.2057,
@@ -403,6 +404,7 @@
           "Normalized_Income": 7397911605.1163,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 7232000000.0,
           "Total_Expenses": 24387792386.083,
+          "Total_Operating_Income_As_Reported": 6990508910.6667,
           "Diluted_Average_Shares": 1126000000.0,
           "Basic_Average_Shares": 1117000000.0,
           "Diluted_EPS": 5.7626,
@@ -453,6 +455,7 @@
           "Normalized_Income": 9156543408.9572,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 10142000000.0,
           "Total_Expenses": 25769198807.952,
+          "Total_Operating_Income_As_Reported": 9039729743.1079,
           "Diluted_Average_Shares": 1130000000.0,
           "Basic_Average_Shares": 1116000000.0,
           "Diluted_EPS": 8.0515,
@@ -503,6 +506,7 @@
           "Normalized_Income": 4862031702.4108,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 5541000000.0,
           "Total_Expenses": 28624464453.1537,
+          "Total_Operating_Income_As_Reported": 11089848175.5633,
           "Diluted_Average_Shares": 1105000000.0,
           "Basic_Average_Shares": 1096000000.0,
           "Diluted_EPS": 4.497,
@@ -2133,19 +2137,19 @@
       },
       {
         "date": "2026-05-04",
-        "insider": "ACE HEATHER S",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 3200,
-        "value": 510755.9505
-      },
-      {
-        "date": "2026-05-04",
         "insider": "AMON CRISTIANO RENNO",
         "position": "Chief Executive Officer",
         "type": "Sell",
         "shares": 10000,
         "value": 1615680.0256
+      },
+      {
+        "date": "2026-05-04",
+        "insider": "ACE HEATHER S",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 3200,
+        "value": 510755.9505
       },
       {
         "date": "2026-04-30",
@@ -2213,6 +2217,14 @@
       },
       {
         "date": "2026-03-17",
+        "insider": "MYERS MARIE ELIZABETH",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2563,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-17",
         "insider": "HENDERSON JEFFREY WILLIAM",
         "position": "Director",
         "type": "Other",
@@ -2237,7 +2249,7 @@
       },
       {
         "date": "2026-03-17",
-        "insider": "MYERS MARIE ELIZABETH",
+        "insider": "LIVERMORE ANN M",
         "position": "Director",
         "type": "Other",
         "shares": 2563,
@@ -2246,14 +2258,6 @@
       {
         "date": "2026-03-17",
         "insider": "FIELDS MARK F",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2563,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-17",
-        "insider": "LIVERMORE ANN M",
         "position": "Director",
         "type": "Other",
         "shares": 2563,
@@ -2293,14 +2297,6 @@
       },
       {
         "date": "2026-03-06",
-        "insider": "LIVERMORE ANN M",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2355,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-06",
         "insider": "HENDERSON JEFFREY WILLIAM",
         "position": "Director",
         "type": "Other",
@@ -2310,6 +2306,14 @@
       {
         "date": "2026-03-06",
         "insider": "MILLER JAMIE S",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2355,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-06",
+        "insider": "MCLAUGHLIN MARK D",
         "position": "Director",
         "type": "Other",
         "shares": 2355,
@@ -2425,7 +2429,7 @@
     },
     {
       "date": "2025-11-28",
-      "close": 147.7997,
+      "close": 147.7996,
       "volume": 5068800.0
     },
     {
@@ -2445,7 +2449,7 @@
     },
     {
       "date": "2025-12-04",
-      "close": 154.0873,
+      "close": 154.0874,
       "volume": 7245000.0
     },
     {
@@ -2535,7 +2539,7 @@
     },
     {
       "date": "2025-12-31",
-      "close": 151.1709,
+      "close": 151.1708,
       "volume": 4682600.0
     },
     {
@@ -2600,7 +2604,7 @@
     },
     {
       "date": "2026-01-21",
-      "close": 138.197,
+      "close": 138.1969,
       "volume": 9181900.0
     },
     {
@@ -2625,7 +2629,7 @@
     },
     {
       "date": "2026-01-28",
-      "close": 134.9534,
+      "close": 134.9535,
       "volume": 8539000.0
     },
     {
@@ -3574,5 +3578,5 @@
       "volume": 9227800.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:15.932003+00:00"
+  "updatedAt": "2026-10-29T10:04:10.533844+00:00"
 }

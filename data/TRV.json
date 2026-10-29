@@ -17,7 +17,7 @@
     "marketCap": 72465629151.5549,
     "fiftyTwoWeekLow": 237.1908,
     "fiftyTwoWeekHigh": 366.1041,
-    "volume": 1555200.0,
+    "volume": 1555191,
     "avgVolume": 1533793,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 10.3605,
     "peForward": 12.6648,
     "pegRatio": 2.36,
-    "dividendYield": 1.26,
+    "dividendYield": 1.27,
     "profitMargins": 0.1703,
     "debtToEquity": 33.844,
     "revenueGrowth": -0.005
@@ -1629,12 +1629,28 @@
   "insider": {
     "summary": {
       "buysCount2Q": 0,
-      "sellsCount2Q": 18,
+      "sellsCount2Q": 19,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 40640555.957100004,
+      "sellValueTotal": 44529214.1371,
       "sentiment": "Bearish"
     },
     "trades": [
+      {
+        "date": "2026-10-27",
+        "insider": "LEFEBVRE MOJGAN M",
+        "position": "Chief Technology Officer",
+        "type": "Sell",
+        "shares": 11000,
+        "value": 3888658.18
+      },
+      {
+        "date": "2026-10-27",
+        "insider": "LEFEBVRE MOJGAN M",
+        "position": "Chief Technology Officer",
+        "type": "Other",
+        "shares": 11000,
+        "value": 1380625.5099
+      },
       {
         "date": "2026-10-21",
         "insider": "OLIVO MARIA",
@@ -1749,19 +1765,19 @@
       },
       {
         "date": "2026-07-21",
-        "insider": "FREY DANIEL S.",
-        "position": "Chief Financial Officer",
-        "type": "Sell",
-        "shares": 14037,
-        "value": 4639696.2687
-      },
-      {
-        "date": "2026-07-21",
         "insider": "KLEIN MICHAEL FREDERICK",
         "position": "Officer",
         "type": "Sell",
         "shares": 6000,
         "value": 1971633.1848
+      },
+      {
+        "date": "2026-07-21",
+        "insider": "FREY DANIEL S.",
+        "position": "Chief Financial Officer",
+        "type": "Sell",
+        "shares": 14037,
+        "value": 4639696.2687
       },
       {
         "date": "2026-07-21",
@@ -1938,22 +1954,6 @@
         "type": "Other",
         "shares": 1387,
         "value": 165057.8714
-      },
-      {
-        "date": "2026-03-31",
-        "insider": "GOLDEN RUSSELL G",
-        "position": "Director",
-        "type": "Other",
-        "shares": 158,
-        "value": 41513.1031
-      },
-      {
-        "date": "2026-03-31",
-        "insider": "ROBINSON ELIZABETH E",
-        "position": "Director",
-        "type": "Other",
-        "shares": 149,
-        "value": 39269.103
       }
     ]
   },
@@ -1985,7 +1985,7 @@
     },
     {
       "date": "2025-11-05",
-      "close": 244.5829,
+      "close": 244.583,
       "volume": 1158400.0
     },
     {
@@ -2000,7 +2000,7 @@
     },
     {
       "date": "2025-11-10",
-      "close": 249.6577,
+      "close": 249.6576,
       "volume": 1503800.0
     },
     {
@@ -2030,7 +2030,7 @@
     },
     {
       "date": "2025-11-18",
-      "close": 253.6006,
+      "close": 253.6007,
       "volume": 1199900.0
     },
     {
@@ -2210,7 +2210,7 @@
     },
     {
       "date": "2026-01-12",
-      "close": 248.9589,
+      "close": 248.9588,
       "volume": 1661800.0
     },
     {
@@ -2265,7 +2265,7 @@
     },
     {
       "date": "2026-01-28",
-      "close": 250.3345,
+      "close": 250.3346,
       "volume": 1416200.0
     },
     {
@@ -2335,7 +2335,7 @@
     },
     {
       "date": "2026-02-18",
-      "close": 264.9087,
+      "close": 264.9088,
       "volume": 1343300.0
     },
     {
@@ -2385,7 +2385,7 @@
     },
     {
       "date": "2026-03-04",
-      "close": 276.9533,
+      "close": 276.9532,
       "volume": 1315800.0
     },
     {
@@ -3214,5 +3214,5 @@
       "volume": 1555200.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:19.039119+00:00"
+  "updatedAt": "2026-10-29T10:24:16.778888+00:00"
 }

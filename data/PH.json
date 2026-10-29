@@ -17,7 +17,7 @@
     "marketCap": 103227980142.0799,
     "fiftyTwoWeekLow": 677.7778,
     "fiftyTwoWeekHigh": 987.3062,
-    "volume": 497100.0,
+    "volume": 497126,
     "avgVolume": 615290,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 32.0197,
     "peForward": 22.9433,
     "pegRatio": 3.02,
-    "dividendYield": 0.89,
+    "dividendYield": 0.88,
     "profitMargins": 0.1697,
     "debtToEquity": 56.66,
     "revenueGrowth": 0.098
@@ -2317,9 +2317,9 @@
   "insider": {
     "summary": {
       "buysCount2Q": 0,
-      "sellsCount2Q": 17,
+      "sellsCount2Q": 16,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 28560072.423299998,
+      "sellValueTotal": 26704899.2499,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -2405,19 +2405,19 @@
       },
       {
         "date": "2026-08-14",
+        "insider": "VERRIER JAMES R.",
+        "position": "Director",
+        "type": "Sell",
+        "shares": 1500,
+        "value": 1424491.2226
+      },
+      {
+        "date": "2026-08-14",
         "insider": "ROSS ANDREW D.",
         "position": "President",
         "type": "Sell",
         "shares": 5498,
         "value": 5219113.2346
-      },
-      {
-        "date": "2026-08-14",
-        "insider": "PAREL DINU JOHN",
-        "position": "Chief Technology Officer",
-        "type": "Sell",
-        "shares": 4469,
-        "value": 4241709.3984
       },
       {
         "date": "2026-08-14",
@@ -2429,27 +2429,11 @@
       },
       {
         "date": "2026-08-14",
-        "insider": "VERRIER JAMES R.",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 1500,
-        "value": 1424491.2226
-      },
-      {
-        "date": "2026-04-22",
         "insider": "PAREL DINU JOHN",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 4467,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-22",
-        "insider": "IVES ANGELA R",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 1563,
-        "value": 0.0
+        "position": "Chief Technology Officer",
+        "type": "Sell",
+        "shares": 4469,
+        "value": 4241709.3984
       },
       {
         "date": "2026-04-22",
@@ -2501,18 +2485,18 @@
       },
       {
         "date": "2026-04-22",
-        "insider": "GENTILE THOMAS C.",
-        "position": "Officer",
+        "insider": "ROSS ANDREW D.",
+        "position": "President",
         "type": "Other",
-        "shares": 2241,
+        "shares": 9837,
         "value": 0.0
       },
       {
         "date": "2026-04-22",
-        "insider": "LEOMBRUNO TODD M.",
-        "position": "Chief Financial Officer",
+        "insider": "LEONTI JOSEPH R.",
+        "position": "General Counsel",
         "type": "Other",
-        "shares": 8343,
+        "shares": 4546,
         "value": 0.0
       },
       {
@@ -2533,18 +2517,34 @@
       },
       {
         "date": "2026-04-22",
-        "insider": "ROSS ANDREW D.",
-        "position": "President",
+        "insider": "GENTILE THOMAS C.",
+        "position": "Officer",
         "type": "Other",
-        "shares": 9837,
+        "shares": 2241,
         "value": 0.0
       },
       {
         "date": "2026-04-22",
-        "insider": "LEONTI JOSEPH R.",
-        "position": "General Counsel",
+        "insider": "LEOMBRUNO TODD M.",
+        "position": "Chief Financial Officer",
         "type": "Other",
-        "shares": 4546,
+        "shares": 8343,
+        "value": 0.0
+      },
+      {
+        "date": "2026-04-22",
+        "insider": "PAREL DINU JOHN",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 4467,
+        "value": 0.0
+      },
+      {
+        "date": "2026-04-22",
+        "insider": "IVES ANGELA R",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 1563,
         "value": 0.0
       },
       {
@@ -2557,19 +2557,19 @@
       },
       {
         "date": "2026-02-13",
-        "insider": "BENDALI RACHID",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 412,
-        "value": 372303.8411
-      },
-      {
-        "date": "2026-02-13",
         "insider": "BRACHT BEREND",
         "position": "Officer",
         "type": "Other",
         "shares": 2850,
         "value": 765376.3513
+      },
+      {
+        "date": "2026-02-13",
+        "insider": "BENDALI RACHID",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 412,
+        "value": 372303.8411
       },
       {
         "date": "2026-02-13",
@@ -2589,11 +2589,27 @@
       },
       {
         "date": "2026-02-12",
+        "insider": "SCOTT PATRICK M.",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 1460,
+        "value": 208237.8177
+      },
+      {
+        "date": "2026-02-12",
         "insider": "HART MARK J",
         "position": "Officer",
         "type": "Sell",
         "shares": 2804,
         "value": 2539823.8674
+      },
+      {
+        "date": "2026-02-12",
+        "insider": "HART MARK J",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 6740,
+        "value": 1790747.9323
       },
       {
         "date": "2026-02-12",
@@ -2605,27 +2621,11 @@
       },
       {
         "date": "2026-02-12",
-        "insider": "SCOTT PATRICK M.",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 1460,
-        "value": 208237.8177
-      },
-      {
-        "date": "2026-02-12",
         "insider": "GENTILE THOMAS C.",
         "position": "Officer",
         "type": "Other",
         "shares": 3370,
         "value": 895373.9662
-      },
-      {
-        "date": "2026-02-12",
-        "insider": "HART MARK J",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 6740,
-        "value": 1790747.9323
       },
       {
         "date": "2026-02-11",
@@ -2637,11 +2637,11 @@
       },
       {
         "date": "2026-02-11",
-        "insider": "LEOMBRUNO TODD M.",
-        "position": "Chief Financial Officer",
-        "type": "Sell",
-        "shares": 2062,
-        "value": 1855173.1734
+        "insider": "ROSS ANDREW D.",
+        "position": "President",
+        "type": "Other",
+        "shares": 10220,
+        "value": 1922392.6432
       }
     ]
   },
@@ -2658,7 +2658,7 @@
     },
     {
       "date": "2025-10-31",
-      "close": 687.964,
+      "close": 687.9639,
       "volume": 622300.0
     },
     {
@@ -2668,12 +2668,12 @@
     },
     {
       "date": "2025-11-04",
-      "close": 684.5456,
+      "close": 684.5457,
       "volume": 611800.0
     },
     {
       "date": "2025-11-05",
-      "close": 689.1391,
+      "close": 689.139,
       "volume": 772600.0
     },
     {
@@ -2683,7 +2683,7 @@
     },
     {
       "date": "2025-11-07",
-      "close": 752.9523,
+      "close": 752.9522,
       "volume": 975400.0
     },
     {
@@ -2703,7 +2703,7 @@
     },
     {
       "date": "2025-11-13",
-      "close": 751.1057,
+      "close": 751.1056,
       "volume": 970700.0
     },
     {
@@ -2738,7 +2738,7 @@
     },
     {
       "date": "2025-11-24",
-      "close": 749.3927,
+      "close": 749.3928,
       "volume": 1156300.0
     },
     {
@@ -2748,12 +2748,12 @@
     },
     {
       "date": "2025-11-26",
-      "close": 768.5464,
+      "close": 768.5465,
       "volume": 642000.0
     },
     {
       "date": "2025-11-28",
-      "close": 768.7337,
+      "close": 768.7338,
       "volume": 223300.0
     },
     {
@@ -2778,7 +2778,7 @@
     },
     {
       "date": "2025-12-05",
-      "close": 785.0594,
+      "close": 785.0595,
       "volume": 592300.0
     },
     {
@@ -2818,7 +2818,7 @@
     },
     {
       "date": "2025-12-17",
-      "close": 770.0631,
+      "close": 770.063,
       "volume": 657000.0
     },
     {
@@ -2843,7 +2843,7 @@
     },
     {
       "date": "2025-12-24",
-      "close": 791.9822,
+      "close": 791.9823,
       "volume": 118800.0
     },
     {
@@ -2863,7 +2863,7 @@
     },
     {
       "date": "2025-12-31",
-      "close": 784.1316,
+      "close": 784.1317,
       "volume": 281700.0
     },
     {
@@ -2883,12 +2883,12 @@
     },
     {
       "date": "2026-01-07",
-      "close": 810.3865,
+      "close": 810.3866,
       "volume": 639700.0
     },
     {
       "date": "2026-01-08",
-      "close": 808.6736,
+      "close": 808.6737,
       "volume": 573900.0
     },
     {
@@ -2938,7 +2938,7 @@
     },
     {
       "date": "2026-01-23",
-      "close": 827.8718,
+      "close": 827.8719,
       "volume": 442400.0
     },
     {
@@ -2963,7 +2963,7 @@
     },
     {
       "date": "2026-01-30",
-      "close": 834.875,
+      "close": 834.8751,
       "volume": 865100.0
     },
     {
@@ -2978,7 +2978,7 @@
     },
     {
       "date": "2026-02-04",
-      "close": 863.5566,
+      "close": 863.5565,
       "volume": 956500.0
     },
     {
@@ -3902,5 +3902,5 @@
       "volume": 497100.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.625442+00:00"
+  "updatedAt": "2026-10-29T10:21:37.406577+00:00"
 }

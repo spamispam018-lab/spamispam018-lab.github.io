@@ -17,13 +17,13 @@
     "marketCap": 18563145428.7722,
     "fiftyTwoWeekLow": 122.9802,
     "fiftyTwoWeekHigh": 205.2542,
-    "volume": 1057900.0,
+    "volume": 1057887,
     "avgVolume": 1632223,
     "currency": "EUR"
   },
   "ratios": {
     "peTrailing": 28.4838,
-    "peForward": 18.4381,
+    "peForward": 18.4599,
     "pegRatio": 1.49,
     "dividendYield": 1.27,
     "profitMargins": 0.1127,
@@ -1863,9 +1863,9 @@
   "insider": {
     "summary": {
       "buysCount2Q": 1,
-      "sellsCount2Q": 10,
+      "sellsCount2Q": 9,
       "buyValueTotal": 417319.3794,
-      "sellValueTotal": 28961911.792999998,
+      "sellValueTotal": 22113653.634999998,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -1873,17 +1873,17 @@
         "date": "2026-10-23",
         "insider": "BEGOR MARK W.",
         "position": "Chief Executive Officer",
-        "type": "Other",
+        "type": "Sell",
         "shares": 37792,
-        "value": 3814879.0492
+        "value": 6200926.0822
       },
       {
         "date": "2026-10-23",
         "insider": "BEGOR MARK W.",
         "position": "Chief Executive Officer",
-        "type": "Sell",
+        "type": "Other",
         "shares": 37792,
-        "value": 6200926.0822
+        "value": 3814879.0492
       },
       {
         "date": "2026-09-03",
@@ -1897,17 +1897,41 @@
         "date": "2026-07-24",
         "insider": "BEGOR MARK W.",
         "position": "Chief Executive Officer",
-        "type": "Other",
+        "type": "Sell",
         "shares": 37791,
-        "value": 3814778.518
+        "value": 5840014.5805
       },
       {
         "date": "2026-07-24",
         "insider": "BEGOR MARK W.",
         "position": "Chief Executive Officer",
-        "type": "Sell",
+        "type": "Other",
         "shares": 37791,
-        "value": 5840014.5805
+        "value": 3814778.518
+      },
+      {
+        "date": "2026-05-07",
+        "insider": "FEIDLER MARK L",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1253,
+        "value": 197518.6783
+      },
+      {
+        "date": "2026-05-07",
+        "insider": "MCGREGOR SCOTT A",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1253,
+        "value": 197518.6783
+      },
+      {
+        "date": "2026-05-07",
+        "insider": "MCKINLEY JOHN A JR",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1253,
+        "value": 197518.6783
       },
       {
         "date": "2026-05-07",
@@ -1966,30 +1990,6 @@
         "value": 197518.6783
       },
       {
-        "date": "2026-05-07",
-        "insider": "FEIDLER MARK L",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1253,
-        "value": 197518.6783
-      },
-      {
-        "date": "2026-05-07",
-        "insider": "MCKINLEY JOHN A JR",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1253,
-        "value": 197518.6783
-      },
-      {
-        "date": "2026-05-07",
-        "insider": "MCGREGOR SCOTT A",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1253,
-        "value": 197518.6783
-      },
-      {
         "date": "2026-05-01",
         "insider": "GAMBLE JOHN W JR",
         "position": "Chief Operating Officer",
@@ -2001,17 +2001,17 @@
         "date": "2026-04-24",
         "insider": "BEGOR MARK W.",
         "position": "Chief Executive Officer",
-        "type": "Other",
+        "type": "Sell",
         "shares": 37791,
-        "value": 3814778.518
+        "value": 5848052.5886
       },
       {
         "date": "2026-04-24",
         "insider": "BEGOR MARK W.",
         "position": "Chief Executive Officer",
-        "type": "Sell",
+        "type": "Other",
         "shares": 37791,
-        "value": 5848052.5886
+        "value": 3814778.518
       },
       {
         "date": "2026-03-02",
@@ -2019,14 +2019,6 @@
         "position": "Officer",
         "type": "Other",
         "shares": 22958,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-25",
-        "insider": "GRIGGS JAMES M.",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 1641,
         "value": 0.0
       },
       {
@@ -2055,18 +2047,10 @@
       },
       {
         "date": "2026-02-25",
-        "insider": "REMON PATRICIO",
+        "insider": "GRIGGS JAMES M.",
         "position": "Officer",
         "type": "Other",
-        "shares": 5389,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-25",
-        "insider": "WALKER KATHRYN Q",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 1497,
+        "shares": 1641,
         "value": 0.0
       },
       {
@@ -2099,6 +2083,22 @@
         "position": "Chief Operating Officer",
         "type": "Other",
         "shares": 17963,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-25",
+        "insider": "REMON PATRICIO",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 5389,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-25",
+        "insider": "WALKER KATHRYN Q",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 1497,
         "value": 0.0
       },
       {
@@ -2151,30 +2151,6 @@
       },
       {
         "date": "2026-02-10",
-        "insider": "BEGOR MARK W.",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 37791,
-        "value": 3814778.518
-      },
-      {
-        "date": "2026-02-10",
-        "insider": "FARSHCHI JAMIL",
-        "position": "Chief Technology Officer",
-        "type": "Other",
-        "shares": 6213,
-        "value": 1067620.7161
-      },
-      {
-        "date": "2026-02-10",
-        "insider": "BEGOR MARK W.",
-        "position": "Chief Executive Officer",
-        "type": "Sell",
-        "shares": 37791,
-        "value": 6848258.158
-      },
-      {
-        "date": "2026-02-10",
         "insider": "CHANEY CARLA",
         "position": "Officer",
         "type": "Other",
@@ -2188,13 +2164,37 @@
         "type": "Other",
         "shares": 4667,
         "value": 0.0
+      },
+      {
+        "date": "2026-02-10",
+        "insider": "FARSHCHI JAMIL",
+        "position": "Chief Technology Officer",
+        "type": "Other",
+        "shares": 6213,
+        "value": 1067620.7161
+      },
+      {
+        "date": "2026-02-10",
+        "insider": "BINDAL SUNIL",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 2747,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-10",
+        "insider": "MAO CECILIA H.",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 1374,
+        "value": 0.0
       }
     ]
   },
   "chartHistory": [
     {
       "date": "2025-10-29",
-      "close": 190.3683,
+      "close": 190.3682,
       "volume": 1552800.0
     },
     {
@@ -2229,7 +2229,7 @@
     },
     {
       "date": "2025-11-07",
-      "close": 184.227,
+      "close": 184.2271,
       "volume": 1496200.0
     },
     {
@@ -2264,7 +2264,7 @@
     },
     {
       "date": "2025-11-18",
-      "close": 181.5026,
+      "close": 181.5025,
       "volume": 1117100.0
     },
     {
@@ -2289,7 +2289,7 @@
     },
     {
       "date": "2025-11-25",
-      "close": 191.1437,
+      "close": 191.1438,
       "volume": 1041600.0
     },
     {
@@ -2369,7 +2369,7 @@
     },
     {
       "date": "2025-12-18",
-      "close": 195.1733,
+      "close": 195.1734,
       "volume": 1228800.0
     },
     {
@@ -2394,7 +2394,7 @@
     },
     {
       "date": "2025-12-26",
-      "close": 197.5307,
+      "close": 197.5306,
       "volume": 594400.0
     },
     {
@@ -2419,7 +2419,7 @@
     },
     {
       "date": "2026-01-05",
-      "close": 196.401,
+      "close": 196.4009,
       "volume": 1080400.0
     },
     {
@@ -2429,7 +2429,7 @@
     },
     {
       "date": "2026-01-07",
-      "close": 189.9162,
+      "close": 189.9163,
       "volume": 1769100.0
     },
     {
@@ -2439,7 +2439,7 @@
     },
     {
       "date": "2026-01-09",
-      "close": 201.8894,
+      "close": 201.8895,
       "volume": 1510700.0
     },
     {
@@ -2489,7 +2489,7 @@
     },
     {
       "date": "2026-01-26",
-      "close": 190.7968,
+      "close": 190.7969,
       "volume": 1386500.0
     },
     {
@@ -2674,7 +2674,7 @@
     },
     {
       "date": "2026-03-19",
-      "close": 161.8873,
+      "close": 161.8872,
       "volume": 1824200.0
     },
     {
@@ -3448,5 +3448,5 @@
       "volume": 1057900.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.763753+00:00"
+  "updatedAt": "2026-10-29T10:16:09.338641+00:00"
 }

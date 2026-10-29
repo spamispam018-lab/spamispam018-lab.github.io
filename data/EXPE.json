@@ -14,10 +14,10 @@
     "price": 247.3157,
     "change": -2.2889,
     "changePercent": -0.92,
-    "marketCap": 29683347650.6657,
+    "marketCap": 29682671161.8486,
     "fiftyTwoWeekLow": 166.3612,
     "fiftyTwoWeekHigh": 306.9792,
-    "volume": 887600.0,
+    "volume": 887273,
     "avgVolume": 1811824,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 17.2099,
     "peForward": 11.2116,
     "pegRatio": 0.73,
-    "dividendYield": 0.69,
+    "dividendYield": 0.7,
     "profitMargins": 0.1297,
     "debtToEquity": 230.271,
     "revenueGrowth": 0.14
@@ -304,7 +304,7 @@
           "Net_Income_Continuous_Operations": -12000000.0,
           "Tax_Provision": 33211200.5258,
           "Pretax_Income": 22440000.3552,
-          "Other_Income_Expense": null,
+          "Other_Income_Expense": -149899202.3731,
           "Other_Non_Operating_Income_Expenses": -7180800.1137,
           "Special_Income_Charges": 50265600.7958,
           "Gain_On_Sale_Of_Business": null,
@@ -1631,7 +1631,7 @@
           "Long_Term_Debt_Payments": 0.0,
           "Long_Term_Debt_Issuance": 0.0,
           "Investing_Cash_Flow": 147206402.3304,
-          "Cash_Flow_From_Continuing_Investing_Activities": null,
+          "Cash_Flow_From_Continuing_Investing_Activities": 147206402.3304,
           "Net_Other_Investing_Changes": 125664001.9894,
           "Net_Investment_Purchase_And_Sale": 201062403.183,
           "Sale_Of_Investment": 289924804.5898,
@@ -1688,7 +1688,7 @@
           "Long_Term_Debt_Payments": 0.0,
           "Long_Term_Debt_Issuance": 0.0,
           "Investing_Cash_Flow": -100531201.5915,
-          "Cash_Flow_From_Continuing_Investing_Activities": null,
+          "Cash_Flow_From_Continuing_Investing_Activities": -100531201.5915,
           "Net_Other_Investing_Changes": -7180800.1137,
           "Net_Investment_Purchase_And_Sale": 76296001.2078,
           "Sale_Of_Investment": 157080002.4867,
@@ -1745,7 +1745,7 @@
           "Long_Term_Debt_Payments": 0.0,
           "Long_Term_Debt_Issuance": 0.0,
           "Investing_Cash_Flow": -178622402.8278,
-          "Cash_Flow_From_Continuing_Investing_Activities": null,
+          "Cash_Flow_From_Continuing_Investing_Activities": -178622402.8278,
           "Net_Other_Investing_Changes": -31416000.4973,
           "Net_Investment_Purchase_And_Sale": 18849600.2984,
           "Sale_Of_Investment": 117585601.8615,
@@ -1787,7 +1787,7 @@
           "Income_Tax_Paid_Supplemental_Data": 54753600.8668,
           "End_Cash_Position": 6991406510.6809,
           "Beginning_Cash_Position": 6261657699.1283,
-          "Effect_Of_Exchange_Rate_Changes": null,
+          "Effect_Of_Exchange_Rate_Changes": -25132800.3979,
           "Changes_In_Cash": 754881611.9505,
           "Financing_Cash_Flow": -2378640037.6562,
           "Cash_Flow_From_Continuing_Financing_Activities": -2378640037.6562,
@@ -1802,7 +1802,7 @@
           "Long_Term_Debt_Payments": -1640812825.9757,
           "Long_Term_Debt_Issuance": 0.0,
           "Investing_Cash_Flow": -394944006.2524,
-          "Cash_Flow_From_Continuing_Investing_Activities": null,
+          "Cash_Flow_From_Continuing_Investing_Activities": -394944006.2524,
           "Net_Other_Investing_Changes": -250430403.9646,
           "Net_Investment_Purchase_And_Sale": 20644800.3268,
           "Sale_Of_Investment": 176827202.7994,
@@ -2362,6 +2362,14 @@
       },
       {
         "date": "2026-08-14",
+        "insider": "ANDERSEN DEREK",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 7223,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-14",
         "insider": "GORIN ARIANE",
         "position": "Chief Executive Officer",
         "type": "Other",
@@ -2401,14 +2409,6 @@
         "value": 0.0
       },
       {
-        "date": "2026-08-14",
-        "insider": "ANDERSEN DEREK",
-        "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 7223,
-        "value": 0.0
-      },
-      {
         "date": "2026-08-13",
         "insider": "JACOBSON CRAIG A",
         "position": "Director",
@@ -2442,6 +2442,22 @@
       },
       {
         "date": "2026-06-01",
+        "insider": "BANERJEE MADHUMITA MOINA",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2108,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "ANDERSON BEVERLY J",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2108,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
         "insider": "MENENDEZ-CAMBO PATRICIA",
         "position": "Director",
         "type": "Other",
@@ -2466,7 +2482,7 @@
       },
       {
         "date": "2026-06-01",
-        "insider": "JACOBSON CRAIG A",
+        "insider": "KHOSROWSHAHI DARA",
         "position": "Director",
         "type": "Other",
         "shares": 2108,
@@ -2482,14 +2498,6 @@
       },
       {
         "date": "2026-06-01",
-        "insider": "KHOSROWSHAHI DARA",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2108,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
         "insider": "CLINTON CHELSEA",
         "position": "Director",
         "type": "Other",
@@ -2498,15 +2506,7 @@
       },
       {
         "date": "2026-06-01",
-        "insider": "BANERJEE MADHUMITA MOINA",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2108,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "ANDERSON BEVERLY J",
+        "insider": "JACOBSON CRAIG A",
         "position": "Director",
         "type": "Other",
         "shares": 2108,
@@ -2519,6 +2519,14 @@
         "type": "Sell",
         "shares": 940,
         "value": 187191.7902
+      },
+      {
+        "date": "2026-05-15",
+        "insider": "ANDERSEN DEREK",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 7223,
+        "value": 0.0
       },
       {
         "date": "2026-05-15",
@@ -2553,27 +2561,11 @@
         "value": 0.0
       },
       {
-        "date": "2026-05-15",
-        "insider": "ANDERSEN DEREK",
-        "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 7223,
-        "value": 0.0
-      },
-      {
         "date": "2026-04-15",
         "insider": "DZIELAK ROBERT J",
         "position": "Officer",
         "type": "Other",
         "shares": 2304,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-13",
-        "insider": "SCHENKEL SCOTT F",
-        "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 7626,
         "value": 0.0
       },
       {
@@ -2585,12 +2577,28 @@
         "value": 0.0
       },
       {
+        "date": "2026-03-13",
+        "insider": "SCHENKEL SCOTT F",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 7626,
+        "value": 0.0
+      },
+      {
         "date": "2026-03-04",
         "insider": "DZIELAK ROBERT J",
         "position": "Officer",
         "type": "Sell",
         "shares": 8225,
         "value": 1630260.6402
+      },
+      {
+        "date": "2026-02-13",
+        "insider": "BANERJEE MADHUMITA MOINA",
+        "position": "Director",
+        "type": "Other",
+        "shares": 718,
+        "value": 0.0
       },
       {
         "date": "2026-02-13",
@@ -2618,14 +2626,6 @@
       },
       {
         "date": "2026-02-13",
-        "insider": "SCHENKEL SCOTT F",
-        "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 2359,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-13",
         "insider": "DZIELAK ROBERT J",
         "position": "Officer",
         "type": "Other",
@@ -2634,10 +2634,10 @@
       },
       {
         "date": "2026-02-13",
-        "insider": "BANERJEE MADHUMITA MOINA",
-        "position": "Director",
+        "insider": "SCHENKEL SCOTT F",
+        "position": "Chief Financial Officer",
         "type": "Other",
-        "shares": 718,
+        "shares": 2359,
         "value": 0.0
       },
       {
@@ -2686,7 +2686,7 @@
     },
     {
       "date": "2025-11-05",
-      "close": 190.5016,
+      "close": 190.5015,
       "volume": 1678300.0
     },
     {
@@ -3915,5 +3915,5 @@
       "volume": 887600.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.820919+00:00"
+  "updatedAt": "2026-10-29T10:16:31.702720+00:00"
 }

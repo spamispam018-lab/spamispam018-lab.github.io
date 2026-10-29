@@ -17,7 +17,7 @@
     "marketCap": 125593590165.5769,
     "fiftyTwoWeekLow": 91.3128,
     "fiftyTwoWeekHigh": 148.2297,
-    "volume": 5434200.0,
+    "volume": 5434440,
     "avgVolume": 4686603,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 26.0713,
     "peForward": 15.8634,
     "pegRatio": 1.14,
-    "dividendYield": 4.48,
+    "dividendYield": 4.47,
     "profitMargins": 0.2299,
     "debtToEquity": 67.536,
     "revenueGrowth": -0.005
@@ -776,7 +776,7 @@
           "Operating_Cash_Flow": 797520305.4255,
           "Change_In_Working_Capital": -1002849001.4761,
           "Change_In_Other_Current_Liabilities": 0.0,
-          "Change_In_Other_Current_Assets": null,
+          "Change_In_Other_Current_Assets": 64667593.0238,
           "Change_In_Accrued_Expense": -230203885.2444,
           "Change_In_Payable": -705946254.3758,
           "Change_In_Receivables": -131366454.8797,
@@ -814,7 +814,7 @@
           "Operating_Cash_Flow": 1434046174.7024,
           "Change_In_Working_Capital": -150312098.3796,
           "Change_In_Other_Current_Liabilities": 0.0,
-          "Change_In_Other_Current_Assets": null,
+          "Change_In_Other_Current_Assets": -33722832.5339,
           "Change_In_Accrued_Expense": -97640929.5458,
           "Change_In_Payable": 441989915.7971,
           "Change_In_Receivables": -460938252.0971,
@@ -852,7 +852,7 @@
           "Operating_Cash_Flow": 958452807.1733,
           "Change_In_Working_Capital": -779614082.7421,
           "Change_In_Other_Current_Liabilities": 0.0,
-          "Change_In_Other_Current_Assets": null,
+          "Change_In_Other_Current_Assets": -225460966.7693,
           "Change_In_Accrued_Expense": -609719942.4525,
           "Change_In_Payable": 63836415.4106,
           "Change_In_Receivables": -8269588.9309,
@@ -890,7 +890,7 @@
           "Operating_Cash_Flow": 889562903.6827,
           "Change_In_Working_Capital": -476052041.1364,
           "Change_In_Other_Current_Liabilities": 0.0,
-          "Change_In_Other_Current_Assets": null,
+          "Change_In_Other_Current_Assets": 139646815.0107,
           "Change_In_Accrued_Expense": -637050067.6851,
           "Change_In_Payable": 136762826.1651,
           "Change_In_Receivables": -115411614.6271,
@@ -1237,18 +1237,10 @@
       },
       {
         "date": "2026-04-01",
-        "insider": "GRAY JONATHAN D.",
-        "position": "President",
-        "type": "Other",
-        "shares": 302662,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-01",
-        "insider": "PARRETT WILLIAM G",
+        "insider": "LAZARUS ROCHELLE B",
         "position": "Director",
         "type": "Other",
-        "shares": 2048,
+        "shares": 1961,
         "value": 0.0
       },
       {
@@ -1269,26 +1261,18 @@
       },
       {
         "date": "2026-04-01",
-        "insider": "BARATTA JOSEPH P",
-        "position": "Director",
+        "insider": "GRAY JONATHAN D.",
+        "position": "President",
         "type": "Other",
-        "shares": 124626,
+        "shares": 302662,
         "value": 0.0
       },
       {
         "date": "2026-04-01",
-        "insider": "BROWN REGINALD J.",
+        "insider": "PARRETT WILLIAM G",
         "position": "Director",
         "type": "Other",
-        "shares": 1961,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-01",
-        "insider": "PAYNE DAVID",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 17804,
+        "shares": 2048,
         "value": 0.0
       },
       {
@@ -1317,10 +1301,26 @@
       },
       {
         "date": "2026-04-01",
-        "insider": "LAZARUS ROCHELLE B",
+        "insider": "BARATTA JOSEPH P",
+        "position": "Director",
+        "type": "Other",
+        "shares": 124626,
+        "value": 0.0
+      },
+      {
+        "date": "2026-04-01",
+        "insider": "BROWN REGINALD J.",
         "position": "Director",
         "type": "Other",
         "shares": 1961,
+        "value": 0.0
+      },
+      {
+        "date": "2026-04-01",
+        "insider": "PAYNE DAVID",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 17804,
         "value": 0.0
       },
       {
@@ -1341,14 +1341,6 @@
       },
       {
         "date": "2026-01-12",
-        "insider": "GRAY JONATHAN D.",
-        "position": "President",
-        "type": "Other",
-        "shares": 51216,
-        "value": 0.0
-      },
-      {
-        "date": "2026-01-12",
         "insider": "CHAE MICHAEL S.",
         "position": "Chief Financial Officer",
         "type": "Other",
@@ -1357,18 +1349,10 @@
       },
       {
         "date": "2026-01-12",
-        "insider": "BARATTA JOSEPH P",
-        "position": "Director",
+        "insider": "GRAY JONATHAN D.",
+        "position": "President",
         "type": "Other",
         "shares": 51216,
-        "value": 0.0
-      },
-      {
-        "date": "2026-01-12",
-        "insider": "PAYNE DAVID",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 1656,
         "value": 0.0
       },
       {
@@ -1385,6 +1369,22 @@
         "position": "Officer",
         "type": "Other",
         "shares": 14959,
+        "value": 0.0
+      },
+      {
+        "date": "2026-01-12",
+        "insider": "BARATTA JOSEPH P",
+        "position": "Director",
+        "type": "Other",
+        "shares": 51216,
+        "value": 0.0
+      },
+      {
+        "date": "2026-01-12",
+        "insider": "PAYNE DAVID",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 1656,
         "value": 0.0
       },
       {
@@ -1625,7 +1625,7 @@
     },
     {
       "date": "2025-11-28",
-      "close": 127.4241,
+      "close": 127.424,
       "volume": 1626600.0
     },
     {
@@ -1735,7 +1735,7 @@
     },
     {
       "date": "2025-12-31",
-      "close": 134.1426,
+      "close": 134.1425,
       "volume": 1843100.0
     },
     {
@@ -1795,7 +1795,7 @@
     },
     {
       "date": "2026-01-20",
-      "close": 133.9424,
+      "close": 133.9423,
       "volume": 4107700.0
     },
     {
@@ -2774,5 +2774,5 @@
       "volume": 5434200.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.236143+00:00"
+  "updatedAt": "2026-10-29T10:12:47.756632+00:00"
 }

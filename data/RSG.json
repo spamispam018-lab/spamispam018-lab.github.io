@@ -17,7 +17,7 @@
     "marketCap": 64151574236.14,
     "fiftyTwoWeekLow": 176.2976,
     "fiftyTwoWeekHigh": 218.3143,
-    "volume": 1304000.0,
+    "volume": 1304029,
     "avgVolume": 1450001,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 33.1064,
     "peForward": 28.9207,
     "pegRatio": 3.05,
-    "dividendYield": 1.14,
+    "dividendYield": 1.15,
     "profitMargins": 0.1294,
     "debtToEquity": 118.798,
     "revenueGrowth": 0.046
@@ -726,7 +726,7 @@
           "Net_Debt": 11529672182.5262,
           "Total_Debt": 11862681787.798,
           "Tangible_Book_Value": -4656748873.721,
-          "Invested_Capital": null,
+          "Invested_Capital": 22455259555.4891,
           "Working_Capital": -1104945617.4924,
           "Net_Tangible_Assets": -4656748873.721,
           "Capital_Lease_Obligations": 223502403.5383,
@@ -811,7 +811,7 @@
           "Net_Debt": 11839344187.4286,
           "Total_Debt": 12122985791.9189,
           "Tangible_Book_Value": -4871275277.1171,
-          "Invested_Capital": null,
+          "Invested_Capital": 22570152357.3079,
           "Working_Capital": -1596830425.2794,
           "Net_Tangible_Assets": -4871275277.1171,
           "Capital_Lease_Obligations": 208243203.2967,
@@ -896,7 +896,7 @@
           "Net_Debt": 12122088191.9047,
           "Total_Debt": 12392265796.1819,
           "Tangible_Book_Value": -4848835276.7619,
-          "Invested_Capital": null,
+          "Invested_Capital": 22932782763.0487,
           "Working_Capital": -1261128019.9649,
           "Net_Tangible_Assets": -4848835276.7619,
           "Capital_Lease_Obligations": 201960003.1972,
@@ -981,7 +981,7 @@
           "Net_Debt": 12338409795.3293,
           "Total_Debt": 12644491400.1749,
           "Tangible_Book_Value": -5020276879.476,
-          "Invested_Capital": null,
+          "Invested_Capital": 23197574767.2407,
           "Working_Capital": -1104048017.4782,
           "Net_Tangible_Assets": -5020276879.476,
           "Capital_Lease_Obligations": 200164803.1688,
@@ -1716,7 +1716,7 @@
           "Repayment_Of_Debt": -13495416213.6458,
           "Issuance_Of_Debt": 13742256217.5536,
           "Capital_Expenditure": -427257606.7639,
-          "End_Cash_Position": null,
+          "End_Cash_Position": 293515204.6466,
           "Beginning_Cash_Position": 223502403.5383,
           "Effect_Of_Exchange_Rate_Changes": -897600.0142,
           "Changes_In_Cash": 70910401.1226,
@@ -1730,7 +1730,7 @@
           "Net_Issuance_Payments_Of_Debt": 246840003.9077,
           "Net_Long_Term_Debt_Issuance": 246840003.9077,
           "Long_Term_Debt_Payments": -13495416213.6458,
-          "Long_Term_Debt_Issuance": null,
+          "Long_Term_Debt_Issuance": 13742256217.5536,
           "Investing_Cash_Flow": -816816012.931,
           "Cash_Flow_From_Continuing_Investing_Activities": -816816012.931,
           "Net_Other_Investing_Changes": -897600.0142,
@@ -1749,7 +1749,7 @@
           "Change_In_Account_Payable": 43982400.6963,
           "Change_In_Prepaid_Assets": 43982400.6963,
           "Change_In_Receivables": -22440000.3552,
-          "Changes_In_Account_Receivables": null,
+          "Changes_In_Account_Receivables": -22440000.3552,
           "Other_Non_Cash_Items": 20644800.3268,
           "Stock_Based_Compensation": null,
           "Provisionand_Write_Offof_Assets": null,
@@ -2369,6 +2369,22 @@
       },
       {
         "date": "2026-02-27",
+        "insider": "HODGES AMANDA",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 478,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-27",
+        "insider": "RODRIGUEZ COURTNEY",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 485,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-27",
         "insider": "BRUMMER GREGG",
         "position": "Chief Operating Officer",
         "type": "Other",
@@ -2401,18 +2417,10 @@
       },
       {
         "date": "2026-02-27",
-        "insider": "HODGES AMANDA",
+        "insider": "ELLINGSEN CATHARINE D.",
         "position": "Officer",
         "type": "Other",
-        "shares": 478,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-27",
-        "insider": "RODRIGUEZ COURTNEY",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 485,
+        "shares": 878,
         "value": 0.0
       },
       {
@@ -2421,14 +2429,6 @@
         "position": "Chief Executive Officer",
         "type": "Other",
         "shares": 3476,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-27",
-        "insider": "ELLINGSEN CATHARINE D.",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 878,
         "value": 0.0
       },
       {
@@ -2576,7 +2576,7 @@
     },
     {
       "date": "2025-11-14",
-      "close": 186.0799,
+      "close": 186.08,
       "volume": 1546500.0
     },
     {
@@ -2586,7 +2586,7 @@
     },
     {
       "date": "2025-11-18",
-      "close": 189.7697,
+      "close": 189.7696,
       "volume": 1806000.0
     },
     {
@@ -2666,7 +2666,7 @@
     },
     {
       "date": "2025-12-11",
-      "close": 187.304,
+      "close": 187.3039,
       "volume": 1189500.0
     },
     {
@@ -2681,7 +2681,7 @@
     },
     {
       "date": "2025-12-16",
-      "close": 189.814,
+      "close": 189.8139,
       "volume": 1253000.0
     },
     {
@@ -2731,7 +2731,7 @@
     },
     {
       "date": "2025-12-31",
-      "close": 187.9691,
+      "close": 187.9692,
       "volume": 1036000.0
     },
     {
@@ -2776,12 +2776,12 @@
     },
     {
       "date": "2026-01-14",
-      "close": 187.6801,
+      "close": 187.68,
       "volume": 1616900.0
     },
     {
       "date": "2026-01-15",
-      "close": 187.5111,
+      "close": 187.511,
       "volume": 1455800.0
     },
     {
@@ -2801,7 +2801,7 @@
     },
     {
       "date": "2026-01-22",
-      "close": 191.9233,
+      "close": 191.9232,
       "volume": 1013900.0
     },
     {
@@ -2871,7 +2871,7 @@
     },
     {
       "date": "2026-02-11",
-      "close": 201.0146,
+      "close": 201.0147,
       "volume": 1518000.0
     },
     {
@@ -2971,7 +2971,7 @@
     },
     {
       "date": "2026-03-12",
-      "close": 200.8455,
+      "close": 200.8456,
       "volume": 1040000.0
     },
     {
@@ -3021,7 +3021,7 @@
     },
     {
       "date": "2026-03-26",
-      "close": 193.2754,
+      "close": 193.2755,
       "volume": 1030700.0
     },
     {
@@ -3031,7 +3031,7 @@
     },
     {
       "date": "2026-03-30",
-      "close": 197.1984,
+      "close": 197.1983,
       "volume": 1935900.0
     },
     {
@@ -3770,5 +3770,5 @@
       "volume": 1304000.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.770170+00:00"
+  "updatedAt": "2026-10-29T10:22:34.437643+00:00"
 }

@@ -17,7 +17,7 @@
     "marketCap": 26837406992.4916,
     "fiftyTwoWeekLow": 86.6812,
     "fiftyTwoWeekHigh": 106.204,
-    "volume": 1232100.0,
+    "volume": 1232114,
     "avgVolume": 1731218,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 19.0141,
     "peForward": 18.6079,
     "pegRatio": 2.69,
-    "dividendYield": 2.76,
+    "dividendYield": 2.78,
     "profitMargins": 0.1858,
     "debtToEquity": 157.846,
     "revenueGrowth": -0.062
@@ -621,6 +621,7 @@
           "Other_Current_Borrowings": 15259200.2416,
           "Commercial_Paper": 1123795217.7908,
           "Payables_And_Accrued_Expenses": 772833612.2347,
+          "Current_Accrued_Expenses": null,
           "Interest_Payable": 142718402.2594,
           "Payables": 630115209.9753,
           "Total_Tax_Payable": null,
@@ -688,6 +689,7 @@
           "Other_Current_Borrowings": 26030400.4121,
           "Commercial_Paper": 1024161616.2135,
           "Payables_And_Accrued_Expenses": 1137259218.0039,
+          "Current_Accrued_Expenses": null,
           "Interest_Payable": 206448003.2683,
           "Payables": 930811214.7357,
           "Total_Tax_Payable": 139128002.2025,
@@ -755,6 +757,7 @@
           "Other_Current_Borrowings": 26030400.4121,
           "Commercial_Paper": 810532812.8315,
           "Payables_And_Accrued_Expenses": 1041216016.4835,
+          "Current_Accrued_Expenses": null,
           "Interest_Payable": 164260802.6004,
           "Payables": 876955213.8831,
           "Total_Tax_Payable": 192984003.0551,
@@ -822,6 +825,7 @@
           "Other_Current_Borrowings": 873364813.8262,
           "Commercial_Paper": 577156809.137,
           "Payables_And_Accrued_Expenses": 1331140821.0733,
+          "Current_Accrued_Expenses": null,
           "Interest_Payable": 205550403.2541,
           "Payables": 1125590417.8192,
           "Total_Tax_Payable": null,
@@ -889,6 +893,7 @@
           "Other_Current_Borrowings": 1008004815.9577,
           "Commercial_Paper": 1057372816.7393,
           "Payables_And_Accrued_Expenses": 818611212.9594,
+          "Current_Accrued_Expenses": 160670402.5436,
           "Interest_Payable": 160670402.5436,
           "Payables": 657940810.4159,
           "Total_Tax_Payable": null,
@@ -1988,19 +1993,19 @@
       },
       {
         "date": "2026-03-03",
-        "insider": "SCHUKAR SHAWN E",
-        "position": "Officer of Subsidiary Company",
-        "type": "Sell",
-        "shares": 4975,
-        "value": 499428.2383
-      },
-      {
-        "date": "2026-03-03",
         "insider": "LYONS MARTIN J JR",
         "position": "Chief Executive Officer",
         "type": "Sell",
         "shares": 26818,
         "value": 2692194.1626
+      },
+      {
+        "date": "2026-03-03",
+        "insider": "SCHUKAR SHAWN E",
+        "position": "Officer of Subsidiary Company",
+        "type": "Sell",
+        "shares": 4975,
+        "value": 499428.2383
       },
       {
         "date": "2026-02-27",
@@ -2044,6 +2049,22 @@
       },
       {
         "date": "2026-02-05",
+        "insider": "FEINBERG DAVID MATTHEW",
+        "position": "General Counsel",
+        "type": "Other",
+        "shares": 4449,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-05",
+        "insider": "LINDGREN MARK C",
+        "position": "Officer of Subsidiary Company",
+        "type": "Other",
+        "shares": 6431,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-05",
         "insider": "LYONS MARTIN J JR",
         "position": "Chief Executive Officer",
         "type": "Other",
@@ -2052,18 +2073,10 @@
       },
       {
         "date": "2026-02-05",
-        "insider": "MOEHN MICHAEL L",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 32804,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-05",
-        "insider": "SCHUKAR SHAWN E",
+        "insider": "MIZELL GWENDOLYN G.",
         "position": "Officer of Subsidiary Company",
         "type": "Other",
-        "shares": 8523,
+        "shares": 3141,
         "value": 0.0
       },
       {
@@ -2116,26 +2129,18 @@
       },
       {
         "date": "2026-02-05",
-        "insider": "MIZELL GWENDOLYN G.",
-        "position": "Officer of Subsidiary Company",
+        "insider": "MOEHN MICHAEL L",
+        "position": "Officer",
         "type": "Other",
-        "shares": 3141,
+        "shares": 32804,
         "value": 0.0
       },
       {
         "date": "2026-02-05",
-        "insider": "LINDGREN MARK C",
+        "insider": "SCHUKAR SHAWN E",
         "position": "Officer of Subsidiary Company",
         "type": "Other",
-        "shares": 6431,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-05",
-        "insider": "FEINBERG DAVID MATTHEW",
-        "position": "General Counsel",
-        "type": "Other",
-        "shares": 4449,
+        "shares": 8523,
         "value": 0.0
       },
       {
@@ -2148,23 +2153,39 @@
       },
       {
         "date": "2026-01-05",
+        "insider": "IVEY CRAIG S",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1686,
+        "value": 0.0
+      },
+      {
+        "date": "2026-01-05",
+        "insider": "LIPSTEIN STEVEN H",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1686,
+        "value": 0.0
+      },
+      {
+        "date": "2026-01-05",
+        "insider": "MACKAY LEO S. JR.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1686,
+        "value": 0.0
+      },
+      {
+        "date": "2026-01-05",
+        "insider": "DICKSON WARD H",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1686,
+        "value": 0.0
+      },
+      {
+        "date": "2026-01-05",
         "insider": "BRINKLEY CYNTHIA J",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1686,
-        "value": 0.0
-      },
-      {
-        "date": "2026-01-05",
-        "insider": "BRUNE CATHERINE S",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1686,
-        "value": 0.0
-      },
-      {
-        "date": "2026-01-05",
-        "insider": "FITZSIMMONS ELLEN M",
         "position": "Director",
         "type": "Other",
         "shares": 1686,
@@ -2180,7 +2201,7 @@
       },
       {
         "date": "2026-01-05",
-        "insider": "IVEY CRAIG S",
+        "insider": "FITZSIMMONS ELLEN M",
         "position": "Director",
         "type": "Other",
         "shares": 1686,
@@ -2188,23 +2209,7 @@
       },
       {
         "date": "2026-01-05",
-        "insider": "ENGSTROM JAMIE L.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1686,
-        "value": 0.0
-      },
-      {
-        "date": "2026-01-05",
-        "insider": "VONDRAN STEVEN OWEN",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1686,
-        "value": 0.0
-      },
-      {
-        "date": "2026-01-05",
-        "insider": "DICKSON WARD H",
+        "insider": "FLORES RAFAEL",
         "position": "Director",
         "type": "Other",
         "shares": 1686,
@@ -2215,7 +2220,7 @@
   "chartHistory": [
     {
       "date": "2025-10-29",
-      "close": 89.2683,
+      "close": 89.2682,
       "volume": 1222200.0
     },
     {
@@ -2565,7 +2570,7 @@
     },
     {
       "date": "2026-02-10",
-      "close": 92.9878,
+      "close": 92.9877,
       "volume": 2574200.0
     },
     {
@@ -2575,7 +2580,7 @@
     },
     {
       "date": "2026-02-12",
-      "close": 96.1173,
+      "close": 96.1172,
       "volume": 3044700.0
     },
     {
@@ -2765,7 +2770,7 @@
     },
     {
       "date": "2026-04-09",
-      "close": 101.1777,
+      "close": 101.1776,
       "volume": 1652700.0
     },
     {
@@ -3469,5 +3474,5 @@
       "volume": 1232100.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.048116+00:00"
+  "updatedAt": "2026-10-29T10:11:34.307189+00:00"
 }

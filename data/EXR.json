@@ -17,7 +17,7 @@
     "marketCap": 28675351738.9001,
     "fiftyTwoWeekLow": 112.8373,
     "fiftyTwoWeekHigh": 142.6107,
-    "volume": 2503200.0,
+    "volume": 2503194,
     "avgVolume": 1283004,
     "currency": "EUR"
   },
@@ -25,10 +25,10 @@
     "peTrailing": 29.4207,
     "peForward": 30.1261,
     "pegRatio": 5.74,
-    "dividendYield": 4.52,
-    "profitMargins": 0.2728,
-    "debtToEquity": 101.674,
-    "revenueGrowth": 0.038
+    "dividendYield": 4.48,
+    "profitMargins": 0.2932,
+    "debtToEquity": 102.975,
+    "revenueGrowth": 0.007
   },
   "financials": {
     "incomeStatement": {
@@ -1362,7 +1362,7 @@
           "Beginning_Cash_Position": 128628774.8363,
           "Financing_Cash_Flow": -143275811.8682,
           "Cash_Flow_From_Continuing_Financing_Activities": -143275811.8682,
-          "Net_Other_Financing_Charges": null,
+          "Net_Other_Financing_Charges": -26065406.8126,
           "Cash_Dividends_Paid": -308956617.6911,
           "Common_Stock_Dividend_Paid": -308956617.6911,
           "Net_Preferred_Stock_Issuance": 0.0,
@@ -1617,60 +1617,6 @@
           "Earnings_Losses_From_Equity_Investments": -185803.2029,
           "Gain_Loss_On_Investment_Securities": null,
           "Net_Income_From_Continuing_Operations": 252420000.0
-        },
-        {
-          "date": "2026-06-30",
-          "Free_Cash_Flow": null,
-          "Repurchase_Of_Capital_Stock": null,
-          "Repayment_Of_Debt": null,
-          "Issuance_Of_Debt": null,
-          "Issuance_Of_Capital_Stock": null,
-          "Capital_Expenditure": null,
-          "Interest_Paid_Supplemental_Data": null,
-          "Income_Tax_Paid_Supplemental_Data": null,
-          "End_Cash_Position": null,
-          "Beginning_Cash_Position": null,
-          "Financing_Cash_Flow": null,
-          "Cash_Flow_From_Continuing_Financing_Activities": null,
-          "Net_Other_Financing_Charges": -18558777.8938,
-          "Cash_Dividends_Paid": null,
-          "Common_Stock_Dividend_Paid": null,
-          "Net_Preferred_Stock_Issuance": null,
-          "Preferred_Stock_Payments": null,
-          "Net_Common_Stock_Issuance": null,
-          "Common_Stock_Payments": null,
-          "Common_Stock_Issuance": null,
-          "Net_Issuance_Payments_Of_Debt": null,
-          "Net_Long_Term_Debt_Issuance": null,
-          "Long_Term_Debt_Payments": null,
-          "Long_Term_Debt_Issuance": null,
-          "Investing_Cash_Flow": null,
-          "Cash_Flow_From_Continuing_Investing_Activities": null,
-          "Net_Other_Investing_Changes": null,
-          "Net_Investment_Properties_Purchase_And_Sale": null,
-          "Sale_Of_Investment_Properties": null,
-          "Purchase_Of_Investment_Properties": null,
-          "Net_Business_Purchase_And_Sale": null,
-          "Sale_Of_Business": null,
-          "Purchase_Of_Business": null,
-          "Net_PPE_Purchase_And_Sale": null,
-          "Purchase_Of_PPE": null,
-          "Operating_Cash_Flow": null,
-          "Cash_Flow_From_Continuing_Operating_Activities": null,
-          "Dividend_Received_Cfo": null,
-          "Change_In_Working_Capital": null,
-          "Change_In_Other_Current_Liabilities": null,
-          "Change_In_Other_Current_Assets": null,
-          "Change_In_Payables_And_Accrued_Expense": null,
-          "Other_Non_Cash_Items": null,
-          "Stock_Based_Compensation": null,
-          "Asset_Impairment_Charge": null,
-          "Depreciation_Amortization_Depletion": null,
-          "Depreciation_And_Amortization": null,
-          "Operating_Gains_Losses": null,
-          "Earnings_Losses_From_Equity_Investments": null,
-          "Gain_Loss_On_Investment_Securities": null,
-          "Net_Income_From_Continuing_Operations": null
         }
       ],
       "annual": [
@@ -2047,9 +1993,9 @@
   "insider": {
     "summary": {
       "buysCount2Q": 0,
-      "sellsCount2Q": 6,
+      "sellsCount2Q": 7,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 4447491.3823,
+      "sellValueTotal": 4458453.7713,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -2068,30 +2014,6 @@
         "type": "Sell",
         "shares": 3300,
         "value": 444312.007
-      },
-      {
-        "date": "2026-05-14",
-        "insider": "CRITTENDEN GARY L",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1407,
-        "value": 179574.7564
-      },
-      {
-        "date": "2026-05-14",
-        "insider": "WOOLLEY KENNETH M",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1407,
-        "value": 179574.7564
-      },
-      {
-        "date": "2026-05-14",
-        "insider": "BARBERIO MARK G.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1407,
-        "value": 179574.7564
       },
       {
         "date": "2026-05-14",
@@ -2135,7 +2057,31 @@
       },
       {
         "date": "2026-05-14",
+        "insider": "WOOLLEY KENNETH M",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1407,
+        "value": 179574.7564
+      },
+      {
+        "date": "2026-05-14",
+        "insider": "BARBERIO MARK G.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1407,
+        "value": 179574.7564
+      },
+      {
+        "date": "2026-05-14",
         "insider": "PITTMAN RAYMOND J",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1407,
+        "value": 179574.7564
+      },
+      {
+        "date": "2026-05-14",
+        "insider": "CRITTENDEN GARY L",
         "position": "Director",
         "type": "Other",
         "shares": 1407,
@@ -2156,14 +2102,6 @@
         "type": "Other",
         "shares": 14452,
         "value": 0.0
-      },
-      {
-        "date": "2026-02-27",
-        "insider": "SONDHI SAMRAT",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 9080,
-        "value": 1230925.5747
       },
       {
         "date": "2026-02-27",
@@ -2199,14 +2137,6 @@
       },
       {
         "date": "2026-02-27",
-        "insider": "MARGOLIS JOSEPH D",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 24279,
-        "value": 3291370.8953
-      },
-      {
-        "date": "2026-02-27",
         "insider": "KUNDE GRACE H",
         "position": "Officer",
         "type": "Other",
@@ -2220,6 +2150,22 @@
         "type": "Other",
         "shares": 4848,
         "value": 657216.4472
+      },
+      {
+        "date": "2026-02-27",
+        "insider": "SONDHI SAMRAT",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 9080,
+        "value": 1230925.5747
+      },
+      {
+        "date": "2026-02-27",
+        "insider": "MARGOLIS JOSEPH D",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 24279,
+        "value": 3291370.8953
       },
       {
         "date": "2025-12-02",
@@ -2263,46 +2209,6 @@
       },
       {
         "date": "2025-05-21",
-        "insider": "CRITTENDEN GARY L",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1375,
-        "value": 179465.2492
-      },
-      {
-        "date": "2025-05-21",
-        "insider": "WOOLLEY KENNETH M",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1375,
-        "value": 179465.2492
-      },
-      {
-        "date": "2025-05-21",
-        "insider": "BARBERIO MARK G.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1375,
-        "value": 179465.2492
-      },
-      {
-        "date": "2025-05-21",
-        "insider": "KIRK SPENCER F",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1375,
-        "value": 179465.2492
-      },
-      {
-        "date": "2025-05-21",
-        "insider": "OLMSTEAD DIANE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1375,
-        "value": 179465.2492
-      },
-      {
-        "date": "2025-05-21",
         "insider": "SAFFIRE JOSEPH",
         "position": "Director",
         "type": "Other",
@@ -2334,20 +2240,52 @@
         "value": 179465.2492
       },
       {
+        "date": "2025-05-21",
+        "insider": "OLMSTEAD DIANE",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1375,
+        "value": 179465.2492
+      },
+      {
+        "date": "2025-05-21",
+        "insider": "WOOLLEY KENNETH M",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1375,
+        "value": 179465.2492
+      },
+      {
+        "date": "2025-05-21",
+        "insider": "BARBERIO MARK G.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1375,
+        "value": 179465.2492
+      },
+      {
+        "date": "2025-05-21",
+        "insider": "KIRK SPENCER F",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1375,
+        "value": 179465.2492
+      },
+      {
+        "date": "2025-05-21",
+        "insider": "CRITTENDEN GARY L",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1375,
+        "value": 179465.2492
+      },
+      {
         "date": "2025-04-01",
         "insider": "MARGOLIS JOSEPH D",
         "position": "Chief Executive Officer",
         "type": "Sell",
         "shares": 7500,
         "value": 992633.4157
-      },
-      {
-        "date": "2025-03-13",
-        "insider": "MARGOLIS JOSEPH D",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 47475,
-        "value": 0.0
       },
       {
         "date": "2025-03-13",
@@ -2358,20 +2296,28 @@
         "value": 89935.0334
       },
       {
-        "date": "2025-02-28",
+        "date": "2025-03-13",
         "insider": "MARGOLIS JOSEPH D",
         "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 27741,
-        "value": 3798793.1593
+        "shares": 47475,
+        "value": 0.0
       },
       {
         "date": "2025-02-28",
-        "insider": "SONDHI SAMRAT",
-        "position": "Officer",
+        "insider": "DICKENS ZACHARY T",
+        "position": "Chief Investment Officer",
         "type": "Other",
-        "shares": 9120,
-        "value": 1248873.087
+        "shares": 8666,
+        "value": 1186703.5148
+      },
+      {
+        "date": "2025-02-28",
+        "insider": "DICKENS ZACHARY T",
+        "position": "Chief Investment Officer",
+        "type": "Sell",
+        "shares": 80,
+        "value": 10962.389
       }
     ]
   },
@@ -2398,7 +2344,7 @@
     },
     {
       "date": "2025-11-04",
-      "close": 112.6423,
+      "close": 112.6424,
       "volume": 1333800.0
     },
     {
@@ -2463,7 +2409,7 @@
     },
     {
       "date": "2025-11-21",
-      "close": 112.6766,
+      "close": 112.6767,
       "volume": 1154200.0
     },
     {
@@ -2493,7 +2439,7 @@
     },
     {
       "date": "2025-12-02",
-      "close": 113.5853,
+      "close": 113.5852,
       "volume": 997300.0
     },
     {
@@ -2608,7 +2554,7 @@
     },
     {
       "date": "2026-01-06",
-      "close": 117.5208,
+      "close": 117.5209,
       "volume": 1583000.0
     },
     {
@@ -2708,7 +2654,7 @@
     },
     {
       "date": "2026-02-04",
-      "close": 122.9431,
+      "close": 122.9432,
       "volume": 1737300.0
     },
     {
@@ -3632,5 +3578,5 @@
       "volume": 2503200.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.831439+00:00"
+  "updatedAt": "2026-10-29T10:16:35.565484+00:00"
 }

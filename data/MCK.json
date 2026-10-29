@@ -17,7 +17,7 @@
     "marketCap": 100524054340.0933,
     "fiftyTwoWeekLow": 649.5752,
     "fiftyTwoWeekHigh": 924.7704,
-    "volume": 764100.0,
+    "volume": 764070,
     "avgVolume": 870855,
     "currency": "EUR"
   },
@@ -1588,7 +1588,7 @@
           "Common_Stock_Dividend_Paid": -90657601.4352,
           "Net_Common_Stock_Issuance": -2375947237.6136,
           "Common_Stock_Payments": -2397489637.9546,
-          "Common_Stock_Issuance": null,
+          "Common_Stock_Issuance": 21542400.341,
           "Net_Issuance_Payments_Of_Debt": -7180800.1137,
           "Net_Short_Term_Debt_Issuance": 0.0,
           "Short_Term_Debt_Payments": -6258067299.0714,
@@ -1601,7 +1601,7 @@
           "Net_Other_Investing_Changes": -70910401.1226,
           "Net_Business_Purchase_And_Sale": 618446409.7906,
           "Sale_Of_Business": 622036809.8475,
-          "Purchase_Of_Business": null,
+          "Purchase_Of_Business": -3590400.0568,
           "Net_PPE_Purchase_And_Sale": -99633601.5773,
           "Purchase_Of_PPE": -99633601.5773,
           "Capital_Expenditure_Reported": -66422401.0515,
@@ -1714,6 +1714,7 @@
           "Net_Common_Stock_Issuance": null,
           "Common_Stock_Payments": null,
           "Common_Stock_Issuance": null,
+          "Net_Issuance_Payments_Of_Debt": null,
           "Net_Short_Term_Debt_Issuance": null,
           "Short_Term_Debt_Payments": null,
           "Short_Term_Debt_Issuance": null,
@@ -1777,6 +1778,7 @@
           "Net_Common_Stock_Issuance": -3119160049.3794,
           "Common_Stock_Payments": -3265468851.6956,
           "Common_Stock_Issuance": 146308802.3162,
+          "Net_Issuance_Payments_Of_Debt": null,
           "Net_Short_Term_Debt_Issuance": 0.0,
           "Short_Term_Debt_Payments": -7584720120.0737,
           "Short_Term_Debt_Issuance": 7584720120.0737,
@@ -1840,6 +1842,7 @@
           "Net_Common_Stock_Issuance": -2611118441.3366,
           "Common_Stock_Payments": -2715240042.9849,
           "Common_Stock_Issuance": 104121601.6483,
+          "Net_Issuance_Payments_Of_Debt": null,
           "Net_Short_Term_Debt_Issuance": 0.0,
           "Short_Term_Debt_Payments": -17919686683.6864,
           "Short_Term_Debt_Issuance": 17919686683.6864,
@@ -1903,6 +1906,7 @@
           "Net_Common_Stock_Issuance": -2733192043.2691,
           "Common_Stock_Payments": -2823849644.7043,
           "Common_Stock_Issuance": 90657601.4352,
+          "Net_Issuance_Payments_Of_Debt": null,
           "Net_Short_Term_Debt_Issuance": 0.0,
           "Short_Term_Debt_Payments": -13541193814.3706,
           "Short_Term_Debt_Issuance": 13541193814.3706,
@@ -1966,6 +1970,7 @@
           "Net_Common_Stock_Issuance": -4183713666.2323,
           "Common_Stock_Payments": -4263600067.497,
           "Common_Stock_Issuance": 79886401.2647,
+          "Net_Issuance_Payments_Of_Debt": 702820811.1264,
           "Net_Short_Term_Debt_Issuance": 0.0,
           "Short_Term_Debt_Payments": -8300107331.3989,
           "Short_Term_Debt_Issuance": 8300107331.3989,
@@ -2197,14 +2202,6 @@
       },
       {
         "date": "2026-05-26",
-        "insider": "LAU MICHELE",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 3550,
-        "value": 2425198.5504
-      },
-      {
-        "date": "2026-05-26",
         "insider": "RODGERS THOMAS L",
         "position": "Officer",
         "type": "Sell",
@@ -2212,12 +2209,12 @@
         "value": 1631372.7666
       },
       {
-        "date": "2026-05-22",
-        "insider": "FRAGA FRANCISCO",
-        "position": "Chief Technology Officer",
-        "type": "Other",
-        "shares": 136,
-        "value": 0.0
+        "date": "2026-05-26",
+        "insider": "LAU MICHELE",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 3550,
+        "value": 2425198.5504
       },
       {
         "date": "2026-05-22",
@@ -2245,6 +2242,14 @@
       },
       {
         "date": "2026-05-22",
+        "insider": "FRAGA FRANCISCO",
+        "position": "Chief Technology Officer",
+        "type": "Other",
+        "shares": 136,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-22",
         "insider": "TYLER BRIAN SCOTT",
         "position": "Chief Executive Officer",
         "type": "Other",
@@ -2257,14 +2262,6 @@
         "position": "Chief Financial Officer",
         "type": "Other",
         "shares": 1476,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-21",
-        "insider": "FRAGA FRANCISCO",
-        "position": "Chief Technology Officer",
-        "type": "Other",
-        "shares": 483,
         "value": 0.0
       },
       {
@@ -2297,6 +2294,14 @@
         "position": "Officer",
         "type": "Other",
         "shares": 531,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-21",
+        "insider": "FRAGA FRANCISCO",
+        "position": "Chief Technology Officer",
+        "type": "Other",
+        "shares": 483,
         "value": 0.0
       },
       {
@@ -2373,22 +2378,6 @@
       },
       {
         "date": "2026-05-19",
-        "insider": "TYLER BRIAN SCOTT",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 27863,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-19",
-        "insider": "VITALONE BRITT J",
-        "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 8979,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-19",
         "insider": "RODGERS THOMAS L",
         "position": "Officer",
         "type": "Other",
@@ -2418,18 +2407,34 @@
         "type": "Other",
         "shares": 4129,
         "value": 0.0
+      },
+      {
+        "date": "2026-05-19",
+        "insider": "FRAGA FRANCISCO",
+        "position": "Chief Technology Officer",
+        "type": "Other",
+        "shares": 3127,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-19",
+        "insider": "TYLER BRIAN SCOTT",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 27863,
+        "value": 0.0
       }
     ]
   },
   "chartHistory": [
     {
       "date": "2025-10-29",
-      "close": 722.0859,
+      "close": 722.0858,
       "volume": 512300.0
     },
     {
       "date": "2025-10-30",
-      "close": 738.0898,
+      "close": 738.0899,
       "volume": 919200.0
     },
     {
@@ -2449,7 +2454,7 @@
     },
     {
       "date": "2025-11-05",
-      "close": 754.836,
+      "close": 754.8361,
       "volume": 1217500.0
     },
     {
@@ -2474,7 +2479,7 @@
     },
     {
       "date": "2025-11-12",
-      "close": 751.6978,
+      "close": 751.6977,
       "volume": 1157400.0
     },
     {
@@ -2524,7 +2529,7 @@
     },
     {
       "date": "2025-11-26",
-      "close": 790.1075,
+      "close": 790.1076,
       "volume": 617000.0
     },
     {
@@ -2564,7 +2569,7 @@
     },
     {
       "date": "2025-12-09",
-      "close": 711.4646,
+      "close": 711.4647,
       "volume": 623000.0
     },
     {
@@ -2639,7 +2644,7 @@
     },
     {
       "date": "2025-12-31",
-      "close": 734.0881,
+      "close": 734.088,
       "volume": 430200.0
     },
     {
@@ -2664,7 +2669,7 @@
     },
     {
       "date": "2026-01-08",
-      "close": 729.0228,
+      "close": 729.0229,
       "volume": 686500.0
     },
     {
@@ -2699,7 +2704,7 @@
     },
     {
       "date": "2026-01-20",
-      "close": 735.4752,
+      "close": 735.4751,
       "volume": 705200.0
     },
     {
@@ -2714,12 +2719,12 @@
     },
     {
       "date": "2026-01-23",
-      "close": 734.0344,
+      "close": 734.0343,
       "volume": 409400.0
     },
     {
       "date": "2026-01-26",
-      "close": 739.7529,
+      "close": 739.7528,
       "volume": 567700.0
     },
     {
@@ -2729,7 +2734,7 @@
     },
     {
       "date": "2026-01-28",
-      "close": 739.7529,
+      "close": 739.7528,
       "volume": 541000.0
     },
     {
@@ -2779,12 +2784,12 @@
     },
     {
       "date": "2026-02-11",
-      "close": 853.0221,
+      "close": 853.022,
       "volume": 833200.0
     },
     {
       "date": "2026-02-12",
-      "close": 819.7402,
+      "close": 819.7401,
       "volume": 1548000.0
     },
     {
@@ -2814,12 +2819,12 @@
     },
     {
       "date": "2026-02-23",
-      "close": 849.496,
+      "close": 849.4961,
       "volume": 545200.0
     },
     {
       "date": "2026-02-24",
-      "close": 856.7537,
+      "close": 856.7538,
       "volume": 495000.0
     },
     {
@@ -2844,7 +2849,7 @@
     },
     {
       "date": "2026-03-03",
-      "close": 891.7963,
+      "close": 891.7964,
       "volume": 571700.0
     },
     {
@@ -2904,7 +2909,7 @@
     },
     {
       "date": "2026-03-19",
-      "close": 805.1505,
+      "close": 805.1506,
       "volume": 899200.0
     },
     {
@@ -2939,7 +2944,7 @@
     },
     {
       "date": "2026-03-30",
-      "close": 770.435,
+      "close": 770.4349,
       "volume": 689200.0
     },
     {
@@ -2949,7 +2954,7 @@
     },
     {
       "date": "2026-04-01",
-      "close": 781.2993,
+      "close": 781.2992,
       "volume": 729500.0
     },
     {
@@ -2974,7 +2979,7 @@
     },
     {
       "date": "2026-04-09",
-      "close": 782.2933,
+      "close": 782.2934,
       "volume": 593200.0
     },
     {
@@ -2994,7 +2999,7 @@
     },
     {
       "date": "2026-04-15",
-      "close": 773.3278,
+      "close": 773.3279,
       "volume": 465600.0
     },
     {
@@ -3009,7 +3014,7 @@
     },
     {
       "date": "2026-04-20",
-      "close": 769.405,
+      "close": 769.4049,
       "volume": 582200.0
     },
     {
@@ -3019,7 +3024,7 @@
     },
     {
       "date": "2026-04-22",
-      "close": 742.7053,
+      "close": 742.7054,
       "volume": 1118000.0
     },
     {
@@ -3074,7 +3079,7 @@
     },
     {
       "date": "2026-05-07",
-      "close": 676.0059,
+      "close": 676.0058,
       "volume": 2020800.0
     },
     {
@@ -3084,7 +3089,7 @@
     },
     {
       "date": "2026-05-11",
-      "close": 649.5033,
+      "close": 649.5034,
       "volume": 1693200.0
     },
     {
@@ -3094,7 +3099,7 @@
     },
     {
       "date": "2026-05-13",
-      "close": 660.2601,
+      "close": 660.2602,
       "volume": 966000.0
     },
     {
@@ -3678,5 +3683,5 @@
       "volume": 764100.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.397623+00:00"
+  "updatedAt": "2026-10-29T10:20:10.095069+00:00"
 }

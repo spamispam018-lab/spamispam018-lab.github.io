@@ -17,13 +17,13 @@
     "marketCap": 998534436225.5331,
     "fiftyTwoWeekLow": 172.8688,
     "fiftyTwoWeekHigh": 1126.488,
-    "volume": 30518000.0,
+    "volume": 30135209,
     "avgVolume": 29036630,
     "currency": "EUR"
   },
   "ratios": {
     "peTrailing": 13.2279,
-    "peForward": 4.7523,
+    "peForward": 4.7315,
     "pegRatio": 0.16,
     "dividendYield": 0.06,
     "profitMargins": 0.638,
@@ -2092,9 +2092,9 @@
   "insider": {
     "summary": {
       "buysCount2Q": 1,
-      "sellsCount2Q": 31,
+      "sellsCount2Q": 30,
       "buyValueTotal": 7020778.6759,
-      "sellValueTotal": 352206872.98380005,
+      "sellValueTotal": 335807343.7322,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -2156,14 +2156,6 @@
       },
       {
         "date": "2026-06-30",
-        "insider": "DUGLE LYNN A",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 1300,
-        "value": 1342413.7797
-      },
-      {
-        "date": "2026-06-30",
         "insider": "LIU TEYIN MARK",
         "position": "Director",
         "type": "Other",
@@ -2177,6 +2169,22 @@
         "type": "Other",
         "shares": 700,
         "value": 0.0
+      },
+      {
+        "date": "2026-06-30",
+        "insider": "DUGLE LYNN A",
+        "position": "Director",
+        "type": "Sell",
+        "shares": 1300,
+        "value": 1342413.7797
+      },
+      {
+        "date": "2026-06-26",
+        "insider": "BJORLIN ALEXIS",
+        "position": "Director",
+        "type": "Sell",
+        "shares": 25,
+        "value": 25409.2612
       },
       {
         "date": "2026-06-26",
@@ -2193,14 +2201,6 @@
         "type": "Sell",
         "shares": 11494,
         "value": 12184001.9481
-      },
-      {
-        "date": "2026-06-26",
-        "insider": "BJORLIN ALEXIS",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 25,
-        "value": 25409.2612
       },
       {
         "date": "2026-06-09",
@@ -2236,19 +2236,19 @@
       },
       {
         "date": "2026-05-01",
-        "insider": "RAY MICHAEL CHARLES",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 7601,
-        "value": 3645339.4609
-      },
-      {
-        "date": "2026-05-01",
         "insider": "MEHROTRA SANJAY",
         "position": "Chief Executive Officer",
         "type": "Sell",
         "shares": 40000,
         "value": 19254018.4728
+      },
+      {
+        "date": "2026-05-01",
+        "insider": "RAY MICHAEL CHARLES",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 7601,
+        "value": 3645339.4609
       },
       {
         "date": "2026-04-14",
@@ -2342,17 +2342,17 @@
         "date": "2025-12-22",
         "insider": "ARNZEN APRIL S",
         "position": "Officer",
-        "type": "Sell",
-        "shares": 15000,
-        "value": 3730739.8191
+        "type": "Other",
+        "shares": 110,
+        "value": 0.0
       },
       {
         "date": "2025-12-22",
         "insider": "ARNZEN APRIL S",
         "position": "Officer",
-        "type": "Other",
-        "shares": 110,
-        "value": 0.0
+        "type": "Sell",
+        "shares": 15000,
+        "value": 3730739.8191
       },
       {
         "date": "2025-12-19",
@@ -2404,11 +2404,11 @@
       },
       {
         "date": "2025-10-27",
-        "insider": "DEBOER SCOTT J.",
-        "position": "Chief Technology Officer",
-        "type": "Sell",
-        "shares": 82000,
-        "value": 16399529.2516
+        "insider": "MEHROTRA SANJAY",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 5000,
+        "value": 0.0
       },
       {
         "date": "2025-10-27",
@@ -3677,5 +3677,5 @@
       "volume": 30518000.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.434347+00:00"
+  "updatedAt": "2026-10-29T10:20:23.886935+00:00"
 }

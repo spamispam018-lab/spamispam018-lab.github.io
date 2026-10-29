@@ -17,7 +17,7 @@
     "marketCap": 39432533149.3122,
     "fiftyTwoWeekLow": 84.0961,
     "fiftyTwoWeekHigh": 216.2049,
-    "volume": 1341700.0,
+    "volume": 1334856,
     "avgVolume": 2469512,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 31.5458,
     "peForward": 20.0405,
     "pegRatio": 2.52,
-    "dividendYield": 0.91,
+    "dividendYield": 0.93,
     "profitMargins": 0.1918,
     "debtToEquity": 169.498,
     "revenueGrowth": 0.299
@@ -212,7 +212,7 @@
           "Pretax_Income": 464956807.3607,
           "Other_Income_Expense": -8976000.1421,
           "Other_Non_Operating_Income_Expenses": -9873600.1563,
-          "Special_Income_Charges": null,
+          "Special_Income_Charges": 897600.0142,
           "Restructuring_And_Mergern_Acquisition": -897600.0142,
           "Net_Non_Operating_Interest_Income_Expense": -2692800.0426,
           "Interest_Expense_Non_Operating": 25132800.3979,
@@ -2254,10 +2254,18 @@
     "trades": [
       {
         "date": "2026-10-15",
-        "insider": "KURIAN GEORGE",
-        "position": "Chief Executive Officer",
+        "insider": "CERNUDA REGO CESAR",
+        "position": "President",
         "type": "Other",
-        "shares": 3657,
+        "shares": 1847,
+        "value": 0.0
+      },
+      {
+        "date": "2026-10-15",
+        "insider": "JABRE WISSAM GEORGES",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 1732,
         "value": 0.0
       },
       {
@@ -2286,18 +2294,10 @@
       },
       {
         "date": "2026-10-15",
-        "insider": "CERNUDA REGO CESAR",
-        "position": "President",
+        "insider": "KURIAN GEORGE",
+        "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 1847,
-        "value": 0.0
-      },
-      {
-        "date": "2026-10-15",
-        "insider": "JABRE WISSAM GEORGES",
-        "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 1732,
+        "shares": 3657,
         "value": 0.0
       },
       {
@@ -2350,14 +2350,6 @@
       },
       {
         "date": "2026-09-21",
-        "insider": "AHUJA DEEPAK",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 3450,
-        "value": 619344.0098
-      },
-      {
-        "date": "2026-09-21",
         "insider": "KURIAN GEORGE",
         "position": "Chief Executive Officer",
         "type": "Sell",
@@ -2365,12 +2357,12 @@
         "value": 2333876.7249
       },
       {
-        "date": "2026-09-14",
+        "date": "2026-09-21",
         "insider": "AHUJA DEEPAK",
         "position": "Director",
         "type": "Sell",
-        "shares": 3526,
-        "value": 614124.4657
+        "shares": 3450,
+        "value": 619344.0098
       },
       {
         "date": "2026-09-14",
@@ -2379,6 +2371,14 @@
         "type": "Sell",
         "shares": 40000,
         "value": 6872738.4032
+      },
+      {
+        "date": "2026-09-14",
+        "insider": "AHUJA DEEPAK",
+        "position": "Director",
+        "type": "Sell",
+        "shares": 3526,
+        "value": 614124.4657
       },
       {
         "date": "2026-09-11",
@@ -2398,31 +2398,7 @@
       },
       {
         "date": "2026-09-08",
-        "insider": "GUSTAFSSON PER ANDERS",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2307,
-        "value": 0.0
-      },
-      {
-        "date": "2026-09-08",
-        "insider": "KERR DEBORAH LINDA",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2307,
-        "value": 0.0
-      },
-      {
-        "date": "2026-09-08",
-        "insider": "NEVENS THOMAS MICHAEL",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2914,
-        "value": 0.0
-      },
-      {
-        "date": "2026-09-08",
-        "insider": "HELD GERALD D",
+        "insider": "PALIN CARRIE",
         "position": "Director",
         "type": "Other",
         "shares": 2307,
@@ -2446,10 +2422,34 @@
       },
       {
         "date": "2026-09-08",
-        "insider": "PALIN CARRIE",
+        "insider": "GUSTAFSSON PER ANDERS",
         "position": "Director",
         "type": "Other",
         "shares": 2307,
+        "value": 0.0
+      },
+      {
+        "date": "2026-09-08",
+        "insider": "KERR DEBORAH LINDA",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2307,
+        "value": 0.0
+      },
+      {
+        "date": "2026-09-08",
+        "insider": "HELD GERALD D",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2307,
+        "value": 0.0
+      },
+      {
+        "date": "2026-09-08",
+        "insider": "NEVENS THOMAS MICHAEL",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2914,
         "value": 0.0
       },
       {
@@ -2462,10 +2462,18 @@
       },
       {
         "date": "2026-08-14",
-        "insider": "KURIAN GEORGE",
-        "position": "Chief Executive Officer",
+        "insider": "CERNUDA REGO CESAR",
+        "position": "President",
         "type": "Other",
-        "shares": 7565,
+        "shares": 4402,
+        "value": 0.0
+      },
+      {
+        "date": "2026-08-14",
+        "insider": "JABRE WISSAM GEORGES",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 1356,
         "value": 0.0
       },
       {
@@ -2494,18 +2502,10 @@
       },
       {
         "date": "2026-08-14",
-        "insider": "CERNUDA REGO CESAR",
-        "position": "President",
+        "insider": "KURIAN GEORGE",
+        "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 4402,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-14",
-        "insider": "JABRE WISSAM GEORGES",
-        "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 1356,
+        "shares": 7565,
         "value": 0.0
       },
       {
@@ -2566,10 +2566,10 @@
       },
       {
         "date": "2026-05-15",
-        "insider": "KURIAN GEORGE",
-        "position": "Chief Executive Officer",
+        "insider": "CERNUDA REGO CESAR",
+        "position": "President",
         "type": "Other",
-        "shares": 18489,
+        "shares": 10705,
         "value": 0.0
       }
     ]
@@ -2722,7 +2722,7 @@
     },
     {
       "date": "2025-12-10",
-      "close": 105.5412,
+      "close": 105.5413,
       "volume": 1976000.0
     },
     {
@@ -2862,7 +2862,7 @@
     },
     {
       "date": "2026-01-22",
-      "close": 88.1656,
+      "close": 88.1655,
       "volume": 2317200.0
     },
     {
@@ -2952,7 +2952,7 @@
     },
     {
       "date": "2026-02-18",
-      "close": 90.0043,
+      "close": 90.0044,
       "volume": 1844100.0
     },
     {
@@ -2992,7 +2992,7 @@
     },
     {
       "date": "2026-03-02",
-      "close": 88.9651,
+      "close": 88.965,
       "volume": 2371200.0
     },
     {
@@ -3032,7 +3032,7 @@
     },
     {
       "date": "2026-03-12",
-      "close": 86.1047,
+      "close": 86.1046,
       "volume": 2073200.0
     },
     {
@@ -3277,7 +3277,7 @@
     },
     {
       "date": "2026-05-21",
-      "close": 110.671,
+      "close": 110.6709,
       "volume": 2098000.0
     },
     {
@@ -3307,7 +3307,7 @@
     },
     {
       "date": "2026-06-01",
-      "close": 160.4484,
+      "close": 160.4483,
       "volume": 5893600.0
     },
     {
@@ -3337,7 +3337,7 @@
     },
     {
       "date": "2026-06-09",
-      "close": 147.3232,
+      "close": 147.3233,
       "volume": 2725700.0
     },
     {
@@ -3402,7 +3402,7 @@
     },
     {
       "date": "2026-06-29",
-      "close": 138.4481,
+      "close": 138.4482,
       "volume": 1742700.0
     },
     {
@@ -3417,7 +3417,7 @@
     },
     {
       "date": "2026-07-02",
-      "close": 137.6535,
+      "close": 137.6534,
       "volume": 1930200.0
     },
     {
@@ -3831,5 +3831,5 @@
       "volume": 1341700.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.488856+00:00"
+  "updatedAt": "2026-10-29T10:20:44.153562+00:00"
 }

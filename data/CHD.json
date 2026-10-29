@@ -17,7 +17,7 @@
     "marketCap": 22302764580.0445,
     "fiftyTwoWeekLow": 73.0018,
     "fiftyTwoWeekHigh": 97.7756,
-    "volume": 1525700.0,
+    "volume": 1525733,
     "avgVolume": 1900807,
     "currency": "EUR"
   },
@@ -36,7 +36,7 @@
         {
           "date": "2025-03-31",
           "Tax_Effect_Of_Unusual_Items": 0.0,
-          "Tax_Rate_For_Calcs": null,
+          "Tax_Rate_For_Calcs": 0.1975,
           "Normalized_EBITDA": 328790885.2051,
           "Total_Unusual_Items": null,
           "Total_Unusual_Items_Excluding_Goodwill": null,
@@ -281,7 +281,7 @@
         {
           "date": "2026-06-30",
           "Tax_Effect_Of_Unusual_Items": null,
-          "Tax_Rate_For_Calcs": 0.1867,
+          "Tax_Rate_For_Calcs": null,
           "Normalized_EBITDA": null,
           "Total_Unusual_Items": null,
           "Total_Unusual_Items_Excluding_Goodwill": null,
@@ -536,8 +536,8 @@
         {
           "date": "2025-03-31",
           "Treasury_Shares_Number": 47481238.0,
-          "Ordinary_Shares_Number": null,
-          "Share_Issued": null,
+          "Ordinary_Shares_Number": 246228744.0,
+          "Share_Issued": 263634084.0168,
           "Net_Debt": 1014916336.0671,
           "Total_Debt": 1979387551.3357,
           "Tangible_Book_Value": -666198730.5466,
@@ -867,73 +867,6 @@
           "Gross_Accounts_Receivable": 520967048.2474,
           "Cash_Cash_Equivalents_And_Short_Term_Investments": 451851847.1533,
           "Cash_And_Cash_Equivalents": 451851847.1533
-        },
-        {
-          "date": "2026-06-30",
-          "Treasury_Shares_Number": null,
-          "Ordinary_Shares_Number": 237136902.0,
-          "Share_Issued": 212854086.6049,
-          "Net_Debt": null,
-          "Total_Debt": null,
-          "Tangible_Book_Value": null,
-          "Invested_Capital": null,
-          "Working_Capital": null,
-          "Net_Tangible_Assets": null,
-          "Common_Stock_Equity": null,
-          "Total_Capitalization": null,
-          "Total_Equity_Gross_Minority_Interest": null,
-          "Stockholders_Equity": null,
-          "Gains_Losses_Not_Affecting_Retained_Earnings": null,
-          "Other_Equity_Adjustments": null,
-          "Treasury_Stock": null,
-          "Retained_Earnings": null,
-          "Additional_Paid_In_Capital": null,
-          "Capital_Stock": null,
-          "Common_Stock": null,
-          "Preferred_Stock": null,
-          "Total_Liabilities_Net_Minority_Interest": null,
-          "Total_Non_Current_Liabilities_Net_Minority_Interest": null,
-          "Other_Non_Current_Liabilities": null,
-          "Non_Current_Deferred_Liabilities": null,
-          "Non_Current_Deferred_Taxes_Liabilities": null,
-          "Long_Term_Debt_And_Capital_Lease_Obligation": null,
-          "Long_Term_Debt": null,
-          "Current_Liabilities": null,
-          "Other_Current_Liabilities": null,
-          "Payables_And_Accrued_Expenses": null,
-          "Current_Accrued_Expenses": null,
-          "Payables": null,
-          "Total_Tax_Payable": null,
-          "Income_Tax_Payable": null,
-          "Accounts_Payable": null,
-          "Total_Assets": null,
-          "Total_Non_Current_Assets": null,
-          "Other_Non_Current_Assets": null,
-          "Investments_And_Advances": null,
-          "Long_Term_Equity_Investment": null,
-          "Goodwill_And_Other_Intangible_Assets": null,
-          "Other_Intangible_Assets": null,
-          "Goodwill": null,
-          "Net_PPE": null,
-          "Accumulated_Depreciation": null,
-          "Gross_PPE": null,
-          "Construction_In_Progress": null,
-          "Machinery_Furniture_Equipment": null,
-          "Buildings_And_Improvements": null,
-          "Land_And_Improvements": null,
-          "Properties": null,
-          "Current_Assets": null,
-          "Other_Current_Assets": null,
-          "Inventory": null,
-          "Finished_Goods": null,
-          "Work_In_Process": null,
-          "Raw_Materials": null,
-          "Receivables": null,
-          "Accounts_Receivable": null,
-          "Allowance_For_Doubtful_Accounts_Receivable": null,
-          "Gross_Accounts_Receivable": null,
-          "Cash_Cash_Equivalents_And_Short_Term_Investments": null,
-          "Cash_And_Cash_Equivalents": null
         }
       ],
       "annual": [
@@ -2162,14 +2095,6 @@
       },
       {
         "date": "2026-06-10",
-        "insider": "SALIGRAM RAVICHANDRA KRISHNAMURTY",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 12960,
-        "value": 1140023.826
-      },
-      {
-        "date": "2026-06-10",
         "insider": "BUCHERT BRIAN D",
         "position": "Officer",
         "type": "Sell",
@@ -2183,6 +2108,14 @@
         "type": "Other",
         "shares": 10160,
         "value": 452515.1736
+      },
+      {
+        "date": "2026-06-10",
+        "insider": "SALIGRAM RAVICHANDRA KRISHNAMURTY",
+        "position": "Director",
+        "type": "Sell",
+        "shares": 12960,
+        "value": 1140023.826
       },
       {
         "date": "2026-06-10",
@@ -2218,6 +2151,30 @@
       },
       {
         "date": "2026-05-04",
+        "insider": "SHEARER ROBERT K",
+        "position": "Director",
+        "type": "Other",
+        "shares": 920,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-04",
+        "insider": "PRICE PENRY W",
+        "position": "Director",
+        "type": "Other",
+        "shares": 920,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-04",
+        "insider": "VERGIS JANET S",
+        "position": "Director",
+        "type": "Other",
+        "shares": 920,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-04",
         "insider": "CASHAW BRAD",
         "position": "Director",
         "type": "Other",
@@ -2242,30 +2199,6 @@
       },
       {
         "date": "2026-05-04",
-        "insider": "PRICE PENRY W",
-        "position": "Director",
-        "type": "Other",
-        "shares": 920,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-04",
-        "insider": "VERGIS JANET S",
-        "position": "Director",
-        "type": "Other",
-        "shares": 920,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-04",
-        "insider": "WINKLEBLACK ARTHUR B",
-        "position": "Director",
-        "type": "Other",
-        "shares": 920,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-04",
         "insider": "IRWIN BRADLEY C",
         "position": "Director",
         "type": "Other",
@@ -2282,7 +2215,7 @@
       },
       {
         "date": "2026-05-04",
-        "insider": "SALIGRAM RAVICHANDRA KRISHNAMURTY",
+        "insider": "WINKLEBLACK ARTHUR B",
         "position": "Director",
         "type": "Other",
         "shares": 920,
@@ -2290,7 +2223,7 @@
       },
       {
         "date": "2026-05-04",
-        "insider": "SHEARER ROBERT K",
+        "insider": "SALIGRAM RAVICHANDRA KRISHNAMURTY",
         "position": "Director",
         "type": "Other",
         "shares": 920,
@@ -2311,6 +2244,14 @@
         "type": "Other",
         "shares": 7000,
         "value": 311772.3889
+      },
+      {
+        "date": "2026-03-09",
+        "insider": "BUCHERT BRIAN D",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 34,
+        "value": 3141.6
       },
       {
         "date": "2026-03-09",
@@ -2343,14 +2284,6 @@
         "type": "Other",
         "shares": 87,
         "value": 7846.8193
-      },
-      {
-        "date": "2026-03-09",
-        "insider": "LONGO JOSEPH JAMES",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 34,
-        "value": 3141.6
       }
     ]
   },
@@ -2557,7 +2490,7 @@
     },
     {
       "date": "2025-12-26",
-      "close": 75.9298,
+      "close": 75.9299,
       "volume": 928000.0
     },
     {
@@ -2577,7 +2510,7 @@
     },
     {
       "date": "2026-01-02",
-      "close": 73.4845,
+      "close": 73.4844,
       "volume": 1644700.0
     },
     {
@@ -2622,7 +2555,7 @@
     },
     {
       "date": "2026-01-15",
-      "close": 80.4114,
+      "close": 80.4115,
       "volume": 2132800.0
     },
     {
@@ -3611,5 +3544,5 @@
       "volume": 1525700.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.411376+00:00"
+  "updatedAt": "2026-10-29T10:13:55.934837+00:00"
 }

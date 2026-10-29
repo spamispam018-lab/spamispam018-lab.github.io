@@ -17,7 +17,7 @@
     "marketCap": 12282319014.5885,
     "fiftyTwoWeekLow": 60.0135,
     "fiftyTwoWeekHigh": 75.0932,
-    "volume": 947500.0,
+    "volume": 899667,
     "avgVolume": 1296024,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 24.6431,
     "peForward": 29.2978,
     "pegRatio": 2.61,
-    "dividendYield": 4.07,
+    "dividendYield": 4.13,
     "profitMargins": 0.33,
     "debtToEquity": 71.972,
     "revenueGrowth": 0.089
@@ -1227,6 +1227,7 @@
       "quarterly": [
         {
           "date": "2025-03-31",
+          "Free_Cash_Flow": 144541427.8882,
           "Repurchase_Of_Capital_Stock": -6067776.0961,
           "Repayment_Of_Debt": -103524697.6389,
           "Issuance_Of_Debt": 260304004.1209,
@@ -1288,6 +1289,7 @@
         },
         {
           "date": "2025-06-30",
+          "Free_Cash_Flow": 219057488.2679,
           "Repurchase_Of_Capital_Stock": -1857134.4294,
           "Repayment_Of_Debt": -316414776.2092,
           "Issuance_Of_Debt": 459675328.8771,
@@ -1349,6 +1351,7 @@
         },
         {
           "date": "2025-09-30",
+          "Free_Cash_Flow": 196273707.1072,
           "Repurchase_Of_Capital_Stock": 1836489.6291,
           "Repayment_Of_Debt": -125005163.579,
           "Issuance_Of_Debt": 103224001.6341,
@@ -1410,6 +1413,7 @@
         },
         {
           "date": "2025-12-31",
+          "Free_Cash_Flow": 183063727.6981,
           "Repurchase_Of_Capital_Stock": -1846363.2292,
           "Repayment_Of_Debt": -295454918.2773,
           "Issuance_Of_Debt": 125664001.9894,
@@ -1471,6 +1475,7 @@
         },
         {
           "date": "2026-03-31",
+          "Free_Cash_Flow": 137089552.5703,
           "Repurchase_Of_Capital_Stock": -7783987.3232,
           "Repayment_Of_Debt": -391539409.3985,
           "Issuance_Of_Debt": 630287549.1781,
@@ -1952,7 +1957,7 @@
       "buysCount2Q": 0,
       "sellsCount2Q": 8,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 35778576.2256,
+      "sellValueTotal": 35778576.225600004,
       "sentiment": "Bearish"
     },
     "trades": [
@@ -1962,14 +1967,6 @@
         "position": "Director",
         "type": "Other",
         "shares": 318,
-        "value": 0.0
-      },
-      {
-        "date": "2026-08-07",
-        "insider": "KLEIN KARIN M",
-        "position": "Director",
-        "type": "Other",
-        "shares": 382,
         "value": 0.0
       },
       {
@@ -1989,12 +1986,12 @@
         "value": 0.0
       },
       {
-        "date": "2026-06-12",
-        "insider": "DEVEREAUX TERAH L",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 1240,
-        "value": 89191.8206
+        "date": "2026-08-07",
+        "insider": "KLEIN KARIN M",
+        "position": "Director",
+        "type": "Other",
+        "shares": 382,
+        "value": 0.0
       },
       {
         "date": "2026-06-12",
@@ -2005,12 +2002,12 @@
         "value": 0.0
       },
       {
-        "date": "2026-05-11",
-        "insider": "BLAIR BRYCE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1807,
-        "value": 0.0
+        "date": "2026-06-12",
+        "insider": "DEVEREAUX TERAH L",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 1240,
+        "value": 89191.8206
       },
       {
         "date": "2026-05-11",
@@ -2022,23 +2019,7 @@
       },
       {
         "date": "2026-05-11",
-        "insider": "BLANKENSHIP CHARLES RONALD",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1952,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-11",
-        "insider": "ANDERSON GARY E",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1807,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-11",
-        "insider": "KLEIN KARIN M",
+        "insider": "BLAIR BRYCE",
         "position": "Director",
         "type": "Other",
         "shares": 1807,
@@ -2077,12 +2058,36 @@
         "value": 0.0
       },
       {
-        "date": "2026-05-06",
-        "insider": "BLAIR BRYCE",
+        "date": "2026-05-11",
+        "insider": "BLANKENSHIP CHARLES RONALD",
         "position": "Director",
         "type": "Other",
-        "shares": 2150,
-        "value": 152611.7496
+        "shares": 1952,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-11",
+        "insider": "ANDERSON GARY E",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1807,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-11",
+        "insider": "KLEIN KARIN M",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1807,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-06",
+        "insider": "LINNEMAN PETER D",
+        "position": "Director",
+        "type": "Other",
+        "shares": 336,
+        "value": 0.0
       },
       {
         "date": "2026-05-06",
@@ -2094,11 +2099,19 @@
       },
       {
         "date": "2026-05-06",
-        "insider": "KLEIN KARIN M",
+        "insider": "BLAIR BRYCE",
         "position": "Director",
         "type": "Other",
         "shares": 2150,
         "value": 152611.7496
+      },
+      {
+        "date": "2026-05-06",
+        "insider": "PARRELL MARK J",
+        "position": "Director",
+        "type": "Other",
+        "shares": 352,
+        "value": 0.0
       },
       {
         "date": "2026-05-06",
@@ -2110,10 +2123,10 @@
       },
       {
         "date": "2026-05-06",
-        "insider": "LINNEMAN PETER D",
+        "insider": "BLANKENSHIP CHARLES RONALD",
         "position": "Director",
         "type": "Other",
-        "shares": 336,
+        "shares": 453,
         "value": 0.0
       },
       {
@@ -2126,19 +2139,11 @@
       },
       {
         "date": "2026-05-06",
-        "insider": "PARRELL MARK J",
+        "insider": "KLEIN KARIN M",
         "position": "Director",
         "type": "Other",
-        "shares": 352,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-06",
-        "insider": "BLANKENSHIP CHARLES RONALD",
-        "position": "Director",
-        "type": "Other",
-        "shares": 453,
-        "value": 0.0
+        "shares": 2150,
+        "value": 152611.7496
       },
       {
         "date": "2026-05-05",
@@ -2182,18 +2187,34 @@
       },
       {
         "date": "2026-02-12",
-        "insider": "STEIN MARTIN EDWARD JR",
-        "position": "Officer and Director",
-        "type": "Other",
-        "shares": 15247,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-12",
         "insider": "HERMAN MICHAEL R.",
         "position": "General Counsel",
         "type": "Other",
         "shares": 7459,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-12",
+        "insider": "MAS MICHAEL J",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 26196,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-12",
+        "insider": "DEVEREAUX TERAH L",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 3506,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-12",
+        "insider": "STEIN MARTIN EDWARD JR",
+        "position": "Officer and Director",
+        "type": "Other",
+        "shares": 15247,
         "value": 0.0
       },
       {
@@ -2221,19 +2242,19 @@
         "value": 0.0
       },
       {
-        "date": "2026-02-12",
+        "date": "2026-02-10",
         "insider": "MAS MICHAEL J",
         "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 26196,
-        "value": 0.0
+        "type": "Sell",
+        "shares": 15000,
+        "value": 1034710.2116
       },
       {
-        "date": "2026-02-12",
-        "insider": "DEVEREAUX TERAH L",
-        "position": "Officer",
+        "date": "2026-02-10",
+        "insider": "PALMER LISA",
+        "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 3506,
+        "shares": 6233,
         "value": 0.0
       },
       {
@@ -2251,22 +2272,6 @@
         "type": "Sell",
         "shares": 8000,
         "value": 553280.6488
-      },
-      {
-        "date": "2026-02-10",
-        "insider": "MAS MICHAEL J",
-        "position": "Chief Financial Officer",
-        "type": "Sell",
-        "shares": 15000,
-        "value": 1034710.2116
-      },
-      {
-        "date": "2026-02-10",
-        "insider": "PALMER LISA",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 6233,
-        "value": 0.0
       },
       {
         "date": "2026-02-04",
@@ -3535,5 +3540,5 @@
       "volume": 947500.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.754758+00:00"
+  "updatedAt": "2026-10-29T10:22:28.116404+00:00"
 }

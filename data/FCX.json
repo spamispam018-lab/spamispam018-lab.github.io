@@ -17,7 +17,7 @@
     "marketCap": 85845357332.8541,
     "fiftyTwoWeekLow": 34.5935,
     "fiftyTwoWeekHigh": 72.0234,
-    "volume": 9647000.0,
+    "volume": 9647165,
     "avgVolume": 12446566,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 27.9832,
     "peForward": 15.3365,
     "pegRatio": 3.84,
-    "dividendYield": 0.91,
+    "dividendYield": 0.9,
     "profitMargins": 0.1303,
     "debtToEquity": 30.81,
     "revenueGrowth": 0.082
@@ -2048,18 +2048,10 @@
       "buysCount2Q": 0,
       "sellsCount2Q": 12,
       "buyValueTotal": 0.0,
-      "sellValueTotal": 41330811.26550001,
+      "sellValueTotal": 41330811.2655,
       "sentiment": "Bearish"
     },
     "trades": [
-      {
-        "date": "2026-10-01",
-        "insider": "STEPHENS JOHN JOSEPH",
-        "position": "Director",
-        "type": "Other",
-        "shares": 294,
-        "value": 18472.6083
-      },
       {
         "date": "2026-10-01",
         "insider": "GRANT HUGH N",
@@ -2067,6 +2059,14 @@
         "type": "Other",
         "shares": 482,
         "value": 30285.0245
+      },
+      {
+        "date": "2026-10-01",
+        "insider": "STEPHENS JOHN JOSEPH",
+        "position": "Director",
+        "type": "Other",
+        "shares": 294,
+        "value": 18472.6083
       },
       {
         "date": "2026-08-27",
@@ -2080,25 +2080,17 @@
         "date": "2026-08-25",
         "insider": "CURRAULT DOUGLAS NICHOLAS II",
         "position": "General Counsel",
-        "type": "Other",
-        "shares": 80000,
-        "value": 1081338.7371
-      },
-      {
-        "date": "2026-08-25",
-        "insider": "CURRAULT DOUGLAS NICHOLAS II",
-        "position": "General Counsel",
         "type": "Sell",
         "shares": 80000,
         "value": 5640934.9757
       },
       {
-        "date": "2026-08-05",
-        "insider": "MIKES ELLIE L.",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 4773,
-        "value": 299897.1407
+        "date": "2026-08-25",
+        "insider": "CURRAULT DOUGLAS NICHOLAS II",
+        "position": "General Counsel",
+        "type": "Other",
+        "shares": 80000,
+        "value": 1081338.7371
       },
       {
         "date": "2026-08-05",
@@ -2107,6 +2099,14 @@
         "type": "Sell",
         "shares": 14277,
         "value": 890645.4093
+      },
+      {
+        "date": "2026-08-05",
+        "insider": "MIKES ELLIE L.",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 4773,
+        "value": 299897.1407
       },
       {
         "date": "2026-07-30",
@@ -2118,14 +2118,6 @@
       },
       {
         "date": "2026-07-01",
-        "insider": "STEPHENS JOHN JOSEPH",
-        "position": "Director",
-        "type": "Other",
-        "shares": 327,
-        "value": 18459.1443
-      },
-      {
-        "date": "2026-07-01",
         "insider": "GRANT HUGH N",
         "position": "Director",
         "type": "Other",
@@ -2133,8 +2125,16 @@
         "value": 30257.1989
       },
       {
+        "date": "2026-07-01",
+        "insider": "STEPHENS JOHN JOSEPH",
+        "position": "Director",
+        "type": "Other",
+        "shares": 327,
+        "value": 18459.1443
+      },
+      {
         "date": "2026-06-01",
-        "insider": "LEWIS SARA GROOTWASSINK",
+        "insider": "GRANT HUGH N",
         "position": "Director",
         "type": "Other",
         "shares": 2800,
@@ -2142,7 +2142,31 @@
       },
       {
         "date": "2026-06-01",
-        "insider": "DONADIO MARCELA E. CPA",
+        "insider": "KENNARD LYDIA H",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2800,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "ABNEY DAVID P",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2800,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "MCCOY DUSTAN E",
+        "position": "Director",
+        "type": "Other",
+        "shares": 2800,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-01",
+        "insider": "LANCE RYAN MICHAEL",
         "position": "Director",
         "type": "Other",
         "shares": 2800,
@@ -2166,7 +2190,7 @@
       },
       {
         "date": "2026-06-01",
-        "insider": "ABNEY DAVID P",
+        "insider": "DONADIO MARCELA E. CPA",
         "position": "Director",
         "type": "Other",
         "shares": 2800,
@@ -2174,43 +2198,11 @@
       },
       {
         "date": "2026-06-01",
-        "insider": "LANCE RYAN MICHAEL",
+        "insider": "LEWIS SARA GROOTWASSINK",
         "position": "Director",
         "type": "Other",
         "shares": 2800,
         "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "KENNARD LYDIA H",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2800,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "MCCOY DUSTAN E",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2800,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "GRANT HUGH N",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2800,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-01",
-        "insider": "STEPHENS JOHN JOSEPH",
-        "position": "Director",
-        "type": "Other",
-        "shares": 350,
-        "value": 18466.3251
       },
       {
         "date": "2026-04-01",
@@ -2219,6 +2211,14 @@
         "type": "Other",
         "shares": 574,
         "value": 30285.0245
+      },
+      {
+        "date": "2026-04-01",
+        "insider": "STEPHENS JOHN JOSEPH",
+        "position": "Director",
+        "type": "Other",
+        "shares": 350,
+        "value": 18466.3251
       },
       {
         "date": "2026-03-06",
@@ -2254,11 +2254,11 @@
       },
       {
         "date": "2026-02-11",
-        "insider": "CURRAULT DOUGLAS NICHOLAS II",
-        "position": "General Counsel",
-        "type": "Other",
-        "shares": 75000,
-        "value": 800883.6127
+        "insider": "ADKERSON RICHARD C",
+        "position": "Chairman of the Board",
+        "type": "Sell",
+        "shares": 400991,
+        "value": 22856782.0722
       },
       {
         "date": "2026-02-11",
@@ -2270,11 +2270,11 @@
       },
       {
         "date": "2026-02-11",
-        "insider": "ADKERSON RICHARD C",
-        "position": "Chairman of the Board",
-        "type": "Sell",
-        "shares": 400991,
-        "value": 22856782.0722
+        "insider": "CURRAULT DOUGLAS NICHOLAS II",
+        "position": "General Counsel",
+        "type": "Other",
+        "shares": 75000,
+        "value": 800883.6127
       },
       {
         "date": "2026-02-10",
@@ -2282,6 +2282,22 @@
         "position": "Chief Financial Officer",
         "type": "Other",
         "shares": 43875,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-09",
+        "insider": "QUIRK KATHLEEN L.",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 179500,
+        "value": 0.0
+      },
+      {
+        "date": "2026-02-09",
+        "insider": "ADKERSON RICHARD C",
+        "position": "Chairman of the Board",
+        "type": "Other",
+        "shares": 275625,
         "value": 0.0
       },
       {
@@ -2309,20 +2325,12 @@
         "value": 0.0
       },
       {
-        "date": "2026-02-09",
-        "insider": "QUIRK KATHLEEN L.",
-        "position": "Chief Executive Officer",
+        "date": "2025-12-31",
+        "insider": "GRANT HUGH N",
+        "position": "Director",
         "type": "Other",
-        "shares": 179500,
-        "value": 0.0
-      },
-      {
-        "date": "2026-02-09",
-        "insider": "ADKERSON RICHARD C",
-        "position": "Chairman of the Board",
-        "type": "Other",
-        "shares": 275625,
-        "value": 0.0
+        "shares": 664,
+        "value": 30271.5605
       },
       {
         "date": "2025-12-31",
@@ -2333,12 +2341,12 @@
         "value": 18509.4099
       },
       {
-        "date": "2025-12-31",
-        "insider": "GRANT HUGH N",
-        "position": "Director",
-        "type": "Other",
-        "shares": 664,
-        "value": 30271.5605
+        "date": "2025-12-11",
+        "insider": "HIGGINS STEPHEN T",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 28423,
+        "value": 1224236.6594
       },
       {
         "date": "2025-12-11",
@@ -2347,14 +2355,6 @@
         "type": "Sell",
         "shares": 9572,
         "value": 409486.9217
-      },
-      {
-        "date": "2025-12-11",
-        "insider": "HIGGINS STEPHEN T",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 28423,
-        "value": 1224236.6594
       },
       {
         "date": "2025-11-28",
@@ -2366,11 +2366,11 @@
       },
       {
         "date": "2025-10-01",
-        "insider": "STEPHENS JOHN JOSEPH",
+        "insider": "GRANT HUGH N",
         "position": "Director",
         "type": "Other",
-        "shares": 525,
-        "value": 18481.5843
+        "shares": 860,
+        "value": 30275.1509
       }
     ]
   },
@@ -2927,7 +2927,7 @@
     },
     {
       "date": "2026-04-09",
-      "close": 59.2425,
+      "close": 59.2424,
       "volume": 12664700.0
     },
     {
@@ -2942,7 +2942,7 @@
     },
     {
       "date": "2026-04-14",
-      "close": 60.8651,
+      "close": 60.865,
       "volume": 12330800.0
     },
     {
@@ -3631,5 +3631,5 @@
       "volume": 9647000.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.943223+00:00"
+  "updatedAt": "2026-10-29T10:17:20.540045+00:00"
 }

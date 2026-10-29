@@ -17,13 +17,13 @@
     "marketCap": 30857007952.9451,
     "fiftyTwoWeekLow": 304.2954,
     "fiftyTwoWeekHigh": 684.043,
-    "volume": 731200.0,
+    "volume": 730541,
     "avgVolume": 983910,
     "currency": "EUR"
   },
   "ratios": {
     "peTrailing": 175.5892,
-    "peForward": 40.264,
+    "peForward": 40.2506,
     "pegRatio": 1.53,
     "dividendYield": 0.0,
     "profitMargins": 0.0619,
@@ -955,7 +955,7 @@
           "Raw_Materials": 153769653.6343,
           "Receivables": 1181416650.703,
           "Other_Receivables": 575897476.317,
-          "Accounts_Receivable": null,
+          "Accounts_Receivable": 605519174.386,
           "Allowance_For_Doubtful_Accounts_Receivable": -3384849.6536,
           "Gross_Accounts_Receivable": 608904024.0396,
           "Cash_Cash_Equivalents_And_Short_Term_Investments": 661506975.2723,
@@ -2383,6 +2383,14 @@
       },
       {
         "date": "2026-06-04",
+        "insider": "SMITH PATRICK W.",
+        "position": "Chief Executive Officer",
+        "type": "Sell",
+        "shares": 20000,
+        "value": 8976000.1421
+      },
+      {
+        "date": "2026-06-04",
         "insider": "BROOKS CAMERON DAVID",
         "position": "Officer",
         "type": "Sell",
@@ -2398,28 +2406,12 @@
         "value": 676512.1547
       },
       {
-        "date": "2026-06-04",
-        "insider": "SMITH PATRICK W.",
-        "position": "Chief Executive Officer",
-        "type": "Sell",
-        "shares": 20000,
-        "value": 8976000.1421
-      },
-      {
         "date": "2026-06-02",
         "insider": "BAGLEY BRITTANY",
         "position": "Chief Operating Officer",
         "type": "Sell",
         "shares": 5969,
         "value": 2598520.6251
-      },
-      {
-        "date": "2026-06-01",
-        "insider": "WILLIAMS JERI L",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 629,
-        "value": 265153.737
       },
       {
         "date": "2026-06-01",
@@ -2430,11 +2422,43 @@
         "value": 242477.6678
       },
       {
+        "date": "2026-06-01",
+        "insider": "WILLIAMS JERI L",
+        "position": "Director",
+        "type": "Sell",
+        "shares": 629,
+        "value": 265153.737
+      },
+      {
+        "date": "2026-05-29",
+        "insider": "SMITH GRAHAM V",
+        "position": "Director",
+        "type": "Other",
+        "shares": 611,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-29",
+        "insider": "KALINOWSKI CAITLIN ELIZABETH",
+        "position": "Director",
+        "type": "Other",
+        "shares": 611,
+        "value": 0.0
+      },
+      {
         "date": "2026-05-29",
         "insider": "GARNREITER MICHAEL",
         "position": "Director",
         "type": "Other",
         "shares": 658,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-29",
+        "insider": "BROWN ADRIANE M",
+        "position": "Director",
+        "type": "Other",
+        "shares": 611,
         "value": 0.0
       },
       {
@@ -2448,30 +2472,6 @@
       {
         "date": "2026-05-29",
         "insider": "MORGENFELD TODD R",
-        "position": "Director",
-        "type": "Other",
-        "shares": 611,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-29",
-        "insider": "SMITH GRAHAM V",
-        "position": "Director",
-        "type": "Other",
-        "shares": 611,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-29",
-        "insider": "BROWN ADRIANE M",
-        "position": "Director",
-        "type": "Other",
-        "shares": 611,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-29",
-        "insider": "KALINOWSKI CAITLIN ELIZABETH",
         "position": "Director",
         "type": "Other",
         "shares": 611,
@@ -2503,19 +2503,19 @@
       },
       {
         "date": "2026-03-17",
-        "insider": "WILLIAMS JERI L",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 157,
-        "value": 69052.3691
-      },
-      {
-        "date": "2026-03-17",
         "insider": "NARDINI ERIKA",
         "position": "Director",
         "type": "Sell",
         "shares": 198,
         "value": 90031.9742
+      },
+      {
+        "date": "2026-03-17",
+        "insider": "WILLIAMS JERI L",
+        "position": "Director",
+        "type": "Sell",
+        "shares": 157,
+        "value": 69052.3691
       },
       {
         "date": "2026-03-10",
@@ -3784,5 +3784,5 @@
       "volume": 731200.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.188787+00:00"
+  "updatedAt": "2026-10-29T10:12:29.047707+00:00"
 }

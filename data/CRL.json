@@ -14,10 +14,10 @@
     "price": 335.6845,
     "change": 13.5897,
     "changePercent": 4.22,
-    "marketCap": 16169158125.5418,
+    "marketCap": 16025198364.0052,
     "fiftyTwoWeekLow": 131.2291,
     "fiftyTwoWeekHigh": 339.4993,
-    "volume": 1299300.0,
+    "volume": 1299353,
     "avgVolume": 1017672,
     "currency": "EUR"
   },
@@ -952,6 +952,7 @@
           "Other_Equity_Adjustments": null,
           "Treasury_Stock": null,
           "Retained_Earnings": null,
+          "Additional_Paid_In_Capital": null,
           "Capital_Stock": null,
           "Common_Stock": null,
           "Preferred_Stock": null,
@@ -1040,6 +1041,7 @@
           "Other_Equity_Adjustments": -235222366.9238,
           "Treasury_Stock": 0.0,
           "Retained_Earnings": 1286171957.9614,
+          "Additional_Paid_In_Capital": 1620114169.648,
           "Capital_Stock": 456878.4072,
           "Common_Stock": 456878.4072,
           "Preferred_Stock": 0.0,
@@ -1128,6 +1130,7 @@
           "Other_Equity_Adjustments": -176312877.9912,
           "Treasury_Stock": 0.0,
           "Retained_Earnings": 1693966903.6172,
+          "Additional_Paid_In_Capital": 1710446839.8781,
           "Capital_Stock": 460468.8073,
           "Common_Stock": 460468.8073,
           "Preferred_Stock": 0.0,
@@ -1216,6 +1219,7 @@
           "Other_Equity_Adjustments": -284848876.5094,
           "Treasury_Stock": 0.0,
           "Retained_Earnings": 1626540985.7498,
+          "Additional_Paid_In_Capital": 1764894359.14,
           "Capital_Stock": 458673.6073,
           "Common_Stock": 458673.6073,
           "Preferred_Stock": 0.0,
@@ -1304,6 +1308,7 @@
           "Other_Equity_Adjustments": -154192423.241,
           "Treasury_Stock": 0.0,
           "Retained_Earnings": 1246425331.7322,
+          "Additional_Paid_In_Capital": 1747897405.271,
           "Capital_Stock": 441619.207,
           "Common_Stock": 441619.207,
           "Preferred_Stock": 0.0,
@@ -1632,7 +1637,7 @@
           "Sale_Of_Business": 53942170.454,
           "Purchase_Of_Business": -363533391.3551,
           "Capital_Expenditure_Reported": -50183021.5944,
-          "Operating_Cash_Flow": null,
+          "Operating_Cash_Flow": 36870715.7837,
           "Cash_Flow_From_Continuing_Operating_Activities": 36870715.7837,
           "Change_In_Working_Capital": -95216511.9074,
           "Change_In_Other_Working_Capital": -3106593.6492,
@@ -1647,7 +1652,7 @@
           "Provisionand_Write_Offof_Assets": 42187.2007,
           "Asset_Impairment_Charge": 15575155.4466,
           "Deferred_Tax": -26404699.618,
-          "Deferred_Income_Tax": null,
+          "Deferred_Income_Tax": -26404699.618,
           "Depreciation_Amortization_Depletion": 60274738.5542,
           "Depreciation_And_Amortization": 60274738.5542,
           "Operating_Gains_Losses": 106921216.0927,
@@ -2172,14 +2177,6 @@
       },
       {
         "date": "2026-08-11",
-        "insider": "PARISOTTO SHANNON M",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 3714,
-        "value": 932298.538
-      },
-      {
-        "date": "2026-08-11",
         "insider": "GIRSHICK BIRGIT",
         "position": "Chief Executive Officer",
         "type": "Sell",
@@ -2193,6 +2190,14 @@
         "type": "Other",
         "shares": 6500,
         "value": 1048208.3206
+      },
+      {
+        "date": "2026-08-11",
+        "insider": "PARISOTTO SHANNON M",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 3714,
+        "value": 932298.538
       },
       {
         "date": "2026-08-11",
@@ -2236,19 +2241,19 @@
       },
       {
         "date": "2026-08-06",
-        "insider": "CREAMER VICTORIA L",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 4179,
-        "value": 972127.7434
-      },
-      {
-        "date": "2026-08-06",
         "insider": "KNELL MICHAEL GUNNAR",
         "position": "Officer",
         "type": "Other",
         "shares": 2345,
         "value": 412814.3249
+      },
+      {
+        "date": "2026-08-06",
+        "insider": "CREAMER VICTORIA L",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 4179,
+        "value": 972127.7434
       },
       {
         "date": "2026-08-06",
@@ -2276,14 +2281,6 @@
       },
       {
         "date": "2026-06-05",
-        "insider": "FOSTER JAMES C",
-        "position": "Director",
-        "type": "Other",
-        "shares": 183361,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-05",
         "insider": "GIRSHICK BIRGIT",
         "position": "Chief Executive Officer",
         "type": "Other",
@@ -2299,44 +2296,20 @@
         "value": 0.0
       },
       {
+        "date": "2026-06-05",
+        "insider": "FOSTER JAMES C",
+        "position": "Director",
+        "type": "Other",
+        "shares": 183361,
+        "value": 0.0
+      },
+      {
         "date": "2026-06-02",
         "insider": "BARG STEVEN",
         "position": "Director",
         "type": "Other",
         "shares": 422,
         "value": 66207.8746
-      },
-      {
-        "date": "2026-05-29",
-        "insider": "COLEMAN GLENN G",
-        "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 6640,
-        "value": 1077042.8235
-      },
-      {
-        "date": "2026-05-29",
-        "insider": "MINTZ MARK",
-        "position": "Chief Technology Officer",
-        "type": "Other",
-        "shares": 2534,
-        "value": 411028.1009
-      },
-      {
-        "date": "2026-05-29",
-        "insider": "PARISOTTO SHANNON M",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 4361,
-        "value": 707377.0288
-      },
-      {
-        "date": "2026-05-29",
-        "insider": "CREAMER VICTORIA L",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 5135,
-        "value": 832924.3428
       },
       {
         "date": "2026-05-29",
@@ -2356,11 +2329,43 @@
       },
       {
         "date": "2026-05-29",
+        "insider": "PARISOTTO SHANNON M",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 4361,
+        "value": 707377.0288
+      },
+      {
+        "date": "2026-05-29",
+        "insider": "MINTZ MARK",
+        "position": "Chief Technology Officer",
+        "type": "Other",
+        "shares": 2534,
+        "value": 411028.1009
+      },
+      {
+        "date": "2026-05-29",
+        "insider": "COLEMAN GLENN G",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 6640,
+        "value": 1077042.8235
+      },
+      {
+        "date": "2026-05-29",
         "insider": "KNELL MICHAEL GUNNAR",
         "position": "Officer",
         "type": "Other",
         "shares": 1837,
         "value": 297970.8911
+      },
+      {
+        "date": "2026-05-29",
+        "insider": "CREAMER VICTORIA L",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 5135,
+        "value": 832924.3428
       },
       {
         "date": "2026-05-12",
@@ -2372,23 +2377,7 @@
       },
       {
         "date": "2026-05-08",
-        "insider": "FOSTER JAMES C",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1860,
-        "value": 296542.8095
-      },
-      {
-        "date": "2026-05-08",
-        "insider": "MACKAY MARTIN",
-        "position": "Director",
-        "type": "Other",
-        "shares": 2845,
-        "value": 453583.3176
-      },
-      {
-        "date": "2026-05-08",
-        "insider": "THOMPSON CRAIG B",
+        "insider": "CEESAY ABRAHAM N",
         "position": "Director",
         "type": "Other",
         "shares": 1438,
@@ -2396,11 +2385,27 @@
       },
       {
         "date": "2026-05-08",
-        "insider": "KEMPS-POLANCO RESHEMA",
+        "insider": "ANDREWS NANCY C",
         "position": "Director",
         "type": "Other",
-        "shares": 1973,
-        "value": 314558.5394
+        "shares": 1438,
+        "value": 229263.2004
+      },
+      {
+        "date": "2026-05-08",
+        "insider": "LLADO GEORGE SR.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1888,
+        "value": 301007.472
+      },
+      {
+        "date": "2026-05-08",
+        "insider": "BARG STEVEN",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1438,
+        "value": 229263.2004
       }
     ]
   },
@@ -3661,5 +3666,5 @@
       "volume": 1299300.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.380562+00:00"
+  "updatedAt": "2026-10-29T10:13:43.729406+00:00"
 }

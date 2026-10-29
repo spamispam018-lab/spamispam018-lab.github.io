@@ -17,7 +17,7 @@
     "marketCap": 42498321643.3379,
     "fiftyTwoWeekLow": 100.1991,
     "fiftyTwoWeekHigh": 175.8668,
-    "volume": 2246900.0,
+    "volume": 2246882,
     "avgVolume": 1896375,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 14.1781,
     "peForward": 11.1912,
     "pegRatio": 0.64,
-    "dividendYield": 2.15,
+    "dividendYield": 2.12,
     "profitMargins": 0.2378,
     "debtToEquity": null,
     "revenueGrowth": 0.133
@@ -1918,12 +1918,20 @@
   "insider": {
     "summary": {
       "buysCount2Q": 1,
-      "sellsCount2Q": 14,
+      "sellsCount2Q": 15,
       "buyValueTotal": 280477.5644,
-      "sellValueTotal": 18384406.5247,
+      "sellValueTotal": 19458927.092100002,
       "sentiment": "Bearish"
     },
     "trades": [
+      {
+        "date": "2026-10-26",
+        "insider": "HU W BRADFORD",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 7099,
+        "value": 1074520.5674
+      },
       {
         "date": "2026-10-20",
         "insider": "O'HANLEY RONALD P.",
@@ -2235,14 +2243,6 @@
         "type": "Other",
         "shares": 11462,
         "value": 0.0
-      },
-      {
-        "date": "2026-02-26",
-        "insider": "RICHARDS MICHAEL L",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 5967,
-        "value": 0.0
       }
     ]
   },
@@ -2454,7 +2454,7 @@
     },
     {
       "date": "2025-12-29",
-      "close": 115.4664,
+      "close": 115.4665,
       "volume": 2165200.0
     },
     {
@@ -2784,7 +2784,7 @@
     },
     {
       "date": "2026-04-06",
-      "close": 115.676,
+      "close": 115.6759,
       "volume": 1001300.0
     },
     {
@@ -2824,7 +2824,7 @@
     },
     {
       "date": "2026-04-16",
-      "close": 126.0707,
+      "close": 126.0708,
       "volume": 2959300.0
     },
     {
@@ -3004,7 +3004,7 @@
     },
     {
       "date": "2026-06-08",
-      "close": 143.7598,
+      "close": 143.7597,
       "volume": 1385300.0
     },
     {
@@ -3059,7 +3059,7 @@
     },
     {
       "date": "2026-06-24",
-      "close": 150.0321,
+      "close": 150.0322,
       "volume": 3872700.0
     },
     {
@@ -3503,5 +3503,5 @@
       "volume": 2246900.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.906343+00:00"
+  "updatedAt": "2026-10-29T10:23:25.960774+00:00"
 }

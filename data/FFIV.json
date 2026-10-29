@@ -17,7 +17,7 @@
     "marketCap": 18579364615.8194,
     "fiftyTwoWeekLow": 200.847,
     "fiftyTwoWeekHigh": 433.8101,
-    "volume": 3560500.0,
+    "volume": 3555155,
     "avgVolume": 621135,
     "currency": "EUR"
   },
@@ -26,9 +26,9 @@
     "peForward": 18.252,
     "pegRatio": 1.65,
     "dividendYield": 0.0,
-    "profitMargins": 0.2195,
-    "debtToEquity": 6.546,
-    "revenueGrowth": 0.109
+    "profitMargins": 0.2114,
+    "debtToEquity": 5.304,
+    "revenueGrowth": 0.133
   },
   "financials": {
     "incomeStatement": {
@@ -1708,19 +1708,19 @@
     "trades": [
       {
         "date": "2026-09-14",
-        "insider": "MADDISON JOHN ANTHONY",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 204,
-        "value": 74386.806
-      },
-      {
-        "date": "2026-09-14",
         "insider": "MONTOYA MICHAEL F",
         "position": "Chief Technology Officer",
         "type": "Sell",
         "shares": 4426,
         "value": 1629485.1138
+      },
+      {
+        "date": "2026-09-14",
+        "insider": "MADDISON JOHN ANTHONY",
+        "position": "Officer",
+        "type": "Sell",
+        "shares": 204,
+        "value": 74386.806
       },
       {
         "date": "2026-08-05",
@@ -1737,6 +1737,14 @@
         "type": "Sell",
         "shares": 3782,
         "value": 1400124.9726
+      },
+      {
+        "date": "2026-08-03",
+        "insider": "ANAND KUNAL",
+        "position": "Chief Technology Officer",
+        "type": "Sell",
+        "shares": 392,
+        "value": 142372.8263
       },
       {
         "date": "2026-08-03",
@@ -1771,30 +1779,6 @@
         "value": 255472.2232
       },
       {
-        "date": "2026-08-03",
-        "insider": "ANAND KUNAL",
-        "position": "Chief Technology Officer",
-        "type": "Sell",
-        "shares": 392,
-        "value": 142372.8263
-      },
-      {
-        "date": "2026-07-31",
-        "insider": "MADDISON JOHN ANTHONY",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 454,
-        "value": 0.0
-      },
-      {
-        "date": "2026-07-31",
-        "insider": "OKEKE ANGELIQUE M",
-        "position": "General Counsel",
-        "type": "Other",
-        "shares": 1060,
-        "value": 0.0
-      },
-      {
         "date": "2026-07-31",
         "insider": "MONTOYA MICHAEL F",
         "position": "Chief Operating Officer",
@@ -1816,6 +1800,22 @@
         "position": "Chief Financial Officer",
         "type": "Other",
         "shares": 987,
+        "value": 0.0
+      },
+      {
+        "date": "2026-07-31",
+        "insider": "MADDISON JOHN ANTHONY",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 454,
+        "value": 0.0
+      },
+      {
+        "date": "2026-07-31",
+        "insider": "OKEKE ANGELIQUE M",
+        "position": "General Counsel",
+        "type": "Other",
+        "shares": 1060,
         "value": 0.0
       },
       {
@@ -1900,6 +1900,14 @@
       },
       {
         "date": "2026-05-04",
+        "insider": "ANAND KUNAL",
+        "position": "Chief Technology Officer",
+        "type": "Sell",
+        "shares": 3123,
+        "value": 903557.3855
+      },
+      {
+        "date": "2026-05-04",
         "insider": "WERNER EDWARD COOPER",
         "position": "Chief Financial Officer",
         "type": "Sell",
@@ -1931,12 +1939,20 @@
         "value": 208720.7265
       },
       {
-        "date": "2026-05-04",
+        "date": "2026-05-01",
+        "insider": "MONTOYA MICHAEL F",
+        "position": "Chief Technology Officer",
+        "type": "Other",
+        "shares": 2137,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-01",
         "insider": "ANAND KUNAL",
         "position": "Chief Technology Officer",
-        "type": "Sell",
-        "shares": 3123,
-        "value": 903557.3855
+        "type": "Other",
+        "shares": 10294,
+        "value": 0.0
       },
       {
         "date": "2026-05-01",
@@ -1960,22 +1976,6 @@
         "position": "General Counsel",
         "type": "Other",
         "shares": 1775,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-01",
-        "insider": "MONTOYA MICHAEL F",
-        "position": "Chief Technology Officer",
-        "type": "Other",
-        "shares": 2137,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-01",
-        "insider": "ANAND KUNAL",
-        "position": "Chief Technology Officer",
-        "type": "Other",
-        "shares": 10294,
         "value": 0.0
       },
       {
@@ -2020,8 +2020,8 @@
       },
       {
         "date": "2026-03-11",
-        "insider": "MONTOYA MICHAEL F",
-        "position": "Chief Technology Officer",
+        "insider": "ERWIN TAMI A",
+        "position": "Director",
         "type": "Other",
         "shares": 934,
         "value": 0.0
@@ -3285,5 +3285,5 @@
       "volume": 3560500.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:17.841720+00:00"
+  "updatedAt": "2026-10-29T10:16:39.540703+00:00"
 }

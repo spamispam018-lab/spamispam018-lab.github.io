@@ -17,7 +17,7 @@
     "marketCap": 109260620640.629,
     "fiftyTwoWeekLow": 108.9686,
     "fiftyTwoWeekHigh": 137.647,
-    "volume": 3293300.0,
+    "volume": 3293848,
     "avgVolume": 3977918,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 27.8267,
     "peForward": 39.5328,
     "pegRatio": 110.09,
-    "dividendYield": 3.38,
+    "dividendYield": 3.42,
     "profitMargins": 0.4307,
     "debtToEquity": 61.04,
     "revenueGrowth": 0.102
@@ -118,7 +118,7 @@
           "Net_Income_Including_Noncontrolling_Interests": 558580079.2429,
           "Net_Income_Continuous_Operations": 622304000.0,
           "Tax_Provision": 21008328.3326,
-          "Pretax_Income": null,
+          "Pretax_Income": 579588407.5755,
           "Other_Income_Expense": 38043879.0023,
           "Special_Income_Charges": 0.0,
           "Other_Special_Charges": null,
@@ -171,7 +171,7 @@
           "Net_Income_Including_Noncontrolling_Interests": 737162987.67,
           "Net_Income_Continuous_Operations": 821260000.0,
           "Tax_Provision": 48950616.7749,
-          "Pretax_Income": null,
+          "Pretax_Income": 786113604.445,
           "Other_Income_Expense": 216750656.2314,
           "Special_Income_Charges": 0.0,
           "Other_Special_Charges": null,
@@ -224,7 +224,7 @@
           "Net_Income_Including_Noncontrolling_Interests": 1330436205.0621,
           "Net_Income_Continuous_Operations": 1482215000.0,
           "Tax_Provision": 74226135.5751,
-          "Pretax_Income": null,
+          "Pretax_Income": 1404662340.6372,
           "Other_Income_Expense": 873369301.8263,
           "Special_Income_Charges": -3139804.8497,
           "Other_Special_Charges": null,
@@ -277,7 +277,7 @@
           "Net_Income_Including_Noncontrolling_Interests": 937825958.8467,
           "Net_Income_Continuous_Operations": 1044815000.0,
           "Tax_Provision": 43058770.2817,
-          "Pretax_Income": null,
+          "Pretax_Income": 980884729.1284,
           "Other_Income_Expense": 466787911.3897,
           "Special_Income_Charges": -1696464.0269,
           "Other_Special_Charges": 1696464.0269,
@@ -1573,6 +1573,7 @@
           "date": "2021-12-31",
           "Free_Cash_Flow": null,
           "Repurchase_Of_Capital_Stock": 0.0,
+          "Repayment_Of_Debt": null,
           "Issuance_Of_Debt": null,
           "Issuance_Of_Capital_Stock": 666916.8106,
           "End_Cash_Position": null,
@@ -1631,6 +1632,7 @@
           "date": "2022-12-31",
           "Free_Cash_Flow": 3703883626.6362,
           "Repurchase_Of_Capital_Stock": 0.0,
+          "Repayment_Of_Debt": -1239590107.6239,
           "Issuance_Of_Debt": 3959002195.4749,
           "Issuance_Of_Capital_Stock": 0.0,
           "End_Cash_Position": 249966344.7572,
@@ -1689,6 +1691,7 @@
           "date": "2023-12-31",
           "Free_Cash_Flow": 4822856937.1506,
           "Repurchase_Of_Capital_Stock": null,
+          "Repayment_Of_Debt": -753336842.3261,
           "Issuance_Of_Debt": 5165774251.3793,
           "Issuance_Of_Capital_Stock": 0.0,
           "End_Cash_Position": 476076276.3368,
@@ -1747,6 +1750,7 @@
           "date": "2024-12-31",
           "Free_Cash_Flow": 4409198868.202,
           "Repurchase_Of_Capital_Stock": null,
+          "Repayment_Of_Debt": -1480643284.2401,
           "Issuance_Of_Debt": 4044433072.0274,
           "Issuance_Of_Capital_Stock": null,
           "End_Cash_Position": 1183567300.337,
@@ -1805,6 +1809,7 @@
           "date": "2025-12-31",
           "Free_Cash_Flow": 4495570429.5693,
           "Repurchase_Of_Capital_Stock": null,
+          "Repayment_Of_Debt": -813026345.671,
           "Issuance_Of_Debt": 3106507479.5791,
           "Issuance_Of_Capital_Stock": null,
           "End_Cash_Position": 1028332763.4795,
@@ -1946,324 +1951,332 @@
   },
   "insider": {
     "summary": {
-      "buysCount2Q": 1,
-      "sellsCount2Q": 10,
-      "buyValueTotal": 1252.152,
-      "sellValueTotal": 20261416.5112,
-      "sentiment": "Bearish"
+      "buysCount2Q": 0,
+      "sellsCount2Q": 0,
+      "buyValueTotal": 0.0,
+      "sellValueTotal": 0.0,
+      "sentiment": "Neutral"
     },
     "trades": [
       {
-        "date": "2026-09-17",
-        "insider": "FOTIADES GEORGE L",
-        "position": "Director",
+        "date": "2026-10-22",
+        "insider": "Dimensional Fund Advisors, Ltd.",
+        "position": "",
         "type": "Other",
-        "shares": 1687,
+        "shares": 4274,
+        "value": 488212.7261
+      },
+      {
+        "date": "2026-10-22",
+        "insider": "Janus Henderson Group plc",
+        "position": "",
+        "type": "Other",
+        "shares": 29891,
+        "value": 3415747.7389
+      },
+      {
+        "date": "2026-10-22",
+        "insider": "Soci�t� G�n�rale S.A",
+        "position": "",
+        "type": "Other",
+        "shares": 55738,
+        "value": 6381380.4866
+      },
+      {
+        "date": "2026-10-22",
+        "insider": "55IP",
+        "position": "",
+        "type": "Other",
+        "shares": 3,
+        "value": 339.2928
+      },
+      {
+        "date": "2026-10-22",
+        "insider": "Barclays Bank Plc",
+        "position": "",
+        "type": "Other",
+        "shares": 0,
         "value": 0.0
       },
       {
-        "date": "2026-09-17",
-        "insider": "BITA CRISTINA GABRIELA",
-        "position": "Director",
+        "date": "2026-10-22",
+        "insider": "Citadel L P",
+        "position": "",
         "type": "Other",
-        "shares": 2815,
+        "shares": 45597,
+        "value": 5142586.5502
+      },
+      {
+        "date": "2026-10-21",
+        "insider": "55IP",
+        "position": "",
+        "type": "Other",
+        "shares": 15,
+        "value": 1718.904
+      },
+      {
+        "date": "2026-10-21",
+        "insider": "Almea 2 Segregated Portfolio Co",
+        "position": "",
+        "type": "Other",
+        "shares": 2103,
+        "value": 240826.0838
+      },
+      {
+        "date": "2026-10-21",
+        "insider": "Citadel L P",
+        "position": "",
+        "type": "Other",
+        "shares": 2017,
+        "value": 230434.5684
+      },
+      {
+        "date": "2026-10-21",
+        "insider": "Dimensional Fund Advisors, Ltd.",
+        "position": "",
+        "type": "Other",
+        "shares": 4954,
+        "value": 571446.2778
+      },
+      {
+        "date": "2026-10-21",
+        "insider": "Folio Investments, Inc.",
+        "position": "",
+        "type": "Other",
+        "shares": 1,
+        "value": 114.8928
+      },
+      {
+        "date": "2026-10-21",
+        "insider": "Janus Henderson Group plc",
+        "position": "",
+        "type": "Other",
+        "shares": 0,
         "value": 0.0
       },
       {
-        "date": "2026-07-16",
-        "insider": "MOGHADAM HAMID R",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 50000,
-        "value": 6727960.9065
-      },
-      {
-        "date": "2026-06-15",
-        "insider": "ARNDT TIMOTHY D.",
-        "position": "Chief Financial Officer",
-        "type": "Sell",
-        "shares": 3597,
-        "value": 484300.0877
-      },
-      {
-        "date": "2026-05-29",
-        "insider": "LETTER DANIEL",
-        "position": "Chief Executive Officer",
+        "date": "2026-10-21",
+        "insider": "Soci�t� G�n�rale S.A",
+        "position": "",
         "type": "Other",
-        "shares": 50000,
-        "value": 448.8
+        "shares": 303181,
+        "value": 34724459.9017
       },
       {
-        "date": "2026-04-28",
-        "insider": "LYONS IRVING F III",
-        "position": "Director",
+        "date": "2026-10-20",
+        "insider": "Dimensional Fund Advisors, Ltd.",
+        "position": "",
         "type": "Other",
-        "shares": 43825,
-        "value": 5567410.7633
+        "shares": 10364,
+        "value": 1171491.8873
       },
       {
-        "date": "2026-04-28",
-        "insider": "PIANI OLIVIER",
-        "position": "Director",
+        "date": "2026-10-20",
+        "insider": "55IP",
+        "position": "",
         "type": "Other",
-        "shares": 1984,
-        "value": 252111.6088
+        "shares": 37,
+        "value": 4216.0273
       },
       {
-        "date": "2026-04-28",
-        "insider": "KENNARD LYDIA H",
-        "position": "Director",
+        "date": "2026-10-20",
+        "insider": "Citadel L P",
+        "position": "",
         "type": "Other",
-        "shares": 1984,
+        "shares": 15279,
+        "value": 1698257.4317
+      },
+      {
+        "date": "2026-10-19",
+        "insider": "Almea 2 Segregated Portfolio Co",
+        "position": "",
+        "type": "Other",
+        "shares": 174,
+        "value": 19375.5939
+      },
+      {
+        "date": "2026-10-19",
+        "insider": "Dimensional Fund Advisors, Ltd.",
+        "position": "",
+        "type": "Other",
+        "shares": 2453,
+        "value": 272517.6475
+      },
+      {
+        "date": "2026-10-19",
+        "insider": "Folio Investments, Inc.",
+        "position": "",
+        "type": "Other",
+        "shares": 1,
+        "value": 111.3024
+      },
+      {
+        "date": "2026-10-19",
+        "insider": "Janus Henderson Group plc",
+        "position": "",
+        "type": "Other",
+        "shares": 29618,
+        "value": 3297085.9146
+      },
+      {
+        "date": "2026-10-19",
+        "insider": "Soci�t� G�n�rale S.A",
+        "position": "",
+        "type": "Other",
+        "shares": 6841,
+        "value": 763813.6297
+      },
+      {
+        "date": "2026-10-16",
+        "insider": "Folio Investments, Inc.",
+        "position": "",
+        "type": "Other",
+        "shares": 5,
+        "value": 560.1024
+      },
+      {
+        "date": "2026-10-16",
+        "insider": "Folio Investments, Inc.",
+        "position": "",
+        "type": "Other",
+        "shares": 1,
+        "value": 111.3024
+      },
+      {
+        "date": "2026-10-16",
+        "insider": "Janus Henderson Group plc",
+        "position": "",
+        "type": "Other",
+        "shares": 10826,
+        "value": 1222548.2738
+      },
+      {
+        "date": "2026-10-16",
+        "insider": "Soci�t� G�n�rale S.A",
+        "position": "",
+        "type": "Other",
+        "shares": 10183,
+        "value": 1149387.5894
+      },
+      {
+        "date": "2026-10-16",
+        "insider": "Citadel L P",
+        "position": "",
+        "type": "Other",
+        "shares": 42834,
+        "value": 4810588.5402
+      },
+      {
+        "date": "2026-10-15",
+        "insider": "Citadel L P",
+        "position": "",
+        "type": "Other",
+        "shares": 325931,
+        "value": 37075579.5229
+      },
+      {
+        "date": "2026-10-15",
+        "insider": "Dimensional Fund Advisors, Ltd.",
+        "position": "",
+        "type": "Other",
+        "shares": 9199,
+        "value": 1048146.3862
+      },
+      {
+        "date": "2026-10-15",
+        "insider": "Folio Investments, Inc.",
+        "position": "",
+        "type": "Other",
+        "shares": 1,
+        "value": 114.8928
+      },
+      {
+        "date": "2026-10-15",
+        "insider": "Janus Henderson Group plc",
+        "position": "",
+        "type": "Other",
+        "shares": 29644,
+        "value": 3433554.328
+      },
+      {
+        "date": "2026-10-15",
+        "insider": "Soci�t� G�n�rale S.A",
+        "position": "",
+        "type": "Other",
+        "shares": 6432,
+        "value": 729637.5092
+      },
+      {
+        "date": "2026-10-14",
+        "insider": "Folio Investments, Inc.",
+        "position": "",
+        "type": "Other",
+        "shares": 1,
+        "value": 118.4832
+      },
+      {
+        "date": "2026-10-14",
+        "insider": "Janus Henderson Group plc",
+        "position": "",
+        "type": "Other",
+        "shares": 0,
         "value": 0.0
       },
       {
-        "date": "2026-04-28",
-        "insider": "CONNOR JAMES B",
-        "position": "Director",
+        "date": "2026-10-14",
+        "insider": "Soci�t� G�n�rale S.A",
+        "position": "",
         "type": "Other",
-        "shares": 1984,
+        "shares": 351155,
+        "value": 41810845.9579
+      },
+      {
+        "date": "2026-10-14",
+        "insider": "Citadel L P",
+        "position": "",
+        "type": "Other",
+        "shares": 106036,
+        "value": 12373128.9639
+      },
+      {
+        "date": "2026-10-13",
+        "insider": "Janus Henderson Group plc",
+        "position": "",
+        "type": "Other",
+        "shares": 19863,
+        "value": 2387306.3658
+      },
+      {
+        "date": "2026-10-13",
+        "insider": "Soci�t� G�n�rale S.A",
+        "position": "",
+        "type": "Other",
+        "shares": 207,
+        "value": 25016.1124
+      },
+      {
+        "date": "2026-10-12",
+        "insider": "Dimensional Fund Advisors, Ltd.",
+        "position": "",
+        "type": "Other",
+        "shares": 19159,
+        "value": 2261592.9958
+      },
+      {
+        "date": "2026-10-12",
+        "insider": "Janus Henderson Group plc",
+        "position": "",
+        "type": "Other",
+        "shares": 0,
         "value": 0.0
       },
       {
-        "date": "2026-04-28",
-        "insider": "MODJTABAI AVID",
-        "position": "Director",
+        "date": "2026-10-12",
+        "insider": "Soci�t� G�n�rale S.A",
+        "position": "",
         "type": "Other",
-        "shares": 1984,
-        "value": 0.0
-      },
-      {
-        "date": "2026-04-28",
-        "insider": "PIANI OLIVIER",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1984,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-31",
-        "insider": "LETTER DANIEL",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 16000,
-        "value": 143.616
-      },
-      {
-        "date": "2026-03-26",
-        "insider": "MOGHADAM HAMID R",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1019089,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-09",
-        "insider": "ANDRUS CARTER",
-        "position": "Chief Operating Officer",
-        "type": "Other",
-        "shares": 25106,
-        "value": 225.2976
-      },
-      {
-        "date": "2026-01-28",
-        "insider": "SLUSSER SARAH ANN",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 111,
-        "value": 11337.5858
-      },
-      {
-        "date": "2025-12-09",
-        "insider": "FOTIADES GEORGE L",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1824,
-        "value": 0.0
-      },
-      {
-        "date": "2025-12-01",
-        "insider": "BITA CRISTINA GABRIELA",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 621,
-        "value": 71125.8251
-      },
-      {
-        "date": "2025-11-03",
-        "insider": "BITA CRISTINA GABRIELA",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 500,
-        "value": 55265.2329
-      },
-      {
-        "date": "2025-10-24",
-        "insider": "CONNOR JAMES B",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 80000,
-        "value": 9089586.0383
-      },
-      {
-        "date": "2025-10-01",
-        "insider": "BITA CRISTINA GABRIELA",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 500,
-        "value": 51921.6728
-      },
-      {
-        "date": "2025-09-03",
-        "insider": "BITA CRISTINA GABRIELA",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 1000,
-        "value": 99633.6016
-      },
-      {
-        "date": "2025-08-26",
-        "insider": "PALAZZOLO LORI A",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 25000,
-        "value": 2498213.8235
-      },
-      {
-        "date": "2025-08-19",
-        "insider": "PALAZZOLO LORI A",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 25000,
-        "value": 2485454.4393
-      },
-      {
-        "date": "2025-08-19",
-        "insider": "PALAZZOLO LORI A",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 25000,
-        "value": 0.0
-      },
-      {
-        "date": "2025-05-30",
-        "insider": "FOTIADES GEORGE L",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1824,
-        "value": 0.0
-      },
-      {
-        "date": "2025-05-14",
-        "insider": "SLUSSER SARAH ANN",
-        "position": "Director",
-        "type": "Buy",
-        "shares": 13,
-        "value": 1252.152
-      },
-      {
-        "date": "2025-05-08",
-        "insider": "WEBB CARL B.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 29820,
-        "value": 2811546.2413
-      },
-      {
-        "date": "2025-05-02",
-        "insider": "WEBB CARL B.",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1617,
-        "value": 0.0
-      },
-      {
-        "date": "2025-05-02",
-        "insider": "PIANI OLIVIER",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1617,
-        "value": 0.0
-      },
-      {
-        "date": "2025-05-02",
-        "insider": "O CONNOR DAVID P",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1617,
-        "value": 0.0
-      },
-      {
-        "date": "2025-05-02",
-        "insider": "KENNARD LYDIA H",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1617,
-        "value": 0.0
-      },
-      {
-        "date": "2025-05-02",
-        "insider": "MODJTABAI AVID",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1617,
-        "value": 0.0
-      },
-      {
-        "date": "2025-05-02",
-        "insider": "GHAZAL JOSEPH",
-        "position": "Chief Investment Officer",
-        "type": "Other",
-        "shares": 252,
-        "value": 0.0
-      },
-      {
-        "date": "2025-02-21",
-        "insider": "GHAZAL JOSEPH",
-        "position": "Chief Investment Officer",
-        "type": "Other",
-        "shares": 491,
-        "value": 0.0
-      },
-      {
-        "date": "2025-02-05",
-        "insider": "GHAZAL JOSEPH",
-        "position": "Chief Investment Officer",
-        "type": "Sell",
-        "shares": 10997,
-        "value": 1172071.737
-      },
-      {
-        "date": "2025-01-31",
-        "insider": "GHAZAL JOSEPH",
-        "position": "Chief Investment Officer",
-        "type": "Other",
-        "shares": 956,
-        "value": 0.0
-      },
-      {
-        "date": "2025-01-17",
-        "insider": "GHAZAL JOSEPH",
-        "position": "Chief Investment Officer",
-        "type": "Other",
-        "shares": 5441,
-        "value": 0.0
-      },
-      {
-        "date": "2024-12-13",
-        "insider": "GHAZAL JOSEPH",
-        "position": "Chief Investment Officer",
-        "type": "Other",
-        "shares": 390,
-        "value": 0.0
-      },
-      {
-        "date": "2024-11-27",
-        "insider": "GHAZAL JOSEPH",
-        "position": "Chief Investment Officer",
-        "type": "Other",
-        "shares": 3249,
-        "value": 0.0
+        "shares": 221798,
+        "value": 26372907.5231
       }
     ]
   },
@@ -2400,7 +2413,7 @@
     },
     {
       "date": "2025-12-05",
-      "close": 111.3781,
+      "close": 111.3782,
       "volume": 3242200.0
     },
     {
@@ -2720,7 +2733,7 @@
     },
     {
       "date": "2026-03-11",
-      "close": 117.8764,
+      "close": 117.8765,
       "volume": 2971300.0
     },
     {
@@ -3524,5 +3537,5 @@
       "volume": 3293300.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.687909+00:00"
+  "updatedAt": "2026-10-29T10:22:02.598254+00:00"
 }

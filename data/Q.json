@@ -14,10 +14,10 @@
     "price": 110.2163,
     "change": 3.6263,
     "changePercent": 3.4,
-    "marketCap": 23058193024.2853,
+    "marketCap": 23072594147.6365,
     "fiftyTwoWeekLow": 65.3543,
     "fiftyTwoWeekHigh": 159.1265,
-    "volume": 1735000.0,
+    "volume": 1735121,
     "avgVolume": 1712792,
     "currency": "EUR"
   },
@@ -25,7 +25,7 @@
     "peTrailing": 43.8536,
     "peForward": 22.3335,
     "pegRatio": 1.21,
-    "dividendYield": 0.28,
+    "dividendYield": 0.26,
     "profitMargins": 0.1125,
     "debtToEquity": 59.992,
     "revenueGrowth": 0.221
@@ -1889,6 +1889,14 @@
       },
       {
         "date": "2026-05-21",
+        "insider": "BLINN MARK A",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1278,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-21",
         "insider": "STERIN STEVEN M",
         "position": "Director",
         "type": "Other",
@@ -1946,14 +1954,6 @@
       {
         "date": "2026-05-21",
         "insider": "DE BONDT KARIN",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1278,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-21",
-        "insider": "BLINN MARK A",
         "position": "Director",
         "type": "Other",
         "shares": 1278,
@@ -2043,9 +2043,25 @@
         "date": "2025-12-11",
         "insider": "GOSS MICHAEL G.",
         "position": "Officer",
+        "type": "Sell",
+        "shares": 1895,
+        "value": 144223.6775
+      },
+      {
+        "date": "2025-12-11",
+        "insider": "GOSS MICHAEL G.",
+        "position": "Officer",
         "type": "Other",
         "shares": 1942,
         "value": 137725.0534
+      },
+      {
+        "date": "2025-12-11",
+        "insider": "KEMP JON D",
+        "position": "Chief Executive Officer",
+        "type": "Sell",
+        "shares": 5655,
+        "value": 431505.05
       },
       {
         "date": "2025-12-11",
@@ -2056,20 +2072,20 @@
         "value": 419913.4434
       },
       {
-        "date": "2025-12-11",
-        "insider": "GOSS MICHAEL G.",
-        "position": "Officer",
-        "type": "Sell",
-        "shares": 1895,
-        "value": 144223.6775
+        "date": "2025-12-03",
+        "insider": "BLINN MARK A",
+        "position": "Director",
+        "type": "Other",
+        "shares": 4364,
+        "value": 0.0
       },
       {
-        "date": "2025-12-11",
-        "insider": "KEMP JON D",
-        "position": "Chief Executive Officer",
-        "type": "Sell",
-        "shares": 5655,
-        "value": 431505.05
+        "date": "2025-12-03",
+        "insider": "STERIN STEVEN M",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1000,
+        "value": 0.0
       },
       {
         "date": "2025-12-03",
@@ -2126,22 +2142,6 @@
         "type": "Other",
         "shares": 4364,
         "value": 0.0
-      },
-      {
-        "date": "2025-12-03",
-        "insider": "BLINN MARK A",
-        "position": "Director",
-        "type": "Other",
-        "shares": 4364,
-        "value": 0.0
-      },
-      {
-        "date": "2025-12-03",
-        "insider": "STERIN STEVEN M",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1000,
-        "value": 0.0
       }
     ]
   },
@@ -2163,7 +2163,7 @@
     },
     {
       "date": "2025-11-03",
-      "close": 86.8439,
+      "close": 86.844,
       "volume": 10626200.0
     },
     {
@@ -2243,7 +2243,7 @@
     },
     {
       "date": "2025-11-25",
-      "close": 69.8422,
+      "close": 69.8423,
       "volume": 3033500.0
     },
     {
@@ -2258,7 +2258,7 @@
     },
     {
       "date": "2025-12-01",
-      "close": 69.5278,
+      "close": 69.5277,
       "volume": 1622200.0
     },
     {
@@ -2423,7 +2423,7 @@
     },
     {
       "date": "2026-01-20",
-      "close": 85.2342,
+      "close": 85.2343,
       "volume": 1719400.0
     },
     {
@@ -3402,5 +3402,5 @@
       "volume": 1735000.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.729422+00:00"
+  "updatedAt": "2026-10-29T10:22:18.655471+00:00"
 }

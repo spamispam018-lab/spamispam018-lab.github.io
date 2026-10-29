@@ -12,12 +12,12 @@
   },
   "quote": {
     "price": 1524.5467,
-    "change": 11.8035,
+    "change": 11.8034,
     "changePercent": 0.78,
     "marketCap": 30546670546.3809,
     "fiftyTwoWeekLow": 918.2897,
     "fiftyTwoWeekHigh": 1546.3494,
-    "volume": 179600.0,
+    "volume": 179590,
     "avgVolume": 194649,
     "currency": "EUR"
   },
@@ -202,7 +202,7 @@
           "Net_Income_Continuous_Operations": 169454000.0,
           "Tax_Provision": 36084418.1713,
           "Pretax_Income": 188186330.9792,
-          "Other_Income_Expense": null,
+          "Other_Income_Expense": 52958.4008,
           "Other_Non_Operating_Income_Expenses": 6578510.5041,
           "Special_Income_Charges": -6525552.1033,
           "Restructuring_And_Mergern_Acquisition": 6525552.1033,
@@ -1895,17 +1895,25 @@
         "date": "2026-08-27",
         "insider": "KALTENBACH PATRICK",
         "position": "Chief Executive Officer",
-        "type": "Other",
+        "type": "Sell",
         "shares": 942,
-        "value": 866297.1113
+        "value": 1204893.3791
       },
       {
         "date": "2026-08-27",
         "insider": "KALTENBACH PATRICK",
         "position": "Chief Executive Officer",
-        "type": "Sell",
+        "type": "Other",
         "shares": 942,
-        "value": 1204893.3791
+        "value": 866297.1113
+      },
+      {
+        "date": "2026-08-05",
+        "insider": "SALICE THOMAS P",
+        "position": "Director",
+        "type": "Sell",
+        "shares": 417,
+        "value": 539144.3461
       },
       {
         "date": "2026-08-05",
@@ -1916,12 +1924,28 @@
         "value": 148952.2344
       },
       {
-        "date": "2026-08-05",
+        "date": "2026-08-03",
         "insider": "SALICE THOMAS P",
         "position": "Director",
         "type": "Sell",
-        "shares": 417,
-        "value": 539144.3461
+        "shares": 415,
+        "value": 538126.4677
+      },
+      {
+        "date": "2026-08-03",
+        "insider": "SALICE THOMAS P",
+        "position": "Director",
+        "type": "Other",
+        "shares": 415,
+        "value": 148237.7447
+      },
+      {
+        "date": "2026-08-03",
+        "insider": "VADALA SHAWN P.",
+        "position": "Chief Financial Officer",
+        "type": "Sell",
+        "shares": 2240,
+        "value": 2879213.6136
       },
       {
         "date": "2026-08-03",
@@ -1935,41 +1959,33 @@
         "date": "2026-08-03",
         "insider": "KELLER GERRY",
         "position": "Officer",
-        "type": "Other",
-        "shares": 240,
-        "value": 155279.4169
-      },
-      {
-        "date": "2026-08-03",
-        "insider": "SALICE THOMAS P",
-        "position": "Director",
-        "type": "Other",
-        "shares": 415,
-        "value": 148237.7447
-      },
-      {
-        "date": "2026-08-03",
-        "insider": "KELLER GERRY",
-        "position": "Officer",
         "type": "Sell",
         "shares": 240,
         "value": 307440.5713
       },
       {
         "date": "2026-08-03",
-        "insider": "VADALA SHAWN P.",
-        "position": "Chief Financial Officer",
-        "type": "Sell",
-        "shares": 2240,
-        "value": 2879213.6136
+        "insider": "KELLER GERRY",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 240,
+        "value": 155279.4169
       },
       {
-        "date": "2026-08-03",
-        "insider": "SALICE THOMAS P",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 415,
-        "value": 538126.4677
+        "date": "2026-05-12",
+        "insider": "VADALA SHAWN P.",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 291,
+        "value": 0.0
+      },
+      {
+        "date": "2026-05-12",
+        "insider": "KALTENBACH PATRICK",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 810,
+        "value": 0.0
       },
       {
         "date": "2026-05-12",
@@ -2004,22 +2020,6 @@
         "value": 0.0
       },
       {
-        "date": "2026-05-12",
-        "insider": "VADALA SHAWN P.",
-        "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 291,
-        "value": 0.0
-      },
-      {
-        "date": "2026-05-12",
-        "insider": "KALTENBACH PATRICK",
-        "position": "Chief Executive Officer",
-        "type": "Other",
-        "shares": 810,
-        "value": 0.0
-      },
-      {
         "date": "2026-02-17",
         "insider": "TOKICH MICHAEL JOSEPH",
         "position": "Director",
@@ -2031,33 +2031,17 @@
         "date": "2026-02-10",
         "insider": "VADALA SHAWN P.",
         "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 800,
-        "value": 427480.2116
-      },
-      {
-        "date": "2026-02-10",
-        "insider": "VADALA SHAWN P.",
-        "position": "Chief Financial Officer",
         "type": "Sell",
         "shares": 800,
         "value": 1012578.9856
       },
       {
-        "date": "2025-11-25",
+        "date": "2026-02-10",
         "insider": "VADALA SHAWN P.",
         "position": "Chief Financial Officer",
         "type": "Other",
-        "shares": 2025,
-        "value": 1152249.1382
-      },
-      {
-        "date": "2025-11-25",
-        "insider": "GUERONNIERE MARC DE LA",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 6055,
-        "value": 4768281.0611
+        "shares": 800,
+        "value": 427480.2116
       },
       {
         "date": "2025-11-25",
@@ -2069,6 +2053,14 @@
       },
       {
         "date": "2025-11-25",
+        "insider": "GUERONNIERE MARC DE LA",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 6055,
+        "value": 4768281.0611
+      },
+      {
+        "date": "2025-11-25",
         "insider": "VADALA SHAWN P.",
         "position": "Chief Financial Officer",
         "type": "Sell",
@@ -2076,12 +2068,12 @@
         "value": 2692171.7226
       },
       {
-        "date": "2025-11-21",
-        "insider": "KELLER GERRY",
-        "position": "Officer",
+        "date": "2025-11-25",
+        "insider": "VADALA SHAWN P.",
+        "position": "Chief Financial Officer",
         "type": "Other",
-        "shares": 236,
-        "value": 152015.7432
+        "shares": 2025,
+        "value": 1152249.1382
       },
       {
         "date": "2025-11-21",
@@ -2092,12 +2084,12 @@
         "value": 300503.0208
       },
       {
-        "date": "2025-11-12",
-        "insider": "KALTENBACH PATRICK",
-        "position": "Chief Executive Officer",
+        "date": "2025-11-21",
+        "insider": "KELLER GERRY",
+        "position": "Officer",
         "type": "Other",
-        "shares": 2000,
-        "value": 1839272.1891
+        "shares": 236,
+        "value": 152015.7432
       },
       {
         "date": "2025-11-12",
@@ -2108,20 +2100,44 @@
         "value": 2625478.2464
       },
       {
-        "date": "2025-11-11",
-        "insider": "VADALA SHAWN P.",
-        "position": "Chief Financial Officer",
+        "date": "2025-11-12",
+        "insider": "KALTENBACH PATRICK",
+        "position": "Chief Executive Officer",
         "type": "Other",
-        "shares": 1895,
-        "value": 861115.2664
+        "shares": 2000,
+        "value": 1839272.1891
       },
       {
         "date": "2025-11-11",
-        "insider": "GUERONNIERE MARC DE LA",
-        "position": "Officer",
+        "insider": "KELLY MICHAEL A",
+        "position": "Director",
         "type": "Other",
-        "shares": 6880,
-        "value": 3901964.2026
+        "shares": 63,
+        "value": 0.0
+      },
+      {
+        "date": "2025-11-11",
+        "insider": "SHEPHERD BRIAN A",
+        "position": "Director",
+        "type": "Other",
+        "shares": 63,
+        "value": 0.0
+      },
+      {
+        "date": "2025-11-11",
+        "insider": "FINNEY ELISHA W",
+        "position": "Director",
+        "type": "Other",
+        "shares": 63,
+        "value": 0.0
+      },
+      {
+        "date": "2025-11-11",
+        "insider": "SALICE THOMAS P",
+        "position": "Director",
+        "type": "Other",
+        "shares": 91,
+        "value": 0.0
       },
       {
         "date": "2025-11-11",
@@ -2133,6 +2149,22 @@
       },
       {
         "date": "2025-11-11",
+        "insider": "GUERONNIERE MARC DE LA",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 6880,
+        "value": 3901964.2026
+      },
+      {
+        "date": "2025-11-11",
+        "insider": "VADALA SHAWN P.",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 192,
+        "value": 0.0
+      },
+      {
+        "date": "2025-11-11",
         "insider": "VADALA SHAWN P.",
         "position": "Chief Financial Officer",
         "type": "Sell",
@@ -2141,66 +2173,34 @@
       },
       {
         "date": "2025-11-11",
+        "insider": "VADALA SHAWN P.",
+        "position": "Chief Financial Officer",
+        "type": "Other",
+        "shares": 1895,
+        "value": 861115.2664
+      },
+      {
+        "date": "2025-11-11",
+        "insider": "KALTENBACH PATRICK",
+        "position": "Chief Executive Officer",
+        "type": "Other",
+        "shares": 576,
+        "value": 0.0
+      },
+      {
+        "date": "2025-11-11",
+        "insider": "KELLER GERRY",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 65,
+        "value": 0.0
+      },
+      {
+        "date": "2025-11-11",
         "insider": "DIGGELMANN ROLAND D",
         "position": "Director",
         "type": "Other",
         "shares": 157,
-        "value": 0.0
-      },
-      {
-        "date": "2025-11-11",
-        "insider": "DOAT-LE BIGOT DOMITILLE",
-        "position": "Director",
-        "type": "Other",
-        "shares": 63,
-        "value": 0.0
-      },
-      {
-        "date": "2025-11-11",
-        "insider": "WONG ANN PING RICHARD",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 67,
-        "value": 0.0
-      },
-      {
-        "date": "2025-11-11",
-        "insider": "ZHANG INGRID",
-        "position": "Director",
-        "type": "Other",
-        "shares": 63,
-        "value": 0.0
-      },
-      {
-        "date": "2025-11-11",
-        "insider": "WIENAND WOLFGANG",
-        "position": "Director",
-        "type": "Other",
-        "shares": 63,
-        "value": 0.0
-      },
-      {
-        "date": "2025-11-11",
-        "insider": "GRAHAM-BRYCE SUSAN",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 46,
-        "value": 0.0
-      },
-      {
-        "date": "2025-11-11",
-        "insider": "PERVERSI PABLO",
-        "position": "Director",
-        "type": "Other",
-        "shares": 63,
-        "value": 0.0
-      },
-      {
-        "date": "2025-11-11",
-        "insider": "VADALA SHAWN P.",
-        "position": "Chief Financial Officer",
-        "type": "Other",
-        "shares": 192,
         "value": 0.0
       }
     ]
@@ -3462,5 +3462,5 @@
       "volume": 179600.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:18.418403+00:00"
+  "updatedAt": "2026-10-29T10:20:18.139529+00:00"
 }

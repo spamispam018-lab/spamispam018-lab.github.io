@@ -11,19 +11,19 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 97.5,
-    "change": 0.3,
-    "changePercent": 0.31,
-    "marketCap": 15523560448.0,
+    "price": 92.25,
+    "change": -4.05,
+    "changePercent": -4.21,
+    "marketCap": 14870700032.0,
     "fiftyTwoWeekLow": 77.5,
     "fiftyTwoWeekHigh": 115.6,
-    "volume": 123047.0,
+    "volume": 71786,
     "avgVolume": 147214,
     "currency": "EUR"
   },
   "ratios": {
-    "peTrailing": 26.456,
-    "peForward": 17.7624,
+    "peTrailing": 25.3434,
+    "peForward": 17.0154,
     "pegRatio": null,
     "dividendYield": 1.95,
     "profitMargins": 0.0728,
@@ -1787,7 +1787,7 @@
   },
   "analysts": {
     "targets": {
-      "current": 96.3,
+      "current": 92.25,
       "low": 95.0,
       "median": 123.0,
       "mean": 119.2667,
@@ -1842,12 +1842,6 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-09-30",
-        "estimate": 0.9566,
-        "actual": 0.89,
-        "surprisePercent": -0.0697
-      },
-      {
         "quarter": "2025-12-31",
         "estimate": 0.8801,
         "actual": 0.7703,
@@ -1864,6 +1858,12 @@
         "estimate": 1.2006,
         "actual": 1.0741,
         "surprisePercent": -0.1054
+      },
+      {
+        "quarter": "2026-09-30",
+        "estimate": 1.2314,
+        "actual": null,
+        "surprisePercent": null
       }
     ]
   },
@@ -1878,11 +1878,6 @@
     "trades": []
   },
   "chartHistory": [
-    {
-      "date": "2025-10-28",
-      "close": 80.2309,
-      "volume": 165508.0
-    },
     {
       "date": "2025-10-29",
       "close": 79.2991,
@@ -3145,14 +3140,14 @@
     },
     {
       "date": "2026-10-28",
-      "close": null,
+      "close": 96.3,
       "volume": 425115.0
     },
     {
-      "date": "2026-10-27",
-      "close": 97.5,
-      "volume": 123047.0
+      "date": "2026-10-29",
+      "close": 92.25,
+      "volume": 71786.0
     }
   ],
-  "updatedAt": "2026-10-29T06:35:16.856552+00:00"
+  "updatedAt": "2026-10-29T10:10:13.172267+00:00"
 }
