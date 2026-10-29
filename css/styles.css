@@ -962,3 +962,59 @@ input, button, select, textarea {
   color: var(--text-dim);
   line-height: 1.4;
 }
+
+
+/* Auffälligkeiten-Karte (Chart-Tab) */
+.auff-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.auff-col {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  min-width: 0;
+}
+
+.auff-col-plus { border-top: 2px solid var(--bullish); }
+.auff-col-minus { border-top: 2px solid var(--bearish); }
+
+.auff-col-head {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.auff-item {
+  margin-top: 8px;
+}
+
+.auff-item-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.auff-item-text {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+.auff-empty {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 8px;
+}
+
+@media (max-width: 420px) {
+  .auff-grid { grid-template-columns: 1fr; }
+}
