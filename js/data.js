@@ -22,6 +22,28 @@ window.App.Data = (function () {
   };
 
   /**
+   * Schreibt in den localStorage. Ist er voll (ca. 5 MB), werden zuerst die
+   * Kurs-Caches entfernt, damit Favoriten und letzte Auswahl nicht verloren gehen.
+   */
+  function safeSet(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      try {
+        Object.keys(localStorage).forEach(function (k) {
+          if (k.indexOf(STORAGE_KEYS.STOCK_PREFIX) === 0) localStorage.removeItem(k);
+        });
+        localStorage.setItem(key, value);
+        return true;
+      } catch (e2) {
+        console.warn('Speichern im localStorage fehlgeschlagen:', key, e2);
+        return false;
+      }
+    }
+  }
+
+  /**
    * Lädt eine JSON-Datei mit Fallback-Kette:
    * 1. Direkter Webserver-Pfad /data/...
    * 2. GitHub Raw (falls Pages noch deployt)
@@ -52,7 +74,7 @@ window.App.Data = (function () {
       .then(function (data) {
         if (Array.isArray(data) && data.length > 0) {
           try {
-            localStorage.setItem(STORAGE_KEYS.UNIVERSE, JSON.stringify(data));
+            safeSet(STORAGE_KEYS.UNIVERSE, JSON.stringify(data));
           } catch (e) {}
           return data;
         }
@@ -86,7 +108,7 @@ window.App.Data = (function () {
       .then(function (data) {
         if (data && (data.ticker || data.profile)) {
           try {
-            localStorage.setItem(storageKey, JSON.stringify(data));
+            safeSet(storageKey, JSON.stringify(data));
           } catch (e) {}
           return data;
         }
@@ -159,7 +181,7 @@ window.App.Data = (function () {
     }
 
     try {
-      localStorage.setItem(STORAGE_KEYS.WATCHLIST, JSON.stringify(list));
+      safeSet(STORAGE_KEYS.WATCHLIST, JSON.stringify(list));
     } catch (e) {}
 
     return added;
@@ -168,7 +190,7 @@ window.App.Data = (function () {
   function setLastTicker(ticker) {
     if (!ticker) return;
     try {
-      localStorage.setItem(STORAGE_KEYS.LAST_TICKER, ticker.toUpperCase().trim());
+      safeSet(STORAGE_KEYS.LAST_TICKER, ticker.toUpperCase().trim());
     } catch (e) {}
   }
 
