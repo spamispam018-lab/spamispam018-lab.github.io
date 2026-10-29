@@ -15,6 +15,7 @@ window.App.StockOverview = (function () {
 
   var currentStock = null;
   var currentPeriod = '1Y';
+  var longHistory = null; // null = lädt noch, [] = nicht vorhanden
 
   /**
    * Haupt-Renderfunktion für die Overview-Ansicht.
@@ -93,11 +94,14 @@ window.App.StockOverview = (function () {
             '<button class="pill-btn ' + (currentPeriod === '3M' ? 'active' : '') + '" data-period="3M">3M</button>' +
             '<button class="pill-btn ' + (currentPeriod === '6M' ? 'active' : '') + '" data-period="6M">6M</button>' +
             '<button class="pill-btn ' + (currentPeriod === '1Y' ? 'active' : '') + '" data-period="1Y">1J</button>' +
+            '<button class="pill-btn ' + (currentPeriod === '5Y' ? 'active' : '') + '" data-period="5Y">5J</button>' +
+            '<button class="pill-btn ' + (currentPeriod === '10Y' ? 'active' : '') + '" data-period="10Y">10J</button>' +
           '</div>' +
         '</div>' +
         '<div style="height: 180px; width: 100%; position: relative; margin-top: 8px;">' +
           '<canvas id="overview-price-canvas"></canvas>' +
         '</div>' +
+        '<div class="perf-grid" id="overview-perf-grid"></div>' +
       '</div>' +
 
       '<!-- 3. Insider-Aktivität Kurzüberblick -->' +
@@ -127,9 +131,20 @@ window.App.StockOverview = (function () {
     container.innerHTML = html;
 
     // Charts zeichnen und Events verdrahten
+    longHistory = null;
     drawPriceChart();
+    updatePerfGrid();
     drawFinancialsChart(financials);
     bindPeriodPillEvents(container);
+
+    // Langzeit-Historie (5/10 Jahre) nachladen
+    var loadingTicker = stock.ticker;
+    window.App.Data.getLongHistory(loadingTicker).then(function (pts) {
+      if (!currentStock || currentStock.ticker !== loadingTicker) return;
+      longHistory = pts || [];
+      updatePerfGrid();
+      if (currentPeriod === '5Y' || currentPeriod === '10Y') drawPriceChart();
+    });
   }
 
   /**
@@ -185,8 +200,24 @@ window.App.StockOverview = (function () {
     var canvas = document.getElementById('overview-price-canvas');
     if (!canvas || !currentStock) return;
 
-    var fullHistory = currentStock.chartHistory || [];
-    var filtered = sliceHistoryByPeriod(fullHistory, currentPeriod);
+    var filtered = getPeriodSeries(currentPeriod);
+    var isLong = (currentPeriod === '5Y' || currentPeriod === '10Y');
+
+    if (filtered === null || filtered.length < 2) {
+      var setupCtx = canvas.getContext('2d');
+      var w = canvas.parentElement ? canvas.parentElement.clientWidth : 300;
+      canvas.width = w; canvas.height = 180;
+      canvas.style.width = w + 'px'; canvas.style.height = '180px';
+      setupCtx.clearRect(0, 0, w, 180);
+      setupCtx.fillStyle = '#64748b';
+      setupCtx.font = '12px sans-serif';
+      setupCtx.textAlign = 'center';
+      setupCtx.fillText(
+        isLong && longHistory === null ? 'Lade Langzeitdaten…' : 'Langzeitdaten noch nicht verfügbar (nächstes Update)',
+        w / 2, 90
+      );
+      return;
+    }
 
     var cur = currentStock.quote ? currentStock.quote.currency : 'EUR';
     window.App.Charts.renderLineChart(canvas, {
@@ -194,6 +225,46 @@ window.App.StockOverview = (function () {
       values: filtered.map(function (p) { return p.close; }),
       formatY: function (v) { return window.App.Format.currency(v, cur, 0); }
     });
+  }
+
+  /**
+   * Liefert die Kursreihe für eine Periode oder null, wenn Langzeitdaten fehlen.
+   */
+  function getPeriodSeries(period) {
+    if (period === '5Y' || period === '10Y') {
+      if (!longHistory || longHistory.length < 2) return null;
+      if (period === '10Y') return longHistory;
+      var last = longHistory[longHistory.length - 1].date;
+      var cutoff = (parseInt(last.slice(0, 4), 10) - 5) + last.slice(4);
+      return longHistory.filter(function (p) { return p.date >= cutoff; });
+    }
+    return sliceHistoryByPeriod((currentStock && currentStock.chartHistory) || [], period);
+  }
+
+  /**
+   * Prozentuale Veränderung je Zeitraum (1M … 10J) unter dem Chart.
+   */
+  function updatePerfGrid() {
+    var grid = document.getElementById('overview-perf-grid');
+    if (!grid || !currentStock) return;
+    var periods = [['1M', '1M'], ['3M', '3M'], ['6M', '6M'], ['1Y', '1J'], ['5Y', '5J'], ['10Y', '10J']];
+    var html = '';
+    periods.forEach(function (pd) {
+      var series = getPeriodSeries(pd[0]);
+      var txt = '—';
+      var cls = '';
+      if (series && series.length >= 2 && series[0].close) {
+        var pct = (series[series.length - 1].close / series[0].close - 1) * 100;
+        txt = (pct >= 0 ? '+' : '') + window.App.Format.number(pct, 1) + ' %';
+        cls = pct >= 0 ? 'up' : 'down';
+      } else if ((pd[0] === '5Y' || pd[0] === '10Y') && longHistory === null) {
+        txt = '…';
+      }
+      html += '<div class="perf-cell ' + cls + (pd[0] === currentPeriod ? ' selected' : '') + '">' +
+        '<span class="perf-label">' + pd[1] + '</span>' +
+        '<span class="perf-value">' + txt + '</span></div>';
+    });
+    grid.innerHTML = html;
   }
 
   /**
@@ -259,6 +330,7 @@ window.App.StockOverview = (function () {
         pill.classList.add('active');
         currentPeriod = pill.getAttribute('data-period');
         drawPriceChart();
+        updatePerfGrid();
       };
     });
   }
@@ -273,4 +345,3 @@ window.App.StockOverview = (function () {
     render: render
   };
 })();
- 
