@@ -155,8 +155,8 @@ window.App.StockOverview = (function () {
         var sChange = window.App.Format.number(currentStock.quote.changePercent, 2) + ' %';
         var sPe = (currentStock.ratios && currentStock.ratios.peTrailing) ? window.App.Format.number(currentStock.ratios.peTrailing, 1) : 'unbekannt';
 
-        // Dynamischer Prompt
-        var promptText = "Hallo Gemini! Kannst du mir bitte erklären, warum sich der Aktienkurs von " + sName + " (" + sTicker + ") aktuell so verhält? " +
+        // Dynamischer Prompt mit Ergänzung am Anfang
+        var promptText = "Hallo Gemini! Bitte prüfe zuerst meine Daten. Kannst du mir danach bitte erklären, warum sich der Aktienkurs von " + sName + " (" + sTicker + ") aktuell so verhält? " +
                          "Der Kurs liegt bei " + sPrice + " mit einer heutigen Änderung von " + sChange + ". Das KGV beträgt " + sPe + ". " +
                          "Bitte gib mir eine Bewertung der Aktie anhand dieser Daten und der aktuellen Marktlage.";
         
