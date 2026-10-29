@@ -427,6 +427,59 @@ def run_delta_sync(tickers):
 
     print(f"Delta-Sync abgeschlossen: {len(updated_universe)} Werte in EUR synchronisiert.")
 
+LONG_DIR = os.path.join(DATA_DIR, "long")
+LONG_MAX_AGE_DAYS = 6
+
+
+def update_long_histories(tickers):
+    """Wöchentliche 10-Jahres-Kurshistorie (EUR) je Ticker nach data/long/<TICKER>.json.
+    Nur Ticker ohne Datei oder mit Datei älter als LONG_MAX_AGE_DAYS werden neu geladen."""
+    os.makedirs(LONG_DIR, exist_ok=True)
+    now = time.time()
+    todo = []
+    for sym in tickers:
+        f = os.path.join(LONG_DIR, f"{sym}.json")
+        if not os.path.exists(f) or (now - os.path.getmtime(f)) > LONG_MAX_AGE_DAYS * 86400:
+            todo.append(sym)
+    if not todo:
+        print("Langzeit-Historien aktuell, nichts zu laden.")
+        return
+    print(f"Lade 10-Jahres-Wochenkurse für {len(todo)} Ticker...")
+    try:
+        df = yf.download(todo, period="10y", interval="1wk", group_by="ticker",
+                         auto_adjust=False, threads=True, progress=False)
+    except Exception as e:
+        print(f"Langzeit-Download fehlgeschlagen: {e}")
+        return
+
+    for sym in todo:
+        try:
+            sub = df[sym] if len(todo) > 1 else df
+            close = sub["Close"].dropna()
+            if close.empty:
+                print(f"Keine Langzeitdaten für {sym}")
+                continue
+            cur = detect_native_currency(sym)
+            sf = os.path.join(DATA_DIR, f"{sym}.json")
+            if os.path.exists(sf):
+                try:
+                    with open(sf, "r", encoding="utf-8") as fh:
+                        cur = (json.load(fh).get("profile", {}) or {}).get("nativeCurrency") or cur
+                except Exception:
+                    pass
+            points = []
+            for idx, val in close.items():
+                v = clean_val(to_eur(clean_val(float(val)), cur))
+                if v is not None:
+                    points.append([idx.strftime("%Y-%m-%d"), v])
+            with open(os.path.join(LONG_DIR, f"{sym}.json"), "w", encoding="utf-8") as fh:
+                json.dump({"ticker": sym, "interval": "1wk", "currency": "EUR",
+                           "updatedAt": datetime.now(timezone.utc).isoformat(),
+                           "points": points}, fh, ensure_ascii=False, separators=(",", ":"))
+        except Exception as e:
+            print(f"Langzeitdaten für {sym} übersprungen ({e})")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["delta", "full"], default="delta")
@@ -470,6 +523,12 @@ def main():
                 print(f"Fehler bei {sym}: {e}")
         with open(os.path.join(DATA_DIR, "universe.json"), "w", encoding="utf-8") as f:
             json.dump(universe, f, ensure_ascii=False, indent=2)
+
+    # Langzeit-Kurshistorie (5/10 Jahre) separat und nur bei Bedarf aktualisieren
+    try:
+        update_long_histories(ALL_TICKERS)
+    except Exception as e:
+        print(f"Langzeit-Historie übersprungen: {e}")
 
 if __name__ == "__main__":
     main()
