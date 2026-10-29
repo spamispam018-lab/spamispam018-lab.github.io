@@ -312,13 +312,13 @@ window.App.StockChart = (function () {
           '<span class="card-title">Auffälligkeiten</span>' +
           '<span class="period-tag">Kennzahlen</span>' +
         '</div>' +
-        '<div class="auff-grid">' +
-          '<div class="auff-col auff-col-plus">' +
-            '<div class="auff-col-head">Auffällig günstig / stark</div>' +
+        '<div class="auff-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">' +
+          '<div class="auff-col auff-col-plus" style="background-color: var(--bg-secondary); border: 1px solid var(--border-subtle); border-top: 2px solid var(--bullish); border-radius: var(--radius-sm); padding: 10px; min-width: 0;">' +
+            '<div class="auff-col-head" style="font-size: 0.68rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px;">Auffällig günstig / stark</div>' +
             auffColHtml(auff.plus, 'Keine Auffälligkeit nach diesen Kriterien.') +
           '</div>' +
-          '<div class="auff-col auff-col-minus">' +
-            '<div class="auff-col-head">Auffällig teuer / schwach</div>' +
+          '<div class="auff-col auff-col-minus" style="background-color: var(--bg-secondary); border: 1px solid var(--border-subtle); border-top: 2px solid var(--bearish); border-radius: var(--radius-sm); padding: 10px; min-width: 0;">' +
+            '<div class="auff-col-head" style="font-size: 0.68rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px;">Auffällig teuer / schwach</div>' +
             auffColHtml(auff.minus, 'Keine Auffälligkeit nach diesen Kriterien.') +
           '</div>' +
         '</div>' +
@@ -482,10 +482,10 @@ window.App.StockChart = (function () {
   }
 
   function auffColHtml(items, emptyText) {
-    if (!items.length) return '<div class="auff-empty">' + emptyText + '</div>';
+    if (!items.length) return '<div class="auff-empty" style="font-size: 0.72rem; color: var(--text-dim); margin-top: 8px;">' + emptyText + '</div>';
     return items.map(function (it) {
-      return '<div class="auff-item"><div class="auff-item-title">' + it.t + '</div>' +
-        '<div class="auff-item-text">' + it.d + '</div></div>';
+      return '<div class="auff-item" style="margin-top: 8px;"><div class="auff-item-title" style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);">' + it.t + '</div>' +
+        '<div class="auff-item-text" style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4; margin-top: 2px;">' + it.d + '</div></div>';
     }).join('');
   }
 
