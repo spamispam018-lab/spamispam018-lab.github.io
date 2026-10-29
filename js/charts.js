@@ -200,7 +200,10 @@ window.App.Charts = (function () {
 
     var padding = { top: 20, right: 15, bottom: 25, left: 45 };
     var allVals = [];
-    series.forEach(function (sr) { allVals = allVals.concat(sr.values); });
+    series.forEach(function (sr) {
+      sr.values.forEach(function (v) { if (v !== null && v !== undefined && isFinite(v)) allVals.push(v); });
+    });
+    if (allVals.length === 0) return;
     var minVal = Math.min.apply(null, allVals);
     var maxVal = Math.max.apply(null, allVals);
     var buffer = (maxVal - minVal) * 0.1 || (maxVal * 0.05) || 1;
@@ -211,30 +214,121 @@ window.App.Charts = (function () {
 
     var chartW = w - padding.left - padding.right;
     var chartH = h - padding.top - padding.bottom;
+    var n0 = Math.max.apply(null, series.map(function (sr) { return sr.values.length; }));
+    var stepX0 = n0 > 1 ? chartW / (n0 - 1) : chartW;
 
     series.forEach(function (sr) {
       var n = sr.values.length;
-      var stepX = n > 1 ? chartW / (n - 1) : chartW;
+      // Kürzere Reihen rechtsbündig ausrichten
+      var offset = n0 - n;
+      var started = false;
       ctx.beginPath();
       for (var i = 0; i < n; i++) {
-        var x = padding.left + i * stepX;
-        var y = padding.top + chartH - ((sr.values[i] - minVal) / (maxVal - minVal)) * chartH;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        var v = sr.values[i];
+        if (v === null || v === undefined || !isFinite(v)) { started = false; continue; }
+        var x = padding.left + (i + offset) * stepX0;
+        var y = padding.top + chartH - ((v - minVal) / (maxVal - minVal)) * chartH;
+        if (!started) { ctx.moveTo(x, y); started = true; } else { ctx.lineTo(x, y); }
       }
       ctx.strokeStyle = sr.color || THEME.purpleLight;
-      ctx.lineWidth = 2;
-      ctx.setLineDash([]);
+      ctx.lineWidth = sr.width || 2;
+      ctx.setLineDash(sr.dash || []);
       ctx.stroke();
+      ctx.setLineDash([]);
     });
 
     // X-Achsen-Labels (Start, Mitte, Ende)
     ctx.font = '10px ' + THEME.fontFamily;
     ctx.fillStyle = THEME.textColor;
     ctx.textAlign = 'center';
-    var n0 = series[0].values.length;
-    var stepX0 = n0 > 1 ? chartW / (n0 - 1) : chartW;
     [0, Math.floor(n0 / 2), n0 - 1].forEach(function (idx) {
       if (labels[idx]) ctx.fillText(labels[idx], padding.left + idx * stepX0, h - 6);
+    });
+  }
+
+  /**
+   * 1c. Indikator-Chart (RSI, MACD …): Linien, optionale Histogramm-Balken und Referenzlinien.
+   * opts: { labels, lines:[{values,color}], bars:[values], refLines:[{value,color}], min, max, formatY }
+   */
+  function renderIndicatorChart(canvas, opts) {
+    var setup = setupCanvas(canvas);
+    if (!setup) return;
+    var ctx = setup.ctx;
+    var w = setup.width;
+    var h = setup.height;
+    var labels = opts.labels || [];
+    var lines = opts.lines || [];
+    var bars = opts.bars || null;
+    var n = labels.length;
+    if (n < 2) return;
+
+    var padding = { top: 14, right: 15, bottom: 22, left: 45 };
+    var vals = [];
+    lines.forEach(function (ln) { ln.values.forEach(function (v) { if (v !== null && isFinite(v)) vals.push(v); }); });
+    if (bars) bars.forEach(function (v) { if (v !== null && isFinite(v)) vals.push(v); });
+    if (vals.length === 0) return;
+    var minVal = (opts.min !== undefined) ? opts.min : Math.min.apply(null, vals);
+    var maxVal = (opts.max !== undefined) ? opts.max : Math.max.apply(null, vals);
+    if (opts.min === undefined || opts.max === undefined) {
+      var buf = (maxVal - minVal) * 0.1 || 1;
+      if (opts.min === undefined) minVal -= buf;
+      if (opts.max === undefined) maxVal += buf;
+    }
+
+    drawGridAndYAxis(ctx, w, h, minVal, maxVal, padding, opts.formatY);
+
+    var chartW = w - padding.left - padding.right;
+    var chartH = h - padding.top - padding.bottom;
+    var stepX = chartW / (n - 1);
+    function yOf(v) { return padding.top + chartH - ((v - minVal) / (maxVal - minVal)) * chartH; }
+
+    // Referenzlinien
+    (opts.refLines || []).forEach(function (rl) {
+      ctx.save();
+      ctx.strokeStyle = rl.color || THEME.gray;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(padding.left, yOf(rl.value));
+      ctx.lineTo(w - padding.right, yOf(rl.value));
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    // Histogramm
+    if (bars) {
+      var zeroY = yOf(0);
+      var bw = Math.max(1, stepX * 0.7);
+      for (var b = 0; b < bars.length; b++) {
+        var bv = bars[b];
+        if (bv === null || !isFinite(bv)) continue;
+        ctx.fillStyle = bv >= 0 ? 'rgba(16, 185, 129, 0.55)' : 'rgba(239, 68, 68, 0.55)';
+        var by = yOf(bv);
+        ctx.fillRect(padding.left + b * stepX - bw / 2, Math.min(by, zeroY), bw, Math.abs(by - zeroY) || 1);
+      }
+    }
+
+    // Linien
+    lines.forEach(function (ln) {
+      var started = false;
+      ctx.beginPath();
+      for (var i = 0; i < ln.values.length; i++) {
+        var v = ln.values[i];
+        if (v === null || v === undefined || !isFinite(v)) { started = false; continue; }
+        var x = padding.left + i * stepX;
+        if (!started) { ctx.moveTo(x, yOf(v)); started = true; } else { ctx.lineTo(x, yOf(v)); }
+      }
+      ctx.strokeStyle = ln.color || THEME.purpleLight;
+      ctx.lineWidth = ln.width || 1.8;
+      ctx.setLineDash([]);
+      ctx.stroke();
+    });
+
+    ctx.font = '10px ' + THEME.fontFamily;
+    ctx.fillStyle = THEME.textColor;
+    ctx.textAlign = 'center';
+    [0, Math.floor(n / 2), n - 1].forEach(function (idx) {
+      if (labels[idx]) ctx.fillText(labels[idx], padding.left + idx * stepX, h - 6);
     });
   }
 
@@ -400,6 +494,7 @@ window.App.Charts = (function () {
   return {
     renderLineChart: renderLineChart,
     renderMultiLineChart: renderMultiLineChart,
+    renderIndicatorChart: renderIndicatorChart,
     renderGroupedBarChart: renderGroupedBarChart,
     renderDonutChart: renderDonutChart,
     renderStackedBarChart: renderStackedBarChart
