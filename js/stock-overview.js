@@ -7,7 +7,7 @@
  * - Kompakte Insider-Aktivitätskarte mit Stimmungsbalken
  * - Quartalsweiser Finanztrend (Umsatz & Nettoergebnis)
  * - KI-Analyse Banner (öffnet Gemini mit generiertem Prompt inkl. technischem Bild)
- * - Aktualisieren-Button zum Neuladen der Livedaten
+ * - Aktualisieren-Button zum Triggern der GitHub Action und Neuladen der Livedaten
  */
 
 window.App = window.App || {};
@@ -66,11 +66,11 @@ window.App.StockOverview = (function () {
         '</div>' +
       '</div>' +
 
-      '<!-- Daten aktualisieren Button -->' +
+      '<!-- Daten aktualisieren Button (GitHub Action Trigger) -->' +
       '<div style="display: flex; justify-content: flex-end; margin-bottom: 14px;">' +
         '<button id="btn-refresh-stock" class="chip-btn" style="font-size: 0.72rem; display: flex; align-items: center; gap: 6px;">' +
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>' +
-          'Werte & Kurs aktualisieren' +
+          'Live-Kurs abrufen (Delta)' +
         '</button>' +
       '</div>' +
 
@@ -220,37 +220,85 @@ window.App.StockOverview = (function () {
       };
     }
 
-    // Refresh Event Listener binden
+    // GitHub Action Trigger & Refresh Event Listener
     var refreshBtn = container.querySelector('#btn-refresh-stock');
     if (refreshBtn) {
       refreshBtn.onclick = function() {
+        var token = localStorage.getItem('GITHUB_PAT');
+        
+        if (!token) {
+            token = prompt("Um Live-Daten abzurufen, gib bitte dein GitHub Personal Access Token (mit 'repo' Berechtigung) ein.\n\nEs wird sicher nur lokal in deinem Browser (localStorage) gespeichert.");
+            if (token) {
+                localStorage.setItem('GITHUB_PAT', token);
+            } else {
+                return; // Abbruch durch Nutzer
+            }
+        }
+
         var originalHtml = refreshBtn.innerHTML;
-        // Zeige Ladezustand im Button (Spinner per Inline-CSS verkleinert)
-        refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Lade frische Daten...';
+        // Zeige Trigger-Zustand
+        refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Action startet...';
         refreshBtn.disabled = true;
 
-        // Erzwingt den Neuladevorgang über data.js (bypasst Cache)
-        window.App.Data.getStock(currentStock.ticker)
-          .then(function(updatedStock) {
-            // 1. Header der Detailansicht ebenfalls aktualisieren (liegt außerhalb des Overview-Tabs in stock.html)
-            var priceEl = document.getElementById('stock-header-price');
-            var changeEl = document.getElementById('stock-header-change');
-            if (priceEl && changeEl && updatedStock.quote) {
-                priceEl.textContent = window.App.Format.currency(updatedStock.quote.price, updatedStock.quote.currency);
-                var chgCls = window.App.Format.changeClass(updatedStock.quote.changePercent);
-                var sign = (updatedStock.quote.changePercent >= 0) ? '+' : '';
-                changeEl.className = 'badge-pill ' + chgCls;
-                changeEl.textContent = sign + window.App.Format.number(updatedStock.quote.changePercent, 2) + ' %';
+        var workflowFilename = 'update_data.yml';
+        var githubApiUrl = 'https://api.github.com/repos/spamispam018-lab/spamispam018-lab.github.io/actions/workflows/' + workflowFilename + '/dispatches';
+
+        // 1. GitHub Action via API triggern
+        fetch(githubApiUrl, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/vnd.github.v3+json',
+                'Authorization': 'token ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                ref: 'main',
+                inputs: { sync_mode: 'delta' }
+            })
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403 || response.status === 404) {
+                    localStorage.removeItem('GITHUB_PAT');
+                    throw new Error("Token ungültig, abgelaufen oder fehlende Berechtigungen. Bitte Seite neu laden und erneut versuchen.");
+                }
+                throw new Error("GitHub API Fehler: " + response.status);
             }
-            // 2. Overview-Tab mit den neuen Daten neu rendern
-            window.App.StockOverview.render(container, updatedStock);
-          })
-          .catch(function(err) {
+            
+            // 2. Action läuft -> Wartezeit für Ausführung und GitHub Pages Deployment einbauen
+            refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Warte auf Yahoo (25s)...';
+            
+            setTimeout(function() {
+                // 3. Nach Wartezeit die aktualisierten JSON-Daten auslesen (Cache bypassen)
+                window.App.Data.getStock(currentStock.ticker)
+                  .then(function(updatedStock) {
+                    // Header der Detailansicht aktualisieren
+                    var priceEl = document.getElementById('stock-header-price');
+                    var changeEl = document.getElementById('stock-header-change');
+                    if (priceEl && changeEl && updatedStock.quote) {
+                        priceEl.textContent = window.App.Format.currency(updatedStock.quote.price, updatedStock.quote.currency);
+                        var chgCls = window.App.Format.changeClass(updatedStock.quote.changePercent);
+                        var sign = (updatedStock.quote.changePercent >= 0) ? '+' : '';
+                        changeEl.className = 'badge-pill ' + chgCls;
+                        changeEl.textContent = sign + window.App.Format.number(updatedStock.quote.changePercent, 2) + ' %';
+                    }
+                    // Overview-Tab neu rendern
+                    window.App.StockOverview.render(container, updatedStock);
+                  })
+                  .catch(function(err) {
+                    console.error("Fehler beim Laden der neuen Daten:", err);
+                    refreshBtn.innerHTML = originalHtml;
+                    refreshBtn.disabled = false;
+                    alert('Die Action wurde gestartet, aber die neuen Daten konnten noch nicht geladen werden. Bitte in wenigen Momenten nochmal versuchen.');
+                  });
+            }, 25000); // 25 Sekunden warten
+        })
+        .catch(function(err) {
             console.error(err);
             refreshBtn.innerHTML = originalHtml;
             refreshBtn.disabled = false;
-            alert('Fehler beim Aktualisieren der Daten. Bitte prüfe deine Verbindung.');
-          });
+            alert(err.message);
+        });
       };
     }
 
