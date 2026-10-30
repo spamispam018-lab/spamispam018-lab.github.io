@@ -1,7 +1,7 @@
 /**
  * js/compare.js
  * Ermöglicht den direkten Vergleich von 2 bis 4 Aktien:
- * - Ticker-Auswahl über Schnellauswahl oder Direkteingabe
+ * - Ticker-Auswahl über Schnellauswahl oder Direkteingabe (mit Autocomplete-Suche)
  * - Normierter Kursvergleich (Basis 100 %) als Canvas-Liniendiagramm
  * - Gegenüberstellung der Kernmetriken (Bewertung, Wachstum, Margen, Verschuldung)
  * - Margenvergleich als gruppiertes Balkendiagramm
@@ -54,12 +54,13 @@ window.App.Compare = (function () {
           '<div style="font-size: 0.78rem; color: var(--text-dim);">2 bis 4 Unternehmen im direkten Kennzahlen- &amp; Performance-Vergleich</div>' +
         '</div>' +
 
-        '<div class="card" style="padding: 12px; margin-bottom: 14px;">' +
+        '<div class="card" style="padding: 12px; margin-bottom: 14px; position: relative; overflow: visible;">' +
           '<div style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; font-weight: 600;">Ausgewählte Titel</div>' +
           '<div id="compare-chips-container" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;"></div>' +
-          '<div style="display: flex; gap: 8px; margin-top: 10px;">' +
-            '<input type="text" id="compare-add-input" class="search-input" placeholder="Ticker hinzufügen (z.B. NVDA)..." style="height: 38px; padding-left: 14px;">' +
-            '<button id="compare-add-btn" class="chip-btn active" style="border-radius: var(--radius-md); padding: 0 16px;">+ Add</button>' +
+          '<div style="display: flex; gap: 8px; margin-top: 10px; position: relative;">' +
+            '<input type="text" id="compare-add-input" class="search-input" placeholder="Name oder Ticker suchen..." style="height: 38px; padding-left: 14px; flex: 1;" autocomplete="off">' +
+            '<!-- Dropdown für Suchergebnisse -->' +
+            '<div id="compare-autocomplete" style="display: none; position: absolute; top: 44px; left: 0; right: 0; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); max-height: 240px; overflow-y: auto; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.5);"></div>' +
           '</div>' +
         '</div>' +
 
@@ -143,30 +144,99 @@ window.App.Compare = (function () {
   }
 
   /**
-   * Bindet das Hinzufügen weiterer Ticker.
+   * Hilfsfunktion zum Hinzufügen einer Aktie und Neuladen
+   */
+  function addTickerToCompare(ticker) {
+    if (!ticker) return;
+    var upperTicker = ticker.toUpperCase().trim();
+    if (selectedTickers.indexOf(upperTicker) === -1) {
+      if (selectedTickers.length >= 4) {
+        alert('Maximal 4 Aktien gleichzeitig im Vergleich.');
+        return;
+      }
+      selectedTickers.push(upperTicker);
+      loadAndRenderComparison();
+    }
+  }
+
+  /**
+   * Bindet das Hinzufügen weiterer Ticker inkl. Autocomplete-Suche.
    */
   function bindInputEvents() {
-    var addBtn = document.getElementById('compare-add-btn');
     var addInput = document.getElementById('compare-add-input');
+    var autocompleteBox = document.getElementById('compare-autocomplete');
+    var universe = [];
 
-    function handleAdd() {
-      if (!addInput) return;
-      var val = (addInput.value || '').trim().toUpperCase();
-      if (val && selectedTickers.indexOf(val) === -1) {
-        if (selectedTickers.length >= 4) {
-          alert('Maximal 4 Aktien gleichzeitig im Vergleich.');
+    // Universum im Hintergrund laden für die Suche
+    window.App.Data.getUniverse().then(function(data) {
+      universe = data || [];
+    });
+
+    if (addInput) {
+      addInput.oninput = function (e) {
+        var query = e.target.value.toLowerCase().trim();
+        
+        if (!query) {
+          autocompleteBox.style.display = 'none';
           return;
         }
-        selectedTickers.push(val);
-        addInput.value = '';
-        loadAndRenderComparison();
-      }
-    }
 
-    if (addBtn) addBtn.onclick = handleAdd;
-    if (addInput) {
+        // Filtern (Treffer in Ticker, Name oder Sektor)
+        var matches = universe.filter(function (item) {
+          var tick = (item.ticker || '').toLowerCase();
+          var name = (item.name || '').toLowerCase();
+          var sector = (item.sector || '').toLowerCase();
+          return tick.indexOf(query) !== -1 || name.indexOf(query) !== -1 || sector.indexOf(query) !== -1;
+        }).slice(0, 10); // Auf max. 10 Treffer limitieren
+
+        if (matches.length > 0) {
+          var listHtml = '';
+          matches.forEach(function (m) {
+            listHtml += '' +
+              '<div class="autocomplete-item" data-ticker="' + m.ticker + '" style="padding: 10px 14px; border-bottom: 1px solid var(--border-subtle); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">' +
+                '<div style="display: flex; flex-direction: column; overflow: hidden;">' +
+                  '<span style="font-weight: 600; font-size: 0.85rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + (m.name || m.ticker) + '</span>' +
+                  '<span style="font-size: 0.7rem; color: var(--text-dim);">' + m.ticker + ' &bull; ' + (m.sector || 'N/A') + '</span>' +
+                '</div>' +
+                '<div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">' + 
+                  window.App.Format.currency(m.price, m.currency) + 
+                '</div>' +
+              '</div>';
+          });
+          autocompleteBox.innerHTML = listHtml;
+          autocompleteBox.style.display = 'block';
+
+          // Klick auf ein Suchergebnis
+          var items = autocompleteBox.querySelectorAll('.autocomplete-item');
+          items.forEach(function (item) {
+            item.onclick = function () {
+              var t = this.getAttribute('data-ticker');
+              addTickerToCompare(t);
+              addInput.value = '';
+              autocompleteBox.style.display = 'none';
+            };
+          });
+        } else {
+          autocompleteBox.innerHTML = '<div style="padding: 10px 14px; font-size: 0.8rem; color: var(--text-dim);">Keine Treffer gefunden</div>';
+          autocompleteBox.style.display = 'block';
+        }
+      };
+
+      // Dropdown verstecken, wenn der Fokus verloren geht (mit Verzögerung, damit Klicks registriert werden)
+      addInput.onblur = function () {
+        setTimeout(function () {
+          if (autocompleteBox) autocompleteBox.style.display = 'none';
+        }, 200);
+      };
+
+      // Fallback: Exact Match beim Drücken von Enter
       addInput.onkeydown = function (e) {
-        if (e.key === 'Enter') handleAdd();
+        if (e.key === 'Enter') {
+          var val = addInput.value.trim();
+          addTickerToCompare(val);
+          addInput.value = '';
+          autocompleteBox.style.display = 'none';
+        }
       };
     }
   }
