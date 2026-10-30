@@ -52,7 +52,6 @@ print(f"Universum: {len(ALL_TICKERS)} Ticker")
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
 # Realistische Basis-Wechselkurse (Einheiten Fremdwährung in 1 Euro)
-# Multiplikator = 1.0 / Kurs (z.B. 1 JPY = 0.0061 EUR)
 RATES_TO_EUR = {
     "EUR": 1.0,
     "USD": 0.92,
@@ -284,7 +283,7 @@ def fetch_full_stock(ticker_sym):
 
     chart_history = []
     try:
-        hist = t.history(period="1y", interval="1d")
+        hist = t.history(period="2y", interval="1d")  # Auf 2 Jahre erhöht für SMA 200 Vorlauf
         for dt, row in hist.iterrows():
             chart_history.append({
                 "date": dt.strftime("%Y-%m-%d"),
@@ -310,10 +309,6 @@ def fetch_full_stock(ticker_sym):
         "updatedAt": datetime.now(timezone.utc).isoformat()
     }
 
-# ==============================================================================
-# DELTA-SYNC MIT KORREKTER WÄHRUNGSUMRECHNUNG
-# ==============================================================================
-
 def screener_extras(st):
     """Zusatzfelder fürs Universum (Screener-Filter 'Unterbewertet')."""
     ratios = st.get("ratios", {}) or {}
@@ -333,7 +328,6 @@ def screener_extras(st):
         out["upside"] = round((tgt / px - 1) * 100, 1)
     return out
 
-
 def run_delta_sync(tickers):
     load_live_forex()
     print(f"Starte Delta-Sync für {len(tickers)} Ticker (Batch-Download & EUR-Umrechnung)...")
@@ -348,8 +342,6 @@ def run_delta_sync(tickers):
                     universe_map[item["ticker"]] = item
         except Exception:
             pass
-
-    updated_universe = []
 
     for sym in tickers:
         stock_file = os.path.join(DATA_DIR, f"{sym}.json")
@@ -377,7 +369,6 @@ def run_delta_sync(tickers):
                 raw_curr = clean_val(last_row["Close"])
                 raw_prev = clean_val(prev_row["Close"])
 
-                # Kurs zwingend in EUR umrechnen
                 curr_eur = clean_val(to_eur(raw_curr, cur), 0.0)
                 prev_eur = clean_val(to_eur(raw_prev, cur), curr_eur)
 
@@ -392,11 +383,14 @@ def run_delta_sync(tickers):
 
                 last_date = df_clean.index[-1].strftime("%Y-%m-%d")
                 history = stock_data.get("chartHistory", [])
-                if history and history[-1]["date"] == last_date:
-                    history[-1]["close"] = curr_eur
-                else:
-                    history.append({"date": last_date, "close": curr_eur, "volume": clean_val(last_row.get("Volume", 0))})
-                stock_data["chartHistory"] = history[-260:]
+                
+                # Wir stellen sicher, dass neu heruntergeladene Tagesdaten angehängt werden ohne doppelte Einträge
+                history = [p for p in history if p["date"] != last_date]
+                history.append({"date": last_date, "close": curr_eur, "volume": clean_val(last_row.get("Volume", 0))})
+                history.sort(key=lambda x: x["date"])
+                
+                # Bis zu 2 Jahre (ca. 520 Einträge) behalten
+                stock_data["chartHistory"] = history[-520:]
                 stock_data["updatedAt"] = datetime.now(timezone.utc).isoformat()
         except Exception as e:
             print(f"Hinweis: Delta-Update für {sym} übersprungen ({e})")
@@ -422,21 +416,22 @@ def run_delta_sync(tickers):
         u_item["profitMargins"] = ratios.get("profitMargins")
         u_item.update(screener_extras(stock_data))
 
+        hist = stock_data.get("chartHistory", [])
+        if len(hist) > 20 and hist[0].get("close"):
+            u_item["perf52w"] = round(((hist[-1]["close"] - hist[-260]["close"]) / hist[-260]["close"]) * 100, 2) if len(hist) >= 260 else round(((hist[-1]["close"] - hist[0]["close"]) / hist[0]["close"]) * 100, 2)
+
         universe_map[sym] = u_item
 
-    # Immer das gesamte Universum speichern, auch wenn nur ein Ticker geupdatet wurde
     with open(universe_file, "w", encoding="utf-8") as f:
         json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
 
     print(f"Delta-Sync abgeschlossen: {len(tickers)} Werte in EUR synchronisiert.")
 
 LONG_DIR = os.path.join(DATA_DIR, "long")
-LONG_OVERLAP_TOLERANCE = 0.02  # max. 2 % Abweichung am Überlappungspunkt, sonst Split/Neufassung
-
+LONG_OVERLAP_TOLERANCE = 0.02
 
 def _long_file(sym):
     return os.path.join(LONG_DIR, f"{sym}.json")
-
 
 def _load_long(sym):
     f = _long_file(sym)
@@ -448,7 +443,6 @@ def _load_long(sym):
     except Exception:
         return None
 
-
 def _native_currency(sym):
     sf = os.path.join(DATA_DIR, f"{sym}.json")
     if os.path.exists(sf):
@@ -459,7 +453,6 @@ def _native_currency(sym):
             pass
     return detect_native_currency(sym)
 
-
 def _series_to_points(close, cur):
     points = []
     for idx, val in close.items():
@@ -468,7 +461,6 @@ def _series_to_points(close, cur):
             points.append([idx.strftime("%Y-%m-%d"), v])
     return points
 
-
 def _write_long(sym, points):
     os.makedirs(LONG_DIR, exist_ok=True)
     with open(_long_file(sym), "w", encoding="utf-8") as fh:
@@ -476,11 +468,9 @@ def _write_long(sym, points):
                    "updatedAt": datetime.now(timezone.utc).isoformat(),
                    "points": points}, fh, ensure_ascii=False, separators=(",", ":"))
 
-
 def _extract_close(df, sym, multi):
     sub = df[sym] if multi else df
     return sub["Close"].dropna()
-
 
 def update_long_histories(tickers):
     os.makedirs(LONG_DIR, exist_ok=True)
@@ -502,14 +492,11 @@ def update_long_histories(tickers):
     if not full_needed and not delta_needed:
         print("Keine Langzeit-Ticker vorhanden.")
 
-
 DOWNLOAD_CHUNK = 50
-
 
 def _chunks(lst, n=DOWNLOAD_CHUNK):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
-
 
 def _download_full(syms):
     for chunk in _chunks(syms):
@@ -530,7 +517,6 @@ def _download_full(syms):
             except Exception as e:
                 print(f"Langzeitdaten für {sym} übersprungen ({e})")
         time.sleep(1)
-
 
 def _download_delta(syms, existing):
     refetch = []
@@ -571,7 +557,6 @@ def _download_delta(syms, existing):
         time.sleep(1)
     return refetch
 
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["delta", "full"], default="delta")
@@ -591,7 +576,6 @@ def main():
     else:
         print(f"Führe vollständigen Neuabruf mit EUR-Umrechnung für {len(target_tickers)} Ticker durch...")
         
-        # Bestehendes Universum laden, damit wir es nicht überschreiben, wenn wir nur EINEN Ticker pullen
         universe_map = {}
         universe_file = os.path.join(DATA_DIR, "universe.json")
         if os.path.exists(universe_file):
@@ -602,7 +586,6 @@ def main():
             except Exception:
                 pass
                 
-        # Wenn wir keinen speziellen Ticker übergeben haben, löschen wir das alte Universum für den FULL Run
         if not args.ticker:
             universe_map = {}
 
