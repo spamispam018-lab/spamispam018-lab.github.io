@@ -5,6 +5,7 @@
  * - Volltextsuche über Name und Ticker (Groß-/Kleinschreibung tolerant)
  * - Robuste Sortierung ohne Ausblenden von Titeln mit fehlenden Daten
  * - Filter-Presets & Detail-Navigation
+ * - KI-Screening für spezielle Filter (Unterbewertet, Turnaround)
  */
 
 window.App = window.App || {};
@@ -154,6 +155,7 @@ window.App.Screener = (function () {
       resultCountEl.textContent = filteredStocks.length + ' Ergebnisse';
     }
 
+    renderAiBanner(filteredStocks, currentPreset);
     renderStockCards(filteredStocks);
   }
 
@@ -198,6 +200,87 @@ window.App.Screener = (function () {
     }
     if (s.pe && s.pe > 0) return s.pe;
     return 1e9;
+  }
+
+  /**
+   * Rendert den KI-Banner, wenn bestimmte Presets aktiv sind.
+   */
+  function renderAiBanner(list, preset) {
+    var container = document.getElementById('screener-ai-banner-container');
+    if (!container) return;
+
+    if (preset !== 'undervalued' && preset !== 'turnaround') {
+      container.innerHTML = '';
+      return;
+    }
+
+    if (list.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+
+    var presetName = preset === 'undervalued' ? 'Unterbewertete Aktien' : 'Turnaround-Kandidaten';
+
+    var html = '' +
+      '<div class="card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%); border: 1px solid var(--accent-purple); padding: 14px; margin-bottom: 14px;">' +
+        '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+          '<div style="flex: 1; padding-right: 12px;">' +
+            '<div style="font-size: 0.9rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px; display: flex; align-items: center; gap: 6px;">' +
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple-light)" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>' +
+              'KI-Screening' +
+            '</div>' +
+            '<div style="font-size: 0.72rem; color: var(--text-muted);">Lass Gemini die besten 5 aus dieser Liste ermitteln. (' + list.length + ' Treffer)</div>' +
+          '</div>' +
+          '<button id="btn-screener-gemini" class="chip-btn active" style="background: var(--accent-purple); border-color: var(--accent-purple); font-size: 0.75rem; flex-shrink: 0; box-shadow: 0 4px 14px var(--accent-purple-glow);">Analysieren</button>' +
+        '</div>' +
+      '</div>';
+
+    container.innerHTML = html;
+
+    var geminiBtn = document.getElementById('btn-screener-gemini');
+    if (geminiBtn) {
+      geminiBtn.onclick = function() {
+        var promptText = "Hallo Gemini! Bitte prüfe zuerst meine Daten. Hier ist eine Liste von " + list.length + " Aktien, die aktuell in meinem Screener den Filter '" + presetName + "' erfüllen. " +
+                         "Bitte analysiere diese Liste basierend auf den mitgelieferten Kennzahlen und der aktuellen Marktlage. " +
+                         "Empfiehl mir danach die 5 besten Kandidaten für einen Einstieg und begründe deine Wahl kurz.\n\n";
+        
+        // Alle Treffer in den Prompt aufnehmen (ohne Limit)
+        list.forEach(function(s) {
+            var sName = s.name || s.ticker;
+            var sPrice = window.App.Format.currency(s.price, s.currency || 'EUR');
+            var sChange = window.App.Format.number(s.changePercent, 2) + " %";
+            var sPe = (s.pe !== null && s.pe !== undefined) ? window.App.Format.number(s.pe, 1) : "N/A";
+            var sUpside = (s.upside !== null && s.upside !== undefined) ? window.App.Format.number(s.upside, 1) + " %" : "N/A";
+
+            promptText += "- " + sName + " (" + s.ticker + ") | Sektor: " + (s.sector || 'N/A') + " | Kurs: " + sPrice + " (" + sChange + ") | KGV: " + sPe + " | Upside-Ziel: " + sUpside + "\n";
+        });
+
+        // Wenn der Text sehr lang ist (z.B. über 2000 Zeichen), sprengt das die URL.
+        // Wir packen den vollen Text in die Zwischenablage und senden der URL nur einen kurzen Start-Satz.
+        var safeUrlText = promptText;
+        var needsClipboardPaste = false;
+
+        if (promptText.length > 2000) {
+            safeUrlText = "Hallo Gemini! Ich habe eine große Liste mit " + list.length + " Aktien für den Filter '" + presetName + "' ermittelt. Ich füge dir die detaillierten Kennzahlen gleich in meiner nächsten Nachricht ein. Bitte antworte zunächst nur mit 'Bereit', damit ich die Daten einfügen kann.";
+            needsClipboardPaste = true;
+        }
+
+        var geminiUrl = "https://gemini.google.com/app?q=" + encodeURIComponent(safeUrlText);
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(promptText).then(function() {
+                if (needsClipboardPaste) {
+                    alert("Hinweis: Da die Liste mit " + list.length + " Aktien sehr lang ist, wurde sie automatisch in deine Zwischenablage kopiert. Füge den Text bei Gemini einfach über 'Einfügen' (oder Strg+V) in das Chat-Feld ein.");
+                }
+                window.open(geminiUrl, '_blank');
+            }).catch(function() {
+                window.open(geminiUrl, '_blank');
+            });
+        } else {
+            window.open(geminiUrl, '_blank');
+        }
+      };
+    }
   }
 
   /**
@@ -353,6 +436,8 @@ window.App.Screener = (function () {
             '<option value="perf52w_desc">52W-Performance (Beste)</option>' +
           '</select>' +
         '</div>' +
+
+        '<div id="screener-ai-banner-container"></div>' +
 
         '<div id="screener-list-container">' +
           '<div class="state-box"><div class="spinner"></div><p>Lade Aktien...</p></div>' +
