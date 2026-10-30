@@ -5,6 +5,7 @@
  * - Forward Valuation (Forward-KGV, Trailing-KGV, 5Y-KGV-Spanne)
  * - EPS-Estimates (Balkenchart mit Beat/Miss/Forecast-Farbcodierung)
  * - Analyst Recommendations (Konsens-Score, Donut-Diagramm, gestapeltes Verlaufshistorie-Chart)
+ * - Verlinkung zur externen Analystenseite für Details und Quellen
  */
 
 window.App = window.App || {};
@@ -141,6 +142,12 @@ window.App.StockAnalyst = (function () {
         '<div style="font-size: 0.74rem; font-weight: 600; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase;">Entwicklung der letzten 4 Monate</div>' +
         '<div class="chart-container">' +
           '<canvas id="analyst-history-canvas" class="chart-canvas" style="height: 140px;"></canvas>' +
+        '</div>' +
+
+        '<!-- Verlinkung zu detaillierten Quellen -->' +
+        '<div style="margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--border-subtle); text-align: center; font-size: 0.75rem;">' +
+          '<span style="color: var(--text-dim);">Quelle: Aggregierter Konsens via Yahoo Finance.</span><br>' +
+          '<a href="https://de.finance.yahoo.com/quote/' + stock.ticker + '/analysis" target="_blank" style="color: var(--accent-purple-light); text-decoration: none; font-weight: 600; display: inline-block; margin-top: 4px;">Detaillierte Analystenberichte ansehen &rarr;</a>' +
         '</div>' +
       '</div>';
 
