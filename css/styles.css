@@ -410,7 +410,9 @@ input, button, select, textarea {
 .stock-tags {
   display: flex;
   gap: 6px;
+  row-gap: 4px;
   align-items: center;
+  flex-wrap: wrap; /* Erlaubt Zeilenumbruch bei engen Platzverhältnissen */
 }
 
 .ticker-badge {
@@ -432,6 +434,7 @@ input, button, select, textarea {
   flex-direction: column;
   align-items: flex-end;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 .stock-price {
