@@ -9,24 +9,23 @@
   </div>
 
   <!-- Ticker-Auswahl & Schnellhinzufügen -->
-  <div class="card" style="padding: 12px; margin-bottom: 14px;">
+  <div class="card" style="padding: 12px; margin-bottom: 14px; position: relative; overflow: visible;">
     <div style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; font-weight: 600;">
       Vergleichsgruppe (max. 4)
     </div>
     <div id="compare-chips-container" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;"></div>
     
-    <div style="display: flex; gap: 8px; margin-top: 10px;">
+    <div style="display: flex; gap: 8px; margin-top: 10px; position: relative;">
       <input 
         type="text" 
         id="compare-add-input" 
         class="search-input" 
-        placeholder="Ticker hinzufügen (z. B. NVDA, SAP.DE)..." 
-        style="height: 38px; padding-left: 14px;"
+        placeholder="Name oder Ticker suchen..." 
+        style="height: 38px; padding-left: 14px; flex: 1;"
         autocomplete="off"
       >
-      <button id="compare-add-btn" class="chip-btn active" style="border-radius: var(--radius-md); padding: 0 16px;">
-        + Hinzufügen
-      </button>
+      <!-- Dropdown für Suchergebnisse -->
+      <div id="compare-autocomplete" style="display: none; position: absolute; top: 44px; left: 0; right: 0; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); max-height: 240px; overflow-y: auto; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.5);"></div>
     </div>
   </div>
 
