@@ -14,6 +14,11 @@ on:
         options:
           - delta
           - full
+      ticker:
+        description: 'Optional: Einzelner Ticker (z.B. AAPL) für schnelles Update'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   update-market-data:
@@ -40,8 +45,14 @@ jobs:
       - name: Marktdaten aktualisieren
         run: |
           MODE="${{ github.event.inputs.sync_mode || 'delta' }}"
+          TICKER="${{ github.event.inputs.ticker || '' }}"
           echo "Starte Modus: $MODE"
-          python scripts/fetch_market_data.py --mode "$MODE"
+          if [ -n "$TICKER" ]; then
+            echo "Aktualisiere einzelnen Ticker: $TICKER"
+            python scripts/fetch_market_data.py --mode "$MODE" --ticker "$TICKER"
+          else
+            python scripts/fetch_market_data.py --mode "$MODE"
+          fi
 
       - name: Änderungen committen und pushen
         run: |
