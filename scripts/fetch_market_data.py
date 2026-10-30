@@ -422,16 +422,13 @@ def run_delta_sync(tickers):
         u_item["profitMargins"] = ratios.get("profitMargins")
         u_item.update(screener_extras(stock_data))
 
-        hist = stock_data.get("chartHistory", [])
-        if len(hist) > 20 and hist[0].get("close"):
-            u_item["perf52w"] = round(((hist[-1]["close"] - hist[0]["close"]) / hist[0]["close"]) * 100, 2)
+        universe_map[sym] = u_item
 
-        updated_universe.append(u_item)
-
+    # Immer das gesamte Universum speichern, auch wenn nur ein Ticker geupdatet wurde
     with open(universe_file, "w", encoding="utf-8") as f:
-        json.dump(updated_universe, f, ensure_ascii=False, indent=2)
+        json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
 
-    print(f"Delta-Sync abgeschlossen: {len(updated_universe)} Werte in EUR synchronisiert.")
+    print(f"Delta-Sync abgeschlossen: {len(tickers)} Werte in EUR synchronisiert.")
 
 LONG_DIR = os.path.join(DATA_DIR, "long")
 LONG_OVERLAP_TOLERANCE = 0.02  # max. 2 % Abweichung am Überlappungspunkt, sonst Split/Neufassung
@@ -486,25 +483,15 @@ def _extract_close(df, sym, multi):
 
 
 def update_long_histories(tickers):
-    """10-Jahres-Wochenkurse (EUR) je Ticker in data/long/<TICKER>.json.
-
-    - Fehlt die Datei: einmaliger Voll-Download der 10 Jahre.
-    - Datei vorhanden: nur die letzten Wochen laden, den Überlappungspunkt prüfen
-      und neue Wochen anhängen. Ältere Punkte bleiben unverändert.
-    - Weicht der Überlappungspunkt ab (Split, Kapitalmaßnahme), wird dieser Ticker einmal
-      vollständig neu geladen.
-    """
     os.makedirs(LONG_DIR, exist_ok=True)
     existing = {sym: _load_long(sym) for sym in tickers}
     full_needed = [sym for sym in tickers if not existing[sym] or not existing[sym].get("points")]
     delta_needed = [sym for sym in tickers if sym not in full_needed]
 
-    # 1) Voll-Download für neue Ticker
     if full_needed:
         print(f"Voll-Download 10 Jahre für {len(full_needed)} neue Ticker...")
         _download_full(full_needed)
 
-    # 2) Delta für bestehende Ticker
     if delta_needed:
         print(f"Delta-Update Langzeit für {len(delta_needed)} Ticker...")
         refetch = _download_delta(delta_needed, existing)
@@ -525,7 +512,6 @@ def _chunks(lst, n=DOWNLOAD_CHUNK):
 
 
 def _download_full(syms):
-    """Voll-Download 10 Jahre, in Blöcken, damit ein Fehler nicht das ganze Universum trifft."""
     for chunk in _chunks(syms):
         try:
             df = yf.download(chunk, period="10y", interval="1wk", group_by="ticker",
@@ -547,7 +533,6 @@ def _download_full(syms):
 
 
 def _download_delta(syms, existing):
-    """Lädt die letzten Wochen in Blöcken, hängt neue Punkte an. Gibt Ticker für Neufassung zurück."""
     refetch = []
     for chunk in _chunks(syms):
         try:
@@ -590,6 +575,7 @@ def _download_delta(syms, existing):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["delta", "full"], default="delta")
+    parser.add_argument("--ticker", type=str, default="", help="Optional: Einzelner Ticker für gezieltes Update")
     args = parser.parse_args()
 
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -598,17 +584,35 @@ def main():
     if not os.path.exists(os.path.join(DATA_DIR, "universe.json")):
         args.mode = "full"
 
+    target_tickers = [args.ticker.strip().upper()] if args.ticker else ALL_TICKERS
+
     if args.mode == "delta":
-        run_delta_sync(ALL_TICKERS)
+        run_delta_sync(target_tickers)
     else:
-        print("Führe vollständigen Neuabruf mit EUR-Umrechnung durch...")
-        universe = []
-        for sym in ALL_TICKERS:
+        print(f"Führe vollständigen Neuabruf mit EUR-Umrechnung für {len(target_tickers)} Ticker durch...")
+        
+        # Bestehendes Universum laden, damit wir es nicht überschreiben, wenn wir nur EINEN Ticker pullen
+        universe_map = {}
+        universe_file = os.path.join(DATA_DIR, "universe.json")
+        if os.path.exists(universe_file):
+            try:
+                with open(universe_file, "r", encoding="utf-8") as f:
+                    for item in json.load(f):
+                        universe_map[item["ticker"]] = item
+            except Exception:
+                pass
+                
+        # Wenn wir keinen speziellen Ticker übergeben haben, löschen wir das alte Universum für den FULL Run
+        if not args.ticker:
+            universe_map = {}
+
+        for sym in target_tickers:
             try:
                 st = fetch_full_stock(sym)
                 with open(os.path.join(DATA_DIR, f"{sym}.json"), "w", encoding="utf-8") as f:
                     json.dump(st, f, ensure_ascii=False, indent=2)
-                universe.append({
+                
+                new_item = {
                     "ticker": sym,
                     "name": st["profile"]["name"],
                     "sector": st["profile"]["sector"],
@@ -624,16 +628,18 @@ def main():
                     **screener_extras(st),
                     "perf52w": (round(((st["chartHistory"][-1]["close"] - st["chartHistory"][0]["close"]) / st["chartHistory"][0]["close"]) * 100, 2)
                                 if len(st.get("chartHistory", [])) > 20 and st["chartHistory"][0].get("close") else None)
-                })
+                }
+                
+                universe_map[sym] = new_item
                 time.sleep(0.3)
             except Exception as e:
                 print(f"Fehler bei {sym}: {e}")
-        with open(os.path.join(DATA_DIR, "universe.json"), "w", encoding="utf-8") as f:
-            json.dump(universe, f, ensure_ascii=False, indent=2)
+                
+        with open(universe_file, "w", encoding="utf-8") as f:
+            json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
 
-    # Langzeit-Kurshistorie (5/10 Jahre) separat und nur bei Bedarf aktualisieren
     try:
-        update_long_histories(ALL_TICKERS)
+        update_long_histories(target_tickers)
     except Exception as e:
         print(f"Langzeit-Historie übersprungen: {e}")
 
