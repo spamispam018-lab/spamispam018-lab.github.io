@@ -1,7 +1,7 @@
 /**
  * js/compare.js
  * Ermöglicht den direkten Vergleich von 2 bis 4 Aktien:
- * - Ticker-Auswahl über Schnellauswahl oder Direkteingabe (mit Autocomplete-Suche)
+ * - Ticker-Auswahl über Schnellauswahl oder Direkteingabe (mit Autocomplete-Suche & localStorage-Persistenz)
  * - Normierter Kursvergleich (Basis 100 %) als Canvas-Liniendiagramm
  * - Gegenüberstellung der Kernmetriken (Bewertung, Wachstum, Margen, Verschuldung)
  * - Margenvergleich als gruppiertes Balkendiagramm
@@ -13,10 +13,35 @@ window.App = window.App || {};
 window.App.Compare = (function () {
   'use strict';
 
+  var STORAGE_KEY = 'app_compare_tickers';
   var selectedTickers = ['AAPL', 'MSFT'];
   var loadedStocksData = {};
 
   var COLOR_PALETTE = ['#6366f1', '#10b981', '#f59e0b', '#ec4899'];
+
+  /**
+   * Speichert die aktuelle Auswahl persistent im Browser.
+   */
+  function saveTickers() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedTickers));
+    } catch (e) {}
+  }
+
+  /**
+   * Lädt die gespeicherte Auswahl aus dem Browser.
+   */
+  function loadSavedTickers() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          selectedTickers = parsed.slice(0, 4);
+        }
+      }
+    } catch (e) {}
+  }
 
   /**
    * Initialisiert die Compare-View.
@@ -32,10 +57,14 @@ window.App.Compare = (function () {
 
     if (params && params.tickers) {
       selectedTickers = params.tickers.split(',').slice(0, 4);
+      saveTickers();
     } else if (params && params.ticker) {
       if (selectedTickers.indexOf(params.ticker) === -1) {
         selectedTickers[0] = params.ticker;
       }
+      saveTickers();
+    } else {
+      loadSavedTickers();
     }
 
     renderShell(container);
@@ -102,7 +131,6 @@ window.App.Compare = (function () {
           validStocks.push(st);
         } else {
           var t = selectedTickers[idx];
-          // Fallback Dummy aus Universe erzeugen falls Detaildaten fehlen
           var dummy = { ticker: t, profile: { name: t }, quote: { price: 0 }, ratios: {} };
           loadedStocksData[t] = dummy;
           validStocks.push(dummy);
@@ -138,13 +166,14 @@ window.App.Compare = (function () {
       btn.onclick = function () {
         var t = btn.getAttribute('data-remove-ticker');
         selectedTickers = selectedTickers.filter(function (item) { return item !== t; });
+        saveTickers();
         loadAndRenderComparison();
       };
     });
   }
 
   /**
-   * Hilfsfunktion zum Hinzufügen einer Aktie und Neuladen
+   * Hilfsfunktion zum Hinzufügen einer Aktie, Speichern und Neuladen.
    */
   function addTickerToCompare(ticker) {
     if (!ticker) return;
@@ -155,6 +184,7 @@ window.App.Compare = (function () {
         return;
       }
       selectedTickers.push(upperTicker);
+      saveTickers();
       loadAndRenderComparison();
     }
   }
@@ -167,7 +197,6 @@ window.App.Compare = (function () {
     var autocompleteBox = document.getElementById('compare-autocomplete');
     var universe = [];
 
-    // Universum im Hintergrund laden für die Suche
     window.App.Data.getUniverse().then(function(data) {
       universe = data || [];
     });
@@ -181,13 +210,12 @@ window.App.Compare = (function () {
           return;
         }
 
-        // Filtern (Treffer in Ticker, Name oder Sektor)
         var matches = universe.filter(function (item) {
           var tick = (item.ticker || '').toLowerCase();
           var name = (item.name || '').toLowerCase();
           var sector = (item.sector || '').toLowerCase();
           return tick.indexOf(query) !== -1 || name.indexOf(query) !== -1 || sector.indexOf(query) !== -1;
-        }).slice(0, 10); // Auf max. 10 Treffer limitieren
+        }).slice(0, 10);
 
         if (matches.length > 0) {
           var listHtml = '';
@@ -206,7 +234,6 @@ window.App.Compare = (function () {
           autocompleteBox.innerHTML = listHtml;
           autocompleteBox.style.display = 'block';
 
-          // Klick auf ein Suchergebnis
           var items = autocompleteBox.querySelectorAll('.autocomplete-item');
           items.forEach(function (item) {
             item.onclick = function () {
@@ -222,14 +249,12 @@ window.App.Compare = (function () {
         }
       };
 
-      // Dropdown verstecken, wenn der Fokus verloren geht (mit Verzögerung, damit Klicks registriert werden)
       addInput.onblur = function () {
         setTimeout(function () {
           if (autocompleteBox) autocompleteBox.style.display = 'none';
         }, 200);
       };
 
-      // Fallback: Exact Match beim Drücken von Enter
       addInput.onkeydown = function (e) {
         if (e.key === 'Enter') {
           var val = addInput.value.trim();
@@ -295,7 +320,6 @@ window.App.Compare = (function () {
 
     container.innerHTML = html;
 
-    // Gemini Event Listener
     var geminiBtn = container.querySelector('#btn-compare-gemini');
     if (geminiBtn) {
       geminiBtn.onclick = function() {
@@ -365,7 +389,6 @@ window.App.Compare = (function () {
       };
     }
 
-    // Charts zeichnen
     initNormalizedPerformanceChart(stocks);
     initMarginsBarChart(stocks);
   }
@@ -414,7 +437,6 @@ window.App.Compare = (function () {
     var legendContainer = document.getElementById('compare-chart-legend');
     if (!canvas) return;
 
-    // Gemeinsame Datenlänge ermitteln
     var minLen = 9999;
     stocks.forEach(function (s) {
       var hist = s.chartHistory || [];
@@ -429,7 +451,6 @@ window.App.Compare = (function () {
       labels.push(pt.date ? pt.date.slice(5, 7) + '/' + pt.date.slice(2, 4) : '');
     });
 
-    // Erster Kurs jedes Titels = 100 %
     var seriesData = [];
     stocks.forEach(function (s, sIdx) {
       var hist = (s.chartHistory || []).slice(-minLen);
@@ -445,7 +466,6 @@ window.App.Compare = (function () {
       });
     });
 
-    // Alle Titel als eigene Linien rendern
     if (seriesData.length > 0) {
       window.App.Charts.renderMultiLineChart(canvas, {
         labels: labels,
@@ -454,7 +474,6 @@ window.App.Compare = (function () {
       });
     }
 
-    // HTML-Legende
     if (legendContainer) {
       var legHtml = '';
       seriesData.forEach(function (s) {
