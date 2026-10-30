@@ -7,7 +7,7 @@
  * - Kompakte Insider-Aktivitätskarte mit Stimmungsbalken
  * - Quartalsweiser Finanztrend (Umsatz & Nettoergebnis)
  * - KI-Analyse Banner (öffnet Gemini mit generiertem Prompt inkl. technischem Bild)
- * - Aktualisieren-Button zum Triggern der GitHub Action (nur für diesen Ticker)
+ * - Aktualisieren-Button zum Triggern der GitHub Action (nur für diesen Ticker) inkl. Timestamp
  */
 
 window.App = window.App || {};
@@ -51,6 +51,16 @@ window.App.StockOverview = (function () {
       ? window.App.Format.number(ratios.dividendYield, 2) + ' %'
       : '0,00 %';
 
+    // Aktualisierungsdatum formatieren
+    var updatedAtDisplay = 'Unbekannt';
+    if (stock.updatedAt) {
+      var d = new Date(stock.updatedAt);
+      if (!isNaN(d.getTime())) {
+        updatedAtDisplay = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ', ' +
+                           d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+      }
+    }
+
     var html = '' +
       '<!-- KI-Analyse mit Gemini -->' +
       '<div class="card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%); border: 1px solid var(--accent-purple); padding: 14px; margin-bottom: 8px;">' +
@@ -66,8 +76,9 @@ window.App.StockOverview = (function () {
         '</div>' +
       '</div>' +
 
-      '<!-- Daten aktualisieren Button (GitHub Action Trigger - Single Ticker) -->' +
-      '<div style="display: flex; justify-content: flex-end; margin-bottom: 14px;">' +
+      '<!-- Daten aktualisieren Button (GitHub Action Trigger - Single Ticker) & Zeitstempel -->' +
+      '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">' +
+        '<div style="font-size: 0.7rem; color: var(--text-dim);">Stand: ' + updatedAtDisplay + '</div>' +
         '<button id="btn-refresh-stock" class="chip-btn" style="font-size: 0.72rem; display: flex; align-items: center; gap: 6px;">' +
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>' +
           'Live-Kurs abrufen' +
