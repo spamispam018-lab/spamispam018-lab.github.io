@@ -7,7 +7,7 @@
  * - Kompakte Insider-Aktivitätskarte mit Stimmungsbalken
  * - Quartalsweiser Finanztrend (Umsatz & Nettoergebnis)
  * - KI-Analyse Banner (öffnet Gemini mit generiertem Prompt inkl. technischem Bild)
- * - Aktualisieren-Button zum Triggern der GitHub Action und Neuladen der Livedaten
+ * - Aktualisieren-Button zum Triggern der GitHub Action (nur für diesen Ticker)
  */
 
 window.App = window.App || {};
@@ -66,11 +66,11 @@ window.App.StockOverview = (function () {
         '</div>' +
       '</div>' +
 
-      '<!-- Daten aktualisieren Button (GitHub Action Trigger) -->' +
+      '<!-- Daten aktualisieren Button (GitHub Action Trigger - Single Ticker) -->' +
       '<div style="display: flex; justify-content: flex-end; margin-bottom: 14px;">' +
         '<button id="btn-refresh-stock" class="chip-btn" style="font-size: 0.72rem; display: flex; align-items: center; gap: 6px;">' +
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>' +
-          'Live-Kurs abrufen (Delta)' +
+          'Live-Kurs abrufen' +
         '</button>' +
       '</div>' +
 
@@ -220,7 +220,7 @@ window.App.StockOverview = (function () {
       };
     }
 
-    // GitHub Action Trigger & Refresh Event Listener
+    // GitHub Action Trigger & Refresh Event Listener (Single Ticker)
     var refreshBtn = container.querySelector('#btn-refresh-stock');
     if (refreshBtn) {
       refreshBtn.onclick = function() {
@@ -243,7 +243,7 @@ window.App.StockOverview = (function () {
         var workflowFilename = 'update_data.yml';
         var githubApiUrl = 'https://api.github.com/repos/spamispam018-lab/spamispam018-lab.github.io/actions/workflows/' + workflowFilename + '/dispatches';
 
-        // 1. GitHub Action via API triggern
+        // 1. GitHub Action via API triggern (nur für currentStock.ticker)
         fetch(githubApiUrl, {
             method: 'POST',
             headers: {
@@ -253,7 +253,10 @@ window.App.StockOverview = (function () {
             },
             body: JSON.stringify({
                 ref: 'main',
-                inputs: { sync_mode: 'delta' }
+                inputs: { 
+                    sync_mode: 'delta',
+                    ticker: currentStock.ticker
+                }
             })
         })
         .then(function(response) {
@@ -265,8 +268,8 @@ window.App.StockOverview = (function () {
                 throw new Error("GitHub API Fehler: " + response.status);
             }
             
-            // 2. Action läuft -> Wartezeit für Ausführung und GitHub Pages Deployment einbauen
-            refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Warte auf Yahoo (25s)...';
+            // 2. Action läuft -> Da es nur ein Ticker ist, reicht eine kürzere Wartezeit (15 Sekunden)
+            refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Warte auf Yahoo (15s)...';
             
             setTimeout(function() {
                 // 3. Nach Wartezeit die aktualisierten JSON-Daten auslesen (Cache bypassen)
@@ -291,7 +294,7 @@ window.App.StockOverview = (function () {
                     refreshBtn.disabled = false;
                     alert('Die Action wurde gestartet, aber die neuen Daten konnten noch nicht geladen werden. Bitte in wenigen Momenten nochmal versuchen.');
                   });
-            }, 25000); // 25 Sekunden warten
+            }, 15000); // 15 Sekunden warten
         })
         .catch(function(err) {
             console.error(err);
