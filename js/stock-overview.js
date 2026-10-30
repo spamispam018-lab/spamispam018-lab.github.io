@@ -3,7 +3,7 @@
  * Verwaltet den Tab "Overview" der Aktiendetailansicht:
  * - Bewertungs- und Marktkennzahlen (mit sauberer Behandlung von fehlendem/negativem KGV)
  * - 52-Wochen-Spannenbalken
- * - Inline-Chart mit Umschalt-Pillen (1M, 3M, 6M, 1J)
+ * - Inline-Chart mit Umschalt-Pillen (1W, 1M, 3M, 6M, 1J)
  * - Kompakte Insider-Aktivitätskarte mit Stimmungsbalken
  * - Quartalsweiser Finanztrend (Umsatz & Nettoergebnis)
  * - KI-Analyse Banner (öffnet Gemini mit generiertem Prompt inkl. technischem Bild)
@@ -125,6 +125,7 @@ window.App.StockOverview = (function () {
         '<div class="card-header-dotted">' +
           '<span class="card-title">Kursverlauf</span>' +
           '<div class="pill-group" id="overview-period-pills">' +
+            '<button class="pill-btn ' + (currentPeriod === '1W' ? 'active' : '') + '" data-period="1W">1W</button>' +
             '<button class="pill-btn ' + (currentPeriod === '1M' ? 'active' : '') + '" data-period="1M">1M</button>' +
             '<button class="pill-btn ' + (currentPeriod === '3M' ? 'active' : '') + '" data-period="3M">3M</button>' +
             '<button class="pill-btn ' + (currentPeriod === '6M' ? 'active' : '') + '" data-period="6M">6M</button>' +
@@ -428,13 +429,21 @@ window.App.StockOverview = (function () {
   }
 
   /**
-   * Prozentuale Veränderung je Zeitraum (1M … 10J) unter dem Chart.
+   * Prozentuale Veränderung je Zeitraum (1W … 10J) unter dem Chart.
    */
   function updatePerfGrid() {
     var grid = document.getElementById('overview-perf-grid');
     if (!grid || !currentStock) return;
-    var periods = [['1M', '1M'], ['3M', '3M'], ['6M', '6M'], ['1Y', '1J'], ['5Y', '5J'], ['10Y', '10J']];
+    
+    // 1W zur Liste der Kacheln hinzugefügt
+    var periods = [['1W', '1W'], ['1M', '1M'], ['3M', '3M'], ['6M', '6M'], ['1Y', '1J'], ['5Y', '5J'], ['10Y', '10J']];
     var html = '';
+    
+    // Da wir 7 Kacheln haben, ordnen wir sie am besten flexibel an (z.B. 4 oben, 3 unten)
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.gap = '8px';
+    
     periods.forEach(function (pd) {
       var series = getPeriodSeries(pd[0]);
       var txt = '—';
@@ -446,7 +455,8 @@ window.App.StockOverview = (function () {
       } else if ((pd[0] === '5Y' || pd[0] === '10Y') && longHistory === null) {
         txt = '…';
       }
-      html += '<div class="perf-cell ' + cls + (pd[0] === currentPeriod ? ' selected' : '') + '">' +
+      
+      html += '<div class="perf-cell ' + cls + (pd[0] === currentPeriod ? ' selected' : '') + '" style="flex: 1 1 calc(25% - 8px); min-width: 60px;">' +
         '<span class="perf-label">' + pd[1] + '</span>' +
         '<span class="perf-value">' + txt + '</span></div>';
     });
@@ -460,7 +470,8 @@ window.App.StockOverview = (function () {
     if (!history || history.length === 0) return [];
     var count = history.length;
     switch (period) {
-      case '1M': return history.slice(Math.max(0, count - 22));
+      case '1W': return history.slice(Math.max(0, count - 5)); // ca. 5 Handelstage
+      case '1M': return history.slice(Math.max(0, count - 22)); // ca. 22 Handelstage
       case '3M': return history.slice(Math.max(0, count - 65));
       case '6M': return history.slice(Math.max(0, count - 130));
       case '1Y':
@@ -506,7 +517,7 @@ window.App.StockOverview = (function () {
   }
 
   /**
-   * Bindet die Klick-Events auf die Zeitbereich-Pillen (1M, 3M, 6M, 1J).
+   * Bindet die Klick-Events auf die Zeitbereich-Pillen.
    */
   function bindPeriodPillEvents(container) {
     var pills = container.querySelectorAll('#overview-period-pills .pill-btn');
