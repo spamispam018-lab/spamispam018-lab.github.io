@@ -1,18 +1,21 @@
 /**
  * js/stock-chart.js
  * Chart-Analyse-Tab der Aktiendetailseite (nach "Overview"):
- * - Technisches Bild (Signale zu SMA 50/200, RSI, MACD, Momentum)
+ * - Steuerung des Analyse-Zeitraums (1M, 3M, 6M, 1J)
+ * - Technisches Bild (Signale zu SMA 50/200, RSI, MACD, dynamisches Momentum)
  * - Kurs mit gleitenden Durchschnitten (SMA 50 / SMA 200)
  * - RSI (14) und MACD (12/26/9)
  * - Risiko & Volumen (Volatilität, Drawdown, Abstand zu Hoch/Tief, Volumentrend, Unterstützung/Widerstand)
  *
- * Alle Indikatoren werden im Browser aus stock.chartHistory (Tagesschlusskurse, ~1 Jahr) berechnet.
+ * Alle Indikatoren werden im Browser aus stock.chartHistory (Tagesschlusskurse) berechnet.
  */
 
 window.App = window.App || {};
 
 window.App.StockChart = (function () {
   'use strict';
+
+  var currentPeriod = '1Y'; // Default Zeitraum
 
   var COLORS = {
     price: '#818cf8',
@@ -41,7 +44,6 @@ window.App.StockChart = (function () {
     return out;
   }
 
-  /** EMA; Startwert = SMA der ersten n gültigen Werte. */
   function ema(values, n) {
     var out = [];
     var k = 2 / (n + 1);
@@ -66,7 +68,6 @@ window.App.StockChart = (function () {
     return out;
   }
 
-  /** RSI nach Wilder. */
   function rsi(values, n) {
     var out = [];
     var avgGain = 0;
@@ -116,7 +117,6 @@ window.App.StockChart = (function () {
     return Math.sqrt(v);
   }
 
-  /** Letzter Schnittpunkt SMA50/SMA200. */
   function findLastCross(s50, s200, dates) {
     var prevSign = 0;
     var last = null;
@@ -132,6 +132,7 @@ window.App.StockChart = (function () {
   }
 
   function maxDrawdown(closes) {
+    if (!closes || closes.length === 0) return 0;
     var peak = closes[0];
     var mdd = 0;
     closes.forEach(function (c) {
@@ -173,25 +174,52 @@ window.App.StockChart = (function () {
       return;
     }
 
+    buildView(container, stock, hist);
+  }
+
+  function buildView(container, stock, hist) {
     var currency = (stock.quote && stock.quote.currency) || 'EUR';
     var closes = hist.map(function (p) { return p.close; });
     var dates = hist.map(function (p) { return p.date; });
+    var vols = hist.map(function (p) { return p.volume || 0; });
+    
     var n = closes.length;
     var price = closes[n - 1];
-    var auff = auffaelligkeiten(stock);
 
+    // Indikatoren immer auf voller Historie berechnen
     var s50 = sma(closes, 50);
     var s200 = sma(closes, 200);
     var rsiArr = rsi(closes, 14);
     var m = macd(closes);
 
+    // Daten auf den gewählten Zeitraum (currentPeriod) zuschneiden
+    var tail = n;
+    if (currentPeriod === '1M') tail = Math.min(22, n);
+    else if (currentPeriod === '3M') tail = Math.min(65, n);
+    else if (currentPeriod === '6M') tail = Math.min(130, n);
+    else if (currentPeriod === '1Y') tail = Math.min(260, n);
+
+    var slicedCloses = closes.slice(-tail);
+    var slicedDates = dates.slice(-tail);
+    
+    // Für Signale nehmen wir immer die aktuellsten (letzten) Werte der Indikatoren
     var s50Last = lastValid(s50);
     var s200Last = lastValid(s200);
     var rsiLast = lastValid(rsiArr);
     var macdLast = lastValid(m.line);
     var sigLast = lastValid(m.signal);
     var cross = findLastCross(s50, s200, dates);
-    var mom3m = n > 63 ? (price / closes[n - 1 - 63] - 1) * 100 : null;
+
+    // Dynamisches Momentum bezogen auf den gewählten Zeitraum
+    var momVal = null;
+    if (slicedCloses.length > 0 && slicedCloses[0] > 0) {
+        momVal = (price / slicedCloses[0] - 1) * 100;
+    }
+    
+    var periodLabelMap = { '1M': '1 Monat', '3M': '3 Monate', '6M': '6 Monate', '1Y': '1 Jahr' };
+    var pLabel = periodLabelMap[currentPeriod];
+
+    var auff = auffaelligkeiten(stock);
 
     // ---- Signale ----
     var signals = [];
@@ -239,11 +267,11 @@ window.App.StockChart = (function () {
         state: macdBull ? 'bull' : 'bear'
       });
     }
-    if (mom3m !== null) {
+    if (momVal !== null) {
       signals.push({
-        label: 'Momentum 3 Monate',
-        text: pct(mom3m),
-        state: mom3m >= 0 ? 'bull' : 'bear'
+        label: 'Momentum ' + pLabel,
+        text: pct(momVal),
+        state: momVal >= 0 ? 'bull' : 'bear'
       });
     }
 
@@ -264,8 +292,7 @@ window.App.StockChart = (function () {
       '</div>';
     }).join('');
 
-    // ---- Chart-Erkenntnisse in die Auffälligkeiten übernehmen ----
-    // Bullische Signale links, bärische rechts; Extremwerte des RSI rechts.
+    // Chart-Erkenntnisse in die Auffälligkeiten übernehmen
     signals.forEach(function (sg) {
       if (sg.state === 'bull') auff.plus.push({ t: sg.label, d: sg.text });
       else if (sg.state === 'bear') auff.minus.push({ t: sg.label, d: sg.text });
@@ -276,26 +303,37 @@ window.App.StockChart = (function () {
       auff.minus.push({ t: 'RSI überverkauft', d: 'RSI bei ' + fmt(rsiLast, 0) + ': der Kurs ist kurzfristig stark gefallen.' });
     }
 
-    // ---- Risiko & Volumen ----
+    // ---- Dynamisches Risiko & Volumen (angepasst an Zeitraum) ----
     var rets = [];
-    for (var i = 1; i < n; i++) rets.push(closes[i] / closes[i - 1] - 1);
+    for (var i = 1; i < slicedCloses.length; i++) rets.push(slicedCloses[i] / slicedCloses[i - 1] - 1);
     var vol = stdev(rets) * Math.sqrt(252) * 100;
-    var mdd = maxDrawdown(closes);
-    var hi = Math.max.apply(null, closes);
-    var lo = Math.min.apply(null, closes);
-    var fromHigh = (price / hi - 1) * 100;
-    var fromLow = (price / lo - 1) * 100;
+    var mdd = maxDrawdown(slicedCloses);
+    
+    var hi = Math.max.apply(null, slicedCloses);
+    var lo = Math.min.apply(null, slicedCloses);
+    var fromHigh = hi > 0 ? (price / hi - 1) * 100 : 0;
+    var fromLow = lo > 0 ? (price / lo - 1) * 100 : 0;
 
-    var vols = hist.map(function (p) { return p.volume || 0; });
+    var support = lo;
+    var resistance = hi;
+
+    // Volumentrend wird weiterhin als stabiler Macro-Indikator über die letzten 20/60 Tage gerechnet
     var volAvg20 = avg(vols.slice(-20));
     var volAvg60 = avg(vols.slice(-60));
     var volTrend = volAvg60 > 0 ? (volAvg20 / volAvg60 - 1) * 100 : null;
 
-    var recent = closes.slice(-63);
-    var support = Math.min.apply(null, recent);
-    var resistance = Math.max.apply(null, recent);
-
     var html = '' +
+      '<!-- Zeitraumsteuerung -->' +
+      '<div class="card" style="padding: 10px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">' +
+        '<span style="font-size: 0.78rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em;">Analyse-Zeitraum</span>' +
+        '<div class="pill-group" id="chart-period-pills">' +
+          '<button class="pill-btn ' + (currentPeriod === '1M' ? 'active' : '') + '" data-period="1M">1M</button>' +
+          '<button class="pill-btn ' + (currentPeriod === '3M' ? 'active' : '') + '" data-period="3M">3M</button>' +
+          '<button class="pill-btn ' + (currentPeriod === '6M' ? 'active' : '') + '" data-period="6M">6M</button>' +
+          '<button class="pill-btn ' + (currentPeriod === '1Y' ? 'active' : '') + '" data-period="1Y">1J</button>' +
+        '</div>' +
+      '</div>' +
+
       '<!-- Technisches Bild -->' +
       '<div class="card">' +
         '<div class="card-header-dotted">' +
@@ -310,7 +348,7 @@ window.App.StockChart = (function () {
       '<div class="card">' +
         '<div class="card-header-dotted">' +
           '<span class="card-title">Auffälligkeiten</span>' +
-          '<span class="period-tag">Kennzahlen</span>' +
+          '<span class="period-tag">Kennzahlen &amp; Chart</span>' +
         '</div>' +
         '<div class="auff-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">' +
           '<div class="auff-col auff-col-plus" style="background-color: var(--bg-secondary); border: 1px solid var(--border-subtle); border-top: 2px solid var(--bullish); border-radius: var(--radius-sm); padding: 10px; min-width: 0;">' +
@@ -322,14 +360,14 @@ window.App.StockChart = (function () {
             auffColHtml(auff.minus, 'Keine Auffälligkeit nach diesen Kriterien.') +
           '</div>' +
         '</div>' +
-        '<div class="chart-note">Feste Regeln, keine Bewertung und keine Anlageberatung. Kennzahlen aus der Übersicht (Stand letzter Handelstag), technische Punkte aus dem Kursverlauf des letzten Jahres.</div>' +
+        '<div class="chart-note">Feste Regeln, keine Bewertung und keine Anlageberatung. Fundamentaldaten Stand letzter Bericht, Chart-Signale aus dem gewählten Zeitraum.</div>' +
       '</div>' +
 
       '<!-- Kurs + SMA -->' +
       '<div class="card">' +
         '<div class="card-header-dotted">' +
           '<span class="card-title">Kurs &amp; Trendlinien</span>' +
-          '<span class="period-tag">1 Jahr</span>' +
+          '<span class="period-tag">' + pLabel + '</span>' +
         '</div>' +
         '<div style="height: 220px; width: 100%; position: relative; margin-top: 8px;">' +
           '<canvas id="chart-tab-price" style="width: 100%; height: 220px; display: block;"></canvas>' +
@@ -357,6 +395,7 @@ window.App.StockChart = (function () {
       '<div class="card">' +
         '<div class="card-header-dotted">' +
           '<span class="card-title">MACD (12/26/9)</span>' +
+          '<span class="period-tag">' + pLabel + '</span>' +
         '</div>' +
         '<div style="height: 140px; width: 100%; position: relative; margin-top: 8px;">' +
           '<canvas id="chart-tab-macd" style="width: 100%; height: 140px; display: block;"></canvas>' +
@@ -372,7 +411,7 @@ window.App.StockChart = (function () {
       '<div class="card">' +
         '<div class="card-header-dotted">' +
           '<span class="card-title">Risiko &amp; Volumen</span>' +
-          '<span class="period-tag">1 Jahr</span>' +
+          '<span class="period-tag">' + pLabel + '</span>' +
         '</div>' +
         '<div class="metrics-grid-2col" style="margin-bottom: 0;">' +
           metric('Volatilität p. a.', fmt(vol, 1) + ' %') +
@@ -380,35 +419,35 @@ window.App.StockChart = (function () {
           metric('Abstand zum Hoch', pct(fromHigh)) +
           metric('Abstand zum Tief', pct(fromLow)) +
           metric('Volumen 20T vs. 60T', volTrend === null ? '—' : pct(volTrend, 0)) +
-          metric('Unterstützung (3M)', window.App.Format.currency(support, currency, 2)) +
-          metric('Widerstand (3M)', window.App.Format.currency(resistance, currency, 2)) +
+          metric('Unterstützung', window.App.Format.currency(support, currency, 2)) +
+          metric('Widerstand', window.App.Format.currency(resistance, currency, 2)) +
           metric('Schlusskurs', window.App.Format.currency(price, currency, 2)) +
         '</div>' +
       '</div>';
 
     container.innerHTML = html;
+    
+    // Events
     bindTerms(container);
+    bindPeriodPills(container, stock, hist);
 
     // ---- Charts zeichnen ----
-    var labels = dates.map(shortLabel);
+    var labels = slicedDates.map(shortLabel);
     var Charts = window.App.Charts;
     var cur = currency;
 
     Charts.renderMultiLineChart(document.getElementById('chart-tab-price'), {
       labels: labels,
       series: [
-        { name: 'Kurs', color: COLORS.price, values: closes, width: 2 },
-        { name: 'SMA 50', color: COLORS.sma50, values: s50, width: 1.5 },
-        { name: 'SMA 200', color: COLORS.sma200, values: s200, width: 1.5 }
+        { name: 'Kurs', color: COLORS.price, values: slicedCloses, width: 2 },
+        { name: 'SMA 50', color: COLORS.sma50, values: s50.slice(-tail), width: 1.5 },
+        { name: 'SMA 200', color: COLORS.sma200, values: s200.slice(-tail), width: 1.5 }
       ],
       formatY: function (v) { return window.App.Format.currency(v, cur, 0); }
     });
 
-    var tail = Math.min(130, n);
-    var lbTail = labels.slice(-tail);
-
     Charts.renderIndicatorChart(document.getElementById('chart-tab-rsi'), {
-      labels: lbTail,
+      labels: labels,
       lines: [{ values: rsiArr.slice(-tail), color: COLORS.rsi }],
       refLines: [
         { value: 70, color: 'rgba(239, 68, 68, 0.6)' },
@@ -420,7 +459,7 @@ window.App.StockChart = (function () {
     });
 
     Charts.renderIndicatorChart(document.getElementById('chart-tab-macd'), {
-      labels: lbTail,
+      labels: labels,
       lines: [
         { values: m.line.slice(-tail), color: COLORS.macd },
         { values: m.signal.slice(-tail), color: COLORS.signal }
@@ -431,10 +470,16 @@ window.App.StockChart = (function () {
     });
   }
 
-  /**
-   * Auffälligkeiten aus den bereits vorliegenden Kennzahlen (keine Neuberechnung).
-   * Links: auffällig günstig/stark, rechts: auffällig schwach/riskant. Feste Schwellen, keine Bewertung.
-   */
+  function bindPeriodPills(container, stock, hist) {
+    var pills = container.querySelectorAll('#chart-period-pills .pill-btn');
+    pills.forEach(function (pill) {
+      pill.onclick = function () {
+        currentPeriod = pill.getAttribute('data-period');
+        buildView(container, stock, hist); // Gesamte View mit neuem Zeitraum re-rendern
+      };
+    });
+  }
+
   function has(x) { return x !== null && x !== undefined && isFinite(x); }
 
   function auffaelligkeiten(stock) {
@@ -482,7 +527,6 @@ window.App.StockChart = (function () {
     return { plus: plus, minus: minus };
   }
 
-  /** Glossar: kurze, neutrale Erklärungen zu Kürzeln und Kennzahlen. */
   var GLOSSARY = {
     KGV: { name: 'KGV (Kurs-Gewinn-Verhältnis)', text: 'Der Aktienkurs geteilt durch den Gewinn je Aktie der letzten zwölf Monate. Er zeigt, wie viele Jahresgewinne du für den Kurs zahlst. Vergleiche nur innerhalb einer Branche.' },
     PEG: { name: 'PEG', text: 'Das KGV geteilt durch das erwartete Gewinnwachstum. Als Faustregel gilt: Unter 1 ist der Preis im Verhältnis zum Wachstum niedrig, über 2 ist er hoch.' },
@@ -495,11 +539,11 @@ window.App.StockChart = (function () {
     Cross: { name: 'Golden Cross / Death Cross', text: 'Golden Cross: Die 50-Tage-Linie kreuzt die 200-Tage-Linie von unten nach oben. Death Cross: Die Kreuzung verläuft umgekehrt. Beides gilt als Trendhinweis, keine Prognose.' },
     RSI: { name: 'RSI (14)', text: 'Der Relative Strength Index misst, wie stark der Kurs in den letzten 14 Tagen gestiegen oder gefallen ist. Die Skala reicht von 0 bis 100. Über 70 gilt als überkauft, unter 30 als überverkauft.' },
     MACD: { name: 'MACD', text: 'Die Differenz zweier gleitender Durchschnitte (12 und 26 Tage). Liegt die MACD-Linie über der Signallinie, ist der kurzfristige Trend nach oben gerichtet.' },
-    Momentum: { name: 'Momentum (3 Monate)', text: 'Die prozentuale Kursveränderung der letzten rund drei Monate, also etwa 63 Handelstage.' },
-    Volatilität: { name: 'Volatilität', text: 'Wie stark der Kurs schwankt, aufs Jahr hochgerechnet. Höhere Werte bedeuten größere Ausschläge in beide Richtungen.' },
-    Drawdown: { name: 'Maximaler Drawdown', text: 'Der größte Rückgang vom zwischenzeitlichen Hoch bis zum folgenden Tief innerhalb des Jahres.' },
+    Momentum: { name: 'Momentum', text: 'Die prozentuale Kursveränderung im gewählten Zeitraum.' },
+    Volatilität: { name: 'Volatilität', text: 'Wie stark der Kurs im gewählten Zeitraum schwankt, aufs Jahr hochgerechnet. Höhere Werte bedeuten größere Ausschläge in beide Richtungen.' },
+    Drawdown: { name: 'Maximaler Drawdown', text: 'Der größte Rückgang vom zwischenzeitlichen Hoch bis zum folgenden Tief innerhalb des gewählten Zeitraums.' },
     Volumen: { name: 'Volumentrend', text: 'Vergleicht das durchschnittliche Handelsvolumen der letzten 20 Tage mit dem der letzten 60 Tage. Ein positiver Wert bedeutet mehr Handel als sonst.' },
-    Support: { name: 'Unterstützung und Widerstand', text: 'Unterstützung ist der tiefste, Widerstand der höchste Kurs der letzten drei Monate. An diesen Marken hat der Kurs in der Vergangenheit gedreht.' }
+    Support: { name: 'Unterstützung und Widerstand', text: 'Unterstützung ist der tiefste, Widerstand der höchste Kurs im gewählten Chart-Zeitraum. An diesen Marken hat der Kurs in der Vergangenheit gedreht.' }
   };
 
   var TERM_RULES = [
@@ -517,7 +561,6 @@ window.App.StockChart = (function () {
     return null;
   }
 
-  /** Beschriftung mit antippbarem Kürzel, falls ein Glossar-Eintrag existiert. */
   function termLink(label) {
     var key = termKeyFor(label);
     if (!key || !GLOSSARY[key]) return label;
@@ -574,7 +617,6 @@ window.App.StockChart = (function () {
 
   return {
     render: render,
-    // für Tests
     _sma: sma,
     _ema: ema,
     _rsi: rsi,
