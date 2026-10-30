@@ -2,7 +2,7 @@
  * js/compare.js
  * Ermöglicht den direkten Vergleich von 2 bis 4 Aktien:
  * - Ticker-Auswahl über Schnellauswahl oder Direkteingabe (mit Autocomplete-Suche & localStorage-Persistenz)
- * - Normierter Kursvergleich (Basis 100 %) als Canvas-Liniendiagramm
+ * - Normierter Kursvergleich (Basis 100 %) als Canvas-Liniendiagramm inkl. Zeitbereich-Steuerung
  * - Gegenüberstellung der Kernmetriken (Bewertung, Wachstum, Margen, Verschuldung)
  * - Margenvergleich als gruppiertes Balkendiagramm
  * - KI-Vergleichsanalyse mit Gemini (inkl. technischem Bild aller Werte)
@@ -16,6 +16,7 @@ window.App.Compare = (function () {
   var STORAGE_KEY = 'app_compare_tickers';
   var selectedTickers = ['AAPL', 'MSFT'];
   var loadedStocksData = {};
+  var currentPeriod = '1Y'; // Standardzeitraum für den Chart
 
   var COLOR_PALETTE = ['#6366f1', '#10b981', '#f59e0b', '#ec4899'];
 
@@ -285,11 +286,17 @@ window.App.Compare = (function () {
         '</div>' +
       '</div>' +
 
-      '<!-- Normierter Kursvergleich Chart -->' +
+      '<!-- Normierter Kursvergleich Chart mit Zeitsteuerung -->' +
       '<div class="card">' +
-        '<div class="card-header-dotted">' +
+        '<div class="card-header-dotted" style="flex-wrap: wrap; gap: 8px;">' +
           '<div class="card-title">Normierter Kursverlauf (Basis 100 %)</div>' +
-          '<span class="period-tag">1 Jahr</span>' +
+          '<div class="pill-group" id="compare-period-pills">' +
+            '<button class="pill-btn ' + (currentPeriod === '1W' ? 'active' : '') + '" data-period="1W">1W</button>' +
+            '<button class="pill-btn ' + (currentPeriod === '1M' ? 'active' : '') + '" data-period="1M">1M</button>' +
+            '<button class="pill-btn ' + (currentPeriod === '3M' ? 'active' : '') + '" data-period="3M">3M</button>' +
+            '<button class="pill-btn ' + (currentPeriod === '6M' ? 'active' : '') + '" data-period="6M">6M</button>' +
+            '<button class="pill-btn ' + (currentPeriod === '1Y' ? 'active' : '') + '" data-period="1Y">1J</button>' +
+          '</div>' +
         '</div>' +
         '<div class="chart-container">' +
           '<canvas id="compare-perf-canvas" class="chart-canvas" style="height: 220px;"></canvas>' +
@@ -319,6 +326,8 @@ window.App.Compare = (function () {
       '</div>';
 
     container.innerHTML = html;
+    
+    bindPeriodPillEvents(stocks);
 
     var geminiBtn = container.querySelector('#btn-compare-gemini');
     if (geminiBtn) {
@@ -389,8 +398,24 @@ window.App.Compare = (function () {
       };
     }
 
+    // Charts zeichnen
     initNormalizedPerformanceChart(stocks);
     initMarginsBarChart(stocks);
+  }
+
+  /**
+   * Bindet die Zeitbereich-Pillen für den Vergleichschart
+   */
+  function bindPeriodPillEvents(stocks) {
+    var pills = document.querySelectorAll('#compare-period-pills .pill-btn');
+    pills.forEach(function (pill) {
+      pill.onclick = function () {
+        pills.forEach(function (p) { p.classList.remove('active'); });
+        pill.classList.add('active');
+        currentPeriod = pill.getAttribute('data-period');
+        initNormalizedPerformanceChart(stocks);
+      };
+    });
   }
 
   /**
@@ -437,13 +462,20 @@ window.App.Compare = (function () {
     var legendContainer = document.getElementById('compare-chart-legend');
     if (!canvas) return;
 
-    var minLen = 9999;
+    var targetDays = 260; // 1Y
+    if (currentPeriod === '1W') targetDays = 5;
+    else if (currentPeriod === '1M') targetDays = 22;
+    else if (currentPeriod === '3M') targetDays = 65;
+    else if (currentPeriod === '6M') targetDays = 130;
+    else if (currentPeriod === '1Y') targetDays = 260;
+
+    var minLen = targetDays;
     stocks.forEach(function (s) {
       var hist = s.chartHistory || [];
       if (hist.length > 0 && hist.length < minLen) minLen = hist.length;
     });
 
-    if (minLen === 9999 || minLen === 0) return;
+    if (minLen === 0) return;
 
     var labels = [];
     var baseDateList = (stocks[0].chartHistory || []).slice(-minLen);
@@ -467,6 +499,7 @@ window.App.Compare = (function () {
     });
 
     if (seriesData.length > 0) {
+      // Das erneute Rendern auf das gleiche Canvas-Element leert dieses automatisch
       window.App.Charts.renderMultiLineChart(canvas, {
         labels: labels,
         series: seriesData.map(function (sd) { return { name: sd.ticker, color: sd.color, values: sd.values }; }),
