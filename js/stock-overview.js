@@ -7,6 +7,7 @@
  * - Kompakte Insider-Aktivitätskarte mit Stimmungsbalken
  * - Quartalsweiser Finanztrend (Umsatz & Nettoergebnis)
  * - KI-Analyse Banner (öffnet Gemini mit generiertem Prompt inkl. technischem Bild)
+ * - Aktualisieren-Button zum Neuladen der Livedaten
  */
 
 window.App = window.App || {};
@@ -52,7 +53,7 @@ window.App.StockOverview = (function () {
 
     var html = '' +
       '<!-- KI-Analyse mit Gemini -->' +
-      '<div class="card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%); border: 1px solid var(--accent-purple); padding: 14px;">' +
+      '<div class="card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%); border: 1px solid var(--accent-purple); padding: 14px; margin-bottom: 8px;">' +
         '<div style="display: flex; justify-content: space-between; align-items: center;">' +
           '<div style="flex: 1; padding-right: 12px;">' +
             '<div style="font-size: 0.9rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px; display: flex; align-items: center; gap: 6px;">' +
@@ -63,6 +64,14 @@ window.App.StockOverview = (function () {
           '</div>' +
           '<button id="btn-ask-gemini" class="chip-btn active" style="background: var(--accent-purple); border-color: var(--accent-purple); font-size: 0.75rem; flex-shrink: 0; box-shadow: 0 4px 14px var(--accent-purple-glow);">Fragen</button>' +
         '</div>' +
+      '</div>' +
+
+      '<!-- Daten aktualisieren Button -->' +
+      '<div style="display: flex; justify-content: flex-end; margin-bottom: 14px;">' +
+        '<button id="btn-refresh-stock" class="chip-btn" style="font-size: 0.72rem; display: flex; align-items: center; gap: 6px;">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>' +
+          'Werte & Kurs aktualisieren' +
+        '</button>' +
       '</div>' +
 
       '<!-- 1. Bewertungs- & Marktkennzahlen -->' +
@@ -155,11 +164,9 @@ window.App.StockOverview = (function () {
         var sChange = window.App.Format.number(currentStock.quote.changePercent, 2) + ' %';
         var sPe = (currentStock.ratios && currentStock.ratios.peTrailing) ? window.App.Format.number(currentStock.ratios.peTrailing, 1) : 'unbekannt';
 
-        // Prompt aufbauen
         var promptText = "Hallo Gemini! Bitte prüfe zuerst meine Daten. Kannst du mir danach bitte erklären, warum sich der Aktienkurs von " + sName + " (" + sTicker + ") aktuell so verhält? " +
                          "Der Kurs liegt bei " + sPrice + " mit einer heutigen Änderung von " + sChange + ". Das KGV beträgt " + sPe + ". ";
 
-        // Technisches Bild berechnen und hinzufügen
         if (currentStock.chartHistory && currentStock.chartHistory.length > 60 && window.App.StockChart) {
             var hist = currentStock.chartHistory.filter(function (p) { return p && p.close > 0; });
             var closes = hist.map(function (p) { return p.close; });
@@ -201,7 +208,6 @@ window.App.StockOverview = (function () {
         
         var geminiUrl = "https://gemini.google.com/app?q=" + encodeURIComponent(promptText);
         
-        // Text als Backup in die Zwischenablage kopieren und Tab öffnen
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(promptText).then(function() {
                 window.open(geminiUrl, '_blank');
@@ -211,6 +217,40 @@ window.App.StockOverview = (function () {
         } else {
             window.open(geminiUrl, '_blank');
         }
+      };
+    }
+
+    // Refresh Event Listener binden
+    var refreshBtn = container.querySelector('#btn-refresh-stock');
+    if (refreshBtn) {
+      refreshBtn.onclick = function() {
+        var originalHtml = refreshBtn.innerHTML;
+        // Zeige Ladezustand im Button (Spinner per Inline-CSS verkleinert)
+        refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Lade frische Daten...';
+        refreshBtn.disabled = true;
+
+        // Erzwingt den Neuladevorgang über data.js (bypasst Cache)
+        window.App.Data.getStock(currentStock.ticker)
+          .then(function(updatedStock) {
+            // 1. Header der Detailansicht ebenfalls aktualisieren (liegt außerhalb des Overview-Tabs in stock.html)
+            var priceEl = document.getElementById('stock-header-price');
+            var changeEl = document.getElementById('stock-header-change');
+            if (priceEl && changeEl && updatedStock.quote) {
+                priceEl.textContent = window.App.Format.currency(updatedStock.quote.price, updatedStock.quote.currency);
+                var chgCls = window.App.Format.changeClass(updatedStock.quote.changePercent);
+                var sign = (updatedStock.quote.changePercent >= 0) ? '+' : '';
+                changeEl.className = 'badge-pill ' + chgCls;
+                changeEl.textContent = sign + window.App.Format.number(updatedStock.quote.changePercent, 2) + ' %';
+            }
+            // 2. Overview-Tab mit den neuen Daten neu rendern
+            window.App.StockOverview.render(container, updatedStock);
+          })
+          .catch(function(err) {
+            console.error(err);
+            refreshBtn.innerHTML = originalHtml;
+            refreshBtn.disabled = false;
+            alert('Fehler beim Aktualisieren der Daten. Bitte prüfe deine Verbindung.');
+          });
       };
     }
 
