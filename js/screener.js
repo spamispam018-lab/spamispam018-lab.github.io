@@ -25,6 +25,13 @@ window.App.Screener = (function () {
   var PROGNOSE_FALLEND_MAX = 0;   // Kursziel unter aktuellem Kurs
   var CROSS_RECENT_DAYS = 60;     // "Kürzlich" = SMA-50/200-Kreuz in den letzten 60 Handelstagen
 
+  // Schwellen für Qualität / Gewinnwachstum / Erholung / Überverkauft
+  var QUALITY_MIN_MARGIN = 0.10;      // Nettomarge mind. 10 %
+  var QUALITY_MAX_DEBT_EQUITY = 100;  // Verschuldung (Debt/Equity in %) höchstens 100
+  var EARNINGS_GROWTH_MIN = 0.15;     // Forward-KGV mind. 15 % unter aktuellem KGV
+  var RECOVERY_MAX_RANGEPOS = 33;     // Kurs im unteren Drittel der 52-Wochen-Spanne
+  var OVERSOLD_RSI_MAX = 30;          // RSI(14) höchstens 30
+
   /**
    * Initialisiert und rendert den Screener.
    */
@@ -133,6 +140,14 @@ window.App.Screener = (function () {
       list = list.filter(function (s) { return hasRecentCross(s, 'death'); });
     } else if (currentPreset === 'golden_cross') {
       list = list.filter(function (s) { return hasRecentCross(s, 'golden'); });
+    } else if (currentPreset === 'quality') {
+      list = list.filter(isQuality);
+    } else if (currentPreset === 'earnings_growth') {
+      list = list.filter(isEarningsGrowth);
+    } else if (currentPreset === 'recovery') {
+      list = list.filter(isRecovery);
+    } else if (currentPreset === 'oversold') {
+      list = list.filter(isOversold);
     }
 
     // 3. Sortierung (null/undefined sicher mit 0 als Fallback)
@@ -152,6 +167,8 @@ window.App.Screener = (function () {
         case 'upside_asc':
           // Fehlende Prognose ans Ende
           return (hasUpside(a) ? a.upside : 999) - (hasUpside(b) ? b.upside : 999);
+        case 'rsi_asc':
+          return (hasNum(a.rsi) ? a.rsi : 999) - (hasNum(b.rsi) ? b.rsi : 999);
         case 'dividend_desc':
           return (b.dividendYield || 0) - (a.dividendYield || 0);
         case 'perf52w_desc':
@@ -188,6 +205,56 @@ window.App.Screener = (function () {
     var isDeath = s.cross === 'death';
     var when = s.crossDaysAgo === 0 ? 'heute' : 'vor ' + s.crossDaysAgo + ' Tg.';
     return '<span class="sector-label" style="color: var(' + (isDeath ? '--bearish' : '--bullish') + '); font-weight: 700;">• ' + (isDeath ? 'Death Cross ' : 'Golden Cross ') + when + '</span>';
+  }
+
+  function hasNum(v) {
+    return v !== null && v !== undefined && !isNaN(v);
+  }
+
+  /**
+   * "Qualität": solide Marge, wachsender Umsatz und moderate Verschuldung.
+   * Fehlende Verschuldung (z. B. bei Banken) schließt nicht aus.
+   */
+  function isQuality(s) {
+    if (!hasNum(s.profitMargins) || s.profitMargins < QUALITY_MIN_MARGIN) return false;
+    if (!hasNum(s.revGrowth) || s.revGrowth < 0) return false;
+    if (hasNum(s.debtToEquity) && s.debtToEquity > QUALITY_MAX_DEBT_EQUITY) return false;
+    return true;
+  }
+
+  /**
+   * "Gewinnwachstum erwartet": positives KGV, Forward-KGV deutlich darunter (Analysten erwarten steigende Gewinne).
+   */
+  function isEarningsGrowth(s) {
+    if (!(s.pe > 0) || !(s.forwardPe > 0)) return false;
+    return s.forwardPe <= s.pe * (1 - EARNINGS_GROWTH_MIN);
+  }
+
+  /**
+   * "Erholung": Kurs im unteren Drittel der 52W-Spanne, aber Analysten-Kursziel deutlich darüber.
+   */
+  function isRecovery(s) {
+    if (!hasNum(s.rangePos) || s.rangePos > RECOVERY_MAX_RANGEPOS) return false;
+    return hasNum(s.upside) && s.upside >= PROGNOSE_STEIGEND_MIN;
+  }
+
+  /**
+   * "Überverkauft": RSI(14) <= 30 (wird im täglichen Update aus der Kurshistorie berechnet).
+   */
+  function isOversold(s) {
+    return hasNum(s.rsi) && s.rsi <= OVERSOLD_RSI_MAX;
+  }
+
+  /** Kleine Kennzahl auf der Karte passend zum aktiven Filter. */
+  function extraTag(s) {
+    var txt = '';
+    var F = window.App.Format;
+    if (currentPreset === 'quality' && hasNum(s.profitMargins)) txt = 'Marge ' + F.number(s.profitMargins * 100, 0) + ' %';
+    else if (currentPreset === 'earnings_growth') txt = 'KGV ' + F.number(s.pe, 0) + ' \u2192 ' + F.number(s.forwardPe, 0);
+    else if (currentPreset === 'recovery' && hasNum(s.rangePos)) txt = '52W-Spanne ' + F.number(s.rangePos, 0) + ' %';
+    else if (currentPreset === 'oversold' && hasNum(s.rsi)) txt = 'RSI ' + F.number(s.rsi, 0);
+    if (!txt) return '';
+    return '<span class="sector-label" style="color: var(--bullish); font-weight: 700;">\u2022 ' + txt + '</span>';
   }
 
   function hasUpside(s) {
@@ -352,7 +419,8 @@ window.App.Screener = (function () {
                 '<span class="ticker-badge">' + stock.ticker + '</span>' +
                 '<span class="sector-label">• ' + (stock.sector || 'Markt') + '</span>' +
                 ((currentPreset === 'undervalued' || currentPreset === 'turnaround' || currentPreset === 'forecast_up' || currentPreset === 'forecast_down') && stock.upside !== null && stock.upside !== undefined ? '<span class="sector-label" style="color: var(' + (stock.upside >= 0 ? '--bullish' : '--bearish') + '); font-weight: 700;">• Ziel ' + (stock.upside >= 0 ? '+' : '') + window.App.Format.number(stock.upside, 0) + ' %</span>' : '') +
-                crossTag(stock) +
+                (currentPreset !== 'all' ? crossTag(stock) : '') +
+                extraTag(stock) +
                 (isLoss(stock) ? '<span class="sector-label" style="color: var(--bearish); font-weight: 700;">• KGV neg.</span>' : '') +
               '</div>' +
             '</div>' +
@@ -424,6 +492,7 @@ window.App.Screener = (function () {
         // Prognose-Filter sortieren sinnvoll vor: steigend = höchstes Potenzial, fallend = niedrigstes
         if (currentPreset === 'forecast_up') currentSort = 'upside_desc';
         if (currentPreset === 'forecast_down') currentSort = 'upside_asc';
+        if (currentPreset === 'oversold') currentSort = 'rsi_asc';
         var sortEl = document.getElementById('screener-sort-select');
         if (sortEl) sortEl.value = currentSort;
         applyFiltersAndRender();
@@ -466,6 +535,10 @@ window.App.Screener = (function () {
           '<button class="chip-btn" data-preset="forecast_down">🔽 Prognose fallend</button>' +
           '<button class="chip-btn" data-preset="death_cross">☠️ Death Cross</button>' +
           '<button class="chip-btn" data-preset="golden_cross">✨ Golden Cross</button>' +
+          '<button class="chip-btn" data-preset="quality">🏆 Qualität</button>' +
+          '<button class="chip-btn" data-preset="earnings_growth">📈 Gewinnwachstum erwartet</button>' +
+          '<button class="chip-btn" data-preset="recovery">🌱 Erholung</button>' +
+          '<button class="chip-btn" data-preset="oversold">📉 Überverkauft</button>' +
         '</div>' +
 
         '<div class="sub-header-bar">' +
@@ -478,6 +551,7 @@ window.App.Screener = (function () {
             '<option value="pe_asc">KGV (Niedrigste)</option>' +
             '<option value="upside_desc">Kursziel-Potenzial (Höchstes)</option>' +
             '<option value="upside_asc">Kursziel-Potenzial (Niedrigstes)</option>' +
+            '<option value="rsi_asc">RSI (Niedrigster)</option>' +
             '<option value="dividend_desc">Dividendenrendite (Höchste)</option>' +
             '<option value="perf52w_desc">52W-Performance (Beste)</option>' +
           '</select>' +
