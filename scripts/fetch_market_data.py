@@ -311,11 +311,32 @@ def fetch_full_stock(ticker_sym):
 
 CROSS_LOOKBACK_DAYS = 60  # "kürzlich" = innerhalb der letzten 60 Handelstage
 
+def rsi_last(closes, n=14):
+    """RSI (Wilder) des letzten Handelstags, gleiche Methode wie im Chart (stock-chart.js)."""
+    if len(closes) <= n:
+        return None
+    avg_gain = avg_loss = 0.0
+    value = None
+    for i in range(1, len(closes)):
+        diff = closes[i] - closes[i - 1]
+        gain, loss = (diff if diff > 0 else 0.0), (-diff if diff < 0 else 0.0)
+        if i <= n:
+            avg_gain += gain / n
+            avg_loss += loss / n
+            if i < n:
+                continue
+        else:
+            avg_gain = (avg_gain * (n - 1) + gain) / n
+            avg_loss = (avg_loss * (n - 1) + loss) / n
+        value = 100.0 if avg_loss == 0 else 100 - 100 / (1 + avg_gain / avg_loss)
+    return round(value, 1) if value is not None else None
+
 def trend_extras(history):
     """SMA50/SMA200-Lage und letztes Kreuz (Golden/Death Cross) aus der Tages-Historie."""
-    out = {"smaTrend": None, "cross": None, "crossDaysAgo": None}
+    out = {"smaTrend": None, "cross": None, "crossDaysAgo": None, "rsi": None}
     closes = [p.get("close") for p in (history or []) if p.get("close") is not None]
     n = len(closes)
+    out["rsi"] = rsi_last(closes)
     if n < 201:
         return out
 
