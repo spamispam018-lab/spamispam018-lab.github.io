@@ -20,6 +20,11 @@ window.App.Screener = (function () {
   var currentSort = 'marketCap_desc';
   var currentPreset = 'all';
 
+  // Prognose-Filter (Basis: mittleres Analysten-Kursziel gegenüber aktuellem Kurs, Feld "upside" in %)
+  var PROGNOSE_STEIGEND_MIN = 10; // Kursziel mindestens 10 % über Kurs
+  var PROGNOSE_FALLEND_MAX = 0;   // Kursziel unter aktuellem Kurs
+  var CROSS_RECENT_DAYS = 60;     // "Kürzlich" = SMA-50/200-Kreuz in den letzten 60 Handelstagen
+
   /**
    * Initialisiert und rendert den Screener.
    */
@@ -120,6 +125,14 @@ window.App.Screener = (function () {
       list = list.filter(function (s) { return (s.revGrowth || 0) >= 0.10; });
     } else if (currentPreset === 'top_performer') {
       list = list.filter(function (s) { return (s.perf52w || 0) >= 15; });
+    } else if (currentPreset === 'forecast_up') {
+      list = list.filter(function (s) { return hasUpside(s) && s.upside >= PROGNOSE_STEIGEND_MIN; });
+    } else if (currentPreset === 'forecast_down') {
+      list = list.filter(function (s) { return hasUpside(s) && s.upside < PROGNOSE_FALLEND_MAX; });
+    } else if (currentPreset === 'death_cross') {
+      list = list.filter(function (s) { return hasRecentCross(s, 'death'); });
+    } else if (currentPreset === 'golden_cross') {
+      list = list.filter(function (s) { return hasRecentCross(s, 'golden'); });
     }
 
     // 3. Sortierung (null/undefined sicher mit 0 als Fallback)
@@ -136,6 +149,9 @@ window.App.Screener = (function () {
           return peRank(a) - peRank(b);
         case 'upside_desc':
           return (b.upside === null || b.upside === undefined ? -999 : b.upside) - (a.upside === null || a.upside === undefined ? -999 : a.upside);
+        case 'upside_asc':
+          // Fehlende Prognose ans Ende
+          return (hasUpside(a) ? a.upside : 999) - (hasUpside(b) ? b.upside : 999);
         case 'dividend_desc':
           return (b.dividendYield || 0) - (a.dividendYield || 0);
         case 'perf52w_desc':
@@ -157,6 +173,25 @@ window.App.Screener = (function () {
 
     renderAiBanner(filteredStocks, currentPreset);
     renderStockCards(filteredStocks);
+  }
+
+  /**
+   * SMA 50 hat SMA 200 kürzlich von oben nach unten (death) bzw. unten nach oben (golden) gekreuzt.
+   * Daten (cross, crossDaysAgo) kommen aus universe.json und werden vom täglichen Update berechnet.
+   */
+  function hasRecentCross(s, type) {
+    return s.cross === type && s.crossDaysAgo !== null && s.crossDaysAgo !== undefined && s.crossDaysAgo <= CROSS_RECENT_DAYS;
+  }
+
+  function crossTag(s) {
+    if (!s.cross || s.crossDaysAgo === null || s.crossDaysAgo === undefined || s.crossDaysAgo > CROSS_RECENT_DAYS) return '';
+    var isDeath = s.cross === 'death';
+    var when = s.crossDaysAgo === 0 ? 'heute' : 'vor ' + s.crossDaysAgo + ' Tg.';
+    return '<span class="sector-label" style="color: var(' + (isDeath ? '--bearish' : '--bullish') + '); font-weight: 700;">• ' + (isDeath ? 'Death Cross ' : 'Golden Cross ') + when + '</span>';
+  }
+
+  function hasUpside(s) {
+    return s.upside !== null && s.upside !== undefined && !isNaN(s.upside);
   }
 
   /**
@@ -316,7 +351,8 @@ window.App.Screener = (function () {
               '<div class="stock-tags">' +
                 '<span class="ticker-badge">' + stock.ticker + '</span>' +
                 '<span class="sector-label">• ' + (stock.sector || 'Markt') + '</span>' +
-                ((currentPreset === 'undervalued' || currentPreset === 'turnaround') && stock.upside !== null && stock.upside !== undefined ? '<span class="sector-label" style="color: var(--bullish); font-weight: 700;">• Ziel ' + (stock.upside >= 0 ? '+' : '') + window.App.Format.number(stock.upside, 0) + ' %</span>' : '') +
+                ((currentPreset === 'undervalued' || currentPreset === 'turnaround' || currentPreset === 'forecast_up' || currentPreset === 'forecast_down') && stock.upside !== null && stock.upside !== undefined ? '<span class="sector-label" style="color: var(' + (stock.upside >= 0 ? '--bullish' : '--bearish') + '); font-weight: 700;">• Ziel ' + (stock.upside >= 0 ? '+' : '') + window.App.Format.number(stock.upside, 0) + ' %</span>' : '') +
+                crossTag(stock) +
                 (isLoss(stock) ? '<span class="sector-label" style="color: var(--bearish); font-weight: 700;">• KGV neg.</span>' : '') +
               '</div>' +
             '</div>' +
@@ -385,6 +421,11 @@ window.App.Screener = (function () {
         presetBtns.forEach(function (b) { b.classList.remove('active'); });
         btn.classList.add('active');
         currentPreset = btn.getAttribute('data-preset');
+        // Prognose-Filter sortieren sinnvoll vor: steigend = höchstes Potenzial, fallend = niedrigstes
+        if (currentPreset === 'forecast_up') currentSort = 'upside_desc';
+        if (currentPreset === 'forecast_down') currentSort = 'upside_asc';
+        var sortEl = document.getElementById('screener-sort-select');
+        if (sortEl) sortEl.value = currentSort;
         applyFiltersAndRender();
       };
     });
@@ -421,6 +462,10 @@ window.App.Screener = (function () {
           '<button class="chip-btn" data-preset="turnaround">🔄 Turnaround</button>' +
           '<button class="chip-btn" data-preset="growth">🚀 Growth</button>' +
           '<button class="chip-btn" data-preset="top_performer">📈 Top Performer</button>' +
+          '<button class="chip-btn" data-preset="forecast_up">🔼 Prognose steigend</button>' +
+          '<button class="chip-btn" data-preset="forecast_down">🔽 Prognose fallend</button>' +
+          '<button class="chip-btn" data-preset="death_cross">☠️ Death Cross</button>' +
+          '<button class="chip-btn" data-preset="golden_cross">✨ Golden Cross</button>' +
         '</div>' +
 
         '<div class="sub-header-bar">' +
@@ -432,6 +477,7 @@ window.App.Screener = (function () {
             '<option value="name_asc">Name (A–Z)</option>' +
             '<option value="pe_asc">KGV (Niedrigste)</option>' +
             '<option value="upside_desc">Kursziel-Potenzial (Höchstes)</option>' +
+            '<option value="upside_asc">Kursziel-Potenzial (Niedrigstes)</option>' +
             '<option value="dividend_desc">Dividendenrendite (Höchste)</option>' +
             '<option value="perf52w_desc">52W-Performance (Beste)</option>' +
           '</select>' +
