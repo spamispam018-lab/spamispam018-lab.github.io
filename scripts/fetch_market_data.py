@@ -375,9 +375,12 @@ def screener_extras(st):
     lo, hi, px = quote.get("fiftyTwoWeekLow"), quote.get("fiftyTwoWeekHigh"), quote.get("price")
     if lo is not None and hi is not None and px is not None and hi > lo:
         out["rangePos"] = round(max(0.0, min(100.0, (px - lo) / (hi - lo) * 100)), 1)
-    tgt = ((st.get("analysts") or {}).get("targets") or {}).get("mean")
+    targets = (st.get("analysts") or {}).get("targets") or {}
+    tgt = targets.get("mean")
     if tgt and px:
         out["upside"] = round((tgt / px - 1) * 100, 1)
+    out["analystCount"] = targets.get("analystCount")  # Kursziel nur ab ~5 Analysten aussagekräftig
+    out["updatedAt"] = st.get("updatedAt")             # Datenstand für die Anzeige im Screener
     return out
 
 def run_delta_sync(tickers):
