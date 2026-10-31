@@ -309,6 +309,36 @@ def fetch_full_stock(ticker_sym):
         "updatedAt": datetime.now(timezone.utc).isoformat()
     }
 
+CROSS_LOOKBACK_DAYS = 60  # "kürzlich" = innerhalb der letzten 60 Handelstage
+
+def trend_extras(history):
+    """SMA50/SMA200-Lage und letztes Kreuz (Golden/Death Cross) aus der Tages-Historie."""
+    out = {"smaTrend": None, "cross": None, "crossDaysAgo": None}
+    closes = [p.get("close") for p in (history or []) if p.get("close") is not None]
+    n = len(closes)
+    if n < 201:
+        return out
+
+    def sma_at(i, w):
+        return sum(closes[i - w + 1:i + 1]) / w
+
+    last_sign, last_cross_idx, last_cross_type = None, None, None
+    for i in range(199, n):  # ab hier existiert SMA200
+        diff = sma_at(i, 50) - sma_at(i, 200)
+        sign = 1 if diff > 0 else (-1 if diff < 0 else 0)
+        if sign == 0:
+            continue
+        if last_sign is not None and sign != last_sign:
+            last_cross_idx = i
+            last_cross_type = "golden" if sign > 0 else "death"
+        last_sign = sign
+
+    out["smaTrend"] = "up" if last_sign and last_sign > 0 else "down"
+    if last_cross_idx is not None:
+        out["cross"] = last_cross_type
+        out["crossDaysAgo"] = n - 1 - last_cross_idx
+    return out
+
 def screener_extras(st):
     """Zusatzfelder fürs Universum (Screener-Filter 'Unterbewertet')."""
     ratios = st.get("ratios", {}) or {}
@@ -320,6 +350,7 @@ def screener_extras(st):
         "rangePos": None,
         "upside": None,
     }
+    out.update(trend_extras(st.get("chartHistory")))
     lo, hi, px = quote.get("fiftyTwoWeekLow"), quote.get("fiftyTwoWeekHigh"), quote.get("price")
     if lo is not None and hi is not None and px is not None and hi > lo:
         out["rangePos"] = round(max(0.0, min(100.0, (px - lo) / (hi - lo) * 100)), 1)
