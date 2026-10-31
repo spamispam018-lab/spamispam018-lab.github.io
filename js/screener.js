@@ -18,7 +18,25 @@ window.App.Screener = (function () {
 
   var currentSearchQuery = '';
   var currentSort = 'marketCap_desc';
-  var currentPreset = 'all';
+  var activePresets = []; // leer = "Alle"; mehrere aktive Filter = alle müssen zutreffen (UND)
+
+  var PRESET_LABELS = {
+    high_dividend: 'Hohe Dividende', value: 'Value', undervalued: 'Unterbewertet', turnaround: 'Turnaround',
+    growth: 'Growth', top_performer: 'Top Performer', forecast_up: 'Prognose steigend', forecast_down: 'Prognose fallend',
+    death_cross: 'Death Cross', golden_cross: 'Golden Cross', quality: 'Qualität',
+    earnings_growth: 'Gewinnwachstum erwartet', recovery: 'Erholung', oversold: 'Überverkauft'
+  };
+
+  // Filter, die sich gegenseitig ausschließen (Antippen des einen schaltet den anderen ab)
+  var PRESET_EXCLUSIVE = { forecast_up: 'forecast_down', forecast_down: 'forecast_up', death_cross: 'golden_cross', golden_cross: 'death_cross' };
+
+  // Passende Standard-Sortierung, wenn genau ein Filter aktiv ist
+  var PRESET_SORTS = { forecast_up: 'upside_desc', forecast_down: 'upside_asc', oversold: 'rsi_asc' };
+  var autoSorted = false; // true, wenn die Sortierung automatisch durch einen Filter gesetzt wurde
+
+  function isActive(p) {
+    return activePresets.indexOf(p) !== -1;
+  }
 
   // Prognose-Filter (Basis: mittleres Analysten-Kursziel gegenüber aktuellem Kurs, Feld "upside" in %)
   var PROGNOSE_STEIGEND_MIN = 10; // Kursziel mindestens 10 % über Kurs
@@ -31,6 +49,24 @@ window.App.Screener = (function () {
   var EARNINGS_GROWTH_MIN = 0.15;     // Forward-KGV mind. 15 % unter aktuellem KGV
   var RECOVERY_MAX_RANGEPOS = 33;     // Kurs im unteren Drittel der 52-Wochen-Spanne
   var OVERSOLD_RSI_MAX = 30;          // RSI(14) höchstens 30
+
+  // Filterfunktionen je Preset (Hilfsfunktionen sind weiter unten per Hoisting verfügbar)
+  var PRESET_FILTERS = {
+    high_dividend: function (s) { return (s.dividendYield || 0) >= 3; },
+    value: function (s) { return s.pe && s.pe > 0 && s.pe <= 18; },
+    undervalued: function (s) { return isUndervalued(s); },
+    turnaround: function (s) { return isTurnaround(s); },
+    growth: function (s) { return (s.revGrowth || 0) >= 0.10; },
+    top_performer: function (s) { return (s.perf52w || 0) >= 15; },
+    forecast_up: function (s) { return hasUpside(s) && s.upside >= PROGNOSE_STEIGEND_MIN; },
+    forecast_down: function (s) { return hasUpside(s) && s.upside < PROGNOSE_FALLEND_MAX; },
+    death_cross: function (s) { return hasRecentCross(s, 'death'); },
+    golden_cross: function (s) { return hasRecentCross(s, 'golden'); },
+    quality: function (s) { return isQuality(s); },
+    earnings_growth: function (s) { return isEarningsGrowth(s); },
+    recovery: function (s) { return isRecovery(s); },
+    oversold: function (s) { return isOversold(s); }
+  };
 
   /**
    * Initialisiert und rendert den Screener.
@@ -119,36 +155,11 @@ window.App.Screener = (function () {
       });
     }
 
-    // 2. Preset Filter
-    if (currentPreset === 'high_dividend') {
-      list = list.filter(function (s) { return (s.dividendYield || 0) >= 3; });
-    } else if (currentPreset === 'value') {
-      list = list.filter(function (s) { return s.pe && s.pe > 0 && s.pe <= 18; });
-    } else if (currentPreset === 'undervalued') {
-      list = list.filter(isUndervalued);
-    } else if (currentPreset === 'turnaround') {
-      list = list.filter(isTurnaround);
-    } else if (currentPreset === 'growth') {
-      list = list.filter(function (s) { return (s.revGrowth || 0) >= 0.10; });
-    } else if (currentPreset === 'top_performer') {
-      list = list.filter(function (s) { return (s.perf52w || 0) >= 15; });
-    } else if (currentPreset === 'forecast_up') {
-      list = list.filter(function (s) { return hasUpside(s) && s.upside >= PROGNOSE_STEIGEND_MIN; });
-    } else if (currentPreset === 'forecast_down') {
-      list = list.filter(function (s) { return hasUpside(s) && s.upside < PROGNOSE_FALLEND_MAX; });
-    } else if (currentPreset === 'death_cross') {
-      list = list.filter(function (s) { return hasRecentCross(s, 'death'); });
-    } else if (currentPreset === 'golden_cross') {
-      list = list.filter(function (s) { return hasRecentCross(s, 'golden'); });
-    } else if (currentPreset === 'quality') {
-      list = list.filter(isQuality);
-    } else if (currentPreset === 'earnings_growth') {
-      list = list.filter(isEarningsGrowth);
-    } else if (currentPreset === 'recovery') {
-      list = list.filter(isRecovery);
-    } else if (currentPreset === 'oversold') {
-      list = list.filter(isOversold);
-    }
+    // 2. Preset-Filter (mehrere aktiv = alle müssen zutreffen)
+    activePresets.forEach(function (p) {
+      var fn = PRESET_FILTERS[p];
+      if (fn) list = list.filter(fn);
+    });
 
     // 3. Sortierung (null/undefined sicher mit 0 als Fallback)
     list.sort(function (a, b) {
@@ -188,7 +199,7 @@ window.App.Screener = (function () {
       resultCountEl.textContent = filteredStocks.length + ' Ergebnisse';
     }
 
-    renderAiBanner(filteredStocks, currentPreset);
+    renderAiBanner(filteredStocks, activePresets);
     renderStockCards(filteredStocks);
   }
 
@@ -247,14 +258,15 @@ window.App.Screener = (function () {
 
   /** Kleine Kennzahl auf der Karte passend zum aktiven Filter. */
   function extraTag(s) {
-    var txt = '';
     var F = window.App.Format;
-    if (currentPreset === 'quality' && hasNum(s.profitMargins)) txt = 'Marge ' + F.number(s.profitMargins * 100, 0) + ' %';
-    else if (currentPreset === 'earnings_growth') txt = 'KGV ' + F.number(s.pe, 0) + ' \u2192 ' + F.number(s.forwardPe, 0);
-    else if (currentPreset === 'recovery' && hasNum(s.rangePos)) txt = '52W-Spanne ' + F.number(s.rangePos, 0) + ' %';
-    else if (currentPreset === 'oversold' && hasNum(s.rsi)) txt = 'RSI ' + F.number(s.rsi, 0);
-    if (!txt) return '';
-    return '<span class="sector-label" style="color: var(--bullish); font-weight: 700;">\u2022 ' + txt + '</span>';
+    var tags = [];
+    if (isActive('quality') && hasNum(s.profitMargins)) tags.push('Marge ' + F.number(s.profitMargins * 100, 0) + ' %');
+    if (isActive('earnings_growth') && hasNum(s.pe) && hasNum(s.forwardPe)) tags.push('KGV ' + F.number(s.pe, 0) + ' \u2192 ' + F.number(s.forwardPe, 0));
+    if (isActive('recovery') && hasNum(s.rangePos)) tags.push('52W-Spanne ' + F.number(s.rangePos, 0) + ' %');
+    if (isActive('oversold') && hasNum(s.rsi)) tags.push('RSI ' + F.number(s.rsi, 0));
+    return tags.map(function (txt) {
+      return '<span class="sector-label" style="color: var(--bullish); font-weight: 700;">\u2022 ' + txt + '</span>';
+    }).join('');
   }
 
   function hasUpside(s) {
@@ -307,11 +319,11 @@ window.App.Screener = (function () {
   /**
    * Rendert den KI-Banner, wenn bestimmte Presets aktiv sind.
    */
-  function renderAiBanner(list, preset) {
+  function renderAiBanner(list, presets) {
     var container = document.getElementById('screener-ai-banner-container');
     if (!container) return;
 
-    if (preset !== 'undervalued' && preset !== 'turnaround') {
+    if (!presets || presets.length === 0) {
       container.innerHTML = '';
       return;
     }
@@ -321,7 +333,7 @@ window.App.Screener = (function () {
       return;
     }
 
-    var presetName = preset === 'undervalued' ? 'Unterbewertete Aktien' : 'Turnaround-Kandidaten';
+    var presetName = presets.map(function (p) { return PRESET_LABELS[p] || p; }).join(' + ');
 
     var html = '' +
       '<div class="card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%); border: 1px solid var(--accent-purple); padding: 14px; margin-bottom: 14px;">' +
@@ -418,8 +430,8 @@ window.App.Screener = (function () {
               '<div class="stock-tags">' +
                 '<span class="ticker-badge">' + stock.ticker + '</span>' +
                 '<span class="sector-label">• ' + (stock.sector || 'Markt') + '</span>' +
-                ((currentPreset === 'undervalued' || currentPreset === 'turnaround' || currentPreset === 'forecast_up' || currentPreset === 'forecast_down') && stock.upside !== null && stock.upside !== undefined ? '<span class="sector-label" style="color: var(' + (stock.upside >= 0 ? '--bullish' : '--bearish') + '); font-weight: 700;">• Ziel ' + (stock.upside >= 0 ? '+' : '') + window.App.Format.number(stock.upside, 0) + ' %</span>' : '') +
-                (currentPreset !== 'all' ? crossTag(stock) : '') +
+                ((isActive('undervalued') || isActive('turnaround') || isActive('forecast_up') || isActive('forecast_down')) && stock.upside !== null && stock.upside !== undefined ? '<span class="sector-label" style="color: var(' + (stock.upside >= 0 ? '--bullish' : '--bearish') + '); font-weight: 700;">• Ziel ' + (stock.upside >= 0 ? '+' : '') + window.App.Format.number(stock.upside, 0) + ' %</span>' : '') +
+                (activePresets.length > 0 ? crossTag(stock) : '') +
                 extraTag(stock) +
                 (isLoss(stock) ? '<span class="sector-label" style="color: var(--bearish); font-weight: 700;">• KGV neg.</span>' : '') +
               '</div>' +
@@ -479,6 +491,7 @@ window.App.Screener = (function () {
     if (sortSelect) {
       sortSelect.onchange = function (e) {
         currentSort = e.target.value;
+        autoSorted = false;
         applyFiltersAndRender();
       };
     }
@@ -486,13 +499,28 @@ window.App.Screener = (function () {
     var presetBtns = document.querySelectorAll('[data-preset]');
     presetBtns.forEach(function (btn) {
       btn.onclick = function () {
-        presetBtns.forEach(function (b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-        currentPreset = btn.getAttribute('data-preset');
-        // Prognose-Filter sortieren sinnvoll vor: steigend = höchstes Potenzial, fallend = niedrigstes
-        if (currentPreset === 'forecast_up') currentSort = 'upside_desc';
-        if (currentPreset === 'forecast_down') currentSort = 'upside_asc';
-        if (currentPreset === 'oversold') currentSort = 'rsi_asc';
+        var p = btn.getAttribute('data-preset');
+        if (p === 'all') {
+          activePresets = [];
+        } else {
+          var idx = activePresets.indexOf(p);
+          if (idx !== -1) {
+            activePresets.splice(idx, 1);
+          } else {
+            var other = PRESET_EXCLUSIVE[p];
+            if (other && isActive(other)) activePresets.splice(activePresets.indexOf(other), 1);
+            activePresets.push(p);
+          }
+        }
+        // Chips (de)aktivieren
+        presetBtns.forEach(function (b) {
+          var bp = b.getAttribute('data-preset');
+          var on = bp === 'all' ? activePresets.length === 0 : isActive(bp);
+          if (on) b.classList.add('active'); else b.classList.remove('active');
+        });
+        // Sinnvolle Standard-Sortierung nur, wenn genau ein Filter aktiv ist
+        if (activePresets.length === 1 && PRESET_SORTS[activePresets[0]]) { currentSort = PRESET_SORTS[activePresets[0]]; autoSorted = true; }
+        else if (activePresets.length === 0 && autoSorted) { currentSort = 'marketCap_desc'; autoSorted = false; }
         var sortEl = document.getElementById('screener-sort-select');
         if (sortEl) sortEl.value = currentSort;
         applyFiltersAndRender();
