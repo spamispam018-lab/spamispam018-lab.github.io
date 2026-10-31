@@ -402,6 +402,7 @@ window.App.Screener = (function () {
     var container = document.getElementById('app-view-content');
     if (!container) return;
 
+    unlockPageScroll();
     var headerFilterBtn = document.getElementById('btn-header-filter');
     if (headerFilterBtn) {
       headerFilterBtn.style.display = 'inline-flex';
@@ -797,20 +798,111 @@ window.App.Screener = (function () {
   function yieldLabel(v) { return v > 0 ? '≥ ' + v + ' %' : 'Beliebig'; }
   function perfLabel(v) { return v <= -50 ? 'Beliebig' : '≥ ' + v + ' %'; }
 
+  var scrollLocked = false;
+  var savedBodyStyle = { overflow: '', overscroll: '' };
+
+  /** Sperrt Hintergrund-Scrollen und Pull-to-Refresh, solange das Fenster offen ist. */
+  function lockPageScroll() {
+    if (scrollLocked || !document.body) return;
+    savedBodyStyle.overflow = document.body.style.overflow || '';
+    savedBodyStyle.overscroll = document.body.style.overscrollBehavior || '';
+    document.body.style.overflow = 'hidden';
+    document.body.style.overscrollBehavior = 'none';
+    if (document.documentElement) document.documentElement.style.overscrollBehavior = 'none';
+    scrollLocked = true;
+  }
+
+  function unlockPageScroll() {
+    if (!scrollLocked || !document.body) return;
+    document.body.style.overflow = savedBodyStyle.overflow;
+    document.body.style.overscrollBehavior = savedBodyStyle.overscroll;
+    if (document.documentElement) document.documentElement.style.overscrollBehavior = '';
+    scrollLocked = false;
+  }
+
   function openSheet() {
     var sheet = document.getElementById('filter-bottom-sheet');
     var backdrop = document.getElementById('filter-sheet-backdrop');
     if (!sheet || !backdrop) return;
     syncSliderInputs();
+    sheet.style.transform = '';
+    sheet.style.transition = '';
+    lockPageScroll();
     sheet.classList.add('open');
     backdrop.classList.add('open');
   }
 
   function closeSheet() {
+    unlockPageScroll();
     var sheet = document.getElementById('filter-bottom-sheet');
     var backdrop = document.getElementById('filter-sheet-backdrop');
-    if (sheet) sheet.classList.remove('open');
+    if (sheet) {
+      sheet.style.transform = '';
+      sheet.style.transition = '';
+      sheet.classList.remove('open');
+    }
     if (backdrop) backdrop.classList.remove('open');
+  }
+
+  /**
+   * Wisch-nach-unten zum Schließen. Die Geste wird per preventDefault vom Browser ferngehalten,
+   * sonst löst sie Pull-to-Refresh (Neuladen der ganzen Seite) aus.
+   */
+  function bindSheetSwipe() {
+    var sheet = document.getElementById('filter-bottom-sheet');
+    var backdrop = document.getElementById('filter-sheet-backdrop');
+    if (!sheet) return;
+
+    sheet.style.overscrollBehavior = 'contain';
+    var handle = sheet.querySelector('.sheet-handle');
+    if (handle) handle.style.touchAction = 'none';
+
+    var startY = null;
+    var dy = 0;
+    var dragging = false;
+
+    sheet.addEventListener('touchstart', function (e) {
+      if (!e.touches || e.touches.length !== 1) { startY = null; return; }
+      startY = e.touches[0].clientY;
+      dy = 0;
+      dragging = false;
+    }, { passive: true });
+
+    sheet.addEventListener('touchmove', function (e) {
+      if (startY === null || !e.touches || e.touches.length !== 1) return;
+      var cur = e.touches[0].clientY;
+      if (!dragging) {
+        if (sheet.scrollTop > 0) {      // Inhalt scrollt noch: normales Scrollen, Startpunkt nachführen
+          startY = cur;
+          return;
+        }
+        if (cur - startY <= 6) return;  // nach oben oder kaum bewegt: nichts tun
+        dragging = true;
+        sheet.style.transition = 'none';
+      }
+      dy = Math.max(0, cur - startY);
+      sheet.style.transform = 'translateY(' + dy + 'px)';
+      if (e.cancelable) e.preventDefault(); // verhindert Pull-to-Refresh
+    }, { passive: false });
+
+    function endSwipe() {
+      if (!dragging) { startY = null; return; }
+      var shouldClose = dy > 100 || dy > sheet.offsetHeight * 0.25;
+      dragging = false;
+      startY = null;
+      sheet.style.transition = '';
+      sheet.style.transform = '';
+      if (shouldClose) closeSheet();
+    }
+    sheet.addEventListener('touchend', endSwipe, { passive: true });
+    sheet.addEventListener('touchcancel', endSwipe, { passive: true });
+
+    // Auf dem abgedunkelten Hintergrund darf nichts nach unten ziehen/neu laden
+    if (backdrop) {
+      backdrop.addEventListener('touchmove', function (e) {
+        if (e.cancelable) e.preventDefault();
+      }, { passive: false });
+    }
   }
 
   function syncSliderInputs() {
@@ -946,6 +1038,7 @@ window.App.Screener = (function () {
     if (resetBtn) resetBtn.onclick = resetSliders;
     var backdrop = document.getElementById('filter-sheet-backdrop');
     if (backdrop) backdrop.onclick = closeSheet;
+    bindSheetSwipe();
   }
 
   // ---------------------------------------------------------------------------
@@ -1041,6 +1134,11 @@ window.App.Screener = (function () {
 
   // Gemerkte Auswahl laden (muss nach Definition aller Tabellen passieren)
   restoreState();
+
+  // Beim Seitenwechsel ein offenes Filter-Fenster schließen, damit das Scrollen nicht gesperrt bleibt
+  if (typeof window.addEventListener === 'function') {
+    window.addEventListener('hashchange', closeSheet);
+  }
 
   return {
     initView: initView
