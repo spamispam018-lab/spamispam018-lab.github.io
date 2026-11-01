@@ -360,6 +360,43 @@ def trend_extras(history):
         out["crossDaysAgo"] = n - 1 - last_cross_idx
     return out
 
+def peer_extras(st):
+    """Branche + Kursentwicklung (1W/1M/3M/YTD) fürs Universum (Peer-Ansicht)."""
+    from datetime import date, timedelta
+    profile = st.get("profile", {}) or {}
+    out = {"industry": profile.get("industry"),
+           "perf1w": None, "perf1m": None, "perf3m": None, "perfYtd": None}
+    hist = [p for p in (st.get("chartHistory") or []) if p.get("close")]
+    if len(hist) < 5:
+        return out
+    last = hist[-1]
+    try:
+        last_d = date.fromisoformat(last["date"])
+    except Exception:
+        return out
+
+    def close_on_or_before(target):
+        ref = None
+        for p in hist:
+            if p["date"] <= target.isoformat():
+                ref = p
+            else:
+                break
+        return ref
+
+    def perf(target):
+        ref = close_on_or_before(target)
+        if not ref or ref is last or not ref["close"]:
+            return None
+        return round((last["close"] - ref["close"]) / ref["close"] * 100, 2)
+
+    out["perf1w"] = perf(last_d - timedelta(days=7))
+    out["perf1m"] = perf(last_d - timedelta(days=30))
+    out["perf3m"] = perf(last_d - timedelta(days=91))
+    out["perfYtd"] = perf(date(last_d.year - 1, 12, 31))
+    return out
+
+
 def screener_extras(st):
     """Zusatzfelder fürs Universum (Screener-Filter 'Unterbewertet')."""
     ratios = st.get("ratios", {}) or {}
@@ -372,6 +409,7 @@ def screener_extras(st):
         "upside": None,
     }
     out.update(trend_extras(st.get("chartHistory")))
+    out.update(peer_extras(st))
     lo, hi, px = quote.get("fiftyTwoWeekLow"), quote.get("fiftyTwoWeekHigh"), quote.get("price")
     if lo is not None and hi is not None and px is not None and hi > lo:
         out["rangePos"] = round(max(0.0, min(100.0, (px - lo) / (hi - lo) * 100)), 1)
