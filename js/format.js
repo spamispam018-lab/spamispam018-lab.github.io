@@ -144,12 +144,47 @@ window.App.Format = (function () {
     return 'change-neutral';
   }
 
+  /**
+   * Kompakte Achsenbeschriftung für große Beträge: nur so viele Nachkommastellen wie nötig
+   * (z. B. '0 €', '-5 Mrd. €', '2,5 Mrd. €').
+   */
+  function axisMoney(value) {
+    if (value === null || value === undefined || isNaN(Number(value))) return '—';
+    var num = Number(value);
+    var abs = Math.abs(num);
+    if (abs < 1e-9) return '0 €';
+    var units = [[1e12, ' Bio. €'], [1e9, ' Mrd. €'], [1e6, ' Mio. €'], [1e3, ' Tsd. €']];
+    for (var i = 0; i < units.length; i++) {
+      if (abs >= units[i][0]) {
+        var scaled = num / units[i][0];
+        var d = Math.abs(scaled - Math.round(scaled)) < 1e-9 ? 0 : 1;
+        return number(scaled, d) + units[i][1];
+      }
+    }
+    return number(num, 0) + ' €';
+  }
+
+  /**
+   * Prozent-Achsenbeschriftung ohne überflüssige Nachkommastellen ('0 %', '10 %', '2,5 %').
+   */
+  function axisPercent(value) {
+    if (value === null || value === undefined || isNaN(Number(value))) return '—';
+    var num = Number(value);
+    var abs = Math.abs(num);
+    var d;
+    if (Math.abs(num - Math.round(num)) < 1e-9) d = 0;
+    else d = abs >= 1 ? 1 : 2;
+    return number(num, d) + ' %';
+  }
+
   return {
     number: number,
     currency: currency,
     compactNumber: compactNumber,
     percent: percent,
     date: date,
-    changeClass: changeClass
+    changeClass: changeClass,
+    axisMoney: axisMoney,
+    axisPercent: axisPercent
   };
 })();
