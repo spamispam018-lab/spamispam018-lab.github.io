@@ -310,8 +310,18 @@
        * Rendert die Score-Ansicht (Verlauf, Kategorien 0-5, Segmentbalken)
        */
       function renderScoreView(container, stock) {
-        var scoreData = window.App.Score.calculateTotalScore(stock);
+        var period = window.App.Score.getPeriod();
+        var scoreData = window.App.Score.calculateTotalScore(stock, period);
         var html = '' +
+          '<div class="horizontal-scroll-row" style="margin-bottom: 8px;">' +
+            '<button class="chip-btn ' + (period === 'quarter' ? 'active' : '') + '" data-score-period="quarter">Quartal</button>' +
+            '<button class="chip-btn ' + (period === 'year' ? 'active' : '') + '" data-score-period="year">Jahr</button>' +
+          '</div>' +
+          '<p style="font-size: 0.7rem; color: var(--text-dim); margin: 0 4px 12px; line-height: 1.4;">' +
+            (period === 'quarter'
+              ? 'Basis: letztes Quartal. Wachstum gegenüber dem Vorjahresquartal; KGV, KUV, ROE und ROA auf 12 Monate hochgerechnet (x4). Forward KGV und PEG sind Prognosewerte.'
+              : 'Basis: letztes Geschäftsjahr. Wachstum gegenüber dem Vorjahr. Forward KGV und PEG sind Prognosewerte.') +
+          '</p>' +
           '<div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px;">' +
             '<div>' +
               '<div style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Gesamt-Score</div>' +
@@ -342,6 +352,13 @@
         });
 
         container.innerHTML = html;
+
+        container.querySelectorAll('[data-score-period]').forEach(function (btn) {
+          btn.onclick = function () {
+            window.App.Score.setPeriod(btn.getAttribute('data-score-period'));
+            renderScoreView(container, stock);
+          };
+        });
       }
 
       // App initialisieren
