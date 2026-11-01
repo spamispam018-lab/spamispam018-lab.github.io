@@ -547,6 +547,7 @@ window.App.Screener = (function () {
     }
 
     renderSummary();
+    renderSavedRow();
     renderAiBanner(filteredStocks, activePresets);
     renderStockCards(filteredStocks);
     saveState();
@@ -1039,6 +1040,134 @@ window.App.Screener = (function () {
     var backdrop = document.getElementById('filter-sheet-backdrop');
     if (backdrop) backdrop.onclick = closeSheet;
     bindSheetSwipe();
+    bindSavedAndExport();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Gespeicherte Filter & CSV-Export
+  // ---------------------------------------------------------------------------
+  var SAVED_KEY = 'screener_saved_filters_v1';
+  var MAX_SAVED = 12;
+
+  function loadSavedFilters() {
+    var arr = loadJson(SAVED_KEY);
+    return Array.isArray(arr) ? arr : [];
+  }
+
+  function currentFilterSignature() {
+    return JSON.stringify({
+      p: activePresets.slice().sort(),
+      pe: sliderFilters.maxPe, y: sliderFilters.minYield, pf: sliderFilters.minPerf
+    });
+  }
+
+  function savedSignature(f) {
+    var sl = f.sliders || {};
+    return JSON.stringify({
+      p: (f.presets || []).slice().sort(),
+      pe: hasNum(sl.maxPe) ? sl.maxPe : null,
+      y: hasNum(sl.minYield) ? sl.minYield : 0,
+      pf: hasNum(sl.minPerf) ? sl.minPerf : null
+    });
+  }
+
+  function renderSavedRow() {
+    var row = document.getElementById('screener-saved-row');
+    if (!row) return;
+    var saved = loadSavedFilters();
+    var sig = currentFilterSignature();
+    var html = '<button class="chip-btn" id="screener-save-btn">＋ Filter speichern</button>';
+    saved.forEach(function (f) {
+      var on = savedSignature(f) === sig && (activePresets.length > 0 || slidersActive());
+      html += '<button class="chip-btn' + (on ? ' active' : '') + '" data-saved-id="' + esc(f.id) + '">' +
+        '★ ' + esc(f.name) +
+        '<span data-saved-del="' + esc(f.id) + '" style="margin-left: 8px; opacity: 0.65;" title="Löschen">✕</span>' +
+      '</button>';
+    });
+    row.innerHTML = html;
+    row.style.display = '';
+
+    var saveBtn = document.getElementById('screener-save-btn');
+    if (saveBtn) saveBtn.onclick = saveCurrentFilter;
+    row.querySelectorAll('[data-saved-id]').forEach(function (btn) {
+      btn.onclick = function (e) {
+        var id = btn.getAttribute('data-saved-id');
+        if (e.target.closest('[data-saved-del]')) {
+          deleteSavedFilter(id);
+        } else {
+          applySavedFilter(id);
+        }
+      };
+    });
+  }
+
+  function saveCurrentFilter() {
+    if (activePresets.length === 0 && !slidersActive()) {
+      window.alert('Wähle zuerst mindestens einen Filter oder Feinfilter aus, den du speichern möchtest.');
+      return;
+    }
+    var saved = loadSavedFilters();
+    if (saved.length >= MAX_SAVED) {
+      window.alert('Maximal ' + MAX_SAVED + ' gespeicherte Filter. Lösche zuerst einen mit dem ✕.');
+      return;
+    }
+    var def = activePresets.map(presetName).join(' + ') || 'Eigener Filter';
+    var name = window.prompt('Name für diesen Filter:', def);
+    if (name === null) return;
+    name = String(name).trim();
+    if (!name) name = def;
+    saved.push({
+      id: 'f' + Date.now(),
+      name: name.slice(0, 40),
+      presets: activePresets.slice(),
+      sliders: { maxPe: sliderFilters.maxPe, minYield: sliderFilters.minYield, minPerf: sliderFilters.minPerf },
+      sort: currentSort
+    });
+    saveJson(SAVED_KEY, saved);
+    renderSavedRow();
+  }
+
+  function applySavedFilter(id) {
+    var f = loadSavedFilters().filter(function (x) { return x.id === id; })[0];
+    if (!f) return;
+    activePresets = (f.presets || []).filter(function (p) { return PRESET_FILTERS[p]; });
+    var sl = f.sliders || {};
+    sliderFilters = {
+      maxPe: hasNum(sl.maxPe) ? sl.maxPe : null,
+      minYield: hasNum(sl.minYield) ? sl.minYield : 0,
+      minPerf: hasNum(sl.minPerf) ? sl.minPerf : null
+    };
+    if (f.sort && SORT_OPTIONS.some(function (o) { return o.v === f.sort; })) currentSort = f.sort;
+    autoSorted = false;
+    var sortEl = document.getElementById('screener-sort-select');
+    if (sortEl) sortEl.value = currentSort;
+    syncPresetStates();
+    syncSliderInputs();
+    updateHeaderFilterIndicator();
+    applyFiltersAndRender();
+  }
+
+  function deleteSavedFilter(id) {
+    var saved = loadSavedFilters();
+    var f = saved.filter(function (x) { return x.id === id; })[0];
+    if (!f) return;
+    if (!window.confirm('Gespeicherten Filter „' + f.name + '" löschen?')) return;
+    saveJson(SAVED_KEY, saved.filter(function (x) { return x.id !== id; }));
+    renderSavedRow();
+  }
+
+  function bindSavedAndExport() {
+    renderSavedRow();
+    var exp = document.getElementById('screener-export-btn');
+    if (exp) {
+      exp.onclick = function () {
+        if (!filteredStocks.length) {
+          window.alert('Keine Ergebnisse zum Exportieren.');
+          return;
+        }
+        window.App.Export.downloadStocks('screener', filteredStocks);
+      };
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -1088,10 +1217,12 @@ window.App.Screener = (function () {
         '</div>' +
 
         '<div class="horizontal-scroll-row">' + chips + '</div>' +
+        '<div class="horizontal-scroll-row" id="screener-saved-row"></div>' +
         '<div id="screener-active-summary"></div>' +
 
         '<div class="sub-header-bar">' +
-          '<span id="screener-result-count">0 Ergebnisse</span>' +
+          '<span><span id="screener-result-count">0 Ergebnisse</span>' +
+            '<button class="chip-btn" id="screener-export-btn" style="padding: 3px 9px; margin-left: 8px; font-size: 0.72rem;">⬇ CSV</button></span>' +
           '<select id="screener-sort-select" class="sort-select">' + sortOptions + '</select>' +
         '</div>' +
 
