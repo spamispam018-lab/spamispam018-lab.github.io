@@ -418,7 +418,9 @@ window.App.Charts = (function () {
         var barH = Math.abs(yZero - yVal);
         if (barH < 0.5) return;
 
-        ctx.fillStyle = s.color || THEME.purple;
+        // Negative Werte rot (bei mehreren Serien: Rottöne zur Unterscheidung)
+        var negColor = s.negColor || (sIdx === 0 ? '#ef4444' : '#b91c1c');
+        ctx.fillStyle = val < 0 ? negColor : (s.color || THEME.purple);
         ctx.beginPath();
         var radii = val >= 0 ? [3, 3, 0, 0] : [0, 0, 3, 3];
         ctx.roundRect ? ctx.roundRect(barX, barY, barW - barPadding, barH, radii) : ctx.rect(barX, barY, barW - barPadding, barH);
