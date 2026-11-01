@@ -11,6 +11,8 @@ window.App = window.App || {};
 window.App.Watchlist = (function () {
   'use strict';
 
+  var currentList = [];
+
   /**
    * Initialisiert und rendert die Watchlist-View.
    */
@@ -43,11 +45,14 @@ window.App.Watchlist = (function () {
    * Erzeugt das Layout für die Watchlist samt Mini-Sparklines per SVG.
    */
   function renderWatchlistUI(container, list) {
+    currentList = list;
     var html = '' +
       '<div class="view-container">' +
         '<div style="margin-bottom: 16px;">' +
           '<h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 4px;">Meine Watchlist</h2>' +
-          '<div style="font-size: 0.78rem; color: var(--text-dim);">' + list.length + ' gespeicherte Werte</div>' +
+          '<div style="font-size: 0.78rem; color: var(--text-dim);">' + list.length + ' gespeicherte Werte' +
+            (list.length > 0 ? '<button class="chip-btn" id="watchlist-export-btn" style="padding: 3px 9px; margin-left: 10px; font-size: 0.72rem;">⬇ CSV</button>' : '') +
+          '</div>' +
         '</div>';
 
     if (list.length === 0) {
@@ -122,6 +127,13 @@ window.App.Watchlist = (function () {
    * Bindet Klick-Events für Detailnavigation und Entfernen aus der Watchlist.
    */
   function bindEvents(container) {
+    var exportBtn = container.querySelector('#watchlist-export-btn');
+    if (exportBtn) {
+      exportBtn.onclick = function () {
+        window.App.Export.downloadStocks('watchlist', currentList);
+      };
+    }
+
     var cards = container.querySelectorAll('.stock-card');
     cards.forEach(function (card) {
       card.onclick = function (e) {
