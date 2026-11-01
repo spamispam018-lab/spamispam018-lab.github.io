@@ -512,7 +512,7 @@ window.App.StockOverview = (function () {
     window.App.Charts.renderGroupedBarChart(canvas, {
       labels: labels,
       series: [{ name: 'Umsatz', data: revenues, color: 'rgba(99, 102, 241, 0.85)' }],
-      formatY: function (v) { return window.App.Format.compactNumber(v); }
+      formatY: function (v) { return window.App.Format.axisMoney(v); }
     });
   }
 
