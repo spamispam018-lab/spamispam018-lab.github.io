@@ -278,7 +278,8 @@ def fetch_full_stock(ticker_sym):
         "dividendYield": clean_val(info.get("dividendYield")),
         "profitMargins": clean_val(info.get("profitMargins")),
         "debtToEquity": clean_val(info.get("debtToEquity")),
-        "revenueGrowth": clean_val(info.get("revenueGrowth"))
+        "revenueGrowth": clean_val(info.get("revenueGrowth")),
+        "earningsGrowth": clean_val(info.get("earningsGrowth") if info.get("earningsGrowth") is not None else info.get("earningsQuarterlyGrowth"))
     }
 
     chart_history = []
