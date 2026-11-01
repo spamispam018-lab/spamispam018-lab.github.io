@@ -50,35 +50,70 @@ window.App.Charts = (function () {
   /**
    * Zeichnet horizontale gestrichelte Hilfslinien und die Y-Achsen-Werte links.
    */
+  /**
+   * Ermittelt eine "schöne" Schrittweite (1, 2, 5 x 10^n) für die Y-Achse.
+   */
+  function niceStep(raw) {
+    if (!isFinite(raw) || raw <= 0) return 1;
+    var exp = Math.pow(10, Math.floor(Math.log10(raw)));
+    var f = raw / exp;
+    var n = f <= 1 ? 1 : (f <= 2 ? 2 : (f <= 5 ? 5 : 10));
+    return n * exp;
+  }
+
   function drawGridAndYAxis(ctx, width, height, minVal, maxVal, padding, formatFn) {
     var chartTop = padding.top;
     var chartBottom = height - padding.bottom;
     var chartHeight = chartBottom - chartTop;
-    var steps = 4;
+    var range = maxVal - minVal;
+    if (!isFinite(range) || range <= 0) { range = 1; maxVal = minVal + 1; }
+
+    // Ticks auf runden Werten (enthält 0, wenn der Wertebereich 0 umfasst)
+    var step = niceStep(range / 4);
+    var ticks = [];
+    var first = Math.ceil(minVal / step - 1e-9) * step;
+    for (var v = first; v <= maxVal + step * 1e-9 && ticks.length < 12; v += step) {
+      ticks.push(Math.abs(v) < step * 1e-9 ? 0 : v);
+    }
 
     ctx.save();
     ctx.font = '10px ' + THEME.fontFamily;
     ctx.fillStyle = THEME.textColor;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
+
+    // Linken Rand an die breiteste Achsenbeschriftung anpassen (kein Überlappen mit Balken/Linien)
+    var labels = ticks.map(function (t) { return formatFn ? formatFn(t) : t.toFixed(1); });
+    var maxLabelW = 0;
+    labels.forEach(function (l) {
+      var wl = ctx.measureText(String(l)).width;
+      if (wl > maxLabelW) maxLabelW = wl;
+    });
+    padding.left = Math.max(padding.left, Math.ceil(maxLabelW) + 14);
+
     ctx.strokeStyle = THEME.gridColor;
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 4]);
 
-    for (var i = 0; i <= steps; i++) {
-      var y = chartTop + (chartHeight / steps) * i;
-      var val = maxVal - ((maxVal - minVal) / steps) * i;
-      var label = formatFn ? formatFn(val) : val.toFixed(1);
+    ticks.forEach(function (t, i) {
+      var y = chartTop + chartHeight - ((t - minVal) / range) * chartHeight;
 
-      // Gestrichelte Linie
+      // Gestrichelte Linie (Nulllinie durchgezogen und etwas heller)
       ctx.beginPath();
+      if (t === 0 && minVal < 0) {
+        ctx.setLineDash([]);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+      } else {
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = THEME.gridColor;
+      }
       ctx.moveTo(padding.left, y);
       ctx.lineTo(width - padding.right, y);
       ctx.stroke();
 
       // Achsenbeschriftung
-      ctx.fillText(label, 4, y);
-    }
+      ctx.fillText(labels[i], 4, y);
+    });
     ctx.restore();
   }
 
@@ -354,9 +389,13 @@ window.App.Charts = (function () {
     series.forEach(function (s) {
       allVals = allVals.concat(s.data);
     });
-    var minVal = Math.min(0, Math.min.apply(null, allVals));
-    var maxVal = Math.max.apply(null, allVals);
-    maxVal = maxVal * 1.15 || 1;
+    var dataMin = Math.min.apply(null, allVals);
+    var dataMax = Math.max.apply(null, allVals);
+    var minVal = Math.min(0, dataMin);
+    var maxVal = Math.max(0, dataMax);
+    if (minVal < 0) minVal = minVal * 1.1;
+    if (maxVal > 0) maxVal = maxVal * 1.15;
+    if (maxVal === minVal) maxVal = minVal + 1;
 
     drawGridAndYAxis(ctx, w, h, minVal, maxVal, padding, opts.formatY);
 
@@ -371,14 +410,18 @@ window.App.Charts = (function () {
 
       series.forEach(function (s, sIdx) {
         var val = s.data[gIdx] || 0;
-        var barH = ((val - minVal) / (maxVal - minVal)) * chartH;
+        // Balken starten an der Nulllinie; negative Werte zeigen nach unten
+        var yZero = padding.top + chartH - ((0 - minVal) / (maxVal - minVal)) * chartH;
+        var yVal = padding.top + chartH - ((val - minVal) / (maxVal - minVal)) * chartH;
         var barX = groupX + sIdx * barW;
-        var barY = padding.top + chartH - barH;
+        var barY = Math.min(yZero, yVal);
+        var barH = Math.abs(yZero - yVal);
+        if (barH < 0.5) return;
 
         ctx.fillStyle = s.color || THEME.purple;
         ctx.beginPath();
-        // Leichte Rundung oben
-        ctx.roundRect ? ctx.roundRect(barX, barY, barW - barPadding, barH, [3, 3, 0, 0]) : ctx.rect(barX, barY, barW - barPadding, barH);
+        var radii = val >= 0 ? [3, 3, 0, 0] : [0, 0, 3, 3];
+        ctx.roundRect ? ctx.roundRect(barX, barY, barW - barPadding, barH, radii) : ctx.rect(barX, barY, barW - barPadding, barH);
         ctx.fill();
       });
 
