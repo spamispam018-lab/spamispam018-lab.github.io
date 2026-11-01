@@ -101,23 +101,56 @@ window.App.Score = (function () {
   /**
    * Berechnet den Wachstums-Score.
    */
-  function evaluateGrowth(ratios) {
+  function evaluateGrowth(ratios, stock) {
     var revG = ratios.revenueGrowth || 0;
-    var earnG = ratios.earningsGrowth || 0;
+    var earnG = resolveEarningsGrowth(ratios, stock);
+    var hasEarn = earnG !== null;
 
     var sRev = scoreMetric(revG, 0.05, 0.20, 1);
-    var sEarn = scoreMetric(earnG, 0.05, 0.25, 1);
+    var sEarn = hasEarn ? scoreMetric(earnG, 0.05, 0.25, 1) : null;
 
-    var avg = (sRev * 0.5) + (sEarn * 0.5);
+    // Fehlt das Gewinnwachstum, zählt nur das Umsatzwachstum
+    var avg = hasEarn ? (sRev * 0.5) + (sEarn * 0.5) : sRev;
 
     return {
       category: 'Wachstum',
       score: Math.round(avg * 10) / 10,
       metrics: [
         { name: 'Umsatzwachstum (YoY)', value: (revG * 100).toFixed(1) + ' %', score: sRev },
-        { name: 'Gewinnwachstum (YoY)', value: (earnG * 100).toFixed(1) + ' %', score: sEarn }
+        { name: 'Gewinnwachstum (YoY)', value: hasEarn ? (earnG * 100).toFixed(1) + ' %' : '—', score: sEarn }
       ]
     };
+  }
+
+  /**
+   * Gewinnwachstum (YoY): bevorzugt ratios.earningsGrowth, sonst Nettoergebnis
+   * des letzten Quartals gegenüber dem Vorjahresquartal. null = nicht berechenbar
+   * (z. B. Vorjahresquartal negativ oder keine Quartalsdaten).
+   */
+  function resolveEarningsGrowth(ratios, stock) {
+    var g = ratios.earningsGrowth;
+    if (g !== null && g !== undefined && !isNaN(g)) return Number(g);
+
+    try {
+      var q = (((stock || {}).financials || {}).incomeStatement || {}).quarterly || [];
+      var rows = q.filter(function (r) {
+        return r && r.date && r.Net_Income !== null && r.Net_Income !== undefined && !isNaN(r.Net_Income);
+      }).sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+      if (rows.length < 2) return null;
+
+      var last = rows[rows.length - 1];
+      var lastT = new Date(last.date).getTime();
+      var prev = null, bestDiff = Infinity;
+      rows.forEach(function (r) {
+        if (r === last) return;
+        var diffDays = Math.abs((lastT - new Date(r.date).getTime()) / 86400000 - 365);
+        if (diffDays < bestDiff) { bestDiff = diffDays; prev = r; }
+      });
+      if (!prev || bestDiff > 45 || !(prev.Net_Income > 0)) return null;
+      return (last.Net_Income - prev.Net_Income) / prev.Net_Income;
+    } catch (e) {
+      return null;
+    }
   }
 
   /**
@@ -152,7 +185,7 @@ window.App.Score = (function () {
     var ratios = (stock && stock.ratios) || {};
     var prof = evaluateProfitability(ratios);
     var val = evaluateValuation(ratios);
-    var gro = evaluateGrowth(ratios);
+    var gro = evaluateGrowth(ratios, stock);
     var hea = evaluateHealth(ratios);
 
     var overall = (prof.score * 0.30) + (val.score * 0.25) + (gro.score * 0.25) + (hea.score * 0.20);
