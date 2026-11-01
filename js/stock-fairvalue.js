@@ -238,6 +238,89 @@ window.App.StockFairValue = (function () {
   }
 
   // ---------------------------------------------------------------------------
+  // Gemini-Prompt für die DCF-Annahmen
+  // ---------------------------------------------------------------------------
+  function yearlyLine(rows, field, scaleFn) {
+    return sorted(rows).filter(function (r) { return num(r[field]) !== null; }).slice(-5).map(function (r) {
+      return r.date.slice(0, 4) + ': ' + scaleFn(Number(r[field]));
+    }).join(', ');
+  }
+
+  function buildGeminiPrompt(b, stock, cur, universe, results) {
+    var F = window.App.Format;
+    var p = stock.profile || {};
+    var r = stock.ratios || {};
+    var fin = stock.financials || {};
+    var an = ((stock.analysts || {}).targets) || {};
+    var money = function (v) { return F.compactNumber(v); };
+
+    var lines = [];
+    lines.push('Hallo Gemini! Ich bewerte die Aktie ' + (p.name || stock.ticker) + ' (' + stock.ticker + ') mit einem vereinfachten DCF-Modell ' +
+      '(freier Cashflow der letzten 12 Monate, 5 Jahre Wachstum, ewiges Wachstum für den Restwert, Abzug der Nettoschulden). ' +
+      'Bitte prüfe zuerst meine Daten auf Plausibilität und berücksichtige zusätzlich aktuelle Informationen zum Unternehmen ' +
+      '(letzte Quartalszahlen, Investitionspläne, Analystenerwartungen, Branchenumfeld).');
+    lines.push('');
+    lines.push('Welche Werte passen für diese Aktie am besten? Ich brauche:');
+    lines.push('1. Wachstum der freien Cashflows p. a. über 5 Jahre (mein Regler: 0–20 %)');
+    lines.push('2. Diskontsatz bzw. geforderte Rendite (Regler: 6–14 %)');
+    lines.push('3. Ewiges Wachstum für den Restwert (Regler: 0–4 %)');
+    lines.push('Nenne jeweils ein pessimistisches, ein Basis- und ein optimistisches Szenario mit kurzer Begründung. ' +
+      'Falls der aktuelle freie Cashflow durch Sonderfaktoren (z. B. hohe Investitionen) nicht repräsentativ ist, sage das und nenne einen normalisierten Wert. ' +
+      'Schließe mit einer einzigen Zeile im Format: "Basis: Wachstum X % | Diskontsatz Y % | Ewiges Wachstum Z %".');
+    lines.push('');
+    lines.push('Meine Daten (Beträge in ' + cur + ', umgerechnet):');
+    lines.push('- Sektor/Branche: ' + (p.sector || 'N/A') + ' / ' + (p.industry || 'N/A'));
+    if (b.price) lines.push('- Kurs: ' + F.currency(b.price, cur) + (b.mcap ? ', Marktkapitalisierung ' + money(b.mcap) : ''));
+    if (b.fcf !== null) lines.push('- Freier Cashflow (' + b.fcfSource + '): ' + money(b.fcf));
+    var fcfHist = yearlyLine((fin.cashFlow || {}).annual, 'Free_Cash_Flow', money);
+    if (fcfHist) lines.push('- Freier Cashflow je Geschäftsjahr: ' + fcfHist);
+    var revHist = yearlyLine((fin.incomeStatement || {}).annual, 'Total_Revenue', money);
+    if (revHist) lines.push('- Umsatz je Geschäftsjahr: ' + revHist);
+    var niHist = yearlyLine((fin.incomeStatement || {}).annual, 'Net_Income', money);
+    if (niHist) lines.push('- Nettoergebnis je Geschäftsjahr: ' + niHist);
+    if (b.netDebt !== null) lines.push('- Nettoschulden: ' + money(b.netDebt) + (b.netDebt < 0 ? ' (Netto-Cash)' : ''));
+    if (b.eps !== null) lines.push('- Gewinn je Aktie (' + b.niSource + '): ' + F.number(b.eps, 2));
+    if (num(r.peTrailing) !== null) lines.push('- KGV: ' + F.number(r.peTrailing, 1) + (num(r.peForward) !== null ? ', Forward-KGV: ' + F.number(r.peForward, 1) : '') +
+      (num(r.pegRatio) !== null ? ', PEG: ' + F.number(r.pegRatio, 2) : ''));
+    if (num(r.revenueGrowth) !== null) lines.push('- Umsatzwachstum (YoY, letztes Quartal): ' + F.number(r.revenueGrowth * 100, 1) + ' %');
+    if (num(r.profitMargins) !== null) lines.push('- Nettomarge: ' + F.number(r.profitMargins * 100, 1) + ' %');
+    if (num(r.debtToEquity) !== null) lines.push('- Debt/Equity: ' + F.number(r.debtToEquity, 0));
+    if (num(an.mean) !== null) lines.push('- Analysten-Kursziel (Ø): ' + F.currency(an.mean, an.currency || cur) +
+      (num(an.low) !== null && num(an.high) !== null ? ' (Spanne ' + F.currency(an.low, an.currency || cur) + ' bis ' + F.currency(an.high, an.currency || cur) + ')' : '') +
+      (num(an.analystCount) !== null ? ', ' + an.analystCount + ' Analysten' : ''));
+    lines.push('');
+    lines.push('Meine aktuellen Annahmen: Wachstum ' + F.number(dcfInputs.growth, 0) + ' %, Diskontsatz ' + F.number(dcfInputs.discount, 1) +
+      ' %, ewiges Wachstum ' + F.number(dcfInputs.terminal, 1) + ' %.');
+    var out = [];
+    if (results.dcf && results.dcf.ok) out.push('DCF ' + F.currency(results.dcf.value, cur));
+    if (results.graham && results.graham.ok) out.push('Graham-Zahl ' + F.currency(results.graham.value, cur));
+    if (results.peer && results.peer.ok) out.push('KGV-Vergleich ' + F.currency(results.peer.value, cur));
+    if (out.length) lines.push('Daraus ergibt sich: ' + out.join(', ') + '.');
+    lines.push('Bitte weise mich darauf hin, falls meine Datengrundlage problematisch ist. Das ist eine Modellrechnung, keine Anlageberatung.');
+    return lines.join('\n');
+  }
+
+  function openGemini(promptText, ticker) {
+    var safe = promptText, needsPaste = false;
+    if (promptText.length > 2000) {
+      safe = 'Hallo Gemini! Ich möchte die DCF-Annahmen für die Aktie ' + ticker + ' mit dir klären. ' +
+        'Ich füge dir die Daten und meine Fragen gleich in meiner nächsten Nachricht ein. Bitte antworte zunächst nur mit \'Bereit\'.';
+      needsPaste = true;
+    }
+    var url = 'https://gemini.google.com/app?q=' + encodeURIComponent(safe);
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(promptText).then(function () {
+        if (needsPaste) {
+          window.alert('Hinweis: Der ausführliche Text wurde in deine Zwischenablage kopiert. Füge ihn bei Gemini über "Einfügen" in das Chat-Feld ein.');
+        }
+        window.open(url, '_blank');
+      }).catch(function () { window.open(url, '_blank'); });
+    } else {
+      window.open(url, '_blank');
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // Rendering
   // ---------------------------------------------------------------------------
   function render(container, stock) {
@@ -271,6 +354,13 @@ window.App.StockFairValue = (function () {
       '<div class="card">' +
         '<div class="card-header-dotted"><span class="card-title">DCF-Annahmen</span>' +
           '<button class="chip-btn" id="fv-reset" style="padding:3px 10px;font-size:.72rem;">Zurücksetzen</button></div>' +
+        '<div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%); border: 1px solid var(--accent-purple); border-radius: var(--radius-md); padding: 12px; margin-top: 4px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">' +
+          '<div style="flex: 1;">' +
+            '<div style="font-size: 0.86rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px;">KI-Einschätzung der Annahmen</div>' +
+            '<div style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4;">Frage Gemini, welche Werte für diese Aktie am besten passen.</div>' +
+          '</div>' +
+          '<button id="fv-gemini" class="chip-btn active" style="background: var(--accent-purple); border-color: var(--accent-purple); font-size: 0.75rem; flex-shrink: 0; box-shadow: 0 4px 14px var(--accent-purple-glow);">Fragen</button>' +
+        '</div>' +
         '<div class="fv-slider"><div class="fv-slider-label"><span>Wachstum der Cashflows p. a. (5 Jahre)</span><b id="fv-g-label"></b></div>' +
           '<input type="range" class="range-slider" id="fv-g" min="0" max="20" step="1"></div>' +
         '<div class="fv-slider"><div class="fv-slider-label"><span>Diskontsatz (geforderte Rendite)</span><b id="fv-r-label"></b></div>' +
@@ -282,8 +372,11 @@ window.App.StockFairValue = (function () {
       '</div>';
     container.innerHTML = html;
 
+    var lastResults = { graham: graham, peer: peer, dcf: null };
+
     function update() {
       var dcf = dcfValue(b, stock, dcfInputs);
+      lastResults.dcf = dcf;
       drawResults(container.querySelector('#fv-results'), b, cur, graham, peer, dcf);
       container.querySelector('#fv-g-label').textContent = window.App.Format.number(dcfInputs.growth, 0) + ' %';
       container.querySelector('#fv-r-label').textContent = window.App.Format.number(dcfInputs.discount, 1) + ' %';
@@ -300,6 +393,12 @@ window.App.StockFairValue = (function () {
       g.value = dcfInputs.growth; r.value = dcfInputs.discount; t.value = dcfInputs.terminal;
       update();
     };
+    var gemBtn = container.querySelector('#fv-gemini');
+    if (gemBtn) {
+      gemBtn.onclick = function () {
+        openGemini(buildGeminiPrompt(b, stock, cur, universe, lastResults), ticker);
+      };
+    }
     update();
   }
 
