@@ -145,7 +145,7 @@ window.App.StockFinancials = (function () {
       window.App.Charts.renderGroupedBarChart(canvasRev, {
         labels: labels,
         series: [{ name: 'Revenue', data: revVals, color: '#6366f1' }],
-        formatY: function (v) { return window.App.Format.compactNumber(v); }
+        formatY: function (v) { return window.App.Format.axisMoney(v); }
       });
     }
 
@@ -156,7 +156,7 @@ window.App.StockFinancials = (function () {
       window.App.Charts.renderGroupedBarChart(canvasNet, {
         labels: labels,
         series: [{ name: 'Net Income', data: netVals, color: '#10b981' }],
-        formatY: function (v) { return window.App.Format.compactNumber(v); }
+        formatY: function (v) { return window.App.Format.axisMoney(v); }
       });
     }
 
@@ -171,22 +171,25 @@ window.App.StockFinancials = (function () {
           { name: 'OCF', data: ocfVals, color: '#3b82f6' },
           { name: 'FCF', data: fcfVals, color: '#059669' }
         ],
-        formatY: function (v) { return window.App.Format.compactNumber(v); }
+        formatY: function (v) { return window.App.Format.axisMoney(v); }
       });
     }
 
     // 4. Margins (%)
     var canvasMargins = document.getElementById('chart-margins');
     if (canvasMargins) {
-      var netMargVals = incList.map(function (it) {
-        var r = it.Total_Revenue || 1;
-        var n = it.Net_Income || 0;
-        return (n / r) * 100;
+      // Perioden ohne Umsatzangabe auslassen (sonst entstehen absurde Prozentwerte)
+      var mLabels = [], netMargVals = [];
+      incList.forEach(function (it, i) {
+        var r = it.Total_Revenue;
+        if (!r || it.Net_Income === null || it.Net_Income === undefined) return;
+        mLabels.push(labels[i]);
+        netMargVals.push((it.Net_Income / r) * 100);
       });
       window.App.Charts.renderLineChart(canvasMargins, {
-        labels: labels,
+        labels: mLabels,
         values: netMargVals,
-        formatY: function (v) { return window.App.Format.number(v, 1) + ' %'; }
+        formatY: function (v) { return window.App.Format.axisPercent(v); }
       });
     }
 
@@ -201,22 +204,25 @@ window.App.StockFinancials = (function () {
           { name: 'Cash', data: cashVals, color: '#10b981' },
           { name: 'Debt', data: debtVals, color: '#ef4444' }
         ],
-        formatY: function (v) { return window.App.Format.compactNumber(v); }
+        formatY: function (v) { return window.App.Format.axisMoney(v); }
       });
     }
 
     // 6. Returns (%)
     var canvasReturns = document.getElementById('chart-returns');
     if (canvasReturns) {
-      var roeVals = incList.map(function (it, i) {
-        var eq = (balList[i] && balList[i].Stockholders_Equity) || 1;
-        var ni = it.Net_Income || 0;
-        return (ni / eq) * 100;
+      // Perioden ohne Eigenkapital oder Ergebnis auslassen
+      var rLabels = [], roeVals = [];
+      incList.forEach(function (it, i) {
+        var eq = balList[i] && balList[i].Stockholders_Equity;
+        if (!eq || it.Net_Income === null || it.Net_Income === undefined) return;
+        rLabels.push(labels[i]);
+        roeVals.push((it.Net_Income / eq) * 100);
       });
       window.App.Charts.renderLineChart(canvasReturns, {
-        labels: labels,
+        labels: rLabels,
         values: roeVals,
-        formatY: function (v) { return window.App.Format.number(v, 1) + ' %'; }
+        formatY: function (v) { return window.App.Format.axisPercent(v); }
       });
     }
   }
