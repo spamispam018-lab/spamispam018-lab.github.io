@@ -36,6 +36,15 @@
       </svg>
       <span>Screener</span>
     </a>
+    <a href="#/market" class="nav-item" data-route="market">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <rect x="3" y="3" width="8" height="8" rx="1"></rect>
+        <rect x="13" y="3" width="8" height="5" rx="1"></rect>
+        <rect x="13" y="10" width="8" height="11" rx="1"></rect>
+        <rect x="3" y="13" width="8" height="8" rx="1"></rect>
+      </svg>
+      <span>Markt</span>
+    </a>
     <a href="#/stock" id="nav-item-stock" class="nav-item" data-route="stock">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
         <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -69,11 +78,14 @@
   <script src="js/router.js"></script>
 
   <!-- 3. Feature- & View-Module -->
+  <script src="js/export.js"></script>
   <script src="js/screener.js"></script>
+  <script src="js/market.js"></script>
   <script src="js/watchlist.js"></script>
   <script src="js/stock-overview.js"></script>
   <script src="js/stock-chart.js"></script>
   <script src="js/stock-peers.js"></script>
+  <script src="js/stock-fairvalue.js"></script>
   <script src="js/stock-insider.js"></script>
   <script src="js/stock-analyst.js"></script>
   <script src="js/stock-financials.js"></script>
@@ -100,6 +112,13 @@
         if (headerTitle) headerTitle.textContent = 'Aktien-Screener';
         if (headerSubtitle) headerSubtitle.textContent = 'Marktübersicht & Filter';
         window.App.Screener.initView();
+      });
+
+      // Route: Marktübersicht (Heatmap)
+      window.App.Router.register('/market', function () {
+        if (headerTitle) headerTitle.textContent = 'Markt';
+        if (headerSubtitle) headerSubtitle.textContent = 'Sektoren & Heatmap';
+        window.App.Market.initView();
       });
 
       // Route 2: Watchlist
@@ -201,6 +220,7 @@
                   '<button class="sub-tab-btn ' + (activeTab === 'chart' ? 'active' : '') + '" data-tab="chart">Chart</button>' +
                   '<button class="sub-tab-btn ' + (activeTab === 'score' ? 'active' : '') + '" data-tab="score">Score</button>' +
                   '<button class="sub-tab-btn ' + (activeTab === 'peers' ? 'active' : '') + '" data-tab="peers">Peers</button>' +
+                  '<button class="sub-tab-btn ' + (activeTab === 'fairvalue' ? 'active' : '') + '" data-tab="fairvalue">Fair Value</button>' +
                   '<button class="sub-tab-btn ' + (activeTab === 'insider' ? 'active' : '') + '" data-tab="insider">Insider</button>' +
                   '<button class="sub-tab-btn ' + (activeTab === 'analyst' ? 'active' : '') + '" data-tab="analyst">Analyst</button>' +
                   '<button class="sub-tab-btn ' + (activeTab === 'financials' ? 'active' : '') + '" data-tab="financials">Financials</button>' +
@@ -290,6 +310,9 @@
             break;
           case 'peers':
             window.App.StockPeers.render(subArea, stock);
+            break;
+          case 'fairvalue':
+            window.App.StockFairValue.render(subArea, stock);
             break;
           case 'insider':
             window.App.StockInsider.render(subArea, stock);
