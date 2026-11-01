@@ -128,6 +128,11 @@ window.App.Score = (function () {
    * (z. B. Vorjahresquartal negativ oder keine Quartalsdaten).
    */
   function resolveEarningsGrowth(ratios, stock) {
+    // Bei gewähltem Zeitraum (Quartal/Jahr) kein Fallback auf einen anderen Zeitraum
+    if (ratios._period) {
+      var gp = ratios.earningsGrowth;
+      return (gp !== null && gp !== undefined && !isNaN(gp)) ? Number(gp) : null;
+    }
     var g = ratios.earningsGrowth;
     if (g !== null && g !== undefined && !isNaN(g)) return Number(g);
 
@@ -178,11 +183,109 @@ window.App.Score = (function () {
     };
   }
 
+  var PERIOD_KEY = 'app_score_period';
+
+  function getPeriod() {
+    try {
+      var v = localStorage.getItem(PERIOD_KEY);
+      if (v === 'quarter' || v === 'year') return v;
+    } catch (e) {}
+    return 'year';
+  }
+
+  function setPeriod(p) {
+    try { localStorage.setItem(PERIOD_KEY, p === 'quarter' ? 'quarter' : 'year'); } catch (e) {}
+  }
+
+  function num(v) {
+    return (v !== null && v !== undefined && v !== '' && !isNaN(v)) ? Number(v) : null;
+  }
+
+  function sortedRows(list) {
+    return (list || []).filter(function (r) { return r && r.date; })
+      .sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+  }
+
+  /** Vorperiode: bei Quartal das Vorjahresquartal (~365 Tage), bei Jahr das Vorjahr. */
+  function findPrior(rows, last) {
+    var lastT = new Date(last.date).getTime();
+    var best = null, bestDiff = Infinity;
+    rows.forEach(function (r) {
+      if (r === last) return;
+      var diff = Math.abs((lastT - new Date(r.date).getTime()) / 86400000 - 365);
+      if (diff < bestDiff) { bestDiff = diff; best = r; }
+    });
+    return (best && bestDiff <= 45) ? best : null;
+  }
+
+  function growth(cur, prev) {
+    cur = num(cur); prev = num(prev);
+    if (cur === null || prev === null || !(prev > 0)) return null;
+    return (cur - prev) / prev;
+  }
+
+  /**
+   * Leitet die Kennzahlen aus den Quartals- bzw. Jahresabschlüssen ab.
+   * Quartal: Gewinn-/Umsatzgrößen werden für KGV, KUV, ROE und ROA auf 12 Monate hochgerechnet (x4).
+   * Nicht berechenbare Werte bleiben aus den Standard-Kennzahlen (ratios) erhalten.
+   */
+  function deriveRatios(stock, period) {
+    var base = (stock && stock.ratios) || {};
+    var out = {};
+    for (var k in base) { if (Object.prototype.hasOwnProperty.call(base, k)) out[k] = base[k]; }
+    out._period = period;
+    out.earningsGrowth = null;
+
+    var fin = (stock && stock.financials) || {};
+    var key = period === 'quarter' ? 'quarterly' : 'annual';
+    var factor = period === 'quarter' ? 4 : 1;
+
+    var inc = sortedRows((fin.incomeStatement || {})[key]);
+    var bs = sortedRows((fin.balanceSheet || {})[key]);
+    var mcap = num(((stock && stock.quote) || {}).marketCap);
+
+    var last = inc.length ? inc[inc.length - 1] : null;
+    if (last) {
+      var prior = findPrior(inc, last);
+      var ni = num(last.Net_Income), rev = num(last.Total_Revenue), op = num(last.Operating_Income);
+
+      if (ni !== null && rev) out.profitMargins = ni / rev;
+      if (op !== null && rev) out.operatingMargins = op / rev;
+      if (mcap && ni !== null && ni > 0) out.peTrailing = mcap / (ni * factor);
+      if (mcap && rev) out.priceToSales = mcap / (rev * factor);
+
+      if (prior) {
+        var rg = growth(rev, prior.Total_Revenue);
+        if (rg !== null) out.revenueGrowth = rg;
+        out.earningsGrowth = growth(ni, prior.Net_Income);
+      }
+
+      var lastBs = bs.length ? bs[bs.length - 1] : null;
+      if (lastBs) {
+        var eq = num(lastBs.Stockholders_Equity), ta = num(lastBs.Total_Assets);
+        var debt = num(lastBs.Total_Debt);
+        var ca = num(lastBs.Current_Assets), cl = num(lastBs.Current_Liabilities);
+        var inv = num(lastBs.Inventory) || 0;
+
+        if (ni !== null && eq && eq > 0) out.returnOnEquity = (ni * factor) / eq;
+        if (ni !== null && ta && ta > 0) out.returnOnAssets = (ni * factor) / ta;
+        if (debt !== null && eq && eq > 0) out.debtToEquity = (debt / eq) * 100;
+        if (ca !== null && cl) {
+          out.currentRatio = ca / cl;
+          out.quickRatio = (ca - inv) / cl;
+        }
+      }
+    }
+    return out;
+  }
+
   /**
    * Ermittelt das Gesamtrating und alle Subkategorien.
    */
-  function calculateTotalScore(stock) {
-    var ratios = (stock && stock.ratios) || {};
+  function calculateTotalScore(stock, period) {
+    var ratios = (period === 'quarter' || period === 'year')
+      ? deriveRatios(stock, period)
+      : ((stock && stock.ratios) || {});
     var prof = evaluateProfitability(ratios);
     var val = evaluateValuation(ratios);
     var gro = evaluateGrowth(ratios, stock);
@@ -216,6 +319,8 @@ window.App.Score = (function () {
 
   return {
     calculateTotalScore: calculateTotalScore,
+    getPeriod: getPeriod,
+    setPeriod: setPeriod,
     renderSegmentBarHtml: renderSegmentBarHtml
   };
 })();
