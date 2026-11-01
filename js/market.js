@@ -170,7 +170,7 @@ window.App.Market = (function () {
 
   function treemapHtml(items, W, H, attr) {
     var rects = squarify(items, W, H);
-    var html = '<div class="hm-wrap" style="height:' + H + 'px;">';
+    var html = '';
     rects.forEach(function (r) {
       var it = r.item;
       var minSide = Math.min(r.w, r.h);
@@ -183,7 +183,6 @@ window.App.Market = (function () {
         (showVal ? '<div class="hm-val" style="font-size:' + Math.max(8, nameSize - 1).toFixed(1) + 'px;">' + fmtPct(it.perf, 1) + '</div>' : '') +
         '</div>';
     });
-    html += '</div>';
     return html;
   }
 
@@ -266,8 +265,8 @@ window.App.Market = (function () {
       '</div></div>';
 
     // Heatmap
-    var W = Math.max(280, Math.min(container.clientWidth || 360, 720) - 32);
-    var H = Math.round(W * (state.sector ? 1.05 : 0.95));
+    var ratio = state.sector ? 1.05 : 0.95;
+    var pendingMap = null;
     html += '<div class="card"><div class="card-header-dotted"><span class="card-title">' +
       (state.sector ? 'Heatmap ' + esc(state.sector) : 'Sektor-Heatmap') + '</span>';
     if (state.sector) {
@@ -284,7 +283,8 @@ window.App.Market = (function () {
         return { id: sec, label: sec, value: Math.sqrt(sumCap(g)), perf: capWeightedAvg(g.filter(function (s) { return isNum(s[key]); }), key) };
       }).filter(function (it) { return it.value > 0; })
         .sort(function (a, b) { return b.value - a.value; });
-      html += treemapHtml(items, W, H, 'data-mk-sector');
+      pendingMap = { items: items, attr: 'data-mk-sector' };
+      html += '<div class="hm-wrap" id="mk-map"></div>';
     } else {
       var stocks = pool.filter(function (s) { return Number(s.marketCap) > 0; })
         .sort(function (a, b) { return Number(b.marketCap) - Number(a.marketCap); })
@@ -292,7 +292,8 @@ window.App.Market = (function () {
       var sItems = stocks.map(function (s) {
         return { id: s.ticker, label: s.ticker, value: Math.sqrt(Number(s.marketCap)), perf: isNum(s[key]) ? Number(s[key]) : null };
       });
-      html += treemapHtml(sItems, W, H, 'data-mk-ticker');
+      pendingMap = { items: sItems, attr: 'data-mk-ticker' };
+      html += '<div class="hm-wrap" id="mk-map"></div>';
       if (pool.length > MAX_STOCK_TILES) {
         html += '<div style="font-size:.68rem;color:var(--text-dim);margin-top:6px;">Die ' + MAX_STOCK_TILES + ' größten von ' + pool.length + ' Aktien.</div>';
       }
@@ -346,6 +347,15 @@ window.App.Market = (function () {
     }
 
     container.innerHTML = '<div class="view-container">' + html + '</div>';
+
+    // Heatmap erst nach dem Einfügen aufbauen, damit die echte Breite des Containers verwendet wird
+    var holder = container.querySelector('#mk-map');
+    if (holder && pendingMap) {
+      var W = Math.floor(holder.getBoundingClientRect().width) || 300;
+      var H = Math.round(W * ratio);
+      holder.style.height = H + 'px';
+      holder.innerHTML = treemapHtml(pendingMap.items, W, H, pendingMap.attr);
+    }
     bind(container);
   }
 
