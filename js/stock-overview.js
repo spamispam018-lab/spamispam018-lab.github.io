@@ -468,16 +468,19 @@ window.App.StockOverview = (function () {
    */
   function sliceHistoryByPeriod(history, period) {
     if (!history || history.length === 0) return [];
-    var count = history.length;
-    switch (period) {
-      case '1W': return history.slice(Math.max(0, count - 5)); // ca. 5 Handelstage
-      case '1M': return history.slice(Math.max(0, count - 22)); // ca. 22 Handelstage
-      case '3M': return history.slice(Math.max(0, count - 65));
-      case '6M': return history.slice(Math.max(0, count - 130));
-      case '1Y':
-      default:
-        return history.slice(Math.max(0, count - 260));
+    // Kalenderbasiert (wie Yahoo & Marktübersicht): Basis ist der letzte Schlusskurs
+    // am oder vor dem Stichtag (Enddatum minus Zeitraum)
+    var days = { '1W': 7, '1M': 30, '3M': 91, '6M': 182, '1Y': 365 };
+    var span = days[period] || 365;
+    var last = history[history.length - 1];
+    var t = new Date(last.date + 'T00:00:00Z');
+    t.setUTCDate(t.getUTCDate() - span);
+    var cutoff = t.toISOString().slice(0, 10);
+    var start = 0;
+    for (var i = 0; i < history.length; i++) {
+      if (history[i].date <= cutoff) start = i; else break;
     }
+    return history.slice(start);
   }
 
   /**
