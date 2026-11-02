@@ -231,7 +231,7 @@ window.App.Screener = (function () {
       info: function () { return 'Aktuell Verlust, aber Forward-KGV ≤ 12, Verschuldung ≤ 150 und Kurs in der unteren Hälfte der 52W-Spanne. Hohes Risiko.'; } },
     { id: 'growth', chip: '🚀 Growth', name: 'Growth',
       info: function () { return 'Umsatzwachstum mindestens 10 %.'; } },
-    { id: 'top_performer', chip: '📈 Top Performer', name: 'Top Performer',
+    { id: 'top_performer', chip: '📈 Top Performer (1J)', name: 'Top Performer (1J)',
       info: function () { return '52-Wochen-Performance mindestens 15 %.'; } },
     { id: 'forecast_up', chip: '🔼 Prognose steigend', name: 'Prognose steigend',
       info: function () { return 'Mittleres Analysten-Kursziel mindestens ' + PROGNOSE_STEIGEND_MIN + ' % über dem Kurs, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
@@ -1202,7 +1202,7 @@ window.App.Screener = (function () {
           '<div class="hero-tag">Marktübersicht (Aktienuniversum)</div>' +
           '<div class="hero-count" id="screener-hero-count">Lade Titel...</div>' +
           '<div class="hero-stats-grid">' +
-            '<div><div class="hero-stat-label">Top-Gewinner</div><div class="hero-stat-value" id="screener-hero-winner" style="color: #6ee7b7;">—</div></div>' +
+            '<div><div class="hero-stat-label">Tagesgewinner</div><div class="hero-stat-value" id="screener-hero-winner" style="color: #6ee7b7;">—</div></div>' +
             '<div><div class="hero-stat-label">Ø KGV</div><div class="hero-stat-value" id="screener-hero-pe">—</div></div>' +
             '<div><div class="hero-stat-label">Ø Div.-Rendite</div><div class="hero-stat-value" id="screener-hero-yield">—</div></div>' +
           '</div>' +
