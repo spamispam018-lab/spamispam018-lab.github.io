@@ -17,7 +17,7 @@
     "marketCap": 2129118720.0,
     "fiftyTwoWeekLow": 10.13,
     "fiftyTwoWeekHigh": 16.8,
-    "volume": 513098.0,
+    "volume": 513098,
     "avgVolume": 448074,
     "currency": "EUR"
   },
@@ -28,7 +28,8 @@
     "dividendYield": 3.57,
     "profitMargins": 0.0541,
     "debtToEquity": 124.202,
-    "revenueGrowth": 0.032
+    "revenueGrowth": 0.032,
+    "earningsGrowth": -0.438
   },
   "financials": {
     "incomeStatement": {
@@ -280,7 +281,7 @@
           "Net_Income_Including_Noncontrolling_Interests": 34994000.0,
           "Net_Income_Continuous_Operations": 34994000.0,
           "Tax_Provision": 9103000.0,
-          "Pretax_Income": null,
+          "Pretax_Income": 44097000.0,
           "Other_Non_Operating_Income_Expenses": 500000.0,
           "Special_Income_Charges": -955000.0,
           "Other_Special_Charges": -400000.0,
@@ -1785,6 +1786,7 @@
           "Repayment_Of_Debt": null,
           "Issuance_Of_Debt": null,
           "Issuance_Of_Capital_Stock": null,
+          "Capital_Expenditure": null,
           "End_Cash_Position": null,
           "Beginning_Cash_Position": null,
           "Effect_Of_Exchange_Rate_Changes": null,
@@ -1834,6 +1836,7 @@
           "Repayment_Of_Debt": -820337000.0,
           "Issuance_Of_Debt": 1346403000.0,
           "Issuance_Of_Capital_Stock": 202157000.0,
+          "Capital_Expenditure": -8640000.0,
           "End_Cash_Position": 238690000.0,
           "Beginning_Cash_Position": 94100000.0,
           "Effect_Of_Exchange_Rate_Changes": -1253000.0,
@@ -1883,6 +1886,7 @@
           "Repayment_Of_Debt": -1302238000.0,
           "Issuance_Of_Debt": 787295000.0,
           "Issuance_Of_Capital_Stock": 419000.0,
+          "Capital_Expenditure": -7161000.0,
           "End_Cash_Position": 127398000.0,
           "Beginning_Cash_Position": 238690000.0,
           "Effect_Of_Exchange_Rate_Changes": 8283000.0,
@@ -1932,6 +1936,7 @@
           "Repayment_Of_Debt": -501986000.0,
           "Issuance_Of_Debt": 926234000.0,
           "Issuance_Of_Capital_Stock": 352000.0,
+          "Capital_Expenditure": -11540000.0,
           "End_Cash_Position": 600883000.0,
           "Beginning_Cash_Position": 127398000.0,
           "Effect_Of_Exchange_Rate_Changes": 1370000.0,
@@ -1981,6 +1986,7 @@
           "Repayment_Of_Debt": -799348000.0,
           "Issuance_Of_Debt": 1409767000.0,
           "Issuance_Of_Capital_Stock": 183889000.0,
+          "Capital_Expenditure": -17668000.0,
           "End_Cash_Position": 1196751000.0,
           "Beginning_Cash_Position": 600883000.0,
           "Effect_Of_Exchange_Rate_Changes": 1120000.0,
@@ -2065,14 +2071,6 @@
         },
         {
           "period": "-2m",
-          "strongBuy": 2,
-          "buy": 8,
-          "hold": 0,
-          "sell": 0,
-          "strongSell": 0
-        },
-        {
-          "period": "-3m",
           "strongBuy": 2,
           "buy": 8,
           "hold": 0,
@@ -4630,5 +4628,5 @@
       "volume": 513098.0
     }
   ],
-  "updatedAt": "2026-11-02T06:34:33.728893+00:00"
+  "updatedAt": "2026-11-02T06:45:03.802367+00:00"
 }

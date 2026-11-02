@@ -17,7 +17,7 @@
     "marketCap": 5859041792.0,
     "fiftyTwoWeekLow": 104.8,
     "fiftyTwoWeekHigh": 225.2,
-    "volume": 249569.0,
+    "volume": 249569,
     "avgVolume": 149457,
     "currency": "EUR"
   },
@@ -28,7 +28,8 @@
     "dividendYield": 1.19,
     "profitMargins": 0.0449,
     "debtToEquity": 12.496,
-    "revenueGrowth": 0.403
+    "revenueGrowth": 0.403,
+    "earningsGrowth": 0.963
   },
   "financials": {
     "incomeStatement": {
@@ -187,7 +188,7 @@
           "Net_Income_Including_Noncontrolling_Interests": 479000000.0,
           "Net_Income_Continuous_Operations": 479000000.0,
           "Tax_Provision": 160000000.0,
-          "Pretax_Income": null,
+          "Pretax_Income": 639000000.0,
           "Net_Non_Operating_Interest_Income_Expense": -2000000.0,
           "Interest_Expense_Non_Operating": 8000000.0,
           "Interest_Income_Non_Operating": 6000000.0,
@@ -796,7 +797,7 @@
           "Common_Stock_Equity": 5766000000.0,
           "Total_Capitalization": 5766000000.0,
           "Total_Equity_Gross_Minority_Interest": 5768000000.0,
-          "Minority_Interest": null,
+          "Minority_Interest": 2000000.0,
           "Stockholders_Equity": 5766000000.0,
           "Other_Equity_Interest": null,
           "Treasury_Stock": 60000000.0,
@@ -1750,14 +1751,6 @@
           "hold": 4,
           "sell": 0,
           "strongSell": 2
-        },
-        {
-          "period": "-3m",
-          "strongBuy": 0,
-          "buy": 2,
-          "hold": 4,
-          "sell": 0,
-          "strongSell": 2
         }
       ]
     },
@@ -1841,7 +1834,7 @@
     },
     {
       "date": "2024-11-11",
-      "close": 79.5343,
+      "close": 79.5342,
       "volume": 160358.0
     },
     {
@@ -2041,7 +2034,7 @@
     },
     {
       "date": "2025-01-13",
-      "close": 68.8876,
+      "close": 68.8875,
       "volume": 147367.0
     },
     {
@@ -2111,7 +2104,7 @@
     },
     {
       "date": "2025-01-31",
-      "close": 73.749,
+      "close": 73.7491,
       "volume": 114770.0
     },
     {
@@ -4335,5 +4328,5 @@
       "volume": 249569.0
     }
   ],
-  "updatedAt": "2026-11-02T06:34:33.464999+00:00"
+  "updatedAt": "2026-11-02T06:43:41.652926+00:00"
 }

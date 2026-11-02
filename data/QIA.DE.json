@@ -17,7 +17,7 @@
     "marketCap": 9310928896.0,
     "fiftyTwoWeekLow": 27.56,
     "fiftyTwoWeekHigh": 47.595,
-    "volume": 922186.0,
+    "volume": 922186,
     "avgVolume": 795194,
     "currency": "EUR"
   },
@@ -28,7 +28,8 @@
     "dividendYield": 0.68,
     "profitMargins": 0.1949,
     "debtToEquity": 49.25,
-    "revenueGrowth": 0.003
+    "revenueGrowth": 0.003,
+    "earningsGrowth": 0.079
   },
   "financials": {
     "incomeStatement": {
@@ -68,7 +69,7 @@
           "Special_Income_Charges": null,
           "Write_Off": 2500000.0,
           "Restructuring_And_Mergern_Acquisition": null,
-          "Earnings_From_Equity_Interest": null,
+          "Earnings_From_Equity_Interest": -100000.0,
           "Gain_On_Sale_Of_Security": -1300000.0,
           "Net_Non_Operating_Interest_Income_Expense": null,
           "Interest_Expense_Non_Operating": null,
@@ -298,7 +299,7 @@
           "Interest_Expense_Non_Operating": 11051000.0,
           "Interest_Income_Non_Operating": 10562000.0,
           "Operating_Income": 116626000.0,
-          "Operating_Expense": null,
+          "Operating_Expense": 192977000.0,
           "Depreciation_Amortization_Depletion_Income_Statement": 2328000.0,
           "Depreciation_And_Amortization_In_Income_Statement": 2328000.0,
           "Amortization": 2328000.0,
@@ -2322,14 +2323,6 @@
         },
         {
           "period": "-2m",
-          "strongBuy": 3,
-          "buy": 1,
-          "hold": 4,
-          "sell": 0,
-          "strongSell": 0
-        },
-        {
-          "period": "-3m",
           "strongBuy": 3,
           "buy": 1,
           "hold": 4,
@@ -4906,5 +4899,5 @@
       "volume": 922186.0
     }
   ],
-  "updatedAt": "2026-11-02T06:34:32.846129+00:00"
+  "updatedAt": "2026-11-02T06:40:26.603434+00:00"
 }

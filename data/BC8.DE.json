@@ -17,7 +17,7 @@
     "marketCap": 0.0,
     "fiftyTwoWeekLow": 24.56,
     "fiftyTwoWeekHigh": 45.14,
-    "volume": 423158.0,
+    "volume": 423158,
     "avgVolume": 184979,
     "currency": "EUR"
   },
@@ -28,7 +28,8 @@
     "dividendYield": 2.09,
     "profitMargins": 0.0363,
     "debtToEquity": 53.521,
-    "revenueGrowth": 0.165
+    "revenueGrowth": 0.165,
+    "earningsGrowth": 0.213
   },
   "financials": {
     "incomeStatement": {
@@ -679,7 +680,7 @@
           "Gross_Accounts_Receivable": null,
           "Cash_Cash_Equivalents_And_Short_Term_Investments": 522267000.0,
           "Other_Short_Term_Investments": null,
-          "Cash_And_Cash_Equivalents": null
+          "Cash_And_Cash_Equivalents": 522267000.0
         },
         {
           "date": "2025-09-30",
@@ -756,7 +757,7 @@
           "Gross_Accounts_Receivable": null,
           "Cash_Cash_Equivalents_And_Short_Term_Investments": 508339000.0,
           "Other_Short_Term_Investments": 69339000.0,
-          "Cash_And_Cash_Equivalents": null
+          "Cash_And_Cash_Equivalents": 439000000.0
         },
         {
           "date": "2025-12-31",
@@ -833,7 +834,7 @@
           "Gross_Accounts_Receivable": 1365440000.0,
           "Cash_Cash_Equivalents_And_Short_Term_Investments": 467239000.0,
           "Other_Short_Term_Investments": 88468000.0,
-          "Cash_And_Cash_Equivalents": null
+          "Cash_And_Cash_Equivalents": 378771000.0
         },
         {
           "date": "2026-03-31",
@@ -910,7 +911,7 @@
           "Gross_Accounts_Receivable": null,
           "Cash_Cash_Equivalents_And_Short_Term_Investments": 372631000.0,
           "Other_Short_Term_Investments": 4663000.0,
-          "Cash_And_Cash_Equivalents": null
+          "Cash_And_Cash_Equivalents": 367968000.0
         },
         {
           "date": "2026-06-30",
@@ -1846,14 +1847,6 @@
         },
         {
           "period": "-2m",
-          "strongBuy": 2,
-          "buy": 7,
-          "hold": 0,
-          "sell": 0,
-          "strongSell": 0
-        },
-        {
-          "period": "-3m",
           "strongBuy": 2,
           "buy": 7,
           "hold": 0,
@@ -4436,5 +4429,5 @@
       "volume": 423158.0
     }
   ],
-  "updatedAt": "2026-11-02T06:34:33.471858+00:00"
+  "updatedAt": "2026-11-02T06:43:43.870114+00:00"
 }

@@ -17,7 +17,7 @@
     "marketCap": 34973167616.0,
     "fiftyTwoWeekLow": 223.4,
     "fiftyTwoWeekHigh": 290.4,
-    "volume": 170614.0,
+    "volume": 170614,
     "avgVolume": 129632,
     "currency": "EUR"
   },
@@ -28,7 +28,8 @@
     "dividendYield": 4.31,
     "profitMargins": 0.1206,
     "debtToEquity": 28.967,
-    "revenueGrowth": -0.233
+    "revenueGrowth": -0.233,
+    "earningsGrowth": -0.165
   },
   "financials": {
     "incomeStatement": {
@@ -648,7 +649,7 @@
           "Payables": 558300000.0,
           "Other_Payable": null,
           "Total_Tax_Payable": 558300000.0,
-          "Total_Assets": null,
+          "Total_Assets": 73436200000.0,
           "Defined_Pension_Benefit": null,
           "Non_Current_Deferred_Taxes_Assets": 386400000.0,
           "Financial_Assets": null,
@@ -1393,7 +1394,7 @@
       "breakdown": {
         "strongBuy": 1,
         "buy": 5,
-        "hold": 7,
+        "hold": 8,
         "sell": 0,
         "strongSell": 1
       },
@@ -1419,14 +1420,6 @@
           "strongBuy": 1,
           "buy": 5,
           "hold": 8,
-          "sell": 0,
-          "strongSell": 1
-        },
-        {
-          "period": "-3m",
-          "strongBuy": 1,
-          "buy": 5,
-          "hold": 7,
           "sell": 0,
           "strongSell": 1
         }
@@ -1557,7 +1550,7 @@
     },
     {
       "date": "2024-11-22",
-      "close": 227.8873,
+      "close": 227.8872,
       "volume": 110004.0
     },
     {
@@ -1582,7 +1575,7 @@
     },
     {
       "date": "2024-11-29",
-      "close": 227.8873,
+      "close": 227.8872,
       "volume": 90484.0
     },
     {
@@ -1602,7 +1595,7 @@
     },
     {
       "date": "2024-12-05",
-      "close": 237.2941,
+      "close": 237.2942,
       "volume": 122413.0
     },
     {
@@ -1622,7 +1615,7 @@
     },
     {
       "date": "2024-12-11",
-      "close": 233.513,
+      "close": 233.5129,
       "volume": 65935.0
     },
     {
@@ -1647,7 +1640,7 @@
     },
     {
       "date": "2024-12-18",
-      "close": 227.8873,
+      "close": 227.8872,
       "volume": 140355.0
     },
     {
@@ -1807,7 +1800,7 @@
     },
     {
       "date": "2025-02-07",
-      "close": 233.144,
+      "close": 233.1441,
       "volume": 149005.0
     },
     {
@@ -1867,7 +1860,7 @@
     },
     {
       "date": "2025-02-25",
-      "close": 227.8873,
+      "close": 227.8872,
       "volume": 83616.0
     },
     {
@@ -1917,7 +1910,7 @@
     },
     {
       "date": "2025-03-11",
-      "close": 246.9777,
+      "close": 246.9778,
       "volume": 135429.0
     },
     {
@@ -1972,7 +1965,7 @@
     },
     {
       "date": "2025-03-26",
-      "close": 255.5546,
+      "close": 255.5547,
       "volume": 81055.0
     },
     {
@@ -1982,7 +1975,7 @@
     },
     {
       "date": "2025-03-28",
-      "close": 255.5546,
+      "close": 255.5547,
       "volume": 65554.0
     },
     {
@@ -1992,7 +1985,7 @@
     },
     {
       "date": "2025-04-01",
-      "close": 257.1224,
+      "close": 257.1225,
       "volume": 112070.0
     },
     {
@@ -2062,7 +2055,7 @@
     },
     {
       "date": "2025-04-23",
-      "close": 260.4426,
+      "close": 260.4425,
       "volume": 125095.0
     },
     {
@@ -2082,12 +2075,12 @@
     },
     {
       "date": "2025-04-29",
-      "close": 257.1224,
+      "close": 257.1225,
       "volume": 107883.0
     },
     {
       "date": "2025-04-30",
-      "close": 260.4426,
+      "close": 260.4425,
       "volume": 138558.0
     },
     {
@@ -4006,5 +3999,5 @@
       "volume": 170614.0
     }
   ],
-  "updatedAt": "2026-11-02T06:34:32.794706+00:00"
+  "updatedAt": "2026-11-02T06:40:11.034386+00:00"
 }

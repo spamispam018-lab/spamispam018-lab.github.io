@@ -14,10 +14,10 @@
     "price": 11.63,
     "change": -0.01,
     "changePercent": -0.09,
-    "marketCap": 0.0,
+    "marketCap": 1004207552.0,
     "fiftyTwoWeekLow": 11.03,
     "fiftyTwoWeekHigh": 22.02,
-    "volume": 713974.0,
+    "volume": 713974,
     "avgVolume": 517130,
     "currency": "EUR"
   },
@@ -28,7 +28,8 @@
     "dividendYield": 0.86,
     "profitMargins": -0.1206,
     "debtToEquity": 85.505,
-    "revenueGrowth": 0.065
+    "revenueGrowth": 0.065,
+    "earningsGrowth": null
   },
   "financials": {
     "incomeStatement": {
@@ -317,6 +318,7 @@
           "Tax_Rate_For_Calcs": null,
           "Normalized_EBITDA": null,
           "Total_Unusual_Items": null,
+          "Total_Unusual_Items_Excluding_Goodwill": null,
           "Net_Income_From_Continuing_Operation_Net_Minority_Interest": null,
           "Reconciled_Depreciation": null,
           "Reconciled_Cost_Of_Revenue": null,
@@ -367,6 +369,7 @@
           "Tax_Rate_For_Calcs": 0.28,
           "Normalized_EBITDA": 1039000000.0,
           "Total_Unusual_Items": -146000000.0,
+          "Total_Unusual_Items_Excluding_Goodwill": null,
           "Net_Income_From_Continuing_Operation_Net_Minority_Interest": 184000000.0,
           "Reconciled_Depreciation": 546000000.0,
           "Reconciled_Cost_Of_Revenue": 6151000000.0,
@@ -417,6 +420,7 @@
           "Tax_Rate_For_Calcs": 0.111,
           "Normalized_EBITDA": 763000000.0,
           "Total_Unusual_Items": -618000000.0,
+          "Total_Unusual_Items_Excluding_Goodwill": null,
           "Net_Income_From_Continuing_Operation_Net_Minority_Interest": -843000000.0,
           "Reconciled_Depreciation": 996000000.0,
           "Reconciled_Cost_Of_Revenue": 5446000000.0,
@@ -467,6 +471,7 @@
           "Tax_Rate_For_Calcs": 0.1066,
           "Normalized_EBITDA": 523000000.0,
           "Total_Unusual_Items": -78000000.0,
+          "Total_Unusual_Items_Excluding_Goodwill": null,
           "Net_Income_From_Continuing_Operation_Net_Minority_Interest": -177000000.0,
           "Reconciled_Depreciation": 566000000.0,
           "Reconciled_Cost_Of_Revenue": 5068000000.0,
@@ -517,6 +522,7 @@
           "Tax_Rate_For_Calcs": 0.3006,
           "Normalized_EBITDA": 688000000.0,
           "Total_Unusual_Items": -282000000.0,
+          "Total_Unusual_Items_Excluding_Goodwill": -282000000.0,
           "Net_Income_From_Continuing_Operation_Net_Minority_Interest": -577000000.0,
           "Reconciled_Depreciation": 806000000.0,
           "Reconciled_Cost_Of_Revenue": 4542000000.0,
@@ -1905,9 +1911,9 @@
       "breakdown": {
         "strongBuy": 1,
         "buy": 2,
-        "hold": 7,
-        "sell": 2,
-        "strongSell": 2
+        "hold": 5,
+        "sell": 3,
+        "strongSell": 3
       },
       "history": [
         {
@@ -1933,14 +1939,6 @@
           "hold": 5,
           "sell": 3,
           "strongSell": 3
-        },
-        {
-          "period": "-3m",
-          "strongBuy": 1,
-          "buy": 2,
-          "hold": 7,
-          "sell": 2,
-          "strongSell": 2
         }
       ]
     },
@@ -4518,5 +4516,5 @@
       "volume": 713974.0
     }
   ],
-  "updatedAt": "2026-11-02T06:34:33.646936+00:00"
+  "updatedAt": "2026-11-02T06:44:39.662254+00:00"
 }

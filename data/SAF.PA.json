@@ -17,18 +17,19 @@
     "marketCap": 114113110016.0,
     "fiftyTwoWeekLow": 262.6,
     "fiftyTwoWeekHigh": 366.5,
-    "volume": 825017.0,
+    "volume": 825017,
     "avgVolume": 514549,
     "currency": "EUR"
   },
   "ratios": {
     "peTrailing": 29.6133,
-    "peForward": 21.817,
+    "peForward": 21.9294,
     "pegRatio": 1.52,
     "dividendYield": 1.22,
     "profitMargins": 0.1156,
     "debtToEquity": 33.745,
-    "revenueGrowth": 0.16
+    "revenueGrowth": 0.16,
+    "earningsGrowth": -0.651
   },
   "financials": {
     "incomeStatement": {
@@ -1215,8 +1216,8 @@
     "targets": {
       "current": 275.7,
       "low": 310.0,
-      "median": 362.5,
-      "mean": 363.4546,
+      "median": 356.5,
+      "mean": 360.3182,
       "high": 410.0,
       "currency": "EUR",
       "analystCount": 22
@@ -1250,14 +1251,6 @@
         },
         {
           "period": "-2m",
-          "strongBuy": 3,
-          "buy": 11,
-          "hold": 7,
-          "sell": 0,
-          "strongSell": 1
-        },
-        {
-          "period": "-3m",
           "strongBuy": 3,
           "buy": 11,
           "hold": 7,
@@ -1351,7 +1344,7 @@
     },
     {
       "date": "2024-11-19",
-      "close": 213.1733,
+      "close": 213.1732,
       "volume": 514022.0
     },
     {
@@ -1471,7 +1464,7 @@
     },
     {
       "date": "2024-12-23",
-      "close": 204.9593,
+      "close": 204.9592,
       "volume": 363557.0
     },
     {
@@ -1576,12 +1569,12 @@
     },
     {
       "date": "2025-01-24",
-      "close": 231.2637,
+      "close": 231.2636,
       "volume": 554607.0
     },
     {
       "date": "2025-01-27",
-      "close": 229.8947,
+      "close": 229.8946,
       "volume": 718815.0
     },
     {
@@ -1641,7 +1634,7 @@
     },
     {
       "date": "2025-02-12",
-      "close": 240.9445,
+      "close": 240.9444,
       "volume": 653418.0
     },
     {
@@ -1716,7 +1709,7 @@
     },
     {
       "date": "2025-03-05",
-      "close": 254.9279,
+      "close": 254.9278,
       "volume": 894108.0
     },
     {
@@ -1866,7 +1859,7 @@
     },
     {
       "date": "2025-04-16",
-      "close": 209.7507,
+      "close": 209.7508,
       "volume": 662327.0
     },
     {
@@ -1981,7 +1974,7 @@
     },
     {
       "date": "2025-05-22",
-      "close": 254.83,
+      "close": 254.8301,
       "volume": 454187.0
     },
     {
@@ -3835,5 +3828,5 @@
       "volume": 825017.0
     }
   ],
-  "updatedAt": "2026-11-02T06:34:33.027639+00:00"
+  "updatedAt": "2026-11-02T06:41:23.545747+00:00"
 }

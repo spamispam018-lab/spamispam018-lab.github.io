@@ -17,18 +17,19 @@
     "marketCap": 40834400256.0,
     "fiftyTwoWeekLow": 29.32,
     "fiftyTwoWeekHigh": 43.37,
-    "volume": 1672552.0,
+    "volume": 1672552,
     "avgVolume": 2325583,
     "currency": "EUR"
   },
   "ratios": {
-    "peTrailing": 14.6434,
+    "peTrailing": 14.4751,
     "peForward": 9.6008,
     "pegRatio": 0.83,
     "dividendYield": 2.91,
     "profitMargins": 0.2642,
     "debtToEquity": null,
-    "revenueGrowth": 0.101
+    "revenueGrowth": 0.101,
+    "earningsGrowth": 3.254
   },
   "financials": {
     "incomeStatement": {
@@ -550,7 +551,7 @@
           "Long_Term_Equity_Investment": 180000000.0,
           "Investment_Properties": 241000000.0,
           "Goodwill_And_Other_Intangible_Assets": 1794000000.0,
-          "Other_Intangible_Assets": 1682000000.0,
+          "Other_Intangible_Assets": null,
           "Goodwill": 112000000.0,
           "Net_PPE": 2146000000.0,
           "Accumulated_Depreciation": null,
@@ -1293,14 +1294,6 @@
         },
         {
           "period": "-2m",
-          "strongBuy": 3,
-          "buy": 4,
-          "hold": 5,
-          "sell": 0,
-          "strongSell": 1
-        },
-        {
-          "period": "-3m",
           "strongBuy": 3,
           "buy": 4,
           "hold": 5,
@@ -3883,5 +3876,5 @@
       "volume": 1672552.0
     }
   ],
-  "updatedAt": "2026-11-02T06:34:32.714817+00:00"
+  "updatedAt": "2026-11-02T06:39:44.732774+00:00"
 }

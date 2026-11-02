@@ -17,7 +17,7 @@
     "marketCap": 2223128320.0,
     "fiftyTwoWeekLow": 18.15,
     "fiftyTwoWeekHigh": 48.42,
-    "volume": 116820.0,
+    "volume": 116820,
     "avgVolume": 118863,
     "currency": "EUR"
   },
@@ -28,7 +28,8 @@
     "dividendYield": 1.03,
     "profitMargins": 0.0831,
     "debtToEquity": 42.405,
-    "revenueGrowth": 0.028
+    "revenueGrowth": 0.028,
+    "earningsGrowth": 0.538
   },
   "financials": {
     "incomeStatement": {
@@ -324,6 +325,7 @@
           "Net_Income_From_Continuing_And_Discontinued_Operation": null,
           "Total_Expenses": null,
           "Rent_Expense_Supplemental": null,
+          "Diluted_Average_Shares": null,
           "Basic_Average_Shares": null,
           "Diluted_EPS": null,
           "Basic_EPS": null,
@@ -381,6 +383,7 @@
           "Net_Income_From_Continuing_And_Discontinued_Operation": 55100000.0,
           "Total_Expenses": 861710000.0,
           "Rent_Expense_Supplemental": 225000.0,
+          "Diluted_Average_Shares": null,
           "Basic_Average_Shares": 57238115.0,
           "Diluted_EPS": 0.96,
           "Basic_EPS": 0.96,
@@ -438,6 +441,7 @@
           "Net_Income_From_Continuing_And_Discontinued_Operation": 72466000.0,
           "Total_Expenses": 924287000.0,
           "Rent_Expense_Supplemental": 937000.0,
+          "Diluted_Average_Shares": null,
           "Basic_Average_Shares": 57238115.0,
           "Diluted_EPS": 1.27,
           "Basic_EPS": 1.27,
@@ -495,6 +499,7 @@
           "Net_Income_From_Continuing_And_Discontinued_Operation": 92646000.0,
           "Total_Expenses": 972204000.0,
           "Rent_Expense_Supplemental": 1340000.0,
+          "Diluted_Average_Shares": null,
           "Basic_Average_Shares": 57238115.0,
           "Diluted_EPS": 1.62,
           "Basic_EPS": 1.62,
@@ -552,6 +557,7 @@
           "Net_Income_From_Continuing_And_Discontinued_Operation": 72002000.0,
           "Total_Expenses": 934508000.0,
           "Rent_Expense_Supplemental": 1031000.0,
+          "Diluted_Average_Shares": 57238115.0,
           "Basic_Average_Shares": 57238115.0,
           "Diluted_EPS": 1.26,
           "Basic_EPS": 1.26,
@@ -1870,14 +1876,6 @@
         },
         {
           "period": "-2m",
-          "strongBuy": 1,
-          "buy": 5,
-          "hold": 2,
-          "sell": 0,
-          "strongSell": 0
-        },
-        {
-          "period": "-3m",
           "strongBuy": 1,
           "buy": 5,
           "hold": 2,
@@ -4460,5 +4458,5 @@
       "volume": 116820.0
     }
   ],
-  "updatedAt": "2026-11-02T06:34:33.602212+00:00"
+  "updatedAt": "2026-11-02T06:44:26.195207+00:00"
 }

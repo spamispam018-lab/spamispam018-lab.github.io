@@ -17,18 +17,19 @@
     "marketCap": 86191169536.0,
     "fiftyTwoWeekLow": 36.55,
     "fiftyTwoWeekHigh": 45.66,
-    "volume": 3268591.0,
+    "volume": 3268591,
     "avgVolume": 2911790,
     "currency": "EUR"
   },
   "ratios": {
     "peTrailing": 11.4825,
-    "peForward": 9.5266,
+    "peForward": 9.5088,
     "pegRatio": 18.81,
     "dividendYield": 5.45,
     "profitMargins": 0.1038,
     "debtToEquity": 119.437,
-    "revenueGrowth": 0.045
+    "revenueGrowth": 0.045,
+    "earningsGrowth": 0.132
   },
   "financials": {
     "incomeStatement": {
@@ -994,8 +995,8 @@
     "targets": {
       "current": 42.6,
       "low": 42.0,
-      "median": 51.0,
-      "mean": 52.1533,
+      "median": 50.7,
+      "mean": 51.8756,
       "high": 77.0,
       "currency": "EUR",
       "analystCount": 18
@@ -1005,7 +1006,7 @@
       "key": "buy",
       "breakdown": {
         "strongBuy": 7,
-        "buy": 8,
+        "buy": 7,
         "hold": 3,
         "sell": 0,
         "strongSell": 0
@@ -1031,14 +1032,6 @@
           "period": "-2m",
           "strongBuy": 7,
           "buy": 7,
-          "hold": 3,
-          "sell": 0,
-          "strongSell": 0
-        },
-        {
-          "period": "-3m",
-          "strongBuy": 7,
-          "buy": 8,
           "hold": 3,
           "sell": 0,
           "strongSell": 0
@@ -3614,5 +3607,5 @@
       "volume": 3268591.0
     }
   ],
-  "updatedAt": "2026-11-02T06:34:33.008386+00:00"
+  "updatedAt": "2026-11-02T06:41:17.334612+00:00"
 }

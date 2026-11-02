@@ -17,18 +17,19 @@
     "marketCap": 28495548416.0,
     "fiftyTwoWeekLow": 129.95,
     "fiftyTwoWeekHigh": 188.8,
-    "volume": 634867.0,
+    "volume": 634867,
     "avgVolume": 570996,
     "currency": "EUR"
   },
   "ratios": {
     "peTrailing": 18.1823,
-    "peForward": 14.3557,
+    "peForward": 14.3416,
     "pegRatio": 0.65,
     "dividendYield": 1.66,
     "profitMargins": 0.0609,
     "debtToEquity": 89.85,
-    "revenueGrowth": 0.094
+    "revenueGrowth": 0.094,
+    "earningsGrowth": 0.581
   },
   "financials": {
     "incomeStatement": {
@@ -88,7 +89,7 @@
           "EBITDA": 1024000000.0,
           "EBIT": 748000000.0,
           "Net_Interest_Income": -86000000.0,
-          "Interest_Expense": null,
+          "Interest_Expense": 98000000.0,
           "Interest_Income": 12000000.0,
           "Normalized_Income": 458000000.0,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 461000000.0,
@@ -132,7 +133,7 @@
           "EBITDA": 468000000.0,
           "EBIT": 183000000.0,
           "Net_Interest_Income": -67000000.0,
-          "Interest_Expense": null,
+          "Interest_Expense": 87000000.0,
           "Interest_Income": 20000000.0,
           "Normalized_Income": 75000000.0,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 81000000.0,
@@ -176,7 +177,7 @@
           "EBITDA": 996000000.0,
           "EBIT": 716000000.0,
           "Net_Interest_Income": -59000000.0,
-          "Interest_Expense": null,
+          "Interest_Expense": 70000000.0,
           "Interest_Income": 11000000.0,
           "Normalized_Income": 479000000.0,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 482000000.0,
@@ -1997,8 +1998,8 @@
     "targets": {
       "current": 168.55,
       "low": 160.0,
-      "median": 190.0,
-      "mean": 198.1724,
+      "median": 198.0,
+      "mean": 199.5517,
       "high": 245.0,
       "currency": "EUR",
       "analystCount": 29
@@ -2008,8 +2009,8 @@
       "key": "buy",
       "breakdown": {
         "strongBuy": 7,
-        "buy": 16,
-        "hold": 7,
+        "buy": 15,
+        "hold": 8,
         "sell": 0,
         "strongSell": 0
       },
@@ -2035,14 +2036,6 @@
           "strongBuy": 7,
           "buy": 15,
           "hold": 8,
-          "sell": 0,
-          "strongSell": 0
-        },
-        {
-          "period": "-3m",
-          "strongBuy": 7,
-          "buy": 16,
-          "hold": 7,
           "sell": 0,
           "strongSell": 0
         }
@@ -2198,7 +2191,7 @@
     },
     {
       "date": "2024-11-29",
-      "close": 216.9904,
+      "close": 216.9903,
       "volume": 318552.0
     },
     {
@@ -2438,7 +2431,7 @@
     },
     {
       "date": "2025-02-12",
-      "close": 252.7825,
+      "close": 252.7826,
       "volume": 379970.0
     },
     {
@@ -2488,12 +2481,12 @@
     },
     {
       "date": "2025-02-26",
-      "close": 240.7221,
+      "close": 240.7222,
       "volume": 275821.0
     },
     {
       "date": "2025-02-27",
-      "close": 238.6796,
+      "close": 238.6797,
       "volume": 384155.0
     },
     {
@@ -2613,7 +2606,7 @@
     },
     {
       "date": "2025-04-02",
-      "close": 214.9479,
+      "close": 214.9478,
       "volume": 444938.0
     },
     {
@@ -2628,7 +2621,7 @@
     },
     {
       "date": "2025-04-07",
-      "close": 181.2468,
+      "close": 181.2467,
       "volume": 2137476.0
     },
     {
@@ -2643,7 +2636,7 @@
     },
     {
       "date": "2025-04-10",
-      "close": 191.3619,
+      "close": 191.362,
       "volume": 1155908.0
     },
     {
@@ -4622,5 +4615,5 @@
       "volume": 634867.0
     }
   ],
-  "updatedAt": "2026-11-02T06:34:32.657421+00:00"
+  "updatedAt": "2026-11-02T06:39:27.537420+00:00"
 }

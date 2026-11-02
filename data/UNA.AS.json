@@ -17,7 +17,7 @@
     "marketCap": 126197383168.0,
     "fiftyTwoWeekLow": 46.97,
     "fiftyTwoWeekHigh": 63.39,
-    "volume": 1942226.0,
+    "volume": 1942226,
     "avgVolume": 1014095,
     "currency": "EUR"
   },
@@ -28,7 +28,8 @@
     "dividendYield": 3.18,
     "profitMargins": 0.1832,
     "debtToEquity": 175.397,
-    "revenueGrowth": 0.005
+    "revenueGrowth": 0.005,
+    "earningsGrowth": -0.056
   },
   "financials": {
     "incomeStatement": {
@@ -1244,14 +1245,6 @@
           "hold": 3,
           "sell": 0,
           "strongSell": 0
-        },
-        {
-          "period": "-3m",
-          "strongBuy": 3,
-          "buy": 2,
-          "hold": 3,
-          "sell": 0,
-          "strongSell": 0
         }
       ]
     },
@@ -1292,19 +1285,19 @@
       },
       {
         "date": "2026-09-23",
-        "insider": "Nair (Priya)",
+        "insider": "Ecclissato (Reginaldo)",
         "position": "",
         "type": "Other",
-        "shares": 422,
-        "value": 26332.0
+        "shares": 665,
+        "value": 41495.0
       },
       {
         "date": "2026-09-23",
-        "insider": "Nayager (Mairead)",
+        "insider": "Ecclissato (Reginaldo)",
         "position": "",
         "type": "Other",
-        "shares": 259,
-        "value": 16161.0
+        "shares": 173,
+        "value": 10790.0
       },
       {
         "date": "2026-09-23",
@@ -1332,19 +1325,35 @@
       },
       {
         "date": "2026-09-23",
-        "insider": "Ecclissato (Reginaldo)",
+        "insider": "Nair (Priya)",
         "position": "",
         "type": "Other",
-        "shares": 665,
-        "value": 41495.0
+        "shares": 422,
+        "value": 26332.0
       },
       {
         "date": "2026-09-23",
-        "insider": "Ecclissato (Reginaldo)",
+        "insider": "Nayager (Mairead)",
         "position": "",
         "type": "Other",
-        "shares": 173,
-        "value": 10790.0
+        "shares": 259,
+        "value": 16161.0
+      },
+      {
+        "date": "2026-09-23",
+        "insider": "Slater (Richard)",
+        "position": "",
+        "type": "Other",
+        "shares": 618,
+        "value": 38562.0
+      },
+      {
+        "date": "2026-09-23",
+        "insider": "Slater (Richard)",
+        "position": "",
+        "type": "Other",
+        "shares": 134,
+        "value": 8358.0
       },
       {
         "date": "2026-09-23",
@@ -1369,22 +1378,6 @@
         "type": "Other",
         "shares": 84,
         "value": 5239.0
-      },
-      {
-        "date": "2026-09-23",
-        "insider": "Slater (Richard)",
-        "position": "",
-        "type": "Other",
-        "shares": 618,
-        "value": 38562.0
-      },
-      {
-        "date": "2026-09-23",
-        "insider": "Slater (Richard)",
-        "position": "",
-        "type": "Other",
-        "shares": 134,
-        "value": 8358.0
       },
       {
         "date": "2026-08-31",
@@ -1420,14 +1413,6 @@
       },
       {
         "date": "2026-07-01",
-        "insider": "Uijen (Willem)",
-        "position": "",
-        "type": "Other",
-        "shares": 137,
-        "value": 8252.0
-      },
-      {
-        "date": "2026-07-01",
         "insider": "Slater (Richard)",
         "position": "",
         "type": "Other",
@@ -1444,27 +1429,11 @@
       },
       {
         "date": "2026-07-01",
-        "insider": "Ecclissato (Reginaldo)",
+        "insider": "Uijen (Willem)",
         "position": "",
         "type": "Other",
-        "shares": 699,
-        "value": 42105.0
-      },
-      {
-        "date": "2026-07-01",
-        "insider": "Ecclissato (Reginaldo)",
-        "position": "",
-        "type": "Other",
-        "shares": 178,
-        "value": 10705.0
-      },
-      {
-        "date": "2026-07-01",
-        "insider": "Kakkad (Prakash)",
-        "position": "",
-        "type": "Other",
-        "shares": 25,
-        "value": 1505.0
+        "shares": 137,
+        "value": 8252.0
       },
       {
         "date": "2026-07-01",
@@ -1497,6 +1466,30 @@
         "type": "Other",
         "shares": 35,
         "value": 2105.0
+      },
+      {
+        "date": "2026-07-01",
+        "insider": "Kakkad (Prakash)",
+        "position": "",
+        "type": "Other",
+        "shares": 25,
+        "value": 1505.0
+      },
+      {
+        "date": "2026-07-01",
+        "insider": "Ecclissato (Reginaldo)",
+        "position": "",
+        "type": "Other",
+        "shares": 699,
+        "value": 42105.0
+      },
+      {
+        "date": "2026-07-01",
+        "insider": "Ecclissato (Reginaldo)",
+        "position": "",
+        "type": "Other",
+        "shares": 178,
+        "value": 10705.0
       },
       {
         "date": "2026-07-01",
@@ -1736,7 +1729,7 @@
     },
     {
       "date": "2024-12-10",
-      "close": 53.226,
+      "close": 53.2259,
       "volume": 1029734.0
     },
     {
@@ -1806,7 +1799,7 @@
     },
     {
       "date": "2025-01-02",
-      "close": 52.8062,
+      "close": 52.8063,
       "volume": 1129878.0
     },
     {
@@ -1831,7 +1824,7 @@
     },
     {
       "date": "2025-01-09",
-      "close": 52.2148,
+      "close": 52.2149,
       "volume": 784869.0
     },
     {
@@ -1871,7 +1864,7 @@
     },
     {
       "date": "2025-01-21",
-      "close": 52.2148,
+      "close": 52.2149,
       "volume": 1350369.0
     },
     {
@@ -1911,7 +1904,7 @@
     },
     {
       "date": "2025-01-31",
-      "close": 52.8062,
+      "close": 52.8063,
       "volume": 1258279.0
     },
     {
@@ -2001,7 +1994,7 @@
     },
     {
       "date": "2025-02-26",
-      "close": 51.032,
+      "close": 51.0321,
       "volume": 1585782.0
     },
     {
@@ -2036,7 +2029,7 @@
     },
     {
       "date": "2025-03-07",
-      "close": 52.7666,
+      "close": 52.7665,
       "volume": 1747469.0
     },
     {
@@ -2071,7 +2064,7 @@
     },
     {
       "date": "2025-03-18",
-      "close": 51.8036,
+      "close": 51.8037,
       "volume": 1313794.0
     },
     {
@@ -2101,7 +2094,7 @@
     },
     {
       "date": "2025-03-26",
-      "close": 51.6689,
+      "close": 51.6688,
       "volume": 1570424.0
     },
     {
@@ -2466,7 +2459,7 @@
     },
     {
       "date": "2025-07-10",
-      "close": 51.0824,
+      "close": 51.0823,
       "volume": 857055.0
     },
     {
@@ -2621,7 +2614,7 @@
     },
     {
       "date": "2025-08-22",
-      "close": 52.9628,
+      "close": 52.9629,
       "volume": 653470.0
     },
     {
@@ -2636,7 +2629,7 @@
     },
     {
       "date": "2025-08-27",
-      "close": 52.7078,
+      "close": 52.7077,
       "volume": 1058266.0
     },
     {
@@ -2826,7 +2819,7 @@
     },
     {
       "date": "2025-10-20",
-      "close": 52.9628,
+      "close": 52.9629,
       "volume": 932157.0
     },
     {
@@ -4145,5 +4138,5 @@
       "volume": 1942226.0
     }
   ],
-  "updatedAt": "2026-11-02T06:34:33.062443+00:00"
+  "updatedAt": "2026-11-02T06:41:34.139791+00:00"
 }

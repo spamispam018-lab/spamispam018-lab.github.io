@@ -14,21 +14,22 @@
     "price": 26.62,
     "change": 1.41,
     "changePercent": 5.59,
-    "marketCap": 0.0,
+    "marketCap": 3918701312.0,
     "fiftyTwoWeekLow": 15.3,
     "fiftyTwoWeekHigh": 30.31,
-    "volume": 2078880.0,
+    "volume": 2078880,
     "avgVolume": 582256,
     "currency": "EUR"
   },
   "ratios": {
     "peTrailing": null,
-    "peForward": 92.9599,
+    "peForward": 101.3092,
     "pegRatio": 0.43,
     "dividendYield": 0.0,
-    "profitMargins": -0.0643,
+    "profitMargins": -0.0635,
     "debtToEquity": 146.705,
-    "revenueGrowth": -0.092
+    "revenueGrowth": -0.05,
+    "earningsGrowth": null
   },
   "financials": {
     "incomeStatement": {
@@ -322,7 +323,7 @@
           "Total_Other_Finance_Cost": 10200000.0,
           "Interest_Expense_Non_Operating": null,
           "Interest_Income_Non_Operating": null,
-          "Operating_Income": 557200000.0,
+          "Operating_Income": null,
           "Operating_Expense": null,
           "Research_And_Development": null,
           "Selling_General_And_Administration": null,
@@ -374,7 +375,7 @@
           "Total_Other_Finance_Cost": 14600000.0,
           "Interest_Expense_Non_Operating": 123700000.0,
           "Interest_Income_Non_Operating": 79400000.0,
-          "Operating_Income": null,
+          "Operating_Income": 640500000.0,
           "Operating_Expense": 3262200000.0,
           "Research_And_Development": 82200000.0,
           "Selling_General_And_Administration": 3213900000.0,
@@ -426,7 +427,7 @@
           "Total_Other_Finance_Cost": 5000000.0,
           "Interest_Expense_Non_Operating": 100800000.0,
           "Interest_Income_Non_Operating": 37800000.0,
-          "Operating_Income": null,
+          "Operating_Income": 621500000.0,
           "Operating_Expense": 3365100000.0,
           "Research_And_Development": 89000000.0,
           "Selling_General_And_Administration": 3332400000.0,
@@ -530,7 +531,7 @@
           "Total_Other_Finance_Cost": null,
           "Interest_Expense_Non_Operating": 112800000.0,
           "Interest_Income_Non_Operating": 13100000.0,
-          "Operating_Income": null,
+          "Operating_Income": -357400000.0,
           "Operating_Expense": 3637000000.0,
           "Research_And_Development": 83600000.0,
           "Selling_General_And_Administration": 3651300000.0,
@@ -1554,8 +1555,8 @@
     "targets": {
       "current": 26.62,
       "low": 21.0,
-      "median": 25.0,
-      "mean": 27.9972,
+      "median": 25.25,
+      "mean": 28.1083,
       "high": 40.5,
       "currency": "EUR",
       "analystCount": 18
@@ -1591,7 +1592,7 @@
           "period": "-2m",
           "strongBuy": 1,
           "buy": 6,
-          "hold": 11,
+          "hold": 12,
           "sell": 0,
           "strongSell": 1
         },
@@ -4179,5 +4180,5 @@
       "volume": 2078880.0
     }
   ],
-  "updatedAt": "2026-11-02T06:34:33.676747+00:00"
+  "updatedAt": "2026-11-02T06:44:48.259281+00:00"
 }

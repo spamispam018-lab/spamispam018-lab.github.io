@@ -17,18 +17,19 @@
     "marketCap": 5800679936.0,
     "fiftyTwoWeekLow": 31.8,
     "fiftyTwoWeekHigh": 46.6,
-    "volume": 170853.0,
+    "volume": 170853,
     "avgVolume": 99798,
     "currency": "EUR"
   },
   "ratios": {
     "peTrailing": 16.1606,
-    "peForward": 16.4792,
+    "peForward": 16.4765,
     "pegRatio": null,
     "dividendYield": 2.78,
     "profitMargins": 0.09,
     "debtToEquity": 6.62,
-    "revenueGrowth": 0.253
+    "revenueGrowth": 0.253,
+    "earningsGrowth": 0.226
   },
   "financials": {
     "incomeStatement": {
@@ -321,6 +322,8 @@
           "Depreciation_Income_Statement": 45000000.0,
           "Research_And_Development": 69000000.0,
           "Selling_General_And_Administration": 265000000.0,
+          "Selling_And_Marketing_Expense": null,
+          "General_And_Administrative_Expense": null,
           "Rent_And_Landing_Fees": 4000000.0,
           "Gross_Profit": 1054000000.0,
           "Cost_Of_Revenue": 2358000000.0,
@@ -373,6 +376,8 @@
           "Depreciation_Income_Statement": 44000000.0,
           "Research_And_Development": 71000000.0,
           "Selling_General_And_Administration": 279000000.0,
+          "Selling_And_Marketing_Expense": null,
+          "General_And_Administrative_Expense": null,
           "Rent_And_Landing_Fees": 4000000.0,
           "Gross_Profit": 1145000000.0,
           "Cost_Of_Revenue": 2396000000.0,
@@ -425,6 +430,8 @@
           "Depreciation_Income_Statement": 46000000.0,
           "Research_And_Development": 79000000.0,
           "Selling_General_And_Administration": 297000000.0,
+          "Selling_And_Marketing_Expense": null,
+          "General_And_Administrative_Expense": null,
           "Rent_And_Landing_Fees": 4000000.0,
           "Gross_Profit": 1215000000.0,
           "Cost_Of_Revenue": 2310000000.0,
@@ -477,6 +484,8 @@
           "Depreciation_Income_Statement": 45000000.0,
           "Research_And_Development": 84000000.0,
           "Selling_General_And_Administration": 304000000.0,
+          "Selling_And_Marketing_Expense": 236000000.0,
+          "General_And_Administrative_Expense": 68000000.0,
           "Rent_And_Landing_Fees": 5000000.0,
           "Gross_Profit": 1245000000.0,
           "Cost_Of_Revenue": 2318000000.0,
@@ -1639,8 +1648,8 @@
     "targets": {
       "current": 44.28,
       "low": 41.0,
-      "median": 49.0,
-      "mean": 48.0,
+      "median": 51.0,
+      "mean": 48.7778,
       "high": 54.0,
       "currency": "EUR",
       "analystCount": 9
@@ -1676,8 +1685,8 @@
           "period": "-2m",
           "strongBuy": 3,
           "buy": 5,
-          "hold": 1,
-          "sell": 1,
+          "hold": 2,
+          "sell": 0,
           "strongSell": 0
         },
         {
@@ -4252,5 +4261,5 @@
       "volume": 170853.0
     }
   ],
-  "updatedAt": "2026-11-02T06:34:33.551096+00:00"
+  "updatedAt": "2026-11-02T06:44:10.198786+00:00"
 }
