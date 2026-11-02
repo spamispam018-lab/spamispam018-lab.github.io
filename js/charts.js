@@ -536,11 +536,87 @@ window.App.Charts = (function () {
     });
   }
 
+  /**
+   * 1d. Kerzenchart: opts { candles:[{o,h,l,c}], labels, lines:[{values,color}], formatY }
+   * Grün = Schluss >= Eröffnung, Rot = Schluss < Eröffnung.
+   */
+  function renderCandleChart(canvas, opts) {
+    var setup = setupCanvas(canvas);
+    if (!setup) return;
+    var ctx = setup.ctx;
+    var w = setup.width;
+    var h = setup.height;
+
+    var candles = opts.candles || [];
+    var labels = opts.labels || [];
+    if (candles.length === 0) return;
+
+    var padding = { top: 16, right: 12, bottom: 25, left: 45 };
+
+    var lo = Infinity, hi = -Infinity;
+    candles.forEach(function (c) { lo = Math.min(lo, c.l); hi = Math.max(hi, c.h); });
+    (opts.lines || []).forEach(function (ln) {
+      ln.values.forEach(function (v) {
+        if (v !== null && v !== undefined && isFinite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+      });
+    });
+    var pad = (hi - lo) * 0.06 || 1;
+    var minVal = lo - pad, maxVal = hi + pad;
+
+    drawGridAndYAxis(ctx, w, h, minVal, maxVal, padding, opts.formatY);
+
+    var chartW = w - padding.left - padding.right;
+    var chartH = h - padding.top - padding.bottom;
+    var step = chartW / candles.length;
+    var bodyW = Math.max(2, Math.min(14, step * 0.68));
+    function xOf(i) { return padding.left + (i + 0.5) * step; }
+    function yOf(v) { return padding.top + chartH - ((v - minVal) / (maxVal - minVal)) * chartH; }
+
+    candles.forEach(function (c, i) {
+      var up = c.c >= c.o;
+      var color = up ? THEME.green : THEME.red;
+      var x = xOf(i);
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(x, yOf(c.h));
+      ctx.lineTo(x, yOf(c.l));
+      ctx.stroke();
+      var yTop = yOf(Math.max(c.o, c.c));
+      var yBot = yOf(Math.min(c.o, c.c));
+      ctx.fillRect(x - bodyW / 2, yTop, bodyW, Math.max(1, yBot - yTop));
+    });
+
+    (opts.lines || []).forEach(function (ln) {
+      ctx.strokeStyle = ln.color;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      var started = false;
+      ln.values.forEach(function (v, i) {
+        if (v === null || v === undefined || !isFinite(v)) return;
+        if (!started) { ctx.moveTo(xOf(i), yOf(v)); started = true; } else { ctx.lineTo(xOf(i), yOf(v)); }
+      });
+      ctx.stroke();
+    });
+
+    ctx.font = '10px ' + THEME.fontFamily;
+    ctx.fillStyle = THEME.textColor;
+    ctx.textAlign = 'center';
+    var n = candles.length;
+    [0, Math.floor(n / 3), Math.floor(2 * n / 3), n - 1].forEach(function (idx, k, arr) {
+      if (arr.indexOf(idx) !== k) return;
+      var lx = Math.max(padding.left + 14, Math.min(w - padding.right - 14, xOf(idx)));
+      if (labels[idx]) ctx.fillText(labels[idx], lx, h - 6);
+    });
+  }
+
   return {
     renderLineChart: renderLineChart,
     renderMultiLineChart: renderMultiLineChart,
     renderIndicatorChart: renderIndicatorChart,
     renderGroupedBarChart: renderGroupedBarChart,
+    renderCandleChart: renderCandleChart,
     renderDonutChart: renderDonutChart,
     renderStackedBarChart: renderStackedBarChart
   };
