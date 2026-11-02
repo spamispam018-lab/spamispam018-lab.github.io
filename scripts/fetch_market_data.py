@@ -366,7 +366,7 @@ def peer_extras(st):
     from datetime import date, timedelta
     profile = st.get("profile", {}) or {}
     out = {"industry": profile.get("industry"),
-           "perf1w": None, "perf1m": None, "perf3m": None, "perfYtd": None}
+           "perf1w": None, "perf1m": None, "perf3m": None, "perfYtd": None, "perf52w": None}
     hist = [p for p in (st.get("chartHistory") or []) if p.get("close")]
     if len(hist) < 5:
         return out
@@ -395,6 +395,7 @@ def peer_extras(st):
     out["perf1m"] = perf(last_d - timedelta(days=30))
     out["perf3m"] = perf(last_d - timedelta(days=91))
     out["perfYtd"] = perf(date(last_d.year - 1, 12, 31))
+    out["perf52w"] = perf(last_d - timedelta(days=365))
     return out
 
 
@@ -509,10 +510,6 @@ def run_delta_sync(tickers):
         u_item["revGrowth"] = ratios.get("revenueGrowth")
         u_item["profitMargins"] = ratios.get("profitMargins")
         u_item.update(screener_extras(stock_data))
-
-        hist = stock_data.get("chartHistory", [])
-        if len(hist) > 20 and hist[0].get("close"):
-            u_item["perf52w"] = round(((hist[-1]["close"] - hist[-260]["close"]) / hist[-260]["close"]) * 100, 2) if len(hist) >= 260 else round(((hist[-1]["close"] - hist[0]["close"]) / hist[0]["close"]) * 100, 2)
 
         universe_map[sym] = u_item
 
@@ -702,9 +699,7 @@ def main():
                     "dividendYield": st["ratios"]["dividendYield"],
                     "revGrowth": st["ratios"].get("revenueGrowth"),
                     "profitMargins": st["ratios"].get("profitMargins"),
-                    **screener_extras(st),
-                    "perf52w": (round(((st["chartHistory"][-1]["close"] - st["chartHistory"][0]["close"]) / st["chartHistory"][0]["close"]) * 100, 2)
-                                if len(st.get("chartHistory", [])) > 20 and st["chartHistory"][0].get("close") else None)
+                    **screener_extras(st)
                 }
                 
                 universe_map[sym] = new_item
