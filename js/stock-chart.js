@@ -1,7 +1,7 @@
 /**
  * js/stock-chart.js
  * Chart-Analyse-Tab der Aktiendetailseite (nach "Overview"):
- * - Steuerung des Analyse-Zeitraums (1M, 3M, 6M, 1J)
+ * - Steuerung des Analyse-Zeitraums (1W, 1M, 3M, 6M, 1J)
  * - Technisches Bild (Signale zu SMA 50/200, RSI, MACD, dynamisches Momentum)
  * - Kurs mit gleitenden Durchschnitten (SMA 50 / SMA 200)
  * - RSI (14) und MACD (12/26/9)
@@ -16,6 +16,7 @@ window.App.StockChart = (function () {
   'use strict';
 
   var currentPeriod = '1Y'; // Default Zeitraum
+  var candleWeeks = 52;     // Anzahl Wochenkerzen (26 = 6M, 52 = 1J, 104 = 2J)
 
   var COLORS = {
     price: '#818cf8',
@@ -155,6 +156,70 @@ window.App.StockChart = (function () {
     return iso.slice(8, 10) + '.' + iso.slice(5, 7) + '.' + iso.slice(0, 4);
   }
 
+  // ---------------------------------------------------------------------------
+  // Wochenkerzen (aus Tagesschlusskursen)
+  // ---------------------------------------------------------------------------
+  function weekKey(iso) {
+    var d = new Date(iso + 'T00:00:00Z');
+    d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); // Montag der Woche
+    return d.toISOString().slice(0, 10);
+  }
+
+  /**
+   * Eröffnung = Schlusskurs der Vorwoche, Schluss = letzter Schlusskurs der Woche,
+   * Hoch/Tief = höchster/niedrigster Tagesschluss (inkl. Eröffnung).
+   */
+  function weeklyCandles(hist) {
+    var weeks = [], cur = null, prevClose = null;
+    hist.forEach(function (p) {
+      var k = weekKey(p.date);
+      if (!cur || cur.key !== k) {
+        if (cur) { weeks.push(cur); prevClose = cur.c; }
+        var o = prevClose !== null ? prevClose : p.close;
+        cur = { key: k, date: p.date, o: o, h: Math.max(o, p.close), l: Math.min(o, p.close), c: p.close };
+      } else {
+        cur.h = Math.max(cur.h, p.close);
+        cur.l = Math.min(cur.l, p.close);
+        cur.c = p.close;
+        cur.date = p.date;
+      }
+    });
+    if (cur) weeks.push(cur);
+    return weeks;
+  }
+
+  function smaSeries(values, len) {
+    var out = [];
+    for (var i = 0; i < values.length; i++) {
+      if (i + 1 < len) { out.push(null); continue; }
+      var sum = 0;
+      for (var j = i - len + 1; j <= i; j++) sum += values[j];
+      out.push(sum / len);
+    }
+    return out;
+  }
+
+  function drawCandles(container, hist, currency) {
+    var canvas = container.querySelector('#chart-tab-candles');
+    if (!canvas) return;
+    var weeks = weeklyCandles(hist);
+    var sma = smaSeries(weeks.map(function (w) { return w.c; }), 10);
+    var take = Math.min(candleWeeks, weeks.length);
+    var shown = weeks.slice(-take);
+    window.App.Charts.renderCandleChart(canvas, {
+      candles: shown,
+      labels: shown.map(function (w) { return shortLabel(w.date); }),
+      lines: [{ values: sma.slice(-take), color: COLORS.sma50 }],
+      formatY: function (v) { return window.App.Format.currency(v, currency, 0); }
+    });
+    var info = container.querySelector('#candle-info');
+    if (info && shown.length) {
+      var lastC = shown[shown.length - 1];
+      var chg = lastC.o ? (lastC.c / lastC.o - 1) * 100 : 0;
+      info.textContent = 'Laufende Woche: ' + (chg >= 0 ? '+' : '') + window.App.Format.number(chg, 1) + ' %';
+    }
+  }
+
   function shortLabel(iso) {
     var d = String(iso || '');
     return d.slice(5, 7) + '/' + d.slice(2, 4);
@@ -195,7 +260,7 @@ window.App.StockChart = (function () {
     // Daten auf den gewählten Zeitraum (currentPeriod) zuschneiden
     // Kalenderbasiert (wie Yahoo & Marktübersicht), Basis = letzter Schlusskurs am/vor dem Stichtag
     var tail = n;
-    var spanDays = { '1M': 30, '3M': 91, '6M': 182, '1Y': 365 }[currentPeriod];
+    var spanDays = { '1W': 7, '1M': 30, '3M': 91, '6M': 182, '1Y': 365 }[currentPeriod];
     if (spanDays && n > 0) {
       var tEnd = new Date(dates[n - 1] + 'T00:00:00Z');
       tEnd.setUTCDate(tEnd.getUTCDate() - spanDays);
@@ -224,7 +289,7 @@ window.App.StockChart = (function () {
         momVal = (price / slicedCloses[0] - 1) * 100;
     }
     
-    var periodLabelMap = { '1M': '1 Monat', '3M': '3 Monate', '6M': '6 Monate', '1Y': '1 Jahr' };
+    var periodLabelMap = { '1W': '1 Woche', '1M': '1 Monat', '3M': '3 Monate', '6M': '6 Monate', '1Y': '1 Jahr' };
     var pLabel = periodLabelMap[currentPeriod];
 
     var auff = auffaelligkeiten(stock);
@@ -335,6 +400,7 @@ window.App.StockChart = (function () {
       '<div class="card" style="padding: 10px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">' +
         '<span style="font-size: 0.78rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em;">Analyse-Zeitraum</span>' +
         '<div class="pill-group" id="chart-period-pills">' +
+          '<button class="pill-btn ' + (currentPeriod === '1W' ? 'active' : '') + '" data-period="1W">1W</button>' +
           '<button class="pill-btn ' + (currentPeriod === '1M' ? 'active' : '') + '" data-period="1M">1M</button>' +
           '<button class="pill-btn ' + (currentPeriod === '3M' ? 'active' : '') + '" data-period="3M">3M</button>' +
           '<button class="pill-btn ' + (currentPeriod === '6M' ? 'active' : '') + '" data-period="6M">6M</button>' +
@@ -385,6 +451,28 @@ window.App.StockChart = (function () {
           legendItem(COLORS.sma50, 'SMA 50') +
           legendItem(COLORS.sma200, 'SMA 200') +
         '</div>' +
+      '</div>' +
+
+      '<!-- Wochenkerzen -->' +
+      '<div class="card">' +
+        '<div class="card-header-dotted">' +
+          '<span class="card-title">Wochenkerzen</span>' +
+          '<span class="period-tag" id="candle-info">—</span>' +
+        '</div>' +
+        '<div class="pill-group" id="candle-range-pills" style="margin-top: 6px;">' +
+          '<button class="pill-btn ' + (candleWeeks === 26 ? 'active' : '') + '" data-weeks="26">6M</button>' +
+          '<button class="pill-btn ' + (candleWeeks === 52 ? 'active' : '') + '" data-weeks="52">1J</button>' +
+          '<button class="pill-btn ' + (candleWeeks === 104 ? 'active' : '') + '" data-weeks="104">2J</button>' +
+        '</div>' +
+        '<div style="height: 240px; width: 100%; position: relative; margin-top: 8px;">' +
+          '<canvas id="chart-tab-candles" style="width: 100%; height: 240px; display: block;"></canvas>' +
+        '</div>' +
+        '<div class="legend-row">' +
+          legendItem('#10b981', 'Woche im Plus') +
+          legendItem('#ef4444', 'Woche im Minus') +
+          legendItem(COLORS.sma50, '10-Wochen-Linie') +
+        '</div>' +
+        '<div class="chart-note">Kerzen aus Tagesschlusskursen: Eröffnung = Schlusskurs der Vorwoche, Hoch und Tief = höchster bzw. niedrigster Tagesschluss der Woche (ohne Intraday-Spitzen).</div>' +
       '</div>' +
 
       '<!-- RSI -->' +
@@ -452,6 +540,16 @@ window.App.StockChart = (function () {
         { name: 'SMA 200', color: COLORS.sma200, values: s200.slice(-tail), width: 1.5 }
       ],
       formatY: function (v) { return window.App.Format.currency(v, cur, 0); }
+    });
+
+    drawCandles(container, hist, cur);
+    container.querySelectorAll('#candle-range-pills .pill-btn').forEach(function (pill) {
+      pill.onclick = function () {
+        candleWeeks = parseInt(pill.getAttribute('data-weeks'), 10) || 52;
+        container.querySelectorAll('#candle-range-pills .pill-btn').forEach(function (b) { b.classList.remove('active'); });
+        pill.classList.add('active');
+        drawCandles(container, hist, cur);
+      };
     });
 
     Charts.renderIndicatorChart(document.getElementById('chart-tab-rsi'), {
