@@ -729,3 +729,4 @@ window.App.StockChart = (function () {
     _macd: macd
   };
 })();
+
