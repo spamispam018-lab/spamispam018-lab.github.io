@@ -193,11 +193,19 @@ window.App.StockChart = (function () {
     var m = macd(closes);
 
     // Daten auf den gewählten Zeitraum (currentPeriod) zuschneiden
+    // Kalenderbasiert (wie Yahoo & Marktübersicht), Basis = letzter Schlusskurs am/vor dem Stichtag
     var tail = n;
-    if (currentPeriod === '1M') tail = Math.min(22, n);
-    else if (currentPeriod === '3M') tail = Math.min(65, n);
-    else if (currentPeriod === '6M') tail = Math.min(130, n);
-    else if (currentPeriod === '1Y') tail = Math.min(260, n);
+    var spanDays = { '1M': 30, '3M': 91, '6M': 182, '1Y': 365 }[currentPeriod];
+    if (spanDays && n > 0) {
+      var tEnd = new Date(dates[n - 1] + 'T00:00:00Z');
+      tEnd.setUTCDate(tEnd.getUTCDate() - spanDays);
+      var cutoffStr = tEnd.toISOString().slice(0, 10);
+      var startIdx = 0;
+      for (var di = 0; di < n; di++) {
+        if (dates[di] <= cutoffStr) startIdx = di; else break;
+      }
+      tail = n - startIdx;
+    }
 
     var slicedCloses = closes.slice(-tail);
     var slicedDates = dates.slice(-tail);
