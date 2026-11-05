@@ -16,13 +16,50 @@ window.App.Watchlist = (function () {
   /**
    * Initialisiert und rendert die Watchlist-View.
    */
-  function initView() {
+  function initView(params) {
     var container = document.getElementById('app-view-content');
     if (!container) return;
 
     var headerFilterBtn = document.getElementById('btn-header-filter');
     if (headerFilterBtn) {
       headerFilterBtn.style.display = 'none';
+    }
+
+    var tab = (params && params.tab) || 'stocks';
+    var tabs = [
+      { id: 'stocks', label: '⭐ Werte' },
+      { id: 'alerts', label: '🔔 Alarme' },
+      { id: 'earnings', label: '📅 Termine' }
+    ];
+
+    container.innerHTML = '' +
+      '<div class="horizontal-scroll-row" style="margin-bottom: 12px;">' +
+        tabs.map(function (t) {
+          return '<button class="chip-btn ' + (tab === t.id ? 'active' : '') + '" data-wl-tab="' + t.id + '">' + t.label + '</button>';
+        }).join('') +
+      '</div>' +
+      '<div id="watchlist-tab-content"></div>';
+
+    container.querySelectorAll('[data-wl-tab]').forEach(function (btn) {
+      btn.onclick = function () {
+        window.App.Router.navigate('/watchlist/' + btn.getAttribute('data-wl-tab'));
+      };
+    });
+
+    var host = document.getElementById('watchlist-tab-content');
+    if (!host) return;
+
+    if (tab === 'alerts') {
+      if (window.App.Alerts) { window.App.Alerts.initView(host); } else {
+        host.innerHTML = '<div class="state-box"><p>Modul js/alerts.js nicht geladen.</p></div>';
+      }
+      return;
+    }
+    if (tab === 'earnings') {
+      if (window.App.Earnings) { window.App.Earnings.initView(host); } else {
+        host.innerHTML = '<div class="state-box"><p>Modul js/earnings.js nicht geladen.</p></div>';
+      }
+      return;
     }
 
     var watchlistTickers = window.App.Data.getWatchlist();
@@ -33,11 +70,11 @@ window.App.Watchlist = (function () {
           return watchlistTickers.indexOf(it.ticker) !== -1;
         });
 
-        renderWatchlistUI(container, starredItems);
-        bindEvents(container);
+        renderWatchlistUI(host, starredItems);
+        bindEvents(host);
       })
       .catch(function (err) {
-        container.innerHTML = '<div class="state-box"><p>Fehler beim Laden der Watchlist: ' + err.message + '</p></div>';
+        host.innerHTML = '<div class="state-box"><p>Fehler beim Laden der Watchlist: ' + err.message + '</p></div>';
       });
   }
 
