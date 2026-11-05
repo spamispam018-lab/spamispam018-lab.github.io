@@ -11,13 +11,13 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 77.734,
-    "change": 1.6893,
-    "changePercent": 2.22,
+    "price": 77.8732,
+    "change": -0.0357,
+    "changePercent": -0.05,
     "marketCap": 223841796083.2189,
     "fiftyTwoWeekLow": 65.0726,
     "fiftyTwoWeekHigh": 87.4072,
-    "volume": 19977500.0,
+    "volume": 2668539.0,
     "avgVolume": 13833503,
     "currency": "EUR"
   },
@@ -1843,16 +1843,16 @@
   },
   "analysts": {
     "targets": {
-      "current": 74.5679,
-      "low": 78.6808,
-      "median": 87.1747,
-      "mean": 87.063,
-      "high": 96.5628,
+      "current": 77.7841,
+      "low": 78.4168,
+      "median": 86.8823,
+      "mean": 86.7709,
+      "high": 96.2388,
       "currency": "EUR",
       "analystCount": 24
     },
     "recommendations": {
-      "score": 1.7778,
+      "score": 1.8148,
       "key": "buy",
       "breakdown": {
         "strongBuy": 3,
@@ -1864,9 +1864,9 @@
       "history": [
         {
           "period": "0m",
-          "strongBuy": 5,
+          "strongBuy": 4,
           "buy": 14,
-          "hold": 8,
+          "hold": 9,
           "sell": 0,
           "strongSell": 0
         },
@@ -1899,29 +1899,30 @@
     "epsEstimates": [
       {
         "quarter": "2025-12-31",
-        "estimate": 1.4909,
-        "actual": 1.4484,
+        "estimate": 1.4859,
+        "actual": 1.4436,
         "surprisePercent": -0.0285
       },
       {
         "quarter": "2026-03-31",
-        "estimate": 1.4157,
-        "actual": 1.4306,
+        "estimate": 1.411,
+        "actual": 1.4258,
         "surprisePercent": 0.0105
       },
       {
         "quarter": "2026-06-30",
-        "estimate": 1.5365,
-        "actual": 1.7882,
+        "estimate": 1.5314,
+        "actual": 1.7822,
         "surprisePercent": 0.1638
       },
       {
         "quarter": "2026-09-30",
-        "estimate": 1.6587,
-        "actual": 1.672,
+        "estimate": 1.6532,
+        "actual": 1.6664,
         "surprisePercent": 0.008
       }
-    ]
+    ],
+    "nextEarningsDate": "2027-01-14"
   },
   "insider": {
     "summary": {
@@ -4774,7 +4775,12 @@
       "date": "2026-11-04",
       "close": 77.734,
       "volume": 19977500.0
+    },
+    {
+      "date": "2026-11-05",
+      "close": 77.8732,
+      "volume": 2668539.0
     }
   ],
-  "updatedAt": "2026-11-05T07:32:47.271718+00:00"
+  "updatedAt": "2026-11-05T15:23:06.802926+00:00"
 }
