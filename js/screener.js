@@ -29,6 +29,8 @@ window.App.Screener = (function () {
   var EARNINGS_GROWTH_MIN = 0.15;   // Forward-KGV mind. 15 % unter aktuellem KGV
   var RECOVERY_MAX_RANGEPOS = 33;   // Kurs im unteren Drittel der 52-Wochen-Spanne
   var OVERSOLD_RSI_MAX = 30;        // RSI(14) höchstens 30
+  var EARNINGS_SOON_DAYS = 14;      // "Bericht bald": nächster Bericht innerhalb X Tage
+  var CONSENSUS_BUY_MIN = 70;       // "Kaufkonsens": mindestens X % Buy/StrongBuy
   var VALUE_DISCOUNT = 0.15;        // KGV mind. 15 % unter dem Branchen-Median
   var VALUE_FALLBACK_PE = 18;       // feste KGV-Grenze, wenn die Branche zu klein ist
   var MIN_SECTOR_SIZE = 5;          // Mindestanzahl Aktien für einen Branchen-Median
@@ -197,6 +199,30 @@ window.App.Screener = (function () {
     return hasNum(s.rsi) && s.rsi <= OVERSOLD_RSI_MAX;
   }
 
+  /** Tage bis zu einem ISO-Datum (YYYY-MM-DD), null wenn ungültig/fehlend. */
+  function daysTo(dateStr) {
+    if (!dateStr) return null;
+    var d = new Date(dateStr + 'T00:00:00');
+    if (isNaN(d.getTime())) return null;
+    return Math.round((d.getTime() - Date.now()) / 86400000);
+  }
+
+  /** "Bericht bald": nächster Quartalsbericht innerhalb der nächsten X Tage. */
+  function isEarningsSoon(s) {
+    var d = daysTo(s.nextEarningsDate);
+    return d !== null && d >= 0 && d <= EARNINGS_SOON_DAYS;
+  }
+
+  /** "Kaufkonsens": mindestens X % der Analysten mit Buy/StrongBuy. */
+  function isConsensusBuy(s) {
+    return hasNum(s.buyPct) && s.buyPct >= CONSENSUS_BUY_MIN && analystOk(s);
+  }
+
+  /** "Verkaufskonsens": höchstens 20 % Buy/StrongBuy. */
+  function isConsensusSell(s) {
+    return hasNum(s.buyPct) && s.buyPct <= 20 && analystOk(s);
+  }
+
   /** SMA 50 hat SMA 200 kürzlich von oben nach unten (death) bzw. unten nach oben (golden) gekreuzt. */
   function hasRecentCross(s, type) {
     return s.cross === type && hasNum(s.crossDaysAgo) && s.crossDaysAgo <= CROSS_RECENT_DAYS;
@@ -216,7 +242,10 @@ window.App.Screener = (function () {
     quality: function (s) { return isQuality(s); },
     earnings_growth: function (s) { return isEarningsGrowth(s); },
     recovery: function (s) { return isRecovery(s); },
-    oversold: function (s) { return isOversold(s); }
+    oversold: function (s) { return isOversold(s); },
+    earnings_soon: function (s) { return isEarningsSoon(s); },
+    consensus_buy: function (s) { return isConsensusBuy(s); },
+    consensus_sell: function (s) { return isConsensusSell(s); }
   };
 
   // Chip-Beschriftung (HTML), Klartext-Name (für den Gemini-Prompt) und Erklärung
@@ -248,7 +277,13 @@ window.App.Screener = (function () {
     { id: 'recovery', chip: '🌱 Erholung', name: 'Erholung',
       info: function () { return 'Kurs im unteren Drittel der 52W-Spanne (≤ ' + RECOVERY_MAX_RANGEPOS + ' %), Kursziel mindestens ' + PROGNOSE_STEIGEND_MIN + ' % darüber, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
     { id: 'oversold', chip: '📉 Überverkauft', name: 'Überverkauft',
-      info: function () { return 'RSI(14) höchstens ' + OVERSOLD_RSI_MAX + ' (stark gefallen, mögliche Gegenbewegung).'; } }
+      info: function () { return 'RSI(14) höchstens ' + OVERSOLD_RSI_MAX + ' (stark gefallen, mögliche Gegenbewegung).'; } },
+    { id: 'earnings_soon', chip: '📅 Bericht ≤ 14 Tage', name: 'Bericht in den nächsten 14 Tagen',
+      info: function () { return 'Nächster Quartalsbericht innerhalb der nächsten ' + EARNINGS_SOON_DAYS + ' Tage (laut Datenpipeline).'; } },
+    { id: 'consensus_buy', chip: '👍 Kaufkonsens', name: 'Kaufkonsens',
+      info: function () { return 'Mindestens ' + CONSENSUS_BUY_MIN + ' % der Analysten mit Buy/StrongBuy, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
+    { id: 'consensus_sell', chip: '👎 Verkaufskonsens', name: 'Verkaufskonsens',
+      info: function () { return 'Höchstens 20 % der Analysten mit Buy/StrongBuy, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } }
   ];
 
   function presetName(id) {
