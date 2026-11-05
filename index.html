@@ -65,6 +65,13 @@
       </svg>
       <span>Watchlist</span>
     </a>
+    <a href="#/portfolio" class="nav-item" data-route="portfolio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
+      </svg>
+      <span>Portfolio</span>
+    </a>
   </nav>
 
   <!-- 1. Offline- & Fallback-Daten (zwingend vor allen App-Skripten) -->
@@ -90,6 +97,9 @@
   <script src="js/stock-analyst.js"></script>
   <script src="js/stock-financials.js"></script>
   <script src="js/compare.js"></script>
+  <script src="js/portfolio.js"></script>
+  <script src="js/alerts.js"></script>
+  <script src="js/earnings.js"></script>
 
   <!-- 4. Orchestrierung & Bootstrap (Hash-Routen verknüpfen) -->
   <script>
@@ -121,11 +131,24 @@
         window.App.Market.initView();
       });
 
-      // Route 2: Watchlist
+      // Route 2: Watchlist (mit Reitern: Werte / Alarme / Termine)
       window.App.Router.register('/watchlist', function () {
         if (headerTitle) headerTitle.textContent = 'Watchlist';
-        if (headerSubtitle) headerSubtitle.textContent = 'Gespeicherte Favoriten';
+        if (headerSubtitle) headerSubtitle.textContent = 'Favoriten, Alarme & Termine';
         window.App.Watchlist.initView();
+      });
+
+      window.App.Router.register('/watchlist/:tab', function (params) {
+        if (headerTitle) headerTitle.textContent = 'Watchlist';
+        if (headerSubtitle) headerSubtitle.textContent = 'Favoriten, Alarme & Termine';
+        window.App.Watchlist.initView(params);
+      });
+
+      // Route: Portfolio-Tracker
+      window.App.Router.register('/portfolio', function () {
+        if (headerTitle) headerTitle.textContent = 'Portfolio';
+        if (headerSubtitle) headerSubtitle.textContent = 'Bestände & Performance';
+        window.App.Portfolio.initView();
       });
 
       // Route 3: Peer-Vergleich
@@ -388,6 +411,8 @@
       window.addEventListener('DOMContentLoaded', function () {
         syncStockNavTarget(window.App.Data.getLastTicker());
         window.App.Router.init();
+        // Preisalarme gegen neueste Daten prüfen und Banner zeigen
+        if (window.App.Alerts) { window.App.Alerts.checkAndNotify(); }
       });
     })();
   </script>
