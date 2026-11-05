@@ -1,5 +1,5 @@
 /**
- * js/portfolio.js
+ * js/portfolio.js[span_0](start_span)[span_0](end_span)
  * Portfolio-Tracker: Bestände (Ticker, Stück, Kaufkurs) in localStorage.
  * Zeigt Gesamtwert, Gewinn/Verlust, Gewichtung und ermöglicht CSV-Export.
  */
@@ -106,22 +106,26 @@ window.App.Portfolio = (function () {
         '</div>';
     }
 
-    // Hinzufügen-Formular
+    // Hinzufügen- & Bearbeiten-Formular
     var datalist = universe.map(function (u) {
       return '<option value="' + esc(u.ticker) + '">' + esc(u.name) + '</option>';
     }).join('');
+    
     html += '' +
-      '<div class="card" style="padding: 14px 16px; margin-bottom: 14px;">' +
-        '<div class="card-header-dotted"><span class="card-title">Position hinzufügen</span></div>' +
-        '<div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; align-items: end;">' +
-          '<div><label style="font-size: 0.7rem; color: var(--text-dim);">Ticker</label>' +
+      '<div class="card" id="pf-form-card" style="padding: 14px 16px; margin-bottom: 14px;">' +
+        '<div class="card-header-dotted"><span class="card-title" id="pf-form-title">Position hinzufügen</span></div>' +
+        '<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: end;">' +
+          '<div style="flex: 1 1 100px;"><label style="font-size: 0.7rem; color: var(--text-dim);">Ticker</label>' +
             '<input id="pf-in-ticker" class="search-input" style="width: 100%;" list="pf-tickers" placeholder="AAPL" autocomplete="off">' +
             '<datalist id="pf-tickers">' + datalist + '</datalist></div>' +
-          '<div><label style="font-size: 0.7rem; color: var(--text-dim);">Stück</label>' +
+          '<div style="flex: 1 1 80px;"><label style="font-size: 0.7rem; color: var(--text-dim);">Stück</label>' +
             '<input id="pf-in-shares" class="search-input" style="width: 100%;" type="number" min="0" step="any" placeholder="10"></div>' +
-          '<div><label style="font-size: 0.7rem; color: var(--text-dim);">Kaufkurs (€)</label>' +
+          '<div style="flex: 1 1 80px;"><label style="font-size: 0.7rem; color: var(--text-dim);">Kaufkurs (€)</label>' +
             '<input id="pf-in-price" class="search-input" style="width: 100%;" type="number" min="0" step="any" placeholder="150,00"></div>' +
-          '<button class="chip-btn active" id="pf-add-btn" style="height: 38px;">+ Add</button>' +
+          '<div style="display: flex; gap: 8px; width: 100%; margin-top: 4px;">' +
+            '<button class="chip-btn active" id="pf-add-btn" style="flex: 1; height: 38px;">+ Add</button>' +
+            '<button class="chip-btn" id="pf-cancel-btn" style="flex: 1; height: 38px; display: none;">Abbrechen</button>' +
+          '</div>' +
         '</div>' +
       '</div>';
 
@@ -172,17 +176,42 @@ window.App.Portfolio = (function () {
       var sh = parseFloat(document.getElementById('pf-in-shares').value);
       var bp = parseFloat(document.getElementById('pf-in-price').value);
       if (!t || !(sh > 0) || !(bp > 0)) { alert('Bitte Ticker, Stückzahl und Kaufkurs ausfüllen.'); return; }
+      
       var list = getHoldings();
       var existing = list.filter(function (x) { return x.ticker === t; })[0];
-      if (existing) {
-        // Bestand erweitern (Durchschnittskurs beibehalten)
-        existing.shares += sh;
+      var mode = this.getAttribute('data-mode');
+
+      if (mode === 'edit') {
+        if (existing) {
+          existing.shares = sh;
+          existing.buyPrice = bp;
+        }
       } else {
-        list.push({ ticker: t, shares: sh, buyPrice: bp });
+        if (existing) {
+          // Bestand erweitern (Durchschnittskurs beibehalten)
+          existing.shares += sh;
+        } else {
+          list.push({ ticker: t, shares: sh, buyPrice: bp });
+        }
       }
+      
       saveHoldings(list);
       initView();
     };
+
+    var cancelBtn = document.getElementById('pf-cancel-btn');
+    if (cancelBtn) {
+      cancelBtn.onclick = function () {
+        document.getElementById('pf-in-ticker').value = '';
+        document.getElementById('pf-in-ticker').disabled = false;
+        document.getElementById('pf-in-shares').value = '';
+        document.getElementById('pf-in-price').value = '';
+        document.getElementById('pf-form-title').innerText = 'Position hinzufügen';
+        document.getElementById('pf-add-btn').innerText = '+ Add';
+        document.getElementById('pf-add-btn').removeAttribute('data-mode');
+        this.style.display = 'none';
+      };
+    }
 
     var exportBtn = document.getElementById('pf-export-btn');
     if (exportBtn) {
@@ -217,12 +246,22 @@ window.App.Portfolio = (function () {
         var t = btn.getAttribute('data-ticker');
         var h = getHoldings().filter(function (x) { return x.ticker === t; })[0];
         if (!h) return;
-        var sh = parseFloat(prompt('Stückzahl für ' + t + ':', h.shares));
-        var bp = parseFloat(prompt('Kaufkurs für ' + t + ' (€):', h.buyPrice));
-        if (!(sh > 0) || !(bp > 0)) return;
-        h.shares = sh; h.buyPrice = bp;
-        saveHoldings(getHoldings());
-        initView();
+        
+        // Werte in das Formular eintragen
+        document.getElementById('pf-in-ticker').value = h.ticker;
+        document.getElementById('pf-in-ticker').disabled = true; // Ticker sperren, damit kein neuer Wert entsteht
+        document.getElementById('pf-in-shares').value = h.shares;
+        document.getElementById('pf-in-price').value = h.buyPrice;
+        
+        // UI auf "Bearbeiten" umstellen
+        document.getElementById('pf-form-title').innerText = 'Position bearbeiten: ' + h.ticker;
+        var addBtn = document.getElementById('pf-add-btn');
+        addBtn.innerText = '✓ Aktualisieren';
+        addBtn.setAttribute('data-mode', 'edit');
+        document.getElementById('pf-cancel-btn').style.display = 'block';
+        
+        // Zum Formular hochscrollen (wichtig am Smartphone)
+        document.getElementById('pf-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
       };
     });
 
