@@ -2,7 +2,7 @@
  * js/market.js
  * Marktübersicht (#/market):
  * - Heatmap der Sektoren (Fläche = Marktkapitalisierung, Farbe = kapitalgewichtete Performance)
- * - Drilldown in einen Sektor: Heatmap der Einzelwerte + Branchen-Ranking
+ * - Drilldown in einen Sektor: Heatmap der Einzelwerte + Branchen-Ranking + Passende Sektor-ETFs
  * - Top-/Flop-Listen für den gewählten Zeitraum
  * Datenquelle: data/universe.json (changePercent, perf1w, perf1m, perf3m, perfYtd, perf52w, marketCap).
  */
@@ -21,8 +21,18 @@ window.App.Market = (function () {
     { key: 'perf52w',       label: '1J',  scale: 40 }
   ];
 
-  var LARGE_CAP_MIN = 10e9;   // 10 Mrd. € (Daten sind in EUR umgerechnet)
+  var LARGE_CAP_MIN = 10e9;   // 10 Mrd. €
   var MAX_STOCK_TILES = 40;
+  
+  // Mapping: Sektorname -> Ticker des passenden ETFs (wie in fetch_market_data.py definiert)
+  var SECTOR_ETFS = {
+    'Technology': ['QDVE.DE', 'XDWT.DE'],
+    'Healthcare': ['WHEA.DE'],
+    'Consumer Defensive': ['WSCA.DE'],
+    'Financial Services': ['WFIS.DE'],
+    'Real Estate': ['IUSP.DE'],
+    'Energy': ['WNRG.DE']
+  };
 
   var state = { period: 'perf1m', sector: null, largeOnly: true };
   var universe = [];
@@ -54,7 +64,8 @@ window.App.Market = (function () {
       '.mk-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}' +
       '.mk-stat{background:var(--bg-tertiary);border-radius:var(--radius-sm);padding:10px 8px;text-align:center;}' +
       '.mk-stat-label{font-size:.62rem;color:var(--text-dim);text-transform:uppercase;font-weight:600;letter-spacing:.03em;}' +
-      '.mk-stat-value{font-size:.98rem;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums;}';
+      '.mk-stat-value{font-size:.98rem;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums;}' +
+      '.etf-card{display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--bg-tertiary);border-radius:var(--radius-md);margin-bottom:8px;cursor:pointer;}';
     var el = document.createElement('style');
     el.setAttribute('data-market', '1');
     el.textContent = css;
@@ -83,7 +94,6 @@ window.App.Market = (function () {
 
   function cls(v) { return !isNum(v) ? 'na' : (Number(v) >= 0 ? 'up' : 'down'); }
 
-  /** Farbe: Rot (negativ) – Grau (0) – Grün (positiv), Sättigung nach Betrag relativ zur Skala. */
   function colorFor(v) {
     if (!isNum(v)) return 'rgba(100,116,139,0.28)';
     var scale = periodInfo().scale;
@@ -99,7 +109,6 @@ window.App.Market = (function () {
     list.forEach(function (s) {
       var v = s[key], w = Number(s.marketCap);
       if (!isNum(v) || !isFinite(w) || w <= 0) return;
-      // Extremwerte begrenzen, damit einzelne Ausreißer nicht dominieren
       var capped = Math.max(-100, Math.min(300, Number(v)));
       sum += capped * w; wsum += w;
     });
@@ -121,7 +130,7 @@ window.App.Market = (function () {
   }
 
   // ---------------------------------------------------------------------------
-  // Treemap (Squarified)
+  // Treemap
   // ---------------------------------------------------------------------------
   function worstRatio(row, side) {
     var s = 0, mx = 0, mn = Infinity;
@@ -130,7 +139,6 @@ window.App.Market = (function () {
     return Math.max((side * side * mx) / (s * s), (s * s) / (side * side * mn));
   }
 
-  /** items: [{ value, ... }] (absteigend sortiert). Gibt [{ item, x, y, w, h }] zurück. */
   function squarify(items, W, H) {
     var total = items.reduce(function (a, it) { return a + it.value; }, 0);
     if (!total) return [];
@@ -301,6 +309,30 @@ window.App.Market = (function () {
     html += '<div class="hm-legend"><span>−' + p.scale + ' %</span><div class="hm-legend-bar"></div><span>+' + p.scale + ' %</span></div>';
     html += '<div style="font-size:.68rem;color:var(--text-dim);margin-top:6px;">Tipp: Kachel antippen, um ' +
       (state.sector ? 'die Aktie zu öffnen.' : 'in den Sektor zu wechseln.') + '</div></div>';
+
+    // *** NEU: Sektor-ETFs anzeigen ***
+    if (state.sector && SECTOR_ETFS[state.sector]) {
+      var matchingTickers = SECTOR_ETFS[state.sector];
+      var etfList = universe.filter(function(s) { return matchingTickers.indexOf(s.ticker) !== -1; });
+      
+      if (etfList.length > 0) {
+        html += '<div class="card"><div class="card-header-dotted"><span class="card-title">Passende ETFs (' + esc(state.sector) + ')</span></div>';
+        etfList.forEach(function(etf) {
+          html += '' +
+            '<div class="etf-card" data-mk-ticker="' + esc(etf.ticker) + '">' +
+              '<div>' +
+                '<div style="font-weight:700;font-size:0.85rem;color:var(--text-main);">' + esc(etf.name) + '</div>' +
+                '<div style="font-size:0.7rem;color:var(--text-dim);margin-top:2px;">Ticker: ' + esc(etf.ticker) + '</div>' +
+              '</div>' +
+              '<div style="text-align:right;">' +
+                '<div style="font-weight:700;font-variant-numeric:tabular-nums;font-size:0.85rem;">' + window.App.Format.currency(etf.price) + '</div>' +
+                '<div class="badge-pill ' + window.App.Format.changeClass(etf[key]) + '" style="font-size:0.65rem;margin-top:4px;">' + fmtPct(etf[key], 2) + '</div>' +
+              '</div>' +
+            '</div>';
+        });
+        html += '</div>';
+      }
+    }
 
     // Ranking der Sektoren bzw. Branchen
     var rankGroups = state.sector
