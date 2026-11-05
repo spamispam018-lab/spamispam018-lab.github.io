@@ -223,7 +223,17 @@ def process_analyst_data(info, ticker_obj, cur):
                 })
     except Exception:
         pass
-    return {"targets": targets, "recommendations": recommendations, "epsEstimates": eps_estimates}
+    def _ts_date(v):
+        try:
+            if v:
+                return datetime.fromtimestamp(v, timezone.utc).date().isoformat()
+        except Exception:
+            pass
+        return None
+
+    next_earnings_date = _ts_date(info.get("earningsTimestampStart") or info.get("earningsTimestamp"))
+    return {"targets": targets, "recommendations": recommendations, "epsEstimates": eps_estimates,
+            "nextEarningsDate": next_earnings_date}
 
 def fetch_full_stock(ticker_sym):
     t = yf.Ticker(ticker_sym)
@@ -420,6 +430,13 @@ def screener_extras(st):
     if tgt and px:
         out["upside"] = round((tgt / px - 1) * 100, 1)
     out["analystCount"] = targets.get("analystCount")  # Kursziel nur ab ~5 Analysten aussagekräftig
+    analysts_block = st.get("analysts") or {}
+    out["nextEarningsDate"] = analysts_block.get("nextEarningsDate")
+    _recs = analysts_block.get("recommendations") or {}
+    out["recScore"] = _recs.get("score")
+    bd = _recs.get("breakdown") or {}
+    _tot = sum(int(bd.get(k) or 0) for k in ("strongBuy", "buy", "hold", "sell", "strongSell"))
+    out["buyPct"] = round((int(bd.get("strongBuy") or 0) + int(bd.get("buy") or 0)) / _tot * 100, 1) if _tot else None
     out["updatedAt"] = st.get("updatedAt")             # Datenstand für die Anzeige im Screener
     return out
 
@@ -453,6 +470,15 @@ def run_delta_sync(tickers):
             stock_data = fetch_full_stock(sym)
 
         cur = stock_data.get("profile", {}).get("nativeCurrency") or detect_native_currency(sym)
+
+        # Einmal-Migration: Analysten-/Earnings-Block ergänzen, falls noch nicht vorhanden
+        if not (stock_data.get("analysts") or {}).get("nextEarningsDate"):
+            try:
+                _t = yf.Ticker(sym)
+                stock_data["analysts"] = process_analyst_data(_t.info or {}, _t, cur)
+                print(f"Analysten-Daten für {sym} ergänzt")
+            except Exception:
+                pass
 
         try:
             df_sym = batch_df[sym] if len(tickers) > 1 else batch_df
