@@ -1427,7 +1427,7 @@
   },
   "analysts": {
     "targets": {
-      "current": 56.14,
+      "current": 59.06,
       "low": 41.5,
       "median": 61.0,
       "mean": 60.3896,
@@ -1467,6 +1467,14 @@
           "strongBuy": 7,
           "buy": 13,
           "hold": 3,
+          "sell": 1,
+          "strongSell": 0
+        },
+        {
+          "period": "-3m",
+          "strongBuy": 7,
+          "buy": 13,
+          "hold": 3,
           "sell": 0,
           "strongSell": 1
         }
@@ -1487,7 +1495,7 @@
       },
       {
         "quarter": "2026-04-30",
-        "estimate": 0.4398,
+        "estimate": 0.4397,
         "actual": 0.441,
         "surprisePercent": 0.0028
       },
@@ -1497,7 +1505,8 @@
         "actual": 0.515,
         "surprisePercent": -0.0377
       }
-    ]
+    ],
+    "nextEarningsDate": "2026-12-02"
   },
   "insider": {
     "summary": {
@@ -4081,5 +4090,5 @@
       "volume": 2921964.0
     }
   ],
-  "updatedAt": "2026-11-05T07:09:25.724684+00:00"
+  "updatedAt": "2026-11-05T07:31:06.727092+00:00"
 }

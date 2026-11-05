@@ -11,8 +11,8 @@
     "exchange": "LSE"
   },
   "quote": {
-    "price": 46.2988,
-    "change": -0.6891,
+    "price": 46.3149,
+    "change": -0.6893,
     "changePercent": -1.47,
     "marketCap": 2746149635.5344,
     "fiftyTwoWeekLow": 30.5995,
@@ -2232,11 +2232,11 @@
   },
   "analysts": {
     "targets": {
-      "current": 48.3656,
-      "low": 41.2722,
-      "median": 49.2235,
-      "mean": 48.9849,
-      "high": 59.2058,
+      "current": 45.4998,
+      "low": 41.0486,
+      "median": 48.9568,
+      "mean": 49.1361,
+      "high": 58.8851,
       "currency": "EUR",
       "analystCount": 16
     },
@@ -2262,13 +2262,21 @@
         {
           "period": "-1m",
           "strongBuy": 3,
-          "buy": 6,
+          "buy": 7,
           "hold": 9,
           "sell": 0,
           "strongSell": 0
         },
         {
           "period": "-2m",
+          "strongBuy": 3,
+          "buy": 6,
+          "hold": 9,
+          "sell": 0,
+          "strongSell": 0
+        },
+        {
+          "period": "-3m",
           "strongBuy": 2,
           "buy": 6,
           "hold": 10,
@@ -2302,7 +2310,8 @@
         "actual": 0.0231,
         "surprisePercent": 0.0744
       }
-    ]
+    ],
+    "nextEarningsDate": "2026-10-29"
   },
   "insider": {
     "summary": {
@@ -5178,7 +5187,7 @@
     },
     {
       "date": "2026-11-03",
-      "close": 46.2988,
+      "close": 46.3149,
       "volume": 7352848.0
     },
     {
@@ -5187,5 +5196,5 @@
       "volume": 10692353.0
     }
   ],
-  "updatedAt": "2026-11-05T07:09:25.643749+00:00"
+  "updatedAt": "2026-11-05T07:31:04.473664+00:00"
 }

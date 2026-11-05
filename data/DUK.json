@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 114.9982,
-    "change": 2.7332,
+    "price": 115.2185,
+    "change": 2.7385,
     "changePercent": 2.43,
     "marketCap": 88807611673.1208,
     "fiftyTwoWeekLow": 100.4968,
@@ -2010,11 +2010,11 @@
   },
   "analysts": {
     "targets": {
-      "current": 113.8994,
-      "low": 108.1861,
-      "median": 116.233,
-      "mean": 117.786,
-      "high": 127.8563,
+      "current": 115.2185,
+      "low": 107.5811,
+      "median": 115.583,
+      "mean": 117.1273,
+      "high": 127.1413,
       "currency": "EUR",
       "analystCount": 19
     },
@@ -2041,12 +2041,20 @@
           "period": "-1m",
           "strongBuy": 3,
           "buy": 9,
-          "hold": 10,
+          "hold": 11,
           "sell": 0,
           "strongSell": 0
         },
         {
           "period": "-2m",
+          "strongBuy": 3,
+          "buy": 9,
+          "hold": 10,
+          "sell": 0,
+          "strongSell": 0
+        },
+        {
+          "period": "-3m",
           "strongBuy": 2,
           "buy": 9,
           "hold": 11,
@@ -2058,29 +2066,30 @@
     "epsEstimates": [
       {
         "quarter": "2025-09-30",
-        "estimate": 1.5643,
-        "actual": 1.6183,
+        "estimate": 1.5556,
+        "actual": 1.6093,
         "surprisePercent": 0.0345
       },
       {
         "quarter": "2025-12-31",
-        "estimate": 1.3346,
-        "actual": 1.3411,
+        "estimate": 1.3272,
+        "actual": 1.3337,
         "surprisePercent": 0.0049
       },
       {
         "quarter": "2026-03-31",
-        "estimate": 1.6092,
-        "actual": 1.7256,
+        "estimate": 1.6002,
+        "actual": 1.716,
         "surprisePercent": 0.0724
       },
       {
         "quarter": "2026-06-30",
-        "estimate": 1.1664,
-        "actual": 1.2786,
+        "estimate": 1.1599,
+        "actual": 1.2714,
         "surprisePercent": 0.0961
       }
-    ]
+    ],
+    "nextEarningsDate": "2026-11-05"
   },
   "insider": {
     "summary": {
@@ -4931,9 +4940,9 @@
     },
     {
       "date": "2026-11-04",
-      "close": 114.9982,
+      "close": 115.2185,
       "volume": 6957000.0
     }
   ],
-  "updatedAt": "2026-11-05T07:09:27.738346+00:00"
+  "updatedAt": "2026-11-05T07:32:02.951208+00:00"
 }

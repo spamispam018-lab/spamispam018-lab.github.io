@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 11.2434,
-    "change": 0.3195,
+    "price": 11.2649,
+    "change": 0.3201,
     "changePercent": 2.92,
     "marketCap": 43736612797.3983,
     "fiftyTwoWeekLow": 9.9335,
@@ -2145,11 +2145,11 @@
   },
   "analysts": {
     "targets": {
-      "current": 10.9527,
-      "low": 10.7292,
-      "median": 13.0717,
-      "mean": 13.637,
-      "high": 17.882,
+      "current": 11.2649,
+      "low": 10.6692,
+      "median": 12.5541,
+      "mean": 13.462,
+      "high": 17.782,
       "currency": "EUR",
       "analystCount": 18
     },
@@ -2185,6 +2185,14 @@
           "strongBuy": 3,
           "buy": 5,
           "hold": 12,
+          "sell": 0,
+          "strongSell": 0
+        },
+        {
+          "period": "-3m",
+          "strongBuy": 3,
+          "buy": 5,
+          "hold": 12,
           "sell": 1,
           "strongSell": 0
         }
@@ -2193,29 +2201,30 @@
     "epsEstimates": [
       {
         "quarter": "2025-12-31",
-        "estimate": 0.1731,
-        "actual": 0.1162,
+        "estimate": 0.1721,
+        "actual": 0.1156,
         "surprisePercent": -0.3287
       },
       {
         "quarter": "2026-03-31",
-        "estimate": 0.1655,
-        "actual": 0.5901,
+        "estimate": 0.1646,
+        "actual": 0.5868,
         "surprisePercent": 2.5664
       },
       {
         "quarter": "2026-06-30",
-        "estimate": 0.3096,
-        "actual": 0.3755,
+        "estimate": 0.3079,
+        "actual": 0.3734,
         "surprisePercent": 0.2127
       },
       {
         "quarter": "2026-09-30",
-        "estimate": 0.3608,
-        "actual": 0.4381,
+        "estimate": 0.3588,
+        "actual": 0.4357,
         "surprisePercent": 0.2144
       }
-    ]
+    ],
+    "nextEarningsDate": "2026-10-28"
   },
   "insider": {
     "summary": {
@@ -5066,9 +5075,9 @@
     },
     {
       "date": "2026-11-04",
-      "close": 11.2434,
+      "close": 11.2649,
       "volume": 54638700.0
     }
   ],
-  "updatedAt": "2026-11-05T07:09:28.142938+00:00"
+  "updatedAt": "2026-11-05T07:32:14.320021+00:00"
 }

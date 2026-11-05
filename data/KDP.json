@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 32.6474,
-    "change": 1.8191,
+    "price": 32.71,
+    "change": 1.8227,
     "changePercent": 5.9,
     "marketCap": 43607046635.3597,
     "fiftyTwoWeekLow": 22.2452,
@@ -2340,11 +2340,11 @@
   },
   "analysts": {
     "targets": {
-      "current": 32.0445,
-      "low": 25.9289,
-      "median": 33.9758,
-      "mean": 32.5295,
-      "high": 37.5522,
+      "current": 32.71,
+      "low": 25.7839,
+      "median": 33.7858,
+      "mean": 32.8706,
+      "high": 37.3422,
       "currency": "EUR",
       "analystCount": 17
     },
@@ -2382,35 +2382,44 @@
           "hold": 5,
           "sell": 0,
           "strongSell": 0
+        },
+        {
+          "period": "-3m",
+          "strongBuy": 5,
+          "buy": 8,
+          "hold": 5,
+          "sell": 0,
+          "strongSell": 0
         }
       ]
     },
     "epsEstimates": [
       {
-        "quarter": "2025-09-30",
-        "estimate": 0.4807,
-        "actual": 0.4828,
-        "surprisePercent": 0.0044
-      },
-      {
         "quarter": "2025-12-31",
-        "estimate": 0.5264,
-        "actual": 0.5365,
+        "estimate": 0.5234,
+        "actual": 0.5335,
         "surprisePercent": 0.0191
       },
       {
         "quarter": "2026-03-31",
-        "estimate": 0.3345,
-        "actual": 0.3487,
+        "estimate": 0.3326,
+        "actual": 0.3467,
         "surprisePercent": 0.0425
       },
       {
         "quarter": "2026-06-30",
-        "estimate": 0.48,
-        "actual": 0.5096,
+        "estimate": 0.4773,
+        "actual": 0.5068,
         "surprisePercent": 0.0618
+      },
+      {
+        "quarter": "2026-09-30",
+        "estimate": 0.5515,
+        "actual": 0.5868,
+        "surprisePercent": 0.0639
       }
-    ]
+    ],
+    "nextEarningsDate": "2026-11-03"
   },
   "insider": {
     "summary": {
@@ -5261,9 +5270,9 @@
     },
     {
       "date": "2026-11-04",
-      "close": 32.6474,
+      "close": 32.71,
       "volume": 28586600.0
     }
   ],
-  "updatedAt": "2026-11-05T07:09:28.715975+00:00"
+  "updatedAt": "2026-11-05T07:32:30.047676+00:00"
 }

@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 567.2704,
-    "change": -60.503,
+    "price": 568.3572,
+    "change": -60.6188,
     "changePercent": -9.64,
     "marketCap": 26601316658.3733,
     "fiftyTwoWeekLow": 505.095,
@@ -2054,11 +2054,11 @@
   },
   "analysts": {
     "targets": {
-      "current": 607.5857,
-      "low": 616.929,
-      "median": 857.4419,
-      "mean": 840.901,
-      "high": 1072.92,
+      "current": 568.3572,
+      "low": 613.479,
+      "median": 817.0829,
+      "mean": 806.5249,
+      "high": 1066.92,
       "currency": "EUR",
       "analystCount": 8
     },
@@ -2085,6 +2085,14 @@
           "period": "-1m",
           "strongBuy": 0,
           "buy": 7,
+          "hold": 4,
+          "sell": 0,
+          "strongSell": 0
+        },
+        {
+          "period": "-2m",
+          "strongBuy": 0,
+          "buy": 7,
           "hold": 3,
           "sell": 0,
           "strongSell": 0
@@ -2094,29 +2102,30 @@
     "epsEstimates": [
       {
         "quarter": "2025-12-31",
-        "estimate": 5.9737,
-        "actual": 6.4286,
+        "estimate": 5.9403,
+        "actual": 6.3926,
         "surprisePercent": 0.0761
       },
       {
         "quarter": "2026-03-31",
-        "estimate": 5.2791,
-        "actual": 6.1156,
+        "estimate": 5.2496,
+        "actual": 6.0814,
         "surprisePercent": 0.1585
       },
       {
         "quarter": "2026-06-30",
-        "estimate": 6.4653,
-        "actual": 8.1005,
+        "estimate": 6.4292,
+        "actual": 8.0552,
         "surprisePercent": 0.2529
       },
       {
         "quarter": "2026-09-30",
-        "estimate": 7.4646,
-        "actual": 8.5834,
-        "surprisePercent": 0.1499
+        "estimate": 7.43,
+        "actual": 8.5354,
+        "surprisePercent": 0.1488
       }
-    ]
+    ],
+    "nextEarningsDate": "2026-10-29"
   },
   "insider": {
     "summary": {
@@ -4967,9 +4976,9 @@
     },
     {
       "date": "2026-11-04",
-      "close": 567.2704,
+      "close": 568.3572,
       "volume": 873500.0
     }
   ],
-  "updatedAt": "2026-11-05T07:09:27.825018+00:00"
+  "updatedAt": "2026-11-05T07:32:05.345437+00:00"
 }

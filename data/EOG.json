@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 130.501,
-    "change": -7.1969,
+    "price": 130.751,
+    "change": -7.2106,
     "changePercent": -5.23,
     "marketCap": 78833979943.1197,
     "fiftyTwoWeekLow": 90.8316,
@@ -1742,11 +1742,11 @@
   },
   "analysts": {
     "targets": {
-      "current": 148.0093,
-      "low": 126.0681,
-      "median": 146.6324,
-      "mean": 149.438,
-      "high": 190.4433,
+      "current": 130.751,
+      "low": 125.3631,
+      "median": 145.8124,
+      "mean": 148.6023,
+      "high": 189.3783,
       "currency": "EUR",
       "analystCount": 29
     },
@@ -1773,12 +1773,20 @@
           "period": "-1m",
           "strongBuy": 1,
           "buy": 10,
-          "hold": 21,
+          "hold": 22,
           "sell": 0,
           "strongSell": 0
         },
         {
           "period": "-2m",
+          "strongBuy": 1,
+          "buy": 10,
+          "hold": 21,
+          "sell": 0,
+          "strongSell": 0
+        },
+        {
+          "period": "-3m",
           "strongBuy": 1,
           "buy": 10,
           "hold": 19,
@@ -1790,29 +1798,30 @@
     "epsEstimates": [
       {
         "quarter": "2025-09-30",
-        "estimate": 2.1873,
-        "actual": 2.423,
+        "estimate": 2.1751,
+        "actual": 2.4095,
         "surprisePercent": 0.1077
       },
       {
         "quarter": "2025-12-31",
-        "estimate": 1.9633,
-        "actual": 2.0296,
+        "estimate": 1.9523,
+        "actual": 2.0183,
         "surprisePercent": 0.0338
       },
       {
         "quarter": "2026-03-31",
-        "estimate": 2.8704,
-        "actual": 3.0489,
+        "estimate": 2.8544,
+        "actual": 3.0318,
         "surprisePercent": 0.0622
       },
       {
         "quarter": "2026-06-30",
-        "estimate": 4.4398,
-        "actual": 4.5331,
+        "estimate": 4.415,
+        "actual": 4.5077,
         "surprisePercent": 0.021
       }
-    ]
+    ],
+    "nextEarningsDate": "2026-11-05"
   },
   "insider": {
     "summary": {
@@ -4663,9 +4672,9 @@
     },
     {
       "date": "2026-11-04",
-      "close": 130.501,
+      "close": 130.751,
       "volume": 5096500.0
     }
   ],
-  "updatedAt": "2026-11-05T07:09:27.853711+00:00"
+  "updatedAt": "2026-11-05T07:32:06.092933+00:00"
 }

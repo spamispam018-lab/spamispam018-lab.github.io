@@ -1846,17 +1846,17 @@
   },
   "analysts": {
     "targets": {
-      "current": 32.75,
+      "current": 34.29,
       "low": 22.63,
-      "median": 39.0,
-      "mean": 37.1724,
+      "median": 38.5,
+      "mean": 37.4406,
       "high": 44.0,
       "currency": "EUR",
-      "analystCount": 17
+      "analystCount": 18
     },
     "recommendations": {
-      "score": 2.5556,
-      "key": "hold",
+      "score": 2.4737,
+      "key": "buy",
       "breakdown": {
         "strongBuy": 3,
         "buy": 5,
@@ -1868,7 +1868,7 @@
         {
           "period": "0m",
           "strongBuy": 3,
-          "buy": 4,
+          "buy": 5,
           "hold": 9,
           "sell": 1,
           "strongSell": 1
@@ -1876,7 +1876,7 @@
         {
           "period": "-1m",
           "strongBuy": 3,
-          "buy": 5,
+          "buy": 4,
           "hold": 9,
           "sell": 1,
           "strongSell": 1
@@ -1888,16 +1888,18 @@
           "hold": 9,
           "sell": 1,
           "strongSell": 1
+        },
+        {
+          "period": "-3m",
+          "strongBuy": 3,
+          "buy": 5,
+          "hold": 9,
+          "sell": 1,
+          "strongSell": 1
         }
       ]
     },
     "epsEstimates": [
-      {
-        "quarter": "2025-09-30",
-        "estimate": 0.6125,
-        "actual": 0.67,
-        "surprisePercent": 0.0939
-      },
       {
         "quarter": "2025-12-31",
         "estimate": 0.6622,
@@ -1906,7 +1908,7 @@
       },
       {
         "quarter": "2026-03-31",
-        "estimate": 0.6108,
+        "estimate": 0.6109,
         "actual": 0.62,
         "surprisePercent": 0.015
       },
@@ -1915,8 +1917,15 @@
         "estimate": 0.6271,
         "actual": 0.64,
         "surprisePercent": 0.0205
+      },
+      {
+        "quarter": "2026-09-30",
+        "estimate": 0.6602,
+        "actual": 0.69,
+        "surprisePercent": 0.0452
       }
-    ]
+    ],
+    "nextEarningsDate": "2026-11-04"
   },
   "insider": {
     "summary": {
@@ -4500,5 +4509,5 @@
       "volume": 4102348.0
     }
   ],
-  "updatedAt": "2026-11-05T07:09:25.547132+00:00"
+  "updatedAt": "2026-11-05T07:31:01.275634+00:00"
 }

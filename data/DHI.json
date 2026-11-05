@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 139.3129,
-    "change": 10.4358,
+    "price": 139.5798,
+    "change": 10.4558,
     "changePercent": 8.1,
     "marketCap": 35432824079.9641,
     "fiftyTwoWeekLow": 116.5906,
@@ -1560,16 +1560,16 @@
   },
   "analysts": {
     "targets": {
-      "current": 130.5386,
-      "low": 101.9274,
-      "median": 134.115,
-      "mean": 132.9016,
-      "high": 166.3026,
+      "current": 139.5798,
+      "low": 101.3574,
+      "median": 132.0314,
+      "mean": 130.2532,
+      "high": 165.3726,
       "currency": "EUR",
       "analystCount": 14
     },
     "recommendations": {
-      "score": 2.7619,
+      "score": 2.8095,
       "key": "hold",
       "breakdown": {
         "strongBuy": 0,
@@ -1583,12 +1583,20 @@
           "period": "0m",
           "strongBuy": 0,
           "buy": 4,
+          "hold": 14,
+          "sell": 1,
+          "strongSell": 2
+        },
+        {
+          "period": "-1m",
+          "strongBuy": 0,
+          "buy": 4,
           "hold": 15,
           "sell": 1,
           "strongSell": 1
         },
         {
-          "period": "-1m",
+          "period": "-2m",
           "strongBuy": 0,
           "buy": 4,
           "hold": 13,
@@ -1596,7 +1604,7 @@
           "strongSell": 1
         },
         {
-          "period": "-2m",
+          "period": "-3m",
           "strongBuy": 0,
           "buy": 4,
           "hold": 13,
@@ -1608,29 +1616,30 @@
     "epsEstimates": [
       {
         "quarter": "2025-12-31",
-        "estimate": 1.7145,
-        "actual": 1.815,
+        "estimate": 1.7049,
+        "actual": 1.8049,
         "surprisePercent": 0.0586
       },
       {
         "quarter": "2026-03-31",
-        "estimate": 1.9124,
-        "actual": 2.0028,
+        "estimate": 1.9017,
+        "actual": 1.9916,
         "surprisePercent": 0.0473
       },
       {
         "quarter": "2026-06-30",
-        "estimate": 2.6717,
-        "actual": 2.8611,
+        "estimate": 2.6568,
+        "actual": 2.8451,
         "surprisePercent": 0.0709
       },
       {
         "quarter": "2026-09-30",
-        "estimate": 2.6866,
-        "actual": 2.3872,
+        "estimate": 2.6716,
+        "actual": 2.3739,
         "surprisePercent": -0.1114
       }
-    ]
+    ],
+    "nextEarningsDate": "2027-01-19"
   },
   "insider": {
     "summary": {
@@ -4481,9 +4490,9 @@
     },
     {
       "date": "2026-11-04",
-      "close": 139.3129,
+      "close": 139.5798,
       "volume": 5597800.0
     }
   ],
-  "updatedAt": "2026-11-05T07:09:27.719784+00:00"
+  "updatedAt": "2026-11-05T07:32:02.459650+00:00"
 }

@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 68.8267,
-    "change": 5.5728,
+    "price": 68.9586,
+    "change": 5.5836,
     "changePercent": 8.81,
     "marketCap": 67680676854.8679,
     "fiftyTwoWeekLow": 48.6963,
@@ -2276,11 +2276,11 @@
   },
   "analysts": {
     "targets": {
-      "current": 61.0581,
-      "low": 56.3283,
-      "median": 74.2103,
-      "mean": 72.2943,
-      "high": 89.41,
+      "current": 68.9586,
+      "low": 57.7915,
+      "median": 73.7953,
+      "mean": 72.1442,
+      "high": 88.91,
       "currency": "EUR",
       "analystCount": 21
     },
@@ -2318,35 +2318,44 @@
           "hold": 7,
           "sell": 1,
           "strongSell": 0
+        },
+        {
+          "period": "-3m",
+          "strongBuy": 6,
+          "buy": 10,
+          "hold": 7,
+          "sell": 1,
+          "strongSell": 0
         }
       ]
     },
     "epsEstimates": [
       {
         "quarter": "2025-12-31",
-        "estimate": 0.2102,
-        "actual": 0.7546,
+        "estimate": 0.209,
+        "actual": 0.7504,
         "surprisePercent": 2.5898
       },
       {
         "quarter": "2026-03-31",
-        "estimate": 0.2706,
-        "actual": 0.3022,
+        "estimate": 0.269,
+        "actual": 0.3005,
         "surprisePercent": 0.1171
       },
       {
         "quarter": "2026-06-30",
-        "estimate": 0.3411,
-        "actual": 0.3755,
+        "estimate": 0.3392,
+        "actual": 0.3734,
         "surprisePercent": 0.1009
       },
       {
         "quarter": "2026-09-30",
-        "estimate": 0.3972,
-        "actual": 0.3487,
+        "estimate": 0.3949,
+        "actual": 0.3467,
         "surprisePercent": -0.122
       }
-    ]
+    ],
+    "nextEarningsDate": "2026-10-28"
   },
   "insider": {
     "summary": {
@@ -5197,9 +5206,9 @@
     },
     {
       "date": "2026-11-04",
-      "close": 68.8267,
+      "close": 68.9586,
       "volume": 21108300.0
     }
   ],
-  "updatedAt": "2026-11-05T07:09:27.097576+00:00"
+  "updatedAt": "2026-11-05T07:31:45.924222+00:00"
 }
