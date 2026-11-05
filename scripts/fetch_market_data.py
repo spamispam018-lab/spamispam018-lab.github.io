@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-scripts/fetch_market_data.py
+scripts/fetch_market_data.py[span_0](start_span)[span_0](end_span)
 Delta-fähiges Marktdaten-Update für USA, Europa und Japan.
 Garantiert echte Umrechnung aller ausländischen Währungen (JPY, USD, GBP, CHF) in Euro (EUR).
 """
@@ -43,11 +43,17 @@ TICKERS_JAPAN = [
     "9432.T", "6954.T", "7741.T", "6367.T", "4568.T", "6981.T", "8766.T", "7751.T", "6503.T"
 ]
 
+TICKERS_ETFS = [
+    "EUNL.DE",  # iShares Core MSCI World USD (Acc)
+    "AMEM.DE",  # Amundi MSCI Emerging Markets (Acc)
+    "SPYI.DE"   # SPDR MSCI ACWI IMI (Acc)
+]
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from index_lists import SP500, DAX, MDAX, dedupe  # noqa: E402
 
-# Gesamtuniversum: handgepflegte Listen + S&P 500 + DAX + MDAX (ohne Doppelungen)
-ALL_TICKERS = dedupe(TICKERS_USA, TICKERS_EUROPE, TICKERS_JAPAN, DAX, MDAX, SP500)
+# Gesamtuniversum: handgepflegte Listen + S&P 500 + DAX + MDAX + ETFs (ohne Doppelungen)
+ALL_TICKERS = dedupe(TICKERS_USA, TICKERS_EUROPE, TICKERS_JAPAN, TICKERS_ETFS, DAX, MDAX, SP500)
 print(f"Universum: {len(ALL_TICKERS)} Ticker")
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
