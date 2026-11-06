@@ -89,20 +89,20 @@ window.App.Earnings = (function () {
           var avg = avgSurprise(it.epsEstimates);
           var last = (it.epsEstimates || []).slice(-1)[0];
           html += '' +
-            '<div class="card" style="padding: 10px 14px; margin-bottom: 8px;">' +
-              '<div style="display: flex; justify-content: space-between; align-items: center;">' +
-                '<div style="cursor: pointer;" class="ec-goto" data-ticker="' + esc(it.ticker) + '">' +
+            '<div class="card" style="padding: 12px 14px; margin-bottom: 8px;">' +
+              '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">' +
+                '<div style="cursor: pointer; min-width: 0; flex: 1;" class="ec-goto" data-ticker="' + esc(it.ticker) + '">' +
                   '<strong>' + esc(it.ticker) + '</strong>' +
-                  '<span style="font-size: 0.72rem; color: var(--text-dim);"> ' + esc(it.name) + '</span>' +
-                  '<div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 2px;">' +
+                  '<div style="font-size: 0.72rem; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + esc(it.name) + '</div>' +
+                  '<div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 4px; line-height: 1.5;">' +
                     (avg !== null
                       ? 'Ø EPS-Überraschung (4Q): <span style="color:' + (avg >= 0 ? 'var(--bullish, #34d399)' : 'var(--bearish, #f87171)') + ';">' + F.percent(avg, true, 1) + '</span>'
                       : 'Keine EPS-Historie') +
                     (last && last.surprisePercent !== null && last.surprisePercent !== undefined
-                      ? ' · letztes Q: ' + F.percent(last.surprisePercent, true, 1) : '') +
+                      ? '<br>letztes Q: ' + F.percent(last.surprisePercent, true, 1) : '') +
                   '</div>' +
                 '</div>' +
-                '<div style="text-align: right;">' +
+                '<div style="text-align: right; flex-shrink: 0; white-space: nowrap;">' +
                   (it.nextDate
                     ? '<div style="font-weight: 700;">' + F.date(it.nextDate) + '</div>'
                     : '') +
