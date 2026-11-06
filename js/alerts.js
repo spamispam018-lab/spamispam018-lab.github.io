@@ -108,21 +108,17 @@ window.App.Alerts = (function () {
       var active = alerts.filter(function (a) { return !a.triggeredAt; });
       var done = alerts.filter(function (a) { return a.triggeredAt; });
 
-      var datalist = universe.map(function (u) {
-        return '<option value="' + esc(u.ticker) + '">' + esc(u.name) + '</option>';
-      }).join('');
-
       var html = '' +
         '<div class="card" style="padding: 14px 16px; margin-bottom: 14px;">' +
           '<div class="card-header-dotted"><span class="card-title">Neuer Preisalarm</span></div>' +
           '<div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px;">' +
-            '<div style="min-width: 0;"><label style="display: block; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 4px;">Ticker</label>' +
-              '<input id="al-in-ticker" class="search-input" style="width: 100%; box-sizing: border-box; height: 40px; text-align: left; text-transform: uppercase;" list="al-tickers" placeholder="TSLA" autocomplete="off" autocapitalize="characters">' +
-              '<datalist id="al-tickers">' + datalist + '</datalist></div>' +
+            '<div style="min-width: 0; position: relative;"><label style="display: block; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 4px;">Ticker</label>' +
+              '<input id="al-in-ticker" class="search-input" style="width: 100%; box-sizing: border-box; height: 40px; padding: 0 12px; background-image: none; text-align: left; text-transform: uppercase;" placeholder="TSLA" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false">' +
+              '<div id="al-suggest" style="display: none; position: absolute; top: 100%; left: 0; width: calc(200% + 10px); margin-top: 4px; z-index: 30; max-height: 252px; overflow-y: auto; background: #1e293b; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);"></div></div>' +
             '<div style="min-width: 0;"><label style="display: block; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 4px;">Zielkurs (€)</label>' +
-              '<input id="al-in-target" class="search-input" style="width: 100%; box-sizing: border-box; height: 40px; text-align: left;" type="number" inputmode="decimal" min="0" step="any" placeholder="200"></div>' +
+              '<input id="al-in-target" class="search-input" style="width: 100%; box-sizing: border-box; height: 40px; padding: 0 12px; background-image: none; text-align: left;" type="number" inputmode="decimal" min="0" step="any" placeholder="200"></div>' +
             '<div style="min-width: 0;"><label style="display: block; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 4px;">Richtung</label>' +
-              '<select id="al-in-dir" class="search-input" style="width: 100%; box-sizing: border-box; height: 40px; text-align: left;">' +
+              '<select id="al-in-dir" class="search-input" style="width: 100%; box-sizing: border-box; height: 40px; padding: 0 10px; text-align: left;">' +
                 '<option value="above">Steigt über ⬆</option>' +
                 '<option value="below">Fällt unter ⬇</option>' +
               '</select></div>' +
@@ -172,6 +168,39 @@ window.App.Alerts = (function () {
       }
 
       container.innerHTML = html;
+
+      var tIn = document.getElementById('al-in-ticker');
+      var sug = document.getElementById('al-suggest');
+      function hideSug() { sug.style.display = 'none'; sug.innerHTML = ''; }
+      function renderSug() {
+        var q = (tIn.value || '').trim().toUpperCase();
+        if (!q) { hideSug(); return; }
+        var hits = universe.filter(function (u) {
+          return u.ticker.toUpperCase().indexOf(q) === 0 || String(u.name || '').toUpperCase().indexOf(q) !== -1;
+        }).sort(function (x, y) {
+          var xs = x.ticker.toUpperCase().indexOf(q) === 0 ? 0 : 1;
+          var ys = y.ticker.toUpperCase().indexOf(q) === 0 ? 0 : 1;
+          return xs - ys || x.ticker.localeCompare(y.ticker);
+        }).slice(0, 6);
+        if (!hits.length) { hideSug(); return; }
+        sug.innerHTML = hits.map(function (u) {
+          return '<div class="al-sug" data-t="' + esc(u.ticker) + '" style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer; display: flex; justify-content: space-between; gap: 10px; align-items: baseline;">' +
+            '<strong style="flex-shrink: 0;">' + esc(u.ticker) + '</strong>' +
+            '<span style="font-size: 0.72rem; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + esc(u.name || '') + '</span></div>';
+        }).join('');
+        sug.style.display = 'block';
+        sug.querySelectorAll('.al-sug').forEach(function (el) {
+          el.onclick = function () {
+            tIn.value = el.getAttribute('data-t');
+            hideSug();
+            var tg = document.getElementById('al-in-target');
+            if (tg) tg.focus();
+          };
+        });
+      }
+      tIn.addEventListener('input', renderSug);
+      tIn.addEventListener('focus', renderSug);
+      tIn.addEventListener('blur', function () { setTimeout(hideSug, 200); });
 
       document.getElementById('al-add-btn').onclick = function () {
         var t = (document.getElementById('al-in-ticker').value || '').trim().toUpperCase();
