@@ -202,3 +202,4 @@ window.App.Watchlist = (function () {
     initView: initView
   };
 })();
+
