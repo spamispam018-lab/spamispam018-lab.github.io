@@ -33,9 +33,9 @@ window.App.Watchlist = (function () {
     ];
 
     container.innerHTML = '' +
-      '<div class="horizontal-scroll-row" style="margin-bottom: 12px;">' +
+      '<div class="horizontal-scroll-row" style="margin-bottom: 12px; padding: 4px 16px; gap: 8px; box-sizing: border-box;">' +
         tabs.map(function (t) {
-          return '<button class="chip-btn ' + (tab === t.id ? 'active' : '') + '" data-wl-tab="' + t.id + '">' + t.label + '</button>';
+          return '<button class="chip-btn ' + (tab === t.id ? 'active' : '') + '" style="flex-shrink: 0; white-space: nowrap;" data-wl-tab="' + t.id + '">' + t.label + '</button>';
         }).join('') +
       '</div>' +
       '<div id="watchlist-tab-content"></div>';
@@ -48,6 +48,12 @@ window.App.Watchlist = (function () {
 
     var host = document.getElementById('watchlist-tab-content');
     if (!host) return;
+
+    // Alarme & Termine bekommen denselben Seitenrand wie die Werte-Ansicht
+    if (tab === 'alerts' || tab === 'earnings') {
+      host.style.padding = '0 16px 24px';
+      host.style.boxSizing = 'border-box';
+    }
 
     if (tab === 'alerts') {
       if (window.App.Alerts) { window.App.Alerts.initView(host); } else {
