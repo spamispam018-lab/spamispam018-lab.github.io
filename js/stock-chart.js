@@ -3,7 +3,7 @@
  * Chart-Analyse-Tab der Aktiendetailseite (nach "Overview"):
  * - Steuerung des Analyse-Zeitraums (1W, 1M, 3M, 6M, 1J)
  * - Technisches Bild (Signale zu SMA 50/200, RSI, MACD, dynamisches Momentum)
- * - Chart-Tools Toolbar: Bollinger, VWAP, Fibo, Support/Resistance, Pivots, Patterns, Risk/Reward
+ * - Chart-Tools Toolbar: Bollinger, VWAP, Fibo, Support/Resistance, Pivots, Patterns, Risk/Reward (inkl. Glossar)
  * - Risiko & Volumen (Volatilität, Drawdown, Abstand zu Hoch/Tief, Volumentrend)
  *
  * Alle Indikatoren werden im Browser aus stock.chartHistory berechnet.
@@ -115,7 +115,7 @@ window.App.StockChart = (function () {
   }
 
   // ---------------------------------------------------------------------------
-  // NEUE Chart-Tools Berechnungen
+  // Chart-Tools Berechnungen
   // ---------------------------------------------------------------------------
 
   function bollingerBands(closes, n, k) {
@@ -159,10 +159,15 @@ window.App.StockChart = (function () {
     var max = Math.max.apply(null, data), min = Math.min.apply(null, data);
     var current = data[data.length - 1];
     
-    // Prüfen, ob der aktuelle Kurs ein vorheriges Top/Bottom erneut testet (Toleranz 2%)
     if (Math.abs(current - max) / max < 0.02) return { type: 'Double Top (Widerstand)', val: max };
     if (Math.abs(current - min) / min < 0.02) return { type: 'Double Bottom (Unterstützung)', val: min };
     return null;
+  }
+
+  function fillArr(val, len) {
+    var a = [];
+    for (var i = 0; i < len; i++) a.push(val);
+    return a;
   }
 
   // ---------------------------------------------------------------------------
@@ -237,7 +242,6 @@ window.App.StockChart = (function () {
       var k = weekKey(p.date);
       if (!cur || cur.key !== k) {
         if (cur) { weeks.push(cur); prevClose = cur.c; }
-        // Nutze den echten Open aus Python, falls vorhanden, sonst Fallback auf PrevClose
         var o = p.open || (prevClose !== null ? prevClose : p.close);
         cur = { key: k, date: p.date, o: o, h: p.high || Math.max(o, p.close), l: p.low || Math.min(o, p.close), c: p.close };
       } else {
@@ -518,20 +522,18 @@ window.App.StockChart = (function () {
         '</div>' +
       '</div>' +
 
-      '<!-- Chart Tools Toolbar -->' +
-      '<div class="horizontal-scroll-row" id="chart-tools-toolbar" style="margin-bottom: 12px; padding-bottom: 4px;">' +
-        '<button class="chip-btn ' + (activeTools.bollinger ? 'active' : '') + '" data-tool="bollinger">Bollinger</button>' +
-        '<button class="chip-btn ' + (activeTools.vwap ? 'active' : '') + '" data-tool="vwap">AVWAP</button>' +
-        '<button class="chip-btn ' + (activeTools.fibo ? 'active' : '') + '" data-tool="fibo">Fibonacci</button>' +
-        '<button class="chip-btn ' + (activeTools.sr ? 'active' : '') + '" data-tool="sr">Support/Res</button>' +
-        '<button class="chip-btn ' + (activeTools.pivot ? 'active' : '') + '" data-tool="pivot">Pivots</button>' +
-        '<button class="chip-btn ' + (activeTools.pattern ? 'active' : '') + '" data-tool="pattern">Patterns</button>' +
-        '<button class="chip-btn ' + (activeTools.rr ? 'active' : '') + '" data-tool="rr" style="border-color: var(--accent-purple); color: var(--accent-purple-light);">Risk/Reward</button>' +
-      '</div>' +
-
-      '<!-- Kurs + SMA -->' +
+      '<!-- Kurs + SMA & Tools Toolbar -->' +
       '<div class="card">' +
         '<div class="card-header-dotted"><span class="card-title">Kurs &amp; Chart Tools</span></div>' +
+        '<div class="horizontal-scroll-row" id="chart-tools-toolbar" style="margin-top: 8px; margin-bottom: 8px; padding-bottom: 4px;">' +
+          '<button class="chip-btn ' + (activeTools.bollinger ? 'active' : '') + '" data-tool="bollinger">Bollinger <span class="term-link" data-term="Bollinger" style="margin-left: 4px; opacity: 0.7;">ⓘ</span></button>' +
+          '<button class="chip-btn ' + (activeTools.vwap ? 'active' : '') + '" data-tool="vwap">AVWAP <span class="term-link" data-term="VWAP" style="margin-left: 4px; opacity: 0.7;">ⓘ</span></button>' +
+          '<button class="chip-btn ' + (activeTools.fibo ? 'active' : '') + '" data-tool="fibo">Fibonacci <span class="term-link" data-term="Fibo" style="margin-left: 4px; opacity: 0.7;">ⓘ</span></button>' +
+          '<button class="chip-btn ' + (activeTools.sr ? 'active' : '') + '" data-tool="sr">Support/Res <span class="term-link" data-term="Support" style="margin-left: 4px; opacity: 0.7;">ⓘ</span></button>' +
+          '<button class="chip-btn ' + (activeTools.pivot ? 'active' : '') + '" data-tool="pivot">Pivots <span class="term-link" data-term="Pivot" style="margin-left: 4px; opacity: 0.7;">ⓘ</span></button>' +
+          '<button class="chip-btn ' + (activeTools.pattern ? 'active' : '') + '" data-tool="pattern">Patterns <span class="term-link" data-term="Pattern" style="margin-left: 4px; opacity: 0.7;">ⓘ</span></button>' +
+          '<button class="chip-btn ' + (activeTools.rr ? 'active' : '') + '" data-tool="rr" style="border-color: var(--accent-purple); color: var(--accent-purple-light);">Risk/Reward <span class="term-link" data-term="RiskReward" style="margin-left: 4px; opacity: 0.7;">ⓘ</span></button>' +
+        '</div>' +
         '<div style="height: 220px; width: 100%; position: relative; margin-top: 8px;">' +
           '<canvas id="chart-tab-price" style="width: 100%; height: 220px; display: block;"></canvas>' +
         '</div>' +
@@ -570,7 +572,10 @@ window.App.StockChart = (function () {
 
     // Toolbar Tool-Events
     container.querySelectorAll('#chart-tools-toolbar .chip-btn').forEach(function(btn) {
-      btn.onclick = function() {
+      btn.onclick = function(e) {
+        // Ignoriere Klicks auf das Info-Icon, damit sich das Tool nicht an/aus schaltet
+        if (e.target.closest('.term-link')) return; 
+
         var tool = btn.getAttribute('data-tool');
         activeTools[tool] = !activeTools[tool]; 
         buildView(container, stock, hist); // Chart mit neuen Overlays re-rendern
@@ -612,20 +617,20 @@ window.App.StockChart = (function () {
       var fDiff = hi - lo;
       [0.382, 0.5, 0.618].forEach(function(lvl) {
         var val = hi - (fDiff * lvl);
-        seriesArr.push({ name: 'Fib ' + (lvl*100).toFixed(1)+'%', color: 'rgba(236,72,153,0.7)', values: new Array(tail).fill(val), width: 1, dash: [2, 4] });
+        seriesArr.push({ name: 'Fib ' + (lvl*100).toFixed(1)+'%', color: 'rgba(236,72,153,0.7)', values: fillArr(val, tail), width: 1, dash: [2, 4] });
       });
     }
 
     if (activeTools.sr) {
-      seriesArr.push({ name: 'Res', color: 'rgba(239,68,68,0.7)', values: new Array(tail).fill(hi), width: 1.5, dash: [10, 5] });
-      seriesArr.push({ name: 'Sup', color: 'rgba(16,185,129,0.7)', values: new Array(tail).fill(lo), width: 1.5, dash: [10, 5] });
+      seriesArr.push({ name: 'Res', color: 'rgba(239,68,68,0.7)', values: fillArr(hi, tail), width: 1.5, dash: [10, 5] });
+      seriesArr.push({ name: 'Sup', color: 'rgba(16,185,129,0.7)', values: fillArr(lo, tail), width: 1.5, dash: [10, 5] });
     }
 
     if (activeTools.pivot) {
       var pivs = pivotPoints(hi, lo, price);
-      seriesArr.push({ name: 'Pivot', color: '#a855f7', values: new Array(tail).fill(pivs.p), width: 1.5, dash: [5, 5] });
-      seriesArr.push({ name: 'R1', color: 'rgba(239,68,68,0.5)', values: new Array(tail).fill(pivs.r1), width: 1, dash: [5, 5] });
-      seriesArr.push({ name: 'S1', color: 'rgba(16,185,129,0.5)', values: new Array(tail).fill(pivs.s1), width: 1, dash: [5, 5] });
+      seriesArr.push({ name: 'Pivot', color: '#a855f7', values: fillArr(pivs.p, tail), width: 1.5, dash: [5, 5] });
+      seriesArr.push({ name: 'R1', color: 'rgba(239,68,68,0.5)', values: fillArr(pivs.r1, tail), width: 1, dash: [5, 5] });
+      seriesArr.push({ name: 'S1', color: 'rgba(16,185,129,0.5)', values: fillArr(pivs.s1, tail), width: 1, dash: [5, 5] });
     }
 
     window.App.Charts.renderMultiLineChart(document.getElementById('chart-tab-price'), {
@@ -694,22 +699,57 @@ window.App.StockChart = (function () {
     }).join('');
   }
 
+  // ---------------------------------------------------------------------------
+  // Glossar & Erklärungen (inkl. der neuen Tools)
+  // ---------------------------------------------------------------------------
+  
   var GLOSSARY = {
-    KGV: { name: 'KGV', text: 'Kurs-Gewinn-Verhältnis.' },
-    RSI: { name: 'RSI', text: 'Relative Strength Index (über 70 = überkauft).' }
+    // Originale
+    KGV: { name: 'KGV (Kurs-Gewinn-Verhältnis)', text: 'Der Aktienkurs geteilt durch den Gewinn je Aktie der letzten zwölf Monate. Er zeigt, wie viele Jahresgewinne du für den Kurs zahlst.' },
+    PEG: { name: 'PEG', text: 'Das KGV geteilt durch das erwartete Gewinnwachstum. Als Faustregel gilt: Unter 1 ist der Preis im Verhältnis zum Wachstum niedrig, über 2 ist er hoch.' },
+    Gewinnmarge: { name: 'Gewinnmarge', text: 'Der Anteil des Gewinns am Umsatz in Prozent. 20 % bedeutet: Von jedem Euro Umsatz bleiben 20 Cent als Gewinn.' },
+    Verschuldung: { name: 'Verschuldung (Debt/Equity)', text: 'Das Fremdkapital im Verhältnis zum Eigenkapital in Prozent. Hohe Werte bedeuten, dass das Unternehmen im Verhältnis zu seinem Eigenkapital viele Schulden hat.' },
+    Umsatzwachstum: { name: 'Umsatzwachstum', text: 'Die prozentuale Veränderung des Umsatzes gegenüber dem Vorjahr.' },
+    Verlust: { name: 'Verlust', text: 'Das Unternehmen hat im letzten Jahr mehr ausgegeben als eingenommen. Die Gewinnmarge ist negativ.' },
+    Spanne: { name: '52-Wochen-Spanne', text: 'Die Kursspanne zwischen dem tiefsten und dem höchsten Kurs der letzten zwölf Monate.' },
+    SMA: { name: 'SMA (gleitender Durchschnitt)', text: 'Der Durchschnittskurs der letzten 50 bzw. 200 Handelstage. Liegt der Kurs darüber, gilt das als Hinweis auf einen Aufwärtstrend.' },
+    Cross: { name: 'Golden Cross / Death Cross', text: 'Golden Cross: Die 50-Tage-Linie kreuzt die 200-Tage-Linie von unten nach oben (bullisch). Death Cross: umgekehrt (bärisch).' },
+    RSI: { name: 'RSI (14)', text: 'Der Relative Strength Index misst, wie stark der Kurs in den letzten 14 Tagen gestiegen oder gefallen ist. Über 70 = überkauft, unter 30 = überverkauft.' },
+    MACD: { name: 'MACD', text: 'Die Differenz zweier gleitender Durchschnitte. Liegt die MACD-Linie über der Signallinie, ist das Momentum positiv.' },
+    Momentum: { name: 'Momentum', text: 'Die prozentuale Kursveränderung im gewählten Zeitraum.' },
+    Volatilität: { name: 'Volatilität', text: 'Wie stark der Kurs im gewählten Zeitraum schwankt, aufs Jahr hochgerechnet.' },
+    Drawdown: { name: 'Maximaler Drawdown', text: 'Der größte prozentuale Rückgang vom zwischenzeitlichen Hoch bis zum folgenden Tief.' },
+    Volumen: { name: 'Volumentrend', text: 'Vergleicht das durchschnittliche Handelsvolumen der letzten 20 Tage mit dem der letzten 60 Tage.' },
+    
+    // Neue Chart-Tools
+    Bollinger: { name: 'Bollinger Bänder', text: 'Ein Volatilitätsindikator. Berührt der Kurs das obere Band, gilt der Markt oft als überkauft (Gegenreaktion möglich); am unteren Band als überverkauft.' },
+    VWAP: { name: 'AVWAP', text: 'Anchored Volume Weighted Average Price. Zeigt den volumengewichteten Durchschnittskurs für den angezeigten Zeitraum. Gilt bei institutionellen Investoren als extrem wichtige Unterstützungslinie.' },
+    Fibo: { name: 'Fibonacci Retracements', text: 'Prozentuale Rücksetzer-Marken (z. B. 61,8 % oder 38,2 %) zwischen dem Hoch und Tief des Charts. Hier drehen Kurse in Korrekturen besonders oft.' },
+    Support: { name: 'Support & Resistance', text: 'Zeichnet automatisch die Unterstützung (tiefster Kurs) und den Widerstand (höchster Kurs) im gewählten Zeitraum ein. An diesen Marken prallt der Kurs oft ab.' },
+    Pivot: { name: 'Pivot Points', text: 'Mathematisch berechnete Intraday/Kurzfrist-Wendepunkte (P) sowie Widerstands- (R1) und Unterstützungslevel (S1) auf Basis des letzten Hochs und Tiefs.' },
+    Pattern: { name: 'Pattern Scan', text: 'Sucht automatisch nach Chartmustern. Ein Doppeltop (M-Form) ist oft ein Verkaufssignal, ein Doppelboden (W-Form) ein Kaufsignal.' },
+    RiskReward: { name: 'Risk/Reward Tool', text: 'Ein interaktives Overlay, das ein fiktives Trade-Setup (Ziel +15 %, Stop Loss -7 %) simuliert und das daraus resultierende Chance-Risiko-Verhältnis (CRV) berechnet.' }
   };
 
-  var TERM_RULES = [[/^KGV/, 'KGV'], [/^RSI/, 'RSI']];
+  var TERM_RULES = [
+    [/^KGV/, 'KGV'], [/PEG/, 'PEG'], [/Gewinnmarge/, 'Gewinnmarge'], [/Verschuldung/, 'Verschuldung'],
+    [/Umsatz/, 'Umsatzwachstum'], [/Verlust/, 'Verlust'], [/Jahrestief|Spanne/, 'Spanne'],
+    [/RSI/, 'RSI'], [/MACD/, 'MACD'], [/Kreuz|Golden|Death|SMA 50 vs/, 'Cross'], [/SMA|Tage-Linie/, 'SMA'],
+    [/Momentum/, 'Momentum'], [/Volatilität/, 'Volatilität'], [/Drawdown/, 'Drawdown'], [/Volumen/, 'Volumen']
+  ];
 
   function termKeyFor(label) {
-    for (var i = 0; i < TERM_RULES.length; i++) if (TERM_RULES[i][0].test(label)) return TERM_RULES[i][1];
+    for (var i = 0; i < TERM_RULES.length; i++) {
+      if (TERM_RULES[i][0].test(label)) return TERM_RULES[i][1];
+    }
     return null;
   }
 
   function termLink(label) {
     var key = termKeyFor(label);
     if (!key || !GLOSSARY[key]) return label;
-    return '<span class="term-link" data-term="' + key + '" style="cursor: pointer; border-bottom: 1px dotted var(--text-dim);">' + label + ' ⓘ</span>';
+    return '<span class="term-link" data-term="' + key + '" style="cursor: pointer; border-bottom: 1px dotted var(--text-dim);">' +
+      label + ' <span style="font-size: 0.7em; opacity: 0.6;">ⓘ</span></span>';
   }
 
   function bindTerms(container) {
@@ -719,7 +759,25 @@ window.App.StockChart = (function () {
       var link = ev.target && ev.target.closest ? ev.target.closest('.term-link') : null;
       if (!link) return;
       var key = link.getAttribute('data-term');
-      if (GLOSSARY[key]) alert(GLOSSARY[key].name + ": " + GLOSSARY[key].text);
+      var card = link.closest('.card');
+      if (!card || !GLOSSARY[key]) return;
+      
+      var box = container.querySelector('#term-info');
+      if (box && box.getAttribute('data-term') === key && box.previousElementSibling === card) {
+        box.parentNode.removeChild(box);
+        return; // Box war schon offen -> schließen
+      }
+      if (!box) {
+        box = document.createElement('div');
+        box.id = 'term-info';
+      }
+      
+      box.setAttribute('data-term', key);
+      box.setAttribute('style', 'margin: -6px 0 16px; padding: 12px 14px; border-radius: var(--radius-sm); background-color: var(--bg-secondary); border: 1px solid var(--border-subtle); font-size: 0.8rem; color: var(--text-main); line-height: 1.45;');
+      box.innerHTML = '<div style="font-weight: 700; margin-bottom: 4px; color: var(--accent-purple-light);">' + GLOSSARY[key].name + '</div>' + GLOSSARY[key].text;
+      
+      // Box exakt unterhalb der aktuellen Karte (.card) einfügen
+      card.parentNode.insertBefore(box, card.nextSibling);
     });
   }
 
