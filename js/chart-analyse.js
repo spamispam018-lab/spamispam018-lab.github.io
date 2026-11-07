@@ -15,7 +15,6 @@ window.App.ChartAnalyse = (function () {
   var BIAS = { bull: '#22c55e', bear: '#ef4444', neutral: '#f59e0b' };
   var BIAS_TXT = { bull: 'bullisch', bear: 'bärisch', neutral: 'neutral' };
   
-  // UI-Status um "bollinger" erweitert
   var ui = { chart: true, candle: true, sr: false, zigzag: false, bollinger: false, capital: 10000, risk: 1, stop: 'support', target: 'resistance' };
   try { var sv = JSON.parse(localStorage.getItem('ca_ui') || 'null'); if (sv) for (var k0 in sv) ui[k0] = sv[k0]; } catch (e) { /* ignorieren */ }
   function saveUi() { try { localStorage.setItem('ca_ui', JSON.stringify(ui)); } catch (e) { /* ignorieren */ } }
@@ -383,12 +382,11 @@ window.App.ChartAnalyse = (function () {
     var hasVol = T.v.slice(-20).some(function (v) { return v > 0; });
     var obvTrend = hasVol ? Math.sign(obv[n - 1] - obv[n - 21]) : 0, pTrend = Math.sign(px - T.c[n - 21]);
 
-    // NEU: Arrays für Bollinger Bänder speichern
     var bw = [], pb = null, bb = [];
     for (i = 19; i < n; i++) {
       var sl = T.c.slice(i - 19, i + 1), m = avg(sl), sd = Math.sqrt(avg(sl.map(function (x) { return (x - m) * (x - m); })));
       bw.push((4 * sd) / m);
-      bb.push({ i: i, m: m, u: m + 2 * sd, d: m - 2 * sd }); // Speichere obere/untere Bänder
+      bb.push({ i: i - off, m: m, u: m + 2 * sd, d: m - 2 * sd }); // KORREKTUR: i - off
       if (i === n - 1) pb = sd > 0 ? (px - (m - 2 * sd)) / (4 * sd) : 0.5;
     }
     var bwLast = bw[bw.length - 1], bwWin = bw.slice(-120), rank = bwWin.filter(function (x) { return x <= bwLast; }).length / bwWin.length;
@@ -485,7 +483,6 @@ window.App.ChartAnalyse = (function () {
     candP.forEach(function (p) { rows += row(BIAS[p.bias], '<b>' + p.name + '</b> (' + BIAS_TXT[p.bias] + ')', 'Kerze vom ' + deDate(p.date)); });
     if (!rows) rows = '<div class="chart-signal-value" style="color:var(--text-dim);">Im gewählten Zeitraum wurde kein Muster erkannt' + (A.T.ohlc ? '' : ' (Kerzenmuster brauchen Open/High/Low-Daten)') + '.</div>';
     
-    // Die Pill-Group wurde durch die horizontale Toolbar ersetzt – neu: bollinger
     var toolbar = '<div class="horizontal-scroll-row" id="ca-tools-toolbar" style="margin-top: 8px; margin-bottom: 8px; padding-bottom: 4px;">' +
       chip('chart', 'Chartmuster', ui.chart, 'Chartmuster') +
       chip('candle', 'Kerzenmuster', ui.candle, 'Kerzenmuster') +
@@ -560,7 +557,6 @@ window.App.ChartAnalyse = (function () {
     var css = getComputedStyle(cv), txt = css.getPropertyValue('--text-main').trim() || '#e5e7eb', dim = css.getPropertyValue('--text-dim').trim() || '#94a3b8';
     var from = A.from, N = A.N, bars = N - from, i;
     
-    // Falls Bollinger aktiv ist, Bereich anpassen
     var maxH = maxOf(A.h.slice(from)), minL = minOf(A.l.slice(from));
     if (ui.bollinger && A.bb) {
       A.bb.forEach(function(b) { if (b.i >= from) { maxH = Math.max(maxH, b.u); minL = Math.min(minL, b.d); } });
@@ -579,7 +575,6 @@ window.App.ChartAnalyse = (function () {
     });
     g.save(); g.beginPath(); g.rect(L - 1, T - 2, pw + 3, ph + 4); g.clip();
     
-    // Support / Resistance zeichnen
     if (ui.sr) {
       g.lineWidth = 1; g.setLineDash([4, 4]);
       if (A.lv.sup) { g.strokeStyle = 'rgba(16,185,129,0.7)'; g.beginPath(); g.moveTo(L, y(A.lv.sup.p)); g.lineTo(W - R, y(A.lv.sup.p)); g.stroke(); }
@@ -587,12 +582,10 @@ window.App.ChartAnalyse = (function () {
       g.setLineDash([]);
     }
 
-    // Bollinger Bänder (NEU)
     if (ui.bollinger && A.bb) {
       g.lineWidth = 1;
       g.setLineDash([]);
-      // Oberes Band
-      g.strokeStyle = 'rgba(16, 185, 129, 0.4)'; // Leicht Grünlich
+      g.strokeStyle = 'rgba(16, 185, 129, 0.4)';
       g.beginPath();
       var firstU = true;
       A.bb.forEach(function(b) {
@@ -603,8 +596,7 @@ window.App.ChartAnalyse = (function () {
       });
       if (!firstU) g.stroke();
 
-      // Unteres Band
-      g.strokeStyle = 'rgba(239, 68, 68, 0.4)'; // Leicht Rötlich
+      g.strokeStyle = 'rgba(239, 68, 68, 0.4)';
       g.beginPath();
       var firstD = true;
       A.bb.forEach(function(b) {
@@ -616,14 +608,12 @@ window.App.ChartAnalyse = (function () {
       if (!firstD) g.stroke();
     }
 
-    // Preislinie zeichnen
     g.strokeStyle = txt; g.lineWidth = 1.5; g.beginPath();
     for (i = from; i < N; i++) { if (i === from) g.moveTo(x(i), y(A.c[i])); else g.lineTo(x(i), y(A.c[i])); }
     g.stroke();
     
-    // ZigZag (Wendepunkte) zeichnen - NEUE FARBE: Cyan / Sky Blue
     if (ui.zigzag && A.pivots && A.pivots.length) {
-      g.strokeStyle = '#0ea5e9'; // Leuchtendes Sky Blue
+      g.strokeStyle = '#0ea5e9';
       g.lineWidth = 1.5; g.setLineDash([]);
       g.beginPath();
       var firstP = true;
@@ -664,14 +654,12 @@ window.App.ChartAnalyse = (function () {
     try { A = analyse(stock, period); } catch (e) { A = null; if (window.console) console.error('ChartAnalyse', e); }
     if (!A) { slot.innerHTML = ''; return; }
     
-    // Toolbar-Scrollposition merken
     var oldToolbar = slot.querySelector('#ca-tools-toolbar');
     var savedScroll = oldToolbar ? oldToolbar.scrollLeft : 0;
     
     var cur = (stock.quote && stock.quote.currency) || 'EUR';
     slot.innerHTML = scoreCard(A) + patternsCard(A, cur) + signalsCard(A, cur) + rrCard(A, stock, cur);
     
-    // Scrollposition wiederherstellen
     var newToolbar = slot.querySelector('#ca-tools-toolbar');
     if (newToolbar && savedScroll > 0) newToolbar.scrollLeft = savedScroll;
     
@@ -681,9 +669,7 @@ window.App.ChartAnalyse = (function () {
     
     [].forEach.call(slot.querySelectorAll('.ca-btn'), function (b) {
       b.onclick = function (e) {
-        // Ignoriere Klicks auf das (i) Icon, damit nur das Glossar triggert
         if (e.target && e.target.closest('.term-link')) return; 
-        
         var k = b.getAttribute('data-k'), p = k.split(':');
         if (p.length === 2) ui[p[0]] = p[1]; else ui[k] = !ui[k];
         saveUi();
