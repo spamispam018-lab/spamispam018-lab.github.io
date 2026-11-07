@@ -229,6 +229,52 @@ window.App.StockChart = (function () {
   // Rendering
   // ---------------------------------------------------------------------------
 
+  // Boden-Check: gleiche Regeln wie bottom_extras() in scripts/fetch_market_data.py
+  function bottomCheck(c) {
+    var n = c.length;
+    if (n < 120) return null;
+    var px = c[n - 1], hi = Math.max.apply(null, c.slice(-252));
+    var dd = px / hi - 1;
+    if (dd > -0.20) return { state: null, dd: dd };
+    function avg(a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; }
+    var w = c.slice(-60), mn = Math.min.apply(null, w), idx = 0;
+    for (var i = 0; i < w.length; i++) { if (w[i] <= mn) idx = i; }
+    var sinceLow = w.length - 1 - idx;
+    var s20 = avg(c.slice(-20)), s20b = avg(c.slice(-25, -5));
+    var m = macd(c), r = rsi(c, 14);
+    var ml = m.line[n - 1], ms = m.signal[n - 1], r0 = r[n - 1], r5 = r[n - 6];
+    var rOk = r0 !== null && r5 !== null && r0 >= 40 && r0 > r5;
+    var sig = [
+      { ok: sinceLow >= 15, text: 'Kein neues 60-Tage-Tief seit ' + sinceLow + ' Handelstagen (Ziel: ≥ 15)' },
+      { ok: Math.min.apply(null, c.slice(-20)) > Math.min.apply(null, c.slice(-60, -20)), text: 'Höheres Tief (letzte 20 Tage über dem Tief davor)' },
+      { ok: px > s20, text: 'Kurs ' + (px > s20 ? 'über' : 'unter') + ' der 20-Tage-Linie' },
+      { ok: s20 >= s20b, text: '20-Tage-Linie ' + (s20 >= s20b ? 'steigt / flach' : 'fällt noch') },
+      { ok: ml !== null && ms !== null && ml > ms, text: 'MACD ' + (ml > ms ? 'über' : 'unter') + ' Signallinie' },
+      { ok: rOk, text: 'RSI ' + (r0 !== null ? Math.round(r0) : '–') + (rOk ? ' (≥ 40 und steigend)' : ' (noch schwach oder fallend)') }
+    ];
+    var score = sig.filter(function (s) { return s.ok; }).length;
+    var perf1m = px / c[n - 22] - 1;
+    var state = 'wait';
+    if (score >= 4 && (sig[0].ok || sig[1].ok)) state = 'base';
+    else if (score <= 2 && (sinceLow <= 10 || perf1m <= -0.10)) state = 'knife';
+    return { state: state, score: score, dd: dd, signals: sig };
+  }
+
+  function bottomCardHtml(b) {
+    var head = '<div class="card"><div class="card-header-dotted"><span class="card-title">Boden-Check</span>';
+    var note = '<div class="chart-note">Feste Regeln auf Basis vergangener Kurse, keine Anlageberatung. Ein Boden ist erst im Nachhinein sicher erkennbar.</div></div>';
+    if (!b) return head + '</div><p style="font-size:.78rem;color:var(--text-muted);">Zu wenige Kursdaten.</p>' + note;
+    if (!b.state) return head + '</div><p style="font-size:.78rem;color:var(--text-muted);">Kurs liegt nur ' + Math.abs(b.dd * 100).toFixed(0) + ' % unter dem 52W-Hoch – kein nennenswerter Rückgang, der Check ist nicht relevant.</p>' + note;
+    var V = { base: ['Bodenbildung möglich', 'badge-bullish'], knife: ['Fallendes Messer', 'badge-bearish'], wait: ['Unklar – abwarten', 'badge-neutral'] }[b.state];
+    var rows = b.signals.map(function (s) {
+      return '<div class="chart-signal-row"><span class="chart-dot" style="background:' + (s.ok ? 'var(--bullish)' : 'var(--text-dim)') + ';"></span>' +
+        '<div class="chart-signal-text"><div class="chart-signal-value">' + (s.ok ? '✓ ' : '✗ ') + s.text + '</div></div></div>';
+    }).join('');
+    return head + '<span class="badge-pill ' + V[1] + '">' + V[0] + '</span></div>' +
+      '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:6px;">' + b.score + ' von 6 Stabilisierungs-Signalen · ' + Math.abs(b.dd * 100).toFixed(0) + ' % unter dem 52W-Hoch</div>' +
+      '<div class="chart-signal-list">' + rows + '</div>' + note;
+  }
+
   function render(container, stock) {
     if (!container || !stock) return;
 
@@ -418,6 +464,7 @@ window.App.StockChart = (function () {
         '<div class="chart-note">' + bulls + ' von ' + rated + ' Signalen positiv. Reine Auswertung vergangener Kurse, keine Anlageberatung.</div>' +
       '</div>' +
 
+      bottomCardHtml(bottomCheck(closes)) +
       '<!-- Auffälligkeiten (neutral, ohne Kaufbezug) -->' +
       '<div class="card">' +
         '<div class="card-header-dotted">' +
@@ -726,7 +773,8 @@ window.App.StockChart = (function () {
     _sma: sma,
     _ema: ema,
     _rsi: rsi,
-    _macd: macd
+    _macd: macd,
+    _bottom: bottomCheck
   };
 })();
 
