@@ -391,6 +391,10 @@ window.App.StockChart = (function () {
   }
 
   function buildView(container, stock, hist) {
+    // --- Toolbar Scroll-Position merken ---
+    var oldToolbar = container.querySelector('#chart-tools-toolbar');
+    var savedToolbarScroll = oldToolbar ? oldToolbar.scrollLeft : 0;
+
     var currency = (stock.quote && stock.quote.currency) || 'EUR';
     var closes = hist.map(function (p) { return p.close; });
     var dates = hist.map(function (p) { return p.date; });
@@ -535,7 +539,6 @@ window.App.StockChart = (function () {
       seriesArr.push({ name: 'S1', color: 'rgba(16,185,129,0.5)', values: fillArr(pivs.s1, tail), width: 1, dash: [5, 5] });
     }
 
-    // --- Dynamische Legende generieren ---
     function legendItem(color, label) {
       var dotColor = color;
       if (color.indexOf('rgba') === 0) {
@@ -646,6 +649,12 @@ window.App.StockChart = (function () {
 
     container.innerHTML = html;
 
+    // --- Toolbar Scroll-Position wiederherstellen ---
+    var newToolbar = container.querySelector('#chart-tools-toolbar');
+    if (newToolbar && savedToolbarScroll > 0) {
+      newToolbar.scrollLeft = savedToolbarScroll;
+    }
+
     // --- Automatische Erklärungs-Box für das aktivierte Tool einfügen ---
     if (lastClickedToolTerm && GLOSSARY[lastClickedToolTerm]) {
       var toolbarCard = container.querySelector('#chart-tools-toolbar').closest('.card');
@@ -666,14 +675,19 @@ window.App.StockChart = (function () {
 
     // Toolbar Tool-Events
     container.querySelectorAll('#chart-tools-toolbar .chip-btn').forEach(function(btn) {
-      btn.onclick = function() {
+      btn.onclick = function(e) {
+        // Klicks auf das (i) Symbol werden ignoriert, da der ganze Button den Toggle auslöst
+        if (e.target.closest('.term-link')) {
+           e.stopPropagation();
+        }
+
         var tool = btn.getAttribute('data-tool');
         activeTools[tool] = !activeTools[tool]; 
         
         // Tool in den Erklärungs-Speicher setzen (wenn eingeschaltet)
         lastClickedToolTerm = activeTools[tool] ? TOOL_TO_TERM[tool] : null;
 
-        buildView(container, stock, hist); // Chart mit neuen Overlays re-rendern
+        buildView(container, stock, hist); 
         
         if (tool === 'pattern' && activeTools.pattern) {
           var p = detectPatterns(closes, tail);
