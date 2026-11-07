@@ -83,3 +83,4 @@ window.App.News = (function () {
   return { cache: cache, loadIndex: loadIndex, loadSectors: loadSectors, loadTicker: loadTicker, fillTicker: fillTicker,
            sectorCardHtml: sectorCardHtml, promptBlock: promptBlock, indexLine: indexLine };
 })();
+
