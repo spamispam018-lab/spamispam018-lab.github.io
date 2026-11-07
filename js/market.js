@@ -310,6 +310,8 @@ window.App.Market = (function () {
     html += '<div style="font-size:.68rem;color:var(--text-dim);margin-top:6px;">Tipp: Kachel antippen, um ' +
       (state.sector ? 'die Aktie zu öffnen.' : 'in den Sektor zu wechseln.') + '</div></div>';
 
+    if (state.sector && window.App.News) html += window.App.News.sectorCardHtml(state.sector);
+
     // *** NEU: Sektor-ETFs anzeigen ***
     if (state.sector && SECTOR_ETFS[state.sector]) {
       var matchingTickers = SECTOR_ETFS[state.sector];
