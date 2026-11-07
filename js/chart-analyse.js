@@ -1,5 +1,5 @@
 /**
- * js/chart-analyse.js – erweiterte Chart-Analyse mit umschaltbarem Indikatoren-Graphen
+ * js/chart-analyse.js – erweiterte Chart-Analyse mit Kursverlauf im Indikatoren-Graphen
  */
 window.App = window.App || {};
 window.App.ChartAnalyse = (function () {
@@ -15,32 +15,24 @@ window.App.ChartAnalyse = (function () {
     risk: 1, 
     stop: 'support', 
     target: 'resistance',
-    subGraph: 'obv' // Standard-Ansicht im Indikatoren-Graphen
+    subGraph: 'obv' 
   };
   try { var sv = JSON.parse(localStorage.getItem('ca_ui') || 'null'); if (sv) for (var k0 in sv) ui[k0] = sv[k0]; } catch (e) { /* ignorieren */ }
   function saveUi() { try { localStorage.setItem('ca_ui', JSON.stringify(ui)); } catch (e) { /* ignorieren */ } }
 
-  // ---------------------------------------------------------------------------
-  // Glossar & Erklärungen für Fachbegriffe
-  // ---------------------------------------------------------------------------
   var GLOSSARY = {
-    ADX: { name: 'ADX (Average Directional Index)', text: 'Misst die Trendstärke unabhängig von der Richtung (Skala von 0 bis 100). Unter 20 gibt es keinen klaren Trend, über 25 bis 40 zeigt einen intakten Trend an, über 40 einen sehr starken Trend.' },
-    ATR: { name: 'ATR (Average True Range)', text: 'Die durchschnittliche tägliche Schwankungsbreite der Aktie in Euro über die letzten 14 Tage. Hilft bei der Einschätzung des täglichen Risikos.' },
-    OBV: { name: 'OBV (On-Balance Volume)', text: 'Ein Volumenindikator, der das Handelsvolumen an Aufwärts- und Abwärtstagen kumuliert. Steigendes OBV zeigt an, dass Geld in den Markt fließt; wenn es dem Kurs widerspricht, deutet das auf eine Divergenz hin.' },
-    Bollinger: { name: 'Bollinger-Squeeze', text: 'Ein Zustand, bei dem sich die Bollinger-Bänder extrem eng zusammenziehen. Das signalisiert eine Phase geringer Volatilität, auf die historisch oft eine größere Kursbewegung folgt.' },
-    Support: { name: 'Unterstützung & Widerstand', text: 'Unterstützung ist ein Kursbereich, an dem der Kurs in der Vergangenheit oft nach oben gedreht hat. Widerstand ist eine Marke, an der der Kurs oft nach unten abgeprallt ist.' },
-    CRV: { name: 'Chance-Risiko-Verhältnis (CRV)', text: 'Das Verhältnis zwischen dem möglichen Gewinn (Ziel minus Einstieg) und dem möglichen Verlust (Einstieg minus Stop). Werte ab 2:1 gelten als erstrebenswert.' },
-    Score: { name: 'Chart-Score', text: 'Ein Gesamtwert von 0 bis 100 (50 = neutral), der fünf verschiedene technische Bereiche (Trend, Momentum, Muster, Signale und S/R-Lage) bündelt.' }
+    ADX: { name: 'ADX (Average Directional Index)', text: 'Misst die Trendstärke unabhängig von der Richtung (Skala von 0 bis 100).' },
+    ATR: { name: 'ATR (Average True Range)', text: 'Die durchschnittliche tägliche Schwankungsbreite der Aktie in Euro.' },
+    OBV: { name: 'OBV (On-Balance Volume)', text: 'Ein Volumenindikator, der das Handelsvolumen an Aufwärts- und Abwärtstagen kumuliert.' },
+    Bollinger: { name: 'Bollinger-Squeeze', text: 'Ein Zustand, bei dem sich die Bollinger-Bänder extrem eng zusammenziehen.' },
+    Support: { name: 'Unterstützung & Widerstand', text: 'Wichtige Kursmarken in der Vergangenheit.' },
+    CRV: { name: 'Chance-Risiko-Verhältnis (CRV)', text: 'Verhältnis zwischen möglichem Gewinn und Verlust.' },
+    Score: { name: 'Chart-Score', text: 'Gesamtwert aus fünf technischen Bereichen.' }
   };
 
   var TERM_RULES = [
-    [/^ADX/, 'ADX'],
-    [/^ATR/, 'ATR'],
-    [/^OBV/, 'OBV'],
-    [/Bollinger/, 'Bollinger'],
-    [/Support|Widerstand/, 'Support'],
-    [/Chance-Risiko-Verhältnis|CRV/, 'CRV'],
-    [/Chart-Score/, 'Score']
+    [/^ADX/, 'ADX'], [/^ATR/, 'ATR'], [/^OBV/, 'OBV'], [/Bollinger/, 'Bollinger'],
+    [/Support|Widerstand/, 'Support'], [/Chance-Risiko-Verhältnis|CRV/, 'CRV'], [/Chart-Score/, 'Score']
   ];
 
   function termKeyFor(label) {
@@ -71,10 +63,7 @@ window.App.ChartAnalyse = (function () {
         box.parentNode.removeChild(box);
         return;
       }
-      if (!box) {
-        box = document.createElement('div');
-        box.id = 'ca-term-info';
-      }
+      if (!box) { box = document.createElement('div'); box.id = 'ca-term-info'; }
       box.setAttribute('data-term', key);
       box.setAttribute('style', 'margin: -6px 0 16px; padding: 12px 14px; border-radius: var(--radius-sm); background-color: var(--bg-secondary); border: 1px solid var(--border-subtle); font-size: 0.8rem; color: var(--text-main); line-height: 1.45;');
       box.innerHTML = '<div style="font-weight: 700; margin-bottom: 4px;">' + GLOSSARY[key].name + '</div>' + GLOSSARY[key].text;
@@ -82,9 +71,6 @@ window.App.ChartAnalyse = (function () {
     });
   }
 
-  // ---------------------------------------------------------------------------
-  // Basis-Rechnungen
-  // ---------------------------------------------------------------------------
   function avg(a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : 0; }
   function maxOf(a) { return Math.max.apply(null, a); }
   function minOf(a) { return Math.min.apply(null, a); }
@@ -404,6 +390,7 @@ window.App.ChartAnalyse = (function () {
 
     return { 
       T: T, n: n, N: N, off: off, from: from, w: w, px: px, c: c, h: h, l: l, 
+      closes: T.c.slice(off),
       atr: atrV, atrSeries: atr.slice(off), 
       adx: adxObj, adxSeries: adxArr.slice(off),
       obv: obv.slice(off), obvTrend: obvTrend, 
@@ -413,9 +400,6 @@ window.App.ChartAnalyse = (function () {
     };
   }
 
-  // ---------------------------------------------------------------------------
-  // Darstellung
-  // ---------------------------------------------------------------------------
   function F() { return window.App.Format; }
   function eur(v, cur) { return F().currency(v, cur); }
   function num(v, d) { return F().number(v, d === undefined ? 1 : d); }
@@ -469,10 +453,10 @@ window.App.ChartAnalyse = (function () {
     r += row('var(--text-dim)', 'Nächster ' + termLink('Support') + ': ' + (A.lv.sup ? eur(A.lv.sup.p, cur) : 'keine'));
     r += row('var(--text-dim)', 'Nächster ' + termLink('Support') + ': ' + (A.lv.res ? eur(A.lv.res.p, cur) : 'keiner'));
     
-    // Interaktiver Indikatoren-Graph mit Filter-Pills
+    // Interaktiver Indikatoren-Graph mit Kursvergleich & Filter-Pills
     var graphHtml = '<div style="margin-top: 14px; border-top: 1px dashed var(--border-subtle); padding-top: 12px;">' +
-      '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">' +
-        '<span style="font-size: 0.72rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase;">Indikatoren-Graph</span>' +
+      '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">' +
+        '<span style="font-size: 0.72rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase;">Kurs vs. Indikator</span>' +
         '<div class="pill-group">' +
           subGraphPill('obv', 'OBV', ui.subGraph === 'obv') +
           subGraphPill('atr', 'ATR', ui.subGraph === 'atr') +
@@ -480,7 +464,11 @@ window.App.ChartAnalyse = (function () {
           subGraphPill('bollinger', 'Bollinger', ui.subGraph === 'bollinger') +
         '</div>' +
       '</div>' +
-      '<div style="position:relative;width:100%;height:120px;"><canvas id="ca-signal-chart" style="width:100%;height:100%;"></canvas></div>' +
+      '<div style="position:relative;width:100%;height:130px;"><canvas id="ca-signal-chart" style="width:100%;height:100%;"></canvas></div>' +
+      '<div class="legend-row" style="margin-top: 6px; font-size: 0.7rem; display: flex; gap: 12px;">' +
+        '<div style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#818cf8; border-radius:50%;"></span> Kursverlauf</div>' +
+        '<div style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#f59e0b; border-radius:50%;"></span> Indikator</div>' +
+      '</div>' +
       '</div>';
 
     return card('Trend, Volumen & Signale', '', '<div class="chart-signal-list">' + r + '</div>' + graphHtml + NOTE);
@@ -490,10 +478,10 @@ window.App.ChartAnalyse = (function () {
     var px = A.px, sup = A.lv.sup, res = A.lv.res, notes = [], stop, tgt;
     var stopSup = sup ? sup.p * 0.985 : null, stopAtr = px - 2 * A.atr, mean = stock.analysts && stock.analysts.targets && stock.analysts.targets.mean;
     if (ui.stop === 'support' && stopSup && px - stopSup >= 0.8 * A.atr) stop = stopSup;
-    else { stop = stopAtr; if (ui.stop === 'support') notes.push(sup ? 'Unterstützung nah, Stop 2× ATR.' : 'Keine Unterstützung, Stop 2× ATR.'); }
+    else { stop = stopAtr; if (ui.stop === 'support') notes.push('Unterstützung nah, Stop 2× ATR.'); }
     if (ui.target === 'resistance' && res) tgt = res.p;
     else if (ui.target === 'analyst' && mean && mean > px) tgt = mean;
-    else { tgt = px + 2 * (px - stop); if (ui.target !== 'rr2') notes.push('Ziel daher CRV 2:1.'); }
+    else { tgt = px + 2 * (px - stop); if (ui.target !== 'rr2') notes.push('Ziel CRV 2:1.'); }
     var risk = px - stop, reward = tgt - px, crv = risk > 0 ? reward / risk : 0;
     var shares = risk > 0 ? Math.floor((ui.capital * ui.risk / 100) / risk) : 0;
     return { stop: stop, tgt: tgt, risk: risk, reward: reward, crv: crv, shares: shares, notes: notes };
@@ -546,55 +534,56 @@ window.App.ChartAnalyse = (function () {
     g.textAlign = 'right'; g.fillText('Heute', W - R, H - 5);
   }
 
-  // Zeichnet den flexiblen Indikatoren-Graphen je nach Auswahl
+  // Zeichnet Kursverlauf + den gewählten Indikator im Unter-Graphen mit zwei Skalen / Normierung
   function drawSignalCanvas(cv, A) {
     if (!cv) return;
-    var dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 320, H = cv.clientHeight || 120;
+    var dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 320, H = cv.clientHeight || 130;
     cv.width = W * dpr; cv.height = H * dpr;
     var g = cv.getContext('2d'); g.scale(dpr, dpr);
-    var dim = '#94a3b8';
     var from = A.from, N = A.N, bars = N - from, i;
-    
-    var rawData = [];
-    var title = '';
-    var lineColor = '#818cf8';
 
-    if (ui.subGraph === 'obv') {
-      rawData = A.obv ? A.obv.slice(from, N) : [];
-      title = 'On-Balance Volume (OBV)';
-    } else if (ui.subGraph === 'atr') {
-      rawData = A.atrSeries ? A.atrSeries.slice(from, N) : [];
-      title = 'Average True Range (ATR)';
-      lineColor = '#f59e0b';
-    } else if (ui.subGraph === 'adx') {
-      rawData = A.adxSeries ? A.adxSeries.slice(from, N) : [];
-      title = 'Average Directional Index (ADX)';
-      lineColor = '#22c55e';
-    } else if (ui.subGraph === 'bollinger') {
-      rawData = A.bwSeries ? A.bwSeries.slice(from, N) : [];
-      title = 'Bollinger Bandbreite';
-      lineColor = '#ec4899';
-    }
+    var subClses = A.closes ? A.closes.slice(from, N) : [];
+    var indData = [];
+    var indColor = '#f59e0b';
 
-    if (!rawData.length) return;
-    var hi = maxOf(rawData), lo = minOf(rawData), pad = (hi - lo) * 0.1 || 1, mn = lo - pad, mx = hi + pad;
+    if (ui.subGraph === 'obv') { indData = A.obv ? A.obv.slice(from, N) : []; indColor = '#f59e0b'; }
+    else if (ui.subGraph === 'atr') { indData = A.atrSeries ? A.atrSeries.slice(from, N) : []; indColor = '#10b981'; }
+    else if (ui.subGraph === 'adx') { indData = A.adxSeries ? A.adxSeries.slice(from, N) : []; indColor = '#22c55e'; }
+    else if (ui.subGraph === 'bollinger') { indData = A.bwSeries ? A.bwSeries.slice(from, N) : []; indColor = '#ec4899'; }
+
+    if (!subClses.length) return;
+
     var L = 6, R = 6, T = 6, B = 16, pw = W - L - R, ph = H - T - B;
     function x(k) { return L + (k - from) / Math.max(1, bars - 1) * pw; }
-    function y(v) { return T + (1 - (v - mn) / (mx - mn)) * ph; }
+
+    // Hilfsfunktion zum Zeichnen einer Linie nach Min/Max-Skalierung
+    function drawLine(arr, col, width) {
+      if (!arr.length) return;
+      var valid = arr.filter(function (v) { return v !== null && isFinite(v); });
+      if (!valid.length) return;
+      var hi = maxOf(valid), lo = minOf(valid), pad = (hi - lo) * 0.1 || 1, mn = lo - pad, mx = hi + pad;
+      function y(v) { return T + (1 - (v - mn) / (mx - mn)) * ph; }
+
+      g.strokeStyle = col; g.lineWidth = width; g.beginPath();
+      var started = false;
+      for (var idx = 0; idx < arr.length; idx++) {
+        var val = arr[idx];
+        if (val !== null && isFinite(val)) {
+          var xx = x(from + idx), yy = y(val);
+          if (!started) { g.moveTo(xx, yy); started = true; } else { g.lineTo(xx, yy); }
+        }
+      }
+      g.stroke();
+    }
 
     g.save(); g.beginPath(); g.rect(L - 1, T - 2, pw + 3, ph + 4); g.clip();
-    g.strokeStyle = lineColor; g.lineWidth = 1.5; g.beginPath();
-    for (i = 0; i < rawData.length; i++) {
-      if (rawData[i] !== null && isFinite(rawData[i])) {
-        var xx = x(from + i), yy = y(rawData[i]);
-        if (i === 0) g.moveTo(xx, yy); else g.lineTo(xx, yy);
-      }
-    }
-    g.stroke();
-    g.restore();
+    
+    // 1. Kursverlauf zeichnen (Indigo)
+    drawLine(subClses, '#818cf8', 1.5);
+    // 2. Gewählten Indikator zeichnen (Farbe je nach Indikator)
+    if (indData.length) drawLine(indData, indColor, 1.5);
 
-    g.fillStyle = dim; g.font = '9px sans-serif'; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
-    g.fillText(title, L, H - 3);
+    g.restore();
   }
 
   function mount(slot, stock, period) {
@@ -619,7 +608,6 @@ window.App.ChartAnalyse = (function () {
       };
     });
 
-    // Event-Listener für die Unter-Graphen Pills
     [].forEach.call(slot.querySelectorAll('.ca-sub-btn'), function (b) {
       b.onclick = function () {
         ui.subGraph = b.getAttribute('data-sub');
