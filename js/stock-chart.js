@@ -391,7 +391,9 @@ window.App.StockChart = (function () {
   }
 
   function buildView(container, stock, hist) {
-    // --- Toolbar Scroll-Position merken ---
+    // --- Scroll-Positionen merken, um "Springen" zu verhindern ---
+    var savedPageY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+    
     var oldToolbar = container.querySelector('#chart-tools-toolbar');
     var savedToolbarScroll = oldToolbar ? oldToolbar.scrollLeft : 0;
 
@@ -539,6 +541,7 @@ window.App.StockChart = (function () {
       seriesArr.push({ name: 'S1', color: 'rgba(16,185,129,0.5)', values: fillArr(pivs.s1, tail), width: 1, dash: [5, 5] });
     }
 
+    // --- Dynamische Legende generieren ---
     function legendItem(color, label) {
       var dotColor = color;
       if (color.indexOf('rgba') === 0) {
@@ -737,6 +740,9 @@ window.App.StockChart = (function () {
       refLines: [{ value: 0, color: 'rgba(255, 255, 255, 0.25)' }],
       formatY: function (v) { return fmt(v, Math.abs(v) < 10 ? 1 : 0); }
     });
+
+    // --- Vertikale Scroll-Position wiederherstellen, um das "Springen" zu verhindern ---
+    window.scrollTo(0, savedPageY);
   }
 
   function bindPeriodPills(container, stock, hist) {
