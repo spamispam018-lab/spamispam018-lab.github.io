@@ -570,7 +570,7 @@ window.App.StockChart = (function () {
       '</div>';
 
     container.innerHTML = html;
-    if (window.App.Forecast) window.App.Forecast.mount(container.querySelector('#forecast-slot'), stock, closes);
+    if (window.App.Forecast) window.App.Forecast.mount(container.querySelector('#forecast-slot'), stock, closes, currentPeriod);
     
     // Events
     bindTerms(container);
