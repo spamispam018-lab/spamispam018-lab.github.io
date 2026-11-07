@@ -217,6 +217,7 @@ window.App.StockOverview = (function () {
 
             var bc = window.App.StockChart._bottom(closes);
             if (bc && bc.state) techText += "Boden-Check: " + ({ base: 'Bodenbildung möglich', knife: 'fallendes Messer', wait: 'unklar' })[bc.state] + " (" + bc.score + " von 6 Stabilisierungs-Signalen, " + window.App.Format.number(Math.abs(bc.dd) * 100, 0) + " % unter dem 52W-Hoch). ";
+            if (window.App.ChartAnalyse) techText += window.App.ChartAnalyse.promptText(currentStock);
             promptText += techText;
         }
 
