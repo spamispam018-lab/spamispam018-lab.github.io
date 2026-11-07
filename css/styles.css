@@ -1,13 +1,24 @@
 /* ==========================================================================
-   css/styles.css - Dark Theme Mobile-First Stylesheet
+   css/styles.css - Responsive Stylesheet with Auto Dark/Light Mode
    ========================================================================== */
 
 :root {
+  /* ==========================================================
+     DARK THEME (Default)
+     ========================================================== */
   --bg-primary: #0d0f15;
   --bg-secondary: #161922;
   --bg-tertiary: #1f2330;
   --bg-card: #151821;
   --bg-card-hover: #1c202c;
+  
+  --header-bg: rgba(13, 15, 21, 0.9);
+  --nav-bg: rgba(21, 24, 33, 0.95);
+  --backdrop-bg: rgba(0, 0, 0, 0.65);
+  
+  --shadow-strong: rgba(0, 0, 0, 0.5);
+  --shadow-medium: rgba(0, 0, 0, 0.3);
+  --shadow-soft: rgba(0, 0, 0, 0.15);
   
   --border-color: #262b3a;
   --border-subtle: #1e2230;
@@ -38,6 +49,49 @@
   
   --bottom-nav-height: 64px;
   --header-height: 56px;
+}
+
+/* ==========================================================
+   LIGHT THEME (Auto-Switch via System Preference)
+   ========================================================== */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f5f9;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f8fafc;
+    
+    --header-bg: rgba(255, 255, 255, 0.9);
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --backdrop-bg: rgba(15, 23, 42, 0.3);
+    
+    --shadow-strong: rgba(15, 23, 42, 0.15);
+    --shadow-medium: rgba(15, 23, 42, 0.08);
+    --shadow-soft: rgba(15, 23, 42, 0.05);
+    
+    --border-color: #e2e8f0;
+    --border-subtle: #f1f5f9;
+    
+    --text-main: #0f172a;
+    --text-muted: #334155;
+    --text-dim: #64748b;
+    
+    --accent-purple: #4f46e5;
+    --accent-purple-light: #6366f1;
+    --accent-purple-glow: rgba(79, 70, 229, 0.15);
+    
+    /* Hero bleibt dunkel für den Kontrast */
+    --hero-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    
+    --bullish: #059669;
+    --bullish-bg: rgba(5, 150, 105, 0.12);
+    --bearish: #dc2626;
+    --bearish-bg: rgba(220, 38, 38, 0.12);
+    
+    --tag-yellow: #d97706;
+    --tag-yellow-bg: rgba(217, 119, 6, 0.15);
+  }
 }
 
 * {
@@ -72,7 +126,7 @@ input, button, select, textarea {
   position: sticky;
   top: 0;
   height: var(--header-height);
-  background-color: rgba(13, 15, 21, 0.9);
+  background-color: var(--header-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: flex;
@@ -124,7 +178,7 @@ input, button, select, textarea {
   left: 0;
   right: 0;
   height: var(--bottom-nav-height);
-  background-color: rgba(21, 24, 33, 0.95);
+  background-color: var(--nav-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--border-color);
@@ -184,7 +238,7 @@ input, button, select, textarea {
   padding: 18px 20px;
   margin-bottom: 16px;
   box-shadow: 0 10px 24px -6px var(--accent-purple-glow);
-  color: #fff;
+  color: #ffffff;
 }
 
 .hero-tag {
@@ -345,7 +399,7 @@ input, button, select, textarea {
 .chip-btn.active {
   background-color: var(--accent-purple);
   border-color: var(--accent-purple);
-  color: #fff;
+  color: #ffffff;
 }
 
 .sub-header-bar {
@@ -412,7 +466,7 @@ input, button, select, textarea {
   gap: 6px;
   row-gap: 4px;
   align-items: center;
-  flex-wrap: wrap; /* Erlaubt Zeilenumbruch bei engen Platzverhältnissen */
+  flex-wrap: wrap;
 }
 
 .ticker-badge {
@@ -510,8 +564,8 @@ input, button, select, textarea {
 
 .main-tab-btn.active {
   background-color: var(--bg-tertiary);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  color: var(--text-main);
+  box-shadow: 0 2px 8px var(--shadow-medium);
 }
 
 .sub-tabs-row {
@@ -560,7 +614,7 @@ input, button, select, textarea {
   font-weight: 800;
   background-color: var(--bg-secondary);
   border: 2px solid var(--accent-purple);
-  color: #fff;
+  color: var(--text-main);
 }
 
 .score-segments {
@@ -670,7 +724,7 @@ input, button, select, textarea {
 .sheet-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.65);
+  background-color: var(--backdrop-bg);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: 200;
@@ -698,7 +752,7 @@ input, button, select, textarea {
   overflow-y: auto;
   transform: translateY(100%);
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 -10px 30px var(--shadow-strong);
 }
 
 .bottom-sheet.open {
@@ -742,7 +796,7 @@ input, button, select, textarea {
   width: 100%;
   background: var(--hero-gradient);
   border: none;
-  color: #fff;
+  color: #ffffff;
   padding: 12px;
   border-radius: var(--radius-md);
   font-size: 0.9rem;
@@ -852,9 +906,8 @@ input, button, select, textarea {
 
 .pill-btn.active {
   background-color: var(--accent-purple);
-  color: #fff;
+  color: #ffffff;
 }
-
 
 /* Performance-Raster unter dem Kursverlauf */
 .perf-grid {
@@ -903,8 +956,8 @@ input, button, select, textarea {
    ========================================================================== */
 
 .badge-neutral {
-  background-color: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
+  background-color: var(--tag-yellow-bg);
+  color: var(--tag-yellow);
 }
 
 .legend-row {
@@ -1044,7 +1097,7 @@ input, button, select, textarea {
     padding: 0 24px;
     border-radius: var(--radius-full);
     border: 1px solid var(--border-color);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 10px 40px var(--shadow-strong);
     gap: 24px;
   }
   
@@ -1084,7 +1137,7 @@ input, button, select, textarea {
   .stock-card:hover {
     border-color: var(--accent-purple);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px var(--shadow-soft);
   }
 
   /* Horizontal scrollende Tabs auf dem Desktop standardmäßig nebeneinander (ohne Scrollen) */
