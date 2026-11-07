@@ -422,7 +422,7 @@ def bottom_extras(history):
     """Boden-Check: 'base' (Bodenbildung), 'knife' (fallendes Messer), 'wait' (unklar) oder None (kein Rückgang >= 20 % vom 52W-Hoch).
     Gleiche Regeln wie bottomCheck() in js/stock-chart.js."""
     out = {"bottom": None, "bottomScore": None}
-    c = [p.get("close") for p in (history or []) if p.get("close")]
+    c = [float(p.get("close")) for p in (history or []) if p.get("close")]
     if len(c) < 120:
         return out
     px = c[-1]
@@ -444,7 +444,8 @@ def bottom_extras(history):
         line[-1] is not None and sig[-1] is not None and line[-1] > sig[-1],
         rsi[-1] is not None and rsi[-6] is not None and rsi[-1] >= 40 and rsi[-1] > rsi[-6],
     ]
-    score = sum(checks)
+    checks = [bool(x) for x in checks]
+    score = int(sum(checks))
     perf1m = px / c[-22] - 1
     if score >= 4 and (checks[0] or checks[1]):
         out["bottom"] = "base"
