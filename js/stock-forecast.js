@@ -38,17 +38,21 @@ window.App.Forecast = (function () {
       return '<button class="pill-btn fc-toggle ' + (state[k] ? 'active' : '') + '" data-k="' + k + '">' + label + '</button>';
     }
     var sum = '';
-    if (m.tMean) {
-      sum += '<div class="chart-signal-value">Analysten-Kursziel Ø ' + eur(m.tMean) + ' (' + (m.tMean >= m.px ? '+' : '') + F.number((m.tMean / m.px - 1) * 100, 0) + ' %)' +
-        (m.tLow && m.tHigh ? ', Spanne ' + eur(m.tLow) + ' – ' + eur(m.tHigh) : '') +
-        (m.tCount ? ' · ' + m.tCount + ' Analysten' + (m.tCount < 5 ? ' (wenige, wenig aussagekräftig)' : '') : '') + '</div>';
-    } else sum += '<div class="chart-signal-value">Keine Analysten-Kursziele vorhanden.</div>';
+    var SC = [['Pessimistisch', m.tLow, '#ef4444', 'niedrigstes Kursziel'], ['Basis', m.tMean, '#a78bfa', 'mittleres Kursziel'], ['Optimistisch', m.tHigh, '#22c55e', 'höchstes Kursziel']];
+    SC.forEach(function (r) {
+      if (!r[1]) return;
+      var d = (r[1] / m.px - 1) * 100;
+      sum += '<div class="chart-signal-row"><span class="chart-dot" style="background:' + r[2] + ';"></span><div class="chart-signal-text"><div class="chart-signal-value">' +
+        r[0] + ' (' + r[3] + '): ' + eur(r[1]) + ' (' + (d >= 0 ? '+' : '') + F.number(d, 0) + ' %)</div></div></div>';
+    });
+    if (!m.tMean && !m.tLow && !m.tHigh) sum += '<div class="chart-signal-value">Keine Analysten-Kursziele vorhanden.</div>';
+    else if (m.tCount) sum += '<div class="chart-signal-value" style="color:var(--text-dim);">Basis aus ' + m.tCount + ' Analysten' + (m.tCount < 5 ? ' (wenige, wenig aussagekräftig)' : '') + '</div>';
     sum += '<div class="chart-signal-value">Typische Schwankungsbreite in 12 Monaten (1σ, ca. 68 %): ' + eur(m.coneLo) + ' – ' + eur(m.coneHi) + '</div>';
     slot.innerHTML = '<div class="card"><div class="card-header-dotted"><span class="card-title">Szenario-Chart</span><span class="period-tag">12 Monate</span></div>' +
-      '<div class="pill-group" style="margin-bottom:8px;">' + pill('analyst', 'Analystenziel') + pill('cone', 'Schwankungsbreite') + pill('trend', 'Trendkanal') + '</div>' +
+      '<div class="pill-group" style="margin-bottom:8px;">' + pill('analyst', 'Szenarien') + pill('cone', 'Schwankungsbreite') + pill('trend', 'Trendkanal') + '</div>' +
       '<div style="position:relative;width:100%;height:240px;"><canvas id="fc-canvas" style="width:100%;height:100%;"></canvas></div>' +
       '<div style="margin-top:8px;">' + sum + '</div>' +
-      '<div class="chart-note">Szenario-Darstellung, keine Kursprognose. Kursziele von Analysten und statistische Bandbreiten können weit danebenliegen. Keine Anlageberatung. Blaue Zone: 52W-Tief-Bereich als mögliche Unterstützung.</div></div>';
+      '<div class="chart-note">Szenario-Darstellung, keine Kursprognose. Kursziele von Analysten und statistische Bandbreiten können weit danebenliegen. Keine Anlageberatung. Die drei Szenario-Linien folgen den Kurszielen der Analysten (niedrigstes, mittleres, höchstes). Blaue Zone: 52W-Tief-Bereich als mögliche Unterstützung.</div></div>';
     var cv = slot.querySelector('#fc-canvas');
     draw(cv, m);
     [].forEach.call(slot.querySelectorAll('.fc-toggle'), function (btn) {
@@ -103,12 +107,15 @@ window.App.Forecast = (function () {
     g.stroke();
     // Heute-Linie
     g.strokeStyle = dim; g.lineWidth = 1; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(x(X), T); g.lineTo(x(X), T + ph); g.stroke(); g.setLineDash([]);
-    // Analystenziel
-    if (state.analyst && m.tMean) {
-      var ex = x(total - 1), col = m.tMean >= m.px ? '#22c55e' : '#ef4444';
-      g.strokeStyle = col; g.lineWidth = 1.4; g.setLineDash([5, 4]); g.beginPath(); g.moveTo(x(X), y(m.px)); g.lineTo(ex, y(m.tMean)); g.stroke(); g.setLineDash([]);
-      if (m.tLow && m.tHigh) { g.lineWidth = 3; g.globalAlpha = 0.5; g.beginPath(); g.moveTo(ex, y(m.tLow)); g.lineTo(ex, y(m.tHigh)); g.stroke(); g.globalAlpha = 1; }
-      g.fillStyle = col; g.beginPath(); g.arc(ex, y(m.tMean), 4, 0, 6.283); g.fill();
+    // Szenarien (niedriges / mittleres / hohes Analystenziel)
+    if (state.analyst) {
+      var ex = x(total - 1);
+      [[m.tLow, '#ef4444'], [m.tMean, '#a78bfa'], [m.tHigh, '#22c55e']].forEach(function (sc) {
+        if (!sc[0]) return;
+        g.strokeStyle = sc[1]; g.fillStyle = sc[1]; g.lineWidth = 1.5; g.setLineDash([5, 4]);
+        g.beginPath(); g.moveTo(x(X), y(m.px)); g.lineTo(ex, y(sc[0])); g.stroke(); g.setLineDash([]);
+        g.beginPath(); g.arc(ex, y(sc[0]), 4, 0, 6.283); g.fill();
+      });
     }
     g.fillStyle = dim; g.textBaseline = 'alphabetic'; g.textAlign = 'left'; g.fillText('vor 1 J.', L, H - 6);
     g.textAlign = 'center'; g.fillText('Heute', x(X), H - 6); g.textAlign = 'right'; g.fillText('in 12 Mon.', W - R, H - 6);
