@@ -29,7 +29,7 @@ window.App.ChartAnalyse = (function () {
     ATR: { name: 'ATR (Average True Range)', text: 'Die durchschnittliche tägliche Schwankungsbreite der Aktie in Euro über die letzten 14 Tage. Hilft bei der Einschätzung des täglichen Risikos.' },
     OBV: { name: 'OBV (On-Balance Volume)', text: 'Ein Volumenindikator, der das Handelsvolumen an Aufwärts- und Abwärtstagen kumuliert. Steigendes OBV zeigt an, dass Geld in den Markt fließt; wenn es dem Kurs widerspricht, deutet das auf eine Divergenz hin.' },
     Bollinger: { name: 'Bollinger-Bänder', text: 'Ein Volatilitätsindikator. Ein "Squeeze" (sehr enge Bänder) signalisiert eine Phase geringer Volatilität, auf die oft eine stärkere Kursbewegung folgt. Berührt der Kurs das obere/untere Band, gilt er oft als überkauft/überverkauft.' },
-    Support: { name: 'Unterstützung & Widerstand', text: 'Unterstützung ist ein Kursbereich, an dem der Kurs in der Vergangenheit oft nach oben gedreht hat. Widerstand ist eine Marke, an der der Kurs oft nach unten abgeprallt ist.' },
+    Support: { name: 'Unterstützung & Widerstand', text: 'Unterstützung ist ein Kursbereich, an dem der Kurs in der Vergangenheit oft nach oben gedreht hat. Widerstand ist eine Marke, an der der Kurs oft nach unten abgeprallt ist. Je dicker die Linie im Chart gezeichnet wird, desto öfter wurde sie berührt (stärkeres Level).' },
     CRV: { name: 'Chance-Risiko-Verhältnis (CRV)', text: 'Das Verhältnis zwischen dem möglichen Gewinn (Ziel minus Einstieg) und dem möglichen Verlust (Einstieg minus Stop). Werte ab 2:1 gelten als erstrebenswert.' },
     Score: { name: 'Chart-Score', text: 'Ein Gesamtwert von 0 bis 100 (50 = neutral), der fünf verschiedene technische Bereiche (Trend, Momentum, Muster, Signale und S/R-Lage) bündelt.' },
     Chartmuster: { name: 'Chartmuster', text: 'Automatische Erkennung klassischer Formationen (Doppel-Tops, SKS, Dreiecke, Flaggen). Ausbrüche werden stärker gewichtet, wenn sie mit hohem Volumen einhergehen.' },
@@ -380,17 +380,44 @@ window.App.ChartAnalyse = (function () {
   }
 
   // ---------------------------------------------------------------------------
-  // Support/Widerstand aus Wendepunkten
+  // Support/Widerstand aus Wendepunkten (Optimiert mit ATR & Heatmap)
   // ---------------------------------------------------------------------------
-  function levels(P, px) {
-    var prices = P.map(function (p) { return p.p; }).sort(function (a, b) { return a - b; }), cl = [], cur = null;
-    prices.forEach(function (v) {
-      if (cur && v <= cur.max * 1.015) { cur.vals.push(v); cur.max = v; } else { cur = { vals: [v], max: v }; cl.push(cur); }
+  function levels(P, px, atr) {
+    // 1. Pivot-Punkte dynamisch (ATR-basiert) clustern, statt fix 1,5 %
+    var pivs = P.slice().sort(function (a, b) { return a.p - b.p; }), cl = [], cur = null;
+    var tol = atr * 0.6; // Maximal 0.6 ATR Abstand für denselben Bereich
+    
+    pivs.forEach(function (pt) {
+      if (cur && (pt.p - cur.min) <= tol) { 
+        cur.vals.push(pt.p); 
+        cur.max = Math.max(cur.max, pt.p); 
+        cur.touches++;
+      } else { 
+        cur = { vals: [pt.p], min: pt.p, max: pt.p, touches: 1 }; 
+        cl.push(cur); 
+      }
     });
-    var lv = cl.filter(function (c) { return c.vals.length >= 2; }).map(function (c) { return { p: avg(c.vals), n: c.vals.length }; });
-    var sup = lv.filter(function (x) { return x.p < px * 0.995; }).sort(function (a, b) { return b.p - a.p; })[0] || null;
-    var res = lv.filter(function (x) { return x.p > px * 1.005; }).sort(function (a, b) { return a.p - b.p; })[0] || null;
-    return { sup: sup, res: res, all: lv };
+    
+    var lv = cl.filter(function (c) { return c.touches >= 2; }).map(function (c) { 
+      return { p: avg(c.vals), n: c.touches }; 
+    });
+    
+    // 2. Wichtigstes Level für den Text (Risk/Reward) ermitteln
+    // Wir gewichten die Berührungen (Stärke) gegen die Distanz (Relevanz).
+    function getScore(lvl, isSup) {
+      var distAtr = Math.abs(lvl.p - px) / atr;
+      // Zu nahe Level (im Rauschen) bestrafen
+      if (isSup && lvl.p >= px * 0.99) return -999;
+      if (!isSup && lvl.p <= px * 1.01) return -999;
+      // Ein Level mit 4 Berührungen, das 2 ATR entfernt ist, 
+      // ist genauso stark wie eines mit 2 Berührungen, das 0 ATR entfernt ist.
+      return lvl.n / (1 + distAtr);
+    }
+
+    var sups = lv.filter(function (x) { return x.p < px; }).sort(function(a, b) { return getScore(b, true) - getScore(a, true); });
+    var ress = lv.filter(function (x) { return x.p > px; }).sort(function(a, b) { return getScore(b, false) - getScore(a, false); });
+
+    return { sup: sups[0] || null, res: ress[0] || null, all: lv };
   }
 
   // ---------------------------------------------------------------------------
@@ -404,7 +431,6 @@ window.App.ChartAnalyse = (function () {
     var c = T.c.slice(off), h = T.h.slice(off), l = T.l.slice(off);
     var atr = atrArr(T.h, T.l, T.c, 14), atrV = atr[n - 1] || px * 0.02;
     
-    // Volumen-Check für Ausbrüche (Strong Volume Breakout)
     var hasVol = T.v.slice(-20).some(function (v) { return v > 0; });
     var strongVolBrk = false;
     if (hasVol && n > 25) {
@@ -414,16 +440,13 @@ window.App.ChartAnalyse = (function () {
 
     var th = clamp(2.2 * atrV / px, 0.035, 0.12);
     
-    // Alle Pivots (für kurzfristige Muster & Support/Resistance)
     var P = zigzag(h, l, th), Vw = P.filter(function (p) { return p.i >= from; });
-    
-    // MAJOR Pivots (filtert Rauschen für große Chartmuster wie SKS & Triple Tops)
     var P_major = zigzag(h, l, th * 1.5), Vw_major = P_major.filter(function (p) { return p.i >= from; });
 
     var pats = [];
     twoPivotPatterns(Vw, px, N, atrV, strongVolBrk, pats);
-    triplePivotPatterns(Vw_major, px, N, atrV, strongVolBrk, pats); // Nutzt Major Pivots
-    headShoulders(Vw_major, px, N, atrV, strongVolBrk, pats);       // Nutzt Major Pivots
+    triplePivotPatterns(Vw_major, px, N, atrV, strongVolBrk, pats); 
+    headShoulders(Vw_major, px, N, atrV, strongVolBrk, pats);       
     trendPatterns(Vw, px, N, strongVolBrk, pats);
     if (from <= N - 12) flagPatterns(c, N, strongVolBrk, pats);
     candlePatterns(T, off, N, pats);
@@ -442,7 +465,7 @@ window.App.ChartAnalyse = (function () {
     for (i = 19; i < n; i++) {
       var sl = T.c.slice(i - 19, i + 1), m = avg(sl), sd = Math.sqrt(avg(sl.map(function (x) { return (x - m) * (x - m); })));
       bw.push((4 * sd) / m);
-      bb.push({ i: i - off, m: m, u: m + 2 * sd, d: m - 2 * sd }); // Bollinger Bands
+      bb.push({ i: i - off, m: m, u: m + 2 * sd, d: m - 2 * sd }); 
       if (i === n - 1) pb = sd > 0 ? (px - (m - 2 * sd)) / (4 * sd) : 0.5;
     }
     var bwLast = bw[bw.length - 1], bwWin = bw.slice(-120), rank = bwWin.filter(function (x) { return x <= bwLast; }).length / bwWin.length;
@@ -464,7 +487,8 @@ window.App.ChartAnalyse = (function () {
       else if (px < lo20) brk = { type: 'bear', text: 'Bruch des 20-Tage-Tiefs ' + (strongVolBrk ? 'mit starkem Volumen' : 'ohne Volumenbestätigung'), strong: strongVolBrk };
     }
 
-    var lv = levels(P, px);
+    // Supportlinien generieren - jetzt mit ATR
+    var lv = levels(P, px, atrV);
 
     var parts = [], tTrend = 0, tMom = 0, tPat = 0, tSig = 0, tPos = 0;
     if (s200) tTrend += px > s200 ? 10 : -10;
@@ -639,10 +663,18 @@ window.App.ChartAnalyse = (function () {
     });
     g.save(); g.beginPath(); g.rect(L - 1, T - 2, pw + 3, ph + 4); g.clip();
     
-    if (ui.sr) {
-      g.lineWidth = 1; g.setLineDash([4, 4]);
-      if (A.lv.sup) { g.strokeStyle = 'rgba(16,185,129,0.7)'; g.beginPath(); g.moveTo(L, y(A.lv.sup.p)); g.lineTo(W - R, y(A.lv.sup.p)); g.stroke(); }
-      if (A.lv.res) { g.strokeStyle = 'rgba(239,68,68,0.7)'; g.beginPath(); g.moveTo(L, y(A.lv.res.p)); g.lineTo(W - R, y(A.lv.res.p)); g.stroke(); }
+    // Support / Resistance zeichnen (Visualisierung aller starken Heatmap-Zonen)
+    if (ui.sr && A.lv && A.lv.all) {
+      g.setLineDash([4, 4]);
+      A.lv.all.forEach(function(lvl) {
+        var isSup = lvl.p < A.px;
+        // Dicke und Sichtbarkeit skalieren mit der Anzahl der Berührungen (lvl.n)
+        var alpha = Math.min(0.85, 0.25 + lvl.n * 0.15); 
+        var w = Math.min(3.5, 0.5 + lvl.n * 0.5);        
+        g.lineWidth = w;
+        g.strokeStyle = isSup ? 'rgba(16,185,129,' + alpha + ')' : 'rgba(239,68,68,' + alpha + ')';
+        g.beginPath(); g.moveTo(L, y(lvl.p)); g.lineTo(W - R, y(lvl.p)); g.stroke();
+      });
       g.setLineDash([]);
     }
 
