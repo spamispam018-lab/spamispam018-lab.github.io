@@ -51,12 +51,14 @@ window.App.Forecast = (function () {
       if (!v) return;
       var d = (v / m.px - 1) * 100;
       sum += '<div class="chart-signal-row"><span class="chart-dot" style="background:' + r[2] + ';"></span><div class="chart-signal-text"><div class="chart-signal-value">' +
-        r[0] + ' (' + r[3] + '): ' + eur(v) + ' (' + (d >= 0 ? '+' : '') + F.number(d, 0) + ' %)</div></div></div>';
+        r[0] + ' (' + r[3] + '): ' + eur(v) + ' (' + (d >= 0 ? '+' : '') + F.number(d, 0) + ' %)' +
+        (m.period !== '1Y' ? '<div style="color:var(--text-dim);font-size:.72rem;">Punkt im Chart (anteilig bis in ' + pl[1] + '): ' + eur(m['t' + r[1]]) + '</div>' : '') +
+        '</div></div></div>';
     });
     if (!m.raw.low && !m.raw.mean && !m.raw.high) sum += '<div class="chart-signal-value">Keine Analysten-Kursziele vorhanden.</div>';
     else {
       sum += '<div class="chart-signal-value" style="color:var(--text-dim);">' + (m.tCount ? 'Basis aus ' + m.tCount + ' Analysten' + (m.tCount < 5 ? ' (wenige, wenig aussagekräftig)' : '') + '. ' : '') +
-        (m.period !== '1Y' ? 'Kursziele gelten ca. 12 Monate, hier anteilig bis ' + pl[1] + ' dargestellt.' : '') + '</div>';
+        (m.period !== '1Y' ? 'Kursziele gelten ca. 12 Monate, die Punkte im Chart zeigen den anteiligen Wert bis in ' + pl[1] + '.' : '') + '</div>';
     }
     sum += '<div class="chart-signal-value">Typische Schwankungsbreite bis in ' + pl[1] + ' (1σ, ca. 68 %): ' + eur(m.coneLo) + ' – ' + eur(m.coneHi) + '</div>';
     slot.innerHTML = '<div class="card"><div class="card-header-dotted"><span class="card-title">Szenario-Chart</span><span class="period-tag">' + pl[0] + '</span></div>' +
@@ -84,17 +86,19 @@ window.App.Forecast = (function () {
     if (supOk) vals.push(m.support[0], m.support[1]);
     if (state.cone) vals.push(m.coneLo, m.coneHi);
     if (state.analyst) [m.tlow, m.tmean, m.thigh].forEach(function (v) { if (v) vals.push(v); });
-    if (trendOn) vals.push(Math.exp(m.a + m.b * (n - 1 + tf) + 1.5 * m.s), Math.exp(m.a + m.b * (n - 1 + tf) - 1.5 * m.s));
     var mn = Math.min.apply(null, vals), mxv = Math.max.apply(null, vals), pad = (mxv - mn) * 0.06; mn = Math.max(0, mn - pad); mxv += pad;
     var L = 6, R = 52, T = 8, B = 22, pw = W - L - R, ph = H - T - B;
     function x(k) { return L + (k / (total - 1)) * pw; }
     function y(v) { return T + (1 - (v - mn) / (mxv - mn)) * ph; }
     g.font = '10px sans-serif'; g.textBaseline = 'middle';
-    for (i = 0; i <= 4; i++) {
-      var v = mn + (mxv - mn) * i / 4, yy = y(v);
+    var rng = (mxv - mn) / 4, ex10 = Math.pow(10, Math.floor(Math.log(rng) / Math.LN10)), fr = rng / ex10;
+    var step = (fr < 1.5 ? 1 : fr < 3 ? 2 : fr < 7 ? 5 : 10) * ex10, dec = step >= 1 ? 0 : (step >= 0.1 ? 1 : 2);
+    for (var tv = Math.ceil(mn / step) * step; tv <= mxv + step * 1e-6; tv += step) {
+      var yy = y(tv);
       g.strokeStyle = 'rgba(148,163,184,.15)'; g.lineWidth = 1; g.beginPath(); g.moveTo(L, yy); g.lineTo(W - R, yy); g.stroke();
-      g.fillStyle = dim; g.textAlign = 'left'; g.fillText(v >= 100 ? v.toFixed(0) : v.toFixed(1), W - R + 4, yy);
+      g.fillStyle = dim; g.textAlign = 'left'; g.fillText(tv.toFixed(dec), W - R + 4, yy);
     }
+    g.save(); g.beginPath(); g.rect(L - 1, T - 2, pw + 9, ph + 4); g.clip(); // Linien nicht über den Rand hinaus zeichnen
     if (supOk) { g.fillStyle = 'rgba(59,130,246,.22)'; g.fillRect(x(0), y(m.support[1]), x(total - 1) - x(0), y(m.support[0]) - y(m.support[1])); }
     if (state.cone) {
       var st = Math.max(1, Math.round(F / 60));
@@ -125,6 +129,7 @@ window.App.Forecast = (function () {
         g.beginPath(); g.arc(ex, y(sc[0]), 4, 0, 6.283); g.fill();
       });
     }
+    g.restore();
     var pl = PL[m.period][1];
     g.fillStyle = dim; g.textBaseline = 'alphabetic'; g.textAlign = 'left'; g.fillText('vor ' + pl, L, H - 6);
     g.textAlign = 'center'; g.fillText('Heute', x(X), H - 6); g.textAlign = 'right'; g.fillText('in ' + pl, W - R, H - 6);
