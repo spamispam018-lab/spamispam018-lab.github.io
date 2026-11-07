@@ -1,5 +1,11 @@
 /**
- * js/chart-analyse.js – erweiterte Chart-Analyse mit umschaltbarem Indikatoren-Graphen & Support-Linien
+ * js/chart-analyse.js – erweiterte Chart-Analyse (eigenständiges Modul)
+ * Chartmuster (mehrere gleichzeitig), Kerzenmuster, Divergenz, Squeeze, ADX/ATR/OBV,
+ * Ausbruch mit Volumen, Support/Widerstand, Risk/Reward (Stop an Unterstützung oder ATR), Chart-Score.
+ * Alles wird im Browser aus stock.chartHistory berechnet. Keine Anlageberatung.
+ *
+ * Einbindung:  window.App.ChartAnalyse.mount(slotElement, stock, period)
+ *              window.App.ChartAnalyse.promptText(stock)   -> Text für den Gemini-Prompt
  */
 window.App = window.App || {};
 window.App.ChartAnalyse = (function () {
@@ -8,31 +14,31 @@ window.App.ChartAnalyse = (function () {
   var WIN = { '1W': 63, '1M': 63, '3M': 63, '6M': 126, '1Y': 250 };
   var BIAS = { bull: '#22c55e', bear: '#ef4444', neutral: '#f59e0b' };
   var BIAS_TXT = { bull: 'bullisch', bear: 'bärisch', neutral: 'neutral' };
-  var ui = { 
-    chart: true, 
-    candle: true, 
-    capital: 10000, 
-    risk: 1, 
-    stop: 'support', 
-    target: 'resistance',
-    subGraph: 'obv' 
-  };
+  var ui = { chart: true, candle: true, capital: 10000, risk: 1, stop: 'support', target: 'resistance' };
   try { var sv = JSON.parse(localStorage.getItem('ca_ui') || 'null'); if (sv) for (var k0 in sv) ui[k0] = sv[k0]; } catch (e) { /* ignorieren */ }
   function saveUi() { try { localStorage.setItem('ca_ui', JSON.stringify(ui)); } catch (e) { /* ignorieren */ } }
 
+  // ---------------------------------------------------------------------------
+  // Glossar & Erklärungen für Fachbegriffe
+  // ---------------------------------------------------------------------------
   var GLOSSARY = {
-    ADX: { name: 'ADX (Average Directional Index)', text: 'Misst die Trendstärke unabhängig von der Richtung (Skala von 0 bis 100).' },
-    ATR: { name: 'ATR (Average True Range)', text: 'Die durchschnittliche tägliche Schwankungsbreite der Aktie in Euro.' },
-    OBV: { name: 'OBV (On-Balance Volume)', text: 'Ein Volumenindikator, der das Handelsvolumen an Aufwärts- und Abwärtstagen kumuliert.' },
-    Bollinger: { name: 'Bollinger-Squeeze', text: 'Ein Zustand, bei dem sich die Bollinger-Bänder extrem eng zusammenziehen.' },
-    Support: { name: 'Unterstützung & Widerstand', text: 'Wichtige Kursmarken in der Vergangenheit.' },
-    CRV: { name: 'Chance-Risiko-Verhältnis (CRV)', text: 'Verhältnis zwischen möglichem Gewinn und Verlust.' },
-    Score: { name: 'Chart-Score', text: 'Gesamtwert aus fünf technischen Bereichen.' }
+    ADX: { name: 'ADX (Average Directional Index)', text: 'Misst die Trendstärke unabhängig von der Richtung (Skala von 0 bis 100). Unter 20 gibt es keinen klaren Trend, über 25 bis 40 zeigt einen intakten Trend an, über 40 einen sehr starken Trend.' },
+    ATR: { name: 'ATR (Average True Range)', text: 'Die durchschnittliche tägliche Schwankungsbreite der Aktie in Euro über die letzten 14 Tage. Hilft bei der Einschätzung des täglichen Risikos.' },
+    OBV: { name: 'OBV (On-Balance Volume)', text: 'Ein Volumenindikator, der das Handelsvolumen an Aufwärts- und Abwärtstagen kumuliert. Steigendes OBV zeigt an, dass Geld in den Markt fließt; wenn es dem Kurs widerspricht, deutet das auf eine Divergenz hin.' },
+    Bollinger: { name: 'Bollinger-Squeeze', text: 'Ein Zustand, bei dem sich die Bollinger-Bänder extrem eng zusammenziehen. Das signalisiert eine Phase geringer Volatilität, auf die historisch oft eine größere Kursbewegung folgt.' },
+    Support: { name: 'Unterstützung & Widerstand', text: 'Unterstützung ist ein Kursbereich, an dem der Kurs in der Vergangenheit oft nach oben gedreht hat. Widerstand ist eine Marke, an der der Kurs oft nach unten abgeprallt ist.' },
+    CRV: { name: 'Chance-Risiko-Verhältnis (CRV)', text: 'Das Verhältnis zwischen dem möglichen Gewinn (Ziel minus Einstieg) und dem möglichen Verlust (Einstieg minus Stop). Werte ab 2:1 gelten als erstrebenswert.' },
+    Score: { name: 'Chart-Score', text: 'Ein Gesamtwert von 0 bis 100 (50 = neutral), der fünf verschiedene technische Bereiche (Trend, Momentum, Muster, Signale und S/R-Lage) bündelt.' }
   };
 
   var TERM_RULES = [
-    [/^ADX/, 'ADX'], [/^ATR/, 'ATR'], [/^OBV/, 'OBV'], [/Bollinger/, 'Bollinger'],
-    [/Support|Widerstand/, 'Support'], [/Chance-Risiko-Verhältnis|CRV/, 'CRV'], [/Chart-Score/, 'Score']
+    [/^ADX/, 'ADX'],
+    [/^ATR/, 'ATR'],
+    [/^OBV/, 'OBV'],
+    [/Bollinger/, 'Bollinger'],
+    [/Unterstützung|Widerstand/, 'Support'],
+    [/Chance-Risiko-Verhältnis|CRV/, 'CRV'],
+    [/Chart-Score/, 'Score']
   ];
 
   function termKeyFor(label) {
@@ -63,7 +69,10 @@ window.App.ChartAnalyse = (function () {
         box.parentNode.removeChild(box);
         return;
       }
-      if (!box) { box = document.createElement('div'); box.id = 'ca-term-info'; }
+      if (!box) {
+        box = document.createElement('div');
+        box.id = 'ca-term-info';
+      }
       box.setAttribute('data-term', key);
       box.setAttribute('style', 'margin: -6px 0 16px; padding: 12px 14px; border-radius: var(--radius-sm); background-color: var(--bg-secondary); border: 1px solid var(--border-subtle); font-size: 0.8rem; color: var(--text-main); line-height: 1.45;');
       box.innerHTML = '<div style="font-weight: 700; margin-bottom: 4px;">' + GLOSSARY[key].name + '</div>' + GLOSSARY[key].text;
@@ -71,6 +80,9 @@ window.App.ChartAnalyse = (function () {
     });
   }
 
+  // ---------------------------------------------------------------------------
+  // Basis-Rechnungen
+  // ---------------------------------------------------------------------------
   function avg(a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : 0; }
   function maxOf(a) { return Math.max.apply(null, a); }
   function minOf(a) { return Math.min.apply(null, a); }
@@ -111,24 +123,13 @@ window.App.ChartAnalyse = (function () {
     return out;
   }
 
-  function atrSeries(h, l, c, len) {
+  function atrArr(h, l, c, len) {
     var out = [], prev = null, sum = 0;
     for (var i = 0; i < c.length; i++) {
       var tr = i === 0 ? h[i] - l[i] : Math.max(h[i] - l[i], Math.abs(h[i] - c[i - 1]), Math.abs(l[i] - c[i - 1]));
       if (i < len - 1) { sum += tr; out.push(null); }
       else if (i === len - 1) { sum += tr; prev = sum / len; out.push(prev); }
       else { prev = (prev * (len - 1) + tr) / len; out.push(prev); }
-    }
-    return out;
-  }
-
-  function adxSeries(h, l, c, len) {
-    var n = c.length, out = [];
-    for (var i = 0; i < n; i++) {
-      if (i < len * 2 + 2) { out.push(null); continue; }
-      var subH = h.slice(0, i + 1), subL = l.slice(0, i + 1), subC = c.slice(0, i + 1);
-      var res = adxLast(subH, subL, subC, len);
-      out.push(res ? res.adx : null);
     }
     return out;
   }
@@ -162,6 +163,9 @@ window.App.ChartAnalyse = (function () {
     return { a: my - b * mx, b: b, n: n };
   }
 
+  // ---------------------------------------------------------------------------
+  // Wendepunkte (Zigzag)
+  // ---------------------------------------------------------------------------
   function zigzag(h, l, th) {
     var n = h.length, piv = [], dir = 0, hiI = 0, loI = 0, ext = 0, i, j;
     for (i = 1; i < n; i++) {
@@ -182,6 +186,9 @@ window.App.ChartAnalyse = (function () {
     return piv;
   }
 
+  // ---------------------------------------------------------------------------
+  // Chartmuster
+  // ---------------------------------------------------------------------------
   function twoPivotPatterns(V, px, N, out) {
     var len = V.length, k, a, b, c;
     for (k = 0; k + 2 < len; k++) {
@@ -299,6 +306,9 @@ window.App.ChartAnalyse = (function () {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Kerzenmuster (letzte 10 Handelstage)
+  // ---------------------------------------------------------------------------
   function candlePatterns(T, off, N, out) {
     if (!T.ohlc) return;
     var n = T.c.length, i, o = T.o, h = T.h, l = T.l, c = T.c;
@@ -323,6 +333,9 @@ window.App.ChartAnalyse = (function () {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Support/Widerstand aus Wendepunkten
+  // ---------------------------------------------------------------------------
   function levels(P, px) {
     var prices = P.map(function (p) { return p.p; }).sort(function (a, b) { return a - b; }), cl = [], cur = null;
     prices.forEach(function (v) {
@@ -334,13 +347,16 @@ window.App.ChartAnalyse = (function () {
     return { sup: sup, res: res, all: lv };
   }
 
+  // ---------------------------------------------------------------------------
+  // Gesamtanalyse
+  // ---------------------------------------------------------------------------
   function analyse(stock, period) {
     var T = prep(stock.chartHistory || []), n = T.c.length;
     if (n < 80) return null;
     var N = Math.min(250, n), off = n - N, px = T.c[n - 1];
     var w = Math.min(WIN[period] || 126, N), from = N - w;
     var c = T.c.slice(off), h = T.h.slice(off), l = T.l.slice(off);
-    var atr = atrSeries(T.h, T.l, T.c, 14), atrV = atr[n - 1] || px * 0.02;
+    var atr = atrArr(T.h, T.l, T.c, 14), atrV = atr[n - 1] || px * 0.02;
     var th = clamp(2.2 * atrV / px, 0.035, 0.12);
     var P = zigzag(h, l, th), Vw = P.filter(function (p) { return p.i >= from; });
     var pats = [];
@@ -352,8 +368,7 @@ window.App.ChartAnalyse = (function () {
     var e12 = ema(T.c, 12), e26 = ema(T.c, 26), line = e12.map(function (v, i) { return v !== null && e26[i] !== null ? v - e26[i] : null; }), sigl = ema(line, 9);
     var macdBull = line[n - 1] !== null && sigl[n - 1] !== null && line[n - 1] > sigl[n - 1];
     var s50 = n >= 50 ? avg(T.c.slice(-50)) : null, s200 = n >= 200 ? avg(T.c.slice(-200)) : null;
-    var adxArr = adxSeries(T.h, T.l, T.c, 14);
-    var adxObj = adxLast(T.h, T.l, T.c, 14);
+    var adx = adxLast(T.h, T.l, T.c, 14);
 
     var obv = [0], i;
     for (i = 1; i < n; i++) obv.push(obv[i - 1] + (T.c[i] > T.c[i - 1] ? T.v[i] : T.c[i] < T.c[i - 1] ? -T.v[i] : 0));
@@ -368,6 +383,23 @@ window.App.ChartAnalyse = (function () {
     }
     var bwLast = bw[bw.length - 1], bwWin = bw.slice(-120), rank = bwWin.filter(function (x) { return x <= bwLast; }).length / bwWin.length;
 
+    var div = null, Ls = P.filter(function (p) { return p.t === 'L'; }).slice(-2), Hs = P.filter(function (p) { return p.t === 'H'; }).slice(-2);
+    if (Ls.length === 2 && Ls[1].i >= N - 25 && Ls[1].i - Ls[0].i >= 5) {
+      var ra = rsi[off + Ls[0].i], rb = rsi[off + Ls[1].i];
+      if (ra !== null && rb !== null && Ls[1].p < Ls[0].p * 0.995 && rb > ra + 2) div = { type: 'bull', text: 'Bullische RSI-Divergenz: neues Tief im Kurs, aber höheres Tief im RSI' };
+    }
+    if (!div && Hs.length === 2 && Hs[1].i >= N - 25 && Hs[1].i - Hs[0].i >= 5) {
+      var rc = rsi[off + Hs[0].i], rd = rsi[off + Hs[1].i];
+      if (rc !== null && rd !== null && Hs[1].p > Hs[0].p * 1.005 && rd < rc - 2) div = { type: 'bear', text: 'Bärische RSI-Divergenz: neues Hoch im Kurs, aber tieferes Hoch im RSI' };
+    }
+
+    var brk = null;
+    if (hasVol && n > 25) {
+      var av = avg(T.v.slice(-21, -1)), vr = av > 0 ? T.v[n - 1] / av : 0, hi20 = maxOf(T.c.slice(-21, -1)), lo20 = minOf(T.c.slice(-21, -1));
+      if (px > hi20) brk = { type: 'bull', text: 'Ausbruch über das 20-Tage-Hoch ' + (vr >= 1.5 ? 'mit Volumen (' + vr.toFixed(1).replace('.', ',') + '× Schnitt)' : 'ohne Volumenbestätigung'), strong: vr >= 1.5 };
+      else if (px < lo20) brk = { type: 'bear', text: 'Bruch des 20-Tage-Tiefs ' + (vr >= 1.5 ? 'mit Volumen (' + vr.toFixed(1).replace('.', ',') + '× Schnitt)' : 'ohne Volumenbestätigung'), strong: vr >= 1.5 };
+    }
+
     var lv = levels(P, px);
 
     var parts = [], tTrend = 0, tMom = 0, tPat = 0, tSig = 0, tPos = 0;
@@ -379,27 +411,30 @@ window.App.ChartAnalyse = (function () {
     if (hasVol) tMom += obvTrend > 0 ? 6 : obvTrend < 0 ? -6 : 0;
     pats.forEach(function (p) { tPat += (p.bias === 'bull' ? 1 : p.bias === 'bear' ? -1 : 0) * (p.score || 0); });
     tPat = clamp(tPat, -20, 20);
+    if (div) tSig += div.type === 'bull' ? 8 : -8;
+    if (brk) tSig += (brk.type === 'bull' ? 1 : -1) * (brk.strong ? 8 : 3);
+    tSig = clamp(tSig, -15, 15);
+    if (lv.sup && lv.res) {
+      var ratio = (lv.res.p / px - 1) / (px / lv.sup.p - 1);
+      tPos = ratio >= 2 ? 15 : ratio >= 1.5 ? 8 : ratio <= 0.4 ? -15 : ratio <= 0.7 ? -8 : 0;
+    }
     parts = [
       ['Trend (SMA 50/200)', tTrend, 30], 
       ['Momentum (RSI, MACD, OBV)', tMom, 20], 
       ['Muster', tPat, 20], 
-      ['Signale', 0, 15], 
-      ['Lage zu S/R', 0, 15]
+      ['Signale (Divergenz, Ausbruch)', tSig, 15], 
+      ['Lage zu Support/Widerstand', tPos, 15]
     ];
     var total = parts.reduce(function (a, p) { return a + p[1]; }, 0), score = Math.round(clamp(50 + total / 2, 0, 100));
 
-    return { 
-      T: T, n: n, N: N, off: off, from: from, w: w, px: px, c: c, h: h, l: l, 
-      closes: T.c.slice(off),
-      atr: atrV, atrSeries: atr.slice(off), 
-      adx: adxObj, adxSeries: adxArr.slice(off),
-      obv: obv.slice(off), obvTrend: obvTrend, 
-      bwSeries: bw, pctB: pb, squeeze: rank <= 0.2,
-      hasVol: hasVol, pTrend: pTrend, lv: lv, parts: parts, score: score,
-      label: score >= 65 ? 'bull' : score <= 35 ? 'bear' : 'neutral' 
-    };
+    return { T: T, n: n, N: N, off: off, from: from, w: w, px: px, c: c, h: h, l: l, atr: atrV, th: th, pivots: P, pats: pats, rsi: r0, macdBull: macdBull, s50: s50, s200: s200,
+      adx: adx, hasVol: hasVol, obvTrend: obvTrend, pTrend: pTrend, bw: bwLast, squeeze: rank <= 0.2, pctB: pb, div: div, brk: brk, lv: lv, parts: parts, score: score,
+      label: score >= 65 ? 'bull' : score <= 35 ? 'bear' : 'neutral' };
   }
 
+  // ---------------------------------------------------------------------------
+  // Darstellung
+  // ---------------------------------------------------------------------------
   function F() { return window.App.Format; }
   function eur(v, cur) { return F().currency(v, cur); }
   function num(v, d) { return F().number(v, d === undefined ? 1 : d); }
@@ -409,11 +444,10 @@ window.App.ChartAnalyse = (function () {
       (sub ? '<div style="font-size:.72rem;color:var(--text-dim);">' + sub + '</div>' : '') + '</div></div>';
   }
   function pill(k, label, on) { return '<button class="pill-btn ca-btn ' + (on ? 'active' : '') + '" data-k="' + k + '">' + label + '</button>'; }
-  function subGraphPill(k, label, on) { return '<button class="pill-btn ca-sub-btn ' + (on ? 'active' : '') + '" data-sub="' + k + '">' + label + '</button>'; }
   function card(title, tag, body) {
     return '<div class="card"><div class="card-header-dotted"><span class="card-title">' + title + '</span>' + (tag || '') + '</div>' + body + '</div>';
   }
-  var NOTE = '<div class="chart-note">Regelbasierte Erkennung auf vergangenen Kursen, keine Anlageberatung.</div>';
+  var NOTE = '<div class="chart-note">Regelbasierte Erkennung auf vergangenen Kursen, keine Anlageberatung. Muster können sich auflösen oder fehlschlagen.</div>';
 
   function scoreCard(A) {
     var V = { bull: ['Bullisch', 'badge-bullish'], bear: ['Bärisch', 'badge-bearish'], neutral: ['Neutral', 'badge-neutral'] }[A.label];
@@ -422,19 +456,18 @@ window.App.ChartAnalyse = (function () {
       return row(p[1] > 0 ? 'var(--bullish)' : p[1] < 0 ? 'var(--bearish)' : 'var(--text-dim)', titleText + ': ' + (p[1] > 0 ? '+' : '') + p[1] + ' von ±' + p[2]); 
     }).join('');
     return card(termLink('Chart-Score'), '<span class="badge-pill ' + V[1] + '">' + V[0] + ' · ' + A.score + ' / 100</span>',
-      '<div class="chart-signal-list">' + rows + '</div><div class="chart-note">Gesamtwert aus fünf Teilen (50 = neutral).</div>');
+      '<div class="chart-signal-list">' + rows + '</div><div class="chart-note">Gesamtwert aus fünf Teilen (50 = neutral). Er fasst Chartsignale zusammen und ist keine Prognose.</div>');
   }
 
   function patternsCard(A, cur) {
-    var chartP = A.pats ? A.pats.filter(function (p) { return p.kind === 'chart'; }) : [];
-    var candP = A.pats ? A.pats.filter(function (p) { return p.kind === 'candle'; }) : [];
+    var chartP = A.pats.filter(function (p) { return p.kind === 'chart'; }), candP = A.pats.filter(function (p) { return p.kind === 'candle'; });
     var rows = '';
     chartP.forEach(function (p) {
-      var sub = p.status + (p.level ? ' · ' + p.levelName + ' ' + eur(p.level, cur) : '');
+      var sub = p.status + (p.level ? ' · ' + p.levelName + ' ' + eur(p.level, cur) : '') + (p.target ? ' · Kursziel ≈ ' + eur(p.target, cur) + ' (' + (p.target >= A.px ? '+' : '') + num((p.target / A.px - 1) * 100, 0) + ' %)' : '');
       rows += row(BIAS[p.bias], '<b>' + p.name + '</b> (' + BIAS_TXT[p.bias] + ')', sub);
     });
     candP.forEach(function (p) { rows += row(BIAS[p.bias], '<b>' + p.name + '</b> (' + BIAS_TXT[p.bias] + ')', 'Kerze vom ' + deDate(p.date)); });
-    if (!rows) rows = '<div class="chart-signal-value" style="color:var(--text-dim);">Kein Muster im Zeitraum erkannt.</div>';
+    if (!rows) rows = '<div class="chart-signal-value" style="color:var(--text-dim);">Im gewählten Zeitraum wurde kein Muster erkannt' + (A.T.ohlc ? '' : ' (Kerzenmuster brauchen Open/High/Low-Daten)') + '.</div>';
     return card('Muster-Erkennung', '<span class="period-tag">' + chartP.length + ' Chart · ' + candP.length + ' Kerzen</span>',
       '<div class="pill-group" style="margin-bottom:8px;">' + pill('chart', 'Chartmuster', ui.chart) + pill('candle', 'Kerzenmuster', ui.candle) + '</div>' +
       '<div style="position:relative;width:100%;height:240px;"><canvas id="ca-canvas" style="width:100%;height:100%;"></canvas></div>' +
@@ -445,44 +478,27 @@ window.App.ChartAnalyse = (function () {
     var r = '';
     if (A.adx) {
       var s = A.adx.adx, dir = A.adx.pdi > A.adx.mdi ? 'aufwärts' : 'abwärts';
-      r += row(s >= 25 ? (A.adx.pdi > A.adx.mdi ? 'var(--bullish)' : 'var(--bearish)') : '#f59e0b', termLink('ADX') + ' ' + num(s, 0) + (s < 20 ? ' – kein Trend' : ' – Trend ' + dir), 'Trendstärke');
+      r += row(s >= 25 ? (A.adx.pdi > A.adx.mdi ? 'var(--bullish)' : 'var(--bearish)') : '#f59e0b', termLink('ADX') + ' ' + num(s, 0) + (s < 20 ? ' – kein klarer Trend' : s < 40 ? ' – intakter Trend ' + dir : ' – sehr starker Trend ' + dir), 'Trendstärke, nicht Richtung. +DI ' + num(A.adx.pdi, 0) + ' / −DI ' + num(A.adx.mdi, 0));
     }
-    r += row('var(--text-dim)', termLink('ATR') + ' ' + eur(A.atr, cur) + ' (' + num(A.atr / A.px * 100, 1) + ' %)', 'Tages-Schwankung');
-    if (A.hasVol) r += row(A.obvTrend > 0 ? 'var(--bullish)' : A.obvTrend < 0 ? 'var(--bearish)' : 'var(--text-dim)', termLink('OBV') + ' ' + (A.obvTrend > 0 ? 'steigt' : A.obvTrend < 0 ? 'fällt' : 'seitwärts'), 'Volumenfluss');
-    r += row(A.squeeze ? '#f59e0b' : 'var(--text-dim)', termLink('Bollinger') + ': ' + (A.squeeze ? 'Squeeze eng' : 'normal') + ' (%B ' + num(A.pctB * 100, 0) + ' %)');
-    r += row('var(--text-dim)', 'Nächster ' + termLink('Support') + ': ' + (A.lv.sup ? eur(A.lv.sup.p, cur) : 'keine'));
-    r += row('var(--text-dim)', 'Nächster ' + termLink('Support') + ': ' + (A.lv.res ? eur(A.lv.res.p, cur) : 'keiner'));
-    
-    // Interaktiver Indikatoren-Graph mit Unterstützung für 'support' in den Pills
-    var graphHtml = '<div style="margin-top: 14px; border-top: 1px dashed var(--border-subtle); padding-top: 12px;">' +
-      '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">' +
-        '<span style="font-size: 0.72rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase;">Kurs vs. Indikator</span>' +
-        '<div class="pill-group">' +
-          subGraphPill('obv', 'OBV', ui.subGraph === 'obv') +
-          subGraphPill('atr', 'ATR', ui.subGraph === 'atr') +
-          subGraphPill('adx', 'ADX', ui.subGraph === 'adx') +
-          subGraphPill('bollinger', 'Bollinger', ui.subGraph === 'bollinger') +
-          subGraphPill('support', 'Support', ui.subGraph === 'support') +
-        '</div>' +
-      '</div>' +
-      '<div style="position:relative;width:100%;height:130px;"><canvas id="ca-signal-chart" style="width:100%;height:100%;"></canvas></div>' +
-      '<div class="legend-row" style="margin-top: 6px; font-size: 0.7rem; display: flex; gap: 12px;">' +
-        '<div style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#818cf8; border-radius:50%;"></span> Kursverlauf</div>' +
-        '<div style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#22c55e; border-radius:50%;"></span> Indikator / Support</div>' +
-      '</div>' +
-      '</div>';
-
-    return card('Trend, Volumen & Signale', '', '<div class="chart-signal-list">' + r + '</div>' + graphHtml + NOTE);
+    r += row('var(--text-dim)', termLink('ATR') + ' ' + eur(A.atr, cur) + ' (' + num(A.atr / A.px * 100, 1) + ' % vom Kurs)', 'typische tägliche Schwankung');
+    if (A.hasVol) r += row(A.obvTrend > 0 ? 'var(--bullish)' : A.obvTrend < 0 ? 'var(--bearish)' : 'var(--text-dim)', termLink('OBV') + ' ' + (A.obvTrend > 0 ? 'steigt' : A.obvTrend < 0 ? 'fällt' : 'seitwärts') +
+      (A.obvTrend && A.pTrend && A.obvTrend !== A.pTrend ? ' – widerspricht dem Kurs (Divergenz)' : A.obvTrend ? ' – bestätigt den Kurs' : ''), 'Volumenfluss, letzte 20 Tage');
+    r += row(A.squeeze ? '#f59e0b' : 'var(--text-dim)', termLink('Bollinger') + ': ' + (A.squeeze ? 'Squeeze – Bänder sehr eng' : 'Bänder normal') + ' (%B ' + num(A.pctB * 100, 0) + ' %)', A.squeeze ? 'Oft folgt eine größere Bewegung, die Richtung ist offen.' : 'Bandbreite nicht ungewöhnlich eng');
+    if (A.div) r += row(BIAS[A.div.type], A.div.text);
+    if (A.brk) r += row(BIAS[A.brk.type], A.brk.text);
+    r += row('var(--text-dim)', 'Nächste ' + termLink('Support') + ': ' + (A.lv.sup ? eur(A.lv.sup.p, cur) + ' (' + A.lv.sup.n + ' Berührungen, ' + num((A.lv.sup.p / A.px - 1) * 100, 1) + ' %)' : 'keine erkennbar'));
+    r += row('var(--text-dim)', 'Nächster ' + termLink('Support') + ': ' + (A.lv.res ? eur(A.lv.res.p, cur) + ' (' + A.lv.res.n + ' Berührungen, +' + num((A.lv.res.p / A.px - 1) * 100, 1) + ' %)' : 'keiner erkennbar'));
+    return card('Trend, Volumen & Signale', '', '<div class="chart-signal-list">' + r + '</div>' + NOTE);
   }
 
   function rrCalc(A, stock) {
     var px = A.px, sup = A.lv.sup, res = A.lv.res, notes = [], stop, tgt;
     var stopSup = sup ? sup.p * 0.985 : null, stopAtr = px - 2 * A.atr, mean = stock.analysts && stock.analysts.targets && stock.analysts.targets.mean;
     if (ui.stop === 'support' && stopSup && px - stopSup >= 0.8 * A.atr) stop = stopSup;
-    else { stop = stopAtr; if (ui.stop === 'support') notes.push('Unterstützung nah, Stop 2× ATR.'); }
+    else { stop = stopAtr; if (ui.stop === 'support') notes.push(sup ? 'Unterstützung liegt zu nah am Kurs, Stop daher 2× ATR.' : 'Keine Unterstützung erkennbar, Stop daher 2× ATR.'); }
     if (ui.target === 'resistance' && res) tgt = res.p;
     else if (ui.target === 'analyst' && mean && mean > px) tgt = mean;
-    else { tgt = px + 2 * (px - stop); if (ui.target !== 'rr2') notes.push('Ziel CRV 2:1.'); }
+    else { tgt = px + 2 * (px - stop); if (ui.target !== 'rr2') notes.push(ui.target === 'resistance' ? 'Kein Widerstand erkennbar, Ziel daher CRV 2:1.' : 'Kein Analystenziel über dem Kurs, Ziel daher CRV 2:1.'); }
     var risk = px - stop, reward = tgt - px, crv = risk > 0 ? reward / risk : 0;
     var shares = risk > 0 ? Math.floor((ui.capital * ui.risk / 100) / risk) : 0;
     return { stop: stop, tgt: tgt, risk: risk, reward: reward, crv: crv, shares: shares, notes: notes };
@@ -497,9 +513,10 @@ window.App.ChartAnalyse = (function () {
       row('var(--bullish)', 'Ziel: <b>' + eur(R.tgt, cur) + '</b> (+' + num(R.reward / A.px * 100, 1) + ' %)') +
       row('var(--text-main)', 'Einstieg: <b>' + eur(A.px, cur) + '</b>') +
       row('var(--bearish)', 'Stop: <b>' + eur(R.stop, cur) + '</b> (−' + num(R.risk / A.px * 100, 1) + ' %)') +
-      row(col, termLink('CRV') + ': <b>' + num(R.crv, 2) + '</b>', R.crv < 1 ? 'Risiko größer als Chance.' : 'Gutes Verhältnis') + '</div>' +
+      row(col, termLink('CRV') + ': <b>' + num(R.crv, 2) + '</b>', R.crv < 1 ? 'Das mögliche Risiko ist größer als die Chance.' : R.crv >= 2 ? 'mindestens 2:1' : 'zwischen 1:1 und 2:1') + '</div>' +
       '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0;font-size:.78rem;">Kapital <input id="ca-cap" type="number" inputmode="decimal" min="0" value="' + ui.capital + '" ' + inp + '> Risiko <input id="ca-risk" type="number" inputmode="decimal" min="0.1" step="0.1" value="' + ui.risk + '" ' + inp + '> %</div>' +
-      '<div class="chart-signal-value">' + (R.shares > 0 ? 'Bei ' + eur(ui.capital, cur) + ' Kapital und ' + num(ui.risk, 1) + ' % Risiko: ca. <b>' + R.shares + ' Stück</b>.' : 'Keine ganze Stückzahl.') + '</div>' + NOTE;
+      '<div class="chart-signal-value">' + (R.shares > 0 ? 'Bei ' + eur(ui.capital, cur) + ' Kapital und ' + num(ui.risk, 1) + ' % Risiko: ca. <b>' + R.shares + ' Stück</b> (≈ ' + eur(R.shares * A.px, cur) + '). Maximaler Verlust ≈ ' + eur(R.shares * R.risk, cur) + ', möglicher Gewinn ≈ ' + eur(R.shares * R.reward, cur) + '.' : 'Mit diesen Angaben ergibt sich keine ganze Stückzahl.') + '</div>' +
+      (R.notes.length ? '<div style="font-size:.72rem;color:var(--text-dim);margin-top:4px;">' + R.notes.join(' ') + '</div>' : '') + NOTE;
     return card('Risk/Reward (Long)', '<span class="period-tag">CRV ' + num(R.crv, 1) + '</span>', body);
   }
 
@@ -509,7 +526,7 @@ window.App.ChartAnalyse = (function () {
     return { vals: out, dec: st >= 1 ? 0 : st >= 0.1 ? 1 : 2 };
   }
 
-  function drawMainCanvas(cv, A) {
+  function draw(cv, A) {
     if (!cv) return;
     var dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 320, H = cv.clientHeight || 240;
     cv.width = W * dpr; cv.height = H * dpr;
@@ -530,65 +547,26 @@ window.App.ChartAnalyse = (function () {
     g.strokeStyle = txt; g.lineWidth = 1.5; g.beginPath();
     for (i = from; i < N; i++) { if (i === from) g.moveTo(x(i), y(A.c[i])); else g.lineTo(x(i), y(A.c[i])); }
     g.stroke();
+    if (ui.chart) {
+      A.pats.filter(function (p) { return p.kind === 'chart'; }).forEach(function (p) {
+        var col = BIAS[p.bias];
+        g.strokeStyle = col; g.fillStyle = col; g.lineWidth = 1.5;
+        p.lines.forEach(function (ln) { g.setLineDash(ln[4] ? [5, 4] : []); g.beginPath(); g.moveTo(x(Math.max(from, ln[0])), y(ln[1])); g.lineTo(x(ln[2]), y(ln[3])); g.stroke(); });
+        g.setLineDash([]);
+        p.pts.forEach(function (pt) { if (pt[0] >= from) { g.beginPath(); g.arc(x(pt[0]), y(pt[1]), 3, 0, 6.283); g.fill(); } });
+      });
+    }
+    if (ui.candle) {
+      A.pats.filter(function (p) { return p.kind === 'candle'; }).forEach(function (p) {
+        var col = BIAS[p.bias], up = p.bias === 'bull', xx = x(p.i), yy = up ? y(A.l[p.i]) + 9 : y(A.h[p.i]) - 9;
+        g.fillStyle = col; g.beginPath();
+        if (up) { g.moveTo(xx, yy - 6); g.lineTo(xx - 4, yy + 2); g.lineTo(xx + 4, yy + 2); } else { g.moveTo(xx, yy + 6); g.lineTo(xx - 4, yy - 2); g.lineTo(xx + 4, yy - 2); }
+        g.closePath(); g.fill();
+      });
+    }
     g.restore();
     g.fillStyle = dim; g.textBaseline = 'alphabetic'; g.textAlign = 'left'; g.fillText(deDate(A.T.date[A.off + from]), L, H - 5);
     g.textAlign = 'right'; g.fillText('Heute', W - R, H - 5);
-  }
-
-  function drawSignalCanvas(cv, A) {
-    if (!cv) return;
-    var dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 320, H = cv.clientHeight || 130;
-    cv.width = W * dpr; cv.height = H * dpr;
-    var g = cv.getContext('2d'); g.scale(dpr, dpr);
-    var from = A.from, N = A.N, bars = N - from;
-
-    var subClses = A.closes ? A.closes.slice(from, N) : [];
-    var indData = [];
-    var indColor = '#f59e0b';
-
-    if (ui.subGraph === 'obv') { indData = A.obv ? A.obv.slice(from, N) : []; indColor = '#f59e0b'; }
-    else if (ui.subGraph === 'atr') { indData = A.atrSeries ? A.atrSeries.slice(from, N) : []; indColor = '#10b981'; }
-    else if (ui.subGraph === 'adx') { indData = A.adxSeries ? A.adxSeries.slice(from, N) : []; indColor = '#22c55e'; }
-    else if (ui.subGraph === 'bollinger') { indData = A.bwSeries ? A.bwSeries.slice(from, N) : []; indColor = '#ec4899'; }
-    else if (ui.subGraph === 'support') {
-      var supVal = A.lv.sup ? A.lv.sup.p : null;
-      if (supVal !== null) {
-        indData = new Array(subClses.length).fill(supVal);
-      }
-      indColor = '#22c55e';
-    }
-
-    if (!subClses.length) return;
-
-    var L = 6, R = 6, T = 6, B = 16, pw = W - L - R, ph = H - T - B;
-    function x(k) { return L + (k - from) / Math.max(1, bars - 1) * pw; }
-
-    function drawLine(arr, col, width, isDashed) {
-      if (!arr.length) return;
-      var valid = arr.filter(function (v) { return v !== null && isFinite(v); });
-      if (!valid.length) return;
-      var hi = maxOf(valid), lo = minOf(valid), pad = (hi - lo) * 0.1 || 1, mn = lo - pad, mx = hi + pad;
-      function y(v) { return T + (1 - (v - mn) / (mx - mn)) * ph; }
-
-      g.strokeStyle = col; g.lineWidth = width; 
-      if (isDashed) { g.setLineDash([3, 3]); } else { g.setLineDash([]); }
-      g.beginPath();
-      var started = false;
-      for (var idx = 0; idx < arr.length; idx++) {
-        var val = arr[idx];
-        if (val !== null && isFinite(val)) {
-          var xx = x(from + idx), yy = y(val);
-          if (!started) { g.moveTo(xx, yy); started = true; } else { g.lineTo(xx, yy); }
-        }
-      }
-      g.stroke();
-      g.setLineDash([]);
-    }
-
-    g.save(); g.beginPath(); g.rect(L - 1, T - 2, pw + 3, ph + 4); g.clip();
-    drawLine(subClses, '#818cf8', 1.5, false);
-    if (indData.length) drawLine(indData, indColor, 1.5, ui.subGraph === 'support');
-    g.restore();
   }
 
   function mount(slot, stock, period) {
@@ -599,11 +577,10 @@ window.App.ChartAnalyse = (function () {
     var cur = (stock.quote && stock.quote.currency) || 'EUR';
     slot.innerHTML = scoreCard(A) + patternsCard(A, cur) + signalsCard(A, cur) + rrCard(A, stock, cur);
     
+    // Glossar-Klicks binden
     bindTerms(slot);
 
-    drawMainCanvas(slot.querySelector('#ca-canvas'), A);
-    drawSignalCanvas(slot.querySelector('#ca-signal-chart'), A);
-
+    draw(slot.querySelector('#ca-canvas'), A);
     [].forEach.call(slot.querySelectorAll('.ca-btn'), function (b) {
       b.onclick = function () {
         var k = b.getAttribute('data-k'), p = k.split(':');
@@ -612,15 +589,6 @@ window.App.ChartAnalyse = (function () {
         mount(slot, stock, period);
       };
     });
-
-    [].forEach.call(slot.querySelectorAll('.ca-sub-btn'), function (b) {
-      b.onclick = function () {
-        ui.subGraph = b.getAttribute('data-sub');
-        saveUi();
-        mount(slot, stock, period);
-      };
-    });
-
     function num2(id, key, min) {
       var el = slot.querySelector(id);
       if (el) el.onchange = function () { var v = parseFloat(String(el.value).replace(',', '.')); if (isFinite(v) && v >= min) { ui[key] = v; saveUi(); mount(slot, stock, period); } };
@@ -633,8 +601,16 @@ window.App.ChartAnalyse = (function () {
     try { A = analyse(stock, '6M'); } catch (e) { return ''; }
     if (!A) return '';
     var cur = (stock.quote && stock.quote.currency) || 'EUR', s = 'Chart-Analyse: Score ' + A.score + '/100 (' + BIAS_TXT[A.label] + ')';
-    var names = A.pats ? A.pats.filter(function (p) { return p.kind === 'chart'; }).map(function (p) { return p.name + ' (' + BIAS_TXT[p.bias] + ')'; }) : [];
+    var names = A.pats.filter(function (p) { return p.kind === 'chart'; }).map(function (p) { return p.name + ' (' + BIAS_TXT[p.bias] + ', ' + p.status + ')'; });
+    var cand = A.pats.filter(function (p) { return p.kind === 'candle'; }).map(function (p) { return p.name + ' am ' + deDate(p.date); });
     if (names.length) s += '; Chartmuster: ' + names.join(', ');
+    if (cand.length) s += '; Kerzenmuster: ' + cand.join(', ');
+    if (A.adx) s += '; ADX ' + num(A.adx.adx, 0);
+    if (A.squeeze) s += '; Bollinger-Squeeze';
+    if (A.div) s += '; ' + A.div.text;
+    if (A.brk) s += '; ' + A.brk.text;
+    if (A.lv.sup) s += '; Unterstützung ' + eur(A.lv.sup.p, cur);
+    if (A.lv.res) s += '; Widerstand ' + eur(A.lv.res.p, cur);
     return s + '. ';
   }
 
