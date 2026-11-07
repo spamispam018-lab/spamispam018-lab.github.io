@@ -29,7 +29,7 @@ window.App.ChartAnalyse = (function () {
     ATR: { name: 'ATR (Average True Range)', text: 'Die durchschnittliche tägliche Schwankungsbreite der Aktie in Euro über die letzten 14 Tage. Hilft bei der Einschätzung des täglichen Risikos.' },
     OBV: { name: 'OBV (On-Balance Volume)', text: 'Ein Volumenindikator, der das Handelsvolumen an Aufwärts- und Abwärtstagen kumuliert. Steigendes OBV zeigt an, dass Geld in den Markt fließt; wenn es dem Kurs widerspricht, deutet das auf eine Divergenz hin.' },
     Bollinger: { name: 'Bollinger-Bänder', text: 'Ein Volatilitätsindikator. Ein "Squeeze" (sehr enge Bänder) signalisiert eine Phase geringer Volatilität, auf die oft eine stärkere Kursbewegung folgt. Berührt der Kurs das obere/untere Band, gilt er oft als überkauft/überverkauft.' },
-    Support: { name: 'Unterstützung & Widerstand', text: 'Unterstützung ist ein Kursbereich, an dem der Kurs in der Vergangenheit oft nach oben gedreht hat. Widerstand ist eine Marke, an der der Kurs oft nach unten abgeprallt ist. Je dicker die Linie im Chart gezeichnet wird, desto öfter wurde sie berührt (stärkeres Level).' },
+    Support: { name: 'Unterstützung & Widerstand', text: 'Starke Zonen (ab 4 Berührungen) sind durchgezogen und kräftig. Mittlere (3) normal gestrichelt. Schwache (2) sind stark transparent und weit gestrichelt.' },
     CRV: { name: 'Chance-Risiko-Verhältnis (CRV)', text: 'Das Verhältnis zwischen dem möglichen Gewinn (Ziel minus Einstieg) und dem möglichen Verlust (Einstieg minus Stop). Werte ab 2:1 gelten als erstrebenswert.' },
     Score: { name: 'Chart-Score', text: 'Ein Gesamtwert von 0 bis 100 (50 = neutral), der fünf verschiedene technische Bereiche (Trend, Momentum, Muster, Signale und S/R-Lage) bündelt.' },
     Chartmuster: { name: 'Chartmuster', text: 'Automatische Erkennung klassischer Formationen (Doppel-Tops, SKS, Dreiecke, Flaggen). Ausbrüche werden stärker gewichtet, wenn sie mit hohem Volumen einhergehen.' },
@@ -383,9 +383,8 @@ window.App.ChartAnalyse = (function () {
   // Support/Widerstand aus Wendepunkten (Optimiert mit ATR & Heatmap)
   // ---------------------------------------------------------------------------
   function levels(P, px, atr) {
-    // 1. Pivot-Punkte dynamisch (ATR-basiert) clustern, statt fix 1,5 %
     var pivs = P.slice().sort(function (a, b) { return a.p - b.p; }), cl = [], cur = null;
-    var tol = atr * 0.6; // Maximal 0.6 ATR Abstand für denselben Bereich
+    var tol = atr * 0.6; 
     
     pivs.forEach(function (pt) {
       if (cur && (pt.p - cur.min) <= tol) { 
@@ -402,15 +401,10 @@ window.App.ChartAnalyse = (function () {
       return { p: avg(c.vals), n: c.touches }; 
     });
     
-    // 2. Wichtigstes Level für den Text (Risk/Reward) ermitteln
-    // Wir gewichten die Berührungen (Stärke) gegen die Distanz (Relevanz).
     function getScore(lvl, isSup) {
       var distAtr = Math.abs(lvl.p - px) / atr;
-      // Zu nahe Level (im Rauschen) bestrafen
       if (isSup && lvl.p >= px * 0.99) return -999;
       if (!isSup && lvl.p <= px * 1.01) return -999;
-      // Ein Level mit 4 Berührungen, das 2 ATR entfernt ist, 
-      // ist genauso stark wie eines mit 2 Berührungen, das 0 ATR entfernt ist.
       return lvl.n / (1 + distAtr);
     }
 
@@ -487,7 +481,6 @@ window.App.ChartAnalyse = (function () {
       else if (px < lo20) brk = { type: 'bear', text: 'Bruch des 20-Tage-Tiefs ' + (strongVolBrk ? 'mit starkem Volumen' : 'ohne Volumenbestätigung'), strong: strongVolBrk };
     }
 
-    // Supportlinien generieren - jetzt mit ATR
     var lv = levels(P, px, atrV);
 
     var parts = [], tTrend = 0, tMom = 0, tPat = 0, tSig = 0, tPos = 0;
@@ -665,13 +658,21 @@ window.App.ChartAnalyse = (function () {
     
     // Support / Resistance zeichnen (Visualisierung aller starken Heatmap-Zonen)
     if (ui.sr && A.lv && A.lv.all) {
-      g.setLineDash([4, 4]);
       A.lv.all.forEach(function(lvl) {
         var isSup = lvl.p < A.px;
-        // Dicke und Sichtbarkeit skalieren mit der Anzahl der Berührungen (lvl.n)
-        var alpha = Math.min(0.85, 0.25 + lvl.n * 0.15); 
-        var w = Math.min(3.5, 0.5 + lvl.n * 0.5);        
+        
+        // Unterscheidung nach Relevanz (Anzahl Berührungen)
+        var touches = lvl.n;
+        var isStrong = touches >= 4;
+        var isMedium = touches === 3;
+        
+        var alpha = isStrong ? 0.9 : (isMedium ? 0.5 : 0.25);
+        var w = isStrong ? 2.5 : (isMedium ? 1.5 : 1);
+        
         g.lineWidth = w;
+        // Stark = durchgezogen, Mittel = normale Strichelung, Schwach = weite Strichelung
+        g.setLineDash(isStrong ? [] : (isMedium ? [4, 4] : [2, 6]));
+        
         g.strokeStyle = isSup ? 'rgba(16,185,129,' + alpha + ')' : 'rgba(239,68,68,' + alpha + ')';
         g.beginPath(); g.moveTo(L, y(lvl.p)); g.lineTo(W - R, y(lvl.p)); g.stroke();
       });
