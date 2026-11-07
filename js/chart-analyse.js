@@ -1,5 +1,5 @@
 /**
- * js/chart-analyse.js – erweiterte Chart-Analyse mit Kursverlauf im Indikatoren-Graphen
+ * js/chart-analyse.js – erweiterte Chart-Analyse mit umschaltbarem Indikatoren-Graphen & Support-Linien
  */
 window.App = window.App || {};
 window.App.ChartAnalyse = (function () {
@@ -453,7 +453,7 @@ window.App.ChartAnalyse = (function () {
     r += row('var(--text-dim)', 'Nächster ' + termLink('Support') + ': ' + (A.lv.sup ? eur(A.lv.sup.p, cur) : 'keine'));
     r += row('var(--text-dim)', 'Nächster ' + termLink('Support') + ': ' + (A.lv.res ? eur(A.lv.res.p, cur) : 'keiner'));
     
-    // Interaktiver Indikatoren-Graph mit Kursvergleich & Filter-Pills
+    // Interaktiver Indikatoren-Graph mit Unterstützung für 'support' in den Pills
     var graphHtml = '<div style="margin-top: 14px; border-top: 1px dashed var(--border-subtle); padding-top: 12px;">' +
       '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">' +
         '<span style="font-size: 0.72rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase;">Kurs vs. Indikator</span>' +
@@ -462,12 +462,13 @@ window.App.ChartAnalyse = (function () {
           subGraphPill('atr', 'ATR', ui.subGraph === 'atr') +
           subGraphPill('adx', 'ADX', ui.subGraph === 'adx') +
           subGraphPill('bollinger', 'Bollinger', ui.subGraph === 'bollinger') +
+          subGraphPill('support', 'Support', ui.subGraph === 'support') +
         '</div>' +
       '</div>' +
       '<div style="position:relative;width:100%;height:130px;"><canvas id="ca-signal-chart" style="width:100%;height:100%;"></canvas></div>' +
       '<div class="legend-row" style="margin-top: 6px; font-size: 0.7rem; display: flex; gap: 12px;">' +
         '<div style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#818cf8; border-radius:50%;"></span> Kursverlauf</div>' +
-        '<div style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#f59e0b; border-radius:50%;"></span> Indikator</div>' +
+        '<div style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#22c55e; border-radius:50%;"></span> Indikator / Support</div>' +
       '</div>' +
       '</div>';
 
@@ -534,13 +535,12 @@ window.App.ChartAnalyse = (function () {
     g.textAlign = 'right'; g.fillText('Heute', W - R, H - 5);
   }
 
-  // Zeichnet Kursverlauf + den gewählten Indikator im Unter-Graphen mit zwei Skalen / Normierung
   function drawSignalCanvas(cv, A) {
     if (!cv) return;
     var dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 320, H = cv.clientHeight || 130;
     cv.width = W * dpr; cv.height = H * dpr;
     var g = cv.getContext('2d'); g.scale(dpr, dpr);
-    var from = A.from, N = A.N, bars = N - from, i;
+    var from = A.from, N = A.N, bars = N - from;
 
     var subClses = A.closes ? A.closes.slice(from, N) : [];
     var indData = [];
@@ -550,21 +550,29 @@ window.App.ChartAnalyse = (function () {
     else if (ui.subGraph === 'atr') { indData = A.atrSeries ? A.atrSeries.slice(from, N) : []; indColor = '#10b981'; }
     else if (ui.subGraph === 'adx') { indData = A.adxSeries ? A.adxSeries.slice(from, N) : []; indColor = '#22c55e'; }
     else if (ui.subGraph === 'bollinger') { indData = A.bwSeries ? A.bwSeries.slice(from, N) : []; indColor = '#ec4899'; }
+    else if (ui.subGraph === 'support') {
+      var supVal = A.lv.sup ? A.lv.sup.p : null;
+      if (supVal !== null) {
+        indData = new Array(subClses.length).fill(supVal);
+      }
+      indColor = '#22c55e';
+    }
 
     if (!subClses.length) return;
 
     var L = 6, R = 6, T = 6, B = 16, pw = W - L - R, ph = H - T - B;
     function x(k) { return L + (k - from) / Math.max(1, bars - 1) * pw; }
 
-    // Hilfsfunktion zum Zeichnen einer Linie nach Min/Max-Skalierung
-    function drawLine(arr, col, width) {
+    function drawLine(arr, col, width, isDashed) {
       if (!arr.length) return;
       var valid = arr.filter(function (v) { return v !== null && isFinite(v); });
       if (!valid.length) return;
       var hi = maxOf(valid), lo = minOf(valid), pad = (hi - lo) * 0.1 || 1, mn = lo - pad, mx = hi + pad;
       function y(v) { return T + (1 - (v - mn) / (mx - mn)) * ph; }
 
-      g.strokeStyle = col; g.lineWidth = width; g.beginPath();
+      g.strokeStyle = col; g.lineWidth = width; 
+      if (isDashed) { g.setLineDash([3, 3]); } else { g.setLineDash([]); }
+      g.beginPath();
       var started = false;
       for (var idx = 0; idx < arr.length; idx++) {
         var val = arr[idx];
@@ -574,15 +582,12 @@ window.App.ChartAnalyse = (function () {
         }
       }
       g.stroke();
+      g.setLineDash([]);
     }
 
     g.save(); g.beginPath(); g.rect(L - 1, T - 2, pw + 3, ph + 4); g.clip();
-    
-    // 1. Kursverlauf zeichnen (Indigo)
-    drawLine(subClses, '#818cf8', 1.5);
-    // 2. Gewählten Indikator zeichnen (Farbe je nach Indikator)
-    if (indData.length) drawLine(indData, indColor, 1.5);
-
+    drawLine(subClses, '#818cf8', 1.5, false);
+    if (indData.length) drawLine(indData, indColor, 1.5, ui.subGraph === 'support');
     g.restore();
   }
 
