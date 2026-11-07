@@ -219,6 +219,21 @@ window.App.Screener = (function () {
   }
 
   /** "Verkaufskonsens": höchstens 20 % Buy/StrongBuy. */
+  // News-Stimmung (aus data/news/_index.json, FinBERT): mind. 3 Meldungen, Hälfte+ positiv bzw. negativ
+  var NEWS_MIN_ITEMS = 3, NEWS_SHARE_MIN = 0.5, NEWS_SCORE_MIN = 0.2;
+  function newsOf(s) {
+    var idx = window.App.News && window.App.News.cache.index;
+    return idx ? idx[s.ticker] : null;
+  }
+  function isNewsPositive(s) {
+    var x = newsOf(s);
+    return !!x && x.n >= NEWS_MIN_ITEMS && x.pos / x.n >= NEWS_SHARE_MIN && x.score >= NEWS_SCORE_MIN;
+  }
+  function isNewsNegative(s) {
+    var x = newsOf(s);
+    return !!x && x.n >= NEWS_MIN_ITEMS && x.neg / x.n >= NEWS_SHARE_MIN && x.score <= -NEWS_SCORE_MIN;
+  }
+
   function isConsensusSell(s) {
     return hasNum(s.buyPct) && s.buyPct <= 20 && analystOk(s);
   }
@@ -245,7 +260,9 @@ window.App.Screener = (function () {
     oversold: function (s) { return isOversold(s); },
     earnings_soon: function (s) { return isEarningsSoon(s); },
     consensus_buy: function (s) { return isConsensusBuy(s); },
-    consensus_sell: function (s) { return isConsensusSell(s); }
+    consensus_sell: function (s) { return isConsensusSell(s); },
+    news_positive: function (s) { return isNewsPositive(s); },
+    news_negative: function (s) { return isNewsNegative(s); }
   };
 
   // Chip-Beschriftung (HTML), Klartext-Name (für den Gemini-Prompt) und Erklärung
@@ -283,7 +300,11 @@ window.App.Screener = (function () {
     { id: 'consensus_buy', chip: '👍 Kaufkonsens', name: 'Kaufkonsens',
       info: function () { return 'Mindestens ' + CONSENSUS_BUY_MIN + ' % der Analysten mit Buy/StrongBuy, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
     { id: 'consensus_sell', chip: '👎 Verkaufskonsens', name: 'Verkaufskonsens',
-      info: function () { return 'Höchstens 20 % der Analysten mit Buy/StrongBuy, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } }
+      info: function () { return 'Höchstens 20 % der Analysten mit Buy/StrongBuy, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
+    { id: 'news_positive', chip: '📰 Positive News', name: 'Positive Nachrichten',
+      info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % positiv (automatische FinBERT-Einschätzung der Schlagzeilen).'; } },
+    { id: 'news_negative', chip: '⚠️ Negative News', name: 'Negative Nachrichten',
+      info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % negativ (automatische FinBERT-Einschätzung der Schlagzeilen).'; } }
   ];
 
   function presetName(id) {
@@ -449,7 +470,8 @@ window.App.Screener = (function () {
     if (searchInput) searchInput.value = currentSearchQuery;
     updateHeaderFilterIndicator();
 
-    window.App.Data.getUniverse()
+    Promise.resolve(window.App.News ? window.App.News.loadIndex() : null)
+      .then(function () { return window.App.Data.getUniverse(); })
       .then(function (stocks) {
         allStocks = stocks || [];
         sectorPe = computeSectorMedians(allStocks);
