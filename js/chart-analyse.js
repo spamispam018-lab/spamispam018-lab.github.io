@@ -14,7 +14,9 @@ window.App.ChartAnalyse = (function () {
   var WIN = { '1W': 63, '1M': 63, '3M': 63, '6M': 126, '1Y': 250 };
   var BIAS = { bull: '#22c55e', bear: '#ef4444', neutral: '#f59e0b' };
   var BIAS_TXT = { bull: 'bullisch', bear: 'bärisch', neutral: 'neutral' };
-  var ui = { chart: true, candle: true, capital: 10000, risk: 1, stop: 'support', target: 'resistance' };
+  
+  // UI-Status um "sr" (Support/Resistance) und "zigzag" erweitert
+  var ui = { chart: true, candle: true, sr: false, zigzag: false, capital: 10000, risk: 1, stop: 'support', target: 'resistance' };
   try { var sv = JSON.parse(localStorage.getItem('ca_ui') || 'null'); if (sv) for (var k0 in sv) ui[k0] = sv[k0]; } catch (e) { /* ignorieren */ }
   function saveUi() { try { localStorage.setItem('ca_ui', JSON.stringify(ui)); } catch (e) { /* ignorieren */ } }
 
@@ -28,7 +30,10 @@ window.App.ChartAnalyse = (function () {
     Bollinger: { name: 'Bollinger-Squeeze', text: 'Ein Zustand, bei dem sich die Bollinger-Bänder extrem eng zusammenziehen. Das signalisiert eine Phase geringer Volatilität, auf die historisch oft eine größere Kursbewegung folgt.' },
     Support: { name: 'Unterstützung & Widerstand', text: 'Unterstützung ist ein Kursbereich, an dem der Kurs in der Vergangenheit oft nach oben gedreht hat. Widerstand ist eine Marke, an der der Kurs oft nach unten abgeprallt ist.' },
     CRV: { name: 'Chance-Risiko-Verhältnis (CRV)', text: 'Das Verhältnis zwischen dem möglichen Gewinn (Ziel minus Einstieg) und dem möglichen Verlust (Einstieg minus Stop). Werte ab 2:1 gelten als erstrebenswert.' },
-    Score: { name: 'Chart-Score', text: 'Ein Gesamtwert von 0 bis 100 (50 = neutral), der fünf verschiedene technische Bereiche (Trend, Momentum, Muster, Signale und S/R-Lage) bündelt.' }
+    Score: { name: 'Chart-Score', text: 'Ein Gesamtwert von 0 bis 100 (50 = neutral), der fünf verschiedene technische Bereiche (Trend, Momentum, Muster, Signale und S/R-Lage) bündelt.' },
+    Chartmuster: { name: 'Chartmuster', text: 'Automatische Erkennung klassischer Formationen wie Schulter-Kopf-Schulter, Dreiecken oder Doppel-Tops/Bodens.' },
+    Kerzenmuster: { name: 'Kerzenmuster', text: 'Erkennung von kurzfristigen Umkehrsignalen (1-3 Tage) wie Hammer oder Engulfing auf Basis der Kerzenkörper.' },
+    ZigZag: { name: 'Wendepunkte (ZigZag)', text: 'Verbindet markante Hoch- und Tiefpunkte im Chart und filtert kleinere Schwankungen (Rauschen) heraus, um den Haupttrend sichtbar zu machen.' }
   };
 
   var TERM_RULES = [
@@ -38,7 +43,10 @@ window.App.ChartAnalyse = (function () {
     [/Bollinger/, 'Bollinger'],
     [/Unterstützung|Widerstand/, 'Support'],
     [/Chance-Risiko-Verhältnis|CRV/, 'CRV'],
-    [/Chart-Score/, 'Score']
+    [/Chart-Score/, 'Score'],
+    [/Chartmuster/, 'Chartmuster'],
+    [/Kerzenmuster/, 'Kerzenmuster'],
+    [/Wendepunkte|ZigZag/, 'ZigZag']
   ];
 
   function termKeyFor(label) {
@@ -75,7 +83,7 @@ window.App.ChartAnalyse = (function () {
       }
       box.setAttribute('data-term', key);
       box.setAttribute('style', 'margin: -6px 0 16px; padding: 12px 14px; border-radius: var(--radius-sm); background-color: var(--bg-secondary); border: 1px solid var(--border-subtle); font-size: 0.8rem; color: var(--text-main); line-height: 1.45;');
-      box.innerHTML = '<div style="font-weight: 700; margin-bottom: 4px;">' + GLOSSARY[key].name + '</div>' + GLOSSARY[key].text;
+      box.innerHTML = '<div style="font-weight: 700; margin-bottom: 4px; color: var(--accent-purple-light);">' + GLOSSARY[key].name + '</div>' + GLOSSARY[key].text;
       card.parentNode.insertBefore(box, card.nextSibling);
     });
   }
@@ -447,6 +455,13 @@ window.App.ChartAnalyse = (function () {
   function card(title, tag, body) {
     return '<div class="card"><div class="card-header-dotted"><span class="card-title">' + title + '</span>' + (tag || '') + '</div>' + body + '</div>';
   }
+  
+  // Neuer Helper für die Toolbar-Chips
+  function chip(k, label, on, termKey) {
+    var icon = termKey ? ' <span class="term-link" data-term="' + termKey + '" style="margin-left: 4px; opacity: 0.7;">ⓘ</span>' : '';
+    return '<button class="chip-btn ca-btn ' + (on ? 'active' : '') + '" data-k="' + k + '">' + label + icon + '</button>';
+  }
+
   var NOTE = '<div class="chart-note">Regelbasierte Erkennung auf vergangenen Kursen, keine Anlageberatung. Muster können sich auflösen oder fehlschlagen.</div>';
 
   function scoreCard(A) {
@@ -468,8 +483,17 @@ window.App.ChartAnalyse = (function () {
     });
     candP.forEach(function (p) { rows += row(BIAS[p.bias], '<b>' + p.name + '</b> (' + BIAS_TXT[p.bias] + ')', 'Kerze vom ' + deDate(p.date)); });
     if (!rows) rows = '<div class="chart-signal-value" style="color:var(--text-dim);">Im gewählten Zeitraum wurde kein Muster erkannt' + (A.T.ohlc ? '' : ' (Kerzenmuster brauchen Open/High/Low-Daten)') + '.</div>';
-    return card('Muster-Erkennung', '<span class="period-tag">' + chartP.length + ' Chart · ' + candP.length + ' Kerzen</span>',
-      '<div class="pill-group" style="margin-bottom:8px;">' + pill('chart', 'Chartmuster', ui.chart) + pill('candle', 'Kerzenmuster', ui.candle) + '</div>' +
+    
+    // Die Pill-Group wurde durch die horizontale Toolbar ersetzt
+    var toolbar = '<div class="horizontal-scroll-row" id="ca-tools-toolbar" style="margin-top: 8px; margin-bottom: 8px; padding-bottom: 4px;">' +
+      chip('chart', 'Chartmuster', ui.chart, 'Chartmuster') +
+      chip('candle', 'Kerzenmuster', ui.candle, 'Kerzenmuster') +
+      chip('sr', 'Support/Res', ui.sr, 'Support') +
+      chip('zigzag', 'Wendepunkte', ui.zigzag, 'ZigZag') +
+    '</div>';
+
+    return card('Muster & Chart Tools', '<span class="period-tag">' + chartP.length + ' Chart · ' + candP.length + ' Kerzen</span>',
+      toolbar +
       '<div style="position:relative;width:100%;height:240px;"><canvas id="ca-canvas" style="width:100%;height:100%;"></canvas></div>' +
       '<div style="margin-top:8px;" class="chart-signal-list">' + rows + '</div>' + NOTE);
   }
@@ -544,9 +568,34 @@ window.App.ChartAnalyse = (function () {
       g.fillStyle = dim; g.textAlign = 'left'; g.fillText(v.toFixed(tk.dec), W - R + 4, y(v));
     });
     g.save(); g.beginPath(); g.rect(L - 1, T - 2, pw + 3, ph + 4); g.clip();
+    
+    // Support / Resistance zeichnen
+    if (ui.sr) {
+      g.lineWidth = 1; g.setLineDash([4, 4]);
+      if (A.lv.sup) { g.strokeStyle = 'rgba(16,185,129,0.7)'; g.beginPath(); g.moveTo(L, y(A.lv.sup.p)); g.lineTo(W - R, y(A.lv.sup.p)); g.stroke(); }
+      if (A.lv.res) { g.strokeStyle = 'rgba(239,68,68,0.7)'; g.beginPath(); g.moveTo(L, y(A.lv.res.p)); g.lineTo(W - R, y(A.lv.res.p)); g.stroke(); }
+      g.setLineDash([]);
+    }
+
+    // Preislinie zeichnen
     g.strokeStyle = txt; g.lineWidth = 1.5; g.beginPath();
     for (i = from; i < N; i++) { if (i === from) g.moveTo(x(i), y(A.c[i])); else g.lineTo(x(i), y(A.c[i])); }
     g.stroke();
+    
+    // ZigZag (Wendepunkte) zeichnen
+    if (ui.zigzag && A.pivots && A.pivots.length) {
+      g.strokeStyle = 'var(--accent-purple, #a855f7)'; g.lineWidth = 1.5; g.setLineDash([]);
+      g.beginPath();
+      var first = true;
+      A.pivots.forEach(function (p) {
+        if (p.i >= from) {
+          if (first) { g.moveTo(x(p.i), y(p.p)); first = false; }
+          else { g.lineTo(x(p.i), y(p.p)); }
+        }
+      });
+      if (!first) g.stroke();
+    }
+
     if (ui.chart) {
       A.pats.filter(function (p) { return p.kind === 'chart'; }).forEach(function (p) {
         var col = BIAS[p.bias];
@@ -574,21 +623,34 @@ window.App.ChartAnalyse = (function () {
     var A = null;
     try { A = analyse(stock, period); } catch (e) { A = null; if (window.console) console.error('ChartAnalyse', e); }
     if (!A) { slot.innerHTML = ''; return; }
+    
+    // Toolbar-Scrollposition merken
+    var oldToolbar = slot.querySelector('#ca-tools-toolbar');
+    var savedScroll = oldToolbar ? oldToolbar.scrollLeft : 0;
+    
     var cur = (stock.quote && stock.quote.currency) || 'EUR';
     slot.innerHTML = scoreCard(A) + patternsCard(A, cur) + signalsCard(A, cur) + rrCard(A, stock, cur);
     
-    // Glossar-Klicks binden
+    // Scrollposition wiederherstellen
+    var newToolbar = slot.querySelector('#ca-tools-toolbar');
+    if (newToolbar && savedScroll > 0) newToolbar.scrollLeft = savedScroll;
+    
     bindTerms(slot);
 
     draw(slot.querySelector('#ca-canvas'), A);
+    
     [].forEach.call(slot.querySelectorAll('.ca-btn'), function (b) {
-      b.onclick = function () {
+      b.onclick = function (e) {
+        // Ignoriere Klicks auf das (i) Icon, damit nur das Glossar triggert
+        if (e.target && e.target.closest('.term-link')) return; 
+        
         var k = b.getAttribute('data-k'), p = k.split(':');
         if (p.length === 2) ui[p[0]] = p[1]; else ui[k] = !ui[k];
         saveUi();
         mount(slot, stock, period);
       };
     });
+    
     function num2(id, key, min) {
       var el = slot.querySelector(id);
       if (el) el.onchange = function () { var v = parseFloat(String(el.value).replace(',', '.')); if (isFinite(v) && v >= min) { ui[key] = v; saveUi(); mount(slot, stock, period); } };
@@ -616,4 +678,3 @@ window.App.ChartAnalyse = (function () {
 
   return { mount: mount, promptText: promptText, _analyse: analyse, _zigzag: zigzag };
 })();
-
