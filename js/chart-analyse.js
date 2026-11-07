@@ -19,6 +19,68 @@ window.App.ChartAnalyse = (function () {
   function saveUi() { try { localStorage.setItem('ca_ui', JSON.stringify(ui)); } catch (e) { /* ignorieren */ } }
 
   // ---------------------------------------------------------------------------
+  // Glossar & Erklärungen für Fachbegriffe
+  // ---------------------------------------------------------------------------
+  var GLOSSARY = {
+    ADX: { name: 'ADX (Average Directional Index)', text: 'Misst die Trendstärke unabhängig von der Richtung (Skala von 0 bis 100). Unter 20 gibt es keinen klaren Trend, über 25 bis 40 zeigt einen intakten Trend an, über 40 einen sehr starken Trend.' },
+    ATR: { name: 'ATR (Average True Range)', text: 'Die durchschnittliche tägliche Schwankungsbreite der Aktie in Euro über die letzten 14 Tage. Hilft bei der Einschätzung des täglichen Risikos.' },
+    OBV: { name: 'OBV (On-Balance Volume)', text: 'Ein Volumenindikator, der das Handelsvolumen an Aufwärts- und Abwärtstagen kumuliert. Steigendes OBV zeigt an, dass Geld in den Markt fließt; wenn es dem Kurs widerspricht, deutet das auf eine Divergenz hin.' },
+    Bollinger: { name: 'Bollinger-Squeeze', text: 'Ein Zustand, bei dem sich die Bollinger-Bänder extrem eng zusammenziehen. Das signalisiert eine Phase geringer Volatilität, auf die historisch oft eine größere Kursbewegung folgt.' },
+    Support: { name: 'Unterstützung & Widerstand', text: 'Unterstützung ist ein Kursbereich, an dem der Kurs in der Vergangenheit oft nach oben gedreht hat. Widerstand ist eine Marke, an der der Kurs oft nach unten abgeprallt ist.' },
+    CRV: { name: 'Chance-Risiko-Verhältnis (CRV)', text: 'Das Verhältnis zwischen dem möglichen Gewinn (Ziel minus Einstieg) und dem möglichen Verlust (Einstieg minus Stop). Werte ab 2:1 gelten als erstrebenswert.' },
+    Score: { name: 'Chart-Score', text: 'Ein Gesamtwert von 0 bis 100 (50 = neutral), der fünf verschiedene technische Bereiche (Trend, Momentum, Muster, Signale und S/R-Lage) bündelt.' }
+  };
+
+  var TERM_RULES = [
+    [/^ADX/, 'ADX'],
+    [/^ATR/, 'ATR'],
+    [/^OBV/, 'OBV'],
+    [/Bollinger/, 'Bollinger'],
+    [/Unterstützung|Widerstand/, 'Support'],
+    [/Chance-Risiko-Verhältnis|CRV/, 'CRV'],
+    [/Chart-Score/, 'Score']
+  ];
+
+  function termKeyFor(label) {
+    for (var i = 0; i < TERM_RULES.length; i++) {
+      if (TERM_RULES[i][0].test(label)) return TERM_RULES[i][1];
+    }
+    return null;
+  }
+
+  function termLink(label) {
+    var key = termKeyFor(label);
+    if (!key || !GLOSSARY[key]) return label;
+    return '<span class="term-link" data-term="' + key + '" style="cursor: pointer; border-bottom: 1px dotted var(--text-dim);">' +
+      label + ' <span style="font-size: 0.7em; opacity: 0.6;">ⓘ</span></span>';
+  }
+
+  function bindTerms(container) {
+    if (container.__termBound) return;
+    container.__termBound = true;
+    container.addEventListener('click', function (ev) {
+      var link = ev.target && ev.target.closest ? ev.target.closest('.term-link') : null;
+      if (!link) return;
+      var key = link.getAttribute('data-term');
+      var card = link.closest('.card');
+      if (!card || !GLOSSARY[key]) return;
+      var box = container.querySelector('#ca-term-info');
+      if (box && box.getAttribute('data-term') === key && box.previousElementSibling === card) {
+        box.parentNode.removeChild(box);
+        return;
+      }
+      if (!box) {
+        box = document.createElement('div');
+        box.id = 'ca-term-info';
+      }
+      box.setAttribute('data-term', key);
+      box.setAttribute('style', 'margin: -6px 0 16px; padding: 12px 14px; border-radius: var(--radius-sm); background-color: var(--bg-secondary); border: 1px solid var(--border-subtle); font-size: 0.8rem; color: var(--text-main); line-height: 1.45;');
+      box.innerHTML = '<div style="font-weight: 700; margin-bottom: 4px;">' + GLOSSARY[key].name + '</div>' + GLOSSARY[key].text;
+      card.parentNode.insertBefore(box, card.nextSibling);
+    });
+  }
+
+  // ---------------------------------------------------------------------------
   // Basis-Rechnungen
   // ---------------------------------------------------------------------------
   function avg(a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : 0; }
@@ -94,7 +156,7 @@ window.App.ChartAnalyse = (function () {
     return { adx: a, pdi: last.p, mdi: last.m };
   }
 
-  function lineFit(pts) { // pts = [[x, y], ...] -> {a, b}: y = a + b*x
+  function lineFit(pts) {
     var n = pts.length, mx = avg(pts.map(function (p) { return p[0]; })), my = avg(pts.map(function (p) { return p[1]; })), sxy = 0, sxx = 0;
     pts.forEach(function (p) { sxy += (p[0] - mx) * (p[1] - my); sxx += (p[0] - mx) * (p[0] - mx); });
     var b = sxx ? sxy / sxx : 0;
@@ -130,10 +192,10 @@ window.App.ChartAnalyse = (function () {
   function twoPivotPatterns(V, px, N, out) {
     var len = V.length, k, a, b, c;
     for (k = 0; k + 2 < len; k++) {
-      if (len - 1 - (k + 2) > 1) continue; // Muster muss an den letzten Wendepunkten enden
+      if (len - 1 - (k + 2) > 1) continue;
       a = V[k]; b = V[k + 1]; c = V[k + 2];
       if (c.open || c.i < N - 45 || c.i - a.i < 10) continue;
-      if (a.t === 'H' && b.t === 'L' && c.t === 'H') { // Doppel-Top
+      if (a.t === 'H' && b.t === 'L' && c.t === 'H') {
         var top = Math.min(a.p, c.p);
         if (Math.abs(a.p - c.p) / a.p <= 0.03 && (top - b.p) / top >= 0.05 && px <= Math.max(a.p, c.p) * 1.03) {
           var conf = px < b.p * 0.995;
@@ -142,7 +204,7 @@ window.App.ChartAnalyse = (function () {
             lines: [[a.i, b.p, N - 1, b.p, 1]], pts: [[a.i, a.p], [b.i, b.p], [c.i, c.p]] });
         }
       }
-      if (a.t === 'L' && b.t === 'H' && c.t === 'L') { // Doppel-Boden
+      if (a.t === 'L' && b.t === 'H' && c.t === 'L') {
         var bot = Math.max(a.p, c.p);
         if (Math.abs(a.p - c.p) / a.p <= 0.03 && (b.p - bot) / b.p >= 0.05 && px >= Math.min(a.p, c.p) * 0.97) {
           var conf2 = px > b.p * 1.005;
@@ -160,7 +222,7 @@ window.App.ChartAnalyse = (function () {
       if (len - 1 - (k + 4) > 1) continue;
       p = V.slice(k, k + 5);
       if (p[4].open || p[4].i < N - 50 || p[4].i - p[0].i < 20) continue;
-      if (p[0].t === 'H' && p[1].t === 'L' && p[2].t === 'H') { // Schulter-Kopf-Schulter
+      if (p[0].t === 'H' && p[1].t === 'L' && p[2].t === 'H') {
         var sh = avg([p[0].p, p[4].p]), neck = avg([p[1].p, p[3].p]);
         if (p[2].p >= sh * 1.03 && Math.abs(p[0].p - p[4].p) / sh <= 0.08 && Math.abs(p[1].p - p[3].p) / neck <= 0.05 && px <= p[4].p * 1.03) {
           var cf = px < neck * 0.995;
@@ -169,7 +231,7 @@ window.App.ChartAnalyse = (function () {
             lines: [[p[1].i, neck, N - 1, neck, 1]], pts: p.map(function (q) { return [q.i, q.p]; }) });
         }
       }
-      if (p[0].t === 'L' && p[1].t === 'H' && p[2].t === 'L') { // umgekehrte SKS
+      if (p[0].t === 'L' && p[1].t === 'H' && p[2].t === 'L') {
         var sh2 = avg([p[0].p, p[4].p]), neck2 = avg([p[1].p, p[3].p]);
         if (p[2].p <= sh2 * 0.97 && Math.abs(p[0].p - p[4].p) / sh2 <= 0.08 && Math.abs(p[1].p - p[3].p) / neck2 <= 0.05 && px >= p[4].p * 0.97) {
           var cf2 = px > neck2 * 1.005;
@@ -220,7 +282,6 @@ window.App.ChartAnalyse = (function () {
 
   function flagPatterns(c, N, out) {
     var look = Math.min(N, 45), s = N - look, j, j1, j0, px = c[N - 1];
-    // Bullische Flagge
     j1 = s; for (j = s; j <= N - 6; j++) if (c[j] >= c[j1]) j1 = j;
     j0 = Math.max(s, j1 - 15); for (j = j0; j <= j1; j++) if (c[j] <= c[j0]) j0 = j;
     var pole = c[j1] / c[j0] - 1;
@@ -232,7 +293,6 @@ window.App.ChartAnalyse = (function () {
           target: c[j1] + (c[j1] - c[j0]), score: br ? 9 : 6, from: j0, to: N - 1, lines: [[j0, c[j0], j1, c[j1], 0], [j1, c[j1], N - 1, c[N - 1], 1]], pts: [[j0, c[j0]], [j1, c[j1]]] });
       }
     }
-    // Bärische Flagge
     j1 = s; for (j = s; j <= N - 6; j++) if (c[j] <= c[j1]) j1 = j;
     j0 = Math.max(s, j1 - 15); for (j = j0; j <= j1; j++) if (c[j] >= c[j0]) j0 = j;
     var drop = 1 - c[j1] / c[j0];
@@ -252,13 +312,13 @@ window.App.ChartAnalyse = (function () {
   function candlePatterns(T, off, N, out) {
     if (!T.ohlc) return;
     var n = T.c.length, i, o = T.o, h = T.h, l = T.l, c = T.c;
-    function body(i) { return Math.abs(c[i] - o[i]); }
-    function rng(i) { return h[i] - l[i]; }
-    function upSh(i) { return h[i] - Math.max(o[i], c[i]); }
-    function loSh(i) { return Math.min(o[i], c[i]) - l[i]; }
-    function ch(i, k) { return i - k >= 0 ? c[i - 1] / c[i - k] - 1 : 0; }
-    function down(i) { return ch(i, 6) <= -0.03 || ch(i, 11) <= -0.06; }
-    function upT(i) { return ch(i, 6) >= 0.03 || ch(i, 11) >= 0.06; }
+    function body(idx) { return Math.abs(c[idx] - o[idx]); }
+    function rng(idx) { return h[idx] - l[idx]; }
+    function upSh(idx) { return h[idx] - Math.max(o[idx], c[idx]); }
+    function loSh(idx) { return Math.min(o[idx], c[idx]) - l[idx]; }
+    function ch(idx, k) { return idx - k >= 0 ? c[idx - 1] / c[idx - k] - 1 : 0; }
+    function down(idx) { return ch(idx, 6) <= -0.03 || ch(idx, 11) <= -0.06; }
+    function upT(idx) { return ch(idx, 6) >= 0.03 || ch(idx, 11) >= 0.06; }
     for (i = Math.max(6, n - 10); i < n; i++) {
       var r = rng(i), b = body(i), name = null, bias = 'neutral';
       if (r <= 0) continue;
@@ -310,13 +370,11 @@ window.App.ChartAnalyse = (function () {
     var s50 = n >= 50 ? avg(T.c.slice(-50)) : null, s200 = n >= 200 ? avg(T.c.slice(-200)) : null;
     var adx = adxLast(T.h, T.l, T.c, 14);
 
-    // OBV
     var obv = [0], i;
     for (i = 1; i < n; i++) obv.push(obv[i - 1] + (T.c[i] > T.c[i - 1] ? T.v[i] : T.c[i] < T.c[i - 1] ? -T.v[i] : 0));
     var hasVol = T.v.slice(-20).some(function (v) { return v > 0; });
     var obvTrend = hasVol ? Math.sign(obv[n - 1] - obv[n - 21]) : 0, pTrend = Math.sign(px - T.c[n - 21]);
 
-    // Bollinger: Squeeze und %B
     var bw = [], pb = null;
     for (i = 19; i < n; i++) {
       var sl = T.c.slice(i - 19, i + 1), m = avg(sl), sd = Math.sqrt(avg(sl.map(function (x) { return (x - m) * (x - m); })));
@@ -325,7 +383,6 @@ window.App.ChartAnalyse = (function () {
     }
     var bwLast = bw[bw.length - 1], bwWin = bw.slice(-120), rank = bwWin.filter(function (x) { return x <= bwLast; }).length / bwWin.length;
 
-    // Divergenz (RSI) an den letzten Wendepunkten
     var div = null, Ls = P.filter(function (p) { return p.t === 'L'; }).slice(-2), Hs = P.filter(function (p) { return p.t === 'H'; }).slice(-2);
     if (Ls.length === 2 && Ls[1].i >= N - 25 && Ls[1].i - Ls[0].i >= 5) {
       var ra = rsi[off + Ls[0].i], rb = rsi[off + Ls[1].i];
@@ -336,7 +393,6 @@ window.App.ChartAnalyse = (function () {
       if (rc !== null && rd !== null && Hs[1].p > Hs[0].p * 1.005 && rd < rc - 2) div = { type: 'bear', text: 'Bärische RSI-Divergenz: neues Hoch im Kurs, aber tieferes Hoch im RSI' };
     }
 
-    // Ausbruch mit Volumen
     var brk = null;
     if (hasVol && n > 25) {
       var av = avg(T.v.slice(-21, -1)), vr = av > 0 ? T.v[n - 1] / av : 0, hi20 = maxOf(T.c.slice(-21, -1)), lo20 = minOf(T.c.slice(-21, -1));
@@ -346,7 +402,6 @@ window.App.ChartAnalyse = (function () {
 
     var lv = levels(P, px);
 
-    // Score
     var parts = [], tTrend = 0, tMom = 0, tPat = 0, tSig = 0, tPos = 0;
     if (s200) tTrend += px > s200 ? 10 : -10;
     if (s50) tTrend += px > s50 ? 10 : -10;
@@ -363,7 +418,13 @@ window.App.ChartAnalyse = (function () {
       var ratio = (lv.res.p / px - 1) / (px / lv.sup.p - 1);
       tPos = ratio >= 2 ? 15 : ratio >= 1.5 ? 8 : ratio <= 0.4 ? -15 : ratio <= 0.7 ? -8 : 0;
     }
-    parts = [['Trend (SMA 50/200)', tTrend, 30], ['Momentum (RSI, MACD, OBV)', tMom, 20], ['Muster', tPat, 20], ['Signale (Divergenz, Ausbruch)', tSig, 15], ['Lage zu Support/Widerstand', tPos, 15]];
+    parts = [
+      ['Trend (SMA 50/200)', tTrend, 30], 
+      ['Momentum (RSI, MACD, OBV)', tMom, 20], 
+      ['Muster', tPat, 20], 
+      ['Signale (Divergenz, Ausbruch)', tSig, 15], 
+      ['Lage zu Support/Widerstand', tPos, 15]
+    ];
     var total = parts.reduce(function (a, p) { return a + p[1]; }, 0), score = Math.round(clamp(50 + total / 2, 0, 100));
 
     return { T: T, n: n, N: N, off: off, from: from, w: w, px: px, c: c, h: h, l: l, atr: atrV, th: th, pivots: P, pats: pats, rsi: r0, macdBull: macdBull, s50: s50, s200: s200,
@@ -390,8 +451,11 @@ window.App.ChartAnalyse = (function () {
 
   function scoreCard(A) {
     var V = { bull: ['Bullisch', 'badge-bullish'], bear: ['Bärisch', 'badge-bearish'], neutral: ['Neutral', 'badge-neutral'] }[A.label];
-    var rows = A.parts.map(function (p) { return row(p[1] > 0 ? 'var(--bullish)' : p[1] < 0 ? 'var(--bearish)' : 'var(--text-dim)', p[0] + ': ' + (p[1] > 0 ? '+' : '') + p[1] + ' von ±' + p[2]); }).join('');
-    return card('Chart-Score', '<span class="badge-pill ' + V[1] + '">' + V[0] + ' · ' + A.score + ' / 100</span>',
+    var rows = A.parts.map(function (p) { 
+      var titleText = termLink(p[0].split(' ')[0]); 
+      return row(p[1] > 0 ? 'var(--bullish)' : p[1] < 0 ? 'var(--bearish)' : 'var(--text-dim)', titleText + ': ' + (p[1] > 0 ? '+' : '') + p[1] + ' von ±' + p[2]); 
+    }).join('');
+    return card(termLink('Chart-Score'), '<span class="badge-pill ' + V[1] + '">' + V[0] + ' · ' + A.score + ' / 100</span>',
       '<div class="chart-signal-list">' + rows + '</div><div class="chart-note">Gesamtwert aus fünf Teilen (50 = neutral). Er fasst Chartsignale zusammen und ist keine Prognose.</div>');
   }
 
@@ -414,16 +478,16 @@ window.App.ChartAnalyse = (function () {
     var r = '';
     if (A.adx) {
       var s = A.adx.adx, dir = A.adx.pdi > A.adx.mdi ? 'aufwärts' : 'abwärts';
-      r += row(s >= 25 ? (A.adx.pdi > A.adx.mdi ? 'var(--bullish)' : 'var(--bearish)') : '#f59e0b', 'ADX ' + num(s, 0) + (s < 20 ? ' – kein klarer Trend' : s < 40 ? ' – intakter Trend ' + dir : ' – sehr starker Trend ' + dir), 'Trendstärke, nicht Richtung. +DI ' + num(A.adx.pdi, 0) + ' / −DI ' + num(A.adx.mdi, 0));
+      r += row(s >= 25 ? (A.adx.pdi > A.adx.mdi ? 'var(--bullish)' : 'var(--bearish)') : '#f59e0b', termLink('ADX') + ' ' + num(s, 0) + (s < 20 ? ' – kein klarer Trend' : s < 40 ? ' – intakter Trend ' + dir : ' – sehr starker Trend ' + dir), 'Trendstärke, nicht Richtung. +DI ' + num(A.adx.pdi, 0) + ' / −DI ' + num(A.adx.mdi, 0));
     }
-    r += row('var(--text-dim)', 'ATR ' + eur(A.atr, cur) + ' (' + num(A.atr / A.px * 100, 1) + ' % vom Kurs)', 'typische tägliche Schwankung');
-    if (A.hasVol) r += row(A.obvTrend > 0 ? 'var(--bullish)' : A.obvTrend < 0 ? 'var(--bearish)' : 'var(--text-dim)', 'OBV ' + (A.obvTrend > 0 ? 'steigt' : A.obvTrend < 0 ? 'fällt' : 'seitwärts') +
+    r += row('var(--text-dim)', termLink('ATR') + ' ' + eur(A.atr, cur) + ' (' + num(A.atr / A.px * 100, 1) + ' % vom Kurs)', 'typische tägliche Schwankung');
+    if (A.hasVol) r += row(A.obvTrend > 0 ? 'var(--bullish)' : A.obvTrend < 0 ? 'var(--bearish)' : 'var(--text-dim)', termLink('OBV') + ' ' + (A.obvTrend > 0 ? 'steigt' : A.obvTrend < 0 ? 'fällt' : 'seitwärts') +
       (A.obvTrend && A.pTrend && A.obvTrend !== A.pTrend ? ' – widerspricht dem Kurs (Divergenz)' : A.obvTrend ? ' – bestätigt den Kurs' : ''), 'Volumenfluss, letzte 20 Tage');
-    r += row(A.squeeze ? '#f59e0b' : 'var(--text-dim)', 'Bollinger: ' + (A.squeeze ? 'Squeeze – Bänder sehr eng' : 'Bänder normal') + ' (%B ' + num(A.pctB * 100, 0) + ' %)', A.squeeze ? 'Oft folgt eine größere Bewegung, die Richtung ist offen.' : 'Bandbreite nicht ungewöhnlich eng');
+    r += row(A.squeeze ? '#f59e0b' : 'var(--text-dim)', termLink('Bollinger') + ': ' + (A.squeeze ? 'Squeeze – Bänder sehr eng' : 'Bänder normal') + ' (%B ' + num(A.pctB * 100, 0) + ' %)', A.squeeze ? 'Oft folgt eine größere Bewegung, die Richtung ist offen.' : 'Bandbreite nicht ungewöhnlich eng');
     if (A.div) r += row(BIAS[A.div.type], A.div.text);
     if (A.brk) r += row(BIAS[A.brk.type], A.brk.text);
-    r += row('var(--text-dim)', 'Nächste Unterstützung: ' + (A.lv.sup ? eur(A.lv.sup.p, cur) + ' (' + A.lv.sup.n + ' Berührungen, ' + num((A.lv.sup.p / A.px - 1) * 100, 1) + ' %)' : 'keine erkennbar'));
-    r += row('var(--text-dim)', 'Nächster Widerstand: ' + (A.lv.res ? eur(A.lv.res.p, cur) + ' (' + A.lv.res.n + ' Berührungen, +' + num((A.lv.res.p / A.px - 1) * 100, 1) + ' %)' : 'keiner erkennbar'));
+    r += row('var(--text-dim)', 'Nächste ' + termLink('Support') + ': ' + (A.lv.sup ? eur(A.lv.sup.p, cur) + ' (' + A.lv.sup.n + ' Berührungen, ' + num((A.lv.sup.p / A.px - 1) * 100, 1) + ' %)' : 'keine erkennbar'));
+    r += row('var(--text-dim)', 'Nächster ' + termLink('Support') + ': ' + (A.lv.res ? eur(A.lv.res.p, cur) + ' (' + A.lv.res.n + ' Berührungen, +' + num((A.lv.res.p / A.px - 1) * 100, 1) + ' %)' : 'keiner erkennbar'));
     return card('Trend, Volumen & Signale', '', '<div class="chart-signal-list">' + r + '</div>' + NOTE);
   }
 
@@ -449,7 +513,7 @@ window.App.ChartAnalyse = (function () {
       row('var(--bullish)', 'Ziel: <b>' + eur(R.tgt, cur) + '</b> (+' + num(R.reward / A.px * 100, 1) + ' %)') +
       row('var(--text-main)', 'Einstieg: <b>' + eur(A.px, cur) + '</b>') +
       row('var(--bearish)', 'Stop: <b>' + eur(R.stop, cur) + '</b> (−' + num(R.risk / A.px * 100, 1) + ' %)') +
-      row(col, 'Chance-Risiko-Verhältnis (CRV): <b>' + num(R.crv, 2) + '</b>', R.crv < 1 ? 'Das mögliche Risiko ist größer als die Chance.' : R.crv >= 2 ? 'mindestens 2:1' : 'zwischen 1:1 und 2:1') + '</div>' +
+      row(col, termLink('CRV') + ': <b>' + num(R.crv, 2) + '</b>', R.crv < 1 ? 'Das mögliche Risiko ist größer als die Chance.' : R.crv >= 2 ? 'mindestens 2:1' : 'zwischen 1:1 und 2:1') + '</div>' +
       '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0;font-size:.78rem;">Kapital <input id="ca-cap" type="number" inputmode="decimal" min="0" value="' + ui.capital + '" ' + inp + '> Risiko <input id="ca-risk" type="number" inputmode="decimal" min="0.1" step="0.1" value="' + ui.risk + '" ' + inp + '> %</div>' +
       '<div class="chart-signal-value">' + (R.shares > 0 ? 'Bei ' + eur(ui.capital, cur) + ' Kapital und ' + num(ui.risk, 1) + ' % Risiko: ca. <b>' + R.shares + ' Stück</b> (≈ ' + eur(R.shares * A.px, cur) + '). Maximaler Verlust ≈ ' + eur(R.shares * R.risk, cur) + ', möglicher Gewinn ≈ ' + eur(R.shares * R.reward, cur) + '.' : 'Mit diesen Angaben ergibt sich keine ganze Stückzahl.') + '</div>' +
       (R.notes.length ? '<div style="font-size:.72rem;color:var(--text-dim);margin-top:4px;">' + R.notes.join(' ') + '</div>' : '') + NOTE;
@@ -512,6 +576,10 @@ window.App.ChartAnalyse = (function () {
     if (!A) { slot.innerHTML = ''; return; }
     var cur = (stock.quote && stock.quote.currency) || 'EUR';
     slot.innerHTML = scoreCard(A) + patternsCard(A, cur) + signalsCard(A, cur) + rrCard(A, stock, cur);
+    
+    // Glossar-Klicks binden
+    bindTerms(slot);
+
     draw(slot.querySelector('#ca-canvas'), A);
     [].forEach.call(slot.querySelectorAll('.ca-btn'), function (b) {
       b.onclick = function () {
