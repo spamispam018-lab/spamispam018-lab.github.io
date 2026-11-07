@@ -11,21 +11,21 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 42.91,
-    "change": 0.585,
-    "changePercent": 1.38,
-    "marketCap": 38614769664.0,
+    "price": 41.555,
+    "change": -1.355,
+    "changePercent": -3.16,
+    "marketCap": 39445348352.0,
     "fiftyTwoWeekLow": 38.89,
     "fiftyTwoWeekHigh": 62.34,
-    "volume": 3587533.0,
-    "avgVolume": 2259950,
+    "volume": 2574289,
+    "avgVolume": 2329080,
     "currency": "EUR"
   },
   "ratios": {
-    "peTrailing": 7.7045,
-    "peForward": 6.266,
+    "peTrailing": 7.0552,
+    "peForward": 6.9977,
     "pegRatio": 0.59,
-    "dividendYield": 8.6,
+    "dividendYield": 8.16,
     "profitMargins": 0.042,
     "debtToEquity": 102.738,
     "revenueGrowth": -0.045,
@@ -330,8 +330,8 @@
         },
         {
           "date": "2026-09-30",
-          "Tax_Effect_Of_Unusual_Items": 5343283.5821,
-          "Tax_Rate_For_Calcs": 0.1908,
+          "Tax_Effect_Of_Unusual_Items": 5348000.0,
+          "Tax_Rate_For_Calcs": 0.191,
           "Normalized_EBITDA": 3765000000.0,
           "Total_Unusual_Items": 28000000.0,
           "Total_Unusual_Items_Excluding_Goodwill": 28000000.0,
@@ -343,7 +343,7 @@
           "Net_Interest_Income": -6000000.0,
           "Interest_Expense": 82000000.0,
           "Interest_Income": 241000000.0,
-          "Normalized_Income": 1495343283.5821,
+          "Normalized_Income": 1495348000.0,
           "Net_Income_From_Continuing_And_Discontinued_Operation": 1518000000.0,
           "Total_Expenses": 29346000000.0,
           "Diluted_Average_Shares": 925609756.0,
@@ -838,7 +838,7 @@
           "Common_Stock": 3070000000.0,
           "Total_Liabilities_Net_Minority_Interest": 163390000000.0,
           "Total_Non_Current_Liabilities_Net_Minority_Interest": 87955000000.0,
-          "Other_Non_Current_Liabilities": 1141000000.0,
+          "Other_Non_Current_Liabilities": null,
           "Derivative_Product_Liabilities": null,
           "Non_Current_Pension_And_Other_Postretirement_Benefit_Plans": 839000000.0,
           "Non_Current_Accrued_Expenses": null,
@@ -2073,7 +2073,7 @@
   },
   "analysts": {
     "targets": {
-      "current": 42.325,
+      "current": 41.555,
       "low": 32.0,
       "median": 51.0,
       "mean": 51.1575,
@@ -2157,31 +2157,6 @@
     "trades": []
   },
   "chartHistory": [
-    {
-      "date": "2024-10-30",
-      "close": 48.5027,
-      "volume": 3051700.0
-    },
-    {
-      "date": "2024-10-31",
-      "close": 47.9007,
-      "volume": 2542253.0
-    },
-    {
-      "date": "2024-11-01",
-      "close": 48.1157,
-      "volume": 1876036.0
-    },
-    {
-      "date": "2024-11-04",
-      "close": 48.3135,
-      "volume": 1396147.0
-    },
-    {
-      "date": "2024-11-05",
-      "close": 48.0727,
-      "volume": 1790790.0
-    },
     {
       "date": "2024-11-06",
       "close": 44.9767,
@@ -4714,9 +4689,9 @@
     },
     {
       "date": "2026-11-06",
-      "close": 41.555,
+      "close": null,
       "volume": 2574289.0
     }
   ],
-  "updatedAt": "2026-11-07T07:22:51.522293+00:00"
+  "updatedAt": "2026-11-07T07:30:43.706409+00:00"
 }

@@ -11,21 +11,21 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 175.05,
-    "change": 3.55,
-    "changePercent": 2.07,
-    "marketCap": 26449395712.0,
+    "price": 173.8,
+    "change": -1.25,
+    "changePercent": -0.71,
+    "marketCap": 30554372096.0,
     "fiftyTwoWeekLow": 137.2,
     "fiftyTwoWeekHigh": 241.8,
-    "volume": 913924.0,
-    "avgVolume": 430484,
+    "volume": 424464,
+    "avgVolume": 450835,
     "currency": "EUR"
   },
   "ratios": {
-    "peTrailing": 13.1397,
-    "peForward": 10.4583,
-    "pegRatio": 1.39,
-    "dividendYield": 2.39,
+    "peTrailing": 15.0737,
+    "peForward": 11.9826,
+    "pegRatio": 1.59,
+    "dividendYield": 2.06,
     "profitMargins": 0.0917,
     "debtToEquity": 50.409,
     "revenueGrowth": 0.017,
@@ -1125,10 +1125,10 @@
   },
   "analysts": {
     "targets": {
-      "current": 171.5,
+      "current": 173.8,
       "low": 140.0,
       "median": 210.5,
-      "mean": 205.2778,
+      "mean": 205.0,
       "high": 286.0,
       "currency": "EUR",
       "analystCount": 18
@@ -1154,6 +1154,14 @@
         },
         {
           "period": "-1m",
+          "strongBuy": 4,
+          "buy": 10,
+          "hold": 2,
+          "sell": 2,
+          "strongSell": 0
+        },
+        {
+          "period": "-2m",
           "strongBuy": 3,
           "buy": 11,
           "hold": 2,
@@ -1161,7 +1169,7 @@
           "strongSell": 0
         },
         {
-          "period": "-2m",
+          "period": "-3m",
           "strongBuy": 4,
           "buy": 11,
           "hold": 2,
@@ -1209,31 +1217,6 @@
     "trades": []
   },
   "chartHistory": [
-    {
-      "date": "2024-10-30",
-      "close": 97.4944,
-      "volume": 264819.0
-    },
-    {
-      "date": "2024-10-31",
-      "close": 97.4944,
-      "volume": 459988.0
-    },
-    {
-      "date": "2024-11-01",
-      "close": 98.5541,
-      "volume": 296659.0
-    },
-    {
-      "date": "2024-11-04",
-      "close": 98.6022,
-      "volume": 192284.0
-    },
-    {
-      "date": "2024-11-05",
-      "close": 101.2997,
-      "volume": 357580.0
-    },
     {
       "date": "2024-11-06",
       "close": 103.8045,
@@ -3766,9 +3749,9 @@
     },
     {
       "date": "2026-11-06",
-      "close": 173.8,
+      "close": null,
       "volume": 424464.0
     }
   ],
-  "updatedAt": "2026-11-07T07:22:51.494831+00:00"
+  "updatedAt": "2026-11-07T07:30:35.169242+00:00"
 }

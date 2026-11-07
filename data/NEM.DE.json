@@ -11,25 +11,25 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 68.0,
-    "change": -7.7,
-    "changePercent": -10.17,
-    "marketCap": 8638711808.0,
+    "price": 64.75,
+    "change": -3.25,
+    "changePercent": -4.78,
+    "marketCap": 7478028800.0,
     "fiftyTwoWeekLow": 50.45,
-    "fiftyTwoWeekHigh": 104.6,
-    "volume": 457150.0,
-    "avgVolume": 237076,
+    "fiftyTwoWeekHigh": 96.8,
+    "volume": 362567,
+    "avgVolume": 235216,
     "currency": "EUR"
   },
   "ratios": {
-    "peTrailing": 35.1174,
-    "peForward": 26.3339,
-    "pegRatio": 1.49,
-    "dividendYield": 0.91,
-    "profitMargins": 0.1957,
-    "debtToEquity": 52.065,
-    "revenueGrowth": 0.13,
-    "earningsGrowth": 0.267
+    "peTrailing": 28.9062,
+    "peForward": 23.1148,
+    "pegRatio": 1.51,
+    "dividendYield": 1.0,
+    "profitMargins": 0.1777,
+    "debtToEquity": 25.198,
+    "revenueGrowth": 0.266,
+    "earningsGrowth": -0.164
   },
   "financials": {
     "incomeStatement": {
@@ -1236,7 +1236,7 @@
           "Available_For_Sale_Securities": 48977000.0,
           "Long_Term_Equity_Investment": 14722000.0,
           "Investmentsin_Associatesat_Cost": 14722000.0,
-          "Goodwill_And_Other_Intangible_Assets": 1426931000.0,
+          "Goodwill_And_Other_Intangible_Assets": null,
           "Other_Intangible_Assets": 361924000.0,
           "Goodwill": 1065007000.0,
           "Net_PPE": 58905000.0,
@@ -1690,7 +1690,7 @@
   },
   "analysts": {
     "targets": {
-      "current": 75.7,
+      "current": 64.75,
       "low": 52.0,
       "median": 87.0,
       "mean": 87.1324,
@@ -1745,12 +1745,6 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-09-30",
-        "estimate": 0.4944,
-        "actual": 0.48,
-        "surprisePercent": -0.0291
-      },
-      {
         "quarter": "2025-12-31",
         "estimate": 0.5925,
         "actual": 0.56,
@@ -1767,6 +1761,12 @@
         "estimate": 0.5836,
         "actual": 0.57,
         "surprisePercent": -0.0233
+      },
+      {
+        "quarter": "2026-09-30",
+        "estimate": 0.5767,
+        "actual": 0.59,
+        "surprisePercent": 0.0231
       }
     ],
     "nextEarningsDate": "2026-11-05"
@@ -1782,31 +1782,6 @@
     "trades": []
   },
   "chartHistory": [
-    {
-      "date": "2024-10-30",
-      "close": 99.2755,
-      "volume": 78345.0
-    },
-    {
-      "date": "2024-10-31",
-      "close": 97.946,
-      "volume": 73456.0
-    },
-    {
-      "date": "2024-11-01",
-      "close": 98.3399,
-      "volume": 49098.0
-    },
-    {
-      "date": "2024-11-04",
-      "close": 96.5179,
-      "volume": 95588.0
-    },
-    {
-      "date": "2024-11-05",
-      "close": 97.7982,
-      "volume": 61942.0
-    },
     {
       "date": "2024-11-06",
       "close": 98.3892,
@@ -1939,7 +1914,7 @@
     },
     {
       "date": "2024-12-12",
-      "close": 94.0065,
+      "close": 94.0064,
       "volume": 143503.0
     },
     {
@@ -4339,9 +4314,9 @@
     },
     {
       "date": "2026-11-06",
-      "close": 64.75,
+      "close": null,
       "volume": 362567.0
     }
   ],
-  "updatedAt": "2026-11-07T07:22:56.591395+00:00"
+  "updatedAt": "2026-11-07T07:35:20.980332+00:00"
 }

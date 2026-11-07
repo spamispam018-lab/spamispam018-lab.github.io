@@ -11,25 +11,25 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 26.2,
-    "change": -0.56,
-    "changePercent": -2.09,
-    "marketCap": 124778307584.0,
+    "price": 25.91,
+    "change": -0.29,
+    "changePercent": -1.11,
+    "marketCap": 123917434880.0,
     "fiftyTwoWeekLow": 23.53,
     "fiftyTwoWeekHigh": 34.36,
-    "volume": 11692957.0,
-    "avgVolume": 6336048,
+    "volume": 7892395,
+    "avgVolume": 6345823,
     "currency": "EUR"
   },
   "ratios": {
-    "peTrailing": 14.6573,
-    "peForward": 10.1309,
-    "pegRatio": 1.91,
-    "dividendYield": 3.83,
-    "profitMargins": 0.0717,
-    "debtToEquity": 165.297,
-    "revenueGrowth": 0.044,
-    "earningsGrowth": -0.05
+    "peTrailing": 14.3944,
+    "peForward": 10.1413,
+    "pegRatio": 1.96,
+    "dividendYield": 3.82,
+    "profitMargins": 0.0732,
+    "debtToEquity": 160.346,
+    "revenueGrowth": 0.075,
+    "earningsGrowth": 0.155
   },
   "financials": {
     "incomeStatement": {
@@ -1591,7 +1591,7 @@
           "Common_Stock_Payments": -471000000.0,
           "Investing_Cash_Flow": -3759000000.0,
           "Net_Other_Investing_Changes": -6000000.0,
-          "Net_Investment_Purchase_And_Sale": 88000000.0,
+          "Net_Investment_Purchase_And_Sale": null,
           "Sale_Of_Investment": 379000000.0,
           "Purchase_Of_Investment": -291000000.0,
           "Net_Business_Purchase_And_Sale": -8000000.0,
@@ -1953,7 +1953,7 @@
   },
   "analysts": {
     "targets": {
-      "current": 26.76,
+      "current": 25.91,
       "low": 28.1,
       "median": 36.75,
       "mean": 36.2611,
@@ -2000,12 +2000,6 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-09-30",
-        "estimate": 0.5068,
-        "actual": 0.55,
-        "surprisePercent": 0.0852
-      },
-      {
         "quarter": "2025-12-31",
         "estimate": 0.4338,
         "actual": 0.44,
@@ -2022,6 +2016,12 @@
         "estimate": 0.566,
         "actual": 0.58,
         "surprisePercent": 0.0247
+      },
+      {
+        "quarter": "2026-09-30",
+        "estimate": 0.617,
+        "actual": 0.63,
+        "surprisePercent": 0.021
       }
     ],
     "nextEarningsDate": "2026-11-05"
@@ -2037,31 +2037,6 @@
     "trades": []
   },
   "chartHistory": [
-    {
-      "date": "2024-10-30",
-      "close": 26.4141,
-      "volume": 4665978.0
-    },
-    {
-      "date": "2024-10-31",
-      "close": 26.1788,
-      "volume": 7250523.0
-    },
-    {
-      "date": "2024-11-01",
-      "close": 26.367,
-      "volume": 4203147.0
-    },
-    {
-      "date": "2024-11-04",
-      "close": 26.3011,
-      "volume": 3405888.0
-    },
-    {
-      "date": "2024-11-05",
-      "close": 26.4799,
-      "volume": 4242469.0
-    },
     {
       "date": "2024-11-06",
       "close": 26.6869,
@@ -4594,9 +4569,9 @@
     },
     {
       "date": "2026-11-06",
-      "close": 25.91,
+      "close": null,
       "volume": 7892395.0
     }
   ],
-  "updatedAt": "2026-11-07T07:22:51.473534+00:00"
+  "updatedAt": "2026-11-07T07:30:28.942535+00:00"
 }
