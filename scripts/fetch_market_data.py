@@ -314,8 +314,11 @@ def fetch_full_stock(ticker_sym):
         for dt, row in hist.iterrows():
             chart_history.append({
                 "date": dt.strftime("%Y-%m-%d"),
-                "close": clean_val(to_eur(clean_val(row["Close"]), cur)),
-                "volume": clean_val(row["Volume"])
+                "open": clean_val(to_eur(clean_val(row.get("Open")), cur)),
+                "high": clean_val(to_eur(clean_val(row.get("High")), cur)),
+                "low": clean_val(to_eur(clean_val(row.get("Low")), cur)),
+                "close": clean_val(to_eur(clean_val(row.get("Close")), cur)),
+                "volume": clean_val(row.get("Volume"))
             })
     except Exception:
         pass
@@ -593,7 +596,14 @@ def run_delta_sync(tickers):
                 
                 # Wir stellen sicher, dass neu heruntergeladene Tagesdaten angehängt werden ohne doppelte Einträge
                 history = [p for p in history if p["date"] != last_date]
-                history.append({"date": last_date, "close": curr_eur, "volume": clean_val(last_row.get("Volume", 0))})
+                history.append({
+                    "date": last_date, 
+                    "open": clean_val(to_eur(clean_val(last_row.get("Open")), cur)),
+                    "high": clean_val(to_eur(clean_val(last_row.get("High")), cur)),
+                    "low": clean_val(to_eur(clean_val(last_row.get("Low")), cur)),
+                    "close": curr_eur, 
+                    "volume": clean_val(last_row.get("Volume", 0))
+                })
                 history.sort(key=lambda x: x["date"])
                 
                 # Bis zu 2 Jahre (ca. 520 Einträge) behalten
