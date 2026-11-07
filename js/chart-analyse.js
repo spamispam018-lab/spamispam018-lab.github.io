@@ -16,6 +16,8 @@ window.App.ChartAnalyse = (function () {
   var BIAS_TXT = { bull: 'bullisch', bear: 'bärisch', neutral: 'neutral' };
   
   var ui = { chart: true, candle: true, sr: false, zigzag: false, bollinger: false, capital: 10000, risk: 1, stop: 'support', target: 'resistance' };
+  var lastClickedToolTerm = null; // Speichert das zuletzt aktivierte Tool für die Anzeige
+
   try { var sv = JSON.parse(localStorage.getItem('ca_ui') || 'null'); if (sv) for (var k0 in sv) ui[k0] = sv[k0]; } catch (e) { /* ignorieren */ }
   function saveUi() { try { localStorage.setItem('ca_ui', JSON.stringify(ui)); } catch (e) { /* ignorieren */ } }
 
@@ -456,9 +458,11 @@ window.App.ChartAnalyse = (function () {
     return '<div class="card"><div class="card-header-dotted"><span class="card-title">' + title + '</span>' + (tag || '') + '</div>' + body + '</div>';
   }
   
+  // HIER GEÄNDERT: Die Klasse '.term-link' wurde aus dem Icon entfernt. 
+  // Das Klicken wird jetzt nativ durch den Button-Klick gesteuert.
   function chip(k, label, on, termKey) {
-    var icon = termKey ? ' <span class="term-link" data-term="' + termKey + '" style="margin-left: 4px; opacity: 0.7;">ⓘ</span>' : '';
-    return '<button class="chip-btn ca-btn ' + (on ? 'active' : '') + '" data-k="' + k + '">' + label + icon + '</button>';
+    var icon = termKey ? ' <span style="margin-left: 4px; opacity: 0.7;">ⓘ</span>' : '';
+    return '<button class="chip-btn ca-btn ' + (on ? 'active' : '') + '" data-k="' + k + '" data-term="' + (termKey || '') + '">' + label + icon + '</button>';
   }
 
   var NOTE = '<div class="chart-note">Regelbasierte Erkennung auf vergangenen Kursen, keine Anlageberatung. Muster können sich auflösen oder fehlschlagen.</div>';
@@ -491,8 +495,17 @@ window.App.ChartAnalyse = (function () {
       chip('bollinger', 'Bollinger', ui.bollinger, 'Bollinger') +
     '</div>';
 
+    // HIER GEÄNDERT: Die Glossar-Box wird direkt an den Toolbar angehängt, wenn der Chip aktiv ist.
+    var infoBoxHtml = '';
+    if (lastClickedToolTerm && GLOSSARY[lastClickedToolTerm]) {
+      infoBoxHtml = '<div id="ca-term-info" data-term="' + lastClickedToolTerm + '" style="margin-bottom: 12px; padding: 12px 14px; border-radius: var(--radius-sm); background-color: var(--bg-secondary); border: 1px solid var(--border-subtle); font-size: 0.8rem; color: var(--text-main); line-height: 1.45;">' +
+        '<div style="font-weight: 700; margin-bottom: 4px; color: var(--accent-purple-light);">' + GLOSSARY[lastClickedToolTerm].name + '</div>' +
+        GLOSSARY[lastClickedToolTerm].text +
+        '</div>';
+    }
+
     return card('Muster & Chart Tools', '<span class="period-tag">' + chartP.length + ' Chart · ' + candP.length + ' Kerzen</span>',
-      toolbar +
+      toolbar + infoBoxHtml +
       '<div style="position:relative;width:100%;height:240px;"><canvas id="ca-canvas" style="width:100%;height:100%;"></canvas></div>' +
       '<div style="margin-top:8px;" class="chart-signal-list">' + rows + '</div>' + NOTE);
   }
@@ -664,14 +677,28 @@ window.App.ChartAnalyse = (function () {
     if (newToolbar && savedScroll > 0) newToolbar.scrollLeft = savedScroll;
     
     bindTerms(slot);
-
     draw(slot.querySelector('#ca-canvas'), A);
     
+    // HIER GEÄNDERT: Klick-Logik, die automatisch das Erklärungs-Feld an/ausschaltet
     [].forEach.call(slot.querySelectorAll('.ca-btn'), function (b) {
-      b.onclick = function (e) {
-        if (e.target && e.target.closest('.term-link')) return; 
+      b.onclick = function () {
         var k = b.getAttribute('data-k'), p = k.split(':');
-        if (p.length === 2) ui[p[0]] = p[1]; else ui[k] = !ui[k];
+        var termKey = b.getAttribute('data-term');
+
+        if (p.length === 2) {
+          ui[p[0]] = p[1];
+          lastClickedToolTerm = null; // Entfernt die Box, wenn ein anderer Button-Typ (wie Target) geklickt wird
+        } else {
+          ui[k] = !ui[k];
+          
+          if (termKey) {
+            // Setzt das aktive Tool als letzen Begriff. 
+            // Falls aus (false), wird null gesetzt -> Box verschwindet.
+            lastClickedToolTerm = ui[k] ? termKey : null; 
+          } else {
+            lastClickedToolTerm = null;
+          }
+        }
         saveUi();
         mount(slot, stock, period);
       };
