@@ -415,3 +415,4 @@ window.App.Market = (function () {
 
   return { initView: initView };
 })();
+
