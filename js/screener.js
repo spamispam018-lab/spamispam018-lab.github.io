@@ -798,6 +798,8 @@ window.App.Screener = (function () {
         if (hasUpside(s)) parts.push("Upside-Ziel: " + fmtNum(s.upside, 1) + " %" + (hasNum(s.analystCount) ? " (" + s.analystCount + " Analysten)" : ""));
         if (hasRecentCross(s, 'death')) parts.push("Death Cross vor " + s.crossDaysAgo + " Tg.");
         if (hasRecentCross(s, 'golden')) parts.push("Golden Cross vor " + s.crossDaysAgo + " Tg.");
+        var nl = window.App.News && window.App.News.indexLine(s.ticker, true);
+        if (nl) parts.push(nl);
         promptText += "- " + parts.join(" | ") + "\n";
       });
 
