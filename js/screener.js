@@ -261,6 +261,8 @@ window.App.Screener = (function () {
     earnings_soon: function (s) { return isEarningsSoon(s); },
     consensus_buy: function (s) { return isConsensusBuy(s); },
     consensus_sell: function (s) { return isConsensusSell(s); },
+    bottom_base: function (s) { return s.bottom === 'base'; },
+    bottom_knife: function (s) { return s.bottom === 'knife'; },
     news_positive: function (s) { return isNewsPositive(s); },
     news_negative: function (s) { return isNewsNegative(s); }
   };
@@ -301,6 +303,10 @@ window.App.Screener = (function () {
       info: function () { return 'Mindestens ' + CONSENSUS_BUY_MIN + ' % der Analysten mit Buy/StrongBuy, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
     { id: 'consensus_sell', chip: '👎 Verkaufskonsens', name: 'Verkaufskonsens',
       info: function () { return 'Höchstens 20 % der Analysten mit Buy/StrongBuy, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
+    { id: 'bottom_base', chip: '🌅 Bodenbildung', name: 'Bodenbildung',
+      info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch und mindestens 4 von 6 Stabilisierungs-Signalen (kein neues Tief seit 15 Tagen, höheres Tief, Kurs über 20-Tage-Linie, Linie steigt, MACD über Signal, RSI ≥ 40 und steigend). Möglicher Boden, keine Garantie.'; } },
+    { id: 'bottom_knife', chip: '🔪 Fallendes Messer', name: 'Fallendes Messer',
+      info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch, höchstens 2 von 6 Stabilisierungs-Signalen und frisches Tief (≤ 10 Tage) oder −10 % im letzten Monat. Abwärtstrend noch intakt.'; } },
     { id: 'news_positive', chip: '📰 Positive News', name: 'Positive Nachrichten',
       info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % positiv (automatische FinBERT-Einschätzung der Schlagzeilen).'; } },
     { id: 'news_negative', chip: '⚠️ Negative News', name: 'Negative Nachrichten',
@@ -820,6 +826,7 @@ window.App.Screener = (function () {
         if (hasUpside(s)) parts.push("Upside-Ziel: " + fmtNum(s.upside, 1) + " %" + (hasNum(s.analystCount) ? " (" + s.analystCount + " Analysten)" : ""));
         if (hasRecentCross(s, 'death')) parts.push("Death Cross vor " + s.crossDaysAgo + " Tg.");
         if (hasRecentCross(s, 'golden')) parts.push("Golden Cross vor " + s.crossDaysAgo + " Tg.");
+        if (s.bottom) parts.push("Boden-Check: " + ({ base: 'Bodenbildung', knife: 'fallendes Messer', wait: 'unklar' })[s.bottom]);
         var nl = window.App.News && window.App.News.indexLine(s.ticker, true);
         if (nl) parts.push(nl);
         promptText += "- " + parts.join(" | ") + "\n";
