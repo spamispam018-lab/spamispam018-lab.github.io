@@ -387,6 +387,74 @@ def trend_extras(history):
         out["crossDaysAgo"] = n - 1 - last_cross_idx
     return out
 
+def _ema(vals, n):
+    out, k, prev, buf = [None] * len(vals), 2 / (n + 1), None, []
+    for i, v in enumerate(vals):
+        if v is None:
+            continue
+        if prev is None:
+            buf.append(v)
+            if len(buf) == n:
+                prev = sum(buf) / n
+                out[i] = prev
+        else:
+            prev = v * k + prev * (1 - k)
+            out[i] = prev
+    return out
+
+def _rsi_series(closes, n=14):
+    out, ag, al = [None], 0.0, 0.0
+    for i in range(1, len(closes)):
+        d = closes[i] - closes[i - 1]
+        g, l = (d if d > 0 else 0.0), (-d if d < 0 else 0.0)
+        if i <= n:
+            ag += g / n
+            al += l / n
+            if i < n:
+                out.append(None)
+                continue
+        else:
+            ag, al = (ag * (n - 1) + g) / n, (al * (n - 1) + l) / n
+        out.append(100.0 if al == 0 else 100 - 100 / (1 + ag / al))
+    return out
+
+def bottom_extras(history):
+    """Boden-Check: 'base' (Bodenbildung), 'knife' (fallendes Messer), 'wait' (unklar) oder None (kein Rückgang >= 20 % vom 52W-Hoch).
+    Gleiche Regeln wie bottomCheck() in js/stock-chart.js."""
+    out = {"bottom": None, "bottomScore": None}
+    c = [p.get("close") for p in (history or []) if p.get("close")]
+    if len(c) < 120:
+        return out
+    px = c[-1]
+    if px / max(c[-252:]) - 1 > -0.20:
+        return out
+    w = c[-60:]
+    since_low = len(w) - 1 - w[::-1].index(min(w))
+    since_low = len(w) - 1 - since_low
+    sma20, sma20_5 = sum(c[-20:]) / 20, sum(c[-25:-5]) / 20
+    e12, e26 = _ema(c, 12), _ema(c, 26)
+    line = [a - b if a is not None and b is not None else None for a, b in zip(e12, e26)]
+    sig = _ema(line, 9)
+    rsi = _rsi_series(c)
+    checks = [
+        since_low >= 15,
+        min(c[-20:]) > min(c[-60:-20]),
+        px > sma20,
+        sma20 >= sma20_5,
+        line[-1] is not None and sig[-1] is not None and line[-1] > sig[-1],
+        rsi[-1] is not None and rsi[-6] is not None and rsi[-1] >= 40 and rsi[-1] > rsi[-6],
+    ]
+    score = sum(checks)
+    perf1m = px / c[-22] - 1
+    if score >= 4 and (checks[0] or checks[1]):
+        out["bottom"] = "base"
+    elif score <= 2 and (since_low <= 10 or perf1m <= -0.10):
+        out["bottom"] = "knife"
+    else:
+        out["bottom"] = "wait"
+    out["bottomScore"] = score
+    return out
+
 def peer_extras(st):
     """Branche + Kursentwicklung (1W/1M/3M/YTD) fürs Universum (Peer-Ansicht)."""
     from datetime import date, timedelta
@@ -437,6 +505,7 @@ def screener_extras(st):
         "upside": None,
     }
     out.update(trend_extras(st.get("chartHistory")))
+    out.update(bottom_extras(st.get("chartHistory")))
     out.update(peer_extras(st))
     lo, hi, px = quote.get("fiftyTwoWeekLow"), quote.get("fiftyTwoWeekHigh"), quote.get("price")
     if lo is not None and hi is not None and px is not None and hi > lo:
