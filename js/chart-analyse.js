@@ -1,6 +1,5 @@
 /**
- * js/chart-analyse.js – erweiterte Chart-Analyse mit visuellen Overlays (Bollinger, Fibo, VWAP, S/R)
- * Einbindung:  window.App.ChartAnalyse.mount(slotElement, stock, period)
+ * js/chart-analyse.js – erweiterte Chart-Analyse mit interaktiven Overlays im Canvas
  */
 window.App = window.App || {};
 window.App.ChartAnalyse = (function () {
@@ -10,7 +9,6 @@ window.App.ChartAnalyse = (function () {
   var BIAS = { bull: '#22c55e', bear: '#ef4444', neutral: '#f59e0b' };
   var BIAS_TXT = { bull: 'bullisch', bear: 'bärisch', neutral: 'neutral' };
   
-  // Erweiterter UI-Zustand inkl. Overlays
   var ui = { 
     chart: true, 
     candle: true, 
@@ -27,9 +25,6 @@ window.App.ChartAnalyse = (function () {
   try { var sv = JSON.parse(localStorage.getItem('ca_ui') || 'null'); if (sv) for (var k0 in sv) ui[k0] = sv[k0]; } catch (e) { /* ignorieren */ }
   function saveUi() { try { localStorage.setItem('ca_ui', JSON.stringify(ui)); } catch (e) { /* ignorieren */ } }
 
-  // ---------------------------------------------------------------------------
-  // Basis-Rechnungen
-  // ---------------------------------------------------------------------------
   function avg(a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : 0; }
   function maxOf(a) { return Math.max.apply(null, a); }
   function minOf(a) { return Math.min.apply(null, a); }
@@ -130,7 +125,6 @@ window.App.ChartAnalyse = (function () {
     return piv;
   }
 
-  // Mustererkennungs-Helfer
   function twoPivotPatterns(V, px, N, out) {
     var len = V.length, k, a, b, c;
     for (k = 0; k + 2 < len; k++) {
@@ -243,8 +237,6 @@ window.App.ChartAnalyse = (function () {
       else if (i >= 2 && c[i - 2] > o[i - 2] && body(i - 2) >= 0.5 * rng(i - 2) && body(i - 1) <= 0.4 * body(i - 2) && c[i] < o[i] && c[i] < (o[i - 2] + c[i - 2]) / 2 && upT(i - 1)) { name = 'Evening Star'; bias = 'bear'; }
       else if (c[i - 1] < o[i - 1] && c[i] > o[i] && o[i] <= c[i - 1] && c[i] >= o[i - 1] && b > body(i - 1) && down(i)) { name = 'Bullisches Engulfing'; bias = 'bull'; }
       else if (c[i - 1] > o[i - 1] && c[i] < o[i] && o[i] >= c[i - 1] && c[i] <= o[i - 1] && b > body(i - 1) && upT(i)) { name = 'Bärisches Engulfing'; bias = 'bear'; }
-      else if (loSh(i) >= 0.6 * r && upSh(i) <= 0.25 * r && b <= 0.35 * r && down(i)) { name = 'Hammer'; bias = 'bull'; }
-      else if (upSh(i) >= 0.6 * r && loSh(i) <= 0.25 * r && b <= 0.35 * r && upT(i)) { name = 'Shooting Star'; bias = 'bear'; }
       if (name) out.push({ kind: 'candle', name: name, bias: bias, i: i - off, date: T.date[i], score: 0 });
     }
   }
@@ -260,15 +252,12 @@ window.App.ChartAnalyse = (function () {
     return { sup: sup, res: res, all: lv };
   }
 
-  // ---------------------------------------------------------------------------
-  // Gesamtanalyse & Indikatoren für Overlays
-  // ---------------------------------------------------------------------------
   function analyse(stock, period) {
     var T = prep(stock.chartHistory || []), n = T.c.length;
     if (n < 80) return null;
     var N = Math.min(250, n), off = n - N, px = T.c[n - 1];
     var w = Math.min(WIN[period] || 126, N), from = N - w;
-    var c = T.c.slice(off), h = T.h.slice(off), l = T.l.slice(off), v = T.v.slice(off);
+    var c = T.c.slice(off), h = T.h.slice(off), l = T.l.slice(off);
     var atr = atrArr(T.h, T.l, T.c, 14), atrV = atr[n - 1] || px * 0.02;
     var th = clamp(2.2 * atrV / px, 0.035, 0.12);
     var P = zigzag(h, l, th), Vw = P.filter(function (p) { return p.i >= from; });
@@ -277,7 +266,6 @@ window.App.ChartAnalyse = (function () {
     if (from <= N - 12) flagPatterns(c, N, pats);
     candlePatterns(T, off, N, pats);
 
-    // Bollinger Bänder (20, 2) Berechnung für Overlay
     var bUpper = [], bLower = [], bMid = [];
     for (var i = 0; i < n; i++) {
       if (i < 19) { bUpper.push(null); bLower.push(null); bMid.push(null); continue; }
@@ -289,7 +277,6 @@ window.App.ChartAnalyse = (function () {
       bLower.push(m - 2 * sd);
     }
 
-    // VWAP Berechnung
     var vwapArr = [], cumPV = 0, cumV = 0;
     for (var i = 0; i < n; i++) {
       var tp = (T.h[i] + T.l[i] + T.c[i]) / 3;
@@ -303,37 +290,15 @@ window.App.ChartAnalyse = (function () {
     var macdBull = line[n - 1] !== null && sigl[n - 1] !== null && line[n - 1] > sigl[n - 1];
     var s50 = n >= 50 ? avg(T.c.slice(-50)) : null, s200 = n >= 200 ? avg(T.c.slice(-200)) : null;
     var adx = adxLast(T.h, T.l, T.c, 14);
-
-    var obv = [0];
-    for (var i = 1; i < n; i++) obv.push(obv[i - 1] + (T.c[i] > T.c[i - 1] ? T.v[i] : T.c[i] < T.c[i - 1] ? -T.v[i] : 0));
-    var hasVol = T.v.slice(-20).some(function (val) { return val > 0; });
-    var obvTrend = hasVol ? Math.sign(obv[n - 1] - obv[n - 21]) : 0, pTrend = Math.sign(px - T.c[n - 21]);
-
-    var bw = [], pb = null;
-    for (var i = 19; i < n; i++) {
-      var sl = T.c.slice(i - 19, i + 1), mVal = avg(sl), sdVal = Math.sqrt(avg(sl.map(function (x) { return (x - mVal) * (x - mVal); })));
-      bw.push((4 * sdVal) / mVal);
-      if (i === n - 1) pb = sdVal > 0 ? (px - (mVal - 2 * sdVal)) / (4 * sdVal) : 0.5;
-    }
-    var bwLast = bw[bw.length - 1], bwWin = bw.slice(-120), rank = bwWin.filter(function (x) { return x <= bwLast; }).length / bwWin.length;
-
-    var div = null;
     var lv = levels(P, px);
-
-    // Score Berechnung (gekürzt für Übersichtlichkeit)
-    var parts = [['Trend', 0, 30], ['Momentum', 0, 20], ['Muster', 0, 20], ['Signale', 0, 15], ['Lage S/R', 0, 15]];
-    var score = 50;
 
     return { 
       T: T, n: n, N: N, off: off, from: from, w: w, px: px, c: c, h: h, l: l, atr: atrV, 
       pivots: P, pats: pats, rsi: r0, bUpper: bUpper, bLower: bLower, bMid: bMid, vwap: vwapArr,
-      div: div, lv: lv, parts: parts, score: score, label: 'neutral' 
+      lv: lv, parts: [['Trend', 0, 30], ['Momentum', 0, 20], ['Muster', 0, 20], ['Signale', 0, 15], ['Lage S/R', 0, 15]], score: 50, label: 'neutral' 
     };
   }
 
-  // ---------------------------------------------------------------------------
-  // Darstellung & UI
-  // ---------------------------------------------------------------------------
   function F() { return window.App.Format; }
   function eur(v, cur) { return F().currency(v, cur); }
   function num(v, d) { return F().number(v, d === undefined ? 1 : d); }
@@ -391,7 +356,7 @@ window.App.ChartAnalyse = (function () {
     var tgt = res ? res.p : px + 2 * (px - stop);
     var risk = px - stop, reward = tgt - px, crv = risk > 0 ? reward / risk : 0;
     var shares = risk > 0 ? Math.floor((ui.capital * ui.risk / 100) / risk) : 0;
-    return { stop: stop, tgt: tgt, risk: risk, reward: reward, crv: crv, shares: shares, notes: [] };
+    return { stop: stop, tgt: tgt, risk: risk, reward: reward, crv: crv, shares: shares };
   }
 
   function rrCard(A, stock, cur) {
@@ -412,9 +377,6 @@ window.App.ChartAnalyse = (function () {
     return { vals: out, dec: st >= 1 ? 0 : st >= 0.1 ? 1 : 2 };
   }
 
-  // ---------------------------------------------------------------------------
-  // Canvas-Zeichnen inklusive Overlays (Bollinger, Fibo, VWAP, S/R)
-  // ---------------------------------------------------------------------------
   function draw(cv, A) {
     if (!cv) return;
     var dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 320, H = cv.clientHeight || 240;
@@ -437,19 +399,15 @@ window.App.ChartAnalyse = (function () {
 
     g.save(); g.beginPath(); g.rect(L - 1, T - 2, pw + 3, ph + 4); g.clip();
 
-    // 1. Support & Resistance Linien zeichnen
+    // 1. Support & Resistance Linien
     if (ui.sr) {
       g.lineWidth = 1; g.setLineDash([3, 3]);
-      if (A.lv.sup) {
-        g.strokeStyle = '#22c55e'; g.beginPath(); g.moveTo(L, y(A.lv.sup.p)); g.lineTo(W - R, y(A.lv.sup.p)); g.stroke();
-      }
-      if (A.lv.res) {
-        g.strokeStyle = '#ef4444'; g.beginPath(); g.moveTo(L, y(A.lv.res.p)); g.lineTo(W - R, y(A.lv.res.p)); g.stroke();
-      }
+      if (A.lv.sup) { g.strokeStyle = '#22c55e'; g.beginPath(); g.moveTo(L, y(A.lv.sup.p)); g.lineTo(W - R, y(A.lv.sup.p)); g.stroke(); }
+      if (A.lv.res) { g.strokeStyle = '#ef4444'; g.beginPath(); g.moveTo(L, y(A.lv.res.p)); g.lineTo(W - R, y(A.lv.res.p)); g.stroke(); }
       g.setLineDash([]);
     }
 
-    // 2. Bollinger Bänder zeichnen
+    // 2. Bollinger Bänder
     if (ui.bollinger && A.bUpper && A.bLower) {
       g.strokeStyle = 'rgba(129, 140, 248, 0.4)'; g.lineWidth = 1;
       g.beginPath();
@@ -460,14 +418,14 @@ window.App.ChartAnalyse = (function () {
       g.stroke();
     }
 
-    // 3. VWAP zeichnen
+    // 3. VWAP
     if (ui.vwap && A.vwap) {
       g.strokeStyle = '#f59e0b'; g.lineWidth = 1.5; g.beginPath();
       for (i = from; i < N; i++) { var xx = x(i), yy = y(A.vwap[i]); if (i === from) g.moveTo(xx, yy); else g.lineTo(xx, yy); }
       g.stroke();
     }
 
-    // 4. Fibonacci Retracements zeichnen
+    // 4. Fibonacci Retracements
     if (ui.fibo) {
       var fHi = maxOf(A.h.slice(from)), fLo = minOf(A.l.slice(from));
       var fLevels = [0, 0.236, 0.382, 0.5, 0.618, 1.0];
