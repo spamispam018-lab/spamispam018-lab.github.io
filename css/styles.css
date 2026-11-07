@@ -1021,3 +1021,67 @@ input, button, select, textarea {
 @media (max-width: 420px) {
   .auff-grid { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   Desktop / Tablet Optimierung (ab 768px)
+   ========================================================================== */
+@media (min-width: 768px) {
+  
+  /* Container verbreitern und Padding anpassen */
+  .view-container {
+    max-width: 1024px;
+    padding: 32px;
+  }
+
+  /* Bottom-Nav auf Desktop ausblenden... */
+  .bottom-nav {
+    display: none;
+  }
+
+  /* ...und das Padding am Bodyende zurücksetzen, 
+     da die Bottom-Nav keinen Platz mehr einnimmt */
+  body {
+    padding-bottom: 24px;
+  }
+
+  /* Header für Desktop anpassen (z.B. Navigations-Links hier einfügen) */
+  .app-header {
+    height: 64px;
+    padding: 0 32px;
+  }
+
+  /* Grids entzerren: Aus 2 Spalten mach 4 Spalten */
+  .metrics-grid-2col {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Auffälligkeiten-Grid nebeneinander lassen, aber Lücke vergrößern */
+  .auff-grid {
+    gap: 16px;
+  }
+
+  /* Charts auf dem Desktop größer darstellen */
+  .chart-canvas {
+    height: 350px;
+  }
+
+  /* Desktop Hover-States (zusätzlich zu den mobilen :active States) */
+  .icon-btn:hover,
+  .chip-btn:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-1px);
+  }
+
+  .stock-card:hover {
+    border-color: var(--accent-purple);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  /* Horizontal scrollende Tabs auf dem Desktop standardmäßig nebeneinander (ohne Scrollen) */
+  .horizontal-scroll-row,
+  .sub-tabs-row {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
