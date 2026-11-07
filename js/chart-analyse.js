@@ -15,7 +15,8 @@ window.App.ChartAnalyse = (function () {
   var BIAS = { bull: '#22c55e', bear: '#ef4444', neutral: '#f59e0b' };
   var BIAS_TXT = { bull: 'bullisch', bear: 'bärisch', neutral: 'neutral' };
   
-  var ui = { chart: true, candle: true, sr: false, zigzag: false, bollinger: false, capital: 10000, risk: 1, stop: 'support', target: 'resistance' };
+  // UI-Status um tradeDir erweitert
+  var ui = { chart: true, candle: true, sr: false, zigzag: false, bollinger: false, capital: 10000, risk: 1, stop: 'support', target: 'resistance', tradeDir: 'long' };
   var lastClickedToolTerm = null; 
 
   try { var sv = JSON.parse(localStorage.getItem('ca_ui') || 'null'); if (sv) for (var k0 in sv) ui[k0] = sv[k0]; } catch (e) { /* ignorieren */ }
@@ -199,7 +200,7 @@ window.App.ChartAnalyse = (function () {
       a = V[k]; b = V[k + 1]; c = V[k + 2];
       if (c.open || c.i < N - 45 || c.i - a.i < 10) continue;
       
-      var tol = atr * 0.7; // Dynamische Toleranz durch ATR
+      var tol = atr * 0.7; 
       
       if (a.t === 'H' && b.t === 'L' && c.t === 'H') {
         var top = Math.min(a.p, c.p);
@@ -380,7 +381,7 @@ window.App.ChartAnalyse = (function () {
   }
 
   // ---------------------------------------------------------------------------
-  // Support/Widerstand aus Wendepunkten (Optimiert mit ATR & Heatmap)
+  // Support/Widerstand aus Wendepunkten
   // ---------------------------------------------------------------------------
   function levels(P, px, atr) {
     var pivs = P.slice().sort(function (a, b) { return a.p - b.p; }), cl = [], cur = null;
@@ -595,33 +596,75 @@ window.App.ChartAnalyse = (function () {
     return card('Trend, Volumen & Signale', '', '<div class="chart-signal-list">' + r + '</div>' + NOTE);
   }
 
+  // --- NEU: Optimierte Risk/Reward Berechnung mit Long/Short Toggle ---
   function rrCalc(A, stock) {
     var px = A.px, sup = A.lv.sup, res = A.lv.res, notes = [], stop, tgt;
-    var stopSup = sup ? sup.p * 0.985 : null, stopAtr = px - 2 * A.atr, mean = stock.analysts && stock.analysts.targets && stock.analysts.targets.mean;
-    if (ui.stop === 'support' && stopSup && px - stopSup >= 0.8 * A.atr) stop = stopSup;
-    else { stop = stopAtr; if (ui.stop === 'support') notes.push(sup ? 'Unterstützung liegt zu nah am Kurs, Stop daher 2× ATR.' : 'Keine Unterstützung erkennbar, Stop daher 2× ATR.'); }
-    if (ui.target === 'resistance' && res) tgt = res.p;
-    else if (ui.target === 'analyst' && mean && mean > px) tgt = mean;
-    else { tgt = px + 2 * (px - stop); if (ui.target !== 'rr2') notes.push(ui.target === 'resistance' ? 'Kein Widerstand erkennbar, Ziel daher CRV 2:1.' : 'Kein Analystenziel über dem Kurs, Ziel daher CRV 2:1.'); }
-    var risk = px - stop, reward = tgt - px, crv = risk > 0 ? reward / risk : 0;
+    var mean = stock.analysts && stock.analysts.targets && stock.analysts.targets.mean;
+    var isLong = ui.tradeDir !== 'short';
+
+    if (isLong) {
+      var stopSup = sup ? sup.p * 0.985 : null, stopAtr = px - 2 * A.atr;
+      if (ui.stop === 'support' && stopSup && px - stopSup >= 0.8 * A.atr) stop = stopSup;
+      else { stop = stopAtr; if (ui.stop === 'support') notes.push(sup ? 'Unterstützung liegt zu nah, Stop daher 2× ATR.' : 'Keine Unterstützung erkennbar, Stop daher 2× ATR.'); }
+      
+      if (ui.target === 'resistance' && res) tgt = res.p;
+      else if (ui.target === 'analyst' && mean && mean > px) tgt = mean;
+      else { tgt = px + 2 * (px - stop); if (ui.target !== 'rr2') notes.push(ui.target === 'resistance' ? 'Kein Widerstand erkennbar, Ziel daher CRV 2:1.' : 'Kein Analystenziel über dem Kurs, Ziel daher CRV 2:1.'); }
+    } else {
+      // Short-Logik
+      var stopRes = res ? res.p * 1.015 : null, stopAtrShort = px + 2 * A.atr;
+      if (ui.stop === 'support' && stopRes && stopRes - px >= 0.8 * A.atr) stop = stopRes; // ui.stop='support' bedeutet hier das Struktur-Level (Widerstand)
+      else { stop = stopAtrShort; if (ui.stop === 'support') notes.push(res ? 'Widerstand liegt zu nah, Stop daher 2× ATR.' : 'Kein Widerstand erkennbar, Stop daher 2× ATR.'); }
+      
+      if (ui.target === 'resistance' && sup) tgt = sup.p;
+      else if (ui.target === 'analyst' && mean && mean < px) tgt = mean;
+      else { tgt = px - 2 * (stop - px); if (ui.target !== 'rr2') notes.push(ui.target === 'resistance' ? 'Keine Unterstützung erkennbar, Ziel daher CRV 2:1.' : 'Kein Analystenziel unter dem Kurs, Ziel daher CRV 2:1.'); }
+    }
+
+    var risk = isLong ? px - stop : stop - px;
+    var reward = isLong ? tgt - px : px - tgt;
+    var crv = risk > 0 ? reward / risk : 0;
     var shares = risk > 0 ? Math.floor((ui.capital * ui.risk / 100) / risk) : 0;
-    return { stop: stop, tgt: tgt, risk: risk, reward: reward, crv: crv, shares: shares, notes: notes };
+    
+    return { isLong: isLong, stop: stop, tgt: tgt, risk: risk, reward: reward, crv: crv, shares: shares, notes: notes };
   }
 
+  // --- NEU: Optimierte Risk/Reward Karte mit Visual Bar ---
   function rrCard(A, stock, cur) {
-    var R = rrCalc(A, stock), col = R.crv >= 2 ? 'var(--bullish)' : R.crv >= 1 ? '#f59e0b' : 'var(--bearish)';
+    var R = rrCalc(A, stock);
+    var col = R.crv >= 2 ? 'var(--bullish)' : R.crv >= 1 ? '#f59e0b' : 'var(--bearish)';
     var inp = 'style="width:84px;background:var(--bg-card,#111);color:inherit;border:1px solid var(--border-color,#333);border-radius:8px;padding:4px 6px;"';
-    var body = '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:4px;">Stop</div><div class="pill-group" style="margin-bottom:8px;">' + pill('stop:support', 'Unterstützung', ui.stop === 'support') + pill('stop:atr', '2× ATR', ui.stop === 'atr') + '</div>' +
-      '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:4px;">Ziel</div><div class="pill-group" style="margin-bottom:8px;">' + pill('target:resistance', 'Widerstand', ui.target === 'resistance') + pill('target:analyst', 'Analystenziel', ui.target === 'analyst') + pill('target:rr2', 'CRV 2:1', ui.target === 'rr2') + '</div>' +
-      '<div class="chart-signal-list">' +
-      row('var(--bullish)', 'Ziel: <b>' + eur(R.tgt, cur) + '</b> (+' + num(R.reward / A.px * 100, 1) + ' %)') +
+    
+    var dirPills = '<div class="pill-group" style="margin-bottom:8px;">' + pill('tradeDir:long', 'Long (Kauf)', R.isLong) + pill('tradeDir:short', 'Short (Verkauf)', !R.isLong) + '</div>';
+    
+    var body = '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:4px;">Richtung</div>' + dirPills +
+      '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:4px;">Stop Loss Level</div><div class="pill-group" style="margin-bottom:8px;">' + pill('stop:support', R.isLong ? 'Unterstützung' : 'Widerstand', ui.stop === 'support') + pill('stop:atr', '2× ATR', ui.stop === 'atr') + '</div>' +
+      '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:4px;">Take Profit Ziel</div><div class="pill-group" style="margin-bottom:8px;">' + pill('target:resistance', R.isLong ? 'Widerstand' : 'Unterstützung', ui.target === 'resistance') + pill('target:analyst', 'Analystenziel', ui.target === 'analyst') + pill('target:rr2', 'CRV 2:1', ui.target === 'rr2') + '</div>';
+    
+    // Visuelle CRV-Balkengrafik generieren
+    var totalRange = R.risk + R.reward;
+    var riskPct = totalRange > 0 ? (R.risk / totalRange) * 100 : 33;
+    var rewardPct = totalRange > 0 ? (R.reward / totalRange) * 100 : 66;
+    
+    var visualBar = '<div style="display:flex; height:6px; border-radius:3px; overflow:hidden; margin: 12px 0;">' +
+      '<div style="width:' + (R.isLong ? riskPct : rewardPct) + '%; background:' + (R.isLong ? 'var(--bearish)' : 'var(--bullish)') + ';"></div>' +
+      '<div style="width:2px; background:var(--text-main);"></div>' +
+      '<div style="width:' + (R.isLong ? rewardPct : riskPct) + '%; background:' + (R.isLong ? 'var(--bullish)' : 'var(--bearish)') + ';"></div>' +
+      '</div>';
+
+    var resultList = '<div class="chart-signal-list">' +
+      row('var(--bullish)', 'Ziel: <b>' + eur(R.tgt, cur) + '</b> (' + (R.isLong ? '+' : '-') + num(Math.abs(R.tgt / A.px - 1) * 100, 1) + ' %)') +
       row('var(--text-main)', 'Einstieg: <b>' + eur(A.px, cur) + '</b>') +
-      row('var(--bearish)', 'Stop: <b>' + eur(R.stop, cur) + '</b> (−' + num(R.risk / A.px * 100, 1) + ' %)') +
-      row(col, termLink('CRV') + ': <b>' + num(R.crv, 2) + '</b>', R.crv < 1 ? 'Das mögliche Risiko ist größer als die Chance.' : R.crv >= 2 ? 'mindestens 2:1' : 'zwischen 1:1 und 2:1') + '</div>' +
-      '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0;font-size:.78rem;">Kapital <input id="ca-cap" type="number" inputmode="decimal" min="0" value="' + ui.capital + '" ' + inp + '> Risiko <input id="ca-risk" type="number" inputmode="decimal" min="0.1" step="0.1" value="' + ui.risk + '" ' + inp + '> %</div>' +
-      '<div class="chart-signal-value">' + (R.shares > 0 ? 'Bei ' + eur(ui.capital, cur) + ' Kapital und ' + num(ui.risk, 1) + ' % Risiko: ca. <b>' + R.shares + ' Stück</b> (≈ ' + eur(R.shares * A.px, cur) + '). Maximaler Verlust ≈ ' + eur(R.shares * R.risk, cur) + ', möglicher Gewinn ≈ ' + eur(R.shares * R.reward, cur) + '.' : 'Mit diesen Angaben ergibt sich keine ganze Stückzahl.') + '</div>' +
-      (R.notes.length ? '<div style="font-size:.72rem;color:var(--text-dim);margin-top:4px;">' + R.notes.join(' ') + '</div>' : '') + NOTE;
-    return card('Risk/Reward (Long)', '<span class="period-tag">CRV ' + num(R.crv, 1) + '</span>', body);
+      row('var(--bearish)', 'Stop: <b>' + eur(R.stop, cur) + '</b> (' + (R.isLong ? '-' : '+') + num(Math.abs(R.stop / A.px - 1) * 100, 1) + ' %)') +
+      row(col, termLink('CRV') + ': <b>' + num(R.crv, 2) + '</b>', R.crv < 1 ? 'Das Risiko ist größer als die Chance.' : R.crv >= 2 ? 'Optimales Setup (>= 2:1)' : 'Akzeptables Setup (1:1 bis 2:1)') + 
+      '</div>';
+
+    var calcHtml = '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0 8px 0;font-size:.78rem;">Kapital <input id="ca-cap" type="number" inputmode="decimal" min="0" value="' + ui.capital + '" ' + inp + '> Risiko <input id="ca-risk" type="number" inputmode="decimal" min="0.1" step="0.1" value="' + ui.risk + '" ' + inp + '> %</div>' +
+      '<div class="chart-signal-value">' + (R.shares > 0 ? 'Ergebnis: <b>' + R.shares + ' Stück</b> (Position: ' + eur(R.shares * A.px, cur) + ').<br>Max Verlust ≈ ' + eur(R.shares * R.risk, cur) + ' · Möglicher Gewinn ≈ ' + eur(R.shares * R.reward, cur) + '.' : 'Mit diesen Angaben ergibt sich keine ganze Stückzahl.') + '</div>';
+      
+    var notesHtml = R.notes.length ? '<div style="font-size:.72rem;color:var(--text-dim);margin-top:8px;">' + R.notes.join(' ') + '</div>' : '';
+
+    return card('Risk/Reward Rechner', '<span class="period-tag">CRV ' + num(R.crv, 1) + '</span>', body + visualBar + resultList + calcHtml + notesHtml + NOTE);
   }
 
   function niceTicks(mn, mx) {
@@ -656,12 +699,9 @@ window.App.ChartAnalyse = (function () {
     });
     g.save(); g.beginPath(); g.rect(L - 1, T - 2, pw + 3, ph + 4); g.clip();
     
-    // Support / Resistance zeichnen (Visualisierung aller starken Heatmap-Zonen)
     if (ui.sr && A.lv && A.lv.all) {
       A.lv.all.forEach(function(lvl) {
         var isSup = lvl.p < A.px;
-        
-        // Unterscheidung nach Relevanz (Anzahl Berührungen)
         var touches = lvl.n;
         var isStrong = touches >= 4;
         var isMedium = touches === 3;
@@ -670,7 +710,6 @@ window.App.ChartAnalyse = (function () {
         var w = isStrong ? 2.5 : (isMedium ? 1.5 : 1);
         
         g.lineWidth = w;
-        // Stark = durchgezogen, Mittel = normale Strichelung, Schwach = weite Strichelung
         g.setLineDash(isStrong ? [] : (isMedium ? [4, 4] : [2, 6]));
         
         g.strokeStyle = isSup ? 'rgba(16,185,129,' + alpha + ')' : 'rgba(239,68,68,' + alpha + ')';
