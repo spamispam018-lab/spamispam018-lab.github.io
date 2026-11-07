@@ -1,490 +1,63 @@
-/**
- * js/stock-chart.js
- * Chart-Analyse-Tab der Aktiendetailseite (nach "Overview"):
- * - Steuerung des Analyse-Zeitraums (1W, 1M, 3M, 6M, 1J)
- * - Technisches Bild (Signale zu SMA 50/200, RSI, MACD, dynamisches Momentum)
- * - Chart-Tools Toolbar: Bollinger, VWAP, Fibo, Support/Resistance, Pivots, Patterns, Risk/Reward (inkl. Glossar)
- * - Risiko & Volumen (Volatilität, Drawdown, Abstand zu Hoch/Tief, Volumentrend)
- *
- * Alle Indikatoren werden im Browser aus stock.chartHistory berechnet.
- */
-
-window.App = window.App || {};
-
-window.App.StockChart = (function () {
-  'use strict';
-
-  var currentPeriod = '1Y'; // Default Zeitraum
-  var candleWeeks = 52;     // Anzahl Wochenkerzen (26 = 6M, 52 = 1J, 104 = 2J)
-
-  // Zustand der aktiven Chart-Tools
-  var activeTools = {
-    bollinger: false,
-    vwap: false,
-    fibo: false,
-    sr: false,
-    pivot: false,
-    pattern: false,
-    rr: false
-  };
-
-  var COLORS = {
-    price: '#818cf8',
-    sma50: '#f59e0b',
-    sma200: '#ec4899',
-    rsi: '#818cf8',
-    macd: '#818cf8',
-    signal: '#f59e0b',
-    bull: 'var(--bullish)',
-    bear: 'var(--bearish)',
-    neutral: '#f59e0b'
-  };
-
-  // ---------------------------------------------------------------------------
-  // Indikator-Berechnungen (Standard)
-  // ---------------------------------------------------------------------------
-
-  function sma(values, n) {
-    var out = [];
-    var sum = 0;
-    for (var i = 0; i < values.length; i++) {
-      sum += values[i];
-      if (i >= n) sum -= values[i - n];
-      out.push(i >= n - 1 ? sum / n : null);
-    }
-    return out;
-  }
-
-  function ema(values, n) {
-    var out = [];
-    var k = 2 / (n + 1);
-    var prev = null;
-    var buf = [];
-    for (var i = 0; i < values.length; i++) {
-      var v = values[i];
-      if (v === null || v === undefined) { out.push(null); continue; }
-      if (prev === null) {
-        buf.push(v);
-        if (buf.length === n) {
-          prev = buf.reduce(function (a, b) { return a + b; }, 0) / n;
-          out.push(prev);
-        } else {
-          out.push(null);
-        }
-      } else {
-        prev = v * k + prev * (1 - k);
-        out.push(prev);
-      }
-    }
-    return out;
-  }
-
-  function rsi(values, n) {
-    var out = [];
-    var avgGain = 0;
-    var avgLoss = 0;
-    for (var i = 0; i < values.length; i++) {
-      if (i === 0) { out.push(null); continue; }
-      var diff = values[i] - values[i - 1];
-      var gain = diff > 0 ? diff : 0;
-      var loss = diff < 0 ? -diff : 0;
-      if (i <= n) {
-        avgGain += gain / n;
-        avgLoss += loss / n;
-        if (i < n) { out.push(null); continue; }
-      } else {
-        avgGain = (avgGain * (n - 1) + gain) / n;
-        avgLoss = (avgLoss * (n - 1) + loss) / n;
-      }
-      out.push(avgLoss === 0 ? 100 : 100 - 100 / (1 + avgGain / avgLoss));
-    }
-    return out;
-  }
-
-  function macd(values) {
-    var e12 = ema(values, 12);
-    var e26 = ema(values, 26);
-    var line = values.map(function (_, i) {
-      return (e12[i] !== null && e26[i] !== null) ? e12[i] - e26[i] : null;
-    });
-    var signal = ema(line, 9);
-    var hist = line.map(function (v, i) {
-      return (v !== null && signal[i] !== null) ? v - signal[i] : null;
-    });
-    return { line: line, signal: signal, hist: hist };
-  }
-
-  // ---------------------------------------------------------------------------
-  // Chart-Tools Berechnungen
-  // ---------------------------------------------------------------------------
-
-  function bollingerBands(closes, n, k) {
-    var s = sma(closes, n);
-    var up = [], dn = [];
-    for (var i = 0; i < closes.length; i++) {
-      if (i < n - 1) { up.push(null); dn.push(null); continue; }
-      var sum = 0;
-      for (var j = i - n + 1; j <= i; j++) sum += Math.pow(closes[j] - s[i], 2);
-      var std = Math.sqrt(sum / n);
-      up.push(s[i] + k * std);
-      dn.push(s[i] - k * std);
-    }
-    return { mid: s, up: up, dn: dn };
-  }
-
-  function anchoredVwap(closes, vols, startIndex) {
-    var out = [];
-    var cumVol = 0, cumPV = 0;
-    for (var i = 0; i < closes.length; i++) {
-      if (i < startIndex || !vols[i]) { out.push(null); continue; }
-      cumVol += vols[i];
-      cumPV += closes[i] * vols[i];
-      out.push(cumVol > 0 ? cumPV / cumVol : null);
-    }
-    return out;
-  }
-
-  function pivotPoints(high, low, close) {
-    var p = (high + low + close) / 3;
-    var r1 = (2 * p) - low;
-    var s1 = (2 * p) - high;
-    var r2 = p + (high - low);
-    var s2 = p - (high - low);
-    return { p: p, r1: r1, s1: s1, r2: r2, s2: s2 };
-  }
-
-  function detectPatterns(closes, tail) {
-    var data = closes.slice(-tail);
-    if (data.length < 20) return null;
-    var max = Math.max.apply(null, data), min = Math.min.apply(null, data);
-    var current = data[data.length - 1];
-    
-    if (Math.abs(current - max) / max < 0.02) return { type: 'Double Top (Widerstand)', val: max };
-    if (Math.abs(current - min) / min < 0.02) return { type: 'Double Bottom (Unterstützung)', val: min };
-    return null;
-  }
-
-  function fillArr(val, len) {
-    var a = [];
-    for (var i = 0; i < len; i++) a.push(val);
-    return a;
-  }
-
-  // ---------------------------------------------------------------------------
-  // Hilfsfunktionen
-  // ---------------------------------------------------------------------------
-
-  function lastValid(arr) {
-    for (var i = arr.length - 1; i >= 0; i--) {
-      if (arr[i] !== null && arr[i] !== undefined && isFinite(arr[i])) return arr[i];
-    }
-    return null;
-  }
-
-  function stdev(arr) {
-    if (arr.length < 2) return 0;
-    var m = arr.reduce(function (a, b) { return a + b; }, 0) / arr.length;
-    var v = arr.reduce(function (a, b) { return a + (b - m) * (b - m); }, 0) / (arr.length - 1);
-    return Math.sqrt(v);
-  }
-
-  function findLastCross(s50, s200, dates) {
-    var prevSign = 0;
-    var last = null;
-    for (var i = 0; i < s50.length; i++) {
-      if (s50[i] === null || s200[i] === null) continue;
-      var sign = s50[i] > s200[i] ? 1 : -1;
-      if (prevSign !== 0 && sign !== prevSign) {
-        last = { type: sign > 0 ? 'golden' : 'death', date: dates[i] };
-      }
-      prevSign = sign;
-    }
-    return last;
-  }
-
-  function maxDrawdown(closes) {
-    if (!closes || closes.length === 0) return 0;
-    var peak = closes[0];
-    var mdd = 0;
-    closes.forEach(function (c) {
-      if (c > peak) peak = c;
-      var dd = peak > 0 ? (c / peak - 1) * 100 : 0;
-      if (dd < mdd) mdd = dd;
-    });
-    return mdd;
-  }
-
-  function fmt(v, d) { return window.App.Format.number(v, d === undefined ? 1 : d); }
-  function pct(v, d) { return (v >= 0 ? '+' : '') + fmt(v, d) + ' %'; }
-
-  function deDate(iso) {
-    if (!iso || iso.length < 10) return '';
-    return iso.slice(8, 10) + '.' + iso.slice(5, 7) + '.' + iso.slice(0, 4);
-  }
-
-  function shortLabel(iso) {
-    var d = String(iso || '');
-    return d.slice(5, 7) + '/' + d.slice(2, 4);
-  }
-
-  // ---------------------------------------------------------------------------
-  // Wochenkerzen
-  // ---------------------------------------------------------------------------
-  function weekKey(iso) {
-    var d = new Date(iso + 'T00:00:00Z');
-    d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); 
-    return d.toISOString().slice(0, 10);
-  }
-
-  function weeklyCandles(hist) {
-    var weeks = [], cur = null, prevClose = null;
-    hist.forEach(function (p) {
-      var k = weekKey(p.date);
-      if (!cur || cur.key !== k) {
-        if (cur) { weeks.push(cur); prevClose = cur.c; }
-        var o = p.open || (prevClose !== null ? prevClose : p.close);
-        cur = { key: k, date: p.date, o: o, h: p.high || Math.max(o, p.close), l: p.low || Math.min(o, p.close), c: p.close };
-      } else {
-        cur.h = Math.max(cur.h, p.high || p.close);
-        cur.l = Math.min(cur.l, p.low || p.close);
-        cur.c = p.close;
-        cur.date = p.date;
-      }
-    });
-    if (cur) weeks.push(cur);
-    return weeks;
-  }
-
-  function smaSeries(values, len) {
-    var out = [];
-    for (var i = 0; i < values.length; i++) {
-      if (i + 1 < len) { out.push(null); continue; }
-      var sum = 0;
-      for (var j = i - len + 1; j <= i; j++) sum += values[j];
-      out.push(sum / len);
-    }
-    return out;
-  }
-
-  function drawCandles(container, hist, currency) {
-    var canvas = container.querySelector('#chart-tab-candles');
-    if (!canvas) return;
-    var weeks = weeklyCandles(hist);
-    var sma = smaSeries(weeks.map(function (w) { return w.c; }), 10);
-    var take = Math.min(candleWeeks, weeks.length);
-    var shown = weeks.slice(-take);
-    window.App.Charts.renderCandleChart(canvas, {
-      candles: shown,
-      labels: shown.map(function (w) { return shortLabel(w.date); }),
-      lines: [{ values: sma.slice(-take), color: COLORS.sma50 }],
-      formatY: function (v) { return window.App.Format.currency(v, currency, 0); }
-    });
-    var info = container.querySelector('#candle-info');
-    if (info && shown.length) {
-      var lastC = shown[shown.length - 1];
-      var chg = lastC.o ? (lastC.c / lastC.o - 1) * 100 : 0;
-      info.textContent = 'Laufende Woche: ' + (chg >= 0 ? '+' : '') + window.App.Format.number(chg, 1) + ' %';
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Rendering
-  // ---------------------------------------------------------------------------
-
-  function bottomCheck(c) {
-    var n = c.length;
-    if (n < 120) return null;
-    var px = c[n - 1], hi = Math.max.apply(null, c.slice(-252));
-    var dd = px / hi - 1;
-    if (dd > -0.20) return { state: null, dd: dd };
-    function avg(a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; }
-    var w = c.slice(-60), mn = Math.min.apply(null, w), idx = 0;
-    for (var i = 0; i < w.length; i++) { if (w[i] <= mn) idx = i; }
-    var sinceLow = w.length - 1 - idx;
-    var s20 = avg(c.slice(-20)), s20b = avg(c.slice(-25, -5));
-    var m = macd(c), r = rsi(c, 14);
-    var ml = m.line[n - 1], ms = m.signal[n - 1], r0 = r[n - 1], r5 = r[n - 6];
-    var rOk = r0 !== null && r5 !== null && r0 >= 40 && r0 > r5;
-    var sig = [
-      { ok: sinceLow >= 15, text: 'Kein neues 60-Tage-Tief seit ' + sinceLow + ' Handelstagen' },
-      { ok: Math.min.apply(null, c.slice(-20)) > Math.min.apply(null, c.slice(-60, -20)), text: 'Höheres Tief gebildet' },
-      { ok: px > s20, text: 'Kurs ' + (px > s20 ? 'über' : 'unter') + ' 20-Tage-Linie' },
-      { ok: s20 >= s20b, text: '20-Tage-Linie ' + (s20 >= s20b ? 'steigt' : 'fällt') },
-      { ok: ml !== null && ms !== null && ml > ms, text: 'MACD ' + (ml > ms ? 'über' : 'unter') + ' Signal' },
-      { ok: rOk, text: 'RSI ' + (r0 !== null ? Math.round(r0) : '–') + (rOk ? ' (≥ 40 & steigend)' : '') }
+    // -------------------------------------------------------------------------
+    // Serien aufbauen (inkl. aktivierter Tools)
+    // -------------------------------------------------------------------------
+    var labels = slicedDates.map(shortLabel);
+    var seriesArr = [
+      { name: 'Kurs', color: COLORS.price, values: slicedCloses, width: 2 },
+      { name: 'SMA 50', color: COLORS.sma50, values: s50.slice(-tail), width: 1.5 },
+      { name: 'SMA 200', color: COLORS.sma200, values: s200.slice(-tail), width: 1.5 }
     ];
-    var score = sig.filter(function (s) { return s.ok; }).length;
-    var perf1m = px / c[n - 22] - 1;
-    var state = 'wait';
-    if (score >= 4 && (sig[0].ok || sig[1].ok)) state = 'base';
-    else if (score <= 2 && (sinceLow <= 10 || perf1m <= -0.10)) state = 'knife';
-    return { state: state, score: score, dd: dd, signals: sig };
-  }
 
-  function bottomCardHtml(b) {
-    var head = '<div class="card"><div class="card-header-dotted"><span class="card-title">Boden-Check</span>';
-    var note = '<div class="chart-note">Keine Anlageberatung. Ein Boden ist erst im Nachhinein sicher erkennbar.</div></div>';
-    if (!b) return head + '</div><p style="font-size:.78rem;color:var(--text-muted);">Zu wenige Kursdaten.</p>' + note;
-    if (!b.state) return head + '</div><p style="font-size:.78rem;color:var(--text-muted);">Kurs liegt nur ' + Math.abs(b.dd * 100).toFixed(0) + ' % unter dem 52W-Hoch – Check nicht relevant.</p>' + note;
-    var V = { base: ['Bodenbildung möglich', 'badge-bullish'], knife: ['Fallendes Messer', 'badge-bearish'], wait: ['Unklar – abwarten', 'badge-neutral'] }[b.state];
-    var rows = b.signals.map(function (s) {
-      return '<div class="chart-signal-row"><span class="chart-dot" style="background:' + (s.ok ? 'var(--bullish)' : 'var(--text-dim)') + ';"></span>' +
-        '<div class="chart-signal-text"><div class="chart-signal-value">' + (s.ok ? '✓ ' : '✗ ') + s.text + '</div></div></div>';
-    }).join('');
-    return head + '<span class="badge-pill ' + V[1] + '">' + V[0] + '</span></div>' +
-      '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:6px;">' + b.score + ' von 6 Stabilisierungs-Signalen</div>' +
-      '<div class="chart-signal-list">' + rows + '</div>' + note;
-  }
-
-  function toggleRiskRewardOverlay(container, currentPrice, currency) {
-    var chartDiv = container.querySelector('#chart-tab-price').parentNode;
-    var existing = chartDiv.querySelector('#rr-overlay');
-    
-    if (existing) {
-      existing.remove();
-    }
-    
-    if (!activeTools.rr) return;
-
-    var tp = currentPrice * 1.15; // Target: +15%
-    var sl = currentPrice * 0.93; // Stop: -7%
-    var risk = currentPrice - sl;
-    var reward = tp - currentPrice;
-    var rrRatio = (reward / risk).toFixed(2);
-
-    var rrHtml = '' +
-      '<div id="rr-overlay" style="position: absolute; right: 10px; top: 10px; background: rgba(15, 23, 42, 0.85); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px; z-index: 10; width: 150px; font-size: 0.75rem; backdrop-filter: blur(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.5);">' +
-        '<div style="font-weight: 700; color: var(--text-main); margin-bottom: 8px; text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">Long Position</div>' +
-        '<div style="display: flex; justify-content: space-between; color: var(--bullish); margin-bottom: 4px;"><span>Take Profit</span><b>' + window.App.Format.currency(tp, currency, 2) + '</b></div>' +
-        '<div style="display: flex; justify-content: space-between; color: var(--text-main); margin-bottom: 4px;"><span>Einstieg</span><b>' + window.App.Format.currency(currentPrice, currency, 2) + '</b></div>' +
-        '<div style="display: flex; justify-content: space-between; color: var(--bearish); margin-bottom: 8px;"><span>Stop Loss</span><b>' + window.App.Format.currency(sl, currency, 2) + '</b></div>' +
-        '<div style="display: flex; justify-content: space-between; border-top: 1px dashed var(--border-color); padding-top: 4px; font-weight: 700;"><span>CRV</span><b style="color: var(--accent-purple-light);">' + rrRatio + '</b></div>' +
-      '</div>';
-      
-    chartDiv.insertAdjacentHTML('beforeend', rrHtml);
-  }
-
-  function render(container, stock) {
-    if (!container || !stock) return;
-
-    var hist = (stock.chartHistory || []).filter(function (p) { return p && p.close > 0; });
-    if (hist.length < 60) {
-      container.innerHTML = '<div class="card"><p style="color: var(--text-muted); font-size: 0.85rem;">' +
-        'Für die Chart-Analyse liegen noch zu wenige Kursdaten vor.</p></div>';
-      return;
+    if (activeTools.bollinger) {
+      var bb = bollingerBands(closes, 20, 2);
+      seriesArr.push({ name: 'BB Up', color: 'rgba(16,185,129,0.5)', values: bb.up.slice(-tail), width: 1, dash: [4, 4] });
+      seriesArr.push({ name: 'BB Dn', color: 'rgba(239,68,68,0.5)', values: bb.dn.slice(-tail), width: 1, dash: [4, 4] });
     }
 
-    buildView(container, stock, hist);
-  }
+    if (activeTools.vwap) {
+      var vwapData = anchoredVwap(closes, vols, closes.length - tail);
+      seriesArr.push({ name: 'VWAP', color: 'var(--accent-purple-light)', values: vwapData.slice(-tail), width: 2, dash: [2, 2] });
+    }
 
-  function buildView(container, stock, hist) {
-    var currency = (stock.quote && stock.quote.currency) || 'EUR';
-    var closes = hist.map(function (p) { return p.close; });
-    var dates = hist.map(function (p) { return p.date; });
-    var vols = hist.map(function (p) { return p.volume || 0; });
-    
-    var n = closes.length;
-    var price = closes[n - 1];
+    if (activeTools.fibo) {
+      var fDiff = hi - lo;
+      [0.382, 0.5, 0.618].forEach(function(lvl) {
+        var val = hi - (fDiff * lvl);
+        seriesArr.push({ name: 'Fib ' + (lvl*100).toFixed(1)+'%', color: 'rgba(236,72,153,0.7)', values: fillArr(val, tail), width: 1, dash: [2, 4] });
+      });
+    }
 
-    var s50 = sma(closes, 50);
-    var s200 = sma(closes, 200);
-    var rsiArr = rsi(closes, 14);
-    var m = macd(closes);
+    if (activeTools.sr) {
+      seriesArr.push({ name: 'Res', color: 'rgba(239,68,68,0.7)', values: fillArr(hi, tail), width: 1.5, dash: [10, 5] });
+      seriesArr.push({ name: 'Sup', color: 'rgba(16,185,129,0.7)', values: fillArr(lo, tail), width: 1.5, dash: [10, 5] });
+    }
 
-    var tail = n;
-    var spanDays = { '1W': 7, '1M': 30, '3M': 91, '6M': 182, '1Y': 365 }[currentPeriod];
-    if (spanDays && n > 0) {
-      var tEnd = new Date(dates[n - 1] + 'T00:00:00Z');
-      tEnd.setUTCDate(tEnd.getUTCDate() - spanDays);
-      var cutoffStr = tEnd.toISOString().slice(0, 10);
-      var startIdx = 0;
-      for (var di = 0; di < n; di++) {
-        if (dates[di] <= cutoffStr) startIdx = di; else break;
+    if (activeTools.pivot) {
+      var pivs = pivotPoints(hi, lo, price);
+      seriesArr.push({ name: 'Pivot', color: '#a855f7', values: fillArr(pivs.p, tail), width: 1.5, dash: [5, 5] });
+      seriesArr.push({ name: 'R1', color: 'rgba(239,68,68,0.5)', values: fillArr(pivs.r1, tail), width: 1, dash: [5, 5] });
+      seriesArr.push({ name: 'S1', color: 'rgba(16,185,129,0.5)', values: fillArr(pivs.s1, tail), width: 1, dash: [5, 5] });
+    }
+
+    // --- Dynamische Legende für den Hauptchart generieren ---
+    function legendItem(color, label) {
+      // Wenn die Farbe rgba(...) mit Transparenz ist, machen wir sie für die Legende etwas kräftiger
+      var dotColor = color;
+      if (color.indexOf('rgba') === 0) {
+        dotColor = color.replace(/[^,]+(?=\))/, '1.0'); 
       }
-      tail = n - startIdx;
-    }
-
-    var slicedCloses = closes.slice(-tail);
-    var slicedDates = dates.slice(-tail);
-    
-    // Extrema im gewählten Zeitraum
-    var hi = Math.max.apply(null, slicedCloses);
-    var lo = Math.min.apply(null, slicedCloses);
-    
-    var s50Last = lastValid(s50);
-    var s200Last = lastValid(s200);
-    var rsiLast = lastValid(rsiArr);
-    var macdLast = lastValid(m.line);
-    var sigLast = lastValid(m.signal);
-    var cross = findLastCross(s50, s200, dates);
-
-    var momVal = null;
-    if (slicedCloses.length > 0 && slicedCloses[0] > 0) {
-        momVal = (price / slicedCloses[0] - 1) * 100;
+      return '<div class="legend-item"><span class="legend-dot" style="background:' + dotColor + ';"></span><span>' + label + '</span></div>';
     }
     
-    var periodLabelMap = { '1W': '1 Woche', '1M': '1 Monat', '3M': '3 Monate', '6M': '6 Monate', '1Y': '1 Jahr' };
-    var pLabel = periodLabelMap[currentPeriod];
-
-    var auff = auffaelligkeiten(stock);
-
-    var signals = [];
-    if (s200Last !== null) {
-      var d200 = (price / s200Last - 1) * 100;
-      signals.push({ label: 'Kurs vs. 200-Tage-Linie', text: pct(d200) + (d200 >= 0 ? ' darüber' : ' darunter'), state: d200 >= 0 ? 'bull' : 'bear' });
-    }
-    if (s50Last !== null) {
-      var d50 = (price / s50Last - 1) * 100;
-      signals.push({ label: 'Kurs vs. 50-Tage-Linie', text: pct(d50) + (d50 >= 0 ? ' darüber' : ' darunter'), state: d50 >= 0 ? 'bull' : 'bear' });
-    }
-    if (s50Last !== null && s200Last !== null) {
-      var golden = s50Last > s200Last;
-      var crossTxt = cross ? ' (letztes Kreuz: ' + (cross.type === 'golden' ? 'Golden Cross' : 'Death Cross') + ' am ' + deDate(cross.date) + ')' : '';
-      signals.push({ label: 'SMA 50 vs. SMA 200', text: (golden ? 'SMA 50 über SMA 200' : 'SMA 50 unter SMA 200') + crossTxt, state: golden ? 'bull' : 'bear' });
-    }
-    if (rsiLast !== null) {
-      var rsiState = 'neutral';
-      var rsiTxt = fmt(rsiLast, 0);
-      if (rsiLast >= 70) rsiTxt += ' – überkauft';
-      else if (rsiLast <= 30) rsiTxt += ' – überverkauft';
-      else if (rsiLast >= 50) { rsiTxt += ' – positives Momentum'; rsiState = 'bull'; }
-      else { rsiTxt += ' – schwaches Momentum'; rsiState = 'bear'; }
-      signals.push({ label: 'RSI (14)', text: rsiTxt, state: rsiState });
-    }
-    if (macdLast !== null && sigLast !== null) {
-      var macdBull = macdLast > sigLast;
-      signals.push({ label: 'MACD', text: macdBull ? 'MACD über Signallinie' : 'MACD unter Signallinie', state: macdBull ? 'bull' : 'bear' });
-    }
-    if (momVal !== null) {
-      signals.push({ label: 'Momentum ' + pLabel, text: pct(momVal), state: momVal >= 0 ? 'bull' : 'bear' });
-    }
-
-    var bulls = signals.filter(function (s) { return s.state === 'bull'; }).length;
-    var bears = signals.filter(function (s) { return s.state === 'bear'; }).length;
-    var rated = bulls + bears;
-    var ratio = rated > 0 ? bulls / rated : 0.5;
-    var overall = 'Seitwärts / gemischt';
-    var overallCls = 'badge-neutral';
-    if (ratio >= 0.67) { overall = 'Aufwärtstrend'; overallCls = 'badge-bullish'; }
-    else if (ratio <= 0.33) { overall = 'Abwärtstrend'; overallCls = 'badge-bearish'; }
-
-    var signalRows = signals.map(function (s) {
-      return '<div class="chart-signal-row">' +
-        '<span class="chart-dot" style="background:' + COLORS[s.state] + ';"></span>' +
-        '<div class="chart-signal-text"><div class="chart-signal-label">' + termLink(s.label) + '</div>' +
-        '<div class="chart-signal-value">' + s.text + '</div></div></div>';
-    }).join('');
-
-    signals.forEach(function (sg) {
-      if (sg.state === 'bull') auff.plus.push({ t: sg.label, d: sg.text });
-      else if (sg.state === 'bear') auff.minus.push({ t: sg.label, d: sg.text });
+    var dynamicLegendHtml = '<div class="legend-row">';
+    seriesArr.forEach(function(series) {
+      dynamicLegendHtml += legendItem(series.color, series.name);
     });
-    if (rsiLast !== null && rsiLast >= 70) auff.minus.push({ t: 'RSI überkauft', d: 'RSI bei ' + fmt(rsiLast, 0) + ': Rücksetzer-Risiko.' });
-    else if (rsiLast !== null && rsiLast <= 30) auff.minus.push({ t: 'RSI überverkauft', d: 'RSI bei ' + fmt(rsiLast, 0) + '.' });
+    dynamicLegendHtml += '</div>';
 
-    function avg(arr) { return arr.length ? arr.reduce(function(a,b){return a+b},0)/arr.length : 0; }
-    var volTrend = avg(vols.slice(-60)) > 0 ? (avg(vols.slice(-20)) / avg(vols.slice(-60)) - 1) * 100 : null;
-
+    // -------------------------------------------------------------------------
+    // HTML String zusammenbauen
+    // -------------------------------------------------------------------------
     var html = '' +
       '<div class="card" style="padding: 10px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">' +
         '<span style="font-size: 0.78rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase;">Zeitraum</span>' +
@@ -537,6 +110,7 @@ window.App.StockChart = (function () {
         '<div style="height: 220px; width: 100%; position: relative; margin-top: 8px;">' +
           '<canvas id="chart-tab-price" style="width: 100%; height: 220px; display: block;"></canvas>' +
         '</div>' +
+        dynamicLegendHtml +
       '</div>' +
 
       '<!-- Wochenkerzen -->' +
@@ -550,21 +124,34 @@ window.App.StockChart = (function () {
         '<div style="height: 240px; width: 100%; position: relative; margin-top: 8px;">' +
           '<canvas id="chart-tab-candles" style="width: 100%; height: 240px; display: block;"></canvas>' +
         '</div>' +
+        '<div class="legend-row">' +
+          legendItem('#10b981', 'Woche im Plus') +
+          legendItem('#ef4444', 'Woche im Minus') +
+          legendItem(COLORS.sma50, '10-Wochen-Linie') +
+        '</div>' +
       '</div>' +
 
       '<!-- RSI -->' +
       '<div class="card">' +
         '<div class="card-header-dotted"><span class="card-title">RSI (14)</span><span class="period-tag">' + (rsiLast !== null ? fmt(rsiLast, 0) : '—') + '</span></div>' +
         '<div style="height: 130px; width: 100%; position: relative; margin-top: 8px;"><canvas id="chart-tab-rsi" style="width: 100%; height: 130px; display: block;"></canvas></div>' +
+        '<div class="chart-note">Über 70 = überkauft, unter 30 = überverkauft.</div>' +
       '</div>' +
 
       '<!-- MACD -->' +
       '<div class="card">' +
         '<div class="card-header-dotted"><span class="card-title">MACD (12/26/9)</span></div>' +
         '<div style="height: 140px; width: 100%; position: relative; margin-top: 8px;"><canvas id="chart-tab-macd" style="width: 100%; height: 140px; display: block;"></canvas></div>' +
+        '<div class="legend-row">' +
+          legendItem(COLORS.macd, 'MACD') +
+          legendItem(COLORS.signal, 'Signal') +
+          legendItem('rgba(16,185,129,1.0)', 'Histogramm') +
+        '</div>' +
       '</div>';
 
     container.innerHTML = html;
+
+    // ... (ab hier folgt der bestehende Code: window.App.Forecast.mount, bindTerms, etc.)
     if (window.App.Forecast) window.App.Forecast.mount(container.querySelector('#forecast-slot'), stock, closes, currentPeriod);
     
     bindTerms(container);
@@ -573,12 +160,11 @@ window.App.StockChart = (function () {
     // Toolbar Tool-Events
     container.querySelectorAll('#chart-tools-toolbar .chip-btn').forEach(function(btn) {
       btn.onclick = function(e) {
-        // Ignoriere Klicks auf das Info-Icon, damit sich das Tool nicht an/aus schaltet
         if (e.target.closest('.term-link')) return; 
 
         var tool = btn.getAttribute('data-tool');
         activeTools[tool] = !activeTools[tool]; 
-        buildView(container, stock, hist); // Chart mit neuen Overlays re-rendern
+        buildView(container, stock, hist); 
         
         if (tool === 'pattern' && activeTools.pattern) {
           var p = detectPatterns(closes, tail);
@@ -591,47 +177,6 @@ window.App.StockChart = (function () {
         }
       };
     });
-
-    // -------------------------------------------------------------------------
-    // Chart.js Rendering (inkl. aktivierter Tools)
-    // -------------------------------------------------------------------------
-    var labels = slicedDates.map(shortLabel);
-    var seriesArr = [
-      { name: 'Kurs', color: COLORS.price, values: slicedCloses, width: 2 },
-      { name: 'SMA 50', color: COLORS.sma50, values: s50.slice(-tail), width: 1.5 },
-      { name: 'SMA 200', color: COLORS.sma200, values: s200.slice(-tail), width: 1.5 }
-    ];
-
-    if (activeTools.bollinger) {
-      var bb = bollingerBands(closes, 20, 2);
-      seriesArr.push({ name: 'BB Up', color: 'rgba(16,185,129,0.5)', values: bb.up.slice(-tail), width: 1, dash: [4, 4] });
-      seriesArr.push({ name: 'BB Dn', color: 'rgba(239,68,68,0.5)', values: bb.dn.slice(-tail), width: 1, dash: [4, 4] });
-    }
-
-    if (activeTools.vwap) {
-      var vwapData = anchoredVwap(closes, vols, closes.length - tail);
-      seriesArr.push({ name: 'VWAP', color: 'var(--accent-purple-light)', values: vwapData.slice(-tail), width: 2, dash: [2, 2] });
-    }
-
-    if (activeTools.fibo) {
-      var fDiff = hi - lo;
-      [0.382, 0.5, 0.618].forEach(function(lvl) {
-        var val = hi - (fDiff * lvl);
-        seriesArr.push({ name: 'Fib ' + (lvl*100).toFixed(1)+'%', color: 'rgba(236,72,153,0.7)', values: fillArr(val, tail), width: 1, dash: [2, 4] });
-      });
-    }
-
-    if (activeTools.sr) {
-      seriesArr.push({ name: 'Res', color: 'rgba(239,68,68,0.7)', values: fillArr(hi, tail), width: 1.5, dash: [10, 5] });
-      seriesArr.push({ name: 'Sup', color: 'rgba(16,185,129,0.7)', values: fillArr(lo, tail), width: 1.5, dash: [10, 5] });
-    }
-
-    if (activeTools.pivot) {
-      var pivs = pivotPoints(hi, lo, price);
-      seriesArr.push({ name: 'Pivot', color: '#a855f7', values: fillArr(pivs.p, tail), width: 1.5, dash: [5, 5] });
-      seriesArr.push({ name: 'R1', color: 'rgba(239,68,68,0.5)', values: fillArr(pivs.r1, tail), width: 1, dash: [5, 5] });
-      seriesArr.push({ name: 'S1', color: 'rgba(16,185,129,0.5)', values: fillArr(pivs.s1, tail), width: 1, dash: [5, 5] });
-    }
 
     window.App.Charts.renderMultiLineChart(document.getElementById('chart-tab-price'), {
       labels: labels,
@@ -668,125 +213,3 @@ window.App.StockChart = (function () {
       refLines: [{ value: 0, color: 'rgba(255, 255, 255, 0.25)' }],
       formatY: function (v) { return fmt(v, Math.abs(v) < 10 ? 1 : 0); }
     });
-  }
-
-  function bindPeriodPills(container, stock, hist) {
-    var pills = container.querySelectorAll('#chart-period-pills .pill-btn');
-    pills.forEach(function (pill) {
-      pill.onclick = function () {
-        currentPeriod = pill.getAttribute('data-period');
-        buildView(container, stock, hist);
-      };
-    });
-  }
-
-  function has(x) { return x !== null && x !== undefined && isFinite(x); }
-
-  function auffaelligkeiten(stock) {
-    var r = stock.ratios || {}, q = stock.quote || {};
-    var plus = [], minus = [];
-    if (has(r.peTrailing) && r.peTrailing > 0 && r.peTrailing < 12) plus.push({ t: 'KGV unter 12', d: 'Niedrige Bewertung.' });
-    if (has(r.profitMargins) && r.profitMargins > 0.2) plus.push({ t: 'Marge über 20 %', d: 'Sehr profitabel.' });
-    if (has(r.profitMargins) && r.profitMargins < 0) minus.push({ t: 'Verlust', d: 'Negative Marge.' });
-    return { plus: plus, minus: minus };
-  }
-
-  function auffColHtml(items, emptyText) {
-    if (!items.length) return '<div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 8px;">' + emptyText + '</div>';
-    return items.map(function (it) {
-      return '<div style="margin-top: 8px;"><div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);">' + termLink(it.t) + '</div>' +
-        '<div style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4; margin-top: 2px;">' + it.d + '</div></div>';
-    }).join('');
-  }
-
-  // ---------------------------------------------------------------------------
-  // Glossar & Erklärungen (inkl. der neuen Tools)
-  // ---------------------------------------------------------------------------
-  
-  var GLOSSARY = {
-    // Originale
-    KGV: { name: 'KGV (Kurs-Gewinn-Verhältnis)', text: 'Der Aktienkurs geteilt durch den Gewinn je Aktie der letzten zwölf Monate. Er zeigt, wie viele Jahresgewinne du für den Kurs zahlst.' },
-    PEG: { name: 'PEG', text: 'Das KGV geteilt durch das erwartete Gewinnwachstum. Als Faustregel gilt: Unter 1 ist der Preis im Verhältnis zum Wachstum niedrig, über 2 ist er hoch.' },
-    Gewinnmarge: { name: 'Gewinnmarge', text: 'Der Anteil des Gewinns am Umsatz in Prozent. 20 % bedeutet: Von jedem Euro Umsatz bleiben 20 Cent als Gewinn.' },
-    Verschuldung: { name: 'Verschuldung (Debt/Equity)', text: 'Das Fremdkapital im Verhältnis zum Eigenkapital in Prozent. Hohe Werte bedeuten, dass das Unternehmen im Verhältnis zu seinem Eigenkapital viele Schulden hat.' },
-    Umsatzwachstum: { name: 'Umsatzwachstum', text: 'Die prozentuale Veränderung des Umsatzes gegenüber dem Vorjahr.' },
-    Verlust: { name: 'Verlust', text: 'Das Unternehmen hat im letzten Jahr mehr ausgegeben als eingenommen. Die Gewinnmarge ist negativ.' },
-    Spanne: { name: '52-Wochen-Spanne', text: 'Die Kursspanne zwischen dem tiefsten und dem höchsten Kurs der letzten zwölf Monate.' },
-    SMA: { name: 'SMA (gleitender Durchschnitt)', text: 'Der Durchschnittskurs der letzten 50 bzw. 200 Handelstage. Liegt der Kurs darüber, gilt das als Hinweis auf einen Aufwärtstrend.' },
-    Cross: { name: 'Golden Cross / Death Cross', text: 'Golden Cross: Die 50-Tage-Linie kreuzt die 200-Tage-Linie von unten nach oben (bullisch). Death Cross: umgekehrt (bärisch).' },
-    RSI: { name: 'RSI (14)', text: 'Der Relative Strength Index misst, wie stark der Kurs in den letzten 14 Tagen gestiegen oder gefallen ist. Über 70 = überkauft, unter 30 = überverkauft.' },
-    MACD: { name: 'MACD', text: 'Die Differenz zweier gleitender Durchschnitte. Liegt die MACD-Linie über der Signallinie, ist das Momentum positiv.' },
-    Momentum: { name: 'Momentum', text: 'Die prozentuale Kursveränderung im gewählten Zeitraum.' },
-    Volatilität: { name: 'Volatilität', text: 'Wie stark der Kurs im gewählten Zeitraum schwankt, aufs Jahr hochgerechnet.' },
-    Drawdown: { name: 'Maximaler Drawdown', text: 'Der größte prozentuale Rückgang vom zwischenzeitlichen Hoch bis zum folgenden Tief.' },
-    Volumen: { name: 'Volumentrend', text: 'Vergleicht das durchschnittliche Handelsvolumen der letzten 20 Tage mit dem der letzten 60 Tage.' },
-    
-    // Neue Chart-Tools
-    Bollinger: { name: 'Bollinger Bänder', text: 'Ein Volatilitätsindikator. Berührt der Kurs das obere Band, gilt der Markt oft als überkauft (Gegenreaktion möglich); am unteren Band als überverkauft.' },
-    VWAP: { name: 'AVWAP', text: 'Anchored Volume Weighted Average Price. Zeigt den volumengewichteten Durchschnittskurs für den angezeigten Zeitraum. Gilt bei institutionellen Investoren als extrem wichtige Unterstützungslinie.' },
-    Fibo: { name: 'Fibonacci Retracements', text: 'Prozentuale Rücksetzer-Marken (z. B. 61,8 % oder 38,2 %) zwischen dem Hoch und Tief des Charts. Hier drehen Kurse in Korrekturen besonders oft.' },
-    Support: { name: 'Support & Resistance', text: 'Zeichnet automatisch die Unterstützung (tiefster Kurs) und den Widerstand (höchster Kurs) im gewählten Zeitraum ein. An diesen Marken prallt der Kurs oft ab.' },
-    Pivot: { name: 'Pivot Points', text: 'Mathematisch berechnete Intraday/Kurzfrist-Wendepunkte (P) sowie Widerstands- (R1) und Unterstützungslevel (S1) auf Basis des letzten Hochs und Tiefs.' },
-    Pattern: { name: 'Pattern Scan', text: 'Sucht automatisch nach Chartmustern. Ein Doppeltop (M-Form) ist oft ein Verkaufssignal, ein Doppelboden (W-Form) ein Kaufsignal.' },
-    RiskReward: { name: 'Risk/Reward Tool', text: 'Ein interaktives Overlay, das ein fiktives Trade-Setup (Ziel +15 %, Stop Loss -7 %) simuliert und das daraus resultierende Chance-Risiko-Verhältnis (CRV) berechnet.' }
-  };
-
-  var TERM_RULES = [
-    [/^KGV/, 'KGV'], [/PEG/, 'PEG'], [/Gewinnmarge/, 'Gewinnmarge'], [/Verschuldung/, 'Verschuldung'],
-    [/Umsatz/, 'Umsatzwachstum'], [/Verlust/, 'Verlust'], [/Jahrestief|Spanne/, 'Spanne'],
-    [/RSI/, 'RSI'], [/MACD/, 'MACD'], [/Kreuz|Golden|Death|SMA 50 vs/, 'Cross'], [/SMA|Tage-Linie/, 'SMA'],
-    [/Momentum/, 'Momentum'], [/Volatilität/, 'Volatilität'], [/Drawdown/, 'Drawdown'], [/Volumen/, 'Volumen']
-  ];
-
-  function termKeyFor(label) {
-    for (var i = 0; i < TERM_RULES.length; i++) {
-      if (TERM_RULES[i][0].test(label)) return TERM_RULES[i][1];
-    }
-    return null;
-  }
-
-  function termLink(label) {
-    var key = termKeyFor(label);
-    if (!key || !GLOSSARY[key]) return label;
-    return '<span class="term-link" data-term="' + key + '" style="cursor: pointer; border-bottom: 1px dotted var(--text-dim);">' +
-      label + ' <span style="font-size: 0.7em; opacity: 0.6;">ⓘ</span></span>';
-  }
-
-  function bindTerms(container) {
-    if (container.__termBound) return;
-    container.__termBound = true;
-    container.addEventListener('click', function (ev) {
-      var link = ev.target && ev.target.closest ? ev.target.closest('.term-link') : null;
-      if (!link) return;
-      var key = link.getAttribute('data-term');
-      var card = link.closest('.card');
-      if (!card || !GLOSSARY[key]) return;
-      
-      var box = container.querySelector('#term-info');
-      if (box && box.getAttribute('data-term') === key && box.previousElementSibling === card) {
-        box.parentNode.removeChild(box);
-        return; // Box war schon offen -> schließen
-      }
-      if (!box) {
-        box = document.createElement('div');
-        box.id = 'term-info';
-      }
-      
-      box.setAttribute('data-term', key);
-      box.setAttribute('style', 'margin: -6px 0 16px; padding: 12px 14px; border-radius: var(--radius-sm); background-color: var(--bg-secondary); border: 1px solid var(--border-subtle); font-size: 0.8rem; color: var(--text-main); line-height: 1.45;');
-      box.innerHTML = '<div style="font-weight: 700; margin-bottom: 4px; color: var(--accent-purple-light);">' + GLOSSARY[key].name + '</div>' + GLOSSARY[key].text;
-      
-      // Box exakt unterhalb der aktuellen Karte (.card) einfügen
-      card.parentNode.insertBefore(box, card.nextSibling);
-    });
-  }
-
-  return {
-    render: render,
-    _sma: sma,
-    _ema: ema,
-    _rsi: rsi,
-    _macd: macd,
-    _bottom: bottomCheck
-  };
-})();
