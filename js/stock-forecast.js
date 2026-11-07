@@ -137,3 +137,4 @@ window.App.Forecast = (function () {
 
   return { mount: mount, _compute: compute };
 })();
+
