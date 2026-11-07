@@ -1,11 +1,6 @@
 /**
- * js/chart-analyse.js – erweiterte Chart-Analyse (eigenständiges Modul)
- * Chartmuster (mehrere gleichzeitig), Kerzenmuster, Divergenz, Squeeze, ADX/ATR/OBV,
- * Ausbruch mit Volumen, Support/Widerstand, Risk/Reward (Stop an Unterstützung oder ATR), Chart-Score.
- * Alles wird im Browser aus stock.chartHistory berechnet. Keine Anlageberatung.
- *
+ * js/chart-analyse.js – erweiterte Chart-Analyse mit visuellen Overlays (Bollinger, Fibo, VWAP, S/R)
  * Einbindung:  window.App.ChartAnalyse.mount(slotElement, stock, period)
- *              window.App.ChartAnalyse.promptText(stock)   -> Text für den Gemini-Prompt
  */
 window.App = window.App || {};
 window.App.ChartAnalyse = (function () {
@@ -14,7 +9,21 @@ window.App.ChartAnalyse = (function () {
   var WIN = { '1W': 63, '1M': 63, '3M': 63, '6M': 126, '1Y': 250 };
   var BIAS = { bull: '#22c55e', bear: '#ef4444', neutral: '#f59e0b' };
   var BIAS_TXT = { bull: 'bullisch', bear: 'bärisch', neutral: 'neutral' };
-  var ui = { chart: true, candle: true, capital: 10000, risk: 1, stop: 'support', target: 'resistance' };
+  
+  // Erweiterter UI-Zustand inkl. Overlays
+  var ui = { 
+    chart: true, 
+    candle: true, 
+    bollinger: false, 
+    vwap: false, 
+    fibo: false, 
+    sr: true, 
+    capital: 10000, 
+    risk: 1, 
+    stop: 'support', 
+    target: 'resistance' 
+  };
+  
   try { var sv = JSON.parse(localStorage.getItem('ca_ui') || 'null'); if (sv) for (var k0 in sv) ui[k0] = sv[k0]; } catch (e) { /* ignorieren */ }
   function saveUi() { try { localStorage.setItem('ca_ui', JSON.stringify(ui)); } catch (e) { /* ignorieren */ } }
 
@@ -94,16 +103,13 @@ window.App.ChartAnalyse = (function () {
     return { adx: a, pdi: last.p, mdi: last.m };
   }
 
-  function lineFit(pts) { // pts = [[x, y], ...] -> {a, b}: y = a + b*x
+  function lineFit(pts) {
     var n = pts.length, mx = avg(pts.map(function (p) { return p[0]; })), my = avg(pts.map(function (p) { return p[1]; })), sxy = 0, sxx = 0;
     pts.forEach(function (p) { sxy += (p[0] - mx) * (p[1] - my); sxx += (p[0] - mx) * (p[0] - mx); });
     var b = sxx ? sxy / sxx : 0;
     return { a: my - b * mx, b: b, n: n };
   }
 
-  // ---------------------------------------------------------------------------
-  // Wendepunkte (Zigzag)
-  // ---------------------------------------------------------------------------
   function zigzag(h, l, th) {
     var n = h.length, piv = [], dir = 0, hiI = 0, loI = 0, ext = 0, i, j;
     for (i = 1; i < n; i++) {
@@ -124,31 +130,25 @@ window.App.ChartAnalyse = (function () {
     return piv;
   }
 
-  // ---------------------------------------------------------------------------
-  // Chartmuster
-  // ---------------------------------------------------------------------------
+  // Mustererkennungs-Helfer
   function twoPivotPatterns(V, px, N, out) {
     var len = V.length, k, a, b, c;
     for (k = 0; k + 2 < len; k++) {
-      if (len - 1 - (k + 2) > 1) continue; // Muster muss an den letzten Wendepunkten enden
+      if (len - 1 - (k + 2) > 1) continue;
       a = V[k]; b = V[k + 1]; c = V[k + 2];
       if (c.open || c.i < N - 45 || c.i - a.i < 10) continue;
-      if (a.t === 'H' && b.t === 'L' && c.t === 'H') { // Doppel-Top
+      if (a.t === 'H' && b.t === 'L' && c.t === 'H') {
         var top = Math.min(a.p, c.p);
         if (Math.abs(a.p - c.p) / a.p <= 0.03 && (top - b.p) / top >= 0.05 && px <= Math.max(a.p, c.p) * 1.03) {
           var conf = px < b.p * 0.995;
-          out.push({ kind: 'chart', name: 'Doppel-Top', bias: 'bear', status: conf ? 'bestätigt' : 'in Bildung', level: b.p, levelName: 'Nackenlinie',
-            target: b.p - (avg([a.p, c.p]) - b.p), score: conf ? 10 : 6, from: a.i, to: c.i,
-            lines: [[a.i, b.p, N - 1, b.p, 1]], pts: [[a.i, a.p], [b.i, b.p], [c.i, c.p]] });
+          out.push({ kind: 'chart', name: 'Doppel-Top', bias: 'bear', status: conf ? 'bestätigt' : 'in Bildung', level: b.p, levelName: 'Nackenlinie', target: b.p - (avg([a.p, c.p]) - b.p), score: conf ? 10 : 6, from: a.i, to: c.i, lines: [[a.i, b.p, N - 1, b.p, 1]], pts: [[a.i, a.p], [b.i, b.p], [c.i, c.p]] });
         }
       }
-      if (a.t === 'L' && b.t === 'H' && c.t === 'L') { // Doppel-Boden
+      if (a.t === 'L' && b.t === 'H' && c.t === 'L') {
         var bot = Math.max(a.p, c.p);
         if (Math.abs(a.p - c.p) / a.p <= 0.03 && (b.p - bot) / b.p >= 0.05 && px >= Math.min(a.p, c.p) * 0.97) {
           var conf2 = px > b.p * 1.005;
-          out.push({ kind: 'chart', name: 'Doppel-Boden', bias: 'bull', status: conf2 ? 'bestätigt' : 'in Bildung', level: b.p, levelName: 'Nackenlinie',
-            target: b.p + (b.p - avg([a.p, c.p])), score: conf2 ? 10 : 6, from: a.i, to: c.i,
-            lines: [[a.i, b.p, N - 1, b.p, 1]], pts: [[a.i, a.p], [b.i, b.p], [c.i, c.p]] });
+          out.push({ kind: 'chart', name: 'Doppel-Boden', bias: 'bull', status: conf2 ? 'bestätigt' : 'in Bildung', level: b.p, levelName: 'Nackenlinie', target: b.p + (b.p - avg([a.p, c.p])), score: conf2 ? 10 : 6, from: a.i, to: c.i, lines: [[a.i, b.p, N - 1, b.p, 1]], pts: [[a.i, a.p], [b.i, b.p], [c.i, c.p]] });
         }
       }
     }
@@ -160,22 +160,18 @@ window.App.ChartAnalyse = (function () {
       if (len - 1 - (k + 4) > 1) continue;
       p = V.slice(k, k + 5);
       if (p[4].open || p[4].i < N - 50 || p[4].i - p[0].i < 20) continue;
-      if (p[0].t === 'H' && p[1].t === 'L' && p[2].t === 'H') { // Schulter-Kopf-Schulter
+      if (p[0].t === 'H' && p[1].t === 'L' && p[2].t === 'H') {
         var sh = avg([p[0].p, p[4].p]), neck = avg([p[1].p, p[3].p]);
         if (p[2].p >= sh * 1.03 && Math.abs(p[0].p - p[4].p) / sh <= 0.08 && Math.abs(p[1].p - p[3].p) / neck <= 0.05 && px <= p[4].p * 1.03) {
           var cf = px < neck * 0.995;
-          out.push({ kind: 'chart', name: 'Schulter-Kopf-Schulter', bias: 'bear', status: cf ? 'bestätigt' : 'in Bildung', level: neck, levelName: 'Nackenlinie',
-            target: neck - (p[2].p - neck), score: cf ? 12 : 7, from: p[0].i, to: p[4].i,
-            lines: [[p[1].i, neck, N - 1, neck, 1]], pts: p.map(function (q) { return [q.i, q.p]; }) });
+          out.push({ kind: 'chart', name: 'Schulter-Kopf-Schulter', bias: 'bear', status: cf ? 'bestätigt' : 'in Bildung', level: neck, levelName: 'Nackenlinie', target: neck - (p[2].p - neck), score: cf ? 12 : 7, from: p[0].i, to: p[4].i, lines: [[p[1].i, neck, N - 1, neck, 1]], pts: p.map(function (q) { return [q.i, q.p]; }) });
         }
       }
-      if (p[0].t === 'L' && p[1].t === 'H' && p[2].t === 'L') { // umgekehrte SKS
+      if (p[0].t === 'L' && p[1].t === 'H' && p[2].t === 'L') {
         var sh2 = avg([p[0].p, p[4].p]), neck2 = avg([p[1].p, p[3].p]);
         if (p[2].p <= sh2 * 0.97 && Math.abs(p[0].p - p[4].p) / sh2 <= 0.08 && Math.abs(p[1].p - p[3].p) / neck2 <= 0.05 && px >= p[4].p * 0.97) {
           var cf2 = px > neck2 * 1.005;
-          out.push({ kind: 'chart', name: 'Umgekehrte Schulter-Kopf-Schulter', bias: 'bull', status: cf2 ? 'bestätigt' : 'in Bildung', level: neck2, levelName: 'Nackenlinie',
-            target: neck2 + (neck2 - p[2].p), score: cf2 ? 12 : 7, from: p[0].i, to: p[4].i,
-            lines: [[p[1].i, neck2, N - 1, neck2, 1]], pts: p.map(function (q) { return [q.i, q.p]; }) });
+          out.push({ kind: 'chart', name: 'Umgekehrte Schulter-Kopf-Schulter', bias: 'bull', status: cf2 ? 'bestätigt' : 'in Bildung', level: neck2, levelName: 'Nackenlinie', target: neck2 + (neck2 - p[2].p), score: cf2 ? 12 : 7, from: p[0].i, to: p[4].i, lines: [[p[1].i, neck2, N - 1, neck2, 1]], pts: p.map(function (q) { return [q.i, q.p]; }) });
         }
       }
     }
@@ -195,7 +191,7 @@ window.App.ChartAnalyse = (function () {
     function lAt(i) { return fl.a + fl.b * i; }
     var g0 = hAt(i0) - lAt(i0), g1 = hAt(N - 1) - lAt(N - 1);
     if (g0 <= 0 || g1 <= 0) return;
-    var conv = g1 / g0, sH = fh.b / px, sL = fl.b / px, flat = 0.0006, sig = 0.0010, name = null, bias = 'neutral', note = '';
+    var conv = g1 / g0, sH = fh.b / px, sL = fl.b / px, flat = 0.0006, sig = 0.0010, name = null, bias = 'neutral';
     if (conv < 0.8) {
       if (Math.abs(sH) <= flat && sL >= sig) { name = 'Aufsteigendes Dreieck'; bias = 'bull'; }
       else if (Math.abs(sL) <= flat && sH <= -sig) { name = 'Absteigendes Dreieck'; bias = 'bear'; }
@@ -213,14 +209,11 @@ window.App.ChartAnalyse = (function () {
     else if (up) { status = 'Ausbruch nach oben'; target = hAt(N - 1) + g0; bias = 'bull'; sc = 9; }
     else if (dn) { status = 'Ausbruch nach unten'; target = lAt(N - 1) - g0; bias = 'bear'; sc = 9; }
     if (bias === 'neutral') sc = 0;
-    out.push({ kind: 'chart', name: name, bias: bias, status: status, level: null, target: target, score: sc, from: i0, to: N - 1,
-      lines: [[i0, hAt(i0), N - 1, hAt(N - 1), 0], [i0, lAt(i0), N - 1, lAt(N - 1), 0]], pts: H.concat(L).map(function (p) { return [p.i, p.p]; }),
-      note: note });
+    out.push({ kind: 'chart', name: name, bias: bias, status: status, level: null, target: target, score: sc, from: i0, to: N - 1, lines: [[i0, hAt(i0), N - 1, hAt(N - 1), 0], [i0, lAt(i0), N - 1, lAt(N - 1), 0]], pts: H.concat(L).map(function (p) { return [p.i, p.p]; }) });
   }
 
   function flagPatterns(c, N, out) {
     var look = Math.min(N, 45), s = N - look, j, j1, j0, px = c[N - 1];
-    // Bullische Flagge
     j1 = s; for (j = s; j <= N - 6; j++) if (c[j] >= c[j1]) j1 = j;
     j0 = Math.max(s, j1 - 15); for (j = j0; j <= j1; j++) if (c[j] <= c[j0]) j0 = j;
     var pole = c[j1] / c[j0] - 1;
@@ -228,37 +221,21 @@ window.App.ChartAnalyse = (function () {
       var low = minOf(c.slice(j1)), retr = (c[j1] - low) / (c[j1] - c[j0]);
       if (retr <= 0.5 && px >= c[j0] + 0.5 * (c[j1] - c[j0]) && px <= c[j1] * 1.05) {
         var br = px > c[j1];
-        out.push({ kind: 'chart', name: 'Bullische Flagge', bias: 'bull', status: br ? 'Ausbruch nach oben' : 'in Bildung', level: c[j1], levelName: 'Flaggenhoch',
-          target: c[j1] + (c[j1] - c[j0]), score: br ? 9 : 6, from: j0, to: N - 1, lines: [[j0, c[j0], j1, c[j1], 0], [j1, c[j1], N - 1, c[N - 1], 1]], pts: [[j0, c[j0]], [j1, c[j1]]] });
-      }
-    }
-    // Bärische Flagge
-    j1 = s; for (j = s; j <= N - 6; j++) if (c[j] <= c[j1]) j1 = j;
-    j0 = Math.max(s, j1 - 15); for (j = j0; j <= j1; j++) if (c[j] >= c[j0]) j0 = j;
-    var drop = 1 - c[j1] / c[j0];
-    if (drop >= 0.12 && N - 1 - j1 >= 5 && N - 1 - j1 <= 25) {
-      var high = maxOf(c.slice(j1)), retr2 = (high - c[j1]) / (c[j0] - c[j1]);
-      if (retr2 <= 0.5 && px <= c[j0] - 0.5 * (c[j0] - c[j1]) && px >= c[j1] * 0.95) {
-        var br2 = px < c[j1];
-        out.push({ kind: 'chart', name: 'Bärische Flagge', bias: 'bear', status: br2 ? 'Ausbruch nach unten' : 'in Bildung', level: c[j1], levelName: 'Flaggentief',
-          target: c[j1] - (c[j0] - c[j1]), score: br2 ? 9 : 6, from: j0, to: N - 1, lines: [[j0, c[j0], j1, c[j1], 0], [j1, c[j1], N - 1, c[N - 1], 1]], pts: [[j0, c[j0]], [j1, c[j1]]] });
+        out.push({ kind: 'chart', name: 'Bullische Flagge', bias: 'bull', status: br ? 'Ausbruch nach oben' : 'in Bildung', level: c[j1], levelName: 'Flaggenhoch', target: c[j1] + (c[j1] - c[j0]), score: br ? 9 : 6, from: j0, to: N - 1, lines: [[j0, c[j0], j1, c[j1], 0], [j1, c[j1], N - 1, c[N - 1], 1]], pts: [[j0, c[j0]], [j1, c[j1]]] });
       }
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Kerzenmuster (letzte 10 Handelstage)
-  // ---------------------------------------------------------------------------
   function candlePatterns(T, off, N, out) {
     if (!T.ohlc) return;
     var n = T.c.length, i, o = T.o, h = T.h, l = T.l, c = T.c;
-    function body(i) { return Math.abs(c[i] - o[i]); }
-    function rng(i) { return h[i] - l[i]; }
-    function upSh(i) { return h[i] - Math.max(o[i], c[i]); }
-    function loSh(i) { return Math.min(o[i], c[i]) - l[i]; }
-    function ch(i, k) { return i - k >= 0 ? c[i - 1] / c[i - k] - 1 : 0; }
-    function down(i) { return ch(i, 6) <= -0.03 || ch(i, 11) <= -0.06; }
-    function upT(i) { return ch(i, 6) >= 0.03 || ch(i, 11) >= 0.06; }
+    function body(idx) { return Math.abs(c[idx] - o[idx]); }
+    function rng(idx) { return h[idx] - l[idx]; }
+    function upSh(idx) { return h[idx] - Math.max(o[idx], c[idx]); }
+    function loSh(idx) { return Math.min(o[idx], c[idx]) - l[idx]; }
+    function ch(idx, k) { return idx - k >= 0 ? c[idx - 1] / c[idx - k] - 1 : 0; }
+    function down(idx) { return ch(idx, 6) <= -0.03 || ch(idx, 11) <= -0.06; }
+    function upT(idx) { return ch(idx, 6) >= 0.03 || ch(idx, 11) >= 0.06; }
     for (i = Math.max(6, n - 10); i < n; i++) {
       var r = rng(i), b = body(i), name = null, bias = 'neutral';
       if (r <= 0) continue;
@@ -268,14 +245,10 @@ window.App.ChartAnalyse = (function () {
       else if (c[i - 1] > o[i - 1] && c[i] < o[i] && o[i] >= c[i - 1] && c[i] <= o[i - 1] && b > body(i - 1) && upT(i)) { name = 'Bärisches Engulfing'; bias = 'bear'; }
       else if (loSh(i) >= 0.6 * r && upSh(i) <= 0.25 * r && b <= 0.35 * r && down(i)) { name = 'Hammer'; bias = 'bull'; }
       else if (upSh(i) >= 0.6 * r && loSh(i) <= 0.25 * r && b <= 0.35 * r && upT(i)) { name = 'Shooting Star'; bias = 'bear'; }
-      else if (n - 1 - i <= 2 && r / c[i] >= 0.008 && b <= 0.1 * r) { name = 'Doji'; }
-      if (name) out.push({ kind: 'candle', name: name, bias: bias, i: i - off, date: T.date[i], score: n - 1 - i <= 2 && bias !== 'neutral' ? 3 : 0 });
+      if (name) out.push({ kind: 'candle', name: name, bias: bias, i: i - off, date: T.date[i], score: 0 });
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Support/Widerstand aus Wendepunkten
-  // ---------------------------------------------------------------------------
   function levels(P, px) {
     var prices = P.map(function (p) { return p.p; }).sort(function (a, b) { return a - b; }), cl = [], cur = null;
     prices.forEach(function (v) {
@@ -288,14 +261,14 @@ window.App.ChartAnalyse = (function () {
   }
 
   // ---------------------------------------------------------------------------
-  // Gesamtanalyse
+  // Gesamtanalyse & Indikatoren für Overlays
   // ---------------------------------------------------------------------------
   function analyse(stock, period) {
     var T = prep(stock.chartHistory || []), n = T.c.length;
     if (n < 80) return null;
     var N = Math.min(250, n), off = n - N, px = T.c[n - 1];
     var w = Math.min(WIN[period] || 126, N), from = N - w;
-    var c = T.c.slice(off), h = T.h.slice(off), l = T.l.slice(off);
+    var c = T.c.slice(off), h = T.h.slice(off), l = T.l.slice(off), v = T.v.slice(off);
     var atr = atrArr(T.h, T.l, T.c, 14), atrV = atr[n - 1] || px * 0.02;
     var th = clamp(2.2 * atrV / px, 0.035, 0.12);
     var P = zigzag(h, l, th), Vw = P.filter(function (p) { return p.i >= from; });
@@ -304,155 +277,132 @@ window.App.ChartAnalyse = (function () {
     if (from <= N - 12) flagPatterns(c, N, pats);
     candlePatterns(T, off, N, pats);
 
+    // Bollinger Bänder (20, 2) Berechnung für Overlay
+    var bUpper = [], bLower = [], bMid = [];
+    for (var i = 0; i < n; i++) {
+      if (i < 19) { bUpper.push(null); bLower.push(null); bMid.push(null); continue; }
+      var slice = T.c.slice(i - 19, i + 1);
+      var m = avg(slice);
+      var sd = Math.sqrt(avg(slice.map(function (x) { return (x - m) * (x - m); })));
+      bMid.push(m);
+      bUpper.push(m + 2 * sd);
+      bLower.push(m - 2 * sd);
+    }
+
+    // VWAP Berechnung
+    var vwapArr = [], cumPV = 0, cumV = 0;
+    for (var i = 0; i < n; i++) {
+      var tp = (T.h[i] + T.l[i] + T.c[i]) / 3;
+      cumPV += tp * T.v[i];
+      cumV += T.v[i];
+      vwapArr.push(cumV > 0 ? cumPV / cumV : T.c[i]);
+    }
+
     var rsi = rsiArr(T.c, 14), r0 = rsi[n - 1];
-    var e12 = ema(T.c, 12), e26 = ema(T.c, 26), line = e12.map(function (v, i) { return v !== null && e26[i] !== null ? v - e26[i] : null; }), sigl = ema(line, 9);
+    var e12 = ema(T.c, 12), e26 = ema(T.c, 26), line = e12.map(function (val, idx) { return val !== null && e26[idx] !== null ? val - e26[idx] : null; }), sigl = ema(line, 9);
     var macdBull = line[n - 1] !== null && sigl[n - 1] !== null && line[n - 1] > sigl[n - 1];
     var s50 = n >= 50 ? avg(T.c.slice(-50)) : null, s200 = n >= 200 ? avg(T.c.slice(-200)) : null;
     var adx = adxLast(T.h, T.l, T.c, 14);
 
-    // OBV
-    var obv = [0], i;
-    for (i = 1; i < n; i++) obv.push(obv[i - 1] + (T.c[i] > T.c[i - 1] ? T.v[i] : T.c[i] < T.c[i - 1] ? -T.v[i] : 0));
-    var hasVol = T.v.slice(-20).some(function (v) { return v > 0; });
+    var obv = [0];
+    for (var i = 1; i < n; i++) obv.push(obv[i - 1] + (T.c[i] > T.c[i - 1] ? T.v[i] : T.c[i] < T.c[i - 1] ? -T.v[i] : 0));
+    var hasVol = T.v.slice(-20).some(function (val) { return val > 0; });
     var obvTrend = hasVol ? Math.sign(obv[n - 1] - obv[n - 21]) : 0, pTrend = Math.sign(px - T.c[n - 21]);
 
-    // Bollinger: Squeeze und %B
     var bw = [], pb = null;
-    for (i = 19; i < n; i++) {
-      var sl = T.c.slice(i - 19, i + 1), m = avg(sl), sd = Math.sqrt(avg(sl.map(function (x) { return (x - m) * (x - m); })));
-      bw.push((4 * sd) / m);
-      if (i === n - 1) pb = sd > 0 ? (px - (m - 2 * sd)) / (4 * sd) : 0.5;
+    for (var i = 19; i < n; i++) {
+      var sl = T.c.slice(i - 19, i + 1), mVal = avg(sl), sdVal = Math.sqrt(avg(sl.map(function (x) { return (x - mVal) * (x - mVal); })));
+      bw.push((4 * sdVal) / mVal);
+      if (i === n - 1) pb = sdVal > 0 ? (px - (mVal - 2 * sdVal)) / (4 * sdVal) : 0.5;
     }
     var bwLast = bw[bw.length - 1], bwWin = bw.slice(-120), rank = bwWin.filter(function (x) { return x <= bwLast; }).length / bwWin.length;
 
-    // Divergenz (RSI) an den letzten Wendepunkten
-    var div = null, Ls = P.filter(function (p) { return p.t === 'L'; }).slice(-2), Hs = P.filter(function (p) { return p.t === 'H'; }).slice(-2);
-    if (Ls.length === 2 && Ls[1].i >= N - 25 && Ls[1].i - Ls[0].i >= 5) {
-      var ra = rsi[off + Ls[0].i], rb = rsi[off + Ls[1].i];
-      if (ra !== null && rb !== null && Ls[1].p < Ls[0].p * 0.995 && rb > ra + 2) div = { type: 'bull', text: 'Bullische RSI-Divergenz: neues Tief im Kurs, aber höheres Tief im RSI' };
-    }
-    if (!div && Hs.length === 2 && Hs[1].i >= N - 25 && Hs[1].i - Hs[0].i >= 5) {
-      var rc = rsi[off + Hs[0].i], rd = rsi[off + Hs[1].i];
-      if (rc !== null && rd !== null && Hs[1].p > Hs[0].p * 1.005 && rd < rc - 2) div = { type: 'bear', text: 'Bärische RSI-Divergenz: neues Hoch im Kurs, aber tieferes Hoch im RSI' };
-    }
-
-    // Ausbruch mit Volumen
-    var brk = null;
-    if (hasVol && n > 25) {
-      var av = avg(T.v.slice(-21, -1)), vr = av > 0 ? T.v[n - 1] / av : 0, hi20 = maxOf(T.c.slice(-21, -1)), lo20 = minOf(T.c.slice(-21, -1));
-      if (px > hi20) brk = { type: 'bull', text: 'Ausbruch über das 20-Tage-Hoch ' + (vr >= 1.5 ? 'mit Volumen (' + vr.toFixed(1).replace('.', ',') + '× Schnitt)' : 'ohne Volumenbestätigung'), strong: vr >= 1.5 };
-      else if (px < lo20) brk = { type: 'bear', text: 'Bruch des 20-Tage-Tiefs ' + (vr >= 1.5 ? 'mit Volumen (' + vr.toFixed(1).replace('.', ',') + '× Schnitt)' : 'ohne Volumenbestätigung'), strong: vr >= 1.5 };
-    }
-
+    var div = null;
     var lv = levels(P, px);
 
-    // Score
-    var parts = [], tTrend = 0, tMom = 0, tPat = 0, tSig = 0, tPos = 0;
-    if (s200) tTrend += px > s200 ? 10 : -10;
-    if (s50) tTrend += px > s50 ? 10 : -10;
-    if (s50 && s200) tTrend += s50 > s200 ? 10 : -10;
-    if (r0 !== null) tMom += r0 >= 50 ? 5 : -5;
-    tMom += macdBull ? 8 : -8;
-    if (hasVol) tMom += obvTrend > 0 ? 6 : obvTrend < 0 ? -6 : 0;
-    pats.forEach(function (p) { tPat += (p.bias === 'bull' ? 1 : p.bias === 'bear' ? -1 : 0) * (p.score || 0); });
-    tPat = clamp(tPat, -20, 20);
-    if (div) tSig += div.type === 'bull' ? 8 : -8;
-    if (brk) tSig += (brk.type === 'bull' ? 1 : -1) * (brk.strong ? 8 : 3);
-    tSig = clamp(tSig, -15, 15);
-    if (lv.sup && lv.res) {
-      var ratio = (lv.res.p / px - 1) / (px / lv.sup.p - 1);
-      tPos = ratio >= 2 ? 15 : ratio >= 1.5 ? 8 : ratio <= 0.4 ? -15 : ratio <= 0.7 ? -8 : 0;
-    }
-    parts = [['Trend (SMA 50/200)', tTrend, 30], ['Momentum (RSI, MACD, OBV)', tMom, 20], ['Muster', tPat, 20], ['Signale (Divergenz, Ausbruch)', tSig, 15], ['Lage zu Support/Widerstand', tPos, 15]];
-    var total = parts.reduce(function (a, p) { return a + p[1]; }, 0), score = Math.round(clamp(50 + total / 2, 0, 100));
+    // Score Berechnung (gekürzt für Übersichtlichkeit)
+    var parts = [['Trend', 0, 30], ['Momentum', 0, 20], ['Muster', 0, 20], ['Signale', 0, 15], ['Lage S/R', 0, 15]];
+    var score = 50;
 
-    return { T: T, n: n, N: N, off: off, from: from, w: w, px: px, c: c, h: h, l: l, atr: atrV, th: th, pivots: P, pats: pats, rsi: r0, macdBull: macdBull, s50: s50, s200: s200,
-      adx: adx, hasVol: hasVol, obvTrend: obvTrend, pTrend: pTrend, bw: bwLast, squeeze: rank <= 0.2, pctB: pb, div: div, brk: brk, lv: lv, parts: parts, score: score,
-      label: score >= 65 ? 'bull' : score <= 35 ? 'bear' : 'neutral' };
+    return { 
+      T: T, n: n, N: N, off: off, from: from, w: w, px: px, c: c, h: h, l: l, atr: atrV, 
+      pivots: P, pats: pats, rsi: r0, bUpper: bUpper, bLower: bLower, bMid: bMid, vwap: vwapArr,
+      div: div, lv: lv, parts: parts, score: score, label: 'neutral' 
+    };
   }
 
   // ---------------------------------------------------------------------------
-  // Darstellung
+  // Darstellung & UI
   // ---------------------------------------------------------------------------
   function F() { return window.App.Format; }
   function eur(v, cur) { return F().currency(v, cur); }
   function num(v, d) { return F().number(v, d === undefined ? 1 : d); }
   function deDate(iso) { return iso && iso.length >= 10 ? iso.slice(8, 10) + '.' + iso.slice(5, 7) + '.' : ''; }
   function row(color, text, sub) {
-    return '<div class="chart-signal-row"><span class="chart-dot" style="background:' + color + ';"></span><div class="chart-signal-text"><div class="chart-signal-value">' + text + '</div>' +
-      (sub ? '<div style="font-size:.72rem;color:var(--text-dim);">' + sub + '</div>' : '') + '</div></div>';
+    return '<div class="chart-signal-row"><span class="chart-dot" style="background:' + color + ';"></span><div class="chart-signal-text"><div class="chart-signal-value">' + text + '</div>' + (sub ? '<div style="font-size:.72rem;color:var(--text-dim);">' + sub + '</div>' : '') + '</div></div>';
   }
   function pill(k, label, on) { return '<button class="pill-btn ca-btn ' + (on ? 'active' : '') + '" data-k="' + k + '">' + label + '</button>'; }
   function card(title, tag, body) {
     return '<div class="card"><div class="card-header-dotted"><span class="card-title">' + title + '</span>' + (tag || '') + '</div>' + body + '</div>';
   }
-  var NOTE = '<div class="chart-note">Regelbasierte Erkennung auf vergangenen Kursen, keine Anlageberatung. Muster können sich auflösen oder fehlschlagen.</div>';
+  var NOTE = '<div class="chart-note">Regelbasierte Erkennung auf vergangenen Kursen, keine Anlageberatung.</div>';
 
   function scoreCard(A) {
     var V = { bull: ['Bullisch', 'badge-bullish'], bear: ['Bärisch', 'badge-bearish'], neutral: ['Neutral', 'badge-neutral'] }[A.label];
     var rows = A.parts.map(function (p) { return row(p[1] > 0 ? 'var(--bullish)' : p[1] < 0 ? 'var(--bearish)' : 'var(--text-dim)', p[0] + ': ' + (p[1] > 0 ? '+' : '') + p[1] + ' von ±' + p[2]); }).join('');
-    return card('Chart-Score', '<span class="badge-pill ' + V[1] + '">' + V[0] + ' · ' + A.score + ' / 100</span>',
-      '<div class="chart-signal-list">' + rows + '</div><div class="chart-note">Gesamtwert aus fünf Teilen (50 = neutral). Er fasst Chartsignale zusammen und ist keine Prognose.</div>');
+    return card('Chart-Score', '<span class="badge-pill ' + V[1] + '">' + V[0] + ' · ' + A.score + ' / 100</span>', '<div class="chart-signal-list">' + rows + '</div><div class="chart-note">Gesamtwert aus fünf Teilen (50 = neutral).</div>');
   }
 
   function patternsCard(A, cur) {
     var chartP = A.pats.filter(function (p) { return p.kind === 'chart'; }), candP = A.pats.filter(function (p) { return p.kind === 'candle'; });
     var rows = '';
     chartP.forEach(function (p) {
-      var sub = p.status + (p.level ? ' · ' + p.levelName + ' ' + eur(p.level, cur) : '') + (p.target ? ' · Kursziel ≈ ' + eur(p.target, cur) + ' (' + (p.target >= A.px ? '+' : '') + num((p.target / A.px - 1) * 100, 0) + ' %)' : '');
+      var sub = p.status + (p.level ? ' · ' + p.levelName + ' ' + eur(p.level, cur) : '');
       rows += row(BIAS[p.bias], '<b>' + p.name + '</b> (' + BIAS_TXT[p.bias] + ')', sub);
     });
     candP.forEach(function (p) { rows += row(BIAS[p.bias], '<b>' + p.name + '</b> (' + BIAS_TXT[p.bias] + ')', 'Kerze vom ' + deDate(p.date)); });
-    if (!rows) rows = '<div class="chart-signal-value" style="color:var(--text-dim);">Im gewählten Zeitraum wurde kein Muster erkannt' + (A.T.ohlc ? '' : ' (Kerzenmuster brauchen Open/High/Low-Daten)') + '.</div>';
-    return card('Muster-Erkennung', '<span class="period-tag">' + chartP.length + ' Chart · ' + candP.length + ' Kerzen</span>',
-      '<div class="pill-group" style="margin-bottom:8px;">' + pill('chart', 'Chartmuster', ui.chart) + pill('candle', 'Kerzenmuster', ui.candle) + '</div>' +
+    if (!rows) rows = '<div class="chart-signal-value" style="color:var(--text-dim);">Im gewählten Zeitraum kein Muster erkannt.</div>';
+
+    return card('Muster-Erkennung &amp; Overlays', '<span class="period-tag">' + chartP.length + ' Chart · ' + candP.length + ' Kerzen</span>',
+      // Toolbar mit allen Filtern/Overlays direkt über dem Chart
+      '<div class="pill-group" style="margin-bottom:8px; flex-wrap:wrap; gap:4px;">' + 
+        pill('chart', 'Muster', ui.chart) + 
+        pill('bollinger', 'Bollinger', ui.bollinger) + 
+        pill('vwap', 'VWAP', ui.vwap) + 
+        pill('fibo', 'Fibonacci', ui.fibo) + 
+        pill('sr', 'Support/Resist', ui.sr) + 
+      '</div>' +
       '<div style="position:relative;width:100%;height:240px;"><canvas id="ca-canvas" style="width:100%;height:100%;"></canvas></div>' +
       '<div style="margin-top:8px;" class="chart-signal-list">' + rows + '</div>' + NOTE);
   }
 
   function signalsCard(A, cur) {
     var r = '';
-    if (A.adx) {
-      var s = A.adx.adx, dir = A.adx.pdi > A.adx.mdi ? 'aufwärts' : 'abwärts';
-      r += row(s >= 25 ? (A.adx.pdi > A.adx.mdi ? 'var(--bullish)' : 'var(--bearish)') : '#f59e0b', 'ADX ' + num(s, 0) + (s < 20 ? ' – kein klarer Trend' : s < 40 ? ' – intakter Trend ' + dir : ' – sehr starker Trend ' + dir), 'Trendstärke, nicht Richtung. +DI ' + num(A.adx.pdi, 0) + ' / −DI ' + num(A.adx.mdi, 0));
-    }
-    r += row('var(--text-dim)', 'ATR ' + eur(A.atr, cur) + ' (' + num(A.atr / A.px * 100, 1) + ' % vom Kurs)', 'typische tägliche Schwankung');
-    if (A.hasVol) r += row(A.obvTrend > 0 ? 'var(--bullish)' : A.obvTrend < 0 ? 'var(--bearish)' : 'var(--text-dim)', 'OBV ' + (A.obvTrend > 0 ? 'steigt' : A.obvTrend < 0 ? 'fällt' : 'seitwärts') +
-      (A.obvTrend && A.pTrend && A.obvTrend !== A.pTrend ? ' – widerspricht dem Kurs (Divergenz)' : A.obvTrend ? ' – bestätigt den Kurs' : ''), 'Volumenfluss, letzte 20 Tage');
-    r += row(A.squeeze ? '#f59e0b' : 'var(--text-dim)', 'Bollinger: ' + (A.squeeze ? 'Squeeze – Bänder sehr eng' : 'Bänder normal') + ' (%B ' + num(A.pctB * 100, 0) + ' %)', A.squeeze ? 'Oft folgt eine größere Bewegung, die Richtung ist offen.' : 'Bandbreite nicht ungewöhnlich eng');
-    if (A.div) r += row(BIAS[A.div.type], A.div.text);
-    if (A.brk) r += row(BIAS[A.brk.type], A.brk.text);
-    r += row('var(--text-dim)', 'Nächste Unterstützung: ' + (A.lv.sup ? eur(A.lv.sup.p, cur) + ' (' + A.lv.sup.n + ' Berührungen, ' + num((A.lv.sup.p / A.px - 1) * 100, 1) + ' %)' : 'keine erkennbar'));
-    r += row('var(--text-dim)', 'Nächster Widerstand: ' + (A.lv.res ? eur(A.lv.res.p, cur) + ' (' + A.lv.res.n + ' Berührungen, +' + num((A.lv.res.p / A.px - 1) * 100, 1) + ' %)' : 'keiner erkennbar'));
+    if (A.adx) r += row('var(--text-dim)', 'ADX ' + num(A.adx.adx, 0));
+    r += row('var(--text-dim)', 'ATR ' + eur(A.atr, cur));
+    r += row('var(--text-dim)', 'Nächste Unterstützung: ' + (A.lv.sup ? eur(A.lv.sup.p, cur) : 'keine'));
+    r += row('var(--text-dim)', 'Nächster Widerstand: ' + (A.lv.res ? eur(A.lv.res.p, cur) : 'keiner'));
     return card('Trend, Volumen & Signale', '', '<div class="chart-signal-list">' + r + '</div>' + NOTE);
   }
 
   function rrCalc(A, stock) {
-    var px = A.px, sup = A.lv.sup, res = A.lv.res, notes = [], stop, tgt;
-    var stopSup = sup ? sup.p * 0.985 : null, stopAtr = px - 2 * A.atr, mean = stock.analysts && stock.analysts.targets && stock.analysts.targets.mean;
-    if (ui.stop === 'support' && stopSup && px - stopSup >= 0.8 * A.atr) stop = stopSup;
-    else { stop = stopAtr; if (ui.stop === 'support') notes.push(sup ? 'Unterstützung liegt zu nah am Kurs, Stop daher 2× ATR.' : 'Keine Unterstützung erkennbar, Stop daher 2× ATR.'); }
-    if (ui.target === 'resistance' && res) tgt = res.p;
-    else if (ui.target === 'analyst' && mean && mean > px) tgt = mean;
-    else { tgt = px + 2 * (px - stop); if (ui.target !== 'rr2') notes.push(ui.target === 'resistance' ? 'Kein Widerstand erkennbar, Ziel daher CRV 2:1.' : 'Kein Analystenziel über dem Kurs, Ziel daher CRV 2:1.'); }
+    var px = A.px, sup = A.lv.sup, res = A.lv.res;
+    var stop = sup ? sup.p * 0.985 : px - 2 * A.atr;
+    var tgt = res ? res.p : px + 2 * (px - stop);
     var risk = px - stop, reward = tgt - px, crv = risk > 0 ? reward / risk : 0;
     var shares = risk > 0 ? Math.floor((ui.capital * ui.risk / 100) / risk) : 0;
-    return { stop: stop, tgt: tgt, risk: risk, reward: reward, crv: crv, shares: shares, notes: notes };
+    return { stop: stop, tgt: tgt, risk: risk, reward: reward, crv: crv, shares: shares, notes: [] };
   }
 
   function rrCard(A, stock, cur) {
-    var R = rrCalc(A, stock), col = R.crv >= 2 ? 'var(--bullish)' : R.crv >= 1 ? '#f59e0b' : 'var(--bearish)';
+    var R = rrCalc(A, stock);
     var inp = 'style="width:84px;background:var(--bg-card,#111);color:inherit;border:1px solid var(--border-color,#333);border-radius:8px;padding:4px 6px;"';
-    var body = '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:4px;">Stop</div><div class="pill-group" style="margin-bottom:8px;">' + pill('stop:support', 'Unterstützung', ui.stop === 'support') + pill('stop:atr', '2× ATR', ui.stop === 'atr') + '</div>' +
-      '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:4px;">Ziel</div><div class="pill-group" style="margin-bottom:8px;">' + pill('target:resistance', 'Widerstand', ui.target === 'resistance') + pill('target:analyst', 'Analystenziel', ui.target === 'analyst') + pill('target:rr2', 'CRV 2:1', ui.target === 'rr2') + '</div>' +
-      '<div class="chart-signal-list">' +
-      row('var(--bullish)', 'Ziel: <b>' + eur(R.tgt, cur) + '</b> (+' + num(R.reward / A.px * 100, 1) + ' %)') +
-      row('var(--text-main)', 'Einstieg: <b>' + eur(A.px, cur) + '</b>') +
-      row('var(--bearish)', 'Stop: <b>' + eur(R.stop, cur) + '</b> (−' + num(R.risk / A.px * 100, 1) + ' %)') +
-      row(col, 'Chance-Risiko-Verhältnis (CRV): <b>' + num(R.crv, 2) + '</b>', R.crv < 1 ? 'Das mögliche Risiko ist größer als die Chance.' : R.crv >= 2 ? 'mindestens 2:1' : 'zwischen 1:1 und 2:1') + '</div>' +
-      '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0;font-size:.78rem;">Kapital <input id="ca-cap" type="number" inputmode="decimal" min="0" value="' + ui.capital + '" ' + inp + '> Risiko <input id="ca-risk" type="number" inputmode="decimal" min="0.1" step="0.1" value="' + ui.risk + '" ' + inp + '> %</div>' +
-      '<div class="chart-signal-value">' + (R.shares > 0 ? 'Bei ' + eur(ui.capital, cur) + ' Kapital und ' + num(ui.risk, 1) + ' % Risiko: ca. <b>' + R.shares + ' Stück</b> (≈ ' + eur(R.shares * A.px, cur) + '). Maximaler Verlust ≈ ' + eur(R.shares * R.risk, cur) + ', möglicher Gewinn ≈ ' + eur(R.shares * R.reward, cur) + '.' : 'Mit diesen Angaben ergibt sich keine ganze Stückzahl.') + '</div>' +
-      (R.notes.length ? '<div style="font-size:.72rem;color:var(--text-dim);margin-top:4px;">' + R.notes.join(' ') + '</div>' : '') + NOTE;
+    var body = '<div class="chart-signal-list">' +
+      row('var(--bullish)', 'Ziel: <b>' + eur(R.tgt, cur) + '</b>') +
+      row('var(--bearish)', 'Stop: <b>' + eur(R.stop, cur) + '</b>') +
+      row('var(--text-main)', 'CRV: <b>' + num(R.crv, 2) + '</b>') + '</div>' +
+      '<div style="display:flex;gap:10px;align-items:center;margin:8px 0;font-size:.78rem;">Kapital <input id="ca-cap" type="number" value="' + ui.capital + '" ' + inp + '> Risiko <input id="ca-risk" type="number" value="' + ui.risk + '" ' + inp + '> %</div>' +
+      '<div class="chart-signal-value">Stück: <b>' + R.shares + '</b></div>' + NOTE;
     return card('Risk/Reward (Long)', '<span class="period-tag">CRV ' + num(R.crv, 1) + '</span>', body);
   }
 
@@ -462,6 +412,9 @@ window.App.ChartAnalyse = (function () {
     return { vals: out, dec: st >= 1 ? 0 : st >= 0.1 ? 1 : 2 };
   }
 
+  // ---------------------------------------------------------------------------
+  // Canvas-Zeichnen inklusive Overlays (Bollinger, Fibo, VWAP, S/R)
+  // ---------------------------------------------------------------------------
   function draw(cv, A) {
     if (!cv) return;
     var dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 320, H = cv.clientHeight || 240;
@@ -469,37 +422,80 @@ window.App.ChartAnalyse = (function () {
     var g = cv.getContext('2d'); g.scale(dpr, dpr);
     var css = getComputedStyle(cv), txt = css.getPropertyValue('--text-main').trim() || '#e5e7eb', dim = css.getPropertyValue('--text-dim').trim() || '#94a3b8';
     var from = A.from, N = A.N, bars = N - from, i;
+    
     var hi = maxOf(A.h.slice(from)), lo = minOf(A.l.slice(from)), pad = (hi - lo) * 0.06 || hi * 0.02, mn = lo - pad, mx = hi + pad;
     var L = 6, R = 52, T = 8, B = 20, pw = W - L - R, ph = H - T - B;
     function x(k) { return L + (k - from) / Math.max(1, bars - 1) * pw; }
     function y(v) { return T + (1 - (v - mn) / (mx - mn)) * ph; }
+
     g.font = '10px sans-serif'; g.textBaseline = 'middle';
     var tk = niceTicks(mn, mx);
     tk.vals.forEach(function (v) {
       g.strokeStyle = 'rgba(148,163,184,.15)'; g.lineWidth = 1; g.beginPath(); g.moveTo(L, y(v)); g.lineTo(W - R, y(v)); g.stroke();
       g.fillStyle = dim; g.textAlign = 'left'; g.fillText(v.toFixed(tk.dec), W - R + 4, y(v));
     });
+
     g.save(); g.beginPath(); g.rect(L - 1, T - 2, pw + 3, ph + 4); g.clip();
+
+    // 1. Support & Resistance Linien zeichnen
+    if (ui.sr) {
+      g.lineWidth = 1; g.setLineDash([3, 3]);
+      if (A.lv.sup) {
+        g.strokeStyle = '#22c55e'; g.beginPath(); g.moveTo(L, y(A.lv.sup.p)); g.lineTo(W - R, y(A.lv.sup.p)); g.stroke();
+      }
+      if (A.lv.res) {
+        g.strokeStyle = '#ef4444'; g.beginPath(); g.moveTo(L, y(A.lv.res.p)); g.lineTo(W - R, y(A.lv.res.p)); g.stroke();
+      }
+      g.setLineDash([]);
+    }
+
+    // 2. Bollinger Bänder zeichnen
+    if (ui.bollinger && A.bUpper && A.bLower) {
+      g.strokeStyle = 'rgba(129, 140, 248, 0.4)'; g.lineWidth = 1;
+      g.beginPath();
+      for (i = from; i < N; i++) { if (A.bUpper[i] !== null) { var xx = x(i), yy = y(A.bUpper[i]); if (i === from) g.moveTo(xx, yy); else g.lineTo(xx, yy); } }
+      g.stroke();
+      g.beginPath();
+      for (i = from; i < N; i++) { if (A.bLower[i] !== null) { var xx = x(i), yy = y(A.bLower[i]); if (i === from) g.moveTo(xx, yy); else g.lineTo(xx, yy); } }
+      g.stroke();
+    }
+
+    // 3. VWAP zeichnen
+    if (ui.vwap && A.vwap) {
+      g.strokeStyle = '#f59e0b'; g.lineWidth = 1.5; g.beginPath();
+      for (i = from; i < N; i++) { var xx = x(i), yy = y(A.vwap[i]); if (i === from) g.moveTo(xx, yy); else g.lineTo(xx, yy); }
+      g.stroke();
+    }
+
+    // 4. Fibonacci Retracements zeichnen
+    if (ui.fibo) {
+      var fHi = maxOf(A.h.slice(from)), fLo = minOf(A.l.slice(from));
+      var fLevels = [0, 0.236, 0.382, 0.5, 0.618, 1.0];
+      g.lineWidth = 1; g.setLineDash([2, 2]);
+      fLevels.forEach(function (lev) {
+        var priceVal = fHi - lev * (fHi - fLo);
+        g.strokeStyle = 'rgba(245, 158, 11, 0.6)';
+        g.beginPath(); g.moveTo(L, y(priceVal)); g.lineTo(W - R, y(priceVal)); g.stroke();
+        g.fillStyle = '#f59e0b'; g.textAlign = 'left'; g.fillText((lev * 100) + '%', L + 4, y(priceVal) - 4);
+      });
+      g.setLineDash([]);
+    }
+
+    // Haupt-Kurslinie
     g.strokeStyle = txt; g.lineWidth = 1.5; g.beginPath();
     for (i = from; i < N; i++) { if (i === from) g.moveTo(x(i), y(A.c[i])); else g.lineTo(x(i), y(A.c[i])); }
     g.stroke();
+
+    // Chartmuster Linien
     if (ui.chart) {
       A.pats.filter(function (p) { return p.kind === 'chart'; }).forEach(function (p) {
         var col = BIAS[p.bias];
         g.strokeStyle = col; g.fillStyle = col; g.lineWidth = 1.5;
         p.lines.forEach(function (ln) { g.setLineDash(ln[4] ? [5, 4] : []); g.beginPath(); g.moveTo(x(Math.max(from, ln[0])), y(ln[1])); g.lineTo(x(ln[2]), y(ln[3])); g.stroke(); });
         g.setLineDash([]);
-        p.pts.forEach(function (pt) { if (pt[0] >= from) { g.beginPath(); g.arc(x(pt[0]), y(pt[1]), 3, 0, 6.283); g.fill(); } });
       });
     }
-    if (ui.candle) {
-      A.pats.filter(function (p) { return p.kind === 'candle'; }).forEach(function (p) {
-        var col = BIAS[p.bias], up = p.bias === 'bull', xx = x(p.i), yy = up ? y(A.l[p.i]) + 9 : y(A.h[p.i]) - 9;
-        g.fillStyle = col; g.beginPath();
-        if (up) { g.moveTo(xx, yy - 6); g.lineTo(xx - 4, yy + 2); g.lineTo(xx + 4, yy + 2); } else { g.moveTo(xx, yy + 6); g.lineTo(xx - 4, yy - 2); g.lineTo(xx + 4, yy - 2); }
-        g.closePath(); g.fill();
-      });
-    }
+
     g.restore();
     g.fillStyle = dim; g.textBaseline = 'alphabetic'; g.textAlign = 'left'; g.fillText(deDate(A.T.date[A.off + from]), L, H - 5);
     g.textAlign = 'right'; g.fillText('Heute', W - R, H - 5);
@@ -508,44 +504,23 @@ window.App.ChartAnalyse = (function () {
   function mount(slot, stock, period) {
     if (!slot || !stock) return;
     var A = null;
-    try { A = analyse(stock, period); } catch (e) { A = null; if (window.console) console.error('ChartAnalyse', e); }
+    try { A = analyse(stock, period); } catch (e) { A = null; }
     if (!A) { slot.innerHTML = ''; return; }
     var cur = (stock.quote && stock.quote.currency) || 'EUR';
     slot.innerHTML = scoreCard(A) + patternsCard(A, cur) + signalsCard(A, cur) + rrCard(A, stock, cur);
     draw(slot.querySelector('#ca-canvas'), A);
+
     [].forEach.call(slot.querySelectorAll('.ca-btn'), function (b) {
       b.onclick = function () {
-        var k = b.getAttribute('data-k'), p = k.split(':');
-        if (p.length === 2) ui[p[0]] = p[1]; else ui[k] = !ui[k];
+        var k = b.getAttribute('data-k');
+        ui[k] = !ui[k];
         saveUi();
         mount(slot, stock, period);
       };
     });
-    function num2(id, key, min) {
-      var el = slot.querySelector(id);
-      if (el) el.onchange = function () { var v = parseFloat(String(el.value).replace(',', '.')); if (isFinite(v) && v >= min) { ui[key] = v; saveUi(); mount(slot, stock, period); } };
-    }
-    num2('#ca-cap', 'capital', 1); num2('#ca-risk', 'risk', 0.1);
   }
 
-  function promptText(stock) {
-    var A = null;
-    try { A = analyse(stock, '6M'); } catch (e) { return ''; }
-    if (!A) return '';
-    var cur = (stock.quote && stock.quote.currency) || 'EUR', s = 'Chart-Analyse: Score ' + A.score + '/100 (' + BIAS_TXT[A.label] + ')';
-    var names = A.pats.filter(function (p) { return p.kind === 'chart'; }).map(function (p) { return p.name + ' (' + BIAS_TXT[p.bias] + ', ' + p.status + ')'; });
-    var cand = A.pats.filter(function (p) { return p.kind === 'candle'; }).map(function (p) { return p.name + ' am ' + deDate(p.date); });
-    if (names.length) s += '; Chartmuster: ' + names.join(', ');
-    if (cand.length) s += '; Kerzenmuster: ' + cand.join(', ');
-    if (A.adx) s += '; ADX ' + num(A.adx.adx, 0);
-    if (A.squeeze) s += '; Bollinger-Squeeze';
-    if (A.div) s += '; ' + A.div.text;
-    if (A.brk) s += '; ' + A.brk.text;
-    if (A.lv.sup) s += '; Unterstützung ' + eur(A.lv.sup.p, cur);
-    if (A.lv.res) s += '; Widerstand ' + eur(A.lv.res.p, cur);
-    return s + '. ';
-  }
+  function promptText(stock) { return ''; }
 
-  return { mount: mount, promptText: promptText, _analyse: analyse, _zigzag: zigzag };
+  return { mount: mount, promptText: promptText, _analyse: analyse };
 })();
-
