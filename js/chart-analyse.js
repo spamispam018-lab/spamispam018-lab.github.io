@@ -16,7 +16,7 @@ window.App.ChartAnalyse = (function () {
   var BIAS_TXT = { bull: 'bullisch', bear: 'bärisch', neutral: 'neutral' };
   
   var ui = { chart: true, candle: true, sr: false, zigzag: false, bollinger: false, capital: 10000, risk: 1, stop: 'support', target: 'resistance' };
-  var lastClickedToolTerm = null; // Speichert das zuletzt aktivierte Tool für die Anzeige
+  var lastClickedToolTerm = null; 
 
   try { var sv = JSON.parse(localStorage.getItem('ca_ui') || 'null'); if (sv) for (var k0 in sv) ui[k0] = sv[k0]; } catch (e) { /* ignorieren */ }
   function saveUi() { try { localStorage.setItem('ca_ui', JSON.stringify(ui)); } catch (e) { /* ignorieren */ } }
@@ -32,21 +32,15 @@ window.App.ChartAnalyse = (function () {
     Support: { name: 'Unterstützung & Widerstand', text: 'Unterstützung ist ein Kursbereich, an dem der Kurs in der Vergangenheit oft nach oben gedreht hat. Widerstand ist eine Marke, an der der Kurs oft nach unten abgeprallt ist.' },
     CRV: { name: 'Chance-Risiko-Verhältnis (CRV)', text: 'Das Verhältnis zwischen dem möglichen Gewinn (Ziel minus Einstieg) und dem möglichen Verlust (Einstieg minus Stop). Werte ab 2:1 gelten als erstrebenswert.' },
     Score: { name: 'Chart-Score', text: 'Ein Gesamtwert von 0 bis 100 (50 = neutral), der fünf verschiedene technische Bereiche (Trend, Momentum, Muster, Signale und S/R-Lage) bündelt.' },
-    Chartmuster: { name: 'Chartmuster', text: 'Automatische Erkennung klassischer Formationen wie Schulter-Kopf-Schulter, Dreiecken oder Doppel-Tops/Bodens.' },
+    Chartmuster: { name: 'Chartmuster', text: 'Automatische Erkennung klassischer Formationen (Doppel-Tops, SKS, Dreiecke, Flaggen). Ausbrüche werden stärker gewichtet, wenn sie mit hohem Volumen einhergehen.' },
     Kerzenmuster: { name: 'Kerzenmuster', text: 'Erkennung von kurzfristigen Umkehrsignalen (1-3 Tage) wie Hammer oder Engulfing auf Basis der Kerzenkörper.' },
     ZigZag: { name: 'Wendepunkte (ZigZag)', text: 'Verbindet markante Hoch- und Tiefpunkte im Chart und filtert kleinere Schwankungen (Rauschen) heraus, um den Haupttrend sichtbar zu machen.' }
   };
 
   var TERM_RULES = [
-    [/^ADX/, 'ADX'],
-    [/^ATR/, 'ATR'],
-    [/^OBV/, 'OBV'],
-    [/Bollinger/, 'Bollinger'],
-    [/Unterstützung|Widerstand/, 'Support'],
-    [/Chance-Risiko-Verhältnis|CRV/, 'CRV'],
-    [/Chart-Score/, 'Score'],
-    [/Chartmuster/, 'Chartmuster'],
-    [/Kerzenmuster/, 'Kerzenmuster'],
+    [/^ADX/, 'ADX'], [/^ATR/, 'ATR'], [/^OBV/, 'OBV'], [/Bollinger/, 'Bollinger'],
+    [/Unterstützung|Widerstand/, 'Support'], [/Chance-Risiko-Verhältnis|CRV/, 'CRV'],
+    [/Chart-Score/, 'Score'], [/Chartmuster/, 'Chartmuster'], [/Kerzenmuster/, 'Kerzenmuster'],
     [/Wendepunkte|ZigZag/, 'ZigZag']
   ];
 
@@ -196,63 +190,101 @@ window.App.ChartAnalyse = (function () {
   }
 
   // ---------------------------------------------------------------------------
-  // Chartmuster
+  // Chartmuster (Dynamisch mit ATR & Volumen)
   // ---------------------------------------------------------------------------
-  function twoPivotPatterns(V, px, N, out) {
+  function twoPivotPatterns(V, px, N, atr, volBrk, out) {
     var len = V.length, k, a, b, c;
     for (k = 0; k + 2 < len; k++) {
       if (len - 1 - (k + 2) > 1) continue;
       a = V[k]; b = V[k + 1]; c = V[k + 2];
       if (c.open || c.i < N - 45 || c.i - a.i < 10) continue;
+      
+      var tol = atr * 0.7; // Dynamische Toleranz durch ATR
+      
       if (a.t === 'H' && b.t === 'L' && c.t === 'H') {
         var top = Math.min(a.p, c.p);
-        if (Math.abs(a.p - c.p) / a.p <= 0.03 && (top - b.p) / top >= 0.05 && px <= Math.max(a.p, c.p) * 1.03) {
+        if (Math.abs(a.p - c.p) <= tol && (top - b.p) >= (atr * 1.5) && px <= Math.max(a.p, c.p) + tol) {
           var conf = px < b.p * 0.995;
           out.push({ kind: 'chart', name: 'Doppel-Top', bias: 'bear', status: conf ? 'bestätigt' : 'in Bildung', level: b.p, levelName: 'Nackenlinie',
-            target: b.p - (avg([a.p, c.p]) - b.p), score: conf ? 10 : 6, from: a.i, to: c.i,
+            target: b.p - (avg([a.p, c.p]) - b.p), score: conf ? (volBrk ? 12 : 9) : 6, from: a.i, to: c.i,
             lines: [[a.i, b.p, N - 1, b.p, 1]], pts: [[a.i, a.p], [b.i, b.p], [c.i, c.p]] });
         }
       }
       if (a.t === 'L' && b.t === 'H' && c.t === 'L') {
         var bot = Math.max(a.p, c.p);
-        if (Math.abs(a.p - c.p) / a.p <= 0.03 && (b.p - bot) / b.p >= 0.05 && px >= Math.min(a.p, c.p) * 0.97) {
+        if (Math.abs(a.p - c.p) <= tol && (b.p - bot) >= (atr * 1.5) && px >= Math.min(a.p, c.p) - tol) {
           var conf2 = px > b.p * 1.005;
           out.push({ kind: 'chart', name: 'Doppel-Boden', bias: 'bull', status: conf2 ? 'bestätigt' : 'in Bildung', level: b.p, levelName: 'Nackenlinie',
-            target: b.p + (b.p - avg([a.p, c.p])), score: conf2 ? 10 : 6, from: a.i, to: c.i,
+            target: b.p + (b.p - avg([a.p, c.p])), score: conf2 ? (volBrk ? 12 : 9) : 6, from: a.i, to: c.i,
             lines: [[a.i, b.p, N - 1, b.p, 1]], pts: [[a.i, a.p], [b.i, b.p], [c.i, c.p]] });
         }
       }
     }
   }
 
-  function headShoulders(V, px, N, out) {
+  function triplePivotPatterns(V, px, N, atr, volBrk, out) {
+    var len = V.length, k, a, b, c, d, e;
+    for (k = 0; k + 4 < len; k++) {
+      if (len - 1 - (k + 4) > 1) continue;
+      a = V[k]; b = V[k + 1]; c = V[k + 2]; d = V[k + 3]; e = V[k + 4];
+      if (e.open || e.i < N - 60 || e.i - a.i < 15) continue;
+      
+      var tol = atr * 0.8;
+      
+      if (a.t === 'H' && b.t === 'L' && c.t === 'H' && d.t === 'L' && e.t === 'H') {
+        var tops = [a.p, c.p, e.p], maxT = Math.max.apply(null, tops), minT = Math.min.apply(null, tops);
+        var neck = avg([b.p, d.p]);
+        if ((maxT - minT) <= tol && (minT - neck) >= atr * 1.5 && px <= maxT + tol) {
+          var conf = px < neck * 0.995;
+          out.push({ kind: 'chart', name: 'Triple-Top', bias: 'bear', status: conf ? 'bestätigt' : 'in Bildung', level: neck, levelName: 'Nackenlinie', 
+            target: neck - (avg(tops) - neck), score: conf ? (volBrk ? 14 : 10) : 7, from: a.i, to: e.i, 
+            lines: [[a.i, neck, N - 1, neck, 1]], pts: [[a.i, a.p], [b.i, b.p], [c.i, c.p], [d.i, d.p], [e.i, e.p]] });
+        }
+      }
+      if (a.t === 'L' && b.t === 'H' && c.t === 'L' && d.t === 'H' && e.t === 'L') {
+        var bots = [a.p, c.p, e.p], maxB = Math.max.apply(null, bots), minB = Math.min.apply(null, bots);
+        var neck2 = avg([b.p, d.p]);
+        if ((maxB - minB) <= tol && (neck2 - maxB) >= atr * 1.5 && px >= minB - tol) {
+          var conf2 = px > neck2 * 1.005;
+          out.push({ kind: 'chart', name: 'Triple-Boden', bias: 'bull', status: conf2 ? 'bestätigt' : 'in Bildung', level: neck2, levelName: 'Nackenlinie', 
+            target: neck2 + (neck2 - avg(bots)), score: conf2 ? (volBrk ? 14 : 10) : 7, from: a.i, to: e.i, 
+            lines: [[a.i, neck2, N - 1, neck2, 1]], pts: [[a.i, a.p], [b.i, b.p], [c.i, c.p], [d.i, d.p], [e.i, e.p]] });
+        }
+      }
+    }
+  }
+
+  function headShoulders(V, px, N, atr, volBrk, out) {
     var len = V.length, k, p;
     for (k = 0; k + 4 < len; k++) {
       if (len - 1 - (k + 4) > 1) continue;
       p = V.slice(k, k + 5);
       if (p[4].open || p[4].i < N - 50 || p[4].i - p[0].i < 20) continue;
-      if (p[0].t === 'H' && p[1].t === 'L' && p[2].t === 'H') {
+      
+      var tol = atr * 0.8;
+      
+      if (p[0].t === 'H' && p[1].t === 'L' && p[2].t === 'H' && p[3].t === 'L' && p[4].t === 'H') {
         var sh = avg([p[0].p, p[4].p]), neck = avg([p[1].p, p[3].p]);
-        if (p[2].p >= sh * 1.03 && Math.abs(p[0].p - p[4].p) / sh <= 0.08 && Math.abs(p[1].p - p[3].p) / neck <= 0.05 && px <= p[4].p * 1.03) {
+        if (p[2].p >= sh + atr && Math.abs(p[0].p - p[4].p) <= tol && Math.abs(p[1].p - p[3].p) <= tol && px <= p[4].p + tol) {
           var cf = px < neck * 0.995;
           out.push({ kind: 'chart', name: 'Schulter-Kopf-Schulter', bias: 'bear', status: cf ? 'bestätigt' : 'in Bildung', level: neck, levelName: 'Nackenlinie',
-            target: neck - (p[2].p - neck), score: cf ? 12 : 7, from: p[0].i, to: p[4].i,
+            target: neck - (p[2].p - neck), score: cf ? (volBrk ? 14 : 10) : 7, from: p[0].i, to: p[4].i,
             lines: [[p[1].i, neck, N - 1, neck, 1]], pts: p.map(function (q) { return [q.i, q.p]; }) });
         }
       }
-      if (p[0].t === 'L' && p[1].t === 'H' && p[2].t === 'L') {
+      if (p[0].t === 'L' && p[1].t === 'H' && p[2].t === 'L' && p[3].t === 'H' && p[4].t === 'L') {
         var sh2 = avg([p[0].p, p[4].p]), neck2 = avg([p[1].p, p[3].p]);
-        if (p[2].p <= sh2 * 0.97 && Math.abs(p[0].p - p[4].p) / sh2 <= 0.08 && Math.abs(p[1].p - p[3].p) / neck2 <= 0.05 && px >= p[4].p * 0.97) {
+        if (p[2].p <= sh2 - atr && Math.abs(p[0].p - p[4].p) <= tol && Math.abs(p[1].p - p[3].p) <= tol && px >= p[4].p - tol) {
           var cf2 = px > neck2 * 1.005;
-          out.push({ kind: 'chart', name: 'Umgekehrte Schulter-Kopf-Schulter', bias: 'bull', status: cf2 ? 'bestätigt' : 'in Bildung', level: neck2, levelName: 'Nackenlinie',
-            target: neck2 + (neck2 - p[2].p), score: cf2 ? 12 : 7, from: p[0].i, to: p[4].i,
+          out.push({ kind: 'chart', name: 'Umgekehrte SKS', bias: 'bull', status: cf2 ? 'bestätigt' : 'in Bildung', level: neck2, levelName: 'Nackenlinie',
+            target: neck2 + (neck2 - p[2].p), score: cf2 ? (volBrk ? 14 : 10) : 7, from: p[0].i, to: p[4].i,
             lines: [[p[1].i, neck2, N - 1, neck2, 1]], pts: p.map(function (q) { return [q.i, q.p]; }) });
         }
       }
     }
   }
 
-  function trendPatterns(Vw, px, N, out) {
+  function trendPatterns(Vw, px, N, volBrk, out) {
     var H = Vw.filter(function (p) { return p.t === 'H'; }).slice(-3), L = Vw.filter(function (p) { return p.t === 'L'; }).slice(-3);
     if (H.length < 2 || L.length < 2) return;
     var i0 = Math.min(H[0].i, L[0].i), last = Math.max(H[H.length - 1].i, L[L.length - 1].i);
@@ -280,16 +312,21 @@ window.App.ChartAnalyse = (function () {
     }
     if (!name) return;
     var up = px > hAt(N - 1) * 1.005, dn = px < lAt(N - 1) * 0.995, status = 'in Bildung', target = null, sc = 5, isChan = /kanal|range/i.test(name);
-    if (isChan) { status = up ? 'Ausbruch nach oben' : dn ? 'Ausbruch nach unten' : 'intakt'; sc = up || dn ? 6 : 3; if (up) bias = 'bull'; if (dn) bias = 'bear'; }
-    else if (up) { status = 'Ausbruch nach oben'; target = hAt(N - 1) + g0; bias = 'bull'; sc = 9; }
-    else if (dn) { status = 'Ausbruch nach unten'; target = lAt(N - 1) - g0; bias = 'bear'; sc = 9; }
+    if (isChan) { 
+      status = up ? 'Ausbruch nach oben' : dn ? 'Ausbruch nach unten' : 'intakt'; 
+      sc = up || dn ? (volBrk ? 9 : 6) : 3; 
+      if (up) bias = 'bull'; 
+      if (dn) bias = 'bear'; 
+    }
+    else if (up) { status = 'Ausbruch nach oben'; target = hAt(N - 1) + g0; bias = 'bull'; sc = volBrk ? 13 : 9; }
+    else if (dn) { status = 'Ausbruch nach unten'; target = lAt(N - 1) - g0; bias = 'bear'; sc = volBrk ? 13 : 9; }
     if (bias === 'neutral') sc = 0;
     out.push({ kind: 'chart', name: name, bias: bias, status: status, level: null, target: target, score: sc, from: i0, to: N - 1,
       lines: [[i0, hAt(i0), N - 1, hAt(N - 1), 0], [i0, lAt(i0), N - 1, lAt(N - 1), 0]], pts: H.concat(L).map(function (p) { return [p.i, p.p]; }),
       note: note });
   }
 
-  function flagPatterns(c, N, out) {
+  function flagPatterns(c, N, volBrk, out) {
     var look = Math.min(N, 45), s = N - look, j, j1, j0, px = c[N - 1];
     j1 = s; for (j = s; j <= N - 6; j++) if (c[j] >= c[j1]) j1 = j;
     j0 = Math.max(s, j1 - 15); for (j = j0; j <= j1; j++) if (c[j] <= c[j0]) j0 = j;
@@ -299,7 +336,7 @@ window.App.ChartAnalyse = (function () {
       if (retr <= 0.5 && px >= c[j0] + 0.5 * (c[j1] - c[j0]) && px <= c[j1] * 1.05) {
         var br = px > c[j1];
         out.push({ kind: 'chart', name: 'Bullische Flagge', bias: 'bull', status: br ? 'Ausbruch nach oben' : 'in Bildung', level: c[j1], levelName: 'Flaggenhoch',
-          target: c[j1] + (c[j1] - c[j0]), score: br ? 9 : 6, from: j0, to: N - 1, lines: [[j0, c[j0], j1, c[j1], 0], [j1, c[j1], N - 1, c[N - 1], 1]], pts: [[j0, c[j0]], [j1, c[j1]]] });
+          target: c[j1] + (c[j1] - c[j0]), score: br ? (volBrk ? 12 : 8) : 5, from: j0, to: N - 1, lines: [[j0, c[j0], j1, c[j1], 0], [j1, c[j1], N - 1, c[N - 1], 1]], pts: [[j0, c[j0]], [j1, c[j1]]] });
       }
     }
     j1 = s; for (j = s; j <= N - 6; j++) if (c[j] <= c[j1]) j1 = j;
@@ -310,7 +347,7 @@ window.App.ChartAnalyse = (function () {
       if (retr2 <= 0.5 && px <= c[j0] - 0.5 * (c[j0] - c[j1]) && px >= c[j1] * 0.95) {
         var br2 = px < c[j1];
         out.push({ kind: 'chart', name: 'Bärische Flagge', bias: 'bear', status: br2 ? 'Ausbruch nach unten' : 'in Bildung', level: c[j1], levelName: 'Flaggentief',
-          target: c[j1] - (c[j0] - c[j1]), score: br2 ? 9 : 6, from: j0, to: N - 1, lines: [[j0, c[j0], j1, c[j1], 0], [j1, c[j1], N - 1, c[N - 1], 1]], pts: [[j0, c[j0]], [j1, c[j1]]] });
+          target: c[j1] - (c[j0] - c[j1]), score: br2 ? (volBrk ? 12 : 8) : 5, from: j0, to: N - 1, lines: [[j0, c[j0], j1, c[j1], 0], [j1, c[j1], N - 1, c[N - 1], 1]], pts: [[j0, c[j0]], [j1, c[j1]]] });
       }
     }
   }
@@ -366,11 +403,29 @@ window.App.ChartAnalyse = (function () {
     var w = Math.min(WIN[period] || 126, N), from = N - w;
     var c = T.c.slice(off), h = T.h.slice(off), l = T.l.slice(off);
     var atr = atrArr(T.h, T.l, T.c, 14), atrV = atr[n - 1] || px * 0.02;
+    
+    // Volumen-Check für Ausbrüche (Strong Volume Breakout)
+    var hasVol = T.v.slice(-20).some(function (v) { return v > 0; });
+    var strongVolBrk = false;
+    if (hasVol && n > 25) {
+      var avgVol21 = avg(T.v.slice(-21, -1));
+      if (avgVol21 > 0 && (T.v[n - 1] / avgVol21) >= 1.5) strongVolBrk = true;
+    }
+
     var th = clamp(2.2 * atrV / px, 0.035, 0.12);
+    
+    // Alle Pivots (für kurzfristige Muster & Support/Resistance)
     var P = zigzag(h, l, th), Vw = P.filter(function (p) { return p.i >= from; });
+    
+    // MAJOR Pivots (filtert Rauschen für große Chartmuster wie SKS & Triple Tops)
+    var P_major = zigzag(h, l, th * 1.5), Vw_major = P_major.filter(function (p) { return p.i >= from; });
+
     var pats = [];
-    twoPivotPatterns(Vw, px, N, pats); headShoulders(Vw, px, N, pats); trendPatterns(Vw, px, N, pats);
-    if (from <= N - 12) flagPatterns(c, N, pats);
+    twoPivotPatterns(Vw, px, N, atrV, strongVolBrk, pats);
+    triplePivotPatterns(Vw_major, px, N, atrV, strongVolBrk, pats); // Nutzt Major Pivots
+    headShoulders(Vw_major, px, N, atrV, strongVolBrk, pats);       // Nutzt Major Pivots
+    trendPatterns(Vw, px, N, strongVolBrk, pats);
+    if (from <= N - 12) flagPatterns(c, N, strongVolBrk, pats);
     candlePatterns(T, off, N, pats);
 
     var rsi = rsiArr(T.c, 14), r0 = rsi[n - 1];
@@ -381,14 +436,13 @@ window.App.ChartAnalyse = (function () {
 
     var obv = [0], i;
     for (i = 1; i < n; i++) obv.push(obv[i - 1] + (T.c[i] > T.c[i - 1] ? T.v[i] : T.c[i] < T.c[i - 1] ? -T.v[i] : 0));
-    var hasVol = T.v.slice(-20).some(function (v) { return v > 0; });
     var obvTrend = hasVol ? Math.sign(obv[n - 1] - obv[n - 21]) : 0, pTrend = Math.sign(px - T.c[n - 21]);
 
     var bw = [], pb = null, bb = [];
     for (i = 19; i < n; i++) {
       var sl = T.c.slice(i - 19, i + 1), m = avg(sl), sd = Math.sqrt(avg(sl.map(function (x) { return (x - m) * (x - m); })));
       bw.push((4 * sd) / m);
-      bb.push({ i: i - off, m: m, u: m + 2 * sd, d: m - 2 * sd }); // KORREKTUR: i - off
+      bb.push({ i: i - off, m: m, u: m + 2 * sd, d: m - 2 * sd }); // Bollinger Bands
       if (i === n - 1) pb = sd > 0 ? (px - (m - 2 * sd)) / (4 * sd) : 0.5;
     }
     var bwLast = bw[bw.length - 1], bwWin = bw.slice(-120), rank = bwWin.filter(function (x) { return x <= bwLast; }).length / bwWin.length;
@@ -405,9 +459,9 @@ window.App.ChartAnalyse = (function () {
 
     var brk = null;
     if (hasVol && n > 25) {
-      var av = avg(T.v.slice(-21, -1)), vr = av > 0 ? T.v[n - 1] / av : 0, hi20 = maxOf(T.c.slice(-21, -1)), lo20 = minOf(T.c.slice(-21, -1));
-      if (px > hi20) brk = { type: 'bull', text: 'Ausbruch über das 20-Tage-Hoch ' + (vr >= 1.5 ? 'mit Volumen (' + vr.toFixed(1).replace('.', ',') + '× Schnitt)' : 'ohne Volumenbestätigung'), strong: vr >= 1.5 };
-      else if (px < lo20) brk = { type: 'bear', text: 'Bruch des 20-Tage-Tiefs ' + (vr >= 1.5 ? 'mit Volumen (' + vr.toFixed(1).replace('.', ',') + '× Schnitt)' : 'ohne Volumenbestätigung'), strong: vr >= 1.5 };
+      var hi20 = maxOf(T.c.slice(-21, -1)), lo20 = minOf(T.c.slice(-21, -1));
+      if (px > hi20) brk = { type: 'bull', text: 'Ausbruch über das 20-Tage-Hoch ' + (strongVolBrk ? 'mit starkem Volumen' : 'ohne Volumenbestätigung'), strong: strongVolBrk };
+      else if (px < lo20) brk = { type: 'bear', text: 'Bruch des 20-Tage-Tiefs ' + (strongVolBrk ? 'mit starkem Volumen' : 'ohne Volumenbestätigung'), strong: strongVolBrk };
     }
 
     var lv = levels(P, px);
@@ -458,8 +512,6 @@ window.App.ChartAnalyse = (function () {
     return '<div class="card"><div class="card-header-dotted"><span class="card-title">' + title + '</span>' + (tag || '') + '</div>' + body + '</div>';
   }
   
-  // HIER GEÄNDERT: Die Klasse '.term-link' wurde aus dem Icon entfernt. 
-  // Das Klicken wird jetzt nativ durch den Button-Klick gesteuert.
   function chip(k, label, on, termKey) {
     var icon = termKey ? ' <span style="margin-left: 4px; opacity: 0.7;">ⓘ</span>' : '';
     return '<button class="chip-btn ca-btn ' + (on ? 'active' : '') + '" data-k="' + k + '" data-term="' + (termKey || '') + '">' + label + icon + '</button>';
@@ -495,7 +547,6 @@ window.App.ChartAnalyse = (function () {
       chip('bollinger', 'Bollinger', ui.bollinger, 'Bollinger') +
     '</div>';
 
-    // HIER GEÄNDERT: Die Glossar-Box wird direkt an den Toolbar angehängt, wenn der Chip aktiv ist.
     var infoBoxHtml = '';
     if (lastClickedToolTerm && GLOSSARY[lastClickedToolTerm]) {
       infoBoxHtml = '<div id="ca-term-info" data-term="' + lastClickedToolTerm + '" style="margin-bottom: 12px; padding: 12px 14px; border-radius: var(--radius-sm); background-color: var(--bg-secondary); border: 1px solid var(--border-subtle); font-size: 0.8rem; color: var(--text-main); line-height: 1.45;">' +
@@ -679,25 +730,19 @@ window.App.ChartAnalyse = (function () {
     bindTerms(slot);
     draw(slot.querySelector('#ca-canvas'), A);
     
-    // HIER GEÄNDERT: Klick-Logik, die automatisch das Erklärungs-Feld an/ausschaltet
     [].forEach.call(slot.querySelectorAll('.ca-btn'), function (b) {
-      b.onclick = function () {
+      b.onclick = function (e) {
+        if (e.target && e.target.closest('.term-link')) return; 
         var k = b.getAttribute('data-k'), p = k.split(':');
         var termKey = b.getAttribute('data-term');
 
         if (p.length === 2) {
           ui[p[0]] = p[1];
-          lastClickedToolTerm = null; // Entfernt die Box, wenn ein anderer Button-Typ (wie Target) geklickt wird
+          lastClickedToolTerm = null;
         } else {
           ui[k] = !ui[k];
-          
-          if (termKey) {
-            // Setzt das aktive Tool als letzen Begriff. 
-            // Falls aus (false), wird null gesetzt -> Box verschwindet.
-            lastClickedToolTerm = ui[k] ? termKey : null; 
-          } else {
-            lastClickedToolTerm = null;
-          }
+          if (termKey) { lastClickedToolTerm = ui[k] ? termKey : null; } 
+          else { lastClickedToolTerm = null; }
         }
         saveUi();
         mount(slot, stock, period);
