@@ -345,6 +345,8 @@ window.App.Compare = (function () {
             promptText += "### " + sName + " (" + s.ticker + ") ###\n" +
                           "- Kurs: " + sPrice + " (Änderung heute: " + sChange + ")\n" +
                           "- KGV (Trailing): " + sPe + "\n";
+            var nl = window.App.News && window.App.News.indexLine(s.ticker);
+            if (nl) promptText += "- " + nl + "\n";
 
             if (s.chartHistory && s.chartHistory.length > 60 && window.App.StockChart) {
                 var hist = s.chartHistory.filter(function (p) { return p && p.close > 0; });
