@@ -548,3 +548,4 @@ window.App.ChartAnalyse = (function () {
 
   return { mount: mount, promptText: promptText, _analyse: analyse, _zigzag: zigzag };
 })();
+
