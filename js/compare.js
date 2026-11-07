@@ -554,3 +554,4 @@ window.App.Compare = (function () {
     initView: initView
   };
 })();
+
