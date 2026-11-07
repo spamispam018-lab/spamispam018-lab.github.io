@@ -501,6 +501,8 @@ window.App.StockChart = (function () {
         '</div>' +
       '</div>' +
 
+      '<div id="chart-analyse-slot"></div>' +
+
       '<!-- Wochenkerzen -->' +
       '<div class="card">' +
         '<div class="card-header-dotted">' +
@@ -570,6 +572,7 @@ window.App.StockChart = (function () {
       '</div>';
 
     container.innerHTML = html;
+    if (window.App.ChartAnalyse) window.App.ChartAnalyse.mount(container.querySelector('#chart-analyse-slot'), stock, currentPeriod);
     if (window.App.Forecast) window.App.Forecast.mount(container.querySelector('#forecast-slot'), stock, closes, currentPeriod);
     
     // Events
@@ -779,4 +782,3 @@ window.App.StockChart = (function () {
     _bottom: bottomCheck
   };
 })();
-
