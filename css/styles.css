@@ -1033,18 +1033,27 @@ input, button, select, textarea {
     padding: 32px;
   }
 
-  /* Bottom-Nav auf Desktop ausblenden... */
+  /* Schwebendes Dock am unteren Rand für Desktop */
   .bottom-nav {
-    display: none;
+    bottom: 24px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: max-content;
+    height: 64px;
+    padding: 0 24px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    gap: 24px;
+  }
+  
+  .nav-item {
+    flex: 0 0 auto;
+    padding: 0 8px;
   }
 
-  /* ...und das Padding am Bodyende zurücksetzen, 
-     da die Bottom-Nav keinen Platz mehr einnimmt */
-  body {
-    padding-bottom: 24px;
-  }
-
-  /* Header für Desktop anpassen (z.B. Navigations-Links hier einfügen) */
+  /* Header für Desktop anpassen */
   .app-header {
     height: 64px;
     padding: 0 32px;
