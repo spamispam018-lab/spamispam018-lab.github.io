@@ -215,6 +215,8 @@ window.App.StockOverview = (function () {
             }
             if (mom3m !== null) techText += "Das Momentum auf 3 Monate liegt bei " + window.App.Format.number(mom3m, 1) + " %. ";
 
+            var bc = window.App.StockChart._bottom(closes);
+            if (bc && bc.state) techText += "Boden-Check: " + ({ base: 'Bodenbildung möglich', knife: 'fallendes Messer', wait: 'unklar' })[bc.state] + " (" + bc.score + " von 6 Stabilisierungs-Signalen, " + window.App.Format.number(Math.abs(bc.dd) * 100, 0) + " % unter dem 52W-Hoch). ";
             promptText += techText;
         }
 
