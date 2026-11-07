@@ -85,6 +85,7 @@ window.App.StockOverview = (function () {
         '</button>' +
       '</div>' +
 
+      '<div id="news-card"></div>' +
       '<!-- 1. Bewertungs- & Marktkennzahlen -->' +
       '<div class="card">' +
         '<div class="card-header-dotted">' +
@@ -165,6 +166,7 @@ window.App.StockOverview = (function () {
       '</div>';
 
     container.innerHTML = html;
+    if (window.App.News) window.App.News.fillTicker(stock.ticker, container.querySelector('#news-card'));
 
     // Gemini Event Listener binden
     var geminiBtn = container.querySelector('#btn-ask-gemini');
@@ -216,9 +218,12 @@ window.App.StockOverview = (function () {
             promptText += techText;
         }
 
+        var nws = window.App.News && window.App.News.promptBlock(sTicker, 5);
+        if (nws) promptText += "\n\nAktuelle Nachrichten (englisch, mit automatischer FinBERT-Stimmungseinschätzung):\n" + nws + "\nBitte beziehe diese Nachrichten in deine Erklärung und Bewertung ein. ";
         promptText += "Bitte gib mir eine Bewertung der Aktie anhand dieser fundamentalen und technischen Daten und der aktuellen Marktlage.";
         
-        var geminiUrl = "https://gemini.google.com/app?q=" + encodeURIComponent(promptText);
+        var urlText = promptText.length > 1800 ? "Hallo Gemini! Mein Prompt mit Kursdaten und aktuellen Nachrichten liegt in der Zwischenablage – bitte einfügen und absenden." : promptText;
+        var geminiUrl = "https://gemini.google.com/app?q=" + encodeURIComponent(urlText);
         
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(promptText).then(function() {
