@@ -1,11 +1,5 @@
 /**
- * js/chart-analyse.js – erweiterte Chart-Analyse (eigenständiges Modul)
- * Chartmuster (mehrere gleichzeitig), Kerzenmuster, Divergenz, Squeeze, ADX/ATR/OBV,
- * Ausbruch mit Volumen, Support/Widerstand, Risk/Reward (Stop an Unterstützung oder ATR), Chart-Score.
- * Alles wird im Browser aus stock.chartHistory berechnet. Keine Anlageberatung.
- *
- * Einbindung:  window.App.ChartAnalyse.mount(slotElement, stock, period)
- *              window.App.ChartAnalyse.promptText(stock)   -> Text für den Gemini-Prompt
+ * js/chart-analyse.js – erweiterte Chart-Analyse mit Indikator-Graph unter Trend, Volumen & Signale
  */
 window.App = window.App || {};
 window.App.ChartAnalyse = (function () {
@@ -36,7 +30,7 @@ window.App.ChartAnalyse = (function () {
     [/^ATR/, 'ATR'],
     [/^OBV/, 'OBV'],
     [/Bollinger/, 'Bollinger'],
-    [/Unterstützung|Widerstand/, 'Support'],
+    [/Support|Widerstand/, 'Support'],
     [/Chance-Risiko-Verhältnis|CRV/, 'CRV'],
     [/Chart-Score/, 'Score']
   ];
@@ -306,9 +300,6 @@ window.App.ChartAnalyse = (function () {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Kerzenmuster (letzte 10 Handelstage)
-  // ---------------------------------------------------------------------------
   function candlePatterns(T, off, N, out) {
     if (!T.ohlc) return;
     var n = T.c.length, i, o = T.o, h = T.h, l = T.l, c = T.c;
@@ -333,9 +324,6 @@ window.App.ChartAnalyse = (function () {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Support/Widerstand aus Wendepunkten
-  // ---------------------------------------------------------------------------
   function levels(P, px) {
     var prices = P.map(function (p) { return p.p; }).sort(function (a, b) { return a - b; }), cl = [], cur = null;
     prices.forEach(function (v) {
@@ -347,9 +335,6 @@ window.App.ChartAnalyse = (function () {
     return { sup: sup, res: res, all: lv };
   }
 
-  // ---------------------------------------------------------------------------
-  // Gesamtanalyse
-  // ---------------------------------------------------------------------------
   function analyse(stock, period) {
     var T = prep(stock.chartHistory || []), n = T.c.length;
     if (n < 80) return null;
@@ -427,9 +412,11 @@ window.App.ChartAnalyse = (function () {
     ];
     var total = parts.reduce(function (a, p) { return a + p[1]; }, 0), score = Math.round(clamp(50 + total / 2, 0, 100));
 
-    return { T: T, n: n, N: N, off: off, from: from, w: w, px: px, c: c, h: h, l: l, atr: atrV, th: th, pivots: P, pats: pats, rsi: r0, macdBull: macdBull, s50: s50, s200: s200,
-      adx: adx, hasVol: hasVol, obvTrend: obvTrend, pTrend: pTrend, bw: bwLast, squeeze: rank <= 0.2, pctB: pb, div: div, brk: brk, lv: lv, parts: parts, score: score,
-      label: score >= 65 ? 'bull' : score <= 35 ? 'bear' : 'neutral' };
+    return { 
+      T: T, n: n, N: N, off: off, from: from, w: w, px: px, c: c, h: h, l: l, v: T.v.slice(off), atr: atrV, th: th, pivots: P, pats: pats, rsi: r0, macdBull: macdBull, s50: s50, s200: s200,
+      adx: adx, hasVol: hasVol, obv: obv.slice(off), obvTrend: obvTrend, pTrend: pTrend, bw: bwLast, squeeze: rank <= 0.2, pctB: pb, div: div, brk: brk, lv: lv, parts: parts, score: score,
+      label: score >= 65 ? 'bull' : score <= 35 ? 'bear' : 'neutral' 
+    };
   }
 
   // ---------------------------------------------------------------------------
@@ -488,7 +475,14 @@ window.App.ChartAnalyse = (function () {
     if (A.brk) r += row(BIAS[A.brk.type], A.brk.text);
     r += row('var(--text-dim)', 'Nächste ' + termLink('Support') + ': ' + (A.lv.sup ? eur(A.lv.sup.p, cur) + ' (' + A.lv.sup.n + ' Berührungen, ' + num((A.lv.sup.p / A.px - 1) * 100, 1) + ' %)' : 'keine erkennbar'));
     r += row('var(--text-dim)', 'Nächster ' + termLink('Support') + ': ' + (A.lv.res ? eur(A.lv.res.p, cur) + ' (' + A.lv.res.n + ' Berührungen, +' + num((A.lv.res.p / A.px - 1) * 100, 1) + ' %)' : 'keiner erkennbar'));
-    return card('Trend, Volumen & Signale', '', '<div class="chart-signal-list">' + r + '</div>' + NOTE);
+    
+    // Eingebauter OBV / Volumen-Graph direkt unter der Signalliste
+    var graphHtml = '<div style="margin-top: 12px; border-top: 1px dashed var(--border-subtle); padding-top: 10px;">' +
+      '<div style="font-size: 0.72rem; color: var(--text-dim); margin-bottom: 4px; font-weight: 600;">OBV-Volumenverlauf im gewählten Zeitraum</div>' +
+      '<div style="position:relative;width:100%;height:110px;"><canvas id="ca-signal-chart" style="width:100%;height:100%;"></canvas></div>' +
+      '</div>';
+
+    return card('Trend, Volumen & Signale', '', '<div class="chart-signal-list">' + r + '</div>' + graphHtml + NOTE);
   }
 
   function rrCalc(A, stock) {
@@ -526,7 +520,7 @@ window.App.ChartAnalyse = (function () {
     return { vals: out, dec: st >= 1 ? 0 : st >= 0.1 ? 1 : 2 };
   }
 
-  function draw(cv, A) {
+  function drawMainCanvas(cv, A) {
     if (!cv) return;
     var dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 320, H = cv.clientHeight || 240;
     cv.width = W * dpr; cv.height = H * dpr;
@@ -569,6 +563,33 @@ window.App.ChartAnalyse = (function () {
     g.textAlign = 'right'; g.fillText('Heute', W - R, H - 5);
   }
 
+  // Zeichnet den kleinen OBV-Volumen-Graphen
+  function drawSignalCanvas(cv, A) {
+    if (!cv || !A.obv) return;
+    var dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 320, H = cv.clientHeight || 110;
+    cv.width = W * dpr; cv.height = H * dpr;
+    var g = cv.getContext('2d'); g.scale(dpr, dpr);
+    var dim = '#94a3b8';
+    var from = A.from, N = A.N, bars = N - from, i;
+    var subObv = A.obv.slice(from, N);
+    if (!subObv.length) return;
+    var hi = maxOf(subObv), lo = minOf(subObv), pad = (hi - lo) * 0.1 || 1, mn = lo - pad, mx = hi + pad;
+    var L = 6, R = 6, T = 6, B = 14, pw = W - L - R, ph = H - T - B;
+    function x(k) { return L + (k - from) / Math.max(1, bars - 1) * pw; }
+    function y(v) { return T + (1 - (v - mn) / (mx - mn)) * ph; }
+
+    g.save(); g.beginPath(); g.rect(L - 1, T - 2, pw + 3, ph + 4); g.clip();
+    g.strokeStyle = '#818cf8'; g.lineWidth = 1.5; g.beginPath();
+    for (i = 0; i < subObv.length; i++) {
+      var xx = x(from + i), yy = y(subObv[i]);
+      if (i === 0) g.moveTo(xx, yy); else g.lineTo(xx, yy);
+    }
+    g.stroke();
+    g.restore();
+    g.fillStyle = dim; g.font = '9px sans-serif'; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+    g.fillText('OBV Verlauf', L, H - 2);
+  }
+
   function mount(slot, stock, period) {
     if (!slot || !stock) return;
     var A = null;
@@ -577,10 +598,11 @@ window.App.ChartAnalyse = (function () {
     var cur = (stock.quote && stock.quote.currency) || 'EUR';
     slot.innerHTML = scoreCard(A) + patternsCard(A, cur) + signalsCard(A, cur) + rrCard(A, stock, cur);
     
-    // Glossar-Klicks binden
     bindTerms(slot);
 
-    draw(slot.querySelector('#ca-canvas'), A);
+    drawMainCanvas(slot.querySelector('#ca-canvas'), A);
+    drawSignalCanvas(slot.querySelector('#ca-signal-chart'), A);
+
     [].forEach.call(slot.querySelectorAll('.ca-btn'), function (b) {
       b.onclick = function () {
         var k = b.getAttribute('data-k'), p = k.split(':');
