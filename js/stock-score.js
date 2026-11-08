@@ -8,6 +8,11 @@
  * 4. Finanzielle Gesundheit (Verschuldungsgrad, Liquidität, Zinsdeckung)
  *
  * *NEU:* Bei ETFs wird der Score als gewichteter Durchschnitt der Top 5 Holdings berechnet.
+ *
+ * FIX 1: `calculateTotalScore` wird als Alias für `calculateBaseTotalScore` exportiert
+ *         (index.html ruft es auf – vorher war es nicht definiert → Score-Tab leer).
+ * FIX 2: Fehlende Kennzahlen werden nicht mehr durch Defaults (25, 2.0, 4.0 etc.)
+ *         verfälscht, sondern dynamisch aus den verfügbaren Metriken gewichtet.
  */
 
 window.App = window.App || {};
@@ -17,9 +22,14 @@ window.App.Score = (function () {
 
   var nameToTickerMap = {};
 
+  // FIX: Helper für robuste Zahlen-Konvertierung
+  function num(v) {
+    return (v !== null && v !== undefined && v !== '' && !isNaN(v)) ? Number(v) : null;
+  }
+
   function buildNameLookup(universe) {
     nameToTickerMap = {};
-    (universe || []).forEach(function(u) {
+    (universe || []).forEach(function (u) {
       nameToTickerMap[u.ticker.toLowerCase()] = u.ticker;
       if (u.name) {
         var cleanName = u.name.toLowerCase().replace(/inc\.|inc|corp\.|corp|ltd\.|ltd|plc|ag|se|co\./g, '').trim();
@@ -29,7 +39,7 @@ window.App.Score = (function () {
   }
 
   function scoreMetric(val, minGood, maxGreat, direction) {
-    if (val === null || val === undefined || isNaN(val)) return 2.5; 
+    if (val === null || val === undefined || isNaN(val)) return 2.5;
     var score = 0;
 
     if (direction === 1) {
@@ -53,71 +63,95 @@ window.App.Score = (function () {
     return Math.max(0, Math.min(5, Math.round(score * 10) / 10));
   }
 
+  // FIX: Dynamische Gewichtung nach verfügbaren Metriken (fehlende Werte verzerren den Schnitt nicht mehr)
+  function weightedAvg(parts) {
+    var totalWeight = parts.reduce(function (a, p) { return a + p[1]; }, 0);
+    if (totalWeight <= 0) return 2.5;
+    return parts.reduce(function (acc, p) { return acc + p[0] * p[1]; }, 0) / totalWeight;
+  }
+
   function evaluateProfitability(ratios) {
-    var netMargin = ratios.profitMargins || 0;
-    var opMargin = ratios.operatingMargins || 0;
-    var roe = ratios.returnOnEquity || 0;
-    var roa = ratios.returnOnAssets || 0;
+    var netMargin = num(ratios.profitMargins);
+    var opMargin = num(ratios.operatingMargins);
+    var roe = num(ratios.returnOnEquity);
+    var roa = num(ratios.returnOnAssets);
 
-    var sNet = scoreMetric(netMargin, 0.05, 0.20, 1);
-    var sOp = scoreMetric(opMargin, 0.08, 0.25, 1);
-    var sRoe = scoreMetric(roe, 0.10, 0.25, 1);
-    var sRoa = scoreMetric(roa, 0.05, 0.15, 1);
+    var parts = [];
+    var sNet = netMargin !== null ? scoreMetric(netMargin, 0.05, 0.20, 1) : null;
+    var sOp = opMargin !== null ? scoreMetric(opMargin, 0.08, 0.25, 1) : null;
+    var sRoe = roe !== null ? scoreMetric(roe, 0.10, 0.25, 1) : null;
+    var sRoa = roa !== null ? scoreMetric(roa, 0.05, 0.15, 1) : null;
 
-    var avg = (sNet * 0.3) + (sOp * 0.3) + (sRoe * 0.2) + (sRoa * 0.2);
+    if (sNet !== null) parts.push([sNet, 0.3]);
+    if (sOp !== null) parts.push([sOp, 0.3]);
+    if (sRoe !== null) parts.push([sRoe, 0.2]);
+    if (sRoa !== null) parts.push([sRoa, 0.2]);
+
+    var avg = weightedAvg(parts);
 
     return {
       category: 'Profitabilität',
       score: Math.round(avg * 10) / 10,
       metrics: [
-        { name: 'Nettomarge', value: (netMargin * 100).toFixed(1) + ' %', score: sNet },
-        { name: 'Operative Marge', value: (opMargin * 100).toFixed(1) + ' %', score: sOp },
-        { name: 'Eigenkapitalrendite (ROE)', value: (roe * 100).toFixed(1) + ' %', score: sRoe },
-        { name: 'Gesamtkapitalrendite (ROA)', value: (roa * 100).toFixed(1) + ' %', score: sRoa }
+        { name: 'Nettomarge', value: netMargin !== null ? (netMargin * 100).toFixed(1) + ' %' : '—', score: sNet },
+        { name: 'Operative Marge', value: opMargin !== null ? (opMargin * 100).toFixed(1) + ' %' : '—', score: sOp },
+        { name: 'Eigenkapitalrendite (ROE)', value: roe !== null ? (roe * 100).toFixed(1) + ' %' : '—', score: sRoe },
+        { name: 'Gesamtkapitalrendite (ROA)', value: roa !== null ? (roa * 100).toFixed(1) + ' %' : '—', score: sRoa }
       ]
     };
   }
 
   function evaluateValuation(ratios) {
-    var pe = ratios.peTrailing || 25;
-    var fwdPe = ratios.peForward || pe;
-    var peg = ratios.pegRatio || 2.0;
-    var ps = ratios.priceToSales || 4.0;
+    var pe = num(ratios.peTrailing);
+    var fwdPe = num(ratios.peForward);
+    var peg = num(ratios.pegRatio);
+    var ps = num(ratios.priceToSales);
 
-    var sPe = scoreMetric(pe, 28, 12, -1);
-    var sFwdPe = scoreMetric(fwdPe, 24, 10, -1);
-    var sPeg = scoreMetric(peg, 2.5, 1.0, -1);
-    var sPs = scoreMetric(ps, 6.0, 1.5, -1);
+    var parts = [];
+    // Negatives KGV (Verlust) = 0 Punkte, fehlendes KGV = neutral (nicht 25 annehmen!)
+    var sPe = pe !== null ? (pe > 0 ? scoreMetric(pe, 28, 12, -1) : 0) : null;
+    var sFwdPe = fwdPe !== null ? (fwdPe > 0 ? scoreMetric(fwdPe, 24, 10, -1) : 0) : null;
+    var sPeg = (peg !== null && peg > 0) ? scoreMetric(peg, 2.5, 1.0, -1) : null;
+    var sPs = (ps !== null && ps > 0) ? scoreMetric(ps, 6.0, 1.5, -1) : null;
 
-    var avg = (sPe * 0.35) + (sFwdPe * 0.35) + (sPeg * 0.15) + (sPs * 0.15);
+    if (sPe !== null) parts.push([sPe, 0.35]);
+    if (sFwdPe !== null) parts.push([sFwdPe, 0.35]);
+    if (sPeg !== null) parts.push([sPeg, 0.15]);
+    if (sPs !== null) parts.push([sPs, 0.15]);
+
+    var avg = weightedAvg(parts);
 
     return {
       category: 'Bewertung',
       score: Math.round(avg * 10) / 10,
       metrics: [
-        { name: 'KGV (Trailing)', value: pe ? pe.toFixed(1) : '—', score: sPe },
-        { name: 'Forward KGV', value: fwdPe ? fwdPe.toFixed(1) : '—', score: sFwdPe },
-        { name: 'PEG Ratio', value: peg ? peg.toFixed(2) : '—', score: sPeg },
-        { name: 'Kurs-Umsatz-Verhältnis (KUV)', value: ps ? ps.toFixed(1) : '—', score: sPs }
+        { name: 'KGV (Trailing)', value: pe !== null ? pe.toFixed(1) : '—', score: sPe },
+        { name: 'Forward KGV', value: fwdPe !== null ? fwdPe.toFixed(1) : '—', score: sFwdPe },
+        { name: 'PEG Ratio', value: peg !== null ? peg.toFixed(2) : '—', score: sPeg },
+        { name: 'Kurs-Umsatz-Verhältnis (KUV)', value: ps !== null ? ps.toFixed(1) : '—', score: sPs }
       ]
     };
   }
 
   function evaluateGrowth(ratios, stock) {
-    var revG = ratios.revenueGrowth || 0;
+    var revG = num(ratios.revenueGrowth);
     var earnG = resolveEarningsGrowth(ratios, stock);
-    var hasEarn = earnG !== null;
 
-    var sRev = scoreMetric(revG, 0.05, 0.20, 1);
-    var sEarn = hasEarn ? scoreMetric(earnG, 0.05, 0.25, 1) : null;
-    var avg = hasEarn ? (sRev * 0.5) + (sEarn * 0.5) : sRev;
+    var parts = [];
+    var sRev = revG !== null ? scoreMetric(revG, 0.05, 0.20, 1) : null;
+    var sEarn = earnG !== null ? scoreMetric(earnG, 0.05, 0.25, 1) : null;
+
+    if (sRev !== null) parts.push([sRev, 0.5]);
+    if (sEarn !== null) parts.push([sEarn, 0.5]);
+
+    var avg = weightedAvg(parts);
 
     return {
       category: 'Wachstum',
       score: Math.round(avg * 10) / 10,
       metrics: [
-        { name: 'Umsatzwachstum (YoY)', value: (revG * 100).toFixed(1) + ' %', score: sRev },
-        { name: 'Gewinnwachstum (YoY)', value: hasEarn ? (earnG * 100).toFixed(1) + ' %' : '—', score: sEarn }
+        { name: 'Umsatzwachstum (YoY)', value: revG !== null ? (revG * 100).toFixed(1) + ' %' : '—', score: sRev },
+        { name: 'Gewinnwachstum (YoY)', value: earnG !== null ? (earnG * 100).toFixed(1) + ' %' : '—', score: sEarn }
       ]
     };
   }
@@ -153,23 +187,28 @@ window.App.Score = (function () {
   }
 
   function evaluateHealth(ratios) {
-    var debtToEquity = ratios.debtToEquity || 100;
-    var currentRatio = ratios.currentRatio || 1.2;
-    var quickRatio = ratios.quickRatio || 1.0;
+    var debtToEquity = num(ratios.debtToEquity);
+    var currentRatio = num(ratios.currentRatio);
+    var quickRatio = num(ratios.quickRatio);
 
-    var sDebt = scoreMetric(debtToEquity, 150, 40, -1);
-    var sCurr = scoreMetric(currentRatio, 1.0, 2.0, 1);
-    var sQuick = scoreMetric(quickRatio, 0.8, 1.5, 1);
+    var parts = [];
+    var sDebt = debtToEquity !== null ? scoreMetric(debtToEquity, 150, 40, -1) : null;
+    var sCurr = currentRatio !== null ? scoreMetric(currentRatio, 1.0, 2.0, 1) : null;
+    var sQuick = quickRatio !== null ? scoreMetric(quickRatio, 0.8, 1.5, 1) : null;
 
-    var avg = (sDebt * 0.4) + (sCurr * 0.3) + (sQuick * 0.3);
+    if (sDebt !== null) parts.push([sDebt, 0.4]);
+    if (sCurr !== null) parts.push([sCurr, 0.3]);
+    if (sQuick !== null) parts.push([sQuick, 0.3]);
+
+    var avg = weightedAvg(parts);
 
     return {
       category: 'Finanzielle Gesundheit',
       score: Math.round(avg * 10) / 10,
       metrics: [
-        { name: 'Debt to Equity', value: debtToEquity.toFixed(1) + ' %', score: sDebt },
-        { name: 'Current Ratio', value: currentRatio.toFixed(2), score: sCurr },
-        { name: 'Quick Ratio', value: quickRatio.toFixed(2), score: sQuick }
+        { name: 'Debt to Equity', value: debtToEquity !== null ? debtToEquity.toFixed(1) + ' %' : '—', score: sDebt },
+        { name: 'Current Ratio', value: currentRatio !== null ? currentRatio.toFixed(2) : '—', score: sCurr },
+        { name: 'Quick Ratio', value: quickRatio !== null ? quickRatio.toFixed(2) : '—', score: sQuick }
       ]
     };
   }
@@ -186,10 +225,6 @@ window.App.Score = (function () {
 
   function setPeriod(p) {
     try { localStorage.setItem(PERIOD_KEY, p === 'quarter' ? 'quarter' : 'year'); } catch (e) {}
-  }
-
-  function num(v) {
-    return (v !== null && v !== undefined && v !== '' && !isNaN(v)) ? Number(v) : null;
   }
 
   function sortedRows(list) {
@@ -282,10 +317,9 @@ window.App.Score = (function () {
 
   /**
    * Lädt die Scores der Top 5 Holdings und gewichtet sie zu einem Gesamtscore.
-   * Gibt ein Promise zurück.
    */
   function calculateTotalScoreAsync(stock, period) {
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
       var isEtf = (stock.sector === 'Sonstige' || stock.sector === 'ETF' || !stock.sector);
       var holdings = stock.holdings || [];
 
@@ -294,65 +328,61 @@ window.App.Score = (function () {
         return;
       }
 
-      window.App.Data.getUniverse().then(function(universe) {
+      window.App.Data.getUniverse().then(function (universe) {
         buildNameLookup(universe);
         var top5 = holdings.slice(0, 5);
 
-        var promises = top5.map(function(h) {
+        var promises = top5.map(function (h) {
           var cleanName = h.name.toLowerCase().replace(/inc\.|inc|corp\.|corp|ltd\.|ltd|plc|ag|se|co\./g, '').trim();
           var targetTicker = nameToTickerMap[cleanName] || nameToTickerMap[h.name.toLowerCase()] || null;
-          
+
           if (!targetTicker) {
-            var possible = universe.find(function(u) { return u.ticker.indexOf(h.name) === 0; });
+            var possible = universe.find(function (u) { return u.ticker.indexOf(h.name) === 0; });
             if (possible) targetTicker = possible.ticker;
           }
 
           if (targetTicker) {
-            return window.App.Data.getStock(targetTicker).then(function(res) {
-                return { data: res, weight: h.weight || 0 };
-            }).catch(function() { return null; });
+            return window.App.Data.getStock(targetTicker).then(function (res) {
+              return { data: res, weight: h.weight || 0 };
+            }).catch(function () { return null; });
           }
           return Promise.resolve(null);
         });
 
-        Promise.all(promises).then(function(results) {
-          var validHoldings = results.filter(function(r) { return r && r.data; });
-          
+        Promise.all(promises).then(function (results) {
+          var validHoldings = results.filter(function (r) { return r && r.data; });
+
           if (validHoldings.length === 0) {
             resolve(Object.assign({ isAggregated: false }, calculateBaseTotalScore(stock, period)));
             return;
           }
 
-          var totalWeight = validHoldings.reduce(function(sum, r) { return sum + r.weight; }, 0);
-          
+          var totalWeight = validHoldings.reduce(function (sum, r) { return sum + r.weight; }, 0);
+
           var aggTotalScore = 0;
-          var catScores = [0, 0, 0, 0]; 
-          
-          // Wir sammeln die Labels vom ersten Validen, um das Gerüst aufzubauen
+          var catScores = [0, 0, 0, 0];
+
           var templateCategories = calculateBaseTotalScore(validHoldings[0].data, period).categories;
 
-          validHoldings.forEach(function(r) {
+          validHoldings.forEach(function (r) {
             var normWeight = totalWeight > 0 ? (r.weight / totalWeight) : (1 / validHoldings.length);
             var hs = calculateBaseTotalScore(r.data, period);
-            
+
             aggTotalScore += hs.totalScore * normWeight;
-            
-            hs.categories.forEach(function(cat, idx) {
+
+            hs.categories.forEach(function (cat, idx) {
               catScores[idx] += cat.score * normWeight;
             });
           });
 
-          // Das Gerüst mit den gewichteten Werten befüllen. 
-          // Die genauen Einzelmetriken machen gewichtet als Prozentzahlen oft wenig Sinn,
-          // weshalb wir in der Ansicht den Hinweis anzeigen.
-          var finalCategories = templateCategories.map(function(t, idx) {
-             return {
-                category: t.category,
-                score: Math.round(catScores[idx] * 10) / 10,
-                metrics: t.metrics.map(function(m) { 
-                  return { name: m.name, value: '— (Gewichtet)', score: catScores[idx] }; 
-                })
-             };
+          var finalCategories = templateCategories.map(function (t, idx) {
+            return {
+              category: t.category,
+              score: Math.round(catScores[idx] * 10) / 10,
+              metrics: t.metrics.map(function (m) {
+                return { name: m.name, value: '— (Gewichtet)', score: catScores[idx] };
+              })
+            };
           });
 
           resolve({
@@ -361,8 +391,8 @@ window.App.Score = (function () {
             isAggregated: true
           });
         });
-      }).catch(function() {
-         resolve(Object.assign({ isAggregated: false }, calculateBaseTotalScore(stock, period)));
+      }).catch(function () {
+        resolve(Object.assign({ isAggregated: false }, calculateBaseTotalScore(stock, period)));
       });
     });
   }
@@ -382,6 +412,8 @@ window.App.Score = (function () {
   }
 
   return {
+    // FIX: Alias, damit index.html `calculateTotalScore` weiterhin aufrufen kann
+    calculateTotalScore: calculateBaseTotalScore,
     calculateBaseTotalScore: calculateBaseTotalScore,
     calculateTotalScoreAsync: calculateTotalScoreAsync,
     getPeriod: getPeriod,
