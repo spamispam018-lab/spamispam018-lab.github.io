@@ -494,6 +494,132 @@ def peer_extras(st):
     return out
 
 
+# ---------------------------------------------------------------------------
+# Risk/Reward fürs Universum (Filter "Kleines Risiko")
+# Portierung der Logik aus js/chart-analyse.js (prep, ATR, zigzag, levels, rrCompute) – nur Long.
+# Es zählen nur Stops an einer echten Unterstützung und marktbasierte Ziele (Widerstand, Analystenziel), nicht "2× ATR" oder "CRV 2:1".
+# ---------------------------------------------------------------------------
+def _rr_prep(history):
+    d = [p for p in (history or []) if p and (p.get("close") or 0) > 0]
+    c, h, l = [], [], []
+    for i, p in enumerate(d):
+        cl = float(p["close"])
+        prev = float(d[i - 1]["close"]) if i else cl
+        o = float(p["open"]) if (p.get("open") or 0) > 0 else prev
+        hi = float(p["high"]) if (p.get("high") or 0) > 0 else max(o, cl)
+        lo = float(p["low"]) if (p.get("low") or 0) > 0 else min(o, cl)
+        c.append(cl)
+        h.append(max(hi, o, cl))
+        l.append(min(lo, o, cl))
+    return c, h, l
+
+def _rr_atr_last(h, l, c, n=14):
+    prev, tot = None, 0.0
+    for i in range(len(c)):
+        tr = (h[i] - l[i]) if i == 0 else max(h[i] - l[i], abs(h[i] - c[i - 1]), abs(l[i] - c[i - 1]))
+        if i < n - 1:
+            tot += tr
+        elif i == n - 1:
+            tot += tr
+            prev = tot / n
+        else:
+            prev = (prev * (n - 1) + tr) / n
+    return prev
+
+def _rr_zigzag(h, l, th):
+    n = len(h)
+    piv, d, hi_i, lo_i, ext = [], 0, 0, 0, 0
+    for i in range(1, n):
+        if d == 0:
+            if h[i] > h[hi_i]:
+                hi_i = i
+            if l[i] < l[lo_i]:
+                lo_i = i
+            if h[i] >= l[lo_i] * (1 + th):
+                piv.append(l[lo_i]); d = 1; ext = i
+                for j in range(lo_i, i + 1):
+                    if h[j] > h[ext]:
+                        ext = j
+            elif l[i] <= h[hi_i] * (1 - th):
+                piv.append(h[hi_i]); d = -1; ext = i
+                for j in range(hi_i, i + 1):
+                    if l[j] < l[ext]:
+                        ext = j
+        elif d == 1:
+            if h[i] > h[ext]:
+                ext = i
+            elif l[i] <= h[ext] * (1 - th):
+                piv.append(h[ext]); d = -1; ext = i
+        else:
+            if l[i] < l[ext]:
+                ext = i
+            elif h[i] >= l[ext] * (1 + th):
+                piv.append(l[ext]); d = 1; ext = i
+    if d != 0:
+        piv.append(h[ext] if d == 1 else l[ext])
+    return piv  # nur die Preise der Wendepunkte (Level-Berechnung braucht nichts anderes)
+
+def _rr_levels(pivots, px, atr):
+    """Nächste Unterstützung/Widerstand als (preis, berührungen) oder None."""
+    tol, clusters, cur = atr * 0.6, [], None
+    for p in sorted(pivots):
+        if cur is not None and p - cur["min"] <= tol:
+            cur["vals"].append(p)
+        else:
+            cur = {"vals": [p], "min": p}
+            clusters.append(cur)
+    lv = [(sum(c["vals"]) / len(c["vals"]), len(c["vals"])) for c in clusters if len(c["vals"]) >= 2]
+
+    def score(lvl, is_sup):
+        p, n = lvl
+        if is_sup and p >= px * 0.99:
+            return -999
+        if not is_sup and p <= px * 1.01:
+            return -999
+        return n / (1 + abs(p - px) / atr)
+
+    sups = sorted([x for x in lv if x[0] < px], key=lambda x: -score(x, True))
+    ress = sorted([x for x in lv if x[0] > px], key=lambda x: -score(x, False))
+    return (sups[0] if sups else None), (ress[0] if ress else None)
+
+def rr_extras(history, analyst_mean):
+    """Beste Long-Kombination für den Screener-Filter 'Kleines Risiko'.
+    Stop: knapp unter der nächsten Unterstützung (wie im Rechner, mind. 0,8 ATR Abstand).
+    Der 2×-ATR-Stop zählt hier bewusst nicht: die Historie enthält nur Schlusskurse, der ATR fällt dadurch klein aus
+    und ein enger Stop würde fast jede Aktie als 'kleines Risiko' erscheinen lassen.
+    Ziel: nächster Widerstand oder Analystenziel (je nachdem, was das bessere CRV ergibt)."""
+    out = {"rrCrv": None, "rrStopPct": None, "rrTgtPct": None, "rrTgtType": None}
+    try:
+        c, h, l = _rr_prep(history)
+        n = len(c)
+        if n < 80:
+            return out
+        px = c[-1]
+        atr = _rr_atr_last(h, l, c) or px * 0.02
+        N = min(250, n)
+        th = max(0.035, min(0.12, 2.2 * atr / px))
+        sup, res = _rr_levels(_rr_zigzag(h[-N:], l[-N:], th), px, atr)
+        if not sup:
+            return out
+        stop = sup[0] * 0.985
+        risk = px - stop
+        if risk < 0.8 * atr:
+            return out  # Unterstützung zu nah am Kurs, Stop wäre nicht aussagekräftig
+        best = None
+        if res:
+            best = ((res[0] - px) / risk, "resistance", res[0])
+        if analyst_mean and analyst_mean > px:
+            crv = (float(analyst_mean) - px) / risk
+            if best is None or crv > best[0]:
+                best = (crv, "analyst", float(analyst_mean))
+        if best:
+            crv, tm, tgt = best
+            out.update({"rrCrv": round(crv, 2), "rrStopPct": round(risk / px * 100, 1),
+                        "rrTgtPct": round((tgt / px - 1) * 100, 1), "rrTgtType": tm})
+    except Exception:
+        pass
+    return out
+
 def screener_extras(st):
     """Zusatzfelder fürs Universum (Screener-Filter 'Unterbewertet')."""
     ratios = st.get("ratios", {}) or {}
@@ -508,6 +634,7 @@ def screener_extras(st):
     out.update(trend_extras(st.get("chartHistory")))
     out.update(bottom_extras(st.get("chartHistory")))
     out.update(peer_extras(st))
+    out.update(rr_extras(st.get("chartHistory"), ((st.get("analysts") or {}).get("targets") or {}).get("mean")))
     lo, hi, px = quote.get("fiftyTwoWeekLow"), quote.get("fiftyTwoWeekHigh"), quote.get("price")
     if lo is not None and hi is not None and px is not None and hi > lo:
         out["rangePos"] = round(max(0.0, min(100.0, (px - lo) / (hi - lo) * 100)), 1)
