@@ -420,7 +420,8 @@ window.App.Charts = (function () {
 
         // Negative Werte rot (bei mehreren Serien: Rottöne zur Unterscheidung)
         var negColor = s.negColor || (sIdx === 0 ? '#ef4444' : '#b91c1c');
-        ctx.fillStyle = val < 0 ? negColor : (s.color || THEME.purple);
+        var barColor = (s.colors && s.colors[gIdx]) || s.color || THEME.purple;
+        ctx.fillStyle = val < 0 ? negColor : barColor;
         ctx.beginPath();
         var radii = val >= 0 ? [3, 3, 0, 0] : [0, 0, 3, 3];
         ctx.roundRect ? ctx.roundRect(barX, barY, barW - barPadding, barH, radii) : ctx.rect(barX, barY, barW - barPadding, barH);
