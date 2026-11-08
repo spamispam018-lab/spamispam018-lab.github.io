@@ -11,6 +11,13 @@ aktualisiert. Jetzt werden neue Schlusskurse aus dem Batch-Download in die
 vorhandenen JSONs gemerged, `quote.price` / `change` / `changePercent` neu
 berechnet und `chartHistory` ergänzt. Nur bei echten Änderungen wird
 `updatedAt` gesetzt.
+
+NEU: Dividenden-Daten werden jetzt pro Ticker mitgeschrieben:
+- dividends.history: letzte 20 Dividendenzahlungen (Datum + Betrag in EUR)
+- dividends.exDate: nächstes Ex-Dividende-Datum (aus info.exDividendDate)
+- dividends.rate: annualisierte Dividende in EUR (aus info.dividendRate)
+- dividends.yield: aktuelle Dividendenrendite in Prozent (aus info.dividendYield)
+- exDividendDate: dasselbe Datum flach im Root (Convenience-Feld fürs Frontend)
 """
 
 import os
@@ -66,8 +73,8 @@ TICKERS_SECTORS = [
     "QDVF.DE",  # iShares S&P 500 Energy Sector (Öl & Energie USA)
     "WNRG.DE",  # iShares MSCI World Energy Sector (Öl & Energie Global)
     "XDW0.DE",  # Xtrackers MSCI World Energy UCITS ETF (Öl & Energie Global)
-    "IU5C.DE",  # iShares S&P 500 Communication Sector (Kommunikation / Medien US) [Neu]
-    "XWTS.DE",  # Xtrackers MSCI World Communication Services (Kommunikation Global) [Neu]
+    "IU5C.DE",  # iShares S&P 500 Communication Sector (Kommunikation / Medien US)
+    "XWTS.DE",  # Xtrackers MSCI World Communication Services (Kommunikation Global)
     "WHEA.DE",  # iShares MSCI World Health Care (Gesundheitswesen)
     "WSCA.DE",  # iShares MSCI World Consumer Staples (Basiskonsumgüter)
     "WFIS.DE",  # iShares MSCI World Financials (Finanzen)
@@ -271,6 +278,67 @@ def process_fund_data(ticker_obj, symbol=""):
     return holdings
 
 
+# NEU: Dividenden-Daten sammeln
+def process_dividends(ticker_obj, info_or_none, cur, existing=None):
+    """
+    Sammelt Dividenden-Daten für einen Ticker.
+    - ticker_obj: yfinance.Ticker-Objekt (für .dividends-Series)
+    - info_or_none: dict mit .info-Daten (nur im Full-Fetch vorhanden) oder None
+    - cur: native Währung des Tickers
+    - existing: bestehendes dividends-dict (für Delta-Pfad, um exDate/rate/yield zu behalten)
+
+    Rückgabe: dict mit history (Liste), optional exDate, rate, yield.
+    """
+    existing = existing or {}
+    result = {"history": existing.get("history", [])}
+
+    # Dividenden-Historie (Series) ist immer abrufbar, auch im Delta-Pfad
+    try:
+        div_series = ticker_obj.dividends
+        if div_series is not None and not div_series.empty:
+            recent = div_series.tail(20)
+            history = []
+            for dt, val in recent.items():
+                d_str = dt.strftime("%Y-%m-%d") if hasattr(dt, "strftime") else str(dt)[:10]
+                try:
+                    amount = float(val)
+                    if math.isnan(amount) or math.isinf(amount):
+                        continue
+                    history.append({
+                        "date": d_str,
+                        "amount": clean_val(to_eur(amount, cur), 0.0)
+                    })
+                except Exception:
+                    continue
+            if history:
+                result["history"] = history
+    except Exception:
+        pass
+
+    if info_or_none:
+        # Nur im Full-Fetch vorhanden
+        ex_date = info_or_none.get("exDividendDate")
+        if ex_date:
+            try:
+                ex_str = datetime.fromtimestamp(float(ex_date), timezone.utc).strftime("%Y-%m-%d")
+                result["exDate"] = ex_str
+            except Exception:
+                pass
+        div_rate = info_or_none.get("dividendRate")
+        if div_rate:
+            result["rate"] = clean_val(to_eur(clean_val(div_rate), cur))
+        div_yield = info_or_none.get("dividendYield")
+        if div_yield:
+            result["yield"] = clean_val(div_yield)
+    else:
+        # Delta-Pfad: bestehende Werte behalten
+        if "exDate" in existing: result["exDate"] = existing["exDate"]
+        if "rate" in existing: result["rate"] = existing["rate"]
+        if "yield" in existing: result["yield"] = existing["yield"]
+
+    return result
+
+
 def process_insider_data(ticker_obj, cur):
     summary = {"buysCount2Q": 0, "sellsCount2Q": 0, "buyValueTotal": 0.0, "sellValueTotal": 0.0, "sentiment": "Neutral"}
     trades = []
@@ -339,31 +407,49 @@ def fetch_full_stock(ticker_sym):
             chart_history.append({"date": dt.strftime("%Y-%m-%d"), "close": clean_val(to_eur(clean_val(row["Close"]), cur)), "volume": clean_val(row["Volume"])})
     except Exception: pass
 
-    return {"ticker": ticker_sym, "profile": profile, "quote": quote, "ratios": ratios, "financials": {"incomeStatement": {"quarterly": [], "annual": []}, "balanceSheet": {"quarterly": [], "annual": []}, "cashFlow": {"quarterly": [], "annual": []}}, "analysts": process_analyst_data(info, t, cur), "insider": process_insider_data(t, cur), "holdings": process_fund_data(t, ticker_sym), "chartHistory": chart_history, "updatedAt": datetime.now(timezone.utc).isoformat()}
+    # NEU: Dividenden-Daten für Full-Fetch
+    dividends_info = process_dividends(t, info, cur)
+
+    result = {
+        "ticker": ticker_sym,
+        "profile": profile,
+        "quote": quote,
+        "ratios": ratios,
+        "financials": {
+            "incomeStatement": {"quarterly": [], "annual": []},
+            "balanceSheet": {"quarterly": [], "annual": []},
+            "cashFlow": {"quarterly": [], "annual": []}
+        },
+        "analysts": process_analyst_data(info, t, cur),
+        "insider": process_insider_data(t, cur),
+        "holdings": process_fund_data(t, ticker_sym),
+        "chartHistory": chart_history,
+        "dividends": dividends_info,
+        "exDividendDate": dividends_info.get("exDate"),
+        "updatedAt": datetime.now(timezone.utc).isoformat()
+    }
+    return result
 
 
 def extract_close_series(batch_df, sym):
     """
-    FIX: Robuste Extraktion der Close-Serie für einen Ticker aus batch_df.
+    Robuste Extraktion der Close-Serie für einen Ticker aus batch_df.
     Behandelt sowohl MultiIndex-Columns (group_by="ticker") als auch Single-Ticker.
     """
     try:
         if batch_df is None or batch_df.empty:
             return None
-        # MultiIndex: (ticker, field) – kann bei group_by="ticker" vorkommen
         if hasattr(batch_df.columns, "levels") and len(batch_df.columns.levels) >= 2:
             top = batch_df.columns.get_level_values(0)
             if sym in top:
                 sub = batch_df[sym]
                 if "Close" in sub.columns:
                     return sub["Close"].dropna()
-            # Fallback: (field, ticker)
             top2 = batch_df.columns.get_level_values(0)
             if "Close" in top2:
                 sub = batch_df["Close"]
                 if sym in sub.columns:
                     return sub[sym].dropna()
-        # Single-Ticker / flache Columns
         if "Close" in batch_df.columns:
             return batch_df["Close"].dropna()
     except Exception as e:
@@ -392,8 +478,8 @@ def run_delta_sync(tickers):
                 with open(stock_file, "r", encoding="utf-8") as f: stock_data = json.load(f)
             except Exception: pass
 
-        # FIX: Vollständiger Fetch nur für neue Ticker ohne vorhandenes JSON
         if not stock_data:
+            # Vollständiger Fetch für neue Ticker
             try:
                 print(f"Neuer Ticker, voller Fetch: {sym}")
                 stock_data = fetch_full_stock(sym)
@@ -401,7 +487,7 @@ def run_delta_sync(tickers):
                 print(f"Vollständiger Fetch fehlgeschlagen für {sym}: {e}")
                 continue
         else:
-            # FIX: Delta-Update für bestehende Ticker aus batch_df
+            # Delta-Update für bestehende Ticker
             closes = extract_close_series(batch_df, sym)
             if closes is not None and not closes.empty:
                 try:
@@ -422,7 +508,7 @@ def run_delta_sync(tickers):
                         stock_data["quote"]["changePercent"] = chg_pct
                         stock_data["quote"]["currency"] = "EUR"
 
-                        # chartHistory um neue Datenpunkte ergänzen
+                        # chartHistory ergänzen
                         history = stock_data.setdefault("chartHistory", [])
                         existing_dates = {p.get("date") for p in history}
                         new_points = []
@@ -441,20 +527,35 @@ def run_delta_sync(tickers):
                         if new_points:
                             history.extend(new_points)
                             history.sort(key=lambda p: p.get("date", ""))
-                            # auf 2 Jahre begrenzen (ca. 750 Handelstage)
                             if len(history) > 750:
                                 history = history[-750:]
                             stock_data["chartHistory"] = history
 
-                        # updatedAt nur setzen, wenn sich wirklich etwas geändert hat
                         if (old_price != new_price) or new_points:
                             stock_data["updatedAt"] = now_iso
                 except Exception as e:
                     print(f"Delta-Update für {sym} fehlgeschlagen: {e}")
 
+            # NEU: Dividenden-Daten auch im Delta-Pfad auffrischen
+            try:
+                cur = stock_data.get("profile", {}).get("nativeCurrency") or detect_native_currency(sym)
+                new_div = process_dividends(
+                    yf.Ticker(sym),
+                    info_or_none=None,  # kein info-Fetch im Delta-Pfad (Performance)
+                    cur=cur,
+                    existing=stock_data.get("dividends") or {}
+                )
+                stock_data["dividends"] = new_div
+                if new_div.get("exDate"):
+                    stock_data["exDividendDate"] = new_div["exDate"]
+            except Exception as e:
+                print(f"Dividenden-Update für {sym} fehlgeschlagen: {e}")
+
         if not stock_data.get("holdings"):
-            try: stock_data["holdings"] = process_fund_data(yf.Ticker(sym), sym)
-            except Exception: pass
+            try:
+                stock_data["holdings"] = process_fund_data(yf.Ticker(sym), sym)
+            except Exception:
+                pass
 
         with open(stock_file, "w", encoding="utf-8") as f:
             json.dump(stock_data, f, ensure_ascii=False, indent=2)
@@ -469,6 +570,9 @@ def run_delta_sync(tickers):
         u_item["price"] = stock_data.get("quote", {}).get("price")
         u_item["changePercent"] = stock_data.get("quote", {}).get("changePercent")
         u_item["marketCap"] = stock_data.get("quote", {}).get("marketCap")
+        # NEU: Dividendenrendite + Ex-Datum ins Universe für schnellen Zugriff im Screener
+        u_item["dividendYield"] = stock_data.get("ratios", {}).get("dividendYield")
+        u_item["exDividendDate"] = stock_data.get("exDividendDate")
         universe_map[sym] = u_item
 
     with open(universe_file, "w", encoding="utf-8") as f:
