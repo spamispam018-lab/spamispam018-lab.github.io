@@ -3,6 +3,7 @@
  * Verwaltet den Tab "Overview" der Aktiendetailansicht:
  * - Bewertungs- und Marktkennzahlen (mit sauberer Behandlung von fehlendem/negativem KGV)
  * - 52-Wochen-Spannenbalken
+ * - ETF Top-Holdings (Größte Positionen anteilig mit Balken)
  * - Inline-Chart mit Umschalt-Pillen (1W, 1M, 3M, 6M, 1J)
  * - Kompakte Insider-Aktivitätskarte mit Stimmungsbalken
  * - Quartalsweiser Finanztrend (Umsatz & Nettoergebnis)
@@ -19,6 +20,11 @@ window.App.StockOverview = (function () {
   var currentPeriod = '1Y';
   var longHistory = null; // null = lädt noch, [] = nicht vorhanden
 
+  function esc(s) {
+    return String(s === null || s === undefined ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   /**
    * Haupt-Renderfunktion für die Overview-Ansicht.
    * @param {HTMLElement} container - Ziel-DOM-Element
@@ -32,6 +38,7 @@ window.App.StockOverview = (function () {
     var ratios = stock.ratios || {};
     var insider = stock.insider || { summary: {}, trades: [] };
     var financials = stock.financials || {};
+    var holdings = stock.holdings || [];
 
     // Trailing-KGV prüfen: Wenn kein positiver Wert vorliegt, aber ein Forward-KGV existiert oder Verluste vorliegen
     var peTrailingDisplay;
@@ -76,7 +83,7 @@ window.App.StockOverview = (function () {
         '</div>' +
       '</div>' +
 
-      '<!-- Daten aktualisieren Button (GitHub Action Trigger - Single Ticker) & Zeitstempel -->' +
+      '<!-- Daten aktualisieren Button & Zeitstempel -->' +
       '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">' +
         '<div style="font-size: 0.7rem; color: var(--text-dim);">Stand: ' + updatedAtDisplay + '</div>' +
         '<button id="btn-refresh-stock" class="chip-btn" style="font-size: 0.72rem; display: flex; align-items: center; gap: 6px;">' +
@@ -86,6 +93,10 @@ window.App.StockOverview = (function () {
       '</div>' +
 
       '<div id="news-card"></div>' +
+
+      '<!-- ETF Top Holdings (falls vorhanden) -->' +
+      renderEtfHoldingsHtml(holdings) +
+
       '<!-- 1. Bewertungs- & Marktkennzahlen -->' +
       '<div class="card">' +
         '<div class="card-header-dotted">' +
@@ -240,7 +251,6 @@ window.App.StockOverview = (function () {
       };
     }
 
-    // GitHub Action Trigger & Refresh Event Listener (Single Ticker)
     var refreshBtn = container.querySelector('#btn-refresh-stock');
     if (refreshBtn) {
       refreshBtn.onclick = function() {
@@ -251,19 +261,17 @@ window.App.StockOverview = (function () {
             if (token) {
                 localStorage.setItem('GITHUB_PAT', token);
             } else {
-                return; // Abbruch durch Nutzer
+                return;
             }
         }
 
         var originalHtml = refreshBtn.innerHTML;
-        // Zeige Trigger-Zustand
         refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Action startet...';
         refreshBtn.disabled = true;
 
         var workflowFilename = 'update_data.yml';
         var githubApiUrl = 'https://api.github.com/repos/spamispam018-lab/spamispam018-lab.github.io/actions/workflows/' + workflowFilename + '/dispatches';
 
-        // 1. GitHub Action via API triggern (nur für currentStock.ticker)
         fetch(githubApiUrl, {
             method: 'POST',
             headers: {
@@ -288,14 +296,11 @@ window.App.StockOverview = (function () {
                 throw new Error("GitHub API Fehler: " + response.status);
             }
             
-            // 2. Action läuft -> Da es nur ein Ticker ist, reicht eine kürzere Wartezeit (15 Sekunden)
             refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Warte auf Yahoo (15s)...';
             
             setTimeout(function() {
-                // 3. Nach Wartezeit die aktualisierten JSON-Daten auslesen (Cache bypassen)
                 window.App.Data.getStock(currentStock.ticker)
                   .then(function(updatedStock) {
-                    // Header der Detailansicht aktualisieren
                     var priceEl = document.getElementById('stock-header-price');
                     var changeEl = document.getElementById('stock-header-change');
                     if (priceEl && changeEl && updatedStock.quote) {
@@ -305,7 +310,6 @@ window.App.StockOverview = (function () {
                         changeEl.className = 'badge-pill ' + chgCls;
                         changeEl.textContent = sign + window.App.Format.number(updatedStock.quote.changePercent, 2) + ' %';
                     }
-                    // Overview-Tab neu rendern
                     window.App.StockOverview.render(container, updatedStock);
                   })
                   .catch(function(err) {
@@ -314,7 +318,7 @@ window.App.StockOverview = (function () {
                     refreshBtn.disabled = false;
                     alert('Die Action wurde gestartet, aber die neuen Daten konnten noch nicht geladen werden. Bitte in wenigen Momenten nochmal versuchen.');
                   });
-            }, 15000); // 15 Sekunden warten
+            }, 15000);
         })
         .catch(function(err) {
             console.error(err);
@@ -325,14 +329,12 @@ window.App.StockOverview = (function () {
       };
     }
 
-    // Charts zeichnen und Events verdrahten
     longHistory = null;
     drawPriceChart();
     updatePerfGrid();
     drawFinancialsChart(financials);
     bindPeriodPillEvents(container);
 
-    // Langzeit-Historie (5/10 Jahre) nachladen
     var loadingTicker = stock.ticker;
     window.App.Data.getLongHistory(loadingTicker).then(function (pts) {
       if (!currentStock || currentStock.ticker !== loadingTicker) return;
@@ -342,9 +344,34 @@ window.App.StockOverview = (function () {
     });
   }
 
-  /**
-   * Rendert den 52-Wochen-Spannenbalken mit relativem Zeiger auf den aktuellen Kurs.
-   */
+  function renderEtfHoldingsHtml(holdings) {
+    if (!holdings || !Array.isArray(holdings) || holdings.length === 0) return '';
+    var html = '' +
+      '<div class="card">' +
+        '<div class="card-header-dotted">' +
+          '<span class="card-title">Größte Positionen (Top Holdings)</span>' +
+          '<span class="period-tag">ETF Bestand</span>' +
+        '</div>' +
+        '<div style="display: flex; flex-direction: column; gap: 8px;">';
+
+    holdings.forEach(function (h) {
+      var w = Math.max(0, Math.min(100, h.weight || 0));
+      html += '' +
+        '<div style="display: flex; flex-direction: column; gap: 2px;">' +
+          '<div style="display: flex; justify-content: space-between; font-size: 0.78rem;">' +
+            '<span style="font-weight: 600; color: var(--text-main);">' + esc(h.name) + '</span>' +
+            '<span style="font-variant-numeric: tabular-nums; font-weight: 700;">' + window.App.Format.number(w, 2) + ' %</span>' +
+          '</div>' +
+          '<div style="height: 6px; width: 100%; background: var(--bg-surface-elevated); border-radius: 3px; overflow: hidden;">' +
+            '<div style="height: 100%; width: ' + w + '%; background: var(--accent-purple-light, #818cf8); border-radius: 3px;"></div>' +
+          '</div>' +
+        '</div>';
+    });
+
+    html += '</div></div>';
+    return html;
+  }
+
   function renderFiftyTwoWeekRange(price, low, high, currency) {
     if (!price || !low || !high || high <= low) return '';
 
@@ -363,9 +390,6 @@ window.App.StockOverview = (function () {
       '</div>';
   }
 
-  /**
-   * Rendert das Verhältnis von Insider-Käufen zu -Verkäufen.
-   */
   function renderInsiderSummaryBar(sum) {
     if (!sum) sum = { buysCount2Q: 0, sellsCount2Q: 0, buyValueTotal: 0, sellValueTotal: 0 };
     var buyVal = sum.buyValueTotal || 0;
@@ -388,9 +412,6 @@ window.App.StockOverview = (function () {
       '</div>';
   }
 
-  /**
-   * Zeichnet den Kursverlauf über window.App.Charts.
-   */
   function drawPriceChart() {
     var canvas = document.getElementById('overview-price-canvas');
     if (!canvas || !currentStock) return;
@@ -422,9 +443,6 @@ window.App.StockOverview = (function () {
     });
   }
 
-  /**
-   * Liefert die Kursreihe für eine Periode oder null, wenn Langzeitdaten fehlen.
-   */
   function getPeriodSeries(period) {
     if (period === '5Y' || period === '10Y') {
       if (!longHistory || longHistory.length < 2) return null;
@@ -436,18 +454,13 @@ window.App.StockOverview = (function () {
     return sliceHistoryByPeriod((currentStock && currentStock.chartHistory) || [], period);
   }
 
-  /**
-   * Prozentuale Veränderung je Zeitraum (1W … 10J) unter dem Chart.
-   */
   function updatePerfGrid() {
     var grid = document.getElementById('overview-perf-grid');
     if (!grid || !currentStock) return;
     
-    // 1W zur Liste der Kacheln hinzugefügt
     var periods = [['1W', '1W'], ['1M', '1M'], ['3M', '3M'], ['6M', '6M'], ['1Y', '1J'], ['5Y', '5J'], ['10Y', '10J']];
     var html = '';
     
-    // Da wir 7 Kacheln haben, ordnen wir sie am besten flexibel an (z.B. 4 oben, 3 unten)
     grid.style.display = 'flex';
     grid.style.flexWrap = 'wrap';
     grid.style.gap = '8px';
@@ -471,13 +484,8 @@ window.App.StockOverview = (function () {
     grid.innerHTML = html;
   }
 
-  /**
-   * Schneidet den Kursverlauf auf die gewählte Periode zu.
-   */
   function sliceHistoryByPeriod(history, period) {
     if (!history || history.length === 0) return [];
-    // Kalenderbasiert (wie Yahoo & Marktübersicht): Basis ist der letzte Schlusskurs
-    // am oder vor dem Stichtag (Enddatum minus Zeitraum)
     var days = { '1W': 7, '1M': 30, '3M': 91, '6M': 182, '1Y': 365 };
     var span = days[period] || 365;
     var last = history[history.length - 1];
@@ -491,9 +499,6 @@ window.App.StockOverview = (function () {
     return history.slice(start);
   }
 
-  /**
-   * Zeichnet den Quartals-Umsatztrend.
-   */
   function drawFinancialsChart(financials) {
     var canvas = document.getElementById('overview-financials-canvas');
     if (!canvas) return;
@@ -527,9 +532,6 @@ window.App.StockOverview = (function () {
     });
   }
 
-  /**
-   * Bindet die Klick-Events auf die Zeitbereich-Pillen.
-   */
   function bindPeriodPillEvents(container) {
     var pills = container.querySelectorAll('#overview-period-pills .pill-btn');
     pills.forEach(function (pill) {
@@ -553,4 +555,3 @@ window.App.StockOverview = (function () {
     render: render
   };
 })();
-
