@@ -1,12 +1,7 @@
 /**
  * js/data.js
- * Robuste Daten-Provider & Caching-Schicht:
- * Lädt primär über den absoluten Pfad /data/<TICKER>.json.
- * Fällt bei Verzögerungen des GitHub-Pages-Deployments sofort auf GitHub-Raw zurück.
- *
- * FIX: Cache-Buster wird nur einmal pro Session gesetzt. So kann der Browser
- * die JSON-Dateien innerhalb der Session cachen, was die Latenz massiv senkt
- * (vorher: Date.now() bei JEDEM getStock()-Aufruf → Cache immer invalidiert).
+ * Robuste Daten-Provider & Caching-Schicht.
+ * NEU: Watchlist-Gruppen (getGroups / setGroups / getGroupForTicker).
  */
 
 window.App = window.App || {};
@@ -17,21 +12,16 @@ window.App.Data = (function () {
   var GITHUB_USER = 'spamispam018-lab';
   var GITHUB_REPO = 'spamispam018-lab.github.io';
   var GITHUB_BRANCH = 'main';
-
-  // FIX: Session-Konstante statt Date.now() pro Request
   var SESSION_VERSION = String(Date.now());
 
   var STORAGE_KEYS = {
     UNIVERSE: 'app_data_universe',
     STOCK_PREFIX: 'app_data_stock_',
     WATCHLIST: 'app_watchlist',
-    LAST_TICKER: 'app_last_ticker'
+    LAST_TICKER: 'app_last_ticker',
+    GROUPS: 'app_watchlist_groups_v1'
   };
 
-  /**
-   * Schreibt in den localStorage. Ist er voll (ca. 5 MB), werden zuerst die
-   * Kurs-Caches entfernt, damit Favoriten und letzte Auswahl nicht verloren gehen.
-   */
   function safeSet(key, value) {
     try {
       localStorage.setItem(key, value);
@@ -50,13 +40,7 @@ window.App.Data = (function () {
     }
   }
 
-  /**
-   * Lädt eine JSON-Datei mit Fallback-Kette:
-   * 1. Direkter Webserver-Pfad /data/...
-   * 2. GitHub Raw (falls Pages noch deployt)
-   */
   function fetchJsonWithFallback(fileName) {
-    // FIX: Cache-Buster nur einmal pro Session (nicht pro Request)
     var bust = '?v=' + SESSION_VERSION;
     var primaryUrl = '/data/' + fileName + bust;
     var rawUrl = 'https://raw.githubusercontent.com/' + GITHUB_USER + '/' + GITHUB_REPO + '/' + GITHUB_BRANCH + '/data/' + fileName + bust;
@@ -67,11 +51,8 @@ window.App.Data = (function () {
         throw new Error('Primary 404');
       })
       .catch(function () {
-        // Fallback direkt auf GitHub Raw
         return fetch(rawUrl).then(function (rawRes) {
-          if (!rawRes.ok) {
-            throw new Error('HTTP ' + rawRes.status);
-          }
+          if (!rawRes.ok) throw new Error('HTTP ' + rawRes.status);
           return rawRes.json();
         });
       });
@@ -81,14 +62,12 @@ window.App.Data = (function () {
     return fetchJsonWithFallback('universe.json')
       .then(function (data) {
         if (Array.isArray(data) && data.length > 0) {
-          try {
-            safeSet(STORAGE_KEYS.UNIVERSE, JSON.stringify(data));
-          } catch (e) {}
+          try { safeSet(STORAGE_KEYS.UNIVERSE, JSON.stringify(data)); } catch (e) {}
           return data;
         }
         throw new Error('Ungültiges Format für Universum');
       })
-      .catch(function (err) {
+      .catch(function () {
         try {
           var cached = localStorage.getItem(STORAGE_KEYS.UNIVERSE);
           if (cached) {
@@ -96,34 +75,25 @@ window.App.Data = (function () {
             if (Array.isArray(parsed) && parsed.length > 0) return parsed;
           }
         } catch (e) {}
-
-        if (window.UNIVERSE_DATA && Array.isArray(window.UNIVERSE_DATA)) {
-          return window.UNIVERSE_DATA;
-        }
+        if (window.UNIVERSE_DATA && Array.isArray(window.UNIVERSE_DATA)) return window.UNIVERSE_DATA;
         return [];
       });
   }
 
   function getStock(ticker) {
-    if (!ticker) {
-      return Promise.reject(new Error('Kein Ticker angegeben'));
-    }
-
+    if (!ticker) return Promise.reject(new Error('Kein Ticker angegeben'));
     var cleanTicker = ticker.toUpperCase().trim();
     var storageKey = STORAGE_KEYS.STOCK_PREFIX + cleanTicker;
 
     return fetchJsonWithFallback(cleanTicker + '.json')
       .then(function (data) {
         if (data && (data.ticker || data.profile)) {
-          try {
-            safeSet(storageKey, JSON.stringify(data));
-          } catch (e) {}
+          try { safeSet(storageKey, JSON.stringify(data)); } catch (e) {}
           return data;
         }
         throw new Error('Ungültige Daten für ' + cleanTicker);
       })
       .catch(function (err) {
-        // Fallback 1: localStorage
         try {
           var cached = localStorage.getItem(storageKey);
           if (cached) {
@@ -131,22 +101,13 @@ window.App.Data = (function () {
             if (parsed && (parsed.ticker || parsed.profile)) return parsed;
           }
         } catch (e) {}
-
-        // Fallback 2: fallback.js
-        if (window.STOCK_DATA && window.STOCK_DATA[cleanTicker]) {
-          return window.STOCK_DATA[cleanTicker];
-        }
-
+        if (window.STOCK_DATA && window.STOCK_DATA[cleanTicker]) return window.STOCK_DATA[cleanTicker];
         throw new Error('Keine Daten für "' + cleanTicker + '" verfügbar (' + err.message + ').');
       });
   }
 
   var longCache = {};
 
-  /**
-   * Lädt die wöchentliche 10-Jahres-Historie (data/long/<TICKER>.json).
-   * Liefert [{date, close}, ...] oder [] wenn (noch) nicht vorhanden.
-   */
   function getLongHistory(ticker) {
     if (!ticker) return Promise.resolve([]);
     var clean = ticker.toUpperCase().trim();
@@ -183,30 +144,90 @@ window.App.Data = (function () {
 
     if (idx !== -1) {
       list.splice(idx, 1);
+      // aus allen Gruppen entfernen
+      try {
+        var groups = getGroups();
+        groups.forEach(function (g) {
+          g.tickers = g.tickers.filter(function (t) { return t !== cleanTicker; });
+        });
+        setGroups(groups);
+      } catch (e) {}
     } else {
       list.push(cleanTicker);
       added = true;
     }
 
-    try {
-      safeSet(STORAGE_KEYS.WATCHLIST, JSON.stringify(list));
-    } catch (e) {}
-
+    try { safeSet(STORAGE_KEYS.WATCHLIST, JSON.stringify(list)); } catch (e) {}
     return added;
   }
 
   function setLastTicker(ticker) {
     if (!ticker) return;
-    try {
-      safeSet(STORAGE_KEYS.LAST_TICKER, ticker.toUpperCase().trim());
-    } catch (e) {}
+    try { safeSet(STORAGE_KEYS.LAST_TICKER, ticker.toUpperCase().trim()); } catch (e) {}
   }
 
   function getLastTicker() {
-    try {
-      return localStorage.getItem(STORAGE_KEYS.LAST_TICKER) || 'AAPL';
-    } catch (e) {}
+    try { return localStorage.getItem(STORAGE_KEYS.LAST_TICKER) || 'AAPL'; } catch (e) {}
     return 'AAPL';
+  }
+
+  // ---- NEU: Watchlist-Gruppen ----
+  function getGroups() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEYS.GROUPS);
+      if (raw) {
+        var g = JSON.parse(raw);
+        if (Array.isArray(g)) return g;
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  function setGroups(groups) {
+    try { safeSet(STORAGE_KEYS.GROUPS, JSON.stringify(groups || [])); } catch (e) {}
+  }
+
+  function addGroup(name) {
+    if (!name) return false;
+    var groups = getGroups();
+    if (groups.some(function (g) { return g.name === name; })) return false;
+    groups.push({ name: name, tickers: [] });
+    setGroups(groups);
+    return true;
+  }
+
+  function removeGroup(name) {
+    setGroups(getGroups().filter(function (g) { return g.name !== name; }));
+  }
+
+  function getGroupForTicker(ticker) {
+    if (!ticker) return null;
+    var t = ticker.toUpperCase().trim();
+    var groups = getGroups();
+    for (var i = 0; i < groups.length; i++) {
+      if (groups[i].tickers.indexOf(t) !== -1) return groups[i].name;
+    }
+    return null;
+  }
+
+  function assignTickerToGroup(ticker, groupName) {
+    if (!ticker) return;
+    var t = ticker.toUpperCase().trim();
+    var groups = getGroups();
+    // Aus allen Gruppen entfernen
+    groups.forEach(function (g) {
+      g.tickers = g.tickers.filter(function (x) { return x !== t; });
+    });
+    if (groupName) {
+      var found = false;
+      groups.forEach(function (g) {
+        if (g.name === groupName) { g.tickers.push(t); found = true; }
+      });
+      if (!found) {
+        groups.push({ name: groupName, tickers: [t] });
+      }
+    }
+    setGroups(groups);
   }
 
   return {
@@ -217,6 +238,12 @@ window.App.Data = (function () {
     isWatchlisted: isWatchlisted,
     toggleWatchlist: toggleWatchlist,
     getLastTicker: getLastTicker,
-    setLastTicker: setLastTicker
+    setLastTicker: setLastTicker,
+    getGroups: getGroups,
+    setGroups: setGroups,
+    addGroup: addGroup,
+    removeGroup: removeGroup,
+    getGroupForTicker: getGroupForTicker,
+    assignTickerToGroup: assignTickerToGroup
   };
 })();
