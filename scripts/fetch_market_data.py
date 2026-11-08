@@ -161,15 +161,21 @@ def process_fund_data(ticker_obj):
                 raw_list = []
                 for idx, row in th.iterrows():
                     name = row.get("Holding Name") or row.get("Name") or str(idx)
-                    pct = row.get("Percentage") or row.get("Weight") or 0.0
+                    
+                    # KORREKTUR: "Holding Percent" hinzugefügt und String-Verarbeitung verbessert
+                    pct = row.get("Holding Percent") or row.get("Percentage") or row.get("Weight") or 0.0
                     
                     weight = 0.0
                     try:
-                        weight = float(pct)
-                        if 0 < weight <= 1.0:
-                            weight *= 100.0
+                        if isinstance(pct, str):
+                            pct = pct.replace("%", "").replace(",", ".").strip()
+                        if pct and not math.isnan(float(pct)):
+                            weight = float(pct)
+                            if 0 < weight <= 1.0:
+                                weight *= 100.0
                     except Exception:
                         weight = 0.0
+                        
                     raw_list.append({"name": str(name), "weight": weight})
 
                 # Wenn yfinance bei manchen ETFs keine Prozentwerte liefert (alle 0), vergeben wir eine absteigende realistische Verteilung
@@ -334,7 +340,8 @@ def fetch_full_stock(ticker_sym):
     chg_abs = round(curr_p - prev_p, 4) if curr_p and prev_p else 0.0
     chg_pct = round(((raw_curr - raw_prev) / raw_prev) * 100, 2) if raw_prev else 0.0
 
-    raw_mcap = clean_val(info.get("marketCap"), 0)
+    # KORREKTUR: totalAssets als Fallback für ETFs hinzugefügt
+    raw_mcap = clean_val(info.get("marketCap") or info.get("totalAssets"), 0)
     market_cap_eur = clean_val(to_eur(raw_mcap, cur), 0)
 
     quote = {
@@ -504,7 +511,9 @@ def run_delta_sync(tickers):
             except Exception:
                 pass
 
-        if not stock_data.get("holdings"):
+        # KORREKTUR: Prüfen, ob Holdings existieren UND ob diese valide Gewichte (>0) haben
+        holdings = stock_data.get("holdings", [])
+        if not holdings or all(h.get("weight", 0) == 0 for h in holdings):
             try:
                 _t = yf.Ticker(sym)
                 stock_data["holdings"] = process_fund_data(_t)
