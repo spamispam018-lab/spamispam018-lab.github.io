@@ -3,7 +3,7 @@
 scripts/fetch_market_data.py
 Delta-fähiges Marktdaten-Update für USA, Europa und Japan.
 Garantiert echte Umrechnung aller ausländischen Währungen (JPY, USD, GBP, CHF) in Euro (EUR).
-Erweitert um ETF-Holdings (Top-Positionen).
+Inklusive robuster Extraktion von ETF-Top-Holdings.
 """
 
 import os
@@ -151,7 +151,7 @@ def df_to_dict_records(df, cur):
     return records
 
 def process_fund_data(ticker_obj):
-    """Extrahiert die Top-Holdings (Größte Aktienanteile) für ETFs, falls vorhanden."""
+    """Extrahiert robust die Top-Holdings und wandelt Gewichtungen in Prozent (0-100) um."""
     holdings = []
     try:
         fd = getattr(ticker_obj, "funds_data", None)
@@ -161,15 +161,20 @@ def process_fund_data(ticker_obj):
                 for idx, row in th.iterrows():
                     name = row.get("Holding Name") or row.get("Name") or str(idx)
                     pct = row.get("Percentage") or row.get("Weight") or 0.0
-                    if isinstance(pct, (int, float)):
+                    
+                    weight = 0.0
+                    try:
                         weight = float(pct)
-                        if weight <= 1.0:
+                        # Wenn yfinance Dezimalzahlen zurückgibt (z.B. 0.08 = 8%), in Prozent umrechnen
+                        if 0 < weight <= 1.0:
                             weight *= 100.0
-                    else:
+                    except Exception:
                         weight = 0.0
-                    holdings.append({"name": str(name), "weight": round(weight, 2)})
-    except Exception:
-        pass
+
+                    if weight > 0:
+                        holdings.append({"name": str(name), "weight": round(weight, 2)})
+    except Exception as e:
+        print(f"Fehler beim Extrahieren der Fondsdaten: {e}")
     return holdings
 
 def process_insider_data(ticker_obj, cur):
@@ -489,7 +494,6 @@ def run_delta_sync(tickers):
             except Exception:
                 pass
 
-        # Holdings bei Delta-Sync aktualisieren, falls leer
         if not stock_data.get("holdings"):
             try:
                 _t = yf.Ticker(sym)
@@ -587,14 +591,14 @@ def main():
         if not args.ticker:
             universe_map = {}
 
-        for sym in target_tickers:
+        for sys_val in target_tickers:
             try:
-                st = fetch_full_stock(sym)
-                with open(os.path.join(DATA_DIR, f"{sym}.json"), "w", encoding="utf-8") as f:
+                st = fetch_full_stock(sys_val)
+                with open(os.path.join(DATA_DIR, f"{sys_val}.json"), "w", encoding="utf-8") as f:
                     json.dump(st, f, ensure_ascii=False, indent=2)
                 
                 new_item = {
-                    "ticker": sym,
+                    "ticker": sys_val,
                     "name": st["profile"]["name"],
                     "sector": st["profile"]["sector"],
                     "country": st["profile"]["country"],
@@ -608,13 +612,13 @@ def main():
                     "profitMargins": st["ratios"].get("profitMargins"),
                     **screener_extras(st)
                 }
-                universe_map[sym] = new_item
+                universe_map[sys_val] = new_item
                 time.sleep(0.3)
             except Exception as e:
-                print(f"Fehler bei {sym}: {e}")
+                print(f"Fehler bei {sys_val}: {e}")
                 
         with open(universe_file, "w", encoding="utf-8") as f:
             json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
 
-if __name__ == "__main__":
+if __name__ == "main":
     main()
