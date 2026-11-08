@@ -596,37 +596,139 @@ window.App.ChartAnalyse = (function () {
     return card('Trend, Volumen & Signale', '', '<div class="chart-signal-list">' + r + '</div>' + NOTE);
   }
 
-  // --- NEU: Optimierte Risk/Reward Berechnung mit Long/Short Toggle ---
-  function rrCalc(A, stock) {
-    var px = A.px, sup = A.lv.sup, res = A.lv.res, notes = [], stop, tgt;
+  // --- Risk/Reward Berechnung (parametrisiert, damit auch alle Kombinationen durchgerechnet werden können) ---
+  // stopType: 'struct' (Unterstützung/Widerstand) | 'atr';  tgtType: 'struct' | 'analyst' | 'rr2'  (= tatsächlich verwendet, ggf. nach Fallback)
+  function rrCompute(A, stock, dir, stopMode, tgtMode) {
+    var px = A.px, sup = A.lv.sup, res = A.lv.res, notes = [], stop, tgt, stopType = 'atr', tgtType = 'rr2';
     var mean = stock.analysts && stock.analysts.targets && stock.analysts.targets.mean;
-    var isLong = ui.tradeDir !== 'short';
+    var isLong = dir !== 'short';
 
     if (isLong) {
       var stopSup = sup ? sup.p * 0.985 : null, stopAtr = px - 2 * A.atr;
-      if (ui.stop === 'support' && stopSup && px - stopSup >= 0.8 * A.atr) stop = stopSup;
-      else { stop = stopAtr; if (ui.stop === 'support') notes.push(sup ? 'Unterstützung liegt zu nah, Stop daher 2× ATR.' : 'Keine Unterstützung erkennbar, Stop daher 2× ATR.'); }
-      
-      if (ui.target === 'resistance' && res) tgt = res.p;
-      else if (ui.target === 'analyst' && mean && mean > px) tgt = mean;
-      else { tgt = px + 2 * (px - stop); if (ui.target !== 'rr2') notes.push(ui.target === 'resistance' ? 'Kein Widerstand erkennbar, Ziel daher CRV 2:1.' : 'Kein Analystenziel über dem Kurs, Ziel daher CRV 2:1.'); }
+      if (stopMode === 'support' && stopSup && px - stopSup >= 0.8 * A.atr) { stop = stopSup; stopType = 'struct'; }
+      else { stop = stopAtr; if (stopMode === 'support') notes.push(sup ? 'Unterstützung liegt zu nah, Stop daher 2× ATR.' : 'Keine Unterstützung erkennbar, Stop daher 2× ATR.'); }
+
+      if (tgtMode === 'resistance' && res) { tgt = res.p; tgtType = 'struct'; }
+      else if (tgtMode === 'analyst' && mean && mean > px) { tgt = mean; tgtType = 'analyst'; }
+      else { tgt = px + 2 * (px - stop); if (tgtMode !== 'rr2') notes.push(tgtMode === 'resistance' ? 'Kein Widerstand erkennbar, Ziel daher CRV 2:1.' : 'Kein Analystenziel über dem Kurs, Ziel daher CRV 2:1.'); }
     } else {
       // Short-Logik
       var stopRes = res ? res.p * 1.015 : null, stopAtrShort = px + 2 * A.atr;
-      if (ui.stop === 'support' && stopRes && stopRes - px >= 0.8 * A.atr) stop = stopRes; // ui.stop='support' bedeutet hier das Struktur-Level (Widerstand)
-      else { stop = stopAtrShort; if (ui.stop === 'support') notes.push(res ? 'Widerstand liegt zu nah, Stop daher 2× ATR.' : 'Kein Widerstand erkennbar, Stop daher 2× ATR.'); }
-      
-      if (ui.target === 'resistance' && sup) tgt = sup.p;
-      else if (ui.target === 'analyst' && mean && mean < px) tgt = mean;
-      else { tgt = px - 2 * (stop - px); if (ui.target !== 'rr2') notes.push(ui.target === 'resistance' ? 'Keine Unterstützung erkennbar, Ziel daher CRV 2:1.' : 'Kein Analystenziel unter dem Kurs, Ziel daher CRV 2:1.'); }
+      if (stopMode === 'support' && stopRes && stopRes - px >= 0.8 * A.atr) { stop = stopRes; stopType = 'struct'; } // 'support' bedeutet hier das Struktur-Level (Widerstand)
+      else { stop = stopAtrShort; if (stopMode === 'support') notes.push(res ? 'Widerstand liegt zu nah, Stop daher 2× ATR.' : 'Kein Widerstand erkennbar, Stop daher 2× ATR.'); }
+
+      if (tgtMode === 'resistance' && sup) { tgt = sup.p; tgtType = 'struct'; }
+      else if (tgtMode === 'analyst' && mean && mean < px) { tgt = mean; tgtType = 'analyst'; }
+      else { tgt = px - 2 * (stop - px); if (tgtMode !== 'rr2') notes.push(tgtMode === 'resistance' ? 'Keine Unterstützung erkennbar, Ziel daher CRV 2:1.' : 'Kein Analystenziel unter dem Kurs, Ziel daher CRV 2:1.'); }
     }
 
     var risk = isLong ? px - stop : stop - px;
     var reward = isLong ? tgt - px : px - tgt;
     var crv = risk > 0 ? reward / risk : 0;
     var shares = risk > 0 ? Math.floor((ui.capital * ui.risk / 100) / risk) : 0;
-    
-    return { isLong: isLong, stop: stop, tgt: tgt, risk: risk, reward: reward, crv: crv, shares: shares, notes: notes };
+
+    return { isLong: isLong, stop: stop, tgt: tgt, risk: risk, reward: reward, crv: crv, shares: shares, notes: notes, stopType: stopType, tgtType: tgtType };
+  }
+
+  function rrCalc(A, stock) { return rrCompute(A, stock, ui.tradeDir, ui.stop, ui.target); }
+
+  // Wie gut passt die Handelsrichtung zum Chart? (-50 … +50, aus dem Chart-Score)
+  function trendFit(A, isLong) { return isLong ? A.score - 50 : 50 - A.score; }
+
+  // Bewertung einer Kombination: CRV (gedeckelt bei 3) + Trendpassung + kleine Boni für Chart-basierte Level
+  // + Abzug, wenn Ziel (> 6 ATR) oder Stop (> 4 ATR) unrealistisch weit weg liegen.
+  function comboScore(A, R) {
+    var s = Math.min(R.crv, 3) + trendFit(A, R.isLong) / 25;
+    if (R.stopType === 'struct') s += 0.25;
+    if (R.tgtType === 'struct') s += 0.25; else if (R.tgtType === 'analyst') s += 0.15;
+    if (A.atr > 0) {
+      s -= Math.min(2, Math.max(0, R.reward / A.atr - 6) * 0.25);
+      s -= Math.min(1, Math.max(0, R.risk / A.atr - 4) * 0.2);
+    }
+    return s;
+  }
+
+  // Alle sauberen Kombinationen (ohne Fallback) einer Richtung durchrechnen, beste zuerst
+  function rankCombos(A, stock, dir) {
+    var out = [];
+    ['support', 'atr'].forEach(function (st) {
+      ['resistance', 'analyst', 'rr2'].forEach(function (tg) {
+        var R = rrCompute(A, stock, dir, st, tg);
+        if (R.notes.length || !(R.risk > 0)) return; // Fallback = Duplikat einer anderen Kombination
+        out.push({ dir: dir, stop: st, target: tg, R: R, score: comboScore(A, R) });
+      });
+    });
+    return out.sort(function (a, b) { return b.score - a.score; });
+  }
+
+  function stopLabel(isLong, t) { return t === 'atr' ? '2× ATR' : (isLong ? 'Unterstützung' : 'Widerstand'); }
+  function targetLabel(isLong, t) { return t === 'analyst' ? 'Analystenziel' : t === 'rr2' ? 'CRV 2:1' : (isLong ? 'Widerstand' : 'Unterstützung'); }
+
+  // --- Kleine Erklärung zur gewählten Kombination ---
+  function explainBox(A, R, cur) {
+    var fit = trendFit(A, R.isLong), li = [];
+    var fitTxt = fit >= 10 ? 'passt zum Chart-Trend' : fit <= -10 ? 'läuft gegen den Chart-Trend – das erhöht das Risiko' : 'Chart ist ohne klare Richtung';
+    li.push('<b>' + (R.isLong ? 'Long' : 'Short') + ':</b> ' + (R.isLong ? 'Du setzt auf steigende Kurse.' : 'Du setzt auf fallende Kurse.') + ' Das ' + fitTxt + ' (Chart-Score ' + A.score + '/100).');
+
+    var stopPct = num(Math.abs(R.stop / A.px - 1) * 100, 1), stopAtr = num(R.risk / A.atr, 1);
+    li.push('<b>Stop ' + eur(R.stop, cur) + ':</b> ' + (R.stopType === 'struct'
+      ? (R.isLong ? 'knapp unter der Unterstützung' : 'knapp über dem Widerstand') + (R.isLong ? ' – bricht der Kurs dort nach unten durch, ist die Idee widerlegt.' : ' – bricht der Kurs dort nach oben aus, ist die Idee widerlegt.')
+      : 'zwei typische Tagesschwankungen (ATR) vom Einstieg entfernt.') + ' Abstand ' + stopPct + ' % (' + stopAtr + '× ATR)' + (R.risk / A.atr > 4 ? ' – das ist weit, die Position wird entsprechend klein.' : '.'));
+
+    var tgtPct = num(Math.abs(R.tgt / A.px - 1) * 100, 1);
+    li.push('<b>Ziel ' + eur(R.tgt, cur) + ':</b> ' + (R.tgtType === 'struct'
+      ? (R.isLong ? 'am nächsten Widerstand, dort drehen Kurse oft ab.' : 'an der nächsten Unterstützung, dort fangen Kurse sich oft.')
+      : R.tgtType === 'analyst' ? 'durchschnittliches Analystenziel.'
+      : 'rechnerisch das Doppelte des Risikos, ohne Chart-Level dahinter.') + ' Entfernung ' + tgtPct + ' %.');
+
+    var be = num(100 / (1 + R.crv), 0);
+    li.push('<b>CRV ' + num(R.crv, 2) + ':</b> ' + (R.crv < 1
+      ? 'Du riskierst mehr, als du gewinnen kannst – du müsstest in über ' + be + ' % der Trades richtig liegen, um nicht draufzuzahlen.'
+      : R.crv >= 2 ? 'Gutes Verhältnis – schon ab ca. ' + be + ' % Trefferquote bist du im Plus.'
+      : 'Akzeptabel – Break-even bei ca. ' + be + ' % Trefferquote.'));
+
+    return '<div style="margin-top:12px;padding:12px 14px;border-radius:var(--radius-sm);background-color:var(--bg-secondary);border:1px solid var(--border-subtle);font-size:.78rem;line-height:1.45;color:var(--text-main);">' +
+      '<div style="font-weight:700;margin-bottom:6px;color:var(--accent-purple-light);">Deine Auswahl erklärt</div>' +
+      li.map(function (t) { return '<div style="margin-bottom:5px;">' + t + '</div>'; }).join('') + '</div>';
+  }
+
+  // --- Empfehlung: beste Kombination für diese Aktie ---
+  function recommendBox(A, stock, R, cur) {
+    var bl = rankCombos(A, stock, 'long')[0], bs = rankCombos(A, stock, 'short')[0];
+    var best = !bs || (bl && bl.score >= bs.score) ? bl : bs;
+    if (!best) return '';
+    var sameDir = best.dir === (R.isLong ? 'long' : 'short');
+    var isLong = best.dir === 'long', B = best.R;
+
+    function desc(c) {
+      var il = c.dir === 'long';
+      return '<b>' + (il ? 'Long' : 'Short') + ' · Stop: ' + stopLabel(il, c.stop) + ' · Ziel: ' + targetLabel(il, c.target) + '</b><br>' +
+        'Einstieg ' + eur(A.px, cur) + ' · Stop ' + eur(c.R.stop, cur) + ' · Ziel ' + eur(c.R.tgt, cur) + ' · CRV ' + num(c.R.crv, 2);
+    }
+    function isCurrent(c) { return c.dir === (R.isLong ? 'long' : 'short') && c.stop === ui.stop && c.target === ui.target; }
+
+    var why;
+    if (B.crv < 1) why = 'Kein Setup überzeugt: selbst die beste Kombination hat nur CRV ' + num(B.crv, 2) + '. Abwarten oder einen besseren Einstiegskurs ist hier oft sinnvoller.';
+    else {
+      var fit = trendFit(A, isLong);
+      why = 'Beste Mischung aus CRV ' + num(B.crv, 2) + (fit >= 10 ? ' und passender Trendlage.' : fit <= -10 ? ' (Achtung: gegen den Chart-Trend).' : ' bei neutralem Chart.') +
+        (B.stopType === 'struct' && B.tgtType === 'struct' ? ' Stop und Ziel liegen an echten Chart-Leveln.' : '');
+    }
+
+    var html = '<div style="margin-top:6px;">' + desc(best) + '</div><div style="margin-top:5px;color:var(--text-dim);">' + why + '</div>';
+
+    if (isCurrent(best)) html += '<div style="margin-top:6px;color:var(--bullish);">✓ Entspricht bereits deiner Auswahl.</div>';
+    else html += '<button class="pill-btn" id="ca-apply-rec" data-dir="' + best.dir + '" data-stop="' + best.stop + '" data-target="' + best.target + '" style="margin-top:8px;">Empfehlung übernehmen</button>';
+
+    // Bleibt der Nutzer bei seiner Richtung, aber die andere passt klar besser: beste Kombination der gewählten Richtung zusätzlich zeigen
+    if (!sameDir) {
+      var mine = rankCombos(A, stock, R.isLong ? 'long' : 'short')[0];
+      if (mine && !isCurrent(mine)) html += '<div style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--border-subtle);">Falls du bei ' + (R.isLong ? 'Long' : 'Short') + ' bleiben willst:<br>' + desc(mine) +
+        '<br><button class="pill-btn" id="ca-apply-rec2" data-dir="' + mine.dir + '" data-stop="' + mine.stop + '" data-target="' + mine.target + '" style="margin-top:8px;">Diese übernehmen</button></div>';
+    }
+
+    return '<div style="margin-top:10px;padding:12px 14px;border-radius:var(--radius-sm);background-color:var(--bg-secondary);border:1px solid var(--border-subtle);font-size:.78rem;line-height:1.45;color:var(--text-main);">' +
+      '<div style="font-weight:700;color:var(--accent-purple-light);">Empfehlung für diese Aktie</div>' + html + '</div>';
   }
 
   // --- NEU: Optimierte Risk/Reward Karte mit Visual Bar ---
@@ -664,7 +766,7 @@ window.App.ChartAnalyse = (function () {
       
     var notesHtml = R.notes.length ? '<div style="font-size:.72rem;color:var(--text-dim);margin-top:8px;">' + R.notes.join(' ') + '</div>' : '';
 
-    return card('Risk/Reward Rechner', '<span class="period-tag">CRV ' + num(R.crv, 1) + '</span>', body + visualBar + resultList + calcHtml + notesHtml + NOTE);
+    return card('Risk/Reward Rechner', '<span class="period-tag">CRV ' + num(R.crv, 1) + '</span>', body + visualBar + resultList + calcHtml + notesHtml + explainBox(A, R, cur) + recommendBox(A, stock, R, cur) + NOTE);
   }
 
   function niceTicks(mn, mx) {
@@ -826,6 +928,18 @@ window.App.ChartAnalyse = (function () {
       if (el) el.onchange = function () { var v = parseFloat(String(el.value).replace(',', '.')); if (isFinite(v) && v >= min) { ui[key] = v; saveUi(); mount(slot, stock, period); } };
     }
     num2('#ca-cap', 'capital', 1); num2('#ca-risk', 'risk', 0.1);
+
+    ['#ca-apply-rec', '#ca-apply-rec2'].forEach(function (id) {
+      var btn = slot.querySelector(id);
+      if (btn) btn.onclick = function () {
+        ui.tradeDir = btn.getAttribute('data-dir');
+        ui.stop = btn.getAttribute('data-stop');
+        ui.target = btn.getAttribute('data-target');
+        lastClickedToolTerm = null;
+        saveUi();
+        mount(slot, stock, period);
+      };
+    });
   }
 
   function promptText(stock) {
