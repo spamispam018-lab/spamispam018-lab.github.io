@@ -109,8 +109,16 @@ body {
   line-height: 1.5;
   min-height: 100vh;
   padding-bottom: calc(var(--bottom-nav-height) + 24px);
-  user-select: none;
+  /* FIX: user-select: none entfernt – Nutzer sollen Kennzahlen kopieren können.
+     Selektives Blockieren erfolgt nur noch auf interaktiven Elementen. */
   -webkit-font-smoothing: antialiased;
+}
+
+/* FIX: Selektives Blockieren von Textauswahl auf interaktiven Elementen */
+button, .nav-item, .stock-card, .chip-btn, .main-tab-btn, .sub-tab-btn,
+.pill-btn, .icon-btn, .star-btn, .etf-card, .peer-row, .mk-row {
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 input, button, select, textarea {
