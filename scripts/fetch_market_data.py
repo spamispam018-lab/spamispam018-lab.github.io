@@ -3,7 +3,7 @@
 scripts/fetch_market_data.py
 Delta-fähiges Marktdaten-Update für USA, Europa und Japan.
 Garantiert echte Umrechnung aller ausländischen Währungen (JPY, USD, GBP, CHF) in Euro (EUR).
-Erweitert um zusätzliche Markt-ETFs und dedizierte Energie- und Öl-ETFs.
+Erweitert um zusätzliche Markt-, Sektor-, Energie- und Kommunikations-ETFs.
 """
 
 import os
@@ -43,31 +43,30 @@ TICKERS_JAPAN = [
     "9432.T", "6954.T", "7741.T", "6367.T", "4568.T", "6981.T", "8766.T", "7751.T", "6503.T"
 ]
 
-# Erweiterte Liste allgemeiner Markt- und Welt-ETFs
 TICKERS_ETFS = [
     "EUNL.DE",  # iShares Core MSCI World USD (Acc)
     "AMEM.DE",  # Amundi MSCI Emerging Markets (Acc)
     "SPYI.DE",  # SPDR MSCI ACWI IMI (Acc)
-    "SXR8.DE",  # iShares Core S&P 500 UCITS ETF (USD) Acc
-    "EXS1.DE",  # iShares DAX UCITS ETF DE
-    "EXV6.DE",  # iShares STOXX Europe 600 UCITS ETF (DE)
-    "CSX5.DE"   # iShares Core EURO STOXX 50 UCITS ETF EUR (Acc)
+    "SXR8.DE",  # iShares Core S&P 500 UCITS ETF
+    "EXS1.DE",  # iShares DAX UCITS ETF
+    "EXV6.DE",  # iShares STOXX Europe 600 UCITS ETF
+    "CSX5.DE"   # iShares Core EURO STOXX 50 UCITS ETF
 ]
 
-# Erweiterte Liste von Sektor- und Themen-ETFs (inkl. mehrerer Energie- und Öl-ETFs)
 TICKERS_SECTORS = [
     "QDVE.DE",  # iShares S&P 500 Information Technology (Tech US)
     "XDWT.DE",  # Xtrackers MSCI World Information Technology (Tech Global)
-    "QDVF.DE",  # iShares S&P 500 Energy Sector UCITS ETF (Öl & Energie USA) [Neu]
+    "QDVF.DE",  # iShares S&P 500 Energy Sector (Öl & Energie USA)
     "WNRG.DE",  # iShares MSCI World Energy Sector (Öl & Energie Global)
-    "XDW0.DE",  # Xtrackers MSCI World Energy UCITS ETF 1C (Öl & Energie Global) [Neu]
+    "XDW0.DE",  # Xtrackers MSCI World Energy UCITS ETF (Öl & Energie Global)
+    "IU5C.DE",  # iShares S&P 500 Communication Sector (Kommunikation / Medien US) [Neu]
+    "XWTS.DE",  # Xtrackers MSCI World Communication Services (Kommunikation Global) [Neu]
     "WHEA.DE",  # iShares MSCI World Health Care (Gesundheitswesen)
     "WSCA.DE",  # iShares MSCI World Consumer Staples (Basiskonsumgüter)
     "WFIS.DE",  # iShares MSCI World Financials (Finanzen)
     "IUSP.DE"   # iShares Developed Markets Property Yield (Immobilien)
 ]
 
-# Umfassende Fallback-Bibliothek für Top-Holdings aller konfigurierten ETFs
 KNOWN_ETF_HOLDINGS = {
     "EUNL.DE": [
         {"name": "NVIDIA Corp", "weight": 5.2},
@@ -152,6 +151,20 @@ KNOWN_ETF_HOLDINGS = {
         {"name": "Shell PLC", "weight": 7.8},
         {"name": "TotalEnergies SE", "weight": 5.1},
         {"name": "BP PLC", "weight": 4.2}
+    ],
+    "IU5C.DE": [
+        {"name": "Meta Platforms Inc", "weight": 19.8},
+        {"name": "Alphabet Inc Class A", "weight": 18.0},
+        {"name": "Alphabet Inc Class C", "weight": 14.4},
+        {"name": "Netflix Inc", "weight": 10.4},
+        {"name": "Verizon Communications Inc", "weight": 6.9}
+    ],
+    "XWTS.DE": [
+        {"name": "Alphabet Inc Class A", "weight": 18.0},
+        {"name": "Meta Platforms Inc", "weight": 17.5},
+        {"name": "Netflix Inc", "weight": 14.2},
+        {"name": "Verizon Communications Inc", "weight": 6.2},
+        {"name": "Walt Disney Co", "weight": 4.2}
     ]
 }
 
@@ -239,7 +252,6 @@ def process_fund_data(ticker_obj, symbol=""):
                     if weight > 0: holdings.append({"name": str(name), "weight": round(weight, 2)})
     except Exception: pass
 
-    # Zuverlässiger Fallback für alle bekannten ETFs
     if not holdings and symbol in KNOWN_ETF_HOLDINGS:
         return KNOWN_ETF_HOLDINGS[symbol]
     
