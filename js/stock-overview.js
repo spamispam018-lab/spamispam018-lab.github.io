@@ -1,14 +1,9 @@
 /**
  * js/stock-overview.js
- * Verwaltet den Tab "Overview" der Aktiendetailansicht:
- * - Bewertungs- und Marktkennzahlen (mit sauberer Behandlung von fehlendem/negativem KGV)
- * - 52-Wochen-Spannenbalken
- * - ETF Top-Holdings (Größte Positionen anteilig mit Balken)
- * - Inline-Chart mit Umschalt-Pillen (1W, 1M, 3M, 6M, 1J)
- * - Kompakte Insider-Aktivitätskarte mit Stimmungsbalken
- * - Quartalsweiser Finanztrend (Umsatz & Nettoergebnis)
- * - KI-Analyse Banner (öffnet Gemini mit generiertem Prompt inkl. technischem Bild)
- * - Aktualisieren-Button zum Triggern der GitHub Action (nur für diesen Ticker) inkl. Timestamp
+ * Verwaltet den Tab "Overview" der Aktiendetailansicht.
+ *
+ * FIX: `--bg-surface-elevated` existierte nicht im Theme → durch `--bg-tertiary`
+ * ersetzt. Vorher waren ETF-Holdings-Balken und 52W-Spannenbalken unsichtbar.
  */
 
 window.App = window.App || {};
@@ -27,8 +22,6 @@ window.App.StockOverview = (function () {
 
   /**
    * Haupt-Renderfunktion für die Overview-Ansicht.
-   * @param {HTMLElement} container - Ziel-DOM-Element
-   * @param {Object} stock - Vollständiges Datenobjekt der Aktie
    */
   function render(container, stock) {
     if (!container || !stock) return;
@@ -182,7 +175,7 @@ window.App.StockOverview = (function () {
     // Gemini Event Listener binden
     var geminiBtn = container.querySelector('#btn-ask-gemini');
     if (geminiBtn) {
-      geminiBtn.onclick = function() {
+      geminiBtn.onclick = function () {
         var sName = currentStock.profile.name || currentStock.ticker;
         var sTicker = currentStock.ticker;
         var sPrice = window.App.Format.currency(currentStock.quote.price, currentStock.quote.currency);
@@ -193,76 +186,76 @@ window.App.StockOverview = (function () {
                          "Der Kurs liegt bei " + sPrice + " mit einer heutigen Änderung von " + sChange + ". Das KGV beträgt " + sPe + ". ";
 
         if (currentStock.chartHistory && currentStock.chartHistory.length > 60 && window.App.StockChart) {
-            var hist = currentStock.chartHistory.filter(function (p) { return p && p.close > 0; });
-            var closes = hist.map(function (p) { return p.close; });
-            var n = closes.length;
-            var cPrice = closes[n - 1];
+          var hist = currentStock.chartHistory.filter(function (p) { return p && p.close > 0; });
+          var closes = hist.map(function (p) { return p.close; });
+          var n = closes.length;
+          var cPrice = closes[n - 1];
 
-            var s50 = window.App.StockChart._sma(closes, 50);
-            var s200 = window.App.StockChart._sma(closes, 200);
-            var rsiArr = window.App.StockChart._rsi(closes, 14);
-            var m = window.App.StockChart._macd(closes);
+          var s50 = window.App.StockChart._sma(closes, 50);
+          var s200 = window.App.StockChart._sma(closes, 200);
+          var rsiArr = window.App.StockChart._rsi(closes, 14);
+          var m = window.App.StockChart._macd(closes);
 
-            function lastValid(arr) {
-                for (var i = arr.length - 1; i >= 0; i--) {
-                    if (arr[i] !== null && arr[i] !== undefined && isFinite(arr[i])) return arr[i];
-                }
-                return null;
+          function lastValid(arr) {
+            for (var i = arr.length - 1; i >= 0; i--) {
+              if (arr[i] !== null && arr[i] !== undefined && isFinite(arr[i])) return arr[i];
             }
+            return null;
+          }
 
-            var s50Last = lastValid(s50);
-            var s200Last = lastValid(s200);
-            var rsiLast = lastValid(rsiArr);
-            var macdLast = lastValid(m.line);
-            var sigLast = lastValid(m.signal);
-            var mom3m = n > 63 ? (cPrice / closes[n - 1 - 63] - 1) * 100 : null;
+          var s50Last = lastValid(s50);
+          var s200Last = lastValid(s200);
+          var rsiLast = lastValid(rsiArr);
+          var macdLast = lastValid(m.line);
+          var sigLast = lastValid(m.signal);
+          var mom3m = n > 63 ? (cPrice / closes[n - 1 - 63] - 1) * 100 : null;
 
-            var techText = "Hier ist das aktuelle technische Bild: ";
-            if (s200Last !== null) techText += "Der Abstand zur 200-Tage-Linie beträgt " + window.App.Format.number((cPrice / s200Last - 1) * 100, 1) + " %. ";
-            if (s50Last !== null) techText += "Der Abstand zur 50-Tage-Linie beträgt " + window.App.Format.number((cPrice / s50Last - 1) * 100, 1) + " %. ";
-            if (rsiLast !== null) techText += "Der RSI (14) liegt bei " + window.App.Format.number(rsiLast, 0) + ". ";
-            if (macdLast !== null && sigLast !== null) {
-                techText += "Der MACD liegt " + (macdLast > sigLast ? "über" : "unter") + " der Signallinie. ";
-            }
-            if (mom3m !== null) techText += "Das Momentum auf 3 Monate liegt bei " + window.App.Format.number(mom3m, 1) + " %. ";
+          var techText = "Hier ist das aktuelle technische Bild: ";
+          if (s200Last !== null) techText += "Der Abstand zur 200-Tage-Linie beträgt " + window.App.Format.number((cPrice / s200Last - 1) * 100, 1) + " %. ";
+          if (s50Last !== null) techText += "Der Abstand zur 50-Tage-Linie beträgt " + window.App.Format.number((cPrice / s50Last - 1) * 100, 1) + " %. ";
+          if (rsiLast !== null) techText += "Der RSI (14) liegt bei " + window.App.Format.number(rsiLast, 0) + ". ";
+          if (macdLast !== null && sigLast !== null) {
+            techText += "Der MACD liegt " + (macdLast > sigLast ? "über" : "unter") + " der Signallinie. ";
+          }
+          if (mom3m !== null) techText += "Das Momentum auf 3 Monate liegt bei " + window.App.Format.number(mom3m, 1) + " %. ";
 
-            var bc = window.App.StockChart._bottom(closes);
-            if (bc && bc.state) techText += "Boden-Check: " + ({ base: 'Bodenbildung möglich', knife: 'fallendes Messer', wait: 'unklar' })[bc.state] + " (" + bc.score + " von 6 Stabilisierungs-Signalen, " + window.App.Format.number(Math.abs(bc.dd) * 100, 0) + " % unter dem 52W-Hoch). ";
-            if (window.App.ChartAnalyse) techText += window.App.ChartAnalyse.promptText(currentStock);
-            promptText += techText;
+          var bc = window.App.StockChart._bottom(closes);
+          if (bc && bc.state) techText += "Boden-Check: " + ({ base: 'Bodenbildung möglich', knife: 'fallendes Messer', wait: 'unklar' })[bc.state] + " (" + bc.score + " von 6 Stabilisierungs-Signalen, " + window.App.Format.number(Math.abs(bc.dd) * 100, 0) + " % unter dem 52W-Hoch). ";
+          if (window.App.ChartAnalyse) techText += window.App.ChartAnalyse.promptText(currentStock);
+          promptText += techText;
         }
 
         var nws = window.App.News && window.App.News.promptBlock(sTicker, 5);
         if (nws) promptText += "\n\nAktuelle Nachrichten (englisch, mit automatischer FinBERT-Stimmungseinschätzung):\n" + nws + "\nBitte beziehe diese Nachrichten in deine Erklärung und Bewertung ein. ";
         promptText += "Bitte gib mir eine Bewertung der Aktie anhand dieser fundamentalen und technischen Daten und der aktuellen Marktlage.";
-        
+
         var urlText = promptText.length > 1800 ? "Hallo Gemini! Mein Prompt mit Kursdaten und aktuellen Nachrichten liegt in der Zwischenablage – bitte einfügen und absenden." : promptText;
         var geminiUrl = "https://gemini.google.com/app?q=" + encodeURIComponent(urlText);
-        
+
         if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(promptText).then(function() {
-                window.open(geminiUrl, '_blank');
-            }).catch(function() {
-                window.open(geminiUrl, '_blank');
-            });
-        } else {
+          navigator.clipboard.writeText(promptText).then(function () {
             window.open(geminiUrl, '_blank');
+          }).catch(function () {
+            window.open(geminiUrl, '_blank');
+          });
+        } else {
+          window.open(geminiUrl, '_blank');
         }
       };
     }
 
     var refreshBtn = container.querySelector('#btn-refresh-stock');
     if (refreshBtn) {
-      refreshBtn.onclick = function() {
+      refreshBtn.onclick = function () {
         var token = localStorage.getItem('GITHUB_PAT');
-        
+
         if (!token) {
-            token = prompt("Um Live-Daten abzurufen, gib bitte dein GitHub Personal Access Token (mit 'repo' Berechtigung) ein.\n\nEs wird sicher nur lokal in deinem Browser (localStorage) gespeichert.");
-            if (token) {
-                localStorage.setItem('GITHUB_PAT', token);
-            } else {
-                return;
-            }
+          token = prompt("Um Live-Daten abzurufen, gib bitte dein GitHub Personal Access Token (mit 'repo' Berechtigung) ein.\n\nEs wird sicher nur lokal in deinem Browser (localStorage) gespeichert.");
+          if (token) {
+            localStorage.setItem('GITHUB_PAT', token);
+          } else {
+            return;
+          }
         }
 
         var originalHtml = refreshBtn.innerHTML;
@@ -273,58 +266,58 @@ window.App.StockOverview = (function () {
         var githubApiUrl = 'https://api.github.com/repos/spamispam018-lab/spamispam018-lab.github.io/actions/workflows/' + workflowFilename + '/dispatches';
 
         fetch(githubApiUrl, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/vnd.github.v3+json',
-                'Authorization': 'token ' + token,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                ref: 'main',
-                inputs: { 
-                    sync_mode: 'delta',
-                    ticker: currentStock.ticker
-                }
-            })
-        })
-        .then(function(response) {
-            if (!response.ok) {
-                if (response.status === 401 || response.status === 403 || response.status === 404) {
-                    localStorage.removeItem('GITHUB_PAT');
-                    throw new Error("Token ungültig, abgelaufen oder fehlende Berechtigungen. Bitte Seite neu laden und erneut versuchen.");
-                }
-                throw new Error("GitHub API Fehler: " + response.status);
+          method: 'POST',
+          headers: {
+            'Accept': 'application/vnd.github.v3+json',
+            'Authorization': 'token ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            ref: 'main',
+            inputs: {
+              sync_mode: 'delta',
+              ticker: currentStock.ticker
             }
-            
-            refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Warte auf Yahoo (15s)...';
-            
-            setTimeout(function() {
-                window.App.Data.getStock(currentStock.ticker)
-                  .then(function(updatedStock) {
-                    var priceEl = document.getElementById('stock-header-price');
-                    var changeEl = document.getElementById('stock-header-change');
-                    if (priceEl && changeEl && updatedStock.quote) {
-                        priceEl.textContent = window.App.Format.currency(updatedStock.quote.price, updatedStock.quote.currency);
-                        var chgCls = window.App.Format.changeClass(updatedStock.quote.changePercent);
-                        var sign = (updatedStock.quote.changePercent >= 0) ? '+' : '';
-                        changeEl.className = 'badge-pill ' + chgCls;
-                        changeEl.textContent = sign + window.App.Format.number(updatedStock.quote.changePercent, 2) + ' %';
-                    }
-                    window.App.StockOverview.render(container, updatedStock);
-                  })
-                  .catch(function(err) {
-                    console.error("Fehler beim Laden der neuen Daten:", err);
-                    refreshBtn.innerHTML = originalHtml;
-                    refreshBtn.disabled = false;
-                    alert('Die Action wurde gestartet, aber die neuen Daten konnten noch nicht geladen werden. Bitte in wenigen Momenten nochmal versuchen.');
-                  });
-            }, 15000);
+          })
         })
-        .catch(function(err) {
-            console.error(err);
-            refreshBtn.innerHTML = originalHtml;
-            refreshBtn.disabled = false;
-            alert(err.message);
+        .then(function (response) {
+          if (!response.ok) {
+            if (response.status === 401 || response.status === 403 || response.status === 404) {
+              localStorage.removeItem('GITHUB_PAT');
+              throw new Error("Token ungültig, abgelaufen oder fehlende Berechtigungen. Bitte Seite neu laden und erneut versuchen.");
+            }
+            throw new Error("GitHub API Fehler: " + response.status);
+          }
+
+          refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Warte auf Yahoo (15s)...';
+
+          setTimeout(function () {
+            window.App.Data.getStock(currentStock.ticker)
+              .then(function (updatedStock) {
+                var priceEl = document.getElementById('stock-header-price');
+                var changeEl = document.getElementById('stock-header-change');
+                if (priceEl && changeEl && updatedStock.quote) {
+                  priceEl.textContent = window.App.Format.currency(updatedStock.quote.price, updatedStock.quote.currency);
+                  var chgCls = window.App.Format.changeClass(updatedStock.quote.changePercent);
+                  var sign = (updatedStock.quote.changePercent >= 0) ? '+' : '';
+                  changeEl.className = 'badge-pill ' + chgCls;
+                  changeEl.textContent = sign + window.App.Format.number(updatedStock.quote.changePercent, 2) + ' %';
+                }
+                window.App.StockOverview.render(container, updatedStock);
+              })
+              .catch(function (err) {
+                console.error("Fehler beim Laden der neuen Daten:", err);
+                refreshBtn.innerHTML = originalHtml;
+                refreshBtn.disabled = false;
+                alert('Die Action wurde gestartet, aber die neuen Daten konnten noch nicht geladen werden. Bitte in wenigen Momenten nochmal versuchen.');
+              });
+          }, 15000);
+        })
+        .catch(function (err) {
+          console.error(err);
+          refreshBtn.innerHTML = originalHtml;
+          refreshBtn.disabled = false;
+          alert(err.message);
         });
       };
     }
@@ -356,13 +349,14 @@ window.App.StockOverview = (function () {
 
     holdings.forEach(function (h) {
       var w = Math.max(0, Math.min(100, h.weight || 0));
+      // FIX: --bg-tertiary statt --bg-surface-elevated (existierte nicht im Theme)
       html += '' +
         '<div style="display: flex; flex-direction: column; gap: 2px;">' +
           '<div style="display: flex; justify-content: space-between; font-size: 0.78rem;">' +
             '<span style="font-weight: 600; color: var(--text-main);">' + esc(h.name) + '</span>' +
             '<span style="font-variant-numeric: tabular-nums; font-weight: 700;">' + window.App.Format.number(w, 2) + ' %</span>' +
           '</div>' +
-          '<div style="height: 6px; width: 100%; background: var(--bg-surface-elevated); border-radius: 3px; overflow: hidden;">' +
+          '<div style="height: 6px; width: 100%; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden;">' +
             '<div style="height: 100%; width: ' + w + '%; background: var(--accent-purple-light, #818cf8); border-radius: 3px;"></div>' +
           '</div>' +
         '</div>';
@@ -377,13 +371,14 @@ window.App.StockOverview = (function () {
 
     var pct = Math.max(0, Math.min(100, ((price - low) / (high - low)) * 100));
 
+    // FIX: --bg-tertiary statt --bg-surface-elevated
     return '' +
       '<div style="margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--border-subtle);">' +
         '<div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-dim); margin-bottom: 6px;">' +
           '<span>52W-Spanne</span>' +
           '<span>Aktuell: ' + window.App.Format.currency(price, currency) + ' (' + pct.toFixed(0) + ' %)</span>' +
         '</div>' +
-        '<div style="height: 6px; width: 100%; background: var(--bg-surface-elevated); border-radius: 3px; position: relative; overflow: visible;">' +
+        '<div style="height: 6px; width: 100%; background: var(--bg-tertiary); border-radius: 3px; position: relative; overflow: visible;">' +
           '<div style="height: 100%; width: ' + pct + '%; background: linear-gradient(90deg, var(--bearish), var(--bullish)); border-radius: 3px;"></div>' +
           '<div style="position: absolute; left: calc(' + pct + '% - 5px); top: -3px; width: 10px; height: 12px; background: #fff; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.5);"></div>' +
         '</div>' +
@@ -405,7 +400,7 @@ window.App.StockOverview = (function () {
           '<span style="color: var(--bullish); font-weight: 700;">' + sum.buysCount2Q + ' Käufe (' + window.App.Format.compactNumber(buyVal, 'EUR') + ')</span>' +
           '<span style="color: var(--bearish); font-weight: 700;">' + sum.sellsCount2Q + ' Verkäufe (' + window.App.Format.compactNumber(sellVal, 'EUR') + ')</span>' +
         '</div>' +
-        '<div style="height: 8px; width: 100%; display: flex; border-radius: 4px; overflow: hidden; background: var(--bg-surface-elevated);">' +
+        '<div style="height: 8px; width: 100%; display: flex; border-radius: 4px; overflow: hidden; background: var(--bg-tertiary);">' +
           '<div style="height: 100%; width: ' + buyPct + '%; background: var(--bullish);"></div>' +
           '<div style="height: 100%; width: ' + sellPct + '%; background: var(--bearish);"></div>' +
         '</div>' +
@@ -457,14 +452,14 @@ window.App.StockOverview = (function () {
   function updatePerfGrid() {
     var grid = document.getElementById('overview-perf-grid');
     if (!grid || !currentStock) return;
-    
+
     var periods = [['1W', '1W'], ['1M', '1M'], ['3M', '3M'], ['6M', '6M'], ['1Y', '1J'], ['5Y', '5J'], ['10Y', '10J']];
     var html = '';
-    
+
     grid.style.display = 'flex';
     grid.style.flexWrap = 'wrap';
     grid.style.gap = '8px';
-    
+
     periods.forEach(function (pd) {
       var series = getPeriodSeries(pd[0]);
       var txt = '—';
@@ -476,7 +471,7 @@ window.App.StockOverview = (function () {
       } else if ((pd[0] === '5Y' || pd[0] === '10Y') && longHistory === null) {
         txt = '…';
       }
-      
+
       html += '<div class="perf-cell ' + cls + (pd[0] === currentPeriod ? ' selected' : '') + '" style="flex: 1 1 calc(25% - 8px); min-width: 60px;">' +
         '<span class="perf-label">' + pd[1] + '</span>' +
         '<span class="perf-value">' + txt + '</span></div>';
