@@ -34,6 +34,8 @@ window.App.Screener = (function () {
   var VALUE_DISCOUNT = 0.15;        // KGV mind. 15 % unter dem Branchen-Median
   var VALUE_FALLBACK_PE = 18;       // feste KGV-Grenze, wenn die Branche zu klein ist
   var MIN_SECTOR_SIZE = 5;          // Mindestanzahl Aktien für einen Branchen-Median
+  var RR_MIN_CRV = 2;               // "Kleines Risiko": Chance-Risiko-Verhältnis mindestens 2:1
+  var RR_MAX_STOP_PCT = 5;          // "Kleines Risiko": Stop höchstens 5 % unter dem Kurs
   var STALE_AFTER_HOURS = 84;       // Daten älter als 3,5 Tage gelten als veraltet (Wochenende eingerechnet)
 
   var STORAGE_KEY = 'screener_state_v1';
@@ -66,7 +68,9 @@ window.App.Screener = (function () {
     { v: 'upside_asc', label: 'Kursziel-Potenzial (Niedrigstes)' },
     { v: 'rsi_asc', label: 'RSI (Niedrigster)' },
     { v: 'dividend_desc', label: 'Dividendenrendite (Höchste)' },
-    { v: 'perf52w_desc', label: '52W-Performance (Beste)' }
+    { v: 'perf52w_desc', label: '52W-Performance (Beste)' },
+    { v: 'crv_desc', label: 'CRV (Bestes)' },
+    { v: 'stop_asc', label: 'Stop-Abstand (Kleinster)' }
   ];
 
   // Filter, die sich gegenseitig ausschließen (Antippen des einen schaltet den anderen ab)
@@ -76,7 +80,7 @@ window.App.Screener = (function () {
   };
 
   // Passende Standard-Sortierung, wenn genau ein Filter aktiv ist
-  var PRESET_SORTS = { forecast_up: 'upside_desc', forecast_down: 'upside_asc', oversold: 'rsi_asc' };
+  var PRESET_SORTS = { forecast_up: 'upside_desc', forecast_down: 'upside_asc', oversold: 'rsi_asc', low_risk: 'crv_desc' };
 
   // ---------------------------------------------------------------------------
   // Kleine Helfer
@@ -239,6 +243,11 @@ window.App.Screener = (function () {
   }
 
   /** SMA 50 hat SMA 200 kürzlich von oben nach unten (death) bzw. unten nach oben (golden) gekreuzt. */
+  // Risk/Reward (Long) aus dem Rechner der Detailansicht: Stop an der Unterstützung, Ziel Widerstand/Analystenziel
+  function isLowRisk(s) {
+    return hasNum(s.rrCrv) && hasNum(s.rrStopPct) && s.rrCrv >= RR_MIN_CRV && s.rrStopPct <= RR_MAX_STOP_PCT;
+  }
+
   function hasRecentCross(s, type) {
     return s.cross === type && hasNum(s.crossDaysAgo) && s.crossDaysAgo <= CROSS_RECENT_DAYS;
   }
@@ -263,6 +272,7 @@ window.App.Screener = (function () {
     consensus_sell: function (s) { return isConsensusSell(s); },
     bottom_base: function (s) { return s.bottom === 'base'; },
     bottom_knife: function (s) { return s.bottom === 'knife'; },
+    low_risk: function (s) { return isLowRisk(s); },
     news_positive: function (s) { return isNewsPositive(s); },
     news_negative: function (s) { return isNewsNegative(s); }
   };
@@ -307,6 +317,8 @@ window.App.Screener = (function () {
       info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch und mindestens 4 von 6 Stabilisierungs-Signalen (kein neues Tief seit 15 Tagen, höheres Tief, Kurs über 20-Tage-Linie, Linie steigt, MACD über Signal, RSI ≥ 40 und steigend). Möglicher Boden, keine Garantie.'; } },
     { id: 'bottom_knife', chip: '🔪 Fallendes Messer', name: 'Fallendes Messer',
       info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch, höchstens 2 von 6 Stabilisierungs-Signalen und frisches Tief (≤ 10 Tage) oder −10 % im letzten Monat. Abwärtstrend noch intakt.'; } },
+    { id: 'low_risk', chip: '🛡️ Kleines Risiko', name: 'Kleines Risiko',
+      info: function () { return 'Long-Setup mit begrenztem Risiko: Stop knapp unter der nächsten Unterstützung höchstens ' + RR_MAX_STOP_PCT + ' % unter dem Kurs und Chance-Risiko-Verhältnis (CRV) mindestens ' + RR_MIN_CRV + ':1. Ziel ist der nächste Widerstand oder das Analystenziel. Gleiche Berechnung wie der Risk/Reward Rechner in der Detailansicht. Aktien ohne erkennbare Unterstützung erscheinen nicht.'; } },
     { id: 'news_positive', chip: '📰 Positive News', name: 'Positive Nachrichten',
       info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % positiv (automatische FinBERT-Einschätzung der Schlagzeilen).'; } },
     { id: 'news_negative', chip: '⚠️ Negative News', name: 'Negative Nachrichten',
@@ -597,6 +609,8 @@ window.App.Screener = (function () {
         case 'rsi_asc': return cmpNum(a.rsi, b.rsi, 'asc');
         case 'dividend_desc': return cmpNum(a.dividendYield, b.dividendYield, 'desc');
         case 'perf52w_desc': return cmpNum(a.perf52w, b.perf52w, 'desc');
+        case 'crv_desc': return cmpNum(a.rrCrv, b.rrCrv, 'desc');
+        case 'stop_asc': return cmpNum(a.rrStopPct, b.rrStopPct, 'asc');
         case 'name_asc': return (a.name || a.ticker || '').localeCompare(b.name || b.ticker || '');
         default: return cmpNum(a.marketCap, b.marketCap, 'desc');
       }
@@ -677,6 +691,7 @@ window.App.Screener = (function () {
     if (isActive('earnings_growth') && hasNum(s.pe) && hasNum(s.forwardPe)) tags.push('KGV ' + fmtNum(s.pe, 0) + ' → ' + fmtNum(s.forwardPe, 0));
     if (isActive('recovery') && hasNum(s.rangePos)) tags.push('52W-Spanne ' + fmtNum(s.rangePos, 0) + ' %');
     if (isActive('oversold') && hasNum(s.rsi)) tags.push('RSI ' + fmtNum(s.rsi, 0));
+    if (isActive('low_risk') && hasNum(s.rrCrv)) tags.push('CRV ' + fmtNum(s.rrCrv, 1) + ' · Stop −' + fmtNum(s.rrStopPct, 1) + ' % · Ziel +' + fmtNum(s.rrTgtPct, 1) + ' %');
     if ((isActive('value') || isActive('undervalued')) && hasNum(s.pe) && s.pe > 0) {
       var med = sectorPe[s.sector];
       tags.push('KGV ' + fmtNum(s.pe, 0) + (med ? ' (Branche Ø ' + fmtNum(med, 0) + ')' : ''));
@@ -822,6 +837,7 @@ window.App.Screener = (function () {
         if (hasNum(s.debtToEquity)) parts.push("Debt/Equity: " + fmtNum(s.debtToEquity, 0));
         if (hasNum(s.rangePos)) parts.push("52W-Spanne: " + fmtNum(s.rangePos, 0) + " %");
         if (hasNum(s.rsi)) parts.push("RSI: " + fmtNum(s.rsi, 0));
+        if (hasNum(s.rrCrv)) parts.push("Risk/Reward (Long): CRV " + fmtNum(s.rrCrv, 1) + ", Stop −" + fmtNum(s.rrStopPct, 1) + " % an der Unterstützung, Ziel +" + fmtNum(s.rrTgtPct, 1) + " %");
         if (hasNum(s.perf52w)) parts.push("52W-Perf.: " + fmtNum(s.perf52w, 0) + " %");
         if (hasUpside(s)) parts.push("Upside-Ziel: " + fmtNum(s.upside, 1) + " %" + (hasNum(s.analystCount) ? " (" + s.analystCount + " Analysten)" : ""));
         if (hasRecentCross(s, 'death')) parts.push("Death Cross vor " + s.crossDaysAgo + " Tg.");
