@@ -5,6 +5,8 @@
  * - Drilldown in einen Sektor: Heatmap der Einzelwerte + Branchen-Ranking + Passende Sektor-ETFs
  * - Top-/Flop-Listen für den gewählten Zeitraum
  * Datenquelle: data/universe.json (changePercent, perf1w, perf1m, perf3m, perfYtd, perf52w, marketCap).
+ * 
+ * NEU: Sektor-ETF für Financials auf XDWF.DE umgestellt (statt WFIS.DE).
  */
 
 window.App = window.App || {};
@@ -29,7 +31,7 @@ window.App.Market = (function () {
     'Technology': ['QDVE.DE', 'XDWT.DE'],
     'Healthcare': ['WHEA.DE'],
     'Consumer Defensive': ['WSCA.DE'],
-    'Financial Services': ['WFIS.DE'],
+    'Financial Services': ['XDWF.DE'], // NEU: Ersetzt WFIS.DE für bessere Datenqualität
     'Real Estate': ['IUSP.DE'],
     'Energy': ['WNRG.DE', 'QDVF.DE', 'XDW0.DE'],
     'Communication Services': ['IU5C.DE', 'XWTS.DE']
