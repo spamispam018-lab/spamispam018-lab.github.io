@@ -625,9 +625,12 @@ window.App.ChartAnalyse = (function () {
     var risk = isLong ? px - stop : stop - px;
     var reward = isLong ? tgt - px : px - tgt;
     var crv = risk > 0 ? reward / risk : 0;
-    var shares = risk > 0 ? Math.floor((ui.capital * ui.risk / 100) / risk) : 0;
+    // Stückzahl: Risiko-Budget geteilt durch Risiko pro Aktie, aber nie mehr, als das Kapital hergibt
+    var sharesRisk = risk > 0 ? Math.floor((ui.capital * ui.risk / 100) / risk) : 0;
+    var sharesCap = px > 0 ? Math.floor(ui.capital / px) : 0;
+    var shares = Math.min(sharesRisk, sharesCap);
 
-    return { isLong: isLong, stop: stop, tgt: tgt, risk: risk, reward: reward, crv: crv, shares: shares, notes: notes, stopType: stopType, tgtType: tgtType };
+    return { isLong: isLong, stop: stop, tgt: tgt, risk: risk, reward: reward, crv: crv, shares: shares, sharesRisk: sharesRisk, sharesCap: sharesCap, capped: sharesRisk > sharesCap, notes: notes, stopType: stopType, tgtType: tgtType };
   }
 
   function rrCalc(A, stock) { return rrCompute(A, stock, ui.tradeDir, ui.stop, ui.target); }
@@ -762,7 +765,8 @@ window.App.ChartAnalyse = (function () {
       '</div>';
 
     var calcHtml = '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0 8px 0;font-size:.78rem;">Kapital <input id="ca-cap" type="number" inputmode="decimal" min="0" value="' + ui.capital + '" ' + inp + '> Risiko <input id="ca-risk" type="number" inputmode="decimal" min="0.1" step="0.1" value="' + ui.risk + '" ' + inp + '> %</div>' +
-      '<div class="chart-signal-value">' + (R.shares > 0 ? 'Ergebnis: <b>' + R.shares + ' Stück</b> (Position: ' + eur(R.shares * A.px, cur) + ').<br>Max Verlust ≈ ' + eur(R.shares * R.risk, cur) + ' · Möglicher Gewinn ≈ ' + eur(R.shares * R.reward, cur) + '.' : 'Mit diesen Angaben ergibt sich keine ganze Stückzahl.') + '</div>';
+      '<div class="chart-signal-value">' + (R.shares > 0 ? 'Ergebnis: <b>' + R.shares + ' Stück</b> (Position: ' + eur(R.shares * A.px, cur) + ').<br>Max Verlust ≈ ' + eur(R.shares * R.risk, cur) + ' · Möglicher Gewinn ≈ ' + eur(R.shares * R.reward, cur) + '.' : (R.sharesCap < 1 ? 'Dein Kapital reicht nicht für eine ganze Aktie (Kurs ' + eur(A.px, cur) + ').' : 'Mit diesen Angaben ergibt sich keine ganze Stückzahl.')) + '</div>' +
+      (R.capped ? '<div style="font-size:.72rem;color:var(--text-dim);margin-top:6px;">Begrenzt durch dein Kapital. Nach dem Risiko-Budget wären es ' + R.sharesRisk + ' Stück (Position ' + eur(R.sharesRisk * A.px, cur) + '). Der mögliche Verlust liegt deshalb unter deinen ' + num(ui.risk, 1) + ' % Risiko.</div>' : '');
       
     var notesHtml = R.notes.length ? '<div style="font-size:.72rem;color:var(--text-dim);margin-top:8px;">' + R.notes.join(' ') + '</div>' : '';
 
