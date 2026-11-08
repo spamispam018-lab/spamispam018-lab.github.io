@@ -4,6 +4,13 @@ scripts/fetch_market_data.py
 Delta-fähiges Marktdaten-Update für USA, Europa und Japan.
 Garantiert echte Umrechnung aller ausländischen Währungen (JPY, USD, GBP, CHF) in Euro (EUR).
 Erweitert um zusätzliche Markt-, Sektor-, Energie- und Kommunikations-ETFs.
+
+FIX: Die Delta-Funktion wurde tatsächlich implementiert. Vorher wurde `batch_df`
+zwar heruntergeladen, aber nie verwendet – bestehende Aktien-JSONs wurden NIE
+aktualisiert. Jetzt werden neue Schlusskurse aus dem Batch-Download in die
+vorhandenen JSONs gemerged, `quote.price` / `change` / `changePercent` neu
+berechnet und `chartHistory` ergänzt. Nur bei echten Änderungen wird
+`updatedAt` gesetzt.
 """
 
 import os
@@ -178,6 +185,7 @@ RATES_TO_EUR = {
     "EUR": 1.0, "USD": 0.92, "JPY": 0.0061, "GBP": 1.17, "GBp": 0.0117, "CHF": 1.04, "DKK": 0.134
 }
 
+
 def detect_native_currency(ticker):
     if ticker.endswith(".T"): return "JPY"
     if ticker.endswith((".DE", ".PA", ".AS", ".MI", ".MC")): return "EUR"
@@ -185,6 +193,7 @@ def detect_native_currency(ticker):
     if ticker.endswith(".SW"): return "CHF"
     if ticker.endswith(".CO"): return "DKK"
     return "USD"
+
 
 def load_live_forex():
     global RATES_TO_EUR
@@ -204,9 +213,11 @@ def load_live_forex():
     except Exception as e:
         print(f"Forex-Abruf fehlgeschlagen: {e}")
 
+
 def to_eur(value, cur):
     if value is None: return None
     return round(value * RATES_TO_EUR.get(cur, 1.0), 4)
+
 
 def clean_val(val, default=None):
     if val is None: return default
@@ -214,6 +225,7 @@ def clean_val(val, default=None):
         if math.isnan(val) or math.isinf(val): return default
         return round(val, 4) if isinstance(val, float) else val
     return val
+
 
 def df_to_dict_records(df, cur):
     if df is None or df.empty: return []
@@ -231,6 +243,7 @@ def df_to_dict_records(df, cur):
         records.append(entry)
     records.sort(key=lambda x: x["date"])
     return records
+
 
 def process_fund_data(ticker_obj, symbol=""):
     holdings = []
@@ -254,8 +267,9 @@ def process_fund_data(ticker_obj, symbol=""):
 
     if not holdings and symbol in KNOWN_ETF_HOLDINGS:
         return KNOWN_ETF_HOLDINGS[symbol]
-    
+
     return holdings
+
 
 def process_insider_data(ticker_obj, cur):
     summary = {"buysCount2Q": 0, "sellsCount2Q": 0, "buyValueTotal": 0.0, "sellValueTotal": 0.0, "sentiment": "Neutral"}
@@ -280,6 +294,7 @@ def process_insider_data(ticker_obj, cur):
     except Exception: pass
     return {"summary": summary, "trades": trades}
 
+
 def process_analyst_data(info, ticker_obj, cur):
     targets = {
         "current": clean_val(to_eur(clean_val(info.get("currentPrice")), cur)),
@@ -292,6 +307,7 @@ def process_analyst_data(info, ticker_obj, cur):
     }
     recommendations = {"score": clean_val(info.get("recommendationMean")), "key": info.get("recommendationKey", "none"), "breakdown": {"strongBuy": 0, "buy": 0, "hold": 0, "sell": 0, "strongSell": 0}, "history": []}
     return {"targets": targets, "recommendations": recommendations, "epsEstimates": [], "nextEarningsDate": None, "epsForecast": None}
+
 
 def fetch_full_stock(ticker_sym):
     t = yf.Ticker(ticker_sym)
@@ -325,6 +341,36 @@ def fetch_full_stock(ticker_sym):
 
     return {"ticker": ticker_sym, "profile": profile, "quote": quote, "ratios": ratios, "financials": {"incomeStatement": {"quarterly": [], "annual": []}, "balanceSheet": {"quarterly": [], "annual": []}, "cashFlow": {"quarterly": [], "annual": []}}, "analysts": process_analyst_data(info, t, cur), "insider": process_insider_data(t, cur), "holdings": process_fund_data(t, ticker_sym), "chartHistory": chart_history, "updatedAt": datetime.now(timezone.utc).isoformat()}
 
+
+def extract_close_series(batch_df, sym):
+    """
+    FIX: Robuste Extraktion der Close-Serie für einen Ticker aus batch_df.
+    Behandelt sowohl MultiIndex-Columns (group_by="ticker") als auch Single-Ticker.
+    """
+    try:
+        if batch_df is None or batch_df.empty:
+            return None
+        # MultiIndex: (ticker, field) – kann bei group_by="ticker" vorkommen
+        if hasattr(batch_df.columns, "levels") and len(batch_df.columns.levels) >= 2:
+            top = batch_df.columns.get_level_values(0)
+            if sym in top:
+                sub = batch_df[sym]
+                if "Close" in sub.columns:
+                    return sub["Close"].dropna()
+            # Fallback: (field, ticker)
+            top2 = batch_df.columns.get_level_values(0)
+            if "Close" in top2:
+                sub = batch_df["Close"]
+                if sym in sub.columns:
+                    return sub[sym].dropna()
+        # Single-Ticker / flache Columns
+        if "Close" in batch_df.columns:
+            return batch_df["Close"].dropna()
+    except Exception as e:
+        print(f"extract_close_series({sym}) fehlgeschlagen: {e}")
+    return None
+
+
 def run_delta_sync(tickers):
     load_live_forex()
     batch_df = yf.download(tickers, period="5d", interval="1d", group_by="ticker", auto_adjust=False, threads=True)
@@ -336,6 +382,8 @@ def run_delta_sync(tickers):
                 for item in json.load(f): universe_map[item["ticker"]] = item
         except Exception: pass
 
+    now_iso = datetime.now(timezone.utc).isoformat()
+
     for sym in tickers:
         stock_file = os.path.join(DATA_DIR, f"{sym}.json")
         stock_data = None
@@ -344,20 +392,88 @@ def run_delta_sync(tickers):
                 with open(stock_file, "r", encoding="utf-8") as f: stock_data = json.load(f)
             except Exception: pass
 
-        if not stock_data: stock_data = fetch_full_stock(sym)
-        cur = stock_data.get("profile", {}).get("nativeCurrency") or detect_native_currency(sym)
+        # FIX: Vollständiger Fetch nur für neue Ticker ohne vorhandenes JSON
+        if not stock_data:
+            try:
+                print(f"Neuer Ticker, voller Fetch: {sym}")
+                stock_data = fetch_full_stock(sym)
+            except Exception as e:
+                print(f"Vollständiger Fetch fehlgeschlagen für {sym}: {e}")
+                continue
+        else:
+            # FIX: Delta-Update für bestehende Ticker aus batch_df
+            closes = extract_close_series(batch_df, sym)
+            if closes is not None and not closes.empty:
+                try:
+                    cur = stock_data.get("profile", {}).get("nativeCurrency") or detect_native_currency(sym)
+                    last_close = float(closes.iloc[-1])
+                    prev_close = float(closes.iloc[-2]) if len(closes) > 1 else last_close
+                    new_price = clean_val(to_eur(last_close, cur), 0.0)
+                    prev_price = clean_val(to_eur(prev_close, cur), 0.0)
+
+                    if new_price and prev_price:
+                        chg = round(new_price - prev_price, 4)
+                        chg_pct = round((last_close - prev_close) / prev_close * 100, 2) if prev_close else 0.0
+
+                        stock_data.setdefault("quote", {})
+                        old_price = stock_data["quote"].get("price")
+                        stock_data["quote"]["price"] = new_price
+                        stock_data["quote"]["change"] = chg
+                        stock_data["quote"]["changePercent"] = chg_pct
+                        stock_data["quote"]["currency"] = "EUR"
+
+                        # chartHistory um neue Datenpunkte ergänzen
+                        history = stock_data.setdefault("chartHistory", [])
+                        existing_dates = {p.get("date") for p in history}
+                        new_points = []
+                        for dt, val in closes.items():
+                            d_str = dt.strftime("%Y-%m-%d") if hasattr(dt, "strftime") else str(dt)[:10]
+                            if d_str not in existing_dates:
+                                try:
+                                    fval = float(val)
+                                    if not math.isnan(fval) and not math.isinf(fval):
+                                        new_points.append({
+                                            "date": d_str,
+                                            "close": clean_val(to_eur(fval, cur))
+                                        })
+                                except Exception:
+                                    pass
+                        if new_points:
+                            history.extend(new_points)
+                            history.sort(key=lambda p: p.get("date", ""))
+                            # auf 2 Jahre begrenzen (ca. 750 Handelstage)
+                            if len(history) > 750:
+                                history = history[-750:]
+                            stock_data["chartHistory"] = history
+
+                        # updatedAt nur setzen, wenn sich wirklich etwas geändert hat
+                        if (old_price != new_price) or new_points:
+                            stock_data["updatedAt"] = now_iso
+                except Exception as e:
+                    print(f"Delta-Update für {sym} fehlgeschlagen: {e}")
 
         if not stock_data.get("holdings"):
             try: stock_data["holdings"] = process_fund_data(yf.Ticker(sym), sym)
             except Exception: pass
 
-        with open(stock_file, "w", encoding="utf-8") as f: json.dump(stock_data, f, ensure_ascii=False, indent=2)
+        with open(stock_file, "w", encoding="utf-8") as f:
+            json.dump(stock_data, f, ensure_ascii=False, indent=2)
 
-        u_item = universe_map.get(sym, {"ticker": sym, "name": stock_data["profile"]["name"], "sector": stock_data["profile"]["sector"], "country": stock_data["profile"]["country"]})
-        u_item["currency"] = "EUR"; u_item["price"] = stock_data["quote"]["price"]; u_item["changePercent"] = stock_data["quote"]["changePercent"]; u_item["marketCap"] = stock_data["quote"]["marketCap"]
+        u_item = universe_map.get(sym, {
+            "ticker": sym,
+            "name": stock_data.get("profile", {}).get("name", sym),
+            "sector": stock_data.get("profile", {}).get("sector", "Sonstige"),
+            "country": stock_data.get("profile", {}).get("country", "")
+        })
+        u_item["currency"] = "EUR"
+        u_item["price"] = stock_data.get("quote", {}).get("price")
+        u_item["changePercent"] = stock_data.get("quote", {}).get("changePercent")
+        u_item["marketCap"] = stock_data.get("quote", {}).get("marketCap")
         universe_map[sym] = u_item
 
-    with open(universe_file, "w", encoding="utf-8") as f: json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
+    with open(universe_file, "w", encoding="utf-8") as f:
+        json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -368,6 +484,7 @@ def main():
     load_live_forex()
     target_tickers = [args.ticker.strip().upper()] if args.ticker else ALL_TICKERS
     run_delta_sync(target_tickers)
+
 
 if __name__ == "__main__":
     main()
