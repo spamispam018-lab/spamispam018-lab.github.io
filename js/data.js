@@ -3,6 +3,10 @@
  * Robuste Daten-Provider & Caching-Schicht:
  * Lädt primär über den absoluten Pfad /data/<TICKER>.json.
  * Fällt bei Verzögerungen des GitHub-Pages-Deployments sofort auf GitHub-Raw zurück.
+ *
+ * FIX: Cache-Buster wird nur einmal pro Session gesetzt. So kann der Browser
+ * die JSON-Dateien innerhalb der Session cachen, was die Latenz massiv senkt
+ * (vorher: Date.now() bei JEDEM getStock()-Aufruf → Cache immer invalidiert).
  */
 
 window.App = window.App || {};
@@ -13,6 +17,9 @@ window.App.Data = (function () {
   var GITHUB_USER = 'spamispam018-lab';
   var GITHUB_REPO = 'spamispam018-lab.github.io';
   var GITHUB_BRANCH = 'main';
+
+  // FIX: Session-Konstante statt Date.now() pro Request
+  var SESSION_VERSION = String(Date.now());
 
   var STORAGE_KEYS = {
     UNIVERSE: 'app_data_universe',
@@ -49,7 +56,8 @@ window.App.Data = (function () {
    * 2. GitHub Raw (falls Pages noch deployt)
    */
   function fetchJsonWithFallback(fileName) {
-    var bust = '?v=' + Date.now();
+    // FIX: Cache-Buster nur einmal pro Session (nicht pro Request)
+    var bust = '?v=' + SESSION_VERSION;
     var primaryUrl = '/data/' + fileName + bust;
     var rawUrl = 'https://raw.githubusercontent.com/' + GITHUB_USER + '/' + GITHUB_REPO + '/' + GITHUB_BRANCH + '/data/' + fileName + bust;
 
