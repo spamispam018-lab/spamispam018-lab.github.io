@@ -3,6 +3,7 @@
 scripts/fetch_market_data.py
 Delta-fähiges Marktdaten-Update für USA, Europa und Japan.
 Garantiert echte Umrechnung aller ausländischen Währungen (JPY, USD, GBP, CHF) in Euro (EUR).
+Erweitert um ETF-Holdings (Top-Positionen).
 """
 
 import os
@@ -62,12 +63,10 @@ TICKERS_SECTORS = [
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from index_lists import SP500, DAX, MDAX, dedupe  # noqa: E402
 
-# Gesamtuniversum: handgepflegte Listen + S&P 500 + DAX + MDAX + ETFs + Sektor-ETFs (ohne Doppelungen)
 ALL_TICKERS = dedupe(TICKERS_USA, TICKERS_EUROPE, TICKERS_JAPAN, TICKERS_ETFS, TICKERS_SECTORS, DAX, MDAX, SP500)
 print(f"Universum: {len(ALL_TICKERS)} Ticker")
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
-# Realistische Basis-Wechselkurse (Einheiten Fremdwährung in 1 Euro)
 RATES_TO_EUR = {
     "EUR": 1.0,
     "USD": 0.92,
@@ -79,7 +78,6 @@ RATES_TO_EUR = {
 }
 
 def detect_native_currency(ticker):
-    """Ermittelt die Heimatwährung anhand des Börsenplatzes/Suffix."""
     if ticker.endswith(".T"):
         return "JPY"
     if ticker.endswith((".DE", ".PA", ".AS", ".MI", ".MC")):
@@ -93,7 +91,6 @@ def detect_native_currency(ticker):
     return "USD"
 
 def load_live_forex():
-    """Holt tagesaktuelle Forex-Kurse von Yahoo Finance."""
     global RATES_TO_EUR
     pairs = {
         "USD": "EURUSD=X",
@@ -117,7 +114,6 @@ def load_live_forex():
             except Exception:
                 pass
         RATES_TO_EUR["GBp"] = RATES_TO_EUR.get("GBP", 1.17) / 100.0
-        print(f"Aktuelle Forex-Multiplikatoren: JPY={RATES_TO_EUR['JPY']:.6f}, USD={RATES_TO_EUR['USD']:.4f}")
     except Exception as e:
         print(f"Forex-Abruf fehlgeschlagen, nutze Fallback-Kurse: {e}")
 
@@ -153,6 +149,28 @@ def df_to_dict_records(df, cur):
         records.append(entry)
     records.sort(key=lambda x: x["date"])
     return records
+
+def process_fund_data(ticker_obj):
+    """Extrahiert die Top-Holdings (Größte Aktienanteile) für ETFs, falls vorhanden."""
+    holdings = []
+    try:
+        fd = getattr(ticker_obj, "funds_data", None)
+        if fd is not None:
+            th = getattr(fd, "top_holdings", None)
+            if th is not None and not th.empty:
+                for idx, row in th.iterrows():
+                    name = row.get("Holding Name") or row.get("Name") or str(idx)
+                    pct = row.get("Percentage") or row.get("Weight") or 0.0
+                    if isinstance(pct, (int, float)):
+                        weight = float(pct)
+                        if weight <= 1.0:
+                            weight *= 100.0
+                    else:
+                        weight = 0.0
+                    holdings.append({"name": str(name), "weight": round(weight, 2)})
+    except Exception:
+        pass
+    return holdings
 
 def process_insider_data(ticker_obj, cur):
     summary = {"buysCount2Q": 0, "sellsCount2Q": 0, "buyValueTotal": 0.0, "sellValueTotal": 0.0, "sentiment": "Neutral"}
@@ -239,6 +257,7 @@ def process_analyst_data(info, ticker_obj, cur):
                 })
     except Exception:
         pass
+
     def _ts_date(v):
         try:
             if v:
@@ -249,7 +268,6 @@ def process_analyst_data(info, ticker_obj, cur):
 
     next_earnings_date = _ts_date(info.get("earningsTimestampStart") or info.get("earningsTimestamp"))
 
-    # Konsens-Prognose fürs nächste zu berichtende Quartal ('0q'). earnings_history kennt nur vergangene Quartale.
     eps_forecast = None
     try:
         est_df = ticker_obj.earnings_estimate
@@ -329,7 +347,7 @@ def fetch_full_stock(ticker_sym):
 
     chart_history = []
     try:
-        hist = t.history(period="2y", interval="1d")  # Auf 2 Jahre erhöht für SMA 200 Vorlauf
+        hist = t.history(period="2y", interval="1d")
         for dt, row in hist.iterrows():
             chart_history.append({
                 "date": dt.strftime("%Y-%m-%d"),
@@ -351,14 +369,12 @@ def fetch_full_stock(ticker_sym):
         },
         "analysts": process_analyst_data(info, t, cur),
         "insider": process_insider_data(t, cur),
+        "holdings": process_fund_data(t),
         "chartHistory": chart_history,
         "updatedAt": datetime.now(timezone.utc).isoformat()
     }
 
-CROSS_LOOKBACK_DAYS = 60  # "kürzlich" = innerhalb der letzten 60 Handelstage
-
 def rsi_last(closes, n=14):
-    """RSI (Wilder) des letzten Handelstags, gleiche Methode wie im Chart (stock-chart.js)."""
     if len(closes) <= n:
         return None
     avg_gain = avg_loss = 0.0
@@ -378,7 +394,6 @@ def rsi_last(closes, n=14):
     return round(value, 1) if value is not None else None
 
 def trend_extras(history):
-    """SMA50/SMA200-Lage und letztes Kreuz (Golden/Death Cross) aus der Tages-Historie."""
     out = {"smaTrend": None, "cross": None, "crossDaysAgo": None, "rsi": None}
     closes = [p.get("close") for p in (history or []) if p.get("close") is not None]
     n = len(closes)
@@ -390,7 +405,7 @@ def trend_extras(history):
         return sum(closes[i - w + 1:i + 1]) / w
 
     last_sign, last_cross_idx, last_cross_type = None, None, None
-    for i in range(199, n):  # ab hier existiert SMA200
+    for i in range(199, n):
         diff = sma_at(i, 50) - sma_at(i, 200)
         sign = 1 if diff > 0 else (-1 if diff < 0 else 0)
         if sign == 0:
@@ -406,241 +421,7 @@ def trend_extras(history):
         out["crossDaysAgo"] = n - 1 - last_cross_idx
     return out
 
-def _ema(vals, n):
-    out, k, prev, buf = [None] * len(vals), 2 / (n + 1), None, []
-    for i, v in enumerate(vals):
-        if v is None:
-            continue
-        if prev is None:
-            buf.append(v)
-            if len(buf) == n:
-                prev = sum(buf) / n
-                out[i] = prev
-        else:
-            prev = v * k + prev * (1 - k)
-            out[i] = prev
-    return out
-
-def _rsi_series(closes, n=14):
-    out, ag, al = [None], 0.0, 0.0
-    for i in range(1, len(closes)):
-        d = closes[i] - closes[i - 1]
-        g, l = (d if d > 0 else 0.0), (-d if d < 0 else 0.0)
-        if i <= n:
-            ag += g / n
-            al += l / n
-            if i < n:
-                out.append(None)
-                continue
-        else:
-            ag, al = (ag * (n - 1) + g) / n, (al * (n - 1) + l) / n
-        out.append(100.0 if al == 0 else 100 - 100 / (1 + ag / al))
-    return out
-
-def bottom_extras(history):
-    """Boden-Check: 'base' (Bodenbildung), 'knife' (fallendes Messer), 'wait' (unklar) oder None (kein Rückgang >= 20 % vom 52W-Hoch).
-    Gleiche Regeln wie bottomCheck() in js/stock-chart.js."""
-    out = {"bottom": None, "bottomScore": None}
-    c = [float(p.get("close")) for p in (history or []) if p.get("close")]
-    if len(c) < 120:
-        return out
-    px = c[-1]
-    if px / max(c[-252:]) - 1 > -0.20:
-        return out
-    w = c[-60:]
-    since_low = len(w) - 1 - w[::-1].index(min(w))
-    since_low = len(w) - 1 - since_low
-    sma20, sma20_5 = sum(c[-20:]) / 20, sum(c[-25:-5]) / 20
-    e12, e26 = _ema(c, 12), _ema(c, 26)
-    line = [a - b if a is not None and b is not None else None for a, b in zip(e12, e26)]
-    sig = _ema(line, 9)
-    rsi = _rsi_series(c)
-    checks = [
-        since_low >= 15,
-        min(c[-20:]) > min(c[-60:-20]),
-        px > sma20,
-        sma20 >= sma20_5,
-        line[-1] is not None and sig[-1] is not None and line[-1] > sig[-1],
-        rsi[-1] is not None and rsi[-6] is not None and rsi[-1] >= 40 and rsi[-1] > rsi[-6],
-    ]
-    checks = [bool(x) for x in checks]
-    score = int(sum(checks))
-    perf1m = px / c[-22] - 1
-    if score >= 4 and (checks[0] or checks[1]):
-        out["bottom"] = "base"
-    elif score <= 2 and (since_low <= 10 or perf1m <= -0.10):
-        out["bottom"] = "knife"
-    else:
-        out["bottom"] = "wait"
-    out["bottomScore"] = score
-    return out
-
-def peer_extras(st):
-    """Branche + Kursentwicklung (1W/1M/3M/YTD) fürs Universum (Peer-Ansicht)."""
-    from datetime import date, timedelta
-    profile = st.get("profile", {}) or {}
-    out = {"industry": profile.get("industry"),
-           "perf1w": None, "perf1m": None, "perf3m": None, "perfYtd": None, "perf52w": None}
-    hist = [p for p in (st.get("chartHistory") or []) if p.get("close")]
-    if len(hist) < 5:
-        return out
-    last = hist[-1]
-    try:
-        last_d = date.fromisoformat(last["date"])
-    except Exception:
-        return out
-
-    def close_on_or_before(target):
-        ref = None
-        for p in hist:
-            if p["date"] <= target.isoformat():
-                ref = p
-            else:
-                break
-        return ref
-
-    def perf(target):
-        ref = close_on_or_before(target)
-        if not ref or ref is last or not ref["close"]:
-            return None
-        return round((last["close"] - ref["close"]) / ref["close"] * 100, 2)
-
-    out["perf1w"] = perf(last_d - timedelta(days=7))
-    out["perf1m"] = perf(last_d - timedelta(days=30))
-    out["perf3m"] = perf(last_d - timedelta(days=91))
-    out["perfYtd"] = perf(date(last_d.year - 1, 12, 31))
-    out["perf52w"] = perf(last_d - timedelta(days=365))
-    return out
-
-
-# ---------------------------------------------------------------------------
-# Risk/Reward fürs Universum (Filter "Kleines Risiko")
-# Portierung der Logik aus js/chart-analyse.js (prep, ATR, zigzag, levels, rrCompute) – nur Long.
-# Es zählen nur Stops an einer echten Unterstützung und marktbasierte Ziele (Widerstand, Analystenziel), nicht "2× ATR" oder "CRV 2:1".
-# ---------------------------------------------------------------------------
-def _rr_prep(history):
-    d = [p for p in (history or []) if p and (p.get("close") or 0) > 0]
-    c, h, l = [], [], []
-    for i, p in enumerate(d):
-        cl = float(p["close"])
-        prev = float(d[i - 1]["close"]) if i else cl
-        o = float(p["open"]) if (p.get("open") or 0) > 0 else prev
-        hi = float(p["high"]) if (p.get("high") or 0) > 0 else max(o, cl)
-        lo = float(p["low"]) if (p.get("low") or 0) > 0 else min(o, cl)
-        c.append(cl)
-        h.append(max(hi, o, cl))
-        l.append(min(lo, o, cl))
-    return c, h, l
-
-def _rr_atr_last(h, l, c, n=14):
-    prev, tot = None, 0.0
-    for i in range(len(c)):
-        tr = (h[i] - l[i]) if i == 0 else max(h[i] - l[i], abs(h[i] - c[i - 1]), abs(l[i] - c[i - 1]))
-        if i < n - 1:
-            tot += tr
-        elif i == n - 1:
-            tot += tr
-            prev = tot / n
-        else:
-            prev = (prev * (n - 1) + tr) / n
-    return prev
-
-def _rr_zigzag(h, l, th):
-    n = len(h)
-    piv, d, hi_i, lo_i, ext = [], 0, 0, 0, 0
-    for i in range(1, n):
-        if d == 0:
-            if h[i] > h[hi_i]:
-                hi_i = i
-            if l[i] < l[lo_i]:
-                lo_i = i
-            if h[i] >= l[lo_i] * (1 + th):
-                piv.append(l[lo_i]); d = 1; ext = i
-                for j in range(lo_i, i + 1):
-                    if h[j] > h[ext]:
-                        ext = j
-            elif l[i] <= h[hi_i] * (1 - th):
-                piv.append(h[hi_i]); d = -1; ext = i
-                for j in range(hi_i, i + 1):
-                    if l[j] < l[ext]:
-                        ext = j
-        elif d == 1:
-            if h[i] > h[ext]:
-                ext = i
-            elif l[i] <= h[ext] * (1 - th):
-                piv.append(h[ext]); d = -1; ext = i
-        else:
-            if l[i] < l[ext]:
-                ext = i
-            elif h[i] >= l[ext] * (1 + th):
-                piv.append(l[ext]); d = 1; ext = i
-    if d != 0:
-        piv.append(h[ext] if d == 1 else l[ext])
-    return piv  # nur die Preise der Wendepunkte (Level-Berechnung braucht nichts anderes)
-
-def _rr_levels(pivots, px, atr):
-    """Nächste Unterstützung/Widerstand als (preis, berührungen) oder None."""
-    tol, clusters, cur = atr * 0.6, [], None
-    for p in sorted(pivots):
-        if cur is not None and p - cur["min"] <= tol:
-            cur["vals"].append(p)
-        else:
-            cur = {"vals": [p], "min": p}
-            clusters.append(cur)
-    lv = [(sum(c["vals"]) / len(c["vals"]), len(c["vals"])) for c in clusters if len(c["vals"]) >= 2]
-
-    def score(lvl, is_sup):
-        p, n = lvl
-        if is_sup and p >= px * 0.99:
-            return -999
-        if not is_sup and p <= px * 1.01:
-            return -999
-        return n / (1 + abs(p - px) / atr)
-
-    sups = sorted([x for x in lv if x[0] < px], key=lambda x: -score(x, True))
-    ress = sorted([x for x in lv if x[0] > px], key=lambda x: -score(x, False))
-    return (sups[0] if sups else None), (ress[0] if ress else None)
-
-def rr_extras(history, analyst_mean):
-    """Beste Long-Kombination für den Screener-Filter 'Kleines Risiko'.
-    Stop: knapp unter der nächsten Unterstützung (wie im Rechner, mind. 0,8 ATR Abstand).
-    Der 2×-ATR-Stop zählt hier bewusst nicht: die Historie enthält nur Schlusskurse, der ATR fällt dadurch klein aus
-    und ein enger Stop würde fast jede Aktie als 'kleines Risiko' erscheinen lassen.
-    Ziel: nächster Widerstand oder Analystenziel (je nachdem, was das bessere CRV ergibt)."""
-    out = {"rrCrv": None, "rrStopPct": None, "rrTgtPct": None, "rrTgtType": None}
-    try:
-        c, h, l = _rr_prep(history)
-        n = len(c)
-        if n < 80:
-            return out
-        px = c[-1]
-        atr = _rr_atr_last(h, l, c) or px * 0.02
-        N = min(250, n)
-        th = max(0.035, min(0.12, 2.2 * atr / px))
-        sup, res = _rr_levels(_rr_zigzag(h[-N:], l[-N:], th), px, atr)
-        if not sup:
-            return out
-        stop = sup[0] * 0.985
-        risk = px - stop
-        if risk < 0.8 * atr:
-            return out  # Unterstützung zu nah am Kurs, Stop wäre nicht aussagekräftig
-        best = None
-        if res:
-            best = ((res[0] - px) / risk, "resistance", res[0])
-        if analyst_mean and analyst_mean > px:
-            crv = (float(analyst_mean) - px) / risk
-            if best is None or crv > best[0]:
-                best = (crv, "analyst", float(analyst_mean))
-        if best:
-            crv, tm, tgt = best
-            out.update({"rrCrv": round(crv, 2), "rrStopPct": round(risk / px * 100, 1),
-                        "rrTgtPct": round((tgt / px - 1) * 100, 1), "rrTgtType": tm})
-    except Exception:
-        pass
-    return out
-
 def screener_extras(st):
-    """Zusatzfelder fürs Universum (Screener-Filter 'Unterbewertet')."""
     ratios = st.get("ratios", {}) or {}
     quote = st.get("quote", {}) or {}
     out = {
@@ -651,9 +432,6 @@ def screener_extras(st):
         "upside": None,
     }
     out.update(trend_extras(st.get("chartHistory")))
-    out.update(bottom_extras(st.get("chartHistory")))
-    out.update(peer_extras(st))
-    out.update(rr_extras(st.get("chartHistory"), ((st.get("analysts") or {}).get("targets") or {}).get("mean")))
     lo, hi, px = quote.get("fiftyTwoWeekLow"), quote.get("fiftyTwoWeekHigh"), quote.get("price")
     if lo is not None and hi is not None and px is not None and hi > lo:
         out["rangePos"] = round(max(0.0, min(100.0, (px - lo) / (hi - lo) * 100)), 1)
@@ -661,7 +439,7 @@ def screener_extras(st):
     tgt = targets.get("mean")
     if tgt and px:
         out["upside"] = round((tgt / px - 1) * 100, 1)
-    out["analystCount"] = targets.get("analystCount")  # Kursziel nur ab ~5 Analysten aussagekräftig
+    out["analystCount"] = targets.get("analystCount")
     analysts_block = st.get("analysts") or {}
     out["nextEarningsDate"] = analysts_block.get("nextEarningsDate")
     _recs = analysts_block.get("recommendations") or {}
@@ -669,12 +447,12 @@ def screener_extras(st):
     bd = _recs.get("breakdown") or {}
     _tot = sum(int(bd.get(k) or 0) for k in ("strongBuy", "buy", "hold", "sell", "strongSell"))
     out["buyPct"] = round((int(bd.get("strongBuy") or 0) + int(bd.get("buy") or 0)) / _tot * 100, 1) if _tot else None
-    out["updatedAt"] = st.get("updatedAt")             # Datenstand für die Anzeige im Screener
+    out["updatedAt"] = st.get("updatedAt")
     return out
 
 def run_delta_sync(tickers):
     load_live_forex()
-    print(f"Starte Delta-Sync für {len(tickers)} Ticker (Batch-Download & EUR-Umrechnung)...")
+    print(f"Starte Delta-Sync für {len(tickers)} Ticker...")
     batch_df = yf.download(tickers, period="5d", interval="1d", group_by="ticker", auto_adjust=False, threads=True)
 
     universe_file = os.path.join(DATA_DIR, "universe.json")
@@ -698,21 +476,24 @@ def run_delta_sync(tickers):
                 pass
 
         if not stock_data:
-            print(f"Erstmaliger Komplettabruf für {sym}...")
             stock_data = fetch_full_stock(sym)
 
         cur = stock_data.get("profile", {}).get("nativeCurrency") or detect_native_currency(sym)
 
-        # Einmal-Migration: Analysten-/Earnings-Block ergänzen, falls noch nicht vorhanden
         _an = stock_data.get("analysts") or {}
-        # Analysten-Block neu holen, wenn er fehlt, das Prognose-Feld noch nicht existiert oder der erwartete
-        # Berichtstermin verstrichen ist (dann gibt es ein neues Quartal; Yahoo setzt danach den nächsten Termin).
         _nd = _an.get("nextEarningsDate")
         if not _nd or "epsForecast" not in _an or _nd < datetime.now(timezone.utc).date().isoformat():
             try:
                 _t = yf.Ticker(sym)
                 stock_data["analysts"] = process_analyst_data(_t.info or {}, _t, cur)
-                print(f"Analysten-Daten für {sym} ergänzt")
+            except Exception:
+                pass
+
+        # Holdings bei Delta-Sync aktualisieren, falls leer
+        if not stock_data.get("holdings"):
+            try:
+                _t = yf.Ticker(sym)
+                stock_data["holdings"] = process_fund_data(_t)
             except Exception:
                 pass
 
@@ -740,13 +521,9 @@ def run_delta_sync(tickers):
 
                 last_date = df_clean.index[-1].strftime("%Y-%m-%d")
                 history = stock_data.get("chartHistory", [])
-                
-                # Wir stellen sicher, dass neu heruntergeladene Tagesdaten angehängt werden ohne doppelte Einträge
                 history = [p for p in history if p["date"] != last_date]
                 history.append({"date": last_date, "close": curr_eur, "volume": clean_val(last_row.get("Volume", 0))})
                 history.sort(key=lambda x: x["date"])
-                
-                # Bis zu 2 Jahre (ca. 520 Einträge) behalten
                 stock_data["chartHistory"] = history[-520:]
                 stock_data["updatedAt"] = datetime.now(timezone.utc).isoformat()
         except Exception as e:
@@ -778,142 +555,12 @@ def run_delta_sync(tickers):
     with open(universe_file, "w", encoding="utf-8") as f:
         json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
 
-    print(f"Delta-Sync abgeschlossen: {len(tickers)} Werte in EUR synchronisiert.")
-
-LONG_DIR = os.path.join(DATA_DIR, "long")
-LONG_OVERLAP_TOLERANCE = 0.02
-
-def _long_file(sym):
-    return os.path.join(LONG_DIR, f"{sym}.json")
-
-def _load_long(sym):
-    f = _long_file(sym)
-    if not os.path.exists(f):
-        return None
-    try:
-        with open(f, "r", encoding="utf-8") as fh:
-            return json.load(fh)
-    except Exception:
-        return None
-
-def _native_currency(sym):
-    sf = os.path.join(DATA_DIR, f"{sym}.json")
-    if os.path.exists(sf):
-        try:
-            with open(sf, "r", encoding="utf-8") as fh:
-                return (json.load(fh).get("profile", {}) or {}).get("nativeCurrency") or detect_native_currency(sym)
-        except Exception:
-            pass
-    return detect_native_currency(sym)
-
-def _series_to_points(close, cur):
-    points = []
-    for idx, val in close.items():
-        v = clean_val(to_eur(clean_val(float(val)), cur))
-        if v is not None:
-            points.append([idx.strftime("%Y-%m-%d"), v])
-    return points
-
-def _write_long(sym, points):
-    os.makedirs(LONG_DIR, exist_ok=True)
-    with open(_long_file(sym), "w", encoding="utf-8") as fh:
-        json.dump({"ticker": sym, "interval": "1wk", "currency": "EUR",
-                   "updatedAt": datetime.now(timezone.utc).isoformat(),
-                   "points": points}, fh, ensure_ascii=False, separators=(",", ":"))
-
-def _extract_close(df, sym, multi):
-    sub = df[sym] if multi else df
-    return sub["Close"].dropna()
-
-def update_long_histories(tickers):
-    os.makedirs(LONG_DIR, exist_ok=True)
-    existing = {sym: _load_long(sym) for sym in tickers}
-    full_needed = [sym for sym in tickers if not existing[sym] or not existing[sym].get("points")]
-    delta_needed = [sym for sym in tickers if sym not in full_needed]
-
-    if full_needed:
-        print(f"Voll-Download 10 Jahre für {len(full_needed)} neue Ticker...")
-        _download_full(full_needed)
-
-    if delta_needed:
-        print(f"Delta-Update Langzeit für {len(delta_needed)} Ticker...")
-        refetch = _download_delta(delta_needed, existing)
-        if refetch:
-            print(f"Neufassung (Split/Abweichung) für {len(refetch)} Ticker...")
-            _download_full(refetch)
-
-    if not full_needed and not delta_needed:
-        print("Keine Langzeit-Ticker vorhanden.")
-
-DOWNLOAD_CHUNK = 50
-
-def _chunks(lst, n=DOWNLOAD_CHUNK):
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
-
-def _download_full(syms):
-    for chunk in _chunks(syms):
-        try:
-            df = yf.download(chunk, period="10y", interval="1wk", group_by="ticker",
-                             auto_adjust=False, threads=True, progress=False)
-        except Exception as e:
-            print(f"Voll-Download Block fehlgeschlagen ({len(chunk)} Ticker): {e}")
-            continue
-        multi = len(chunk) > 1
-        for sym in chunk:
-            try:
-                close = _extract_close(df, sym, multi)
-                if close.empty:
-                    print(f"Keine Langzeitdaten für {sym}")
-                    continue
-                _write_long(sym, _series_to_points(close, _native_currency(sym)))
-            except Exception as e:
-                print(f"Langzeitdaten für {sym} übersprungen ({e})")
-        time.sleep(1)
-
-def _download_delta(syms, existing):
-    refetch = []
-    for chunk in _chunks(syms):
-        try:
-            df = yf.download(chunk, period="2mo", interval="1wk", group_by="ticker",
-                             auto_adjust=False, threads=True, progress=False)
-        except Exception as e:
-            print(f"Delta-Download Block fehlgeschlagen ({len(chunk)} Ticker): {e}")
-            continue
-        multi = len(chunk) > 1
-        for sym in chunk:
-            try:
-                close = _extract_close(df, sym, multi)
-                if close.empty:
-                    continue
-                cur = _native_currency(sym)
-                new_pts = _series_to_points(close, cur)
-                old_pts = existing[sym]["points"]
-                old_map = {d: v for d, v in old_pts}
-                overlap = [(d, v) for d, v in new_pts if d in old_map]
-                if overlap:
-                    d, v = overlap[-1]
-                    ref = old_map[d]
-                    if ref and abs(v / ref - 1) > LONG_OVERLAP_TOLERANCE:
-                        refetch.append(sym)
-                        continue
-                last_old = old_pts[-1][0]
-                appended = [p for p in new_pts if p[0] > last_old]
-                updated = [p for p in new_pts if p[0] == last_old]
-                if updated:
-                    old_pts[-1] = updated[0]
-                if appended or updated:
-                    old_pts.extend(appended)
-                    _write_long(sym, old_pts)
-            except Exception as e:
-                print(f"Delta Langzeit {sym} übersprungen ({e})")
-        time.sleep(1)
-    return refetch
+    print(f"Delta-Sync abgeschlossen.")
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["delta", "full"], default="delta")
-    parser.add_argument("--ticker", type=str, default="", help="Optional: Einzelner Ticker für gezieltes Update")
+    parser.add_argument("--ticker", type=str, default="", help="Optional: Einzelner Ticker")
     args = parser.parse_args()
 
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -927,8 +574,6 @@ def main():
     if args.mode == "delta":
         run_delta_sync(target_tickers)
     else:
-        print(f"Führe vollständigen Neuabruf mit EUR-Umrechnung für {len(target_tickers)} Ticker durch...")
-        
         universe_map = {}
         universe_file = os.path.join(DATA_DIR, "universe.json")
         if os.path.exists(universe_file):
@@ -963,7 +608,6 @@ def main():
                     "profitMargins": st["ratios"].get("profitMargins"),
                     **screener_extras(st)
                 }
-                
                 universe_map[sym] = new_item
                 time.sleep(0.3)
             except Exception as e:
@@ -971,11 +615,6 @@ def main():
                 
         with open(universe_file, "w", encoding="utf-8") as f:
             json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
-
-    try:
-        update_long_histories(target_tickers)
-    except Exception as e:
-        print(f"Langzeit-Historie übersprungen: {e}")
 
 if __name__ == "__main__":
     main()
