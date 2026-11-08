@@ -248,8 +248,27 @@ def process_analyst_data(info, ticker_obj, cur):
         return None
 
     next_earnings_date = _ts_date(info.get("earningsTimestampStart") or info.get("earningsTimestamp"))
+
+    # Konsens-Prognose fürs nächste zu berichtende Quartal ('0q'). earnings_history kennt nur vergangene Quartale.
+    eps_forecast = None
+    try:
+        est_df = ticker_obj.earnings_estimate
+        if est_df is not None and not est_df.empty and "0q" in est_df.index:
+            row = est_df.loc["0q"]
+            avg = clean_val(to_eur(clean_val(row.get("avg")), cur))
+            if avg is not None:
+                eps_forecast = {
+                    "date": next_earnings_date,
+                    "estimate": avg,
+                    "low": clean_val(to_eur(clean_val(row.get("low")), cur)),
+                    "high": clean_val(to_eur(clean_val(row.get("high")), cur)),
+                    "analysts": int(clean_val(row.get("numberOfAnalysts"), 0) or 0) or None
+                }
+    except Exception:
+        pass
+
     return {"targets": targets, "recommendations": recommendations, "epsEstimates": eps_estimates,
-            "nextEarningsDate": next_earnings_date}
+            "nextEarningsDate": next_earnings_date, "epsForecast": eps_forecast}
 
 def fetch_full_stock(ticker_sym):
     t = yf.Ticker(ticker_sym)
@@ -685,7 +704,11 @@ def run_delta_sync(tickers):
         cur = stock_data.get("profile", {}).get("nativeCurrency") or detect_native_currency(sym)
 
         # Einmal-Migration: Analysten-/Earnings-Block ergänzen, falls noch nicht vorhanden
-        if not (stock_data.get("analysts") or {}).get("nextEarningsDate"):
+        _an = stock_data.get("analysts") or {}
+        # Analysten-Block neu holen, wenn er fehlt, das Prognose-Feld noch nicht existiert oder der erwartete
+        # Berichtstermin verstrichen ist (dann gibt es ein neues Quartal; Yahoo setzt danach den nächsten Termin).
+        _nd = _an.get("nextEarningsDate")
+        if not _nd or "epsForecast" not in _an or _nd < datetime.now(timezone.utc).date().isoformat():
             try:
                 _t = yf.Ticker(sym)
                 stock_data["analysts"] = process_analyst_data(_t.info or {}, _t, cur)
