@@ -3,13 +3,12 @@
 scripts/fetch_market_data.py
 Delta-fähiges Marktdaten-Update für USA, Europa und Japan.
 Garantiert echte Umrechnung aller ausländischen Währungen (JPY, USD, GBP, CHF) in Euro (EUR).
-Inklusive intelligenter Fallback-Bibliothek für ETF-Top-Holdings, falls Yahoo keine liefert.
+Erweitert um zusätzliche Markt-ETFs und dedizierte Energie- und Öl-ETFs.
 """
 
 import os
 import json
 import math
-import time
 import argparse
 import sys
 from datetime import datetime, timezone
@@ -44,23 +43,31 @@ TICKERS_JAPAN = [
     "9432.T", "6954.T", "7741.T", "6367.T", "4568.T", "6981.T", "8766.T", "7751.T", "6503.T"
 ]
 
+# Erweiterte Liste allgemeiner Markt- und Welt-ETFs
 TICKERS_ETFS = [
     "EUNL.DE",  # iShares Core MSCI World USD (Acc)
     "AMEM.DE",  # Amundi MSCI Emerging Markets (Acc)
-    "SPYI.DE"   # SPDR MSCI ACWI IMI (Acc)
+    "SPYI.DE",  # SPDR MSCI ACWI IMI (Acc)
+    "SXR8.DE",  # iShares Core S&P 500 UCITS ETF (USD) Acc
+    "EXS1.DE",  # iShares DAX UCITS ETF DE
+    "EXV6.DE",  # iShares STOXX Europe 600 UCITS ETF (DE)
+    "CSX5.DE"   # iShares Core EURO STOXX 50 UCITS ETF EUR (Acc)
 ]
 
+# Erweiterte Liste von Sektor- und Themen-ETFs (inkl. mehrerer Energie- und Öl-ETFs)
 TICKERS_SECTORS = [
     "QDVE.DE",  # iShares S&P 500 Information Technology (Tech US)
     "XDWT.DE",  # Xtrackers MSCI World Information Technology (Tech Global)
+    "QDVF.DE",  # iShares S&P 500 Energy Sector UCITS ETF (Öl & Energie USA) [Neu]
+    "WNRG.DE",  # iShares MSCI World Energy Sector (Öl & Energie Global)
+    "XDW0.DE",  # Xtrackers MSCI World Energy UCITS ETF 1C (Öl & Energie Global) [Neu]
     "WHEA.DE",  # iShares MSCI World Health Care (Gesundheitswesen)
     "WSCA.DE",  # iShares MSCI World Consumer Staples (Basiskonsumgüter)
     "WFIS.DE",  # iShares MSCI World Financials (Finanzen)
-    "IUSP.DE",  # iShares Developed Markets Property Yield (Immobilien/Real Estate)
-    "WNRG.DE"   # iShares MSCI World Energy Sector (Energie)
+    "IUSP.DE"   # iShares Developed Markets Property Yield (Immobilien)
 ]
 
-# Feste Fallback-Bibliothek für bekannte ETFs, falls Yahoo keine Holdings liefert
+# Umfassende Fallback-Bibliothek für Top-Holdings aller konfigurierten ETFs
 KNOWN_ETF_HOLDINGS = {
     "EUNL.DE": [
         {"name": "NVIDIA Corp", "weight": 5.2},
@@ -83,6 +90,34 @@ KNOWN_ETF_HOLDINGS = {
         {"name": "Amazon.com Inc", "weight": 2.2},
         {"name": "Meta Platforms Inc", "weight": 1.5}
     ],
+    "SXR8.DE": [
+        {"name": "Apple Inc", "weight": 7.9},
+        {"name": "NVIDIA Corp", "weight": 6.9},
+        {"name": "Microsoft Corp", "weight": 6.3},
+        {"name": "Amazon.com Inc", "weight": 4.0},
+        {"name": "Alphabet Inc Class A", "weight": 2.6}
+    ],
+    "EXS1.DE": [
+        {"name": "SAP SE", "weight": 14.5},
+        {"name": "Siemens AG", "weight": 10.2},
+        {"name": "Allianz SE", "weight": 8.3},
+        {"name": "Airbus SE", "weight": 6.8},
+        {"name": "Deutsche Telekom AG", "weight": 6.1}
+    ],
+    "EXV6.DE": [
+        {"name": "ASML Holding NV", "weight": 3.6},
+        {"name": "Nestle SA", "weight": 2.7},
+        {"name": "Novartis AG", "weight": 2.4},
+        {"name": "Shell PLC", "weight": 2.3},
+        {"name": "SAP SE", "weight": 2.2}
+    ],
+    "CSX5.DE": [
+        {"name": "ASML Holding NV", "weight": 9.4},
+        {"name": "SAP SE", "weight": 7.8},
+        {"name": "Schneider Electric SE", "weight": 5.1},
+        {"name": "TotalEnergies SE", "weight": 4.6},
+        {"name": "Siemens AG", "weight": 4.4}
+    ],
     "XDWT.DE": [
         {"name": "NVIDIA Corp", "weight": 18.5},
         {"name": "Microsoft Corp", "weight": 16.2},
@@ -96,6 +131,27 @@ KNOWN_ETF_HOLDINGS = {
         {"name": "Apple Inc", "weight": 17.2},
         {"name": "Broadcom Inc", "weight": 5.1},
         {"name": "Salesforce Inc", "weight": 2.4}
+    ],
+    "QDVF.DE": [
+        {"name": "Exxon Mobil Corp", "weight": 22.4},
+        {"name": "Chevron Corp", "weight": 16.8},
+        {"name": "ConocoPhillips", "weight": 6.5},
+        {"name": "Valero Energy Corp", "weight": 4.8},
+        {"name": "Marathon Petroleum Corp", "weight": 4.6}
+    ],
+    "WNRG.DE": [
+        {"name": "Exxon Mobil Corp", "weight": 18.4},
+        {"name": "Chevron Corp", "weight": 10.3},
+        {"name": "Shell PLC", "weight": 7.5},
+        {"name": "TotalEnergies SE", "weight": 4.8},
+        {"name": "ConocoPhillips", "weight": 4.5}
+    ],
+    "XDW0.DE": [
+        {"name": "Exxon Mobil Corp", "weight": 18.0},
+        {"name": "Chevron Corp", "weight": 10.1},
+        {"name": "Shell PLC", "weight": 7.8},
+        {"name": "TotalEnergies SE", "weight": 5.1},
+        {"name": "BP PLC", "weight": 4.2}
     ]
 }
 
@@ -183,7 +239,7 @@ def process_fund_data(ticker_obj, symbol=""):
                     if weight > 0: holdings.append({"name": str(name), "weight": round(weight, 2)})
     except Exception: pass
 
-    # Fallback-Greifen, wenn Yahoo nichts liefert
+    # Zuverlässiger Fallback für alle bekannten ETFs
     if not holdings and symbol in KNOWN_ETF_HOLDINGS:
         return KNOWN_ETF_HOLDINGS[symbol]
     
