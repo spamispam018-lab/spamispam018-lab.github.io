@@ -8,7 +8,8 @@
  * Alle Werte stammen aus den Abschlüssen der letzten vier Quartale (TTM) bzw. dem letzten Geschäftsjahr.
  * Reine Modellrechnung – keine Anlageberatung.
  * 
- * *NEU:* Bei ETFs werden die Fair Values aus den Einzelbewertungen der Top 5 Holdings gewichtet aggregiert!
+ * *NEU:* Bei ETFs werden die Fair Values aus den Einzelbewertungen der Top 5 Holdings gewichtet aggregiert, 
+ * wobei für die restlichen (unbekannten) Holdings eine faire Bewertung (0% Upside) angenommen wird!
  */
 
 window.App = window.App || {};
@@ -261,6 +262,7 @@ window.App.StockFairValue = (function () {
 
     if (etfHoldingsData && etfHoldingsData.length > 0) {
       lines.push('WICHTIG: Das ist ein ETF. Die DCF- und Fair-Value-Werte wurden anteilig aus den Fundamentaldaten der größten enthaltenen Aktien (Top Holdings) berechnet.');
+      lines.push('Dabei wurde für die nicht abgedeckten Holdings (Rest zu 100%) ein faires Pricing (0% Upside) angenommen.');
       lines.push('Welche durchschnittlichen Wachstumsraten und Diskontsätze sind für die Top-Positionen dieses ETFs angemessen?');
     } else {
       lines.push('Welche Werte passen für diese Aktie am besten? Ich brauche:');
@@ -408,7 +410,6 @@ window.App.StockFairValue = (function () {
       var etfPrice = (stock.quote || {}).price || 0;
       var graham, peer, dcf;
 
-      // Aggregiere über Holdings, falls ETF
       if (etfHoldingsData && etfHoldingsData.length > 0) {
          var gWeight = 0, gUpside = 0;
          var pWeight = 0, pUpside = 0;
@@ -435,9 +436,10 @@ window.App.StockFairValue = (function () {
             }
          });
 
-         graham = (gWeight > 0 && etfPrice > 0) ? { ok: true, value: etfPrice * (1 + (gUpside / gWeight)), note: 'Gewichteter Durchschnitt der Graham-Bewertungen der Top-Holdings.' } : { ok: false, reason: 'Gewinne oder Buchwerte der Holdings nicht berechenbar.' };
-         peer = (pWeight > 0 && etfPrice > 0) ? { ok: true, value: etfPrice * (1 + (pUpside / pWeight)), note: 'Gewichteter Durchschnitt der KGV-Bewertungen der Top-Holdings.' } : { ok: false, reason: 'Nicht genügend Branchen-Peers für die Holdings gefunden.' };
-         dcf = (dWeight > 0 && etfPrice > 0) ? { ok: true, value: etfPrice * (1 + (dUpside / dWeight)), note: 'Gewichteter Durchschnitt der DCF-Werte der Top-Holdings (Annahmen gelten übergreifend).' } : { ok: false, reason: 'Freie Cashflows der Holdings negativ oder nicht berechenbar.' };
+         // Konservativer Ansatz: Der unbekannte Rest des ETFs wird mit 0% Upside (fair bewertet) angenommen
+         graham = (gWeight > 0 && etfPrice > 0) ? { ok: true, value: etfPrice * (1 + (gUpside / 100)), note: 'Gewichteter Durchschnitt der Graham-Bewertungen aus den Top-Holdings (Rest wird als fair bewertet angenommen).' } : { ok: false, reason: 'Gewinne oder Buchwerte der Holdings nicht berechenbar.' };
+         peer = (pWeight > 0 && etfPrice > 0) ? { ok: true, value: etfPrice * (1 + (pUpside / 100)), note: 'Gewichteter Durchschnitt der KGV-Bewertungen aus den Top-Holdings (Rest wird als fair bewertet angenommen).' } : { ok: false, reason: 'Nicht genügend Branchen-Peers für die Holdings gefunden.' };
+         dcf = (dWeight > 0 && etfPrice > 0) ? { ok: true, value: etfPrice * (1 + (dUpside / 100)), note: 'Gewichteter Durchschnitt der DCF-Werte aus den Top-Holdings (Annahmen gelten übergreifend, Rest wird als fair bewertet angenommen).' } : { ok: false, reason: 'Freie Cashflows der Holdings negativ oder nicht berechenbar.' };
 
       } else {
          graham = grahamValue(b);
@@ -490,7 +492,7 @@ window.App.StockFairValue = (function () {
     var html = '';
 
     if (etfHoldingsData && etfHoldingsData.length > 0) {
-       html += '<div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:12px; padding:8px 12px; background:var(--bg-tertiary); border-radius:var(--radius-sm); border:1px solid var(--border-subtle);"><b>Hinweis (ETF):</b> Da ein ETF keine eigene Gewinn-/Cashflow-Bilanz aufweist, wurde die Fair-Value-Spanne aus den anteiligen Einzelbewertungen der 5 größten enthaltenen Aktien (Top Holdings) gewichtet abgeleitet.</div>';
+       html += '<div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:12px; padding:8px 12px; background:var(--bg-tertiary); border-radius:var(--radius-sm); border:1px solid var(--border-subtle);"><b>Hinweis (ETF):</b> Da ein ETF keine eigene Gewinn-/Cashflow-Bilanz aufweist, wurde die Fair-Value-Spanne aus den anteiligen Einzelbewertungen der größten enthaltenen Aktien (Top Holdings) berechnet. Dabei wird für den restlichen (unbekannten) Teil des Fonds eine faire Bewertung (0% Aufschlag) angenommen.</div>';
     }
 
     html += '<div class="card"><div class="card-header-dotted"><span class="card-title">Fair-Value-Spanne</span>' +
