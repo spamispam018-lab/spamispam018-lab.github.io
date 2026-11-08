@@ -3,6 +3,7 @@
  * Marktübersicht (#/market):
  * - Heatmap der Sektoren (Fläche = Marktkapitalisierung, Farbe = kapitalgewichtete Performance)
  * - Drilldown in einen Sektor: Heatmap der Einzelwerte + Branchen-Ranking + Passende Sektor-ETFs
+ * - Drilldown in eine Branche (NEU): Klick auf eine Branche zeigt nur die Aktien dieser Branche.
  * - Top-/Flop-Listen für den gewählten Zeitraum
  * Datenquelle: data/universe.json (changePercent, perf1w, perf1m, perf3m, perfYtd, perf52w, marketCap).
  * 
@@ -31,13 +32,14 @@ window.App.Market = (function () {
     'Technology': ['QDVE.DE', 'XDWT.DE'],
     'Healthcare': ['WHEA.DE'],
     'Consumer Defensive': ['WSCA.DE'],
-    'Financial Services': ['XDWF.DE'], // NEU: Ersetzt WFIS.DE für bessere Datenqualität
+    'Financial Services': ['XDWF.DE'],
     'Real Estate': ['IUSP.DE'],
     'Energy': ['WNRG.DE', 'QDVF.DE', 'XDW0.DE'],
     'Communication Services': ['IU5C.DE', 'XWTS.DE']
   };
 
-  var state = { period: 'perf1m', sector: null, largeOnly: true };
+  // NEU: industry im State ergänzt
+  var state = { period: 'perf1m', sector: null, industry: null, largeOnly: true };
   var universe = [];
   var styleInjected = false;
 
@@ -243,9 +245,11 @@ window.App.Market = (function () {
   function draw(container) {
     var p = periodInfo();
     var key = p.key;
-    var pool = state.sector
-      ? universe.filter(function (s) { return s.sector === state.sector; })
-      : universe;
+    
+    // NEU: 3-Ebenen-Filterung (Gesamtmarkt -> Sektor -> Branche)
+    var pool = state.industry
+      ? universe.filter(function (s) { return s.industry === state.industry; })
+      : (state.sector ? universe.filter(function (s) { return s.sector === state.sector; }) : universe);
 
     var valid = pool.filter(function (s) { return isNum(s[key]); });
     var up = valid.filter(function (s) { return Number(s[key]) > 0; }).length;
@@ -254,6 +258,8 @@ window.App.Market = (function () {
     var sorted = valid.map(function (s) { return Number(s[key]); }).sort(function (a, b) { return a - b; });
     var med = sorted.length ? (sorted.length % 2 ? sorted[(sorted.length - 1) / 2]
       : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2) : null;
+
+    var viewTitle = state.industry ? state.industry : (state.sector ? state.sector : 'Gesamtmarkt');
 
     var html = '';
 
@@ -266,7 +272,7 @@ window.App.Market = (function () {
 
     // Kennzahlen
     html += '<div class="card"><div class="card-header-dotted"><span class="card-title">' +
-      (state.sector ? esc(state.sector) : 'Gesamtmarkt') + ' · ' + p.label + '</span>' +
+      esc(viewTitle) + ' · ' + p.label + '</span>' +
       '<span class="sector-label">' + valid.length + ' Aktien</span></div>' +
       '<div class="mk-stats">' +
         '<div class="mk-stat"><div class="mk-stat-label">Ø gewichtet</div><div class="mk-stat-value mk-val ' + cls(avg) + '">' + fmtPct(avg, 2) + '</div></div>' +
@@ -279,8 +285,12 @@ window.App.Market = (function () {
     var ratio = state.sector ? 1.05 : 0.95;
     var pendingMap = null;
     html += '<div class="card"><div class="card-header-dotted"><span class="card-title">' +
-      (state.sector ? 'Heatmap ' + esc(state.sector) : 'Sektor-Heatmap') + '</span>';
-    if (state.sector) {
+      (state.sector ? 'Heatmap ' + esc(viewTitle) : 'Sektor-Heatmap') + '</span>';
+      
+    // NEU: Back-Buttons für die Ebenen
+    if (state.industry) {
+      html += '<button class="chip-btn" id="mk-back-industry" style="padding:3px 10px;font-size:.72rem;">← Zurück zu ' + esc(state.sector) + '</button>';
+    } else if (state.sector) {
       html += '<button class="chip-btn" id="mk-back" style="padding:3px 10px;font-size:.72rem;">← Alle Sektoren</button>';
     } else {
       html += '<span class="sector-label">Fläche = Marktkap.</span>';
@@ -313,10 +323,10 @@ window.App.Market = (function () {
     html += '<div style="font-size:.68rem;color:var(--text-dim);margin-top:6px;">Tipp: Kachel antippen, um ' +
       (state.sector ? 'die Aktie zu öffnen.' : 'in den Sektor zu wechseln.') + '</div></div>';
 
-    if (state.sector && window.App.News) html += window.App.News.sectorCardHtml(state.sector);
+    if (state.sector && !state.industry && window.App.News) html += window.App.News.sectorCardHtml(state.sector);
 
-    // Passende Sektor-ETFs anzeigen
-    if (state.sector && SECTOR_ETFS[state.sector]) {
+    // Passende Sektor-ETFs anzeigen (nur auf Sektor-Ebene)
+    if (state.sector && !state.industry && SECTOR_ETFS[state.sector]) {
       var matchingTickers = SECTOR_ETFS[state.sector];
       var etfList = universe.filter(function(s) { return matchingTickers.indexOf(s.ticker) !== -1; });
       
@@ -339,10 +349,19 @@ window.App.Market = (function () {
       }
     }
 
-    // Ranking der Sektoren bzw. Branchen
-    var rankGroups = state.sector
-      ? groupBy(pool, function (s) { return s.industry; })
-      : groupBy(universe, function (s) { return s.sector; });
+    // Ranking der Sektoren, Branchen oder Einzelaktien
+    var rankGroups;
+    if (state.industry) {
+      // Wenn wir in einer Branche sind, ranken wir die einzelnen Aktien
+      rankGroups = groupBy(pool, function (s) { return s.ticker; });
+    } else if (state.sector) {
+      // Wenn wir in einem Sektor sind, ranken wir die Branchen
+      rankGroups = groupBy(pool, function (s) { return s.industry; });
+    } else {
+      // Auf Gesamtmarkt-Ebene ranken wir die Sektoren
+      rankGroups = groupBy(universe, function (s) { return s.sector; });
+    }
+
     var rank = Object.keys(rankGroups).map(function (k) {
       var g = rankGroups[k].filter(function (s) { return isNum(s[key]); });
       return { name: k, n: rankGroups[k].length, perf: capWeightedAvg(g, key) };
@@ -352,10 +371,21 @@ window.App.Market = (function () {
     if (rank.length > 1) {
       var maxAbs = 0.0001;
       rank.forEach(function (r) { maxAbs = Math.max(maxAbs, Math.abs(r.perf)); });
-      html += '<div class="card"><div class="card-header-dotted"><span class="card-title">' +
-        (state.sector ? 'Branchen' : 'Sektoren') + ' im Vergleich</span></div>';
+      var title = state.industry ? 'Aktien im Vergleich' : (state.sector ? 'Branchen im Vergleich' : 'Sektoren im Vergleich');
+      html += '<div class="card"><div class="card-header-dotted"><span class="card-title">' + title + '</span></div>';
+      
+      // NEU: Klickbare Attribute je nach Ebene
+      var clickAttr = '';
+      if (!state.sector) clickAttr = 'data-mk-sector'; // Klick auf Sektor
+      else if (!state.industry) clickAttr = 'data-mk-industry'; // Klick auf Branche
+      
       rank.forEach(function (r) {
-        html += barRow(esc(r.name), r.n + ' Aktien', r.perf, maxAbs, state.sector ? '' : 'data-mk-sector', r.name);
+        // Falls wir in der Branchen-Ansicht sind, verlinken wir direkt auf die Aktie
+        if (state.industry) {
+           html += stockRow(rankGroups[r.name][0], key); 
+        } else {
+           html += barRow(esc(r.name), r.n + ' Aktien', r.perf, maxAbs, clickAttr, r.name);
+        }
       });
       html += '</div>';
     }
@@ -400,8 +430,21 @@ window.App.Market = (function () {
       b.onclick = function () { state.period = b.getAttribute('data-mk-period'); draw(container); window.scrollTo(0, 0); };
     });
     container.querySelectorAll('[data-mk-sector]').forEach(function (b) {
-      b.onclick = function () { state.sector = b.getAttribute('data-mk-sector'); draw(container); window.scrollTo(0, 0); };
+      b.onclick = function () { 
+        state.sector = b.getAttribute('data-mk-sector'); 
+        state.industry = null; 
+        draw(container); window.scrollTo(0, 0); 
+      };
     });
+    
+    // NEU: Klick auf eine Branche
+    container.querySelectorAll('[data-mk-industry]').forEach(function (b) {
+      b.onclick = function () { 
+        state.industry = b.getAttribute('data-mk-industry'); 
+        draw(container); window.scrollTo(0, 0); 
+      };
+    });
+
     container.querySelectorAll('[data-mk-ticker]').forEach(function (b) {
       b.onclick = function () {
         var t = b.getAttribute('data-mk-ticker');
@@ -409,8 +452,14 @@ window.App.Market = (function () {
         window.App.Router.navigate('/stock/' + t + '/overview');
       };
     });
+
+    // NEU: Zurück-Buttons für beide Ebenen
+    var backInd = container.querySelector('#mk-back-industry');
+    if (backInd) backInd.onclick = function () { state.industry = null; draw(container); window.scrollTo(0, 0); };
+
     var back = container.querySelector('#mk-back');
-    if (back) back.onclick = function () { state.sector = null; draw(container); window.scrollTo(0, 0); };
+    if (back) back.onclick = function () { state.sector = null; state.industry = null; draw(container); window.scrollTo(0, 0); };
+    
     var large = container.querySelector('#mk-large');
     if (large) large.onclick = function () { state.largeOnly = !state.largeOnly; draw(container); };
   }
