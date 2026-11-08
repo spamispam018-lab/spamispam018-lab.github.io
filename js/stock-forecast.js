@@ -4,10 +4,8 @@
  * Zeigt Szenarien (niedriges/mittleres/hohes Analystenziel – bei ETFs aus den Top-Holdings gewichtet),
  * statistische Schwankungsbreite (1σ), Trendkanal und Unterstützungszone (52W-Tief).
  *
- * FIX: Die hartkodierten ETF-Ziele (+10 % / -5 % / +25 %) wurden entfernt.
- * Stattdessen wird ehrlich kommuniziert, wenn für einen ETF keine aggregierten
- * Analystenziele vorliegen. Der Analyst-Tab zeigt die gewichteten Ziele der
- * Top-Holdings bereits korrekt an.
+ * NEU: Die Szenarien für ETFs werden jetzt asynchron aus den echten Analystenzielen
+ * der Top-5-Holdings gewichtet berechnet, anstatt wie früher hartkodiert zu sein.
  */
 window.App = window.App || {};
 window.App.Forecast = (function () {
@@ -15,6 +13,87 @@ window.App.Forecast = (function () {
   var WIN = { '1W': 5, '1M': 21, '3M': 63, '6M': 126, '1Y': 250 };
   var PL = { '1W': ['1 Woche', '1 Wo.'], '1M': ['1 Monat', '1 Mon.'], '3M': ['3 Monate', '3 Mon.'], '6M': ['6 Monate', '6 Mon.'], '1Y': ['12 Monate', '12 Mon.'] };
   var state = { analyst: true, cone: true, trend: false };
+  
+  var nameToTickerMap = {};
+
+  function buildNameLookup(universe) {
+    nameToTickerMap = {};
+    (universe || []).forEach(function(u) {
+      nameToTickerMap[u.ticker.toLowerCase()] = u.ticker;
+      if (u.name) {
+        var cleanName = u.name.toLowerCase().replace(/inc\.|inc|corp\.|corp|ltd\.|ltd|plc|ag|se|co\./g, '').trim();
+        nameToTickerMap[cleanName] = u.ticker;
+      }
+    });
+  }
+
+  /**
+   * Holt die Analystenziele der Top-5-Holdings und aggregiert sie gewichtet.
+   */
+  function fetchEtfTargets(stock) {
+    return new Promise(function(resolve) {
+      var holdings = stock.holdings || [];
+      if (holdings.length === 0) { resolve(null); return; }
+
+      window.App.Data.getUniverse().then(function(universe) {
+        buildNameLookup(universe);
+        var top5 = holdings.slice(0, 5);
+        
+        var promises = top5.map(function(h) {
+          var cleanName = h.name.toLowerCase().replace(/inc\.|inc|corp\.|corp|ltd\.|ltd|plc|ag|se|co\./g, '').trim();
+          var targetTicker = nameToTickerMap[cleanName] || nameToTickerMap[h.name.toLowerCase()] || null;
+          
+          if (!targetTicker) {
+            var possible = universe.find(function(u) { return u.ticker.indexOf(h.name) === 0; });
+            if (possible) targetTicker = possible.ticker;
+          }
+
+          if (targetTicker) {
+            return window.App.Data.getStock(targetTicker).then(function(res) {
+                return { data: res, weight: h.weight || 0 };
+            }).catch(function() { return null; });
+          }
+          return Promise.resolve(null);
+        });
+
+        Promise.all(promises).then(function(results) {
+          var validHoldings = results.filter(function(r) { 
+              return r && r.data && r.data.analysts && r.data.analysts.targets && r.data.analysts.targets.mean; 
+          });
+          
+          if (validHoldings.length === 0) { resolve(null); return; }
+
+          var totalWeight = validHoldings.reduce(function(sum, r) { return sum + r.weight; }, 0);
+          var aggLowUpside = 0, aggMeanUpside = 0, aggHighUpside = 0;
+          var totalAnalysts = 0;
+
+          validHoldings.forEach(function(r) {
+            var normWeight = totalWeight > 0 ? (r.weight / totalWeight) : (1 / validHoldings.length);
+            var an = r.data.analysts || {};
+            var tg = an.targets || {};
+            var px = r.data.quote ? r.data.quote.price : tg.current;
+
+            if (px > 0 && tg.mean) {
+               aggLowUpside += ((tg.low - px) / px) * normWeight;
+               aggMeanUpside += ((tg.mean - px) / px) * normWeight;
+               aggHighUpside += ((tg.high - px) / px) * normWeight;
+            }
+            totalAnalysts += (tg.analystCount || 0);
+          });
+
+          var etfPrice = stock.quote.price || 0;
+          resolve({
+             current: etfPrice,
+             low: etfPrice * (1 + aggLowUpside),
+             mean: etfPrice * (1 + aggMeanUpside),
+             high: etfPrice * (1 + aggHighUpside),
+             analystCount: totalAnalysts,
+             isAggregated: true
+          });
+        });
+      }).catch(function() { resolve(null); });
+    });
+  }
 
   function compute(closes, targets, period, stock) {
     var full = closes.slice(-250);
@@ -36,16 +115,14 @@ window.App.Forecast = (function () {
     var low = Math.min.apply(null, full);
     m.support = [low, low * 1.05];
     m.coneLo = px * Math.exp(-sigma * Math.sqrt(F)); m.coneHi = px * Math.exp(sigma * Math.sqrt(F));
-
+    
     var t = targets || {}, r = Math.min(1, F / 252);
     m.raw = { low: t.low || null, mean: t.mean || null, high: t.high || null };
     m.tCount = t.analystCount || null;
-    m.etfWithoutTargets = false;
+    m.isEtfHoldingsTarget = t.isAggregated || false;
 
-    // FIX: Statt hartkodierter ETF-Ziele → ehrlicher Hinweis, wenn keine Daten vorliegen
-    if (!m.raw.mean && stock && stock.holdings && stock.holdings.length > 0) {
-      m.etfWithoutTargets = true;
-    }
+    // Wenn keine direkten Analystenziele da sind, aber Holdings (ETF) vorliegen, haben wir sie extern geladen.
+    // Der Fallback (Fake-Zahlen) ist entfernt.
 
     ['low', 'mean', 'high'].forEach(function (k) { m['t' + k] = m.raw[k] ? px + (m.raw[k] - px) * r : null; });
     return m;
@@ -53,15 +130,36 @@ window.App.Forecast = (function () {
 
   function mount(slot, stock, closes, period) {
     if (!slot) return;
-    var m = compute(closes, stock.analysts && stock.analysts.targets, period, stock);
+
+    var isEtf = (stock.sector === 'Sonstige' || stock.sector === 'ETF' || !stock.sector);
+    var hasDirectTargets = stock.analysts && stock.analysts.targets && stock.analysts.targets.mean;
+
+    if (isEtf && !hasDirectTargets && stock.holdings && stock.holdings.length > 0) {
+      // Ladezustand anzeigen
+      slot.innerHTML = '<div class="card" style="padding: 30px; text-align: center;"><div class="spinner" style="margin: 0 auto 12px;"></div><p style="font-size: 0.85rem; color: var(--text-dim);">Berechne Szenarien aus den Top-Holdings...</p></div>';
+      
+      fetchEtfTargets(stock).then(function(aggTargets) {
+        var m = compute(closes, aggTargets, period, stock);
+        renderChart(slot, stock, closes, period, m);
+      }).catch(function() {
+        var m = compute(closes, stock.analysts && stock.analysts.targets, period, stock);
+        renderChart(slot, stock, closes, period, m);
+      });
+    } else {
+      var m = compute(closes, stock.analysts && stock.analysts.targets, period, stock);
+      renderChart(slot, stock, closes, period, m);
+    }
+  }
+
+  function renderChart(slot, stock, closes, period, m) {
     if (!m) { slot.innerHTML = ''; return; }
     var F = window.App.Format, cur = (stock.quote && stock.quote.currency) || 'EUR', pl = PL[m.period];
     function eur(v) { return F.currency(v, cur); }
     function pill(k, label) { return '<button class="pill-btn fc-toggle ' + (state[k] ? 'active' : '') + '" data-k="' + k + '">' + label + '</button>'; }
     var sum = '';
-
-    var labels = ['Pessimistisch', 'Basis', 'Optimistisch'];
-    var descs = ['niedrigstes Kursziel', 'mittleres Kursziel', 'höchstes Kursziel'];
+    
+    var labels = m.isEtfHoldingsTarget ? ['Pessimistisch (Holdings)', 'Basis (Holdings-Gewichtet)', 'Optimistisch (Holdings)'] : ['Pessimistisch', 'Basis', 'Optimistisch'];
+    var descs = m.isEtfHoldingsTarget ? ['aus Top-Holdings', 'aus Top-Holdings gewichtet', 'aus Top-Holdings'] : ['niedrigstes Kursziel', 'mittleres Kursziel', 'höchstes Kursziel'];
 
     [['low', '#ef4444', 0], ['mean', '#a78bfa', 1], ['high', '#22c55e', 2]].forEach(function (r, idx) {
       var v = m.raw[r[0]];
@@ -74,25 +172,22 @@ window.App.Forecast = (function () {
     });
 
     if (!m.raw.low && !m.raw.mean && !m.raw.high) {
-      // FIX: Ehrlicher Hinweis statt hartkodierter Fake-Ziele
-      sum += '<div class="chart-signal-value" style="color:var(--text-dim);">' +
-        (m.etfWithoutTargets
-          ? 'Für diesen ETF liegen keine aggregierten Analystenziele vor. Öffne den Analyst-Tab, um die gewichteten Ziele der Top-Holdings zu sehen.'
-          : 'Keine Analysten-Kursziele vorhanden.') +
-        '</div>';
+      sum += '<div class="chart-signal-value" style="color:var(--text-dim);">Keine Analysten-Kursziele vorhanden.</div>';
     } else {
-      sum += '<div class="chart-signal-value" style="color:var(--text-dim);">' +
-        (m.tCount ? 'Basis aus ' + m.tCount + ' Analysten. ' : '') +
+      sum += '<div class="chart-signal-value" style="color:var(--text-dim);">' + 
+        (m.isEtfHoldingsTarget ? '<b>Hinweis (ETF):</b> Werte aus den 5 größten enthaltenen Aktien (Top Holdings) gewichtet berechnet. ' : (m.tCount ? 'Basis aus ' + m.tCount + ' Analysten. ' : '')) +
         (m.period !== '1Y' ? 'Kursziele gelten ca. 12 Monate, die Punkte im Chart zeigen den anteiligen Wert bis in ' + pl[1] + '.' : '') + '</div>';
     }
     sum += '<div class="chart-signal-value">Typische Schwankungsbreite bis in ' + pl[1] + ' (1σ, ca. 68 %): ' + eur(m.coneLo) + ' – ' + eur(m.coneHi) + '</div>';
-
+    
     slot.innerHTML = '<div class="card"><div class="card-header-dotted"><span class="card-title">Szenario-Chart</span><span class="period-tag">' + pl[0] + '</span></div>' +
       '<div class="pill-group" style="margin-bottom:8px;">' + pill('analyst', 'Szenarien') + pill('cone', 'Schwankungsbreite') + (m.hasTrend ? pill('trend', 'Trendkanal') : '') + '</div>' +
       '<div style="position:relative;width:100%;height:240px;"><canvas id="fc-canvas" style="width:100%;height:100%;"></canvas></div>' +
       '<div style="margin-top:8px;">' + sum + '</div>' +
-      '<div class="chart-note">Szenario-Darstellung, keine Kursprognose. Der Zeitraum folgt dem Analysezeitraum oben. Die Szenario-Linien basieren auf Analystenzielen, die Bandbreite beruht auf vergangenen Schwankungen. Keine Anlageberatung. Blaue Zone: 52W-Tief-Bereich als mögliche Unterstützung.</div></div>';
+      '<div class="chart-note">Szenario-Darstellung, keine Kursprognose. Der Zeitraum folgt dem Analysezeitraum oben. Die Szenario-Linien basieren auf Analystenzielen' + (m.isEtfHoldingsTarget ? ' der Top-Holdings' : '') + ', die Bandbreite beruht auf vergangenen Schwankungen. Keine Anlageberatung. Blaue Zone: 52W-Tief-Bereich als mögliche Unterstützung.</div></div>';
+    
     draw(slot.querySelector('#fc-canvas'), m);
+    
     [].forEach.call(slot.querySelectorAll('.fc-toggle'), function (btn) {
       btn.onclick = function () { var k = btn.getAttribute('data-k'); state[k] = !state[k]; mount(slot, stock, closes, period); };
     });
