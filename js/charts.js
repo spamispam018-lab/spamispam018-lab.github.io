@@ -1,16 +1,8 @@
 /**
  * js/charts.js
- * Leichtgewichtige, mobile-optimierte Canvas-Diagramm-Engine.
- * Unterstützt:
- * - Linien- & Flächen-Charts (mit Insider-Markern Buy/Sell)
- * - Gruppierte Balkendiagramme (Financials TTM)
- * - Gestapelte Balkendiagramme (Analysten-Empfehlungen)
- * - Donut-Charts (Ratings-Breakdown)
- * Behandelt High-DPI Displays (Retina) ohne externe Bibliotheken.
- *
- * FIX: Donut-Textfarbe nutzt jetzt --text-main (lesbar im Light- und Dark-Mode).
+ * Canvas-Diagramm-Engine.
+ * NEU: renderRadarChart (Vergleich), renderBandChart (KGV-Historie).
  */
-
 window.App = window.App || {};
 
 window.App.Charts = (function () {
@@ -29,9 +21,6 @@ window.App.Charts = (function () {
     gray: '#4b5563'
   };
 
-  /**
-   * Initialisiert ein Canvas-Element für scharfe Retina-Darstellung.
-   */
   function setupCanvas(canvas) {
     if (!canvas) return null;
     var dpr = window.devicePixelRatio || 1;
@@ -49,9 +38,6 @@ window.App.Charts = (function () {
     return { ctx: ctx, width: width, height: height };
   }
 
-  /**
-   * Ermittelt eine "schöne" Schrittweite (1, 2, 5 x 10^n) für die Y-Achse.
-   */
   function niceStep(raw) {
     if (!isFinite(raw) || raw <= 0) return 1;
     var exp = Math.pow(10, Math.floor(Math.log10(raw)));
@@ -67,7 +53,6 @@ window.App.Charts = (function () {
     var range = maxVal - minVal;
     if (!isFinite(range) || range <= 0) { range = 1; maxVal = minVal + 1; }
 
-    // Ticks auf runden Werten (enthält 0, wenn der Wertebereich 0 umfasst)
     var step = niceStep(range / 4);
     var ticks = [];
     var first = Math.ceil(minVal / step - 1e-9) * step;
@@ -81,7 +66,6 @@ window.App.Charts = (function () {
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
 
-    // Linken Rand an die breiteste Achsenbeschriftung anpassen (kein Überlappen mit Balken/Linien)
     var labels = ticks.map(function (t) { return formatFn ? formatFn(t) : t.toFixed(1); });
     var maxLabelW = 0;
     labels.forEach(function (l) {
@@ -96,8 +80,6 @@ window.App.Charts = (function () {
 
     ticks.forEach(function (t, i) {
       var y = chartTop + chartHeight - ((t - minVal) / range) * chartHeight;
-
-      // Gestrichelte Linie (Nulllinie durchgezogen und etwas heller)
       ctx.beginPath();
       if (t === 0 && minVal < 0) {
         ctx.setLineDash([]);
@@ -109,35 +91,22 @@ window.App.Charts = (function () {
       ctx.moveTo(padding.left, y);
       ctx.lineTo(width - padding.right, y);
       ctx.stroke();
-
-      // Achsenbeschriftung
       ctx.fillText(labels[i], 4, y);
     });
     ctx.restore();
   }
 
-  /**
-   * 1. Linien-Chart mit Gradient und optionalen Buy/Sell-Events (für Kurs & Insider).
-   * opts: { labels: [], values: [], markers: [{ index: 2, type: 'Buy'|'Sell', text: '' }] }
-   */
   function renderLineChart(canvas, opts) {
     var setup = setupCanvas(canvas);
     if (!setup) return;
-    var ctx = setup.ctx;
-    var w = setup.width;
-    var h = setup.height;
-
-    var vals = opts.values || [];
-    var labels = opts.labels || [];
-    var markers = opts.markers || [];
+    var ctx = setup.ctx, w = setup.width, h = setup.height;
+    var vals = opts.values || [], labels = opts.labels || [], markers = opts.markers || [];
     if (vals.length === 0) return;
 
     var padding = { top: 20, right: 15, bottom: 25, left: 45 };
-    var minVal = Math.min.apply(null, vals);
-    var maxVal = Math.max.apply(null, vals);
+    var minVal = Math.min.apply(null, vals), maxVal = Math.max.apply(null, vals);
     var buffer = (maxVal - minVal) * 0.1 || (maxVal * 0.05) || 1;
-    minVal -= buffer;
-    maxVal += buffer;
+    minVal -= buffer; maxVal += buffer;
 
     drawGridAndYAxis(ctx, w, h, minVal, maxVal, padding, opts.formatY);
 
@@ -145,7 +114,6 @@ window.App.Charts = (function () {
     var chartH = h - padding.top - padding.bottom;
     var stepX = vals.length > 1 ? chartW / (vals.length - 1) : chartW;
 
-    // Koordinaten berechnen
     var points = [];
     for (var i = 0; i < vals.length; i++) {
       var x = padding.left + i * stepX;
@@ -153,51 +121,39 @@ window.App.Charts = (function () {
       points.push({ x: x, y: y, val: vals[i], label: labels[i] });
     }
 
-    // Flächenverlauf (Gradient Fill)
     var grad = ctx.createLinearGradient(0, padding.top, 0, h - padding.bottom);
     grad.addColorStop(0, 'rgba(99, 102, 241, 0.35)');
     grad.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
-
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
-    for (var j = 1; j < points.length; j++) {
-      ctx.lineTo(points[j].x, points[j].y);
-    }
+    for (var j = 1; j < points.length; j++) ctx.lineTo(points[j].x, points[j].y);
     ctx.lineTo(points[points.length - 1].x, h - padding.bottom);
     ctx.lineTo(points[0].x, h - padding.bottom);
     ctx.closePath();
     ctx.fillStyle = grad;
     ctx.fill();
 
-    // Hauptlinie zeichnen
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
-    for (var k = 1; k < points.length; k++) {
-      ctx.lineTo(points[k].x, points[k].y);
-    }
+    for (var k = 1; k < points.length; k++) ctx.lineTo(points[k].x, points[k].y);
     ctx.strokeStyle = THEME.purpleLight;
     ctx.lineWidth = 2.5;
     ctx.setLineDash([]);
     ctx.stroke();
 
-    // X-Achsen-Labels (Start, Mitte, Ende)
     ctx.font = '10px ' + THEME.fontFamily;
     ctx.fillStyle = THEME.textColor;
     ctx.textAlign = 'center';
     var labelIndices = [0, Math.floor(labels.length / 2), labels.length - 1];
     labelIndices.forEach(function (idx) {
-      if (points[idx] && labels[idx]) {
-        ctx.fillText(labels[idx], points[idx].x, h - 6);
-      }
+      if (points[idx] && labels[idx]) ctx.fillText(labels[idx], points[idx].x, h - 6);
     });
 
-    // Vertikale Buy/Sell-Markerlinien (Insider-Aktivitäten)
     markers.forEach(function (m) {
       if (m.index >= 0 && m.index < points.length) {
         var pt = points[m.index];
         var isBuy = m.type === 'Buy';
         var color = isBuy ? THEME.green : THEME.red;
-
         ctx.save();
         ctx.strokeStyle = color;
         ctx.lineWidth = 1.5;
@@ -206,8 +162,6 @@ window.App.Charts = (function () {
         ctx.moveTo(pt.x, padding.top);
         ctx.lineTo(pt.x, h - padding.bottom);
         ctx.stroke();
-
-        // Markierungspunkt
         ctx.fillStyle = color;
         ctx.beginPath();
         ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
@@ -217,16 +171,10 @@ window.App.Charts = (function () {
     });
   }
 
-  /**
-   * 1b. Mehrlinien-Chart (z. B. normierter Kursvergleich mehrerer Titel).
-   */
   function renderMultiLineChart(canvas, opts) {
     var setup = setupCanvas(canvas);
     if (!setup) return;
-    var ctx = setup.ctx;
-    var w = setup.width;
-    var h = setup.height;
-
+    var ctx = setup.ctx, w = setup.width, h = setup.height;
     var series = (opts.series || []).filter(function (sr) { return sr.values && sr.values.length > 0; });
     var labels = opts.labels || [];
     if (series.length === 0) return;
@@ -237,11 +185,9 @@ window.App.Charts = (function () {
       sr.values.forEach(function (v) { if (v !== null && v !== undefined && isFinite(v)) allVals.push(v); });
     });
     if (allVals.length === 0) return;
-    var minVal = Math.min.apply(null, allVals);
-    var maxVal = Math.max.apply(null, allVals);
+    var minVal = Math.min.apply(null, allVals), maxVal = Math.max.apply(null, allVals);
     var buffer = (maxVal - minVal) * 0.1 || (maxVal * 0.05) || 1;
-    minVal -= buffer;
-    maxVal += buffer;
+    minVal -= buffer; maxVal += buffer;
 
     drawGridAndYAxis(ctx, w, h, minVal, maxVal, padding, opts.formatY);
 
@@ -252,7 +198,6 @@ window.App.Charts = (function () {
 
     series.forEach(function (sr) {
       var n = sr.values.length;
-      // Kürzere Reihen rechtsbündig ausrichten
       var offset = n0 - n;
       var started = false;
       ctx.beginPath();
@@ -270,7 +215,6 @@ window.App.Charts = (function () {
       ctx.setLineDash([]);
     });
 
-    // X-Achsen-Labels (Start, Mitte, Ende)
     ctx.font = '10px ' + THEME.fontFamily;
     ctx.fillStyle = THEME.textColor;
     ctx.textAlign = 'center';
@@ -279,18 +223,11 @@ window.App.Charts = (function () {
     });
   }
 
-  /**
-   * 1c. Indikator-Chart (RSI, MACD …): Linien, optionale Histogramm-Balken und Referenzlinien.
-   */
   function renderIndicatorChart(canvas, opts) {
     var setup = setupCanvas(canvas);
     if (!setup) return;
-    var ctx = setup.ctx;
-    var w = setup.width;
-    var h = setup.height;
-    var labels = opts.labels || [];
-    var lines = opts.lines || [];
-    var bars = opts.bars || null;
+    var ctx = setup.ctx, w = setup.width, h = setup.height;
+    var labels = opts.labels || [], lines = opts.lines || [], bars = opts.bars || null;
     var n = labels.length;
     if (n < 2) return;
 
@@ -314,7 +251,6 @@ window.App.Charts = (function () {
     var stepX = chartW / (n - 1);
     function yOf(v) { return padding.top + chartH - ((v - minVal) / (maxVal - minVal)) * chartH; }
 
-    // Referenzlinien
     (opts.refLines || []).forEach(function (rl) {
       ctx.save();
       ctx.strokeStyle = rl.color || THEME.gray;
@@ -327,7 +263,6 @@ window.App.Charts = (function () {
       ctx.restore();
     });
 
-    // Histogramm
     if (bars) {
       var zeroY = yOf(0);
       var bw = Math.max(1, stepX * 0.7);
@@ -340,7 +275,6 @@ window.App.Charts = (function () {
       }
     }
 
-    // Linien
     lines.forEach(function (ln) {
       var started = false;
       ctx.beginPath();
@@ -364,31 +298,18 @@ window.App.Charts = (function () {
     });
   }
 
-  /**
-   * 2. Gruppiertes Balkendiagramm (z. B. Revenue, OCF, Net Income letzte 4 Quartale).
-   */
   function renderGroupedBarChart(canvas, opts) {
     var setup = setupCanvas(canvas);
     if (!setup) return;
-    var ctx = setup.ctx;
-    var w = setup.width;
-    var h = setup.height;
-
-    var labels = opts.labels || [];
-    var series = opts.series || [];
+    var ctx = setup.ctx, w = setup.width, h = setup.height;
+    var labels = opts.labels || [], series = opts.series || [];
     if (labels.length === 0 || series.length === 0) return;
 
     var padding = { top: 20, right: 15, bottom: 25, left: 45 };
-
-    // Min & Max über alle Serien ermitteln
     var allVals = [];
-    series.forEach(function (s) {
-      allVals = allVals.concat(s.data);
-    });
-    var dataMin = Math.min.apply(null, allVals);
-    var dataMax = Math.max.apply(null, allVals);
-    var minVal = Math.min(0, dataMin);
-    var maxVal = Math.max(0, dataMax);
+    series.forEach(function (s) { allVals = allVals.concat(s.data); });
+    var dataMin = Math.min.apply(null, allVals), dataMax = Math.max.apply(null, allVals);
+    var minVal = Math.min(0, dataMin), maxVal = Math.max(0, dataMax);
     if (minVal < 0) minVal = minVal * 1.1;
     if (maxVal > 0) maxVal = maxVal * 1.15;
     if (maxVal === minVal) maxVal = minVal + 1;
@@ -403,10 +324,8 @@ window.App.Charts = (function () {
 
     labels.forEach(function (label, gIdx) {
       var groupX = padding.left + gIdx * groupW + 8;
-
       series.forEach(function (s, sIdx) {
         var val = s.data[gIdx] || 0;
-        // Balken starten an der Nulllinie; negative Werte zeigen nach unten
         var yZero = padding.top + chartH - ((0 - minVal) / (maxVal - minVal)) * chartH;
         var yVal = padding.top + chartH - ((val - minVal) / (maxVal - minVal)) * chartH;
         var barX = groupX + sIdx * barW;
@@ -414,7 +333,6 @@ window.App.Charts = (function () {
         var barH = Math.abs(yZero - yVal);
         if (barH < 0.5) return;
 
-        // Negative Werte rot (bei mehreren Serien: Rottöne zur Unterscheidung)
         var negColor = s.negColor || (sIdx === 0 ? '#ef4444' : '#b91c1c');
         var barColor = (s.colors && s.colors[gIdx]) || s.color || THEME.purple;
         ctx.fillStyle = val < 0 ? negColor : barColor;
@@ -424,7 +342,6 @@ window.App.Charts = (function () {
         ctx.fill();
       });
 
-      // Gruppen-Label
       ctx.font = '10px ' + THEME.fontFamily;
       ctx.fillStyle = THEME.textColor;
       ctx.textAlign = 'center';
@@ -432,25 +349,16 @@ window.App.Charts = (function () {
     });
   }
 
-  /**
-   * 3. Donut-Chart (Analysten-Empfehlungen: Strong Buy, Buy, Hold, Sell, Strong Sell).
-   * FIX: Textfarbe in der Mitte nutzt --text-main, damit der Score im Light-Mode
-   * lesbar bleibt (vorher hartkodiertes #ffffff).
-   */
   function renderDonutChart(canvas, opts) {
     var setup = setupCanvas(canvas);
     if (!setup) return;
-    var ctx = setup.ctx;
-    var w = setup.width;
-    var h = setup.height;
-
+    var ctx = setup.ctx, w = setup.width, h = setup.height;
     var items = opts.data || [];
     var total = 0;
     items.forEach(function (it) { total += it.value; });
     if (total === 0) return;
 
-    var centerX = w / 2;
-    var centerY = h / 2;
+    var centerX = w / 2, centerY = h / 2;
     var radius = Math.min(centerX, centerY) - 15;
     var innerRadius = radius * 0.65;
     var currentAngle = -Math.PI / 2;
@@ -466,37 +374,26 @@ window.App.Charts = (function () {
       currentAngle += sliceAngle;
     });
 
-    // Score / Text in der Mitte
     if (opts.totalText) {
-      // FIX: Textfarbe aus CSS-Variable lesen
       var css = getComputedStyle(canvas);
       var textColor = css.getPropertyValue('--text-main').trim() || '#ffffff';
       var dimColor = css.getPropertyValue('--text-muted').trim() || THEME.textColor;
-
       ctx.font = 'bold 20px ' + THEME.fontFamily;
       ctx.fillStyle = textColor;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(opts.totalText, centerX, centerY - 6);
-
       ctx.font = '10px ' + THEME.fontFamily;
       ctx.fillStyle = dimColor;
       ctx.fillText(opts.subText || 'Konsens', centerX, centerY + 14);
     }
   }
 
-  /**
-   * 4. Gestapeltes Balkendiagramm (Monatliche Analysten-Trends).
-   */
   function renderStackedBarChart(canvas, opts) {
     var setup = setupCanvas(canvas);
     if (!setup) return;
-    var ctx = setup.ctx;
-    var w = setup.width;
-    var h = setup.height;
-
-    var labels = opts.labels || [];
-    var stacks = opts.stacks || [];
+    var ctx = setup.ctx, w = setup.width, h = setup.height;
+    var labels = opts.labels || [], stacks = opts.stacks || [];
     if (labels.length === 0 || stacks.length === 0) return;
 
     var padding = { top: 15, right: 10, bottom: 25, left: 10 };
@@ -525,12 +422,10 @@ window.App.Charts = (function () {
         var count = stack[k.key] || 0;
         var segH = (count / sum) * chartH;
         currentY -= segH;
-
         ctx.fillStyle = k.color;
         ctx.fillRect(x, currentY, barW, segH);
       });
 
-      // Label unten
       ctx.font = '10px ' + THEME.fontFamily;
       ctx.fillStyle = THEME.textColor;
       ctx.textAlign = 'center';
@@ -538,23 +433,14 @@ window.App.Charts = (function () {
     });
   }
 
-  /**
-   * 1d. Kerzenchart: opts { candles:[{o,h,l,c}], labels, lines:[{values,color}], formatY }
-   * Grün = Schluss >= Eröffnung, Rot = Schluss < Eröffnung.
-   */
   function renderCandleChart(canvas, opts) {
     var setup = setupCanvas(canvas);
     if (!setup) return;
-    var ctx = setup.ctx;
-    var w = setup.width;
-    var h = setup.height;
-
-    var candles = opts.candles || [];
-    var labels = opts.labels || [];
+    var ctx = setup.ctx, w = setup.width, h = setup.height;
+    var candles = opts.candles || [], labels = opts.labels || [];
     if (candles.length === 0) return;
 
     var padding = { top: 16, right: 12, bottom: 25, left: 45 };
-
     var lo = Infinity, hi = -Infinity;
     candles.forEach(function (c) { lo = Math.min(lo, c.l); hi = Math.max(hi, c.h); });
     (opts.lines || []).forEach(function (ln) {
@@ -613,6 +499,165 @@ window.App.Charts = (function () {
     });
   }
 
+  // ===========================================================================
+  // NEU: Radar-Chart für Aktienvergleich
+  // opts: { axes: ['Bewertung','Wachstum',...], series: [{ name, color, values: [0-5,...] }] }
+  // ===========================================================================
+  function renderRadarChart(canvas, opts) {
+    var setup = setupCanvas(canvas);
+    if (!setup) return;
+    var ctx = setup.ctx, w = setup.width, h = setup.height;
+    var axes = opts.axes || [];
+    var series = opts.series || [];
+    if (axes.length < 3 || series.length === 0) return;
+
+    var cx = w / 2, cy = h / 2;
+    var radius = Math.min(w, h) / 2 - 34;
+    var n = axes.length;
+    var angleStep = (Math.PI * 2) / n;
+    var startAngle = -Math.PI / 2;
+    var maxVal = 5;
+
+    var css = getComputedStyle(canvas);
+    var dim = css.getPropertyValue('--text-dim').trim() || '#94a3b8';
+
+    // Grid-Ringe
+    for (var ring = 1; ring <= 5; ring++) {
+      ctx.beginPath();
+      for (var i = 0; i <= n; i++) {
+        var ang = startAngle + i * angleStep;
+        var r = (ring / maxVal) * radius;
+        var x = cx + Math.cos(ang) * r;
+        var y = cy + Math.sin(ang) * r;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = 'rgba(148,163,184,.18)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // Achsen
+    for (var a = 0; a < n; a++) {
+      var angA = startAngle + a * angleStep;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(angA) * radius, cy + Math.sin(angA) * radius);
+      ctx.strokeStyle = 'rgba(148,163,184,.22)';
+      ctx.stroke();
+    }
+
+    // Achsen-Labels
+    ctx.font = '10px ' + THEME.fontFamily;
+    ctx.fillStyle = dim;
+    for (var la = 0; la < n; la++) {
+      var angL = startAngle + la * angleStep;
+      var lx = cx + Math.cos(angL) * (radius + 18);
+      var ly = cy + Math.sin(angL) * (radius + 18);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(axes[la], lx, ly);
+    }
+
+    // Serien
+    series.forEach(function (sr) {
+      var vals = sr.values || [];
+      ctx.beginPath();
+      for (var i = 0; i <= n; i++) {
+        var v = vals[i % n] || 0;
+        var angS = startAngle + i * angleStep;
+        var rS = (Math.max(0, Math.min(maxVal, v)) / maxVal) * radius;
+        var xs = cx + Math.cos(angS) * rS;
+        var ys = cy + Math.sin(angS) * rS;
+        if (i === 0) ctx.moveTo(xs, ys); else ctx.lineTo(xs, ys);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = sr.color || THEME.purple;
+      ctx.fillStyle = (sr.color || THEME.purple) + '22';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fill();
+    });
+  }
+
+  // ===========================================================================
+  // NEU: Band-Chart für KGV-Historie
+  // opts: { labels, peValues, bands: [{ value, color, label }], current }
+  // ===========================================================================
+  function renderBandChart(canvas, opts) {
+    var setup = setupCanvas(canvas);
+    if (!setup) return;
+    var ctx = setup.ctx, w = setup.width, h = setup.height;
+    var labels = opts.labels || [];
+    var peValues = opts.peValues || [];
+    if (labels.length === 0 || peValues.length === 0) return;
+
+    var padding = { top: 16, right: 15, bottom: 25, left: 45 };
+    var validVals = peValues.filter(function (v) { return v !== null && isFinite(v) && v > 0; });
+    if (validVals.length === 0) return;
+    var minVal = Math.min.apply(null, validVals);
+    var maxVal = Math.max.apply(null, validVals);
+    (opts.bands || []).forEach(function (b) {
+      if (b.value && isFinite(b.value)) {
+        if (b.value < minVal) minVal = b.value;
+        if (b.value > maxVal) maxVal = b.value;
+      }
+    });
+    var buffer = (maxVal - minVal) * 0.1 || 1;
+    minVal -= buffer; maxVal += buffer;
+
+    drawGridAndYAxis(ctx, w, h, minVal, maxVal, padding, opts.formatY);
+
+    var chartW = w - padding.left - padding.right;
+    var chartH = h - padding.top - padding.bottom;
+    var stepX = peValues.length > 1 ? chartW / (peValues.length - 1) : chartW;
+    function yOf(v) { return padding.top + chartH - ((v - minVal) / (maxVal - minVal)) * chartH; }
+
+    // Referenzlinien für Perzentile
+    (opts.bands || []).forEach(function (b) {
+      if (b.value == null || !isFinite(b.value)) return;
+      var y = yOf(b.value);
+      ctx.save();
+      ctx.strokeStyle = b.color || 'rgba(148,163,184,.4)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(padding.left, y);
+      ctx.lineTo(w - padding.right, y);
+      ctx.stroke();
+      ctx.restore();
+      ctx.fillStyle = b.color || dimColor(canvas);
+      ctx.font = '9px ' + THEME.fontFamily;
+      ctx.textAlign = 'right';
+      ctx.fillText(b.label || '', w - padding.right - 2, y - 3);
+    });
+
+    // Linie
+    var started = false;
+    ctx.beginPath();
+    peValues.forEach(function (v, i) {
+      if (v === null || !isFinite(v) || v <= 0) { started = false; return; }
+      var x = padding.left + i * stepX;
+      if (!started) { ctx.moveTo(x, yOf(v)); started = true; } else ctx.lineTo(x, yOf(v));
+    });
+    ctx.strokeStyle = THEME.purpleLight;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([]);
+    ctx.stroke();
+
+    // X-Labels
+    ctx.font = '10px ' + THEME.fontFamily;
+    ctx.fillStyle = THEME.textColor;
+    ctx.textAlign = 'center';
+    [0, Math.floor(labels.length / 2), labels.length - 1].forEach(function (idx) {
+      if (labels[idx]) ctx.fillText(labels[idx], padding.left + idx * stepX, h - 6);
+    });
+  }
+
+  function dimColor(canvas) {
+    var css = getComputedStyle(canvas);
+    return css.getPropertyValue('--text-dim').trim() || '#94a3b8';
+  }
+
   return {
     renderLineChart: renderLineChart,
     renderMultiLineChart: renderMultiLineChart,
@@ -620,6 +665,8 @@ window.App.Charts = (function () {
     renderGroupedBarChart: renderGroupedBarChart,
     renderCandleChart: renderCandleChart,
     renderDonutChart: renderDonutChart,
-    renderStackedBarChart: renderStackedBarChart
+    renderStackedBarChart: renderStackedBarChart,
+    renderRadarChart: renderRadarChart,
+    renderBandChart: renderBandChart
   };
 })();
