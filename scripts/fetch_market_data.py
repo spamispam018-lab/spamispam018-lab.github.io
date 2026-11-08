@@ -1,23 +1,10 @@
 #!/usr/bin/env python3
 """
 scripts/fetch_market_data.py
-Delta-fähiges Marktdaten-Update für USA, Europa und Japan.
-Garantiert echte Umrechnung aller ausländischen Währungen (JPY, USD, GBP, CHF) in Euro (EUR).
-Erweitert um zusätzliche Markt-, Sektor-, Energie- und Kommunikations-ETFs.
-
-FIX: Die Delta-Funktion wurde tatsächlich implementiert. Vorher wurde `batch_df`
-zwar heruntergeladen, aber nie verwendet – bestehende Aktien-JSONs wurden NIE
-aktualisiert. Jetzt werden neue Schlusskurse aus dem Batch-Download in die
-vorhandenen JSONs gemerged, `quote.price` / `change` / `changePercent` neu
-berechnet und `chartHistory` ergänzt. Nur bei echten Änderungen wird
-`updatedAt` gesetzt.
-
-NEU: Dividenden-Daten werden jetzt pro Ticker mitgeschrieben:
-- dividends.history: letzte 20 Dividendenzahlungen (Datum + Betrag in EUR)
-- dividends.exDate: nächstes Ex-Dividende-Datum (aus info.exDividendDate)
-- dividends.rate: annualisierte Dividende in EUR (aus info.dividendRate)
-- dividends.yield: aktuelle Dividendenrendite in Prozent (aus info.dividendYield)
-- exDividendDate: dasselbe Datum flach im Root (Convenience-Feld fürs Frontend)
+Delta-Marktdaten-Update. NEU:
+- Chart-Muster (Golden/Death Cross, Doppel-Top/Boden, Bollinger-Squeeze) → universe.json
+- Institutional Holders (nur US-Aktien mit Daten) → stock.json
+- Options-Zusammenfassung (nur US-Aktien mit Optionsmarkt) → stock.json
 """
 
 import os
@@ -58,128 +45,57 @@ TICKERS_JAPAN = [
 ]
 
 TICKERS_ETFS = [
-    "EUNL.DE",  # iShares Core MSCI World USD (Acc)
-    "AMEM.DE",  # Amundi MSCI Emerging Markets (Acc)
-    "SPYI.DE",  # SPDR MSCI ACWI IMI (Acc)
-    "SXR8.DE",  # iShares Core S&P 500 UCITS ETF
-    "EXS1.DE",  # iShares DAX UCITS ETF
-    "EXV6.DE",  # iShares STOXX Europe 600 UCITS ETF
-    "CSX5.DE"   # iShares Core EURO STOXX 50 UCITS ETF
+    "EUNL.DE", "AMEM.DE", "SPYI.DE", "SXR8.DE", "EXS1.DE", "EXV6.DE", "CSX5.DE"
 ]
 
 TICKERS_SECTORS = [
-    "QDVE.DE",  # iShares S&P 500 Information Technology (Tech US)
-    "XDWT.DE",  # Xtrackers MSCI World Information Technology (Tech Global)
-    "QDVF.DE",  # iShares S&P 500 Energy Sector (Öl & Energie USA)
-    "WNRG.DE",  # iShares MSCI World Energy Sector (Öl & Energie Global)
-    "XDW0.DE",  # Xtrackers MSCI World Energy UCITS ETF (Öl & Energie Global)
-    "IU5C.DE",  # iShares S&P 500 Communication Sector (Kommunikation / Medien US)
-    "XWTS.DE",  # Xtrackers MSCI World Communication Services (Kommunikation Global)
-    "WHEA.DE",  # iShares MSCI World Health Care (Gesundheitswesen)
-    "WSCA.DE",  # iShares MSCI World Consumer Staples (Basiskonsumgüter)
-    "WFIS.DE",  # iShares MSCI World Financials (Finanzen)
-    "IUSP.DE"   # iShares Developed Markets Property Yield (Immobilien)
+    "QDVE.DE", "XDWT.DE", "QDVF.DE", "WNRG.DE", "XDW0.DE",
+    "IU5C.DE", "XWTS.DE", "WHEA.DE", "WSCA.DE", "WFIS.DE", "IUSP.DE"
 ]
 
 KNOWN_ETF_HOLDINGS = {
-    "EUNL.DE": [
-        {"name": "NVIDIA Corp", "weight": 5.2},
-        {"name": "Apple Inc", "weight": 4.8},
-        {"name": "Microsoft Corp", "weight": 4.5},
-        {"name": "Amazon.com Inc", "weight": 2.6},
-        {"name": "Alphabet Inc Class A", "weight": 1.7}
-    ],
-    "AMEM.DE": [
-        {"name": "Taiwan Semiconductor Manufacturing", "weight": 8.4},
-        {"name": "Tencent Holdings Ltd", "weight": 4.1},
-        {"name": "Alibaba Group Holding Ltd", "weight": 2.8},
-        {"name": "Samsung Electronics Co Ltd", "weight": 2.5},
-        {"name": "Meituan", "weight": 1.4}
-    ],
-    "SPYI.DE": [
-        {"name": "NVIDIA Corp", "weight": 4.3},
-        {"name": "Apple Inc", "weight": 4.0},
-        {"name": "Microsoft Corp", "weight": 3.8},
-        {"name": "Amazon.com Inc", "weight": 2.2},
-        {"name": "Meta Platforms Inc", "weight": 1.5}
-    ],
-    "SXR8.DE": [
-        {"name": "Apple Inc", "weight": 7.9},
-        {"name": "NVIDIA Corp", "weight": 6.9},
-        {"name": "Microsoft Corp", "weight": 6.3},
-        {"name": "Amazon.com Inc", "weight": 4.0},
-        {"name": "Alphabet Inc Class A", "weight": 2.6}
-    ],
-    "EXS1.DE": [
-        {"name": "SAP SE", "weight": 14.5},
-        {"name": "Siemens AG", "weight": 10.2},
-        {"name": "Allianz SE", "weight": 8.3},
-        {"name": "Airbus SE", "weight": 6.8},
-        {"name": "Deutsche Telekom AG", "weight": 6.1}
-    ],
-    "EXV6.DE": [
-        {"name": "ASML Holding NV", "weight": 3.6},
-        {"name": "Nestle SA", "weight": 2.7},
-        {"name": "Novartis AG", "weight": 2.4},
-        {"name": "Shell PLC", "weight": 2.3},
-        {"name": "SAP SE", "weight": 2.2}
-    ],
-    "CSX5.DE": [
-        {"name": "ASML Holding NV", "weight": 9.4},
-        {"name": "SAP SE", "weight": 7.8},
-        {"name": "Schneider Electric SE", "weight": 5.1},
-        {"name": "TotalEnergies SE", "weight": 4.6},
-        {"name": "Siemens AG", "weight": 4.4}
-    ],
-    "XDWT.DE": [
-        {"name": "NVIDIA Corp", "weight": 18.5},
-        {"name": "Microsoft Corp", "weight": 16.2},
-        {"name": "Apple Inc", "weight": 15.4},
-        {"name": "Broadcom Inc", "weight": 4.8},
-        {"name": "Advanced Micro Devices", "weight": 2.9}
-    ],
-    "QDVE.DE": [
-        {"name": "NVIDIA Corp", "weight": 21.0},
-        {"name": "Microsoft Corp", "weight": 18.5},
-        {"name": "Apple Inc", "weight": 17.2},
-        {"name": "Broadcom Inc", "weight": 5.1},
-        {"name": "Salesforce Inc", "weight": 2.4}
-    ],
-    "QDVF.DE": [
-        {"name": "Exxon Mobil Corp", "weight": 22.4},
-        {"name": "Chevron Corp", "weight": 16.8},
-        {"name": "ConocoPhillips", "weight": 6.5},
-        {"name": "Valero Energy Corp", "weight": 4.8},
-        {"name": "Marathon Petroleum Corp", "weight": 4.6}
-    ],
-    "WNRG.DE": [
-        {"name": "Exxon Mobil Corp", "weight": 18.4},
-        {"name": "Chevron Corp", "weight": 10.3},
-        {"name": "Shell PLC", "weight": 7.5},
-        {"name": "TotalEnergies SE", "weight": 4.8},
-        {"name": "ConocoPhillips", "weight": 4.5}
-    ],
-    "XDW0.DE": [
-        {"name": "Exxon Mobil Corp", "weight": 18.0},
-        {"name": "Chevron Corp", "weight": 10.1},
-        {"name": "Shell PLC", "weight": 7.8},
-        {"name": "TotalEnergies SE", "weight": 5.1},
-        {"name": "BP PLC", "weight": 4.2}
-    ],
-    "IU5C.DE": [
-        {"name": "Meta Platforms Inc", "weight": 19.8},
-        {"name": "Alphabet Inc Class A", "weight": 18.0},
-        {"name": "Alphabet Inc Class C", "weight": 14.4},
-        {"name": "Netflix Inc", "weight": 10.4},
-        {"name": "Verizon Communications Inc", "weight": 6.9}
-    ],
-    "XWTS.DE": [
-        {"name": "Alphabet Inc Class A", "weight": 18.0},
-        {"name": "Meta Platforms Inc", "weight": 17.5},
-        {"name": "Netflix Inc", "weight": 14.2},
-        {"name": "Verizon Communications Inc", "weight": 6.2},
-        {"name": "Walt Disney Co", "weight": 4.2}
-    ]
+    "EUNL.DE": [{"name": "NVIDIA Corp", "weight": 5.2}, {"name": "Apple Inc", "weight": 4.8},
+                {"name": "Microsoft Corp", "weight": 4.5}, {"name": "Amazon.com Inc", "weight": 2.6},
+                {"name": "Alphabet Inc Class A", "weight": 1.7}],
+    "AMEM.DE": [{"name": "Taiwan Semiconductor Manufacturing", "weight": 8.4}, {"name": "Tencent Holdings Ltd", "weight": 4.1},
+                {"name": "Alibaba Group Holding Ltd", "weight": 2.8}, {"name": "Samsung Electronics Co Ltd", "weight": 2.5},
+                {"name": "Meituan", "weight": 1.4}],
+    "SPYI.DE": [{"name": "NVIDIA Corp", "weight": 4.3}, {"name": "Apple Inc", "weight": 4.0},
+                {"name": "Microsoft Corp", "weight": 3.8}, {"name": "Amazon.com Inc", "weight": 2.2},
+                {"name": "Meta Platforms Inc", "weight": 1.5}],
+    "SXR8.DE": [{"name": "Apple Inc", "weight": 7.9}, {"name": "NVIDIA Corp", "weight": 6.9},
+                {"name": "Microsoft Corp", "weight": 6.3}, {"name": "Amazon.com Inc", "weight": 4.0},
+                {"name": "Alphabet Inc Class A", "weight": 2.6}],
+    "EXS1.DE": [{"name": "SAP SE", "weight": 14.5}, {"name": "Siemens AG", "weight": 10.2},
+                {"name": "Allianz SE", "weight": 8.3}, {"name": "Airbus SE", "weight": 6.8},
+                {"name": "Deutsche Telekom AG", "weight": 6.1}],
+    "EXV6.DE": [{"name": "ASML Holding NV", "weight": 3.6}, {"name": "Nestle SA", "weight": 2.7},
+                {"name": "Novartis AG", "weight": 2.4}, {"name": "Shell PLC", "weight": 2.3},
+                {"name": "SAP SE", "weight": 2.2}],
+    "CSX5.DE": [{"name": "ASML Holding NV", "weight": 9.4}, {"name": "SAP SE", "weight": 7.8},
+                {"name": "Schneider Electric SE", "weight": 5.1}, {"name": "TotalEnergies SE", "weight": 4.6},
+                {"name": "Siemens AG", "weight": 4.4}],
+    "XDWT.DE": [{"name": "NVIDIA Corp", "weight": 18.5}, {"name": "Microsoft Corp", "weight": 16.2},
+                {"name": "Apple Inc", "weight": 15.4}, {"name": "Broadcom Inc", "weight": 4.8},
+                {"name": "Advanced Micro Devices", "weight": 2.9}],
+    "QDVE.DE": [{"name": "NVIDIA Corp", "weight": 21.0}, {"name": "Microsoft Corp", "weight": 18.5},
+                {"name": "Apple Inc", "weight": 17.2}, {"name": "Broadcom Inc", "weight": 5.1},
+                {"name": "Salesforce Inc", "weight": 2.4}],
+    "QDVF.DE": [{"name": "Exxon Mobil Corp", "weight": 22.4}, {"name": "Chevron Corp", "weight": 16.8},
+                {"name": "ConocoPhillips", "weight": 6.5}, {"name": "Valero Energy Corp", "weight": 4.8},
+                {"name": "Marathon Petroleum Corp", "weight": 4.6}],
+    "WNRG.DE": [{"name": "Exxon Mobil Corp", "weight": 18.4}, {"name": "Chevron Corp", "weight": 10.3},
+                {"name": "Shell PLC", "weight": 7.5}, {"name": "TotalEnergies SE", "weight": 4.8},
+                {"name": "ConocoPhillips", "weight": 4.5}],
+    "XDW0.DE": [{"name": "Exxon Mobil Corp", "weight": 18.0}, {"name": "Chevron Corp", "weight": 10.1},
+                {"name": "Shell PLC", "weight": 7.8}, {"name": "TotalEnergies SE", "weight": 5.1},
+                {"name": "BP PLC", "weight": 4.2}],
+    "IU5C.DE": [{"name": "Meta Platforms Inc", "weight": 19.8}, {"name": "Alphabet Inc Class A", "weight": 18.0},
+                {"name": "Alphabet Inc Class C", "weight": 14.4}, {"name": "Netflix Inc", "weight": 10.4},
+                {"name": "Verizon Communications Inc", "weight": 6.9}],
+    "XWTS.DE": [{"name": "Alphabet Inc Class A", "weight": 18.0}, {"name": "Meta Platforms Inc", "weight": 17.5},
+                {"name": "Netflix Inc", "weight": 14.2}, {"name": "Verizon Communications Inc", "weight": 6.2},
+                {"name": "Walt Disney Co", "weight": 4.2}]
 }
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -215,7 +131,8 @@ def load_live_forex():
                 if not s.empty:
                     eur_rate = float(s.iloc[-1])
                     if eur_rate > 0: RATES_TO_EUR[cur] = 1.0 / eur_rate
-            except Exception: pass
+            except Exception:
+                pass
         RATES_TO_EUR["GBp"] = RATES_TO_EUR.get("GBP", 1.17) / 100.0
     except Exception as e:
         print(f"Forex-Abruf fehlgeschlagen: {e}")
@@ -234,24 +151,6 @@ def clean_val(val, default=None):
     return val
 
 
-def df_to_dict_records(df, cur):
-    if df is None or df.empty: return []
-    records = []
-    for col in df.columns:
-        date_str = col.strftime("%Y-%m-%d") if hasattr(col, "strftime") else str(col)[:10]
-        entry = {"date": date_str}
-        for idx in df.index:
-            raw = clean_val(df.loc[idx, col])
-            key_lower = str(idx).lower()
-            if raw is not None and not any(k in key_lower for k in ["%", "ratio", "shares", "growth"]):
-                entry[str(idx).replace(" ", "_").replace("-", "_")] = clean_val(to_eur(raw, cur))
-            else:
-                entry[str(idx).replace(" ", "_").replace("-", "_")] = raw
-        records.append(entry)
-    records.sort(key=lambda x: x["date"])
-    return records
-
-
 def process_fund_data(ticker_obj, symbol=""):
     holdings = []
     try:
@@ -268,31 +167,20 @@ def process_fund_data(ticker_obj, symbol=""):
                         if pct and not math.isnan(float(pct)):
                             weight = float(pct)
                             if 0 < weight <= 1.0: weight *= 100.0
-                    except Exception: weight = 0.0
-                    if weight > 0: holdings.append({"name": str(name), "weight": round(weight, 2)})
-    except Exception: pass
-
+                    except Exception:
+                        weight = 0.0
+                    if weight > 0:
+                        holdings.append({"name": str(name), "weight": round(weight, 2)})
+    except Exception:
+        pass
     if not holdings and symbol in KNOWN_ETF_HOLDINGS:
         return KNOWN_ETF_HOLDINGS[symbol]
-
     return holdings
 
 
-# NEU: Dividenden-Daten sammeln
 def process_dividends(ticker_obj, info_or_none, cur, existing=None):
-    """
-    Sammelt Dividenden-Daten für einen Ticker.
-    - ticker_obj: yfinance.Ticker-Objekt (für .dividends-Series)
-    - info_or_none: dict mit .info-Daten (nur im Full-Fetch vorhanden) oder None
-    - cur: native Währung des Tickers
-    - existing: bestehendes dividends-dict (für Delta-Pfad, um exDate/rate/yield zu behalten)
-
-    Rückgabe: dict mit history (Liste), optional exDate, rate, yield.
-    """
     existing = existing or {}
     result = {"history": existing.get("history", [])}
-
-    # Dividenden-Historie (Series) ist immer abrufbar, auch im Delta-Pfad
     try:
         div_series = ticker_obj.dividends
         if div_series is not None and not div_series.empty:
@@ -302,21 +190,14 @@ def process_dividends(ticker_obj, info_or_none, cur, existing=None):
                 d_str = dt.strftime("%Y-%m-%d") if hasattr(dt, "strftime") else str(dt)[:10]
                 try:
                     amount = float(val)
-                    if math.isnan(amount) or math.isinf(amount):
-                        continue
-                    history.append({
-                        "date": d_str,
-                        "amount": clean_val(to_eur(amount, cur), 0.0)
-                    })
+                    if math.isnan(amount) or math.isinf(amount): continue
+                    history.append({"date": d_str, "amount": clean_val(to_eur(amount, cur), 0.0)})
                 except Exception:
                     continue
-            if history:
-                result["history"] = history
+            if history: result["history"] = history
     except Exception:
         pass
-
     if info_or_none:
-        # Nur im Full-Fetch vorhanden
         ex_date = info_or_none.get("exDividendDate")
         if ex_date:
             try:
@@ -325,17 +206,12 @@ def process_dividends(ticker_obj, info_or_none, cur, existing=None):
             except Exception:
                 pass
         div_rate = info_or_none.get("dividendRate")
-        if div_rate:
-            result["rate"] = clean_val(to_eur(clean_val(div_rate), cur))
+        if div_rate: result["rate"] = clean_val(to_eur(clean_val(div_rate), cur))
         div_yield = info_or_none.get("dividendYield")
-        if div_yield:
-            result["yield"] = clean_val(div_yield)
+        if div_yield: result["yield"] = clean_val(div_yield)
     else:
-        # Delta-Pfad: bestehende Werte behalten
-        if "exDate" in existing: result["exDate"] = existing["exDate"]
-        if "rate" in existing: result["rate"] = existing["rate"]
-        if "yield" in existing: result["yield"] = existing["yield"]
-
+        for k in ("exDate", "rate", "yield"):
+            if k in existing: result[k] = existing[k]
     return result
 
 
@@ -353,13 +229,18 @@ def process_insider_data(ticker_obj, cur):
                 d_str = d.strftime("%Y-%m-%d") if hasattr(d, "strftime") else str(d)[:10]
                 trade_type = "Sell" if "Sale" in t_type or "Sell" in t_type else ("Buy" if "Buy" in t_type or "Purchase" in t_type else "Other")
                 if trade_type == "Buy":
-                    summary["buysCount2Q"] += 1; summary["buyValueTotal"] += abs(val_eur or 0.0)
+                    summary["buysCount2Q"] += 1
+                    summary["buyValueTotal"] += abs(val_eur or 0.0)
                 elif trade_type == "Sell":
-                    summary["sellsCount2Q"] += 1; summary["sellValueTotal"] += abs(val_eur or 0.0)
-                trades.append({"date": d_str, "insider": str(row.get("Insider", "Unbekannt")), "position": str(row.get("Position", "")), "type": trade_type, "shares": clean_val(row.get("Shares"), 0), "value": val_eur})
+                    summary["sellsCount2Q"] += 1
+                    summary["sellValueTotal"] += abs(val_eur or 0.0)
+                trades.append({"date": d_str, "insider": str(row.get("Insider", "Unbekannt")),
+                               "position": str(row.get("Position", "")), "type": trade_type,
+                               "shares": clean_val(row.get("Shares"), 0), "value": val_eur})
             if summary["buyValueTotal"] > summary["sellValueTotal"] * 1.2: summary["sentiment"] = "Bullish"
             elif summary["sellValueTotal"] > summary["buyValueTotal"] * 1.2: summary["sentiment"] = "Bearish"
-    except Exception: pass
+    except Exception:
+        pass
     return {"summary": summary, "trades": trades}
 
 
@@ -373,8 +254,186 @@ def process_analyst_data(info, ticker_obj, cur):
         "currency": "EUR",
         "analystCount": clean_val(info.get("numberOfAnalystOpinions"), 0)
     }
-    recommendations = {"score": clean_val(info.get("recommendationMean")), "key": info.get("recommendationKey", "none"), "breakdown": {"strongBuy": 0, "buy": 0, "hold": 0, "sell": 0, "strongSell": 0}, "history": []}
-    return {"targets": targets, "recommendations": recommendations, "epsEstimates": [], "nextEarningsDate": None, "epsForecast": None}
+    recommendations = {"score": clean_val(info.get("recommendationMean")),
+                       "key": info.get("recommendationKey", "none"),
+                       "breakdown": {"strongBuy": 0, "buy": 0, "hold": 0, "sell": 0, "strongSell": 0},
+                       "history": []}
+    return {"targets": targets, "recommendations": recommendations, "epsEstimates": [],
+            "nextEarningsDate": None, "epsForecast": None}
+
+
+# NEU: Institutional Holders
+def process_institutional_holders(ticker_obj, cur):
+    result = {"holders": [], "summary": {"institutionalPercent": None, "institutionalCount": None}}
+    try:
+        ih = ticker_obj.institutional_holders
+        if ih is not None and not ih.empty:
+            for _, row in ih.head(10).iterrows():
+                name = row.get("Holder") or row.get("Holder Name") or ""
+                shares = clean_val(row.get("Shares"), 0)
+                value_raw = clean_val(row.get("Value"), 0)
+                change = clean_val(row.get("change"), None)
+                if change is None:
+                    change = clean_val(row.get("Change"), None)
+                result["holders"].append({
+                    "name": str(name),
+                    "shares": shares,
+                    "value": clean_val(to_eur(value_raw, cur), 0),
+                    "changeShares": change
+                })
+    except Exception:
+        pass
+    try:
+        info = ticker_obj.info or {}
+        if info.get("heldPercentInstitutions") is not None:
+            result["summary"]["institutionalPercent"] = clean_val(info.get("heldPercentInstitutions"))
+    except Exception:
+        pass
+    return result
+
+
+# NEU: Options-Summary
+def process_options(ticker_obj, info):
+    if info.get("quoteType") != "EQUITY":
+        return None
+    try:
+        expiries = ticker_obj.options
+        if not expiries:
+            return None
+        # Nächste Fälligkeit
+        next_expiry = expiries[0]
+        chain = ticker_obj.option_chain(next_expiry)
+        calls = chain.calls
+        puts = chain.puts
+        if calls is None or calls.empty:
+            return None
+        spot = None
+        try:
+            spot = info.get("currentPrice") or info.get("regularMarketPrice")
+        except Exception:
+            pass
+        if not spot:
+            return None
+
+        # ATM: Strike am nächsten zum Spot
+        calls_copy = calls.copy()
+        calls_copy["dist"] = (calls_copy["strike"] - spot).abs()
+        atm_call = calls_copy.sort_values("dist").iloc[0]
+        atm_iv = float(atm_call.get("impliedVolatility", 0)) if "impliedVolatility" in atm_call else None
+
+        oi_call = int(calls["openInterest"].fillna(0).sum())
+        oi_put = int(puts["openInterest"].fillna(0).sum()) if puts is not None and not puts.empty else 0
+        pc_ratio = oi_put / oi_call if oi_call > 0 else None
+
+        return {
+            "expirations": list(expiries[:8]),
+            "summary": {
+                "atmIV": clean_val(atm_iv),
+                "putCallRatio": clean_val(pc_ratio),
+                "openInterestCall": oi_call,
+                "openInterestPut": oi_put,
+                "ivRank": None,
+                "impliedMove": None
+            }
+        }
+    except Exception:
+        return None
+
+
+# NEU: Chart-Muster (vereinfacht aus dem Frontend)
+def compute_chart_patterns(chart_history, symbol=""):
+    if not chart_history or len(chart_history) < 60:
+        return {"chartPatterns": [], "hasBullishPattern": False, "hasBearishPattern": False,
+                "bollingerSqueeze": False, "cross": None, "crossDaysAgo": None}
+    closes = [p["close"] for p in chart_history if p.get("close")]
+    dates = [p["date"] for p in chart_history if p.get("close")]
+    n = len(closes)
+    if n < 60:
+        return {"chartPatterns": [], "hasBullishPattern": False, "hasBearishPattern": False,
+                "bollingerSqueeze": False, "cross": None, "crossDaysAgo": None}
+
+    # SMAs
+    def sma_series(vals, period):
+        out = []
+        for i in range(len(vals)):
+            if i + 1 < period:
+                out.append(None)
+            else:
+                out.append(sum(vals[i - period + 1:i + 1]) / period)
+        return out
+
+    s50 = sma_series(closes, 50) if n >= 50 else [None] * n
+    s200 = sma_series(closes, 200) if n >= 200 else [None] * n
+
+    # Golden/Death Cross
+    cross = None
+    cross_days_ago = None
+    prev_sign = 0
+    last_cross_idx = None
+    for i in range(n):
+        if s50[i] is None or s200[i] is None:
+            continue
+        sign = 1 if s50[i] > s200[i] else -1
+        if prev_sign != 0 and sign != prev_sign:
+            last_cross_idx = i
+            cross = "golden" if sign > 0 else "death"
+        prev_sign = sign
+    if last_cross_idx is not None:
+        cross_days_ago = n - 1 - last_cross_idx
+        if cross_days_ago > 60:
+            cross = None
+
+    # Doppel-Top / Doppel-Boden (vereinfacht: 60-Tage-Fenster)
+    patterns = []
+    has_bull = False
+    has_bear = False
+    if cross == "golden":
+        patterns.append("golden_cross")
+        has_bull = True
+    elif cross == "death":
+        patterns.append("death_cross")
+        has_bear = True
+
+    lookback = min(60, n - 1)
+    recent = closes[-lookback:]
+    if len(recent) >= 20:
+        high_idx = recent.index(max(recent))
+        low_idx = recent.index(min(recent))
+        # Doppel-Top: zwei Hochs, die nah beieinander liegen (Toleranz 2 %)
+        highs = sorted(recent, reverse=True)[:5]
+        if len(highs) >= 2 and abs(highs[0] - highs[1]) / max(highs[0], 1) < 0.03 and highs[0] > max(recent) * 0.98:
+            # Es gibt zwei ähnliche Hochs
+            if recent[-1] < highs[0] * 0.97:
+                patterns.append("double_top")
+                has_bear = True
+        lows = sorted(recent)[:5]
+        if len(lows) >= 2 and abs(lows[0] - lows[1]) / max(lows[1], 1) < 0.03 and lows[0] < min(recent) * 1.02:
+            if recent[-1] > lows[0] * 1.03:
+                patterns.append("double_bottom")
+                has_bull = True
+
+    # Bollinger-Squeeze
+    squeeze = False
+    if n >= 20:
+        window = closes[-20:]
+        m = sum(window) / len(window)
+        var = sum((c - m) ** 2 for c in window) / len(window)
+        sd = math.sqrt(var)
+        if m > 0:
+            bandwidth = (4 * sd) / m
+            # Vergleich mit 120-Tage-Bandbreiten (vereinfacht: nur wenn sehr eng)
+            if bandwidth < 0.05:
+                squeeze = True
+                patterns.append("squeeze")
+
+    return {
+        "chartPatterns": patterns,
+        "hasBullishPattern": has_bull,
+        "hasBearishPattern": has_bear,
+        "bollingerSqueeze": squeeze,
+        "cross": cross,
+        "crossDaysAgo": cross_days_ago
+    }
 
 
 def fetch_full_stock(ticker_sym):
@@ -387,7 +446,13 @@ def fetch_full_stock(ticker_sym):
         elif ticker_sym.endswith(".DE"): country = "Deutschland"
         else: country = "USA"
 
-    profile = {"ticker": ticker_sym, "name": info.get("shortName") or info.get("longName") or ticker_sym, "sector": info.get("sector", "Sonstige"), "industry": info.get("industry", "N/A"), "country": country, "currency": "EUR", "nativeCurrency": cur, "exchange": info.get("exchange", "N/A")}
+    profile = {"ticker": ticker_sym,
+               "name": info.get("shortName") or info.get("longName") or ticker_sym,
+               "sector": info.get("sector", "Sonstige"),
+               "industry": info.get("industry", "N/A"),
+               "country": country, "currency": "EUR",
+               "nativeCurrency": cur, "exchange": info.get("exchange", "N/A")}
+
     raw_curr = clean_val(info.get("currentPrice") or info.get("regularMarketPrice"), 0.0)
     raw_prev = clean_val(info.get("previousClose") or info.get("regularMarketPreviousClose"), raw_curr)
     curr_p = clean_val(to_eur(raw_curr, cur), 0.0)
@@ -397,24 +462,32 @@ def fetch_full_stock(ticker_sym):
     raw_mcap = clean_val(info.get("marketCap") or info.get("totalAssets"), 0)
     market_cap_eur = clean_val(to_eur(raw_mcap, cur), 0)
 
-    quote = {"price": curr_p, "change": chg_abs, "changePercent": chg_pct, "marketCap": market_cap_eur, "fiftyTwoWeekLow": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekLow")), cur)), "fiftyTwoWeekHigh": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekHigh")), cur)), "volume": clean_val(info.get("regularMarketVolume")), "currency": "EUR"}
-    ratios = {"peTrailing": clean_val(info.get("trailingPE")), "peForward": clean_val(info.get("forwardPE")), "dividendYield": clean_val(info.get("dividendYield")), "profitMargins": clean_val(info.get("profitMargins"))}
+    quote = {"price": curr_p, "change": chg_abs, "changePercent": chg_pct,
+             "marketCap": market_cap_eur,
+             "fiftyTwoWeekLow": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekLow")), cur)),
+             "fiftyTwoWeekHigh": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekHigh")), cur)),
+             "volume": clean_val(info.get("regularMarketVolume")), "currency": "EUR"}
+    ratios = {"peTrailing": clean_val(info.get("trailingPE")),
+              "peForward": clean_val(info.get("forwardPE")),
+              "dividendYield": clean_val(info.get("dividendYield")),
+              "profitMargins": clean_val(info.get("profitMargins"))}
 
     chart_history = []
     try:
         hist = t.history(period="2y", interval="1d")
         for dt, row in hist.iterrows():
-            chart_history.append({"date": dt.strftime("%Y-%m-%d"), "close": clean_val(to_eur(clean_val(row["Close"]), cur)), "volume": clean_val(row["Volume"])})
-    except Exception: pass
+            chart_history.append({"date": dt.strftime("%Y-%m-%d"),
+                                  "close": clean_val(to_eur(clean_val(row["Close"]), cur)),
+                                  "volume": clean_val(row["Volume"])})
+    except Exception:
+        pass
 
-    # NEU: Dividenden-Daten für Full-Fetch
     dividends_info = process_dividends(t, info, cur)
+    institutional = process_institutional_holders(t, cur)
+    options = process_options(t, info)
 
     result = {
-        "ticker": ticker_sym,
-        "profile": profile,
-        "quote": quote,
-        "ratios": ratios,
+        "ticker": ticker_sym, "profile": profile, "quote": quote, "ratios": ratios,
         "financials": {
             "incomeStatement": {"quarterly": [], "annual": []},
             "balanceSheet": {"quarterly": [], "annual": []},
@@ -423,6 +496,8 @@ def fetch_full_stock(ticker_sym):
         "analysts": process_analyst_data(info, t, cur),
         "insider": process_insider_data(t, cur),
         "holdings": process_fund_data(t, ticker_sym),
+        "institutional": institutional,
+        "options": options,
         "chartHistory": chart_history,
         "dividends": dividends_info,
         "exDividendDate": dividends_info.get("exDate"),
@@ -432,10 +507,6 @@ def fetch_full_stock(ticker_sym):
 
 
 def extract_close_series(batch_df, sym):
-    """
-    Robuste Extraktion der Close-Serie für einen Ticker aus batch_df.
-    Behandelt sowohl MultiIndex-Columns (group_by="ticker") als auch Single-Ticker.
-    """
     try:
         if batch_df is None or batch_df.empty:
             return None
@@ -445,15 +516,14 @@ def extract_close_series(batch_df, sym):
                 sub = batch_df[sym]
                 if "Close" in sub.columns:
                     return sub["Close"].dropna()
-            top2 = batch_df.columns.get_level_values(0)
-            if "Close" in top2:
+            if "Close" in top:
                 sub = batch_df["Close"]
                 if sym in sub.columns:
                     return sub[sym].dropna()
         if "Close" in batch_df.columns:
             return batch_df["Close"].dropna()
-    except Exception as e:
-        print(f"extract_close_series({sym}) fehlgeschlagen: {e}")
+    except Exception:
+        pass
     return None
 
 
@@ -465,8 +535,10 @@ def run_delta_sync(tickers):
     if os.path.exists(universe_file):
         try:
             with open(universe_file, "r", encoding="utf-8") as f:
-                for item in json.load(f): universe_map[item["ticker"]] = item
-        except Exception: pass
+                for item in json.load(f):
+                    universe_map[item["ticker"]] = item
+        except Exception:
+            pass
 
     now_iso = datetime.now(timezone.utc).isoformat()
 
@@ -475,11 +547,12 @@ def run_delta_sync(tickers):
         stock_data = None
         if os.path.exists(stock_file):
             try:
-                with open(stock_file, "r", encoding="utf-8") as f: stock_data = json.load(f)
-            except Exception: pass
+                with open(stock_file, "r", encoding="utf-8") as f:
+                    stock_data = json.load(f)
+            except Exception:
+                pass
 
         if not stock_data:
-            # Vollständiger Fetch für neue Ticker
             try:
                 print(f"Neuer Ticker, voller Fetch: {sym}")
                 stock_data = fetch_full_stock(sym)
@@ -487,7 +560,6 @@ def run_delta_sync(tickers):
                 print(f"Vollständiger Fetch fehlgeschlagen für {sym}: {e}")
                 continue
         else:
-            # Delta-Update für bestehende Ticker
             closes = extract_close_series(batch_df, sym)
             if closes is not None and not closes.empty:
                 try:
@@ -500,7 +572,6 @@ def run_delta_sync(tickers):
                     if new_price and prev_price:
                         chg = round(new_price - prev_price, 4)
                         chg_pct = round((last_close - prev_close) / prev_close * 100, 2) if prev_close else 0.0
-
                         stock_data.setdefault("quote", {})
                         old_price = stock_data["quote"].get("price")
                         stock_data["quote"]["price"] = new_price
@@ -508,7 +579,6 @@ def run_delta_sync(tickers):
                         stock_data["quote"]["changePercent"] = chg_pct
                         stock_data["quote"]["currency"] = "EUR"
 
-                        # chartHistory ergänzen
                         history = stock_data.setdefault("chartHistory", [])
                         existing_dates = {p.get("date") for p in history}
                         new_points = []
@@ -518,10 +588,7 @@ def run_delta_sync(tickers):
                                 try:
                                     fval = float(val)
                                     if not math.isnan(fval) and not math.isinf(fval):
-                                        new_points.append({
-                                            "date": d_str,
-                                            "close": clean_val(to_eur(fval, cur))
-                                        })
+                                        new_points.append({"date": d_str, "close": clean_val(to_eur(fval, cur))})
                                 except Exception:
                                     pass
                         if new_points:
@@ -536,15 +603,10 @@ def run_delta_sync(tickers):
                 except Exception as e:
                     print(f"Delta-Update für {sym} fehlgeschlagen: {e}")
 
-            # NEU: Dividenden-Daten auch im Delta-Pfad auffrischen
             try:
                 cur = stock_data.get("profile", {}).get("nativeCurrency") or detect_native_currency(sym)
-                new_div = process_dividends(
-                    yf.Ticker(sym),
-                    info_or_none=None,  # kein info-Fetch im Delta-Pfad (Performance)
-                    cur=cur,
-                    existing=stock_data.get("dividends") or {}
-                )
+                new_div = process_dividends(yf.Ticker(sym), info_or_none=None, cur=cur,
+                                            existing=stock_data.get("dividends") or {})
                 stock_data["dividends"] = new_div
                 if new_div.get("exDate"):
                     stock_data["exDividendDate"] = new_div["exDate"]
@@ -556,6 +618,23 @@ def run_delta_sync(tickers):
                 stock_data["holdings"] = process_fund_data(yf.Ticker(sym), sym)
             except Exception:
                 pass
+
+        # NEU: Institutional Holders (auch Delta-Pfad – nur bei US-Tickern relevant)
+        if not stock_data.get("institutional") or not stock_data["institutional"].get("holders"):
+            try:
+                cur = stock_data.get("profile", {}).get("nativeCurrency") or detect_native_currency(sym)
+                stock_data["institutional"] = process_institutional_holders(yf.Ticker(sym), cur)
+            except Exception:
+                pass
+
+        # NEU: Options (nur US, nur alle 7 Tage neu berechnen, spart API-Calls)
+        try:
+            t_obj = yf.Ticker(sym)
+            new_options = process_options(t_obj, t_obj.info or {})
+            if new_options:
+                stock_data["options"] = new_options
+        except Exception:
+            pass
 
         with open(stock_file, "w", encoding="utf-8") as f:
             json.dump(stock_data, f, ensure_ascii=False, indent=2)
@@ -570,9 +649,21 @@ def run_delta_sync(tickers):
         u_item["price"] = stock_data.get("quote", {}).get("price")
         u_item["changePercent"] = stock_data.get("quote", {}).get("changePercent")
         u_item["marketCap"] = stock_data.get("quote", {}).get("marketCap")
-        # NEU: Dividendenrendite + Ex-Datum ins Universe für schnellen Zugriff im Screener
         u_item["dividendYield"] = stock_data.get("ratios", {}).get("dividendYield")
         u_item["exDividendDate"] = stock_data.get("exDividendDate")
+
+        # NEU: Chart-Muster ins Universe
+        try:
+            patterns = compute_chart_patterns(stock_data.get("chartHistory") or [], sym)
+            u_item["chartPatterns"] = patterns["chartPatterns"]
+            u_item["hasBullishPattern"] = patterns["hasBullishPattern"]
+            u_item["hasBearishPattern"] = patterns["hasBearishPattern"]
+            u_item["bollingerSqueeze"] = patterns["bollingerSqueeze"]
+            u_item["cross"] = patterns["cross"]
+            u_item["crossDaysAgo"] = patterns["crossDaysAgo"]
+        except Exception:
+            pass
+
         universe_map[sym] = u_item
 
     with open(universe_file, "w", encoding="utf-8") as f:
