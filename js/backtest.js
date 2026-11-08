@@ -1,0 +1,239 @@
+/**
+ * js/backtest.js – Backtesting für Screener-Presets.
+ * Simuliert monatlich: Filter anwenden, gleichgewichtet kaufen, 12 Monate halten.
+ */
+window.App = window.App || {};
+window.App.Backtest = (function () {
+  'use strict';
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function initView() {
+    var container = document.getElementById('app-view-content');
+    if (!container) return;
+    var headerFilterBtn = document.getElementById('btn-header-filter');
+    if (headerFilterBtn) headerFilterBtn.style.display = 'none';
+
+    container.innerHTML =
+      '<div class="view-container">' +
+        '<div style="margin-bottom:16px;">' +
+          '<h2 style="font-size:1.25rem;font-weight:700;margin-bottom:4px;">Backtesting</h2>' +
+          '<div style="font-size:0.78rem;color:var(--text-dim);">Simulation vergangener Filter-Performance (monatlich, 12-Monats-Haltedauer).</div>' +
+        '</div>' +
+        '<div class="card"><div class="card-header-dotted"><span class="card-title">Konfiguration</span></div>' +
+          '<div style="display:flex;flex-direction:column;gap:10px;">' +
+            '<div><label style="font-size:0.72rem;color:var(--text-dim);">Preset-Filter</label>' +
+              '<select id="bt-preset" class="sort-select" style="width:100%;margin-top:4px;">' +
+                '<option value="">— Kein Filter (alle Aktien) —</option>' +
+                '<option value="value">Value (KGV unter Branche)</option>' +
+                '<option value="quality">Qualität (Marge + Wachstum)</option>' +
+                '<option value="growth">Growth (Umsatz ≥ 10 %)</option>' +
+                '<option value="high_dividend">Hohe Dividende (≥ 3 %)</option>' +
+                '<option value="consensus_buy">Kaufkonsens (≥ 70 % Buy)</option>' +
+                '<option value="golden_cross">Golden Cross (letzte 60 Tage)</option>' +
+                '<option value="oversold">Überverkauft (RSI ≤ 30)</option>' +
+                '<option value="low_risk">Kleines Risiko (CRV ≥ 2, Stop ≤ 5 %)</option>' +
+              '</select></div>' +
+            '<div><label style="font-size:0.72rem;color:var(--text-dim);">Simulations-Zeitraum</label>' +
+              '<select id="bt-period" class="sort-select" style="width:100%;margin-top:4px;">' +
+                '<option value="1Y">1 Jahr</option>' +
+                '<option value="2Y" selected>2 Jahre</option>' +
+                '<option value="3Y">3 Jahre</option>' +
+              '</select></div>' +
+            '<button class="chip-btn active" id="bt-run" style="height:42px;justify-content:center;">Simulation starten</button>' +
+          '</div>' +
+          '<div style="font-size:0.7rem;color:var(--text-dim);margin-top:10px;line-height:1.4;">' +
+            'Achtung: Vergangenheitsdaten. Überlebensverzerrung, keine Transaktionskosten, kein Slippage. Keine Prognose.' +
+          '</div>' +
+        '</div>' +
+        '<div id="bt-results"></div>' +
+      '</div>';
+
+    document.getElementById('bt-run').onclick = runBacktest;
+  }
+
+  function runBacktest() {
+    var preset = document.getElementById('bt-preset').value;
+    var period = document.getElementById('bt-period').value;
+    var resultsEl = document.getElementById('bt-results');
+    resultsEl.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Simuliere Filter-Performance…</p></div>';
+
+    var monthCount = period === '1Y' ? 12 : period === '3Y' ? 36 : 24;
+    var endDays = monthCount * 21;
+
+    window.App.Data.getUniverse().then(function (universe) {
+      if (!universe || !universe.length) {
+        resultsEl.innerHTML = '<div class="state-box"><p>Keine Universum-Daten.</p></div>';
+        return;
+      }
+
+      // Wähle Sample: Top 100 nach MarketCap, um Ladezeit zu begrenzen
+      var sample = universe.slice()
+        .filter(function (s) { return Number(s.marketCap) > 0; })
+        .sort(function (a, b) { return Number(b.marketCap) - Number(a.marketCap); })
+        .slice(0, 80);
+
+      var promises = sample.map(function (s) {
+        return window.App.Data.getLongHistory(s.ticker).then(function (h) {
+          return { ticker: s.ticker, sector: s.sector, history: h || [] };
+        }).catch(function () { return { ticker: s.ticker, sector: s.sector, history: [] }; });
+      });
+
+      Promise.all(promises).then(function (rows) {
+        var valid = rows.filter(function (r) { return r.history.length >= endDays + 250; });
+        if (valid.length < 5) {
+          resultsEl.innerHTML = '<div class="state-box"><p>Zu wenige Ticker mit ausreichender Historie für Simulation.</p></div>';
+          return;
+        }
+        var result = simulate(valid, monthCount, endDays, preset, sample);
+        renderResults(resultsEl, result, preset, period);
+      });
+    });
+  }
+
+  function simulate(rows, monthCount, endDays, preset, sample) {
+    // Preismatrix
+    var dateToPrice = {};
+    rows.forEach(function (r) {
+      r.priceMap = {};
+      r.history.forEach(function (p) { r.priceMap[p.date] = p.close; });
+    });
+
+    // Gemeinsame Datumsspanne
+    var allDates = {};
+    rows.forEach(function (r) { r.history.forEach(function (p) { allDates[p.date] = true; }); });
+    var sortedDates = Object.keys(allDates).sort();
+    if (sortedDates.length < endDays) return { trades: [], error: 'Zu wenige gemeinsame Handelstage' };
+
+    var startIdx = sortedDates.length - endDays;
+    var nav = 100; // Basis 100
+    var navSeries = [];
+    var allTrades = [];
+    var monthlyReturns = [];
+    var maxDD = 0;
+    var peak = 100;
+
+    for (var m = 0; m < monthCount; m++) {
+      var buyIdx = startIdx + m * 21;
+      var sellIdx = Math.min(buyIdx + 21 * 12, sortedDates.length - 1);
+      if (buyIdx >= sortedDates.length) break;
+
+      // Filter basierend auf Preset-Kriterien (nur die, die aus Universum-Feldern abrufbar sind)
+      var candidates = rows.filter(function (r) {
+        // Universum-Filter (Preisfilter für Low Risk etc. können wir hier nicht anwenden,
+        // da wir nur History haben – also nur presets, die aus Universum kommen)
+        var s = sample.filter(function (x) { return x.ticker === r.ticker; })[0] || {};
+        return matchesPreset(s, preset);
+      });
+      if (candidates.length === 0) continue;
+
+      // Gleichgewichtet
+      var perTicker = 1 / candidates.length;
+      var portfolioReturn = 0;
+      candidates.forEach(function (r) {
+        var buyDate = sortedDates[buyIdx];
+        var sellDate = sortedDates[sellIdx];
+        var buyPrice = r.priceMap[buyDate] || 0;
+        var sellPrice = r.priceMap[sellDate] || 0;
+        if (buyPrice > 0 && sellPrice > 0) {
+          var ret = sellPrice / buyPrice - 1;
+          portfolioReturn += ret * perTicker;
+          allTrades.push({ ticker: r.ticker, buyDate: buyDate, sellDate: sellDate, ret: ret });
+        }
+      });
+
+      monthlyReturns.push(portfolioReturn);
+      nav = nav * (1 + portfolioReturn);
+      if (nav > peak) peak = nav;
+      var dd = (nav / peak - 1) * 100;
+      if (dd < maxDD) maxDD = dd;
+      navSeries.push({ month: m + 1, nav: nav });
+    }
+
+    if (!monthlyReturns.length) return { trades: [], error: 'Keine Trades generiert' };
+
+    var avgReturn = monthlyReturns.reduce(function (a, b) { return a + b; }, 0) / monthlyReturns.length;
+    var variance = monthlyReturns.reduce(function (a, b) { return a + (b - avgReturn) * (b - avgReturn); }, 0) / monthlyReturns.length;
+    var vol = Math.sqrt(variance) * Math.sqrt(12) * 100;
+    var cagr = (nav / 100) ** (12 / monthlyReturns.length) - 1;
+    var sharpe = vol > 0 ? (cagr * 100 - 2) / vol : 0;
+    var winRate = allTrades.length > 0 ? allTrades.filter(function (t) { return t.ret > 0; }).length / allTrades.length : 0;
+
+    return {
+      navSeries: navSeries,
+      trades: allTrades,
+      finalNav: nav,
+      cagr: cagr * 100,
+      vol: vol,
+      maxDD: maxDD,
+      sharpe: sharpe,
+      winRate: winRate * 100,
+      months: monthlyReturns.length
+    };
+  }
+
+  function matchesPreset(s, preset) {
+    if (!preset) return true;
+    if (preset === 'value') return (s.pe > 0 && s.pe < 20);
+    if (preset === 'quality') return (s.profitMargins > 0.1 && s.revGrowth > 0 && (s.debtToEquity == null || s.debtToEquity <= 100));
+    if (preset === 'growth') return (s.revGrowth || 0) >= 0.10;
+    if (preset === 'high_dividend') return (s.dividendYield || 0) >= 3;
+    if (preset === 'consensus_buy') return (s.buyPct || 0) >= 70;
+    if (preset === 'golden_cross') return s.cross === 'golden' && (s.crossDaysAgo || 999) <= 60;
+    if (preset === 'oversold') return (s.rsi || 99) <= 30;
+    if (preset === 'low_risk') return (s.rrCrv || 0) >= 2 && (s.rrStopPct || 99) <= 5;
+    return true;
+  }
+
+  function renderResults(container, result, preset, period) {
+    if (result.error) {
+      container.innerHTML = '<div class="state-box"><p>' + esc(result.error) + '</p></div>';
+      return;
+    }
+    var F = window.App.Format;
+    var cagrClass = result.cagr >= 0 ? 'var(--bullish)' : 'var(--bearish)';
+
+    var html = '<div class="card"><div class="card-header-dotted"><span class="card-title">Ergebnis</span><span class="period-tag">' + esc(period) + '</span></div>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">' +
+      '<div class="metric-cell"><span class="metric-label">CAGR</span><span class="metric-value" style="color:' + cagrClass + ';">' + (result.cagr >= 0 ? '+' : '') + F.number(result.cagr, 1) + ' %</span></div>' +
+      '<div class="metric-cell"><span class="metric-label">Volatilität</span><span class="metric-value">' + F.number(result.vol, 1) + ' %</span></div>' +
+      '<div class="metric-cell"><span class="metric-label">Max. Drawdown</span><span class="metric-value" style="color:var(--bearish);">' + F.number(result.maxDD, 1) + ' %</span></div>' +
+      '<div class="metric-cell"><span class="metric-label">Sharpe</span><span class="metric-value">' + F.number(result.sharpe, 2) + '</span></div>' +
+      '<div class="metric-cell"><span class="metric-label">Trefferquote</span><span class="metric-value">' + F.number(result.winRate, 1) + ' %</span></div>' +
+      '<div class="metric-cell"><span class="metric-label">Endwert</span><span class="metric-value">' + F.number(result.finalNav, 0) + ' (Basis 100)</span></div>' +
+      '</div>';
+
+    html += '<div style="height:200px;position:relative;"><canvas id="bt-nav-chart" class="chart-canvas"></canvas></div>';
+    html += '</div>';
+
+    // Trades-Tabelle
+    html += '<div class="card"><div class="card-header-dotted"><span class="card-title">Trades (' + result.trades.length + ')</span></div>';
+    html += '<div class="table-responsive-wrapper"><table class="data-table"><thead><tr><th>Ticker</th><th>Kauf</th><th>Verkauf</th><th style="text-align:right;">Rendite</th></tr></thead><tbody>';
+    result.trades.slice(0, 30).forEach(function (t) {
+      html += '<tr><td><strong>' + esc(t.ticker) + '</strong></td>' +
+        '<td>' + F.date(t.buyDate) + '</td>' +
+        '<td>' + F.date(t.sellDate) + '</td>' +
+        '<td style="text-align:right;font-weight:700;color:' + (t.ret >= 0 ? 'var(--bullish)' : 'var(--bearish)') + ';">' + (t.ret >= 0 ? '+' : '') + F.number(t.ret * 100, 1) + ' %</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    html += '</div>';
+
+    container.innerHTML = html;
+
+    // NAV-Chart
+    var canvas = document.getElementById('bt-nav-chart');
+    if (canvas) {
+      window.App.Charts.renderLineChart(canvas, {
+        labels: result.navSeries.map(function (v) { return 'M' + v.month; }),
+        values: result.navSeries.map(function (v) { return v.nav; }),
+        formatY: function (v) { return F.number(v, 0); }
+      });
+    }
+  }
+
+  return { initView: initView };
+})();
