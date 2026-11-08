@@ -3,92 +3,100 @@
    ========================================================================== */
 
 :root {
-  /* ==========================================================
-     DARK THEME (Default)
-     ========================================================== */
   --bg-primary: #0d0f15;
   --bg-secondary: #161922;
   --bg-tertiary: #1f2330;
   --bg-card: #151821;
   --bg-card-hover: #1c202c;
-  
   --header-bg: rgba(13, 15, 21, 0.9);
   --nav-bg: rgba(21, 24, 33, 0.95);
   --backdrop-bg: rgba(0, 0, 0, 0.65);
-  
   --shadow-strong: rgba(0, 0, 0, 0.5);
   --shadow-medium: rgba(0, 0, 0, 0.3);
   --shadow-soft: rgba(0, 0, 0, 0.15);
-  
   --border-color: #262b3a;
   --border-subtle: #1e2230;
-  
   --text-main: #f3f4f6;
   --text-muted: #9ca3af;
   --text-dim: #6b7280;
-  
   --accent-purple: #6366f1;
   --accent-purple-light: #818cf8;
   --accent-purple-glow: rgba(99, 102, 241, 0.25);
-  
   --hero-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  
   --bullish: #10b981;
   --bullish-bg: rgba(16, 185, 129, 0.12);
   --bearish: #ef4444;
   --bearish-bg: rgba(239, 68, 68, 0.12);
-  
   --tag-yellow: #f59e0b;
   --tag-yellow-bg: rgba(245, 158, 11, 0.15);
-  
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
   --radius-full: 9999px;
-  
   --bottom-nav-height: 64px;
   --header-height: 56px;
 }
 
 /* ==========================================================
-   LIGHT THEME (Auto-Switch via System Preference)
+   LIGHT THEME via data-theme-Attribut auf <html>
+   (wird von js/theme.js gesetzt; beim ersten Start aus System-Preference)
    ========================================================== */
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --header-bg: rgba(255, 255, 255, 0.9);
+  --nav-bg: rgba(255, 255, 255, 0.95);
+  --backdrop-bg: rgba(15, 23, 42, 0.3);
+  --shadow-strong: rgba(15, 23, 42, 0.15);
+  --shadow-medium: rgba(15, 23, 42, 0.08);
+  --shadow-soft: rgba(15, 23, 42, 0.05);
+  --border-color: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  --text-main: #0f172a;
+  --text-muted: #334155;
+  --text-dim: #64748b;
+  --accent-purple: #4f46e5;
+  --accent-purple-light: #6366f1;
+  --accent-purple-glow: rgba(79, 70, 229, 0.15);
+  --bullish: #059669;
+  --bullish-bg: rgba(5, 150, 105, 0.12);
+  --bearish: #dc2626;
+  --bearish-bg: rgba(220, 38, 38, 0.12);
+  --tag-yellow: #d97706;
+  --tag-yellow-bg: rgba(217, 119, 6, 0.15);
+}
+
+/* Fallback: System light ohne manuellen Override (wird durch JS gesetzt, aber
+   dieser Block stellt sicher, dass auch ohne JS das System-Light greift.) */
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme]) {
     --bg-primary: #f8fafc;
     --bg-secondary: #ffffff;
     --bg-tertiary: #f1f5f9;
     --bg-card: #ffffff;
     --bg-card-hover: #f8fafc;
-    
     --header-bg: rgba(255, 255, 255, 0.9);
     --nav-bg: rgba(255, 255, 255, 0.95);
     --backdrop-bg: rgba(15, 23, 42, 0.3);
-    
     --shadow-strong: rgba(15, 23, 42, 0.15);
     --shadow-medium: rgba(15, 23, 42, 0.08);
     --shadow-soft: rgba(15, 23, 42, 0.05);
-    
     --border-color: #e2e8f0;
     --border-subtle: #f1f5f9;
-    
     --text-main: #0f172a;
     --text-muted: #334155;
     --text-dim: #64748b;
-    
     --accent-purple: #4f46e5;
     --accent-purple-light: #6366f1;
     --accent-purple-glow: rgba(79, 70, 229, 0.15);
-    
-    /* Hero bleibt dunkel für den Kontrast */
-    --hero-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    
     --bullish: #059669;
     --bullish-bg: rgba(5, 150, 105, 0.12);
     --bearish: #dc2626;
     --bearish-bg: rgba(220, 38, 38, 0.12);
-    
     --tag-yellow: #d97706;
     --tag-yellow-bg: rgba(217, 119, 6, 0.15);
   }
@@ -109,14 +117,12 @@ body {
   line-height: 1.5;
   min-height: 100vh;
   padding-bottom: calc(var(--bottom-nav-height) + 24px);
-  /* FIX: user-select: none entfernt – Nutzer sollen Kennzahlen kopieren können.
-     Selektives Blockieren erfolgt nur noch auf interaktiven Elementen. */
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* FIX: Selektives Blockieren von Textauswahl auf interaktiven Elementen */
 button, .nav-item, .stock-card, .chip-btn, .main-tab-btn, .sub-tab-btn,
-.pill-btn, .icon-btn, .star-btn, .etf-card, .peer-row, .mk-row {
+.pill-btn, .icon-btn, .star-btn, .etf-card, .peer-row, .mk-row, .cmdk-item {
   user-select: none;
   -webkit-user-select: none;
 }
@@ -125,10 +131,6 @@ input, button, select, textarea {
   font-family: inherit;
   color: inherit;
 }
-
-/* ==========================================================================
-   App Header & Bottom Navigation
-   ========================================================================== */
 
 .app-header {
   position: sticky;
@@ -226,19 +228,11 @@ input, button, select, textarea {
   transform: translateY(-2px);
 }
 
-/* ==========================================================================
-   Layout & Container
-   ========================================================================== */
-
 .view-container {
   padding: 16px;
   max-width: 680px;
   margin: 0 auto;
 }
-
-/* ==========================================================================
-   Hero Card (Marktübersicht)
-   ========================================================================== */
 
 .hero-banner {
   background: var(--hero-gradient);
@@ -284,10 +278,6 @@ input, button, select, textarea {
   font-weight: 700;
 }
 
-/* ==========================================================================
-   Cards & Dotted Headers
-   ========================================================================== */
-
 .card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -304,6 +294,13 @@ input, button, select, textarea {
   border-bottom: 1px dashed var(--border-color);
   padding-bottom: 10px;
   margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+
+.card-header-dotted .card-title {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .card-title {
@@ -338,10 +335,6 @@ input, button, select, textarea {
   margin-top: 10px;
   cursor: pointer;
 }
-
-/* ==========================================================================
-   Inputs, Chips & Filter Bar
-   ========================================================================== */
 
 .search-bar-wrapper {
   position: relative;
@@ -427,10 +420,6 @@ input, button, select, textarea {
   font-size: 0.75rem;
   outline: none;
 }
-
-/* ==========================================================================
-   Stock List Cards (Screener & Watchlist)
-   ========================================================================== */
 
 .stock-card {
   background-color: var(--bg-card);
@@ -523,6 +512,11 @@ input, button, select, textarea {
   color: var(--bearish);
 }
 
+.badge-neutral {
+  background-color: var(--tag-yellow-bg);
+  color: var(--tag-yellow);
+}
+
 .star-btn {
   background: transparent;
   border: none;
@@ -539,13 +533,7 @@ input, button, select, textarea {
   color: var(--tag-yellow);
 }
 
-/* ==========================================================================
-   Tabs & Segment Navigation (Stock View)
-   ========================================================================== */
-
-.tabs-wrapper {
-  margin-bottom: 16px;
-}
+.tabs-wrapper { margin-bottom: 16px; }
 
 .main-tabs-row {
   display: flex;
@@ -584,9 +572,7 @@ input, button, select, textarea {
   -webkit-overflow-scrolling: touch;
 }
 
-.sub-tabs-row::-webkit-scrollbar {
-  display: none;
-}
+.sub-tabs-row::-webkit-scrollbar { display: none; }
 
 .sub-tab-btn {
   white-space: nowrap;
@@ -606,10 +592,6 @@ input, button, select, textarea {
   border-color: var(--border-color);
   color: var(--text-main);
 }
-
-/* ==========================================================================
-   Score Engine & Segment Bars
-   ========================================================================== */
 
 .score-badge-large {
   display: inline-flex;
@@ -639,21 +621,9 @@ input, button, select, textarea {
   border-radius: 2px;
 }
 
-.score-segment-block.filled-green {
-  background-color: var(--bullish);
-}
-
-.score-segment-block.filled-yellow {
-  background-color: var(--tag-yellow);
-}
-
-.score-segment-block.filled-red {
-  background-color: var(--bearish);
-}
-
-/* ==========================================================================
-   Horizontal Scrollable Tables (Statements & Insider)
-   ========================================================================== */
+.score-segment-block.filled-green { background-color: var(--bullish); }
+.score-segment-block.filled-yellow { background-color: var(--tag-yellow); }
+.score-segment-block.filled-red { background-color: var(--bearish); }
 
 .table-responsive-wrapper {
   overflow-x: auto;
@@ -686,10 +656,6 @@ input, button, select, textarea {
 .data-table tr:hover td {
   background-color: var(--bg-card-hover);
 }
-
-/* ==========================================================================
-   Charts & Canvas Wrappers
-   ========================================================================== */
 
 .chart-container {
   width: 100%;
@@ -724,10 +690,6 @@ input, button, select, textarea {
   height: 8px;
   border-radius: 50%;
 }
-
-/* ==========================================================================
-   Bottom Sheet (Filter & Overlays)
-   ========================================================================== */
 
 .sheet-backdrop {
   position: fixed;
@@ -782,9 +744,7 @@ input, button, select, textarea {
   margin-bottom: 16px;
 }
 
-.filter-group {
-  margin-bottom: 18px;
-}
+.filter-group { margin-bottom: 18px; }
 
 .filter-label {
   display: flex;
@@ -813,10 +773,6 @@ input, button, select, textarea {
   box-shadow: 0 4px 14px var(--accent-purple-glow);
 }
 
-/* ==========================================================================
-   Utility & States (Loading / Empty)
-   ========================================================================== */
-
 .state-box {
   display: flex;
   flex-direction: column;
@@ -839,21 +795,6 @@ input, button, select, textarea {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-
-/* ==========================================================================
-   Overview: Kennzahlen-Raster & Zeitraum-Pillen
-   ========================================================================== */
-
-.card-header-dotted {
-  flex-wrap: wrap;
-  gap: 6px 10px;
-}
-
-.card-header-dotted .card-title {
-  flex: 1 1 auto;
-  min-width: 0;
 }
 
 .metrics-grid-2col {
@@ -917,7 +858,6 @@ input, button, select, textarea {
   color: #ffffff;
 }
 
-/* Performance-Raster unter dem Kursverlauf */
 .perf-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -936,9 +876,7 @@ input, button, select, textarea {
   padding: 8px 6px;
 }
 
-.perf-cell.selected {
-  border-color: var(--accent-purple);
-}
+.perf-cell.selected { border-color: var(--accent-purple); }
 
 .perf-label {
   font-size: 0.65rem;
@@ -957,16 +895,6 @@ input, button, select, textarea {
 
 .perf-cell.up .perf-value { color: var(--bullish); }
 .perf-cell.down .perf-value { color: var(--bearish); }
-
-
-/* ==========================================================================
-   Chart-Analyse-Tab
-   ========================================================================== */
-
-.badge-neutral {
-  background-color: var(--tag-yellow-bg);
-  color: var(--tag-yellow);
-}
 
 .legend-row {
   display: flex;
@@ -1027,8 +955,6 @@ input, button, select, textarea {
   line-height: 1.4;
 }
 
-
-/* Auffälligkeiten-Karte (Chart-Tab) */
 .auff-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1056,9 +982,7 @@ input, button, select, textarea {
   margin-bottom: 4px;
 }
 
-.auff-item {
-  margin-top: 8px;
-}
+.auff-item { margin-top: 8px; }
 
 .auff-item-title {
   font-size: 0.8rem;
@@ -1083,18 +1007,12 @@ input, button, select, textarea {
   .auff-grid { grid-template-columns: 1fr; }
 }
 
-/* ==========================================================================
-   Desktop / Tablet Optimierung (ab 768px)
-   ========================================================================== */
 @media (min-width: 768px) {
-  
-  /* Container verbreitern und Padding anpassen */
   .view-container {
     max-width: 1024px;
     padding: 32px;
   }
 
-  /* Schwebendes Dock am unteren Rand für Desktop */
   .bottom-nav {
     bottom: 24px;
     left: 50%;
@@ -1108,34 +1026,25 @@ input, button, select, textarea {
     box-shadow: 0 10px 40px var(--shadow-strong);
     gap: 24px;
   }
-  
+
   .nav-item {
     flex: 0 0 auto;
     padding: 0 8px;
   }
 
-  /* Header für Desktop anpassen */
   .app-header {
     height: 64px;
     padding: 0 32px;
   }
 
-  /* Grids entzerren: Aus 2 Spalten mach 4 Spalten */
   .metrics-grid-2col {
     grid-template-columns: repeat(4, 1fr);
   }
 
-  /* Auffälligkeiten-Grid nebeneinander lassen, aber Lücke vergrößern */
-  .auff-grid {
-    gap: 16px;
-  }
+  .auff-grid { gap: 16px; }
 
-  /* Charts auf dem Desktop größer darstellen */
-  .chart-canvas {
-    height: 350px;
-  }
+  .chart-canvas { height: 350px; }
 
-  /* Desktop Hover-States (zusätzlich zu den mobilen :active States) */
   .icon-btn:hover,
   .chip-btn:hover {
     background: var(--bg-tertiary);
@@ -1148,7 +1057,6 @@ input, button, select, textarea {
     box-shadow: 0 4px 12px var(--shadow-soft);
   }
 
-  /* Horizontal scrollende Tabs auf dem Desktop standardmäßig nebeneinander (ohne Scrollen) */
   .horizontal-scroll-row,
   .sub-tabs-row {
     flex-wrap: wrap;
