@@ -7,6 +7,9 @@
  * - Historischer Kurschart mit vertikalen Buy- (grün) und Sell-Markierungen (rot)
  *
  * *NEU:* Bei ETFs werden die Insider-Trades und Volumina der Top 5 Holdings aggregiert!
+ *
+ * FIX: Syntaxfehler behoben (`elif` → `else if`). Vorher wurde die gesamte
+ * Datei nicht geladen, sodass der Insider-Tab komplett kaputt war.
  */
 
 window.App = window.App || {};
@@ -24,7 +27,7 @@ window.App.StockInsider = (function () {
    */
   function buildNameLookup(universe) {
     nameToTickerMap = {};
-    (universe || []).forEach(function(u) {
+    (universe || []).forEach(function (u) {
       // 1. Suche nach echtem Ticker
       nameToTickerMap[u.ticker.toLowerCase()] = u.ticker;
       // 2. Suche nach Firmennamen (in Kleinbuchstaben, bereinigt)
@@ -40,47 +43,47 @@ window.App.StockInsider = (function () {
    * Gibt ein Promise zurück, das die aggregierten Insider-Daten auflöst.
    */
   function fetchEtfInsiderData(stock) {
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
       var isEtf = (stock.sector === 'Sonstige' || stock.sector === 'ETF' || !stock.sector);
       var holdings = stock.holdings || [];
-      
+
       // Wenn es kein ETF ist oder keine Holdings vorhanden sind, liefere die nativen Daten
       if (!isEtf || holdings.length === 0) {
         resolve(stock.insider || { summary: {}, trades: [] });
         return;
       }
 
-      window.App.Data.getUniverse().then(function(universe) {
+      window.App.Data.getUniverse().then(function (universe) {
         buildNameLookup(universe);
-        
+
         var top5 = holdings.slice(0, 5);
-        var promises = top5.map(function(h) {
+        var promises = top5.map(function (h) {
           // Versuche den Ticker aus dem Namen abzuleiten
           var cleanName = h.name.toLowerCase().replace(/inc\.|inc|corp\.|corp|ltd\.|ltd|plc|ag|se|co\./g, '').trim();
           var targetTicker = nameToTickerMap[cleanName] || nameToTickerMap[h.name.toLowerCase()] || null;
-          
+
           if (!targetTicker) {
             // Letzter Notnagel: Wenn der Name fast wie ein Ticker aussieht (z.B. "AAPL")
-            var possibleTicker = universe.find(function(u) { return u.ticker.indexOf(h.name) === 0; });
+            var possibleTicker = universe.find(function (u) { return u.ticker.indexOf(h.name) === 0; });
             if (possibleTicker) targetTicker = possibleTicker.ticker;
           }
 
           if (targetTicker) {
-            return window.App.Data.getStock(targetTicker).catch(function() { return null; });
+            return window.App.Data.getStock(targetTicker).catch(function () { return null; });
           }
           return Promise.resolve(null);
         });
 
-        Promise.all(promises).then(function(results) {
+        Promise.all(promises).then(function (results) {
           var aggTrades = [];
           var buys = 0, sells = 0, buyVal = 0, sellVal = 0;
 
-          results.forEach(function(res, idx) {
+          results.forEach(function (res, idx) {
             if (res && res.insider && res.insider.trades) {
               var sourceName = top5[idx].name; // Ursprungsfirma für die Tabelle
               var tList = res.insider.trades || [];
-              
-              tList.forEach(function(t) {
+
+              tList.forEach(function (t) {
                 // Füge den Firmennamen in das Trade-Objekt ein
                 var tCopy = Object.assign({}, t);
                 tCopy.sourceCompany = sourceName;
@@ -98,13 +101,14 @@ window.App.StockInsider = (function () {
           });
 
           // Trades chronologisch absteigend sortieren
-          aggTrades.sort(function(a, b) {
+          aggTrades.sort(function (a, b) {
             return (a.date < b.date) ? 1 : ((a.date > b.date) ? -1 : 0);
           });
 
           var sentiment = 'Neutral';
+          // FIX: `elif` existiert in JS nicht → `else if`
           if (buyVal > sellVal * 1.2) sentiment = 'Bullish';
-          elif (sellVal > buyVal * 1.2) sentiment = 'Bearish';
+          else if (sellVal > buyVal * 1.2) sentiment = 'Bearish';
 
           resolve({
             summary: {
@@ -118,12 +122,11 @@ window.App.StockInsider = (function () {
             isAggregated: true // Flag für die UI
           });
         });
-      }).catch(function() {
+      }).catch(function () {
         resolve(stock.insider || { summary: {}, trades: [] });
       });
     });
   }
-
 
   /**
    * Rendert den Insider-Tab.
@@ -133,7 +136,7 @@ window.App.StockInsider = (function () {
 
     container.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Lade Insider-Daten...</p></div>';
 
-    fetchEtfInsiderData(stock).then(function(insiderData) {
+    fetchEtfInsiderData(stock).then(function (insiderData) {
       var summary = insiderData.summary || {};
       var trades = insiderData.trades || [];
       var currency = (stock.quote && stock.quote.currency) || 'EUR';
@@ -145,9 +148,9 @@ window.App.StockInsider = (function () {
       var sentimentClass = sentiment === 'Bullish' ? 'badge-bullish' : (sentiment === 'Bearish' ? 'badge-bearish' : 'badge-pill');
 
       // Hinweis anzeigen, wenn Daten aus Top 5 aggregiert wurden
-      var aggNote = insiderData.isAggregated 
+      var aggNote = insiderData.isAggregated
         ? '<div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:12px; padding:8px 12px; background:var(--bg-tertiary); border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">' +
-          '<b>Hinweis (ETF):</b> Da ETFs selbst keine Insider-Trades haben, werden hier die Trades der 5 größten enthaltenen Aktien (Top Holdings) aggregiert.</div>' 
+          '<b>Hinweis (ETF):</b> Da ETFs selbst keine Insider-Trades haben, werden hier die Trades der 5 größten enthaltenen Aktien (Top Holdings) aggregiert.</div>'
         : '';
 
       var html = '' +
