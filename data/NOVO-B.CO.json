@@ -2216,9 +2216,9 @@
   "analysts": {
     "targets": {
       "current": 36.0473,
-      "low": 27.1576,
+      "low": 29.5656,
       "median": 38.4621,
-      "mean": 39.9937,
+      "mean": 40.1052,
       "high": 59.5326,
       "currency": "EUR",
       "analystCount": 24
@@ -2289,12 +2289,19 @@
       },
       {
         "quarter": "2026-09-30",
-        "estimate": 0.6577,
+        "estimate": 0.6548,
         "actual": 0.7746,
-        "surprisePercent": 0.1778
+        "surprisePercent": 0.1829
       }
     ],
-    "nextEarningsDate": "2027-02-03"
+    "nextEarningsDate": "2027-02-03",
+    "epsForecast": {
+      "date": "2027-02-03",
+      "estimate": 0.5683,
+      "low": 0.4371,
+      "high": 0.6506,
+      "analysts": 5
+    }
   },
   "insider": {
     "summary": {
@@ -6289,5 +6296,5 @@
       "volume": 5159759.0
     }
   ],
-  "updatedAt": "2026-11-08T06:26:14.825918+00:00"
+  "updatedAt": "2026-11-08T06:39:27.646594+00:00"
 }

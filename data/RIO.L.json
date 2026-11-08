@@ -1226,7 +1226,7 @@
       "current": 75.2756,
       "low": 73.5818,
       "median": 91.6727,
-      "mean": 91.2499,
+      "mean": 91.2806,
       "high": 104.6072,
       "currency": "EUR",
       "analystCount": 20
@@ -1253,13 +1253,21 @@
         {
           "period": "-1m",
           "strongBuy": 1,
+          "buy": 8,
+          "hold": 11,
+          "sell": 1,
+          "strongSell": 0
+        },
+        {
+          "period": "-2m",
+          "strongBuy": 1,
           "buy": 7,
           "hold": 11,
           "sell": 1,
           "strongSell": 1
         },
         {
-          "period": "-2m",
+          "period": "-3m",
           "strongBuy": 1,
           "buy": 6,
           "hold": 12,
@@ -1269,7 +1277,8 @@
       ]
     },
     "epsEstimates": [],
-    "nextEarningsDate": "2026-07-28"
+    "nextEarningsDate": "2026-07-28",
+    "epsForecast": null
   },
   "insider": {
     "summary": {
@@ -5649,5 +5658,5 @@
       "volume": 2110108.0
     }
   ],
-  "updatedAt": "2026-11-08T06:26:14.791595+00:00"
+  "updatedAt": "2026-11-08T06:39:26.595509+00:00"
 }

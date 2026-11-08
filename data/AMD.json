@@ -2166,12 +2166,12 @@
   "analysts": {
     "targets": {
       "current": 399.9195,
-      "low": 436.3989,
+      "low": 480.9294,
       "median": 578.8965,
-      "mean": 584.4517,
+      "mean": 587.6017,
       "high": 1113.2624,
       "currency": "EUR",
-      "analystCount": 48
+      "analystCount": 47
     },
     "recommendations": {
       "score": 1.4151,
@@ -2244,7 +2244,14 @@
         "surprisePercent": 0.0744
       }
     ],
-    "nextEarningsDate": "2027-02-02"
+    "nextEarningsDate": "2027-02-02",
+    "epsForecast": {
+      "date": "2027-02-02",
+      "estimate": 2.6071,
+      "low": 2.4225,
+      "high": 2.7164,
+      "analysts": 37
+    }
   },
   "insider": {
     "summary": {
@@ -6584,5 +6591,5 @@
       "volume": 45682000.0
     }
   ],
-  "updatedAt": "2026-11-08T06:26:13.056292+00:00"
+  "updatedAt": "2026-11-08T06:38:46.637697+00:00"
 }

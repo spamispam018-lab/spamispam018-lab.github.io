@@ -2425,7 +2425,7 @@
       "analystCount": 10
     },
     "recommendations": {
-      "score": 1.4444,
+      "score": 1.3333,
       "key": "strong_buy",
       "breakdown": {
         "strongBuy": 1,
@@ -2437,9 +2437,9 @@
       "history": [
         {
           "period": "0m",
-          "strongBuy": 2,
+          "strongBuy": 3,
           "buy": 6,
-          "hold": 1,
+          "hold": 0,
           "sell": 0,
           "strongSell": 0
         },
@@ -2495,7 +2495,14 @@
         "surprisePercent": 31.7808
       }
     ],
-    "nextEarningsDate": "2026-11-03"
+    "nextEarningsDate": "2026-11-03",
+    "epsForecast": {
+      "date": "2026-11-03",
+      "estimate": 0.7475,
+      "low": 0.747,
+      "high": 0.7481,
+      "analysts": 2
+    }
   },
   "insider": {
     "summary": {
@@ -6835,5 +6842,5 @@
       "volume": 4398900.0
     }
   ],
-  "updatedAt": "2026-11-08T06:26:21.139690+00:00"
+  "updatedAt": "2026-11-08T06:40:51.288130+00:00"
 }
