@@ -11,9 +11,15 @@
  * - Merken der Auswahl (localStorage)
  * - KI-Screening via Gemini für jede Filterauswahl
  *
- * NEU: Screener-Alerts – Filter als "Sag mir, wenn neue Treffer"-Regel speichern.
- *      Beim App-Start werden alle gespeicherten Alerts gegen das aktuelle Universum
- *      geprüft und neue Treffer als Banner eingeblendet.
+ * NEU (Batch 1):
+ * - Screener-Alerts: Filter als "Sag mir, wenn neue Treffer"-Regel speichern.
+ *   Beim App-Start werden alle gespeicherten Alerts gegen das aktuelle Universum
+ *   geprüft und neue Treffer als Banner eingeblendet.
+ *
+ * NEU (Batch 2):
+ * - Technische Chart-Muster-Filter (bullisch, bärisch, Doppel-Top, Doppel-Boden,
+ *   Bollinger-Squeeze) basierend auf Feldern, die die Pipeline in universe.json
+ *   vorberechnet (hasBullishPattern, hasBearishPattern, chartPatterns[], bollingerSqueeze).
  */
 
 window.App = window.App || {};
@@ -44,7 +50,7 @@ window.App.Screener = (function () {
 
   var STORAGE_KEY = 'screener_state_v1';
   var SNAPSHOT_KEY = 'screener_snapshot_v1';
-  // NEU: Storage-Key für Screener-Alerts
+  // NEU (Batch 1): Storage-Key für Screener-Alerts
   var SCREENER_ALERTS_KEY = 'screener_alerts_v1';
 
   // ---------------------------------------------------------------------------
@@ -82,7 +88,9 @@ window.App.Screener = (function () {
   // Filter, die sich gegenseitig ausschließen (Antippen des einen schaltet den anderen ab)
   var PRESET_EXCLUSIVE = {
     forecast_up: 'forecast_down', forecast_down: 'forecast_up',
-    death_cross: 'golden_cross', golden_cross: 'death_cross'
+    death_cross: 'golden_cross', golden_cross: 'death_cross',
+    // NEU (Batch 2): Bullisch/Bärisch schließen sich aus
+    tech_bullish: 'tech_bearish', tech_bearish: 'tech_bullish'
   };
 
   // Passende Standard-Sortierung, wenn genau ein Filter aktiv ist
@@ -254,6 +262,18 @@ window.App.Screener = (function () {
     return s.cross === type && hasNum(s.crossDaysAgo) && s.crossDaysAgo <= CROSS_RECENT_DAYS;
   }
 
+  /**
+   * NEU (Batch 2): technische Filter.
+   * Die Pipeline schreibt in universe.json:
+   *  - chartPatterns: ['golden_cross','double_top','squeeze', ...]
+   *  - hasBullishPattern / hasBearishPattern: boolean
+   *  - bollingerSqueeze: boolean
+   *  - cross / crossDaysAgo (bereits vorhanden)
+   */
+  function hasTechPattern(s, id) {
+    return Array.isArray(s.chartPatterns) && s.chartPatterns.indexOf(id) !== -1;
+  }
+
   var PRESET_FILTERS = {
     high_dividend: function (s) { return (s.dividendYield || 0) >= 3; },
     value: function (s) { return isCheap(s); },
@@ -276,7 +296,13 @@ window.App.Screener = (function () {
     bottom_knife: function (s) { return s.bottom === 'knife'; },
     low_risk: function (s) { return isLowRisk(s); },
     news_positive: function (s) { return isNewsPositive(s); },
-    news_negative: function (s) { return isNewsNegative(s); }
+    news_negative: function (s) { return isNewsNegative(s); },
+    // NEU (Batch 2): Technische Chart-Muster-Filter
+    tech_bullish: function (s) { return !!s.hasBullishPattern; },
+    tech_bearish: function (s) { return !!s.hasBearishPattern; },
+    tech_double_top: function (s) { return hasTechPattern(s, 'double_top'); },
+    tech_double_bottom: function (s) { return hasTechPattern(s, 'double_bottom'); },
+    tech_squeeze: function (s) { return s.bollingerSqueeze === true || hasTechPattern(s, 'squeeze'); }
   };
 
   // Chip-Beschriftung (HTML), Klartext-Name (für den Gemini-Prompt) und Erklärung
@@ -324,7 +350,18 @@ window.App.Screener = (function () {
     { id: 'news_positive', chip: '📰 Positive News', name: 'Positive Nachrichten',
       info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % positiv (automatische FinBERT-Einschätzung).'; } },
     { id: 'news_negative', chip: '⚠️ Negative News', name: 'Negative Nachrichten',
-      info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % negativ (automatische FinBERT-Einschätzung).'; } }
+      info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % negativ (automatische FinBERT-Einschätzung).'; } },
+    // NEU (Batch 2): Technische Chart-Muster
+    { id: 'tech_bullish', chip: '📊 Bullisches Chartmuster', name: 'Bullisches Chartmuster',
+      info: function () { return 'In der Daten-Pipeline wurde mindestens ein bullisches Chartmuster erkannt (Doppel-Boden, Golden Cross, aufsteigendes Dreieck). Vergangene Kursdaten, keine Prognose.'; } },
+    { id: 'tech_bearish', chip: '📉 Bärisches Chartmuster', name: 'Bärisches Chartmuster',
+      info: function () { return 'In der Daten-Pipeline wurde mindestens ein bärisches Chartmuster erkannt (Doppel-Top, Death Cross, Schulter-Kopf-Schulter). Vergangene Kursdaten, keine Prognose.'; } },
+    { id: 'tech_double_top', chip: '⛰️ Doppel-Top', name: 'Doppel-Top',
+      info: function () { return 'Chartmuster mit zwei etwa gleich hohen Hochpunkten – gilt als bärisches Umkehrsignal.'; } },
+    { id: 'tech_double_bottom', chip: '🏔️ Doppel-Boden', name: 'Doppel-Boden',
+      info: function () { return 'Chartmuster mit zwei etwa gleich tiefen Tiefpunkten – gilt als bullisches Umkehrsignal.'; } },
+    { id: 'tech_squeeze', chip: '🎯 Bollinger-Squeeze', name: 'Bollinger-Squeeze',
+      info: function () { return 'Bollinger-Bänder sehr eng – oft Vorläufer einer stärkeren Bewegung (Richtung offen).'; } }
   ];
 
   function presetName(id) {
@@ -354,8 +391,8 @@ window.App.Screener = (function () {
     return true;
   }
 
-  // NEU: Slider-Filter mit explizit übergebenen Slider-Werten prüfen
-  // (wird für Screener-Alerts verwendet, ohne globale Variable zu verändern)
+  // NEU (Batch 1): Slider-Filter mit explizit übergebenen Slider-Werten prüfen
+  // (wird für Screener-Alerts verwendet, ohne die globalen sliderFilters zu verändern)
   function passesSlidersWith(s, sl) {
     if (sl.maxPe !== null && !(s.pe > 0 && s.pe <= sl.maxPe)) return false;
     if (sl.minYield > 0 && !((s.dividendYield || 0) >= sl.minYield)) return false;
@@ -721,6 +758,15 @@ window.App.Screener = (function () {
       var med = sectorPe[s.sector];
       tags.push('KGV ' + fmtNum(s.pe, 0) + (med ? ' (Branche Ø ' + fmtNum(med, 0) + ')' : ''));
     }
+    // NEU (Batch 2): Tag für aktive Chart-Muster-Filter
+    if ((isActive('tech_bullish') || isActive('tech_bearish')) && Array.isArray(s.chartPatterns) && s.chartPatterns.length > 0) {
+      var prettyMap = {
+        golden_cross: 'Golden Cross', death_cross: 'Death Cross',
+        double_top: 'Doppel-Top', double_bottom: 'Doppel-Boden', squeeze: 'Squeeze'
+      };
+      var pretty = s.chartPatterns.slice(0, 2).map(function (id) { return prettyMap[id] || id; }).join(', ');
+      tags.push('Muster: ' + pretty);
+    }
     return tags.map(greenTag).join('');
   }
 
@@ -867,6 +913,10 @@ window.App.Screener = (function () {
         if (hasUpside(s)) parts.push("Upside-Ziel: " + fmtNum(s.upside, 1) + " %" + (hasNum(s.analystCount) ? " (" + s.analystCount + " Analysten)" : ""));
         if (hasRecentCross(s, 'death')) parts.push("Death Cross vor " + s.crossDaysAgo + " Tg.");
         if (hasRecentCross(s, 'golden')) parts.push("Golden Cross vor " + s.crossDaysAgo + " Tg.");
+        // NEU (Batch 2): Chart-Muster an Gemini übergeben
+        if (Array.isArray(s.chartPatterns) && s.chartPatterns.length > 0) {
+          parts.push("Chart-Muster: " + s.chartPatterns.join(', '));
+        }
         if (s.bottom) parts.push("Boden-Check: " + ({ base: 'Bodenbildung', knife: 'fallendes Messer', wait: 'unklar' })[s.bottom]);
         var nl = window.App.News && window.App.News.indexLine(s.ticker, true);
         if (nl) parts.push(nl);
@@ -887,7 +937,7 @@ window.App.Screener = (function () {
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(promptText).then(function () {
           if (needsClipboardPaste) {
-            alert("Hinweis: Da die Liste mit " + list.length + " Aktien sehr lang ist, wurde sie automatisch in deine Zwischenablage kopiert. Füge den Text bei Gemini einfach über 'Einfügen' (oder Strg+V) in das Chat-Feld ein.");
+            window.alert("Hinweis: Da die Liste mit " + list.length + " Aktien sehr lang ist, wurde sie automatisch in deine Zwischenablage kopiert. Füge den Text bei Gemini einfach über 'Einfügen' (oder Strg+V) in das Chat-Feld ein.");
           }
           window.open(geminiUrl, '_blank');
         }).catch(function () {
@@ -1155,7 +1205,7 @@ window.App.Screener = (function () {
     bindSheetSwipe();
     bindSavedAndExport();
 
-    // NEU: Screener-Alert-Button binden und gespeicherte Alerts rendern
+    // NEU (Batch 1): Screener-Alert-Button binden und gespeicherte Alerts rendern
     var saveAlertBtn = document.getElementById('screener-save-alert-btn');
     if (saveAlertBtn) saveAlertBtn.onclick = createScreenerAlert;
     renderScreenerAlerts();
@@ -1287,7 +1337,7 @@ window.App.Screener = (function () {
   }
 
   // ===========================================================================
-  // NEU: Screener-Alerts – "Sag mir, wenn eine neue Aktie den Filter erfüllt"
+  // NEU (Batch 1): Screener-Alerts – "Sag mir, wenn eine neue Aktie den Filter erfüllt"
   // ===========================================================================
   function loadScreenerAlerts() {
     var list = loadJson(SCREENER_ALERTS_KEY);
@@ -1376,6 +1426,10 @@ window.App.Screener = (function () {
    * Prüft alle gespeicherten Alerts gegen das aktuelle Universum.
    * Wird beim App-Start (nach Datenladen) aufgerufen.
    * Neue Treffer werden als Banner eingeblendet.
+   *
+   * Wichtig: sectorPe wird temporär neu berechnet, damit Value/Undervalued-Filter
+   * auch dann korrekt arbeiten, wenn initView() noch nicht lief (z. B. Start auf
+   * einer anderen Route).
    */
   function checkScreenerAlerts() {
     var alerts = loadScreenerAlerts();
@@ -1385,24 +1439,32 @@ window.App.Screener = (function () {
       var stocks = universe || [];
       var newly = [];
 
-      alerts.forEach(function (a) {
-        var filterList = stocks.slice();
-        (a.presets || []).forEach(function (p) {
-          var fn = PRESET_FILTERS[p];
-          if (fn) filterList = filterList.filter(fn);
+      // sectorPe temporär setzen für korrekte Filter
+      var oldSectorPe = sectorPe;
+      sectorPe = computeSectorMedians(stocks);
+
+      try {
+        alerts.forEach(function (a) {
+          var filterList = stocks.slice();
+          (a.presets || []).forEach(function (p) {
+            var fn = PRESET_FILTERS[p];
+            if (fn) filterList = filterList.filter(fn);
+          });
+          var sl = normSliders(a.sliders);
+          filterList = filterList.filter(function (s) { return passesSlidersWith(s, sl); });
+
+          var prevMap = toMap(a.tickers || []);
+          var fresh = filterList.filter(function (s) { return !prevMap[s.ticker]; });
+
+          if (fresh.length > 0) {
+            newly.push({ alert: a, fresh: fresh.map(function (s) { return s.ticker; }) });
+            a.tickers = filterList.map(function (s) { return s.ticker; }).sort();
+            a.updatedAt = new Date().toISOString();
+          }
         });
-        var sl = normSliders(a.sliders);
-        filterList = filterList.filter(function (s) { return passesSlidersWith(s, sl); });
-
-        var prevMap = toMap(a.tickers || []);
-        var fresh = filterList.filter(function (s) { return !prevMap[s.ticker]; });
-
-        if (fresh.length > 0) {
-          newly.push({ alert: a, fresh: fresh.map(function (s) { return s.ticker; }) });
-          a.tickers = filterList.map(function (s) { return s.ticker; }).sort();
-          a.updatedAt = new Date().toISOString();
-        }
-      });
+      } finally {
+        sectorPe = oldSectorPe;
+      }
 
       if (newly.length) {
         saveScreenerAlerts(alerts);
@@ -1506,7 +1568,7 @@ window.App.Screener = (function () {
 
         '<div id="screener-ai-banner-container"></div>' +
 
-        /* NEU: Container für gespeicherte Alerts + Save-Button */
+        /* NEU (Batch 1): Container für gespeicherte Alerts + Save-Button */
         '<div id="screener-alerts-container"></div>' +
         '<div style="display: flex; gap: 8px; margin-bottom: 12px;">' +
           '<button class="chip-btn" id="screener-save-alert-btn" style="flex: 1; justify-content: center;">🔔 Filter als Alert speichern</button>' +
@@ -1565,7 +1627,7 @@ window.App.Screener = (function () {
 
   return {
     initView: initView,
-    // NEU: wird beim App-Start aufgerufen, um gespeicherte Alerts zu prüfen
+    // NEU (Batch 1): wird beim App-Start aufgerufen, um gespeicherte Alerts zu prüfen
     checkScreenerAlerts: checkScreenerAlerts
   };
 })();
