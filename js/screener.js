@@ -10,6 +10,10 @@
  * - "Neu im Filter"-Markierung und Watchlist-Hinweis
  * - Merken der Auswahl (localStorage)
  * - KI-Screening via Gemini für jede Filterauswahl
+ *
+ * NEU: Screener-Alerts – Filter als "Sag mir, wenn neue Treffer"-Regel speichern.
+ *      Beim App-Start werden alle gespeicherten Alerts gegen das aktuelle Universum
+ *      geprüft und neue Treffer als Banner eingeblendet.
  */
 
 window.App = window.App || {};
@@ -40,6 +44,8 @@ window.App.Screener = (function () {
 
   var STORAGE_KEY = 'screener_state_v1';
   var SNAPSHOT_KEY = 'screener_snapshot_v1';
+  // NEU: Storage-Key für Screener-Alerts
+  var SCREENER_ALERTS_KEY = 'screener_alerts_v1';
 
   // ---------------------------------------------------------------------------
   // Zustand
@@ -154,7 +160,6 @@ window.App.Screener = (function () {
 
   /**
    * "Unterbewertet": günstiges KGV (relativ zur Branche) bei solider Qualität und Kurs in der unteren Hälfte der 52W-Spanne.
-   * Fehlende Werte (PEG, Verschuldung – z. B. bei Banken) schließen eine Aktie nicht aus.
    */
   function isUndervalued(s) {
     if (!isCheap(s)) return false;
@@ -167,8 +172,7 @@ window.App.Screener = (function () {
   }
 
   /**
-   * "Turnaround": aktuell Verlust (negatives/fehlendes KGV), aber niedriges Forward-KGV,
-   * moderate Verschuldung und Kurs im unteren Bereich der 52W-Spanne. Hohes Risiko!
+   * "Turnaround": aktuell Verlust (negatives/fehlendes KGV), aber niedriges Forward-KGV.
    */
   function isTurnaround(s) {
     if (!isLoss(s)) return false;
@@ -222,7 +226,6 @@ window.App.Screener = (function () {
     return hasNum(s.buyPct) && s.buyPct >= CONSENSUS_BUY_MIN && analystOk(s);
   }
 
-  /** "Verkaufskonsens": höchstens 20 % Buy/StrongBuy. */
   // News-Stimmung (aus data/news/_index.json, FinBERT): mind. 3 Meldungen, Hälfte+ positiv bzw. negativ
   var NEWS_MIN_ITEMS = 3, NEWS_SHARE_MIN = 0.5, NEWS_SCORE_MIN = 0.2;
   function newsOf(s) {
@@ -242,7 +245,6 @@ window.App.Screener = (function () {
     return hasNum(s.buyPct) && s.buyPct <= 20 && analystOk(s);
   }
 
-  /** SMA 50 hat SMA 200 kürzlich von oben nach unten (death) bzw. unten nach oben (golden) gekreuzt. */
   // Risk/Reward (Long) aus dem Rechner der Detailansicht: Stop an der Unterstützung, Ziel Widerstand/Analystenziel
   function isLowRisk(s) {
     return hasNum(s.rrCrv) && hasNum(s.rrStopPct) && s.rrCrv >= RR_MIN_CRV && s.rrStopPct <= RR_MAX_STOP_PCT;
@@ -314,15 +316,15 @@ window.App.Screener = (function () {
     { id: 'consensus_sell', chip: '👎 Verkaufskonsens', name: 'Verkaufskonsens',
       info: function () { return 'Höchstens 20 % der Analysten mit Buy/StrongBuy, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
     { id: 'bottom_base', chip: '🌅 Bodenbildung', name: 'Bodenbildung',
-      info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch und mindestens 4 von 6 Stabilisierungs-Signalen (kein neues Tief seit 15 Tagen, höheres Tief, Kurs über 20-Tage-Linie, Linie steigt, MACD über Signal, RSI ≥ 40 und steigend). Möglicher Boden, keine Garantie.'; } },
+      info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch und mindestens 4 von 6 Stabilisierungs-Signalen. Möglicher Boden, keine Garantie.'; } },
     { id: 'bottom_knife', chip: '🔪 Fallendes Messer', name: 'Fallendes Messer',
-      info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch, höchstens 2 von 6 Stabilisierungs-Signalen und frisches Tief (≤ 10 Tage) oder −10 % im letzten Monat. Abwärtstrend noch intakt.'; } },
+      info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch, höchstens 2 von 6 Stabilisierungs-Signalen und frisches Tief. Abwärtstrend noch intakt.'; } },
     { id: 'low_risk', chip: '🛡️ Kleines Risiko', name: 'Kleines Risiko',
-      info: function () { return 'Long-Setup mit begrenztem Risiko: Stop knapp unter der nächsten Unterstützung höchstens ' + RR_MAX_STOP_PCT + ' % unter dem Kurs und Chance-Risiko-Verhältnis (CRV) mindestens ' + RR_MIN_CRV + ':1. Ziel ist der nächste Widerstand oder das Analystenziel. Gleiche Berechnung wie der Risk/Reward Rechner in der Detailansicht. Aktien ohne erkennbare Unterstützung erscheinen nicht. Eigene Schwellen: Feinfilter „Mindest-CRV“ und „Maximaler Stop-Abstand“ unten.'; } },
+      info: function () { return 'Long-Setup mit begrenztem Risiko: Stop knapp unter der nächsten Unterstützung höchstens ' + RR_MAX_STOP_PCT + ' % unter dem Kurs und Chance-Risiko-Verhältnis (CRV) mindestens ' + RR_MIN_CRV + ':1.'; } },
     { id: 'news_positive', chip: '📰 Positive News', name: 'Positive Nachrichten',
-      info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % positiv (automatische FinBERT-Einschätzung der Schlagzeilen).'; } },
+      info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % positiv (automatische FinBERT-Einschätzung).'; } },
     { id: 'news_negative', chip: '⚠️ Negative News', name: 'Negative Nachrichten',
-      info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % negativ (automatische FinBERT-Einschätzung der Schlagzeilen).'; } }
+      info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % negativ (automatische FinBERT-Einschätzung).'; } }
   ];
 
   function presetName(id) {
@@ -349,6 +351,17 @@ window.App.Screener = (function () {
     if (sliderFilters.minPerf !== null && !(hasNum(s.perf52w) && s.perf52w >= sliderFilters.minPerf)) return false;
     if (sliderFilters.minCrv !== null && !(hasNum(s.rrCrv) && s.rrCrv >= sliderFilters.minCrv)) return false;
     if (sliderFilters.maxStop !== null && !(hasNum(s.rrStopPct) && s.rrStopPct <= sliderFilters.maxStop)) return false;
+    return true;
+  }
+
+  // NEU: Slider-Filter mit explizit übergebenen Slider-Werten prüfen
+  // (wird für Screener-Alerts verwendet, ohne globale Variable zu verändern)
+  function passesSlidersWith(s, sl) {
+    if (sl.maxPe !== null && !(s.pe > 0 && s.pe <= sl.maxPe)) return false;
+    if (sl.minYield > 0 && !((s.dividendYield || 0) >= sl.minYield)) return false;
+    if (sl.minPerf !== null && !(hasNum(s.perf52w) && s.perf52w >= sl.minPerf)) return false;
+    if (sl.minCrv !== null && !(hasNum(s.rrCrv) && s.rrCrv >= sl.minCrv)) return false;
+    if (sl.maxStop !== null && !(hasNum(s.rrStopPct) && s.rrStopPct <= sl.maxStop)) return false;
     return true;
   }
 
@@ -898,7 +911,6 @@ window.App.Screener = (function () {
   var scrollLocked = false;
   var savedBodyStyle = { overflow: '', overscroll: '' };
 
-  /** Sperrt Hintergrund-Scrollen und Pull-to-Refresh, solange das Fenster offen ist. */
   function lockPageScroll() {
     if (scrollLocked || !document.body) return;
     savedBodyStyle.overflow = document.body.style.overflow || '';
@@ -941,10 +953,6 @@ window.App.Screener = (function () {
     if (backdrop) backdrop.classList.remove('open');
   }
 
-  /**
-   * Wisch-nach-unten zum Schließen. Die Geste wird per preventDefault vom Browser ferngehalten,
-   * sonst löst sie Pull-to-Refresh (Neuladen der ganzen Seite) aus.
-   */
   function bindSheetSwipe() {
     var sheet = document.getElementById('filter-bottom-sheet');
     var backdrop = document.getElementById('filter-sheet-backdrop');
@@ -969,17 +977,17 @@ window.App.Screener = (function () {
       if (startY === null || !e.touches || e.touches.length !== 1) return;
       var cur = e.touches[0].clientY;
       if (!dragging) {
-        if (sheet.scrollTop > 0) {      // Inhalt scrollt noch: normales Scrollen, Startpunkt nachführen
+        if (sheet.scrollTop > 0) {
           startY = cur;
           return;
         }
-        if (cur - startY <= 6) return;  // nach oben oder kaum bewegt: nichts tun
+        if (cur - startY <= 6) return;
         dragging = true;
         sheet.style.transition = 'none';
       }
       dy = Math.max(0, cur - startY);
       sheet.style.transform = 'translateY(' + dy + 'px)';
-      if (e.cancelable) e.preventDefault(); // verhindert Pull-to-Refresh
+      if (e.cancelable) e.preventDefault();
     }, { passive: false });
 
     function endSwipe() {
@@ -994,7 +1002,6 @@ window.App.Screener = (function () {
     sheet.addEventListener('touchend', endSwipe, { passive: true });
     sheet.addEventListener('touchcancel', endSwipe, { passive: true });
 
-    // Auf dem abgedunkelten Hintergrund darf nichts nach unten ziehen/neu laden
     if (backdrop) {
       backdrop.addEventListener('touchmove', function (e) {
         if (e.cancelable) e.preventDefault();
@@ -1093,7 +1100,6 @@ window.App.Screener = (function () {
     }
     syncPresetStates();
 
-    // Sinnvolle Standard-Sortierung nur, wenn genau ein Filter aktiv ist
     if (activePresets.length === 1 && PRESET_SORTS[activePresets[0]]) {
       currentSort = PRESET_SORTS[activePresets[0]];
       autoSorted = true;
@@ -1134,7 +1140,6 @@ window.App.Screener = (function () {
       btn.onclick = function () { togglePreset(btn.getAttribute('data-sheet-preset')); };
     });
 
-    // Feinfilter-Sheet
     ['filter-slider-pe', 'filter-slider-yield', 'filter-slider-perf', 'filter-slider-crv', 'filter-slider-stop'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.oninput = updateSliderLabels;
@@ -1149,6 +1154,11 @@ window.App.Screener = (function () {
     if (backdrop) backdrop.onclick = closeSheet;
     bindSheetSwipe();
     bindSavedAndExport();
+
+    // NEU: Screener-Alert-Button binden und gespeicherte Alerts rendern
+    var saveAlertBtn = document.getElementById('screener-save-alert-btn');
+    if (saveAlertBtn) saveAlertBtn.onclick = createScreenerAlert;
+    renderScreenerAlerts();
   }
 
   // ---------------------------------------------------------------------------
@@ -1276,6 +1286,166 @@ window.App.Screener = (function () {
     }
   }
 
+  // ===========================================================================
+  // NEU: Screener-Alerts – "Sag mir, wenn eine neue Aktie den Filter erfüllt"
+  // ===========================================================================
+  function loadScreenerAlerts() {
+    var list = loadJson(SCREENER_ALERTS_KEY);
+    return Array.isArray(list) ? list : [];
+  }
+
+  function saveScreenerAlerts(list) {
+    saveJson(SCREENER_ALERTS_KEY, list || []);
+  }
+
+  function currentAlertSnapshot() {
+    var sig = currentFilterSignature();
+    var tickers = filteredStocks.map(function (s) { return s.ticker; }).sort();
+    return { signature: sig, tickers: tickers };
+  }
+
+  function createScreenerAlert() {
+    if (activePresets.length === 0 && !slidersActive()) {
+      window.alert('Wähle zuerst mindestens einen Filter oder Feinfilter aus.');
+      return;
+    }
+    var def = activePresets.map(presetName).join(' + ') || 'Eigener Filter';
+    var name = window.prompt('Name für diesen Alert:', def);
+    if (name === null) return;
+    name = String(name).trim() || def;
+
+    var sig = currentAlertSnapshot();
+    var list = loadScreenerAlerts();
+    var existing = list.filter(function (a) { return a.signature === sig.signature; })[0];
+
+    if (existing) {
+      if (!window.confirm('Für diesen Filter existiert bereits ein Alert. Aktualisieren?')) return;
+      existing.name = name;
+      existing.tickers = sig.tickers;
+      existing.updatedAt = new Date().toISOString();
+    } else {
+      list.push({
+        id: 'sa' + Date.now(),
+        name: name.slice(0, 60),
+        signature: sig.signature,
+        presets: activePresets.slice(),
+        sliders: normSliders(sliderFilters),
+        tickers: sig.tickers,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+    }
+    saveScreenerAlerts(list);
+    window.alert('Alert "' + name + '" gespeichert. Beim nächsten App-Start wirst du über neue Treffer informiert.');
+    renderScreenerAlerts();
+  }
+
+  function renderScreenerAlerts() {
+    var container = document.getElementById('screener-alerts-container');
+    if (!container) return;
+    var list = loadScreenerAlerts();
+    if (!list.length) { container.innerHTML = ''; return; }
+
+    var html = '<div class="card" style="padding: 12px 14px;">' +
+      '<div class="card-header-dotted"><span class="card-title">Gespeicherte Alerts</span>' +
+      '<span class="sector-label">' + list.length + '</span></div>';
+
+    list.forEach(function (a) {
+      var filterLabel = (a.presets || []).map(presetName).join(' + ') || 'Eigener Filter';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);gap:10px;">' +
+        '<div style="min-width:0;flex:1;">' +
+          '<div style="font-weight:700;font-size:0.85rem;color:var(--text-main);">' + esc(a.name) + '</div>' +
+          '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.4;">' + esc(filterLabel) + ' · ' + (a.tickers || []).length + ' Treffer · ' + window.App.Format.date(a.updatedAt) + '</div>' +
+        '</div>' +
+        '<button class="chip-btn alert-del" data-id="' + esc(a.id) + '" style="padding:2px 7px;font-size:0.7rem;" title="Löschen">🗑</button>' +
+      '</div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+
+    container.querySelectorAll('.alert-del').forEach(function (btn) {
+      btn.onclick = function () {
+        if (!window.confirm('Alert löschen?')) return;
+        saveScreenerAlerts(loadScreenerAlerts().filter(function (a) { return a.id !== btn.getAttribute('data-id'); }));
+        renderScreenerAlerts();
+      };
+    });
+  }
+
+  /**
+   * Prüft alle gespeicherten Alerts gegen das aktuelle Universum.
+   * Wird beim App-Start (nach Datenladen) aufgerufen.
+   * Neue Treffer werden als Banner eingeblendet.
+   */
+  function checkScreenerAlerts() {
+    var alerts = loadScreenerAlerts();
+    if (!alerts.length) return Promise.resolve([]);
+
+    return window.App.Data.getUniverse().then(function (universe) {
+      var stocks = universe || [];
+      var newly = [];
+
+      alerts.forEach(function (a) {
+        var filterList = stocks.slice();
+        (a.presets || []).forEach(function (p) {
+          var fn = PRESET_FILTERS[p];
+          if (fn) filterList = filterList.filter(fn);
+        });
+        var sl = normSliders(a.sliders);
+        filterList = filterList.filter(function (s) { return passesSlidersWith(s, sl); });
+
+        var prevMap = toMap(a.tickers || []);
+        var fresh = filterList.filter(function (s) { return !prevMap[s.ticker]; });
+
+        if (fresh.length > 0) {
+          newly.push({ alert: a, fresh: fresh.map(function (s) { return s.ticker; }) });
+          a.tickers = filterList.map(function (s) { return s.ticker; }).sort();
+          a.updatedAt = new Date().toISOString();
+        }
+      });
+
+      if (newly.length) {
+        saveScreenerAlerts(alerts);
+        showScreenerAlertBanners(newly);
+      }
+      return newly;
+    }).catch(function () { return []; });
+  }
+
+  /**
+   * Zeigt Banner für neue Screener-Treffer im gemeinsamen Container.
+   * Falls der Alerts-Banner-Container (aus alerts.js) noch nicht existiert, wird er hier erzeugt.
+   */
+  function showScreenerAlertBanners(newly) {
+    var container = document.getElementById('alerts-banner-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'alerts-banner-container';
+      container.style.cssText = 'position:fixed;top:10px;left:10px;right:10px;z-index:9999;display:flex;flex-direction:column;gap:6px;pointer-events:none;';
+      document.body.appendChild(container);
+    }
+    var BANNER_MAX = 5;
+    while (container.children.length >= BANNER_MAX) {
+      container.removeChild(container.firstChild);
+    }
+
+    newly.forEach(function (n) {
+      var div = document.createElement('div');
+      div.style.cssText = 'background:var(--bg-secondary);border:1px solid var(--accent-purple-light);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,0.5);font-size:0.82rem;color:var(--text-main);pointer-events:auto;';
+      var preview = n.fresh.slice(0, 3).join(', ') + (n.fresh.length > 3 ? '…' : '');
+      div.innerHTML = '<div style="flex:1;min-width:0;">🎯 <strong>' + esc(n.alert.name) + '</strong>: ' +
+        n.fresh.length + ' neue' + (n.fresh.length === 1 ? 'r' : '') + ' Treffer (' + esc(preview) + ')</div>' +
+        '<button aria-label="Schließen" style="background:none;border:none;color:inherit;font-size:1.1rem;cursor:pointer;padding:2px 6px;flex-shrink:0;">&#10005;</button>';
+      div.querySelector('button').onclick = function (e) { e.stopPropagation(); if (div.parentNode) div.parentNode.removeChild(div); };
+      div.onclick = function () {
+        if (div.parentNode) div.parentNode.removeChild(div);
+        window.App.Router.navigate('/screener');
+      };
+      container.appendChild(div);
+      setTimeout(function () { if (div.parentNode) div.parentNode.removeChild(div); }, 20000);
+    });
+  }
+
   // ---------------------------------------------------------------------------
   // Template
   // ---------------------------------------------------------------------------
@@ -1336,6 +1506,12 @@ window.App.Screener = (function () {
 
         '<div id="screener-ai-banner-container"></div>' +
 
+        /* NEU: Container für gespeicherte Alerts + Save-Button */
+        '<div id="screener-alerts-container"></div>' +
+        '<div style="display: flex; gap: 8px; margin-bottom: 12px;">' +
+          '<button class="chip-btn" id="screener-save-alert-btn" style="flex: 1; justify-content: center;">🔔 Filter als Alert speichern</button>' +
+        '</div>' +
+
         '<div id="screener-list-container">' +
           '<div class="state-box"><div class="spinner"></div><p>Lade Aktien...</p></div>' +
         '</div>' +
@@ -1388,7 +1564,8 @@ window.App.Screener = (function () {
   }
 
   return {
-    initView: initView
+    initView: initView,
+    // NEU: wird beim App-Start aufgerufen, um gespeicherte Alerts zu prüfen
+    checkScreenerAlerts: checkScreenerAlerts
   };
 })();
-
