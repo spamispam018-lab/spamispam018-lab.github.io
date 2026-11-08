@@ -6821,10 +6821,91 @@
     "history": []
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 58789433,
+        "value": 5347892510.4697,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 37615952,
+        "value": 3421806568.2466,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 26411402,
+        "value": 2402563381.6845,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 26321940,
+        "value": 2394425300.4847,
+        "changeShares": null
+      },
+      {
+        "name": "JPMORGAN CHASE & CO",
+        "shares": 22783175,
+        "value": 2072514816.2439,
+        "changeShares": null
+      },
+      {
+        "name": "Wellington Management Group, LLP",
+        "shares": 16827967,
+        "value": 1530788002.1752,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 15437251,
+        "value": 1404278877.4251,
+        "changeShares": null
+      },
+      {
+        "name": "Dz Bank Ag Deutsche Zentral Genossenschafts Bank, Frankfurt Am Main",
+        "shares": 13002965,
+        "value": 1182839425.197,
+        "changeShares": null
+      },
+      {
+        "name": "Ninety One UK Ltd",
+        "shares": 11943675,
+        "value": 1086479096.9634,
+        "changeShares": null
+      },
+      {
+        "name": "Bank Of New York Mellon Corporation",
+        "shares": 11280393,
+        "value": 1026142389.2317,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9508,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-02-19",
+      "2027-03-19",
+      "2027-05-21",
+      "2027-06-17",
+      "2027-09-17"
+    ],
+    "summary": {
+      "atmIV": 0.3543,
+      "putCallRatio": 0.499,
+      "openInterestCall": 21028,
+      "openInterestPut": 10493,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

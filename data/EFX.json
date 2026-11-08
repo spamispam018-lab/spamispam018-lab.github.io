@@ -6286,10 +6286,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 9396150,
+        "value": 1586546869.6264,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 7780433,
+        "value": 1313731859.6378,
+        "changeShares": null
+      },
+      {
+        "name": "Harris Associates L.P.",
+        "shares": 7447263,
+        "value": 1257475859.0512,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 5242614,
+        "value": 885219247.2737,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 5199595,
+        "value": 877955457.3865,
+        "changeShares": null
+      },
+      {
+        "name": "Capital International Investors",
+        "shares": 5187147,
+        "value": 875853602.7432,
+        "changeShares": null
+      },
+      {
+        "name": "Soroban Capital Partners LP",
+        "shares": 4410883,
+        "value": 744780852.7383,
+        "changeShares": null
+      },
+      {
+        "name": "Massachusetts Financial Services Co.",
+        "shares": 3869490,
+        "value": 653366244.5878,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 3310957,
+        "value": 559057535.252,
+        "changeShares": null
+      },
+      {
+        "name": "Brown Advisory  Inc.",
+        "shares": 3287984,
+        "value": 555178527.2162,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0546,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.5322,
+      "putCallRatio": 1.4442,
+      "openInterestCall": 1943,
+      "openInterestPut": 2806,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

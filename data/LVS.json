@@ -6610,10 +6610,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 24844440,
+        "value": 901220711.7188,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 19446065,
+        "value": 705397124.7339,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 18645697,
+        "value": 676364141.3729,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 15159570,
+        "value": 549906476.9569,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 11184424,
+        "value": 405709871.3768,
+        "changeShares": null
+      },
+      {
+        "name": "Shaw D.E. & Co., Inc.",
+        "shares": 9052131,
+        "value": 328361916.7226,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 8851302,
+        "value": 321076936.5527,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 8204874,
+        "value": 297628056.259,
+        "changeShares": null
+      },
+      {
+        "name": "Arrowstreet Capital, Limited Partnership",
+        "shares": 7384543,
+        "value": 267870924.1748,
+        "changeShares": null
+      },
+      {
+        "name": "AQR Capital Management, LLC",
+        "shares": 5804100,
+        "value": 210541075.974,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.4285,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-13",
+      "2026-11-20",
+      "2026-11-27",
+      "2026-12-04",
+      "2026-12-11",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-03-19"
+    ],
+    "summary": {
+      "atmIV": 0.4971,
+      "putCallRatio": 2.4541,
+      "openInterestCall": 1471,
+      "openInterestPut": 3610,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

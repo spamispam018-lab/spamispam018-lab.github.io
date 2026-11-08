@@ -6379,10 +6379,89 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 14597902,
+        "value": 397571707.3503,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 13396435,
+        "value": 364849930.6473,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 12577525,
+        "value": 342547037.3745,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 12159629,
+        "value": 331165701.1519,
+        "changeShares": null
+      },
+      {
+        "name": "Van Eck Associates Corporation",
+        "shares": 12095293,
+        "value": 329413520.4625,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 9748553,
+        "value": 265500401.8971,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 8559478,
+        "value": 233116120.0568,
+        "changeShares": null
+      },
+      {
+        "name": "Dimensional Fund Advisors LP",
+        "shares": 7981395,
+        "value": 217372114.9198,
+        "changeShares": null
+      },
+      {
+        "name": "Goldman Sachs Group Inc",
+        "shares": 7395364,
+        "value": 201411647.0323,
+        "changeShares": null
+      },
+      {
+        "name": "ProShare Advisors, LLC",
+        "shares": 6291269,
+        "value": 171341782.6047,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.7233,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-03-19",
+      "2027-06-17",
+      "2028-01-21"
+    ],
+    "summary": {
+      "atmIV": 0.4536,
+      "putCallRatio": 0.0598,
+      "openInterestCall": 4100,
+      "openInterestPut": 245,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

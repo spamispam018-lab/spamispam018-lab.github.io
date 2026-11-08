@@ -6102,10 +6102,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 30690101,
+        "value": 3662336705.3879,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 17884756,
+        "value": 2134238605.3465,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 16070450,
+        "value": 1917732329.8508,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 15733919,
+        "value": 1877573132.6148,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 10504786,
+        "value": 1253565875.601,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 8241043,
+        "value": 983427009.6036,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 5667341,
+        "value": 676299858.0367,
+        "changeShares": null
+      },
+      {
+        "name": "Dimensional Fund Advisors LP",
+        "shares": 4890206,
+        "value": 583562136.5754,
+        "changeShares": null
+      },
+      {
+        "name": "Nordea Investment Management AB",
+        "shares": 4541062,
+        "value": 541897794.2592,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 4379119,
+        "value": 522572676.7585,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9727,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.3439,
+      "putCallRatio": 0.5582,
+      "openInterestCall": 910,
+      "openInterestPut": 508,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

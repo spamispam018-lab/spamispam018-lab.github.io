@@ -6623,10 +6623,88 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 53801998,
+        "value": 3479224007.9369,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 32546782,
+        "value": 2104708923.4679,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 30386398,
+        "value": 1965002962.1096,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 29481434,
+        "value": 1906481483.1275,
+        "changeShares": null
+      },
+      {
+        "name": "Bank of America Corporation",
+        "shares": 14876783,
+        "value": 962039747.0858,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 13217077,
+        "value": 854711225.0116,
+        "changeShares": null
+      },
+      {
+        "name": "Capital Research Global Investors",
+        "shares": 10718961,
+        "value": 693165083.2222,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 7653655,
+        "value": 494940359.2422,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 7567343,
+        "value": 489358804.21,
+        "changeShares": null
+      },
+      {
+        "name": "Legal & General Group PLC",
+        "shares": 6838275,
+        "value": 442212025.5158,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.7947,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-03-19",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.292,
+      "putCallRatio": 0.2406,
+      "openInterestCall": 5545,
+      "openInterestPut": 1334,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

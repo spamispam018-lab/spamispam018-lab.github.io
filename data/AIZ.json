@@ -6099,10 +6099,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 5009537,
+        "value": 1369693867.2051,
+        "changeShares": null
+      },
+      {
+        "name": "Bank Of New York Mellon Corporation",
+        "shares": 4635049,
+        "value": 1267302385.3293,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 3236936,
+        "value": 885034163.3839,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 2836307,
+        "value": 775495280.9833,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 2541897,
+        "value": 694998506.2426,
+        "changeShares": null
+      },
+      {
+        "name": "T. Rowe Price Investment Management, Inc.",
+        "shares": 2427220,
+        "value": 663643835.4199,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 1417209,
+        "value": 387489397.892,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 1226729,
+        "value": 335408878.7093,
+        "changeShares": null
+      },
+      {
+        "name": "Dimensional Fund Advisors LP",
+        "shares": 1194130,
+        "value": 326495749.5365,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 1143631,
+        "value": 312688451.4568,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0094,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.3101,
+      "putCallRatio": 0.2332,
+      "openInterestCall": 343,
+      "openInterestPut": 80,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

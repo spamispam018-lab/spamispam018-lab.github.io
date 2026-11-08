@@ -6453,10 +6453,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 77309218,
+        "value": 5932319542.4226,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 58893656,
+        "value": 4519202178.736,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 44441119,
+        "value": 3410187368.8068,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 37937650,
+        "value": 2911143952.5626,
+        "changeShares": null
+      },
+      {
+        "name": "Franklin Resources, Inc.",
+        "shares": 31303928,
+        "value": 2402105578.7755,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 21810186,
+        "value": 1673603691.1864,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 19129294,
+        "value": 1467885558.4783,
+        "changeShares": null
+      },
+      {
+        "name": "Capital World Investors",
+        "shares": 18507461,
+        "value": 1420169229.3718,
+        "changeShares": null
+      },
+      {
+        "name": "Shaw D.E. & Co., Inc.",
+        "shares": 15000837,
+        "value": 1151088586.1274,
+        "changeShares": null
+      },
+      {
+        "name": "Dimensional Fund Advisors LP",
+        "shares": 14304040,
+        "value": 1097619898.1389,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9417,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-13",
+      "2026-11-20",
+      "2026-11-27",
+      "2026-12-04",
+      "2026-12-11",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-03-19"
+    ],
+    "summary": {
+      "atmIV": 0.4497,
+      "putCallRatio": 1.3082,
+      "openInterestCall": 3906,
+      "openInterestPut": 5110,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

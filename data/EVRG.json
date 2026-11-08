@@ -6731,10 +6731,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 27996513,
+        "value": 2182720044.1096,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 16868189,
+        "value": 1315111429.6044,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 14657069,
+        "value": 1142723677.2585,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 11329099,
+        "value": 883261835.316,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 8557681,
+        "value": 667191011.9817,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 7371645,
+        "value": 574722905.7639,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 6651115,
+        "value": 518547507.1598,
+        "changeShares": null
+      },
+      {
+        "name": "Franklin Resources, Inc.",
+        "shares": 6477686,
+        "value": 505026289.03,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 3970642,
+        "value": 309567119.1561,
+        "changeShares": null
+      },
+      {
+        "name": "Federated Hermes, Inc.",
+        "shares": 3713776,
+        "value": 289540819.0911,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9917,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.2246,
+      "putCallRatio": 0.7951,
+      "openInterestCall": 1303,
+      "openInterestPut": 1036,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

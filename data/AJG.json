@@ -6562,10 +6562,88 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 19822870,
+        "value": 4971668119.9993,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 18645620,
+        "value": 4676408337.2278,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 16777183,
+        "value": 4207795634.7389,
+        "changeShares": null
+      },
+      {
+        "name": "JPMORGAN CHASE & CO",
+        "shares": 14356764,
+        "value": 3600743276.6461,
+        "changeShares": null
+      },
+      {
+        "name": "Capital World Investors",
+        "shares": 12511991,
+        "value": 3138065616.7351,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 12454725,
+        "value": 3123703036.7052,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 11303790,
+        "value": 2835043178.7047,
+        "changeShares": null
+      },
+      {
+        "name": "Dodge & Cox Inc.",
+        "shares": 9363634,
+        "value": 2348443017.4675,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 6733790,
+        "value": 1688865894.1478,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 6298870,
+        "value": 1579785932.3717,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9619,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16",
+      "2027-09-17"
+    ],
+    "summary": {
+      "atmIV": 0.4387,
+      "putCallRatio": 1.2793,
+      "openInterestCall": 2406,
+      "openInterestPut": 3078,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

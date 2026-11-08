@@ -6573,10 +6573,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 95378854,
+        "value": 3585543451.1156,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 75348040,
+        "value": 2832532160.0341,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 73179266,
+        "value": 2751002207.3831,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 57263240,
+        "value": 2152676683.3438,
+        "changeShares": null
+      },
+      {
+        "name": "Wellington Management Group, LLP",
+        "shares": 51522376,
+        "value": 1936862418.0203,
+        "changeShares": null
+      },
+      {
+        "name": "Charles Schwab Investment Management, Inc.",
+        "shares": 38323956,
+        "value": 1440698893.2794,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 30520177,
+        "value": 1147334195.7995,
+        "changeShares": null
+      },
+      {
+        "name": "Davis Selected Advisers",
+        "shares": 25297991,
+        "value": 951018407.8771,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 24148878,
+        "value": 907820210.7781,
+        "changeShares": null
+      },
+      {
+        "name": "Bank Of New York Mellon Corporation",
+        "shares": 24210181,
+        "value": 910124752.217,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9667,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-13",
+      "2026-11-20",
+      "2026-11-27",
+      "2026-12-04",
+      "2026-12-11",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-03-19"
+    ],
+    "summary": {
+      "atmIV": 0.4766,
+      "putCallRatio": 0.674,
+      "openInterestCall": 5653,
+      "openInterestPut": 3810,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

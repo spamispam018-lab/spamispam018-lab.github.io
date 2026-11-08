@@ -6567,10 +6567,87 @@
     "history": []
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Kohlberg Kravis Roberts & Co. L.P.",
+        "shares": 15652032,
+        "value": 1199524614.4699,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 7553901,
+        "value": 578908232.8609,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 7024663,
+        "value": 538349025.2867,
+        "changeShares": null
+      },
+      {
+        "name": "Artisan Partners Limited Partnership",
+        "shares": 6467467,
+        "value": 495647201.6328,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 6346669,
+        "value": 486389605.9025,
+        "changeShares": null
+      },
+      {
+        "name": "JPMORGAN CHASE & CO",
+        "shares": 4342929,
+        "value": 332829004.311,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 4305276,
+        "value": 329943391.5294,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 4133442,
+        "value": 316774551.2452,
+        "changeShares": null
+      },
+      {
+        "name": "Dimensional Fund Advisors LP",
+        "shares": 3523446,
+        "value": 270026294.6798,
+        "changeShares": null
+      },
+      {
+        "name": "American Century Companies Inc",
+        "shares": 3457175,
+        "value": 264947484.5163,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.1221,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.6768,
+      "putCallRatio": 0.0301,
+      "openInterestCall": 4283,
+      "openInterestPut": 129,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

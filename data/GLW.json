@@ -6850,10 +6850,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 65765574,
+        "value": 6216190496.2699,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 50831214,
+        "value": 4804588330.8686,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 41108384,
+        "value": 3885582234.4576,
+        "changeShares": null
+      },
+      {
+        "name": "JPMORGAN CHASE & CO",
+        "shares": 36016393,
+        "value": 3404285042.7857,
+        "changeShares": null
+      },
+      {
+        "name": "Capital Research Global Investors",
+        "shares": 24698700,
+        "value": 2334531805.6897,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 24027884,
+        "value": 2271125986.5723,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 18920070,
+        "value": 1788333198.9402,
+        "changeShares": null
+      },
+      {
+        "name": "Bank of America Corporation",
+        "shares": 18730616,
+        "value": 1770425924.4784,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 18363394,
+        "value": 1735715942.0878,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 15134070,
+        "value": 1430478841.1943,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.7446,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-13",
+      "2026-11-20",
+      "2026-11-27",
+      "2026-12-04",
+      "2026-12-11",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-02-19"
+    ],
+    "summary": {
+      "atmIV": 1.0127,
+      "putCallRatio": 1.1664,
+      "openInterestCall": 6256,
+      "openInterestPut": 7297,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

@@ -6344,10 +6344,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 99555076,
+        "value": 4378265061.3264,
+        "changeShares": null
+      },
+      {
+        "name": "Capital International Investors",
+        "shares": 93340762,
+        "value": 4104969967.1489,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 81312502,
+        "value": 3575987290.8652,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 58692619,
+        "value": 2581202821.4013,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 41888944,
+        "value": 1842205413.395,
+        "changeShares": null
+      },
+      {
+        "name": "Bank of America Corporation",
+        "shares": 36838125,
+        "value": 1620078875.177,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 31929268,
+        "value": 1404195587.5818,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 22539416,
+        "value": 991245665.5262,
+        "changeShares": null
+      },
+      {
+        "name": "Charles Schwab Investment Management, Inc.",
+        "shares": 17608073,
+        "value": 774373481.1476,
+        "changeShares": null
+      },
+      {
+        "name": "Victory Capital Management Inc.",
+        "shares": 15702067,
+        "value": 690550538.2688,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.7965,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-03-19",
+      "2027-06-17",
+      "2027-09-17",
+      "2028-01-21",
+      "2028-12-15"
+    ],
+    "summary": {
+      "atmIV": 0.2891,
+      "putCallRatio": 1.0734,
+      "openInterestCall": 12568,
+      "openInterestPut": 13491,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

@@ -6598,10 +6598,88 @@
     "history": []
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 8484939,
+        "value": 3457978534.9776,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 6415552,
+        "value": 2614614094.9753,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 4740524,
+        "value": 1931967953.431,
+        "changeShares": null
+      },
+      {
+        "name": "Massachusetts Financial Services Co.",
+        "shares": 4625035,
+        "value": 1884901205.8383,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 4382008,
+        "value": 1785857223.0997,
+        "changeShares": null
+      },
+      {
+        "name": "T. Rowe Price Investment Management, Inc.",
+        "shares": 3817779,
+        "value": 1555909574.4381,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 3494267,
+        "value": 1424064483.9145,
+        "changeShares": null
+      },
+      {
+        "name": "Alliancebernstein L.P.",
+        "shares": 2694590,
+        "value": 1098161622.3337,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 2636146,
+        "value": 1074343171.8597,
+        "changeShares": null
+      },
+      {
+        "name": "Fundsmith LLP",
+        "shares": 2273632,
+        "value": 926603084.8585,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0217,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-02-19",
+      "2027-05-21"
+    ],
+    "summary": {
+      "atmIV": 0.416,
+      "putCallRatio": 1.3772,
+      "openInterestCall": 1352,
+      "openInterestPut": 1862,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

@@ -6644,10 +6644,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "GTCR, LLC",
+        "shares": 43268041,
+        "value": 3753304014.4833,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 18970360,
+        "value": 1645591680.817,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 14713333,
+        "value": 1276314122.8368,
+        "changeShares": null
+      },
+      {
+        "name": "Harris Associates L.P.",
+        "shares": 12912987,
+        "value": 1120142368.6252,
+        "changeShares": null
+      },
+      {
+        "name": "Ameriprise Financial, Inc.",
+        "shares": 12178274,
+        "value": 1056409387.5019,
+        "changeShares": null
+      },
+      {
+        "name": "Pzena Investment Management LLC",
+        "shares": 11377172,
+        "value": 986917464.9984,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 10513168,
+        "value": 911969082.5376,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 9900889,
+        "value": 858856688.4067,
+        "changeShares": null
+      },
+      {
+        "name": "Glenview Capital Management, Llc",
+        "shares": 8906709,
+        "value": 772616135.8111,
+        "changeShares": null
+      },
+      {
+        "name": "Bank of America Corporation",
+        "shares": 7495273,
+        "value": 650180538.9993,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.1196,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-02-19",
+      "2027-03-19",
+      "2027-05-21",
+      "2027-06-17",
+      "2027-09-17"
+    ],
+    "summary": {
+      "atmIV": 0.678,
+      "putCallRatio": 1.9312,
+      "openInterestCall": 8769,
+      "openInterestPut": 16935,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

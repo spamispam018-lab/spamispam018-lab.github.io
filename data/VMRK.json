@@ -6395,10 +6395,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 95575928,
+        "value": 5576268591.4697,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 64932711,
+        "value": 3788425019.6042,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 56318518,
+        "value": 3285839746.4114,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 49086641,
+        "value": 2863904124.7211,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 48799657,
+        "value": 2847160370.7185,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 29101401,
+        "value": 1697888074.057,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 22542725,
+        "value": 1315229597.515,
+        "changeShares": null
+      },
+      {
+        "name": "JPMORGAN CHASE & CO",
+        "shares": 15918665,
+        "value": 928756366.8832,
+        "changeShares": null
+      },
+      {
+        "name": "Charles Schwab Investment Management, Inc.",
+        "shares": 14865761,
+        "value": 867325882.3583,
+        "changeShares": null
+      },
+      {
+        "name": "Northern Trust Corporation",
+        "shares": 12405613,
+        "value": 723791351.7685,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.5661,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.291,
+      "putCallRatio": 0.9105,
+      "openInterestCall": 592,
+      "openInterestPut": 539,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

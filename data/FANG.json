@@ -6775,10 +6775,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 18792594,
+        "value": 2995230612.1751,
+        "changeShares": null
+      },
+      {
+        "name": "Wellington Management Group, LLP",
+        "shares": 16420247,
+        "value": 2617117491.8058,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 12775007,
+        "value": 2036126148.0789,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 12562224,
+        "value": 2002212035.2316,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 11180445,
+        "value": 1781979173.3602,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 9706610,
+        "value": 1547074097.5476,
+        "changeShares": null
+      },
+      {
+        "name": "Capital World Investors",
+        "shares": 8944927,
+        "value": 1425674346.023,
+        "changeShares": null
+      },
+      {
+        "name": "Boston Partners",
+        "shares": 5850054,
+        "value": 932402457.2589,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 5387025,
+        "value": 858603244.8589,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 4594399,
+        "value": 732271687.2506,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.7392,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-03-19",
+      "2027-06-17",
+      "2027-08-20",
+      "2027-09-17",
+      "2027-11-19"
+    ],
+    "summary": {
+      "atmIV": 0.4965,
+      "putCallRatio": 0.5832,
+      "openInterestCall": 4710,
+      "openInterestPut": 2747,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

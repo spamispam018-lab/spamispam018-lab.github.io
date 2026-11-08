@@ -6319,10 +6319,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 31250868,
+        "value": 1018106837.7222,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 29452071,
+        "value": 959504705.1023,
+        "changeShares": null
+      },
+      {
+        "name": "Capital Research Global Investors",
+        "shares": 25567641,
+        "value": 832955747.8218,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 25516492,
+        "value": 831289389.8705,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 20291857,
+        "value": 661078545.6503,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 19385427,
+        "value": 631548403.3263,
+        "changeShares": null
+      },
+      {
+        "name": "Cohen & Steers Inc.",
+        "shares": 15418373,
+        "value": 502307678.9747,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 14085967,
+        "value": 458899871.4782,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 13861075,
+        "value": 451573224.1213,
+        "changeShares": null
+      },
+      {
+        "name": "CenterSquare Investment Management LLC",
+        "shares": 9221587,
+        "value": 300425600.1843,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0918,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.645,
+      "putCallRatio": 0.2743,
+      "openInterestCall": 842,
+      "openInterestPut": 231,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

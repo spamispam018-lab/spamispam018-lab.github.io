@@ -6353,10 +6353,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 61799827,
+        "value": 1491571592.1731,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 51511025,
+        "value": 1243245900.641,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 48041805,
+        "value": 1159514435.8735,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 38049776,
+        "value": 918351518.5753,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 37314783,
+        "value": 900612072.4354,
+        "changeShares": null
+      },
+      {
+        "name": "Cohen & Steers Inc.",
+        "shares": 37129067,
+        "value": 896129718.0111,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 17367397,
+        "value": 419171334.9221,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 17118534,
+        "value": 413164893.925,
+        "changeShares": null
+      },
+      {
+        "name": "Apg Asset Management US Inc.",
+        "shares": 15975264,
+        "value": 385571466.6739,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 14990389,
+        "value": 361800986.2334,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0305,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.4307,
+      "putCallRatio": 0.5215,
+      "openInterestCall": 4773,
+      "openInterestPut": 2489,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

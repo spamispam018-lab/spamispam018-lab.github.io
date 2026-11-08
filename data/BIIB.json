@@ -6764,10 +6764,91 @@
     "history": []
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "FMR, LLC",
+        "shares": 18217239,
+        "value": 4029343367.3922,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 15985736,
+        "value": 3535772865.1244,
+        "changeShares": null
+      },
+      {
+        "name": "Primecap Management Company",
+        "shares": 15154606,
+        "value": 3351941047.334,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 9651117,
+        "value": 2134662901.7276,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 7344327,
+        "value": 1624440195.7079,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 6604936,
+        "value": 1460899483.9321,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 4449295,
+        "value": 984108365.4089,
+        "changeShares": null
+      },
+      {
+        "name": "Wellington Management Group, LLP",
+        "shares": 3117469,
+        "value": 689531110.4856,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 2580033,
+        "value": 570659409.6563,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 2411271,
+        "value": 533332125.8745,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0007,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-13",
+      "2026-11-20",
+      "2026-11-27",
+      "2026-12-04",
+      "2026-12-11",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-03-19"
+    ],
+    "summary": {
+      "atmIV": 0.589,
+      "putCallRatio": 5.5625,
+      "openInterestCall": 160,
+      "openInterestPut": 890,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

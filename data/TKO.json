@@ -6814,10 +6814,88 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 5668039,
+        "value": 964170288.2759,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 4702447,
+        "value": 799916810.6627,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 4634092,
+        "value": 788289180.709,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 4010212,
+        "value": 682163136.1547,
+        "changeShares": null
+      },
+      {
+        "name": "Massachusetts Financial Services Co.",
+        "shares": 3728177,
+        "value": 634187148.824,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 3045638,
+        "value": 518082826.9608,
+        "changeShares": null
+      },
+      {
+        "name": "Ninety One UK Ltd",
+        "shares": 2764308,
+        "value": 470226764.7141,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 2636406,
+        "value": 448469802.8775,
+        "changeShares": null
+      },
+      {
+        "name": "XN LP",
+        "shares": 2492185,
+        "value": 423936873.0326,
+        "changeShares": null
+      },
+      {
+        "name": "Bank of America Corporation",
+        "shares": 2087661,
+        "value": 355124710.3614,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.1497,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16",
+      "2028-01-21"
+    ],
+    "summary": {
+      "atmIV": 0.5433,
+      "putCallRatio": 0.6946,
+      "openInterestCall": 573,
+      "openInterestPut": 398,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

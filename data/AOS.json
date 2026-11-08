@@ -6297,10 +6297,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "FMR, LLC",
+        "shares": 10417815,
+        "value": 598908470.116,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 8056801,
+        "value": 463176429.9875,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 7286250,
+        "value": 418878318.902,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 7051327,
+        "value": 405372860.1153,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 6581486,
+        "value": 378362229.3184,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 5535312,
+        "value": 318218862.3215,
+        "changeShares": null
+      },
+      {
+        "name": "American Century Companies Inc",
+        "shares": 4726410,
+        "value": 271715995.5181,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 3731320,
+        "value": 214509390.8141,
+        "changeShares": null
+      },
+      {
+        "name": "Impax Asset Management Group plc",
+        "shares": 2813713,
+        "value": 161757195.8656,
+        "changeShares": null
+      },
+      {
+        "name": "ProShare Advisors, LLC",
+        "shares": 2803282,
+        "value": 161157529.4775,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.1925,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.4548,
+      "putCallRatio": 0.6454,
+      "openInterestCall": 2665,
+      "openInterestPut": 1720,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

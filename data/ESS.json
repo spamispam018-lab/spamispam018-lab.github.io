@@ -6602,10 +6602,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 7430141,
+        "value": 1801112334.1341,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 5490501,
+        "value": 1330931548.9403,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 5211810,
+        "value": 1263375119.5928,
+        "changeShares": null
+      },
+      {
+        "name": "Cohen & Steers Inc.",
+        "shares": 4914673,
+        "value": 1191347265.3864,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 4202889,
+        "value": 1018806402.0482,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 3357197,
+        "value": 813805407.1818,
+        "changeShares": null
+      },
+      {
+        "name": "Principal Financial Group, Inc.",
+        "shares": 2102288,
+        "value": 509607670.3756,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 1953203,
+        "value": 473468540.4338,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 1607742,
+        "value": 389726647.5143,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 1125265,
+        "value": 272771225.8218,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0497,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.326,
+      "putCallRatio": 0.2926,
+      "openInterestCall": 663,
+      "openInterestPut": 194,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

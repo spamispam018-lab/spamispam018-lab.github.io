@@ -6646,10 +6646,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 69464876,
+        "value": 1297950966.3269,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 60738699,
+        "value": 1134902379.7867,
+        "changeShares": null
+      },
+      {
+        "name": "First Eagle Investment Management, LLC",
+        "shares": 51179282,
+        "value": 956284705.6867,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 47169248,
+        "value": 881357234.7477,
+        "changeShares": null
+      },
+      {
+        "name": "Wellington Management Group, LLP",
+        "shares": 43574118,
+        "value": 814182242.9582,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 34298957,
+        "value": 640875892.3449,
+        "changeShares": null
+      },
+      {
+        "name": "Bank Of New York Mellon Corporation",
+        "shares": 24109494,
+        "value": 450485811.6268,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 21015027,
+        "value": 392665705.7996,
+        "changeShares": null
+      },
+      {
+        "name": "Cohen & Steers Inc.",
+        "shares": 17960772,
+        "value": 335596962.1734,
+        "changeShares": null
+      },
+      {
+        "name": "Legal & General Group PLC",
+        "shares": 12885150,
+        "value": 240758982.9326,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9276,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16",
+      "2027-07-16",
+      "2027-10-15",
+      "2028-01-21",
+      "2029-01-19"
+    ],
+    "summary": {
+      "atmIV": 0.3857,
+      "putCallRatio": 0.6582,
+      "openInterestCall": 6036,
+      "openInterestPut": 3973,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

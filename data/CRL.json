@@ -6537,10 +6537,87 @@
     "history": []
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "FMR, LLC",
+        "shares": 4239752,
+        "value": 1274463784.4614,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 3798560,
+        "value": 1141842058.8978,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 3149288,
+        "value": 946671763.7077,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 2984785,
+        "value": 897222381.5419,
+        "changeShares": null
+      },
+      {
+        "name": "Harris Associates L.P.",
+        "shares": 2241144,
+        "value": 673684890.9342,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 2210979,
+        "value": 664617331.7757,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 1864284,
+        "value": 560401278.6518,
+        "changeShares": null
+      },
+      {
+        "name": "Ariel Investments, LLC",
+        "shares": 1506185,
+        "value": 452757197.4382,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 1505370,
+        "value": 452512209.3413,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 1305738,
+        "value": 392503097.3427,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.1543,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-02-19",
+      "2027-05-21"
+    ],
+    "summary": {
+      "atmIV": 0.6044,
+      "putCallRatio": 0.4882,
+      "openInterestCall": 4594,
+      "openInterestPut": 2243,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

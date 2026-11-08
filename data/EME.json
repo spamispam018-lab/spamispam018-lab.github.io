@@ -6559,10 +6559,88 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 4116754,
+        "value": 2230834577.3973,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 2901344,
+        "value": 1572214059.125,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 1988553,
+        "value": 1077580246.94,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 1978559,
+        "value": 1072164581.3718,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 1334646,
+        "value": 723233509.3147,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 1281283,
+        "value": 694316545.7131,
+        "changeShares": null
+      },
+      {
+        "name": "AQR Capital Management, LLC",
+        "shares": 930817,
+        "value": 504401950.9648,
+        "changeShares": null
+      },
+      {
+        "name": "First Trust Advisors LP",
+        "shares": 772897,
+        "value": 418826423.0597,
+        "changeShares": null
+      },
+      {
+        "name": "Kayne Anderson Rudnick Investment Management LLC",
+        "shares": 613035,
+        "value": 332198541.5212,
+        "changeShares": null
+      },
+      {
+        "name": "Victory Capital Management Inc.",
+        "shares": 587535,
+        "value": 318380304.0794,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9732,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16",
+      "2027-05-21"
+    ],
+    "summary": {
+      "atmIV": 0.5391,
+      "putCallRatio": 0.7856,
+      "openInterestCall": 877,
+      "openInterestPut": 689,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

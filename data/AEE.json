@@ -6315,10 +6315,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 25818527,
+        "value": 2594899640.2062,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 20636717,
+        "value": 2074100102.8612,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 18050825,
+        "value": 1814204167.8281,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 16011790,
+        "value": 1609270277.7504,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 15171626,
+        "value": 1524829314.7934,
+        "changeShares": null
+      },
+      {
+        "name": "T. Rowe Price Investment Management, Inc.",
+        "shares": 12130872,
+        "value": 1219217323.2157,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 7820813,
+        "value": 786033410.8527,
+        "changeShares": null
+      },
+      {
+        "name": "Franklin Resources, Inc.",
+        "shares": 6099146,
+        "value": 612996695.9668,
+        "changeShares": null
+      },
+      {
+        "name": "Ameriprise Financial, Inc.",
+        "shares": 5936910,
+        "value": 596691113.1578,
+        "changeShares": null
+      },
+      {
+        "name": "Jupiter Topco LLC",
+        "shares": 5115469,
+        "value": 514131911.9675,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.908,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.2639,
+      "putCallRatio": 0.1619,
+      "openInterestCall": 877,
+      "openInterestPut": 142,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

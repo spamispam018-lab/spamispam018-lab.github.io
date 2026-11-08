@@ -6132,10 +6132,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 15771039,
+        "value": 2316440631.8494,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 12695818,
+        "value": 1864754038.4239,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 12099217,
+        "value": 1777125645.6576,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 9783717,
+        "value": 1437026411.4587,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 8717811,
+        "value": 1280466785.9228,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 8279956,
+        "value": 1216154909.2169,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 7314156,
+        "value": 1074298791.8748,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 5201143,
+        "value": 763940725.5767,
+        "changeShares": null
+      },
+      {
+        "name": "Boston Partners",
+        "shares": 3817754,
+        "value": 560749388.6946,
+        "changeShares": null
+      },
+      {
+        "name": "Goldman Sachs Group Inc",
+        "shares": 3330223,
+        "value": 489141132.0112,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.8243,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.5187,
+      "putCallRatio": 1.0256,
+      "openInterestCall": 1092,
+      "openInterestPut": 1120,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

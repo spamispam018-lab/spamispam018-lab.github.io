@@ -5687,10 +5687,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "PNC Financial Services Group, Inc.",
+        "shares": 4826778,
+        "value": 1173866944.8859,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 1674602,
+        "value": 407261310.3627,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 1635926,
+        "value": 397855350.5912,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 1437522,
+        "value": 349603723.0407,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 1111008,
+        "value": 270195887.3,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 1091087,
+        "value": 265351123.1994,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 899461,
+        "value": 218747896.2316,
+        "changeShares": null
+      },
+      {
+        "name": "Charles Schwab Investment Management, Inc.",
+        "shares": 855984,
+        "value": 208174339.6792,
+        "changeShares": null
+      },
+      {
+        "name": "ProShare Advisors, LLC",
+        "shares": 785786,
+        "value": 191102264.9871,
+        "changeShares": null
+      },
+      {
+        "name": "Bank of America Corporation",
+        "shares": 526267,
+        "value": 127987538.1723,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.4619,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.4691,
+      "putCallRatio": 0.0488,
+      "openInterestCall": 800,
+      "openInterestPut": 39,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

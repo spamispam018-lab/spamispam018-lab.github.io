@@ -6547,10 +6547,89 @@
     "history": []
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 5709856,
+        "value": 2314604509.3901,
+        "changeShares": null
+      },
+      {
+        "name": "Orbis Allan Gray Ltd",
+        "shares": 5408507,
+        "value": 2192446655.5282,
+        "changeShares": null
+      },
+      {
+        "name": "JPMORGAN CHASE & CO",
+        "shares": 4766416,
+        "value": 1932162207.041,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 4162643,
+        "value": 1687410726.5361,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 3344049,
+        "value": 1355577250.4901,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 2831554,
+        "value": 1147827135.9432,
+        "changeShares": null
+      },
+      {
+        "name": "Boston Partners",
+        "shares": 2811551,
+        "value": 1139718518.7926,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 2776845,
+        "value": 1125649746.5352,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 2454914,
+        "value": 995148566.846,
+        "changeShares": null
+      },
+      {
+        "name": "Tiger Global Management, LLC",
+        "shares": 2149877,
+        "value": 871495708.3888,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0031,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-02-19",
+      "2027-05-21",
+      "2027-11-19"
+    ],
+    "summary": {
+      "atmIV": 0.3561,
+      "putCallRatio": 0.5728,
+      "openInterestCall": 316,
+      "openInterestPut": 181,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

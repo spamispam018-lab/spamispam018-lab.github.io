@@ -6442,10 +6442,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 16882527,
+        "value": 2014489275.1986,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 13750238,
+        "value": 1640732277.7605,
+        "changeShares": null
+      },
+      {
+        "name": "Sumitomo Mitsui Financial Group, Inc.",
+        "shares": 13364740,
+        "value": 1594733146.1841,
+        "changeShares": null
+      },
+      {
+        "name": "Bank of America Corporation",
+        "shares": 11855596,
+        "value": 1414656170.2609,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 10924590,
+        "value": 1303564886.125,
+        "changeShares": null
+      },
+      {
+        "name": "Capital World Investors",
+        "shares": 10644025,
+        "value": 1270086771.383,
+        "changeShares": null
+      },
+      {
+        "name": "Wellington Management Group, LLP",
+        "shares": 9526077,
+        "value": 1136688834.7098,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 8978721,
+        "value": 1071376172.4682,
+        "changeShares": null
+      },
+      {
+        "name": "Charles Schwab Investment Management, Inc.",
+        "shares": 6748327,
+        "value": 805236820.2683,
+        "changeShares": null
+      },
+      {
+        "name": "Canada Pension Plan Investment Board",
+        "shares": 6649728,
+        "value": 793471601.7633,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9433,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-13",
+      "2026-11-20",
+      "2026-11-27",
+      "2026-12-04",
+      "2026-12-11",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-02-19"
+    ],
+    "summary": {
+      "atmIV": 0.624,
+      "putCallRatio": 0.98,
+      "openInterestCall": 100,
+      "openInterestPut": 98,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

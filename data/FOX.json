@@ -6298,10 +6298,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "State Street Corporation",
+        "shares": 12828063,
+        "value": 679775638.8512,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 12717346,
+        "value": 673908602.3591,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 8529559,
+        "value": 451992355.8553,
+        "changeShares": null
+      },
+      {
+        "name": "State Of Wisconsin Investment Board",
+        "shares": 7982174,
+        "value": 422985717.6275,
+        "changeShares": null
+      },
+      {
+        "name": "Goldman Sachs Group Inc",
+        "shares": 7334015,
+        "value": 388638933.9936,
+        "changeShares": null
+      },
+      {
+        "name": "Dodge & Cox Inc.",
+        "shares": 7266093,
+        "value": 385039659.421,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 6417637,
+        "value": 340078879.3083,
+        "changeShares": null
+      },
+      {
+        "name": "Yacktman Asset Management Lp",
+        "shares": 5581681,
+        "value": 295780490.3524,
+        "changeShares": null
+      },
+      {
+        "name": "Independent Franchise Partners, LLP",
+        "shares": 5482675,
+        "value": 290534034.4421,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 3778059,
+        "value": 200204229.2989,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.6436,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.8779,
+      "putCallRatio": 0.4286,
+      "openInterestCall": 63,
+      "openInterestPut": 27,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

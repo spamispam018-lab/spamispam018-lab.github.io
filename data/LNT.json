@@ -6231,10 +6231,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 24986672,
+        "value": 1617153005.044,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 17571998,
+        "value": 1137270676.4301,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 16861714,
+        "value": 1091300652.659,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 14386177,
+        "value": 931082353.3192,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 11515298,
+        "value": 745277272.4951,
+        "changeShares": null
+      },
+      {
+        "name": "Jupiter Topco LLC",
+        "shares": 10977426,
+        "value": 710465861.2081,
+        "changeShares": null
+      },
+      {
+        "name": "Nuveen, LLC",
+        "shares": 7890946,
+        "value": 510706949.3572,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 7407445,
+        "value": 479414462.7029,
+        "changeShares": null
+      },
+      {
+        "name": "Massachusetts Financial Services Co.",
+        "shares": 6936512,
+        "value": 448935385.2645,
+        "changeShares": null
+      },
+      {
+        "name": "Victory Capital Management Inc.",
+        "shares": 6442409,
+        "value": 416956730.8393,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9929,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.5884,
+      "putCallRatio": 2.8824,
+      "openInterestCall": 85,
+      "openInterestPut": 245,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

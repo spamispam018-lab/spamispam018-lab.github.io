@@ -6327,10 +6327,89 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 19533471,
+        "value": 3978104226.1404,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 14978776,
+        "value": 3050514274.1987,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 10342632,
+        "value": 2106336762.5384,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 9952184,
+        "value": 2026819771.86,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 6737801,
+        "value": 1372192102.0603,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 6143082,
+        "value": 1251074141.3079,
+        "changeShares": null
+      },
+      {
+        "name": "JPMORGAN CHASE & CO",
+        "shares": 4371879,
+        "value": 890358416.7459,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 4303368,
+        "value": 876405755.9806,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 4277408,
+        "value": 871118852.1284,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 3745827,
+        "value": 762859310.4497,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9322,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-06-17",
+      "2028-01-21",
+      "2029-01-19"
+    ],
+    "summary": {
+      "atmIV": 0.3732,
+      "putCallRatio": 0.2742,
+      "openInterestCall": 13355,
+      "openInterestPut": 3662,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

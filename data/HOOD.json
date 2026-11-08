@@ -6510,10 +6510,91 @@
     "history": []
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 67787066,
+        "value": 4884685476.4522,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 51655498,
+        "value": 3722256703.8447,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 37313830,
+        "value": 2688806791.3237,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 34671148,
+        "value": 2498377095.384,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 29907700,
+        "value": 2155126581.234,
+        "changeShares": null
+      },
+      {
+        "name": "Newlands Management Operations LLC                          ",
+        "shares": 24158860,
+        "value": 1740869453.9428,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 22597737,
+        "value": 1628376093.2361,
+        "changeShares": null
+      },
+      {
+        "name": "JPMORGAN CHASE & CO",
+        "shares": 15803996,
+        "value": 1138824178.0687,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 11407553,
+        "value": 822019770.9058,
+        "changeShares": null
+      },
+      {
+        "name": "Index Venture Associates VI Ltd",
+        "shares": 10127528,
+        "value": 729782122.4834,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.7922,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-13",
+      "2026-11-20",
+      "2026-11-27",
+      "2026-12-04",
+      "2026-12-11",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-02-19"
+    ],
+    "summary": {
+      "atmIV": 0.7959,
+      "putCallRatio": 0.5099,
+      "openInterestCall": 67869,
+      "openInterestPut": 34608,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

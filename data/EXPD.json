@@ -6366,10 +6366,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 13456209,
+        "value": 2212409398.1041,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 8548852,
+        "value": 1405563818.3024,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 7335241,
+        "value": 1206027353.2103,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 6624219,
+        "value": 1089124311.8519,
+        "changeShares": null
+      },
+      {
+        "name": "LOOMIS SAYLES & CO L P",
+        "shares": 5497102,
+        "value": 903808801.1033,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 3558998,
+        "value": 585154452.7772,
+        "changeShares": null
+      },
+      {
+        "name": "FIL LTD",
+        "shares": 3089896,
+        "value": 508026810.9803,
+        "changeShares": null
+      },
+      {
+        "name": "Boston Partners",
+        "shares": 3005837,
+        "value": 494206208.0785,
+        "changeShares": null
+      },
+      {
+        "name": "Bank of America Corporation",
+        "shares": 2585934,
+        "value": 425167644.3403,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 2347257,
+        "value": 385925444.9457,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0111,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-02-19",
+      "2027-05-21"
+    ],
+    "summary": {
+      "atmIV": 0.4596,
+      "putCallRatio": 0.3612,
+      "openInterestCall": 2425,
+      "openInterestPut": 876,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

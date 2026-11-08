@@ -6675,10 +6675,89 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Dodge & Cox Inc.",
+        "shares": 24124735,
+        "value": 2268678072.0704,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 15614847,
+        "value": 1468412439.7676,
+        "changeShares": null
+      },
+      {
+        "name": "Harris Associates L.P.",
+        "shares": 12738025,
+        "value": 1197877531.0994,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 12634937,
+        "value": 1188183186.4796,
+        "changeShares": null
+      },
+      {
+        "name": "Capital International Investors",
+        "shares": 12183614,
+        "value": 1145740996.1126,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 8877171,
+        "value": 834804742.2668,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 8441747,
+        "value": 793857685.6335,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 5349223,
+        "value": 503038267.6986,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 4797157,
+        "value": 451122256.6438,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 3979860,
+        "value": 374264052.859,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.1227,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-03-19",
+      "2027-06-17",
+      "2027-09-17"
+    ],
+    "summary": {
+      "atmIV": 0.4666,
+      "putCallRatio": 1.6211,
+      "openInterestCall": 1977,
+      "openInterestPut": 3205,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

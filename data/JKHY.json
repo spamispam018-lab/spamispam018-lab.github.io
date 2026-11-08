@@ -6328,10 +6328,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Kayne Anderson Rudnick Investment Management LLC",
+        "shares": 5213188,
+        "value": 804292517.2163,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 5121763,
+        "value": 790187435.6814,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 4644613,
+        "value": 716572562.6213,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 3703621,
+        "value": 571395978.8261,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 3559401,
+        "value": 549145665.3841,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 2753826,
+        "value": 424861264.7178,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 2374832,
+        "value": 366389934.2013,
+        "changeShares": null
+      },
+      {
+        "name": "Arrowstreet Capital, Limited Partnership",
+        "shares": 2105562,
+        "value": 324846861.7901,
+        "changeShares": null
+      },
+      {
+        "name": "CIBC Bancorp USA Inc.",
+        "shares": 1908794,
+        "value": 294489423.8599,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 1881300,
+        "value": 290247639.2164,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0269,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.5226,
+      "putCallRatio": 5.375,
+      "openInterestCall": 88,
+      "openInterestPut": 473,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

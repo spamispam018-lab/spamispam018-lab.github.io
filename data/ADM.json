@@ -6637,10 +6637,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "State Farm Mutual Automobile Insurance Co",
+        "shares": 46796552,
+        "value": 2916172993.6604,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 44621586,
+        "value": 2780637855.8158,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 33639018,
+        "value": 2096248369.3236,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 31490457,
+        "value": 1962358685.0334,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 26918972,
+        "value": 1677482117.6539,
+        "changeShares": null
+      },
+      {
+        "name": "Wellington Management Group, LLP",
+        "shares": 17670220,
+        "value": 1101137073.6137,
+        "changeShares": null
+      },
+      {
+        "name": "Charles Schwab Investment Management, Inc.",
+        "shares": 16617425,
+        "value": 1035531121.9348,
+        "changeShares": null
+      },
+      {
+        "name": "Dodge & Cox Inc.",
+        "shares": 14182325,
+        "value": 883785479.238,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 13308967,
+        "value": 829361319.9486,
+        "changeShares": null
+      },
+      {
+        "name": "Northern Trust Corporation",
+        "shares": 11454768,
+        "value": 713815091.6911,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9093,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-03-19",
+      "2027-06-17",
+      "2027-09-17",
+      "2028-01-21",
+      "2029-01-19"
+    ],
+    "summary": {
+      "atmIV": 0.354,
+      "putCallRatio": 0.1602,
+      "openInterestCall": 30467,
+      "openInterestPut": 4880,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

@@ -6544,10 +6544,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 74783636,
+        "value": 1699709890.6485,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 58087319,
+        "value": 1320229878.1453,
+        "changeShares": null
+      },
+      {
+        "name": "Cohen & Steers Inc.",
+        "shares": 56641276,
+        "value": 1287363682.8032,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 46958443,
+        "value": 1067288704.7029,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 44054976,
+        "value": 1001297642.5904,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 21489248,
+        "value": 488415504.8754,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 19883931,
+        "value": 451929272.1707,
+        "changeShares": null
+      },
+      {
+        "name": "Federated Hermes, Inc.",
+        "shares": 18175590,
+        "value": 413101471.8086,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 17061453,
+        "value": 387778957.4549,
+        "changeShares": null
+      },
+      {
+        "name": "Apg Asset Management US Inc.",
+        "shares": 14754881,
+        "value": 335354343.0991,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0543,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.6699,
+      "putCallRatio": 0.322,
+      "openInterestCall": 264,
+      "openInterestPut": 85,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

@@ -6308,10 +6308,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 10151866,
+        "value": 1017875532.0662,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 7174812,
+        "value": 719381598.0869,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 6350252,
+        "value": 636707195.6077,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 5594536,
+        "value": 560935429.0995,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 5406602,
+        "value": 542092250.9283,
+        "changeShares": null
+      },
+      {
+        "name": "Resolution Capital Ltd",
+        "shares": 3167773,
+        "value": 317616350.4346,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 2537702,
+        "value": 254442362.4332,
+        "changeShares": null
+      },
+      {
+        "name": "AQR Capital Management, LLC",
+        "shares": 2529007,
+        "value": 253570559.4848,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 2332621,
+        "value": 233879942.7819,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 1792044,
+        "value": 179679059.4091,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0281,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-02-19",
+      "2027-05-21"
+    ],
+    "summary": {
+      "atmIV": 0.3572,
+      "putCallRatio": 0.7775,
+      "openInterestCall": 1173,
+      "openInterestPut": 912,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

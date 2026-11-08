@@ -6708,10 +6708,91 @@
     "history": []
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 84695539,
+        "value": 5549435876.9337,
+        "changeShares": null
+      },
+      {
+        "name": "Capital Research Global Investors",
+        "shares": 63423386,
+        "value": 4155638157.9496,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 48494910,
+        "value": 3177491949.7387,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 45590117,
+        "value": 2987163596.3064,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 33604708,
+        "value": 2201853537.9716,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 32154471,
+        "value": 2106830856.022,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 29435364,
+        "value": 1928669053.0979,
+        "changeShares": null
+      },
+      {
+        "name": "Capital International Investors",
+        "shares": 23257742,
+        "value": 1523897826.7281,
+        "changeShares": null
+      },
+      {
+        "name": "CAS Investment Partners, LLC",
+        "shares": 22559570,
+        "value": 1478152079.9193,
+        "changeShares": null
+      },
+      {
+        "name": "Greenoaks LLC",
+        "shares": 21344170,
+        "value": 1398516428.823,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0495,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-13",
+      "2026-11-20",
+      "2026-11-27",
+      "2026-12-04",
+      "2026-12-11",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-02-19"
+    ],
+    "summary": {
+      "atmIV": 0.6533,
+      "putCallRatio": 0.7517,
+      "openInterestCall": 9865,
+      "openInterestPut": 7416,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

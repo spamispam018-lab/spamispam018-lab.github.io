@@ -6954,10 +6954,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 10390711,
+        "value": 8493293340.4483,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 9385389,
+        "value": 7671550281.166,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 8234180,
+        "value": 6730560224.2522,
+        "changeShares": null
+      },
+      {
+        "name": "Procyon Advisors, LLC",
+        "shares": 5069022,
+        "value": 4143382565.1482,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 3894862,
+        "value": 3183632523.7205,
+        "changeShares": null
+      },
+      {
+        "name": "Bank of America Corporation",
+        "shares": 3346733,
+        "value": 2735595773.7012,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 2890496,
+        "value": 2362670891.8504,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 2581520,
+        "value": 2110116105.0856,
+        "changeShares": null
+      },
+      {
+        "name": "Aristotle Capital Management, LLC",
+        "shares": 1998974,
+        "value": 1633947143.5238,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 2006884,
+        "value": 1640412721.5636,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9034,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-02-19",
+      "2027-05-21"
+    ],
+    "summary": {
+      "atmIV": 0.3627,
+      "putCallRatio": 0.99,
+      "openInterestCall": 3113,
+      "openInterestPut": 3082,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

@@ -6527,10 +6527,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "SOF Ltd",
+        "shares": 9781882,
+        "value": 252294921.9192,
+        "changeShares": null
+      },
+      {
+        "name": "Independent Franchise Partners, LLP",
+        "shares": 9023857,
+        "value": 232743893.1869,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 8593355,
+        "value": 221640357.8039,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 7597187,
+        "value": 195947129.7266,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 6222798,
+        "value": 160498801.3994,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 5239208,
+        "value": 135129985.1245,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 3969173,
+        "value": 102373162.029,
+        "changeShares": null
+      },
+      {
+        "name": "Dimensional Fund Advisors LP",
+        "shares": 2553255,
+        "value": 65853714.9165,
+        "changeShares": null
+      },
+      {
+        "name": "Starboard Value LP",
+        "shares": 2431081,
+        "value": 62702595.2751,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 2180597,
+        "value": 56242096.3839,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.4906,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.9854,
+      "putCallRatio": 0.125,
+      "openInterestCall": 16,
+      "openInterestPut": 2,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

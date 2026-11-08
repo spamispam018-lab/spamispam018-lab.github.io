@@ -7043,10 +7043,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Dodge & Cox Inc.",
+        "shares": 37007037,
+        "value": 2723059095.4907,
+        "changeShares": null
+      },
+      {
+        "name": "Freemont Capital Pte Ltd.",
+        "shares": 25356381,
+        "value": 1865778227.408,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 23175401,
+        "value": 1705296927.385,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 16255207,
+        "value": 1196093846.8639,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 12340998,
+        "value": 908077748.4599,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 11608686,
+        "value": 854192622.8325,
+        "changeShares": null
+      },
+      {
+        "name": "First Eagle Investment Management, LLC",
+        "shares": 9409698,
+        "value": 692386253.7193,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 9403330,
+        "value": 691917682.4453,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 6812731,
+        "value": 501295715.3935,
+        "changeShares": null
+      },
+      {
+        "name": "UBS AM, a distinct business unit of UBS ASSET MANAGEMENT AMERICAS LLC",
+        "shares": 6112514,
+        "value": 449772210.3973,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.1224,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-02-19",
+      "2027-03-19",
+      "2027-05-21",
+      "2027-06-17",
+      "2027-09-17",
+      "2027-12-17"
+    ],
+    "summary": {
+      "atmIV": 0.5376,
+      "putCallRatio": 0.4041,
+      "openInterestCall": 3368,
+      "openInterestPut": 1361,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

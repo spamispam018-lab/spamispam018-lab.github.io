@@ -6693,10 +6693,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 9275411,
+        "value": 2111701546.6691,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 7233394,
+        "value": 1646802421.4161,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 6131045,
+        "value": 1395834341.7915,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 5516643,
+        "value": 1255955510.3684,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 5444986,
+        "value": 1239641602.1375,
+        "changeShares": null
+      },
+      {
+        "name": "Boston Partners",
+        "shares": 4744473,
+        "value": 1080158170.0119,
+        "changeShares": null
+      },
+      {
+        "name": "JPMORGAN CHASE & CO",
+        "shares": 3520438,
+        "value": 801486248.8759,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 3137873,
+        "value": 714388965.1242,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 2460497,
+        "value": 560173055.3968,
+        "changeShares": null
+      },
+      {
+        "name": "Edgepoint Investment Group Inc.",
+        "shares": 2247568,
+        "value": 511696227.3215,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9845,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-02-19",
+      "2027-05-21"
+    ],
+    "summary": {
+      "atmIV": 0.3856,
+      "putCallRatio": 1.3498,
+      "openInterestCall": 3050,
+      "openInterestPut": 4117,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

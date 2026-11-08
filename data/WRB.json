@@ -6075,10 +6075,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Mitsui Sumitomo Insurance Co Ltd",
+        "shares": 58780450,
+        "value": 3938324841.0993,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 21934626,
+        "value": 1469632887.1247,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 18690969,
+        "value": 1252305953.7387,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 14550971,
+        "value": 974923644.7292,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 14126628,
+        "value": 946492412.6742,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 8268721,
+        "value": 554009186.621,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 8252790,
+        "value": 552941800.382,
+        "changeShares": null
+      },
+      {
+        "name": "Kayne Anderson Rudnick Investment Management LLC",
+        "shares": 6377064,
+        "value": 427267051.5874,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 5028284,
+        "value": 336897995.4821,
+        "changeShares": null
+      },
+      {
+        "name": "Goldman Sachs Group Inc",
+        "shares": 4158216,
+        "value": 278602925.5825,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.7494,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.3772,
+      "putCallRatio": 0.141,
+      "openInterestCall": 1993,
+      "openInterestPut": 281,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

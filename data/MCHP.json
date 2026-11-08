@@ -6539,10 +6539,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 63586448,
+        "value": 3304402648.738,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 35362807,
+        "value": 1837702164.3704,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 33078712,
+        "value": 1719004394.3225,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 28851673,
+        "value": 1499337479.4556,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 25329931,
+        "value": 1316322797.193,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 15540542,
+        "value": 807596739.8344,
+        "changeShares": null
+      },
+      {
+        "name": "Boston Partners",
+        "shares": 14522587,
+        "value": 754696581.6192,
+        "changeShares": null
+      },
+      {
+        "name": "Bank of America Corporation",
+        "shares": 11895608,
+        "value": 618180127.8634,
+        "changeShares": null
+      },
+      {
+        "name": "Aristotle Capital Management, LLC",
+        "shares": 10800194,
+        "value": 561254650.4271,
+        "changeShares": null
+      },
+      {
+        "name": "Victory Capital Management Inc.",
+        "shares": 9806001,
+        "value": 509589333.6071,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0229,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-13",
+      "2026-11-20",
+      "2026-11-27",
+      "2026-12-04",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-03-19",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.9395,
+      "putCallRatio": 0.6725,
+      "openInterestCall": 1701,
+      "openInterestPut": 1144,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

@@ -6597,10 +6597,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 18901321,
+        "value": 2848094542.1916,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 12885538,
+        "value": 1941622516.2852,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 12276980,
+        "value": 1849923596.9362,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 9921533,
+        "value": 1494999422.5474,
+        "changeShares": null
+      },
+      {
+        "name": "Primecap Management Company",
+        "shares": 9016690,
+        "value": 1358655597.5011,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 6368156,
+        "value": 959568399.7453,
+        "changeShares": null
+      },
+      {
+        "name": "Bank Of New York Mellon Corporation",
+        "shares": 5761068,
+        "value": 868090982.218,
+        "changeShares": null
+      },
+      {
+        "name": "Ameriprise Financial, Inc.",
+        "shares": 4677207,
+        "value": 704772312.8642,
+        "changeShares": null
+      },
+      {
+        "name": "UBS AM, a distinct business unit of UBS ASSET MANAGEMENT AMERICAS LLC",
+        "shares": 4444057,
+        "value": 669640734.4219,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 4170849,
+        "value": 628473124.4665,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.023,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-03-19",
+      "2027-06-17",
+      "2027-09-17",
+      "2028-01-21",
+      "2029-01-19"
+    ],
+    "summary": {
+      "atmIV": 0.7328,
+      "putCallRatio": 0.909,
+      "openInterestCall": 6727,
+      "openInterestPut": 6115,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

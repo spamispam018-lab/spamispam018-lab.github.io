@@ -6921,10 +6921,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 10319602,
+        "value": 1880333526.5269,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 8560360,
+        "value": 1559782238.6592,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 6314030,
+        "value": 1150478699.9901,
+        "changeShares": null
+      },
+      {
+        "name": "Alliancebernstein L.P.",
+        "shares": 6008136,
+        "value": 1094741788.7462,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 5765954,
+        "value": 1050613833.1463,
+        "changeShares": null
+      },
+      {
+        "name": "Capital International Investors",
+        "shares": 5282615,
+        "value": 962544688.1987,
+        "changeShares": null
+      },
+      {
+        "name": "BAMCO Inc.",
+        "shares": 4702605,
+        "value": 856861130.7339,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 4600861,
+        "value": 838322368.3902,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 3998992,
+        "value": 728655884.7384,
+        "changeShares": null
+      },
+      {
+        "name": "Massachusetts Financial Services Co.",
+        "shares": 2214155,
+        "value": 403440934.7429,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0215,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.5521,
+      "putCallRatio": 0.4784,
+      "openInterestCall": 763,
+      "openInterestPut": 365,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

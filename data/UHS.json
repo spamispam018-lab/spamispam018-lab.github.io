@@ -6490,10 +6490,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "First Eagle Investment Management, LLC",
+        "shares": 4554670,
+        "value": 793032937.1717,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 4059826,
+        "value": 706873546.7523,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 3392199,
+        "value": 590630173.9561,
+        "changeShares": null
+      },
+      {
+        "name": "Dimensional Fund Advisors LP",
+        "shares": 2679916,
+        "value": 466611556.2387,
+        "changeShares": null
+      },
+      {
+        "name": "Pzena Investment Management LLC",
+        "shares": 2607221,
+        "value": 453954320.6111,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 2452177,
+        "value": 426958951.3064,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 2102613,
+        "value": 366094878.6844,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 1974065,
+        "value": 343712840.467,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 1951147,
+        "value": 339722490.1553,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 1416755,
+        "value": 246677229.4973,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.062,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.4863,
+      "putCallRatio": 3.0134,
+      "openInterestCall": 670,
+      "openInterestPut": 2019,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

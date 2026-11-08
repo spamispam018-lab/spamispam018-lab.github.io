@@ -6403,10 +6403,89 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 32263126,
+        "value": 1289288326.5487,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 31585812,
+        "value": 1262221728.9314,
+        "changeShares": null
+      },
+      {
+        "name": "M&G Plc",
+        "shares": 26422041,
+        "value": 1055868827.3343,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 25599833,
+        "value": 1023012024.3649,
+        "changeShares": null
+      },
+      {
+        "name": "Fuller & Thaler Asset Management Inc.",
+        "shares": 15501286,
+        "value": 619457242.9509,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 15020199,
+        "value": 600232204.1819,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 13684370,
+        "value": 546850249.1348,
+        "changeShares": null
+      },
+      {
+        "name": "Federated Hermes, Inc.",
+        "shares": 11342791,
+        "value": 453276846.9745,
+        "changeShares": null
+      },
+      {
+        "name": "Capital International Investors",
+        "shares": 9226559,
+        "value": 368708686.2127,
+        "changeShares": null
+      },
+      {
+        "name": "UBS Group AG",
+        "shares": 7771657,
+        "value": 310568375.8244,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.7944,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16",
+      "2027-06-17",
+      "2028-01-21"
+    ],
+    "summary": {
+      "atmIV": 0.4326,
+      "putCallRatio": 0.2148,
+      "openInterestCall": 4172,
+      "openInterestPut": 896,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

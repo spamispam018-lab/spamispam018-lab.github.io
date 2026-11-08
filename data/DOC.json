@@ -6759,10 +6759,88 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 70935046,
+        "value": 1279934801.4385,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 58375816,
+        "value": 1053319094.7395,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 45014755,
+        "value": 812235343.7605,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 44007417,
+        "value": 794059180.793,
+        "changeShares": null
+      },
+      {
+        "name": "JPMORGAN CHASE & CO",
+        "shares": 30192317,
+        "value": 544782860.2064,
+        "changeShares": null
+      },
+      {
+        "name": "Fuller & Thaler Asset Management Inc.",
+        "shares": 29119832,
+        "value": 525431199.857,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 24653617,
+        "value": 444843898.1765,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 18507997,
+        "value": 333953817.9707,
+        "changeShares": null
+      },
+      {
+        "name": "Bank Of New York Mellon Corporation",
+        "shares": 18191916,
+        "value": 328250529.0257,
+        "changeShares": null
+      },
+      {
+        "name": "Principal Financial Group, Inc.",
+        "shares": 14822254,
+        "value": 267449163.3602,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9828,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16",
+      "2028-01-21"
+    ],
+    "summary": {
+      "atmIV": 0.3027,
+      "putCallRatio": 0.659,
+      "openInterestCall": 1991,
+      "openInterestPut": 1312,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

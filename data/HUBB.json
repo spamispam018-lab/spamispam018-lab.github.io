@@ -6767,10 +6767,88 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 4694163,
+        "value": 1795388058.8559,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 3452915,
+        "value": 1320644885.4646,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 2677321,
+        "value": 1024001542.7939,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 2386602,
+        "value": 912809532.4529,
+        "changeShares": null
+      },
+      {
+        "name": "Massachusetts Financial Services Co.",
+        "shares": 1546097,
+        "value": 591339518.9607,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 1418350,
+        "value": 542479809.6486,
+        "changeShares": null
+      },
+      {
+        "name": "Bank Of New York Mellon Corporation",
+        "shares": 1318902,
+        "value": 504443688.5099,
+        "changeShares": null
+      },
+      {
+        "name": "Deutsche Bank AG",
+        "shares": 1166004,
+        "value": 445964415.5338,
+        "changeShares": null
+      },
+      {
+        "name": "Boston Partners",
+        "shares": 1103899,
+        "value": 422210963.5558,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 1050622,
+        "value": 401833977.804,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9927,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-06-17",
+      "2027-09-17"
+    ],
+    "summary": {
+      "atmIV": 0.596,
+      "putCallRatio": 3.3731,
+      "openInterestCall": 1123,
+      "openInterestPut": 3788,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

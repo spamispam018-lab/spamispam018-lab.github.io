@@ -6416,10 +6416,88 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "FMR, LLC",
+        "shares": 16084547,
+        "value": 1196715336.7585,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 15634200,
+        "value": 1163208818.6836,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 11385818,
+        "value": 847122584.2513,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 9830439,
+        "value": 731399965.3478,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 8514210,
+        "value": 633470478.5526,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 7392538,
+        "value": 550016335.4765,
+        "changeShares": null
+      },
+      {
+        "name": "Boston Partners",
+        "shares": 6116780,
+        "value": 455097953.7498,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 5085135,
+        "value": 378341959.9264,
+        "changeShares": null
+      },
+      {
+        "name": "AQR Capital Management, LLC",
+        "shares": 4658243,
+        "value": 346580530.6138,
+        "changeShares": null
+      },
+      {
+        "name": "LSV Asset Management",
+        "shares": 4595936,
+        "value": 341944792.6706,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9578,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-05-21",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.5369,
+      "putCallRatio": 0.3245,
+      "openInterestCall": 6555,
+      "openInterestPut": 2127,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

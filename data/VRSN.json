@@ -6375,10 +6375,88 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Berkshire Hathaway, Inc",
+        "shares": 8989880,
+        "value": 2471359256.8807,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 8412124,
+        "value": 2312531482.0101,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 5348923,
+        "value": 1470443473.1069,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 5075673,
+        "value": 1395325794.5989,
+        "changeShares": null
+      },
+      {
+        "name": "AQR Capital Management, LLC",
+        "shares": 4949848,
+        "value": 1360735924.3204,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 4150727,
+        "value": 1141053894.9119,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 2473235,
+        "value": 679903648.0018,
+        "changeShares": null
+      },
+      {
+        "name": "Renaissance Technologies, LLC",
+        "shares": 2449771,
+        "value": 673453286.9238,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 2269680,
+        "value": 623945445.1202,
+        "changeShares": null
+      },
+      {
+        "name": "Ninety One UK Ltd",
+        "shares": 2000022,
+        "value": 549815223.2793,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9076,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-03-19",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.4015,
+      "putCallRatio": 0.5884,
+      "openInterestCall": 8098,
+      "openInterestPut": 4765,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

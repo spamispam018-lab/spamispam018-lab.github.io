@@ -6856,10 +6856,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Capital Research Global Investors",
+        "shares": 78469265,
+        "value": 2413146535.4498,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 50942140,
+        "value": 1566611445.6203,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 45497485,
+        "value": 1399173272.3704,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 34552688,
+        "value": 1062590548.3607,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 32999909,
+        "value": 1014838307.1888,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 24898417,
+        "value": 765695061.5422,
+        "changeShares": null
+      },
+      {
+        "name": "Capital International Investors",
+        "shares": 19562612,
+        "value": 601604326.868,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 17545873,
+        "value": 539584035.0073,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 14574865,
+        "value": 448217336.3288,
+        "changeShares": null
+      },
+      {
+        "name": "Bank Of New York Mellon Corporation",
+        "shares": 13906137,
+        "value": 427652104.1313,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0173,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-13",
+      "2026-11-20",
+      "2026-11-27",
+      "2026-12-04",
+      "2026-12-11",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-03-19"
+    ],
+    "summary": {
+      "atmIV": 0.5723,
+      "putCallRatio": 1.485,
+      "openInterestCall": 466,
+      "openInterestPut": 692,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

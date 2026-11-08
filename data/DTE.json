@@ -6677,10 +6677,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 25695899,
+        "value": 3091309022.2793,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 12568029,
+        "value": 1511979068.8474,
+        "changeShares": null
+      },
+      {
+        "name": "Capital Research Global Investors",
+        "shares": 12496338,
+        "value": 1503354383.3032,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 11231634,
+        "value": 1351205946.2216,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 11182982,
+        "value": 1345352935.9457,
+        "changeShares": null
+      },
+      {
+        "name": "Capital World Investors",
+        "shares": 9990302,
+        "value": 1201869244.0443,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 5870599,
+        "value": 706254163.1503,
+        "changeShares": null
+      },
+      {
+        "name": "Ameriprise Financial, Inc.",
+        "shares": 5606302,
+        "value": 674458284.1539,
+        "changeShares": null
+      },
+      {
+        "name": "Jupiter Topco LLC",
+        "shares": 3132273,
+        "value": 376823701.5051,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 2983653,
+        "value": 358944181.1215,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.8249,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.3108,
+      "putCallRatio": 0.1704,
+      "openInterestCall": 1884,
+      "openInterestPut": 321,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

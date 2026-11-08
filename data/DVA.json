@@ -6789,10 +6789,91 @@
     "history": []
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Berkshire Hathaway, Inc",
+        "shares": 28880209,
+        "value": 4921713841.2511,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 2460987,
+        "value": 419397026.173,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 2101425,
+        "value": 358121109.6783,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 1601710,
+        "value": 272960568.6084,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 1377914,
+        "value": 234821652.3777,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 1323019,
+        "value": 225466543.763,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 1211917,
+        "value": 206532738.9036,
+        "changeShares": null
+      },
+      {
+        "name": "Dimensional Fund Advisors LP",
+        "shares": 1195898,
+        "value": 203802809.1958,
+        "changeShares": null
+      },
+      {
+        "name": "Neuberger Berman Group, LLC",
+        "shares": 925579,
+        "value": 157735526.3641,
+        "changeShares": null
+      },
+      {
+        "name": "LSV Asset Management",
+        "shares": 908389,
+        "value": 154806036.7922,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.5001,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-02-19",
+      "2027-04-16",
+      "2027-05-21",
+      "2027-08-20",
+      "2027-11-19"
+    ],
+    "summary": {
+      "atmIV": 0.4741,
+      "putCallRatio": 0.2812,
+      "openInterestCall": 9245,
+      "openInterestPut": 2600,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

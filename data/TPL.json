@@ -6350,10 +6350,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Horizon Kinetics Asset Management LLC",
+        "shares": 9802899,
+        "value": 2377855050.6612,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 5296254,
+        "value": 1284693876.3925,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 3964748,
+        "value": 961715106.3967,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 3808863,
+        "value": 923902624.5436,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 3184079,
+        "value": 772350946.8992,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 1646584,
+        "value": 399406142.9942,
+        "changeShares": null
+      },
+      {
+        "name": "First Manhattan Co. LLC",
+        "shares": 1064741,
+        "value": 258270513.9686,
+        "changeShares": null
+      },
+      {
+        "name": "SoftVest Advisors, LLC",
+        "shares": 1062099,
+        "value": 257629653.3074,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 972321,
+        "value": 235852516.4835,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 715743,
+        "value": 173615284.5053,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.7519,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.5767,
+      "putCallRatio": 0.6923,
+      "openInterestCall": 2187,
+      "openInterestPut": 1514,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

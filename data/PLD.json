@@ -6317,10 +6317,91 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 103392538,
+        "value": 11690784467.6164,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 60904443,
+        "value": 6886577406.8711,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 55915113,
+        "value": 6322424685.8103,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 55255790,
+        "value": 6247873820.8703,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 23889351,
+        "value": 2701212863.3649,
+        "changeShares": null
+      },
+      {
+        "name": "Cohen & Steers Inc.",
+        "shares": 22841902,
+        "value": 2582775878.1627,
+        "changeShares": null
+      },
+      {
+        "name": "Apg Asset Management US Inc.",
+        "shares": 19286830,
+        "value": 2180797347.2375,
+        "changeShares": null
+      },
+      {
+        "name": "JPMORGAN CHASE & CO",
+        "shares": 19264378,
+        "value": 2178258658.2062,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 17258306,
+        "value": 1951428406.2399,
+        "changeShares": null
+      },
+      {
+        "name": "Capital Research Global Investors",
+        "shares": 15915752,
+        "value": 1799623356.2964,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9599,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-02-19",
+      "2027-03-19",
+      "2027-05-21",
+      "2027-06-17",
+      "2027-09-17"
+    ],
+    "summary": {
+      "atmIV": 0.3618,
+      "putCallRatio": 0.8849,
+      "openInterestCall": 9986,
+      "openInterestPut": 8837,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

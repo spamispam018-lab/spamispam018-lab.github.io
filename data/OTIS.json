@@ -6520,10 +6520,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 31620354,
+        "value": 2223624289.1221,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 25061198,
+        "value": 1762367638.3685,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 19956721,
+        "value": 1403407739.7624,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 16664994,
+        "value": 1171925065.1659,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 12589525,
+        "value": 885327646.0836,
+        "changeShares": null
+      },
+      {
+        "name": "Franklin Resources, Inc.",
+        "shares": 11784188,
+        "value": 828694285.1514,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 10964838,
+        "value": 771075494.5804,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 10109592,
+        "value": 710932405.4538,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 8602119,
+        "value": 604923042.382,
+        "changeShares": null
+      },
+      {
+        "name": "ClearBridge Investments, LLC",
+        "shares": 7461546,
+        "value": 524715027.4365,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9766,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.5,
+      "putCallRatio": 0.618,
+      "openInterestCall": 4005,
+      "openInterestPut": 2475,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

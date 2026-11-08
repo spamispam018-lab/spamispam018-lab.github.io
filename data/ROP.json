@@ -6594,10 +6594,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 9890694,
+        "value": 4198250577.7228,
+        "changeShares": null
+      },
+      {
+        "name": "Windacre Partnership LLC",
+        "shares": 8630200,
+        "value": 3663215355.3456,
+        "changeShares": null
+      },
+      {
+        "name": "Dodge & Cox Inc.",
+        "shares": 7060583,
+        "value": 2996968327.5775,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 6593203,
+        "value": 2798582011.3266,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 5741899,
+        "value": 2437233503.9358,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 5158880,
+        "value": 2189762512.0784,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 4270321,
+        "value": 1812600572.0513,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 3118342,
+        "value": 1323626138.1779,
+        "changeShares": null
+      },
+      {
+        "name": "Wellington Management Group, LLP",
+        "shares": 2631070,
+        "value": 1116796369.2751,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 2074272,
+        "value": 880455265.9494,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0662,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-02-19",
+      "2027-05-21"
+    ],
+    "summary": {
+      "atmIV": 0.4428,
+      "putCallRatio": 0.5776,
+      "openInterestCall": 1655,
+      "openInterestPut": 956,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

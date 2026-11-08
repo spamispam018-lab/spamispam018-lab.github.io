@@ -6855,10 +6855,91 @@
     "history": []
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 18442336,
+        "value": 2845454634.4478,
+        "changeShares": null
+      },
+      {
+        "name": "Ameriprise Financial, Inc.",
+        "shares": 18134575,
+        "value": 2797970413.4369,
+        "changeShares": null
+      },
+      {
+        "name": "Goldman Sachs Group Inc",
+        "shares": 13950652,
+        "value": 2152435971.0653,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 12549603,
+        "value": 1936269137.3056,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 12082447,
+        "value": 1864191977.1507,
+        "changeShares": null
+      },
+      {
+        "name": "JPMORGAN CHASE & CO",
+        "shares": 8085893,
+        "value": 1247566561.2648,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 7313415,
+        "value": 1128381491.3061,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 6315431,
+        "value": 974403264.8927,
+        "changeShares": null
+      },
+      {
+        "name": "Situational Awareness LP                          ",
+        "shares": 6272808,
+        "value": 967826992.9411,
+        "changeShares": null
+      },
+      {
+        "name": "Value Aligned Research Advisors, LLC                          ",
+        "shares": 5585179,
+        "value": 861733213.4044,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9261,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-13",
+      "2026-11-20",
+      "2026-11-27",
+      "2026-12-04",
+      "2026-12-11",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-02-19"
+    ],
+    "summary": {
+      "atmIV": 1.3049,
+      "putCallRatio": 0.7638,
+      "openInterestCall": 21592,
+      "openInterestPut": 16493,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

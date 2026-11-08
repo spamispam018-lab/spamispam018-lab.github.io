@@ -6816,10 +6816,88 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 2975559,
+        "value": 906241868.2466,
+        "changeShares": null
+      },
+      {
+        "name": "Capital International Investors",
+        "shares": 2482381,
+        "value": 756038645.3287,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 2057463,
+        "value": 626624816.6819,
+        "changeShares": null
+      },
+      {
+        "name": "Viking Global Investors, L.P.",
+        "shares": 1590959,
+        "value": 484545477.7504,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 1483993,
+        "value": 451967710.8965,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 1415531,
+        "value": 431116794.18,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 1013833,
+        "value": 308774893.0982,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 863378,
+        "value": 262952033.7167,
+        "changeShares": null
+      },
+      {
+        "name": "Kayne Anderson Rudnick Investment Management LLC",
+        "shares": 739856,
+        "value": 225331940.5363,
+        "changeShares": null
+      },
+      {
+        "name": "Millennium Management Llc",
+        "shares": 683440,
+        "value": 208149776.6566,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.8061,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-05-21",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.5375,
+      "putCallRatio": 1.8677,
+      "openInterestCall": 189,
+      "openInterestPut": 353,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

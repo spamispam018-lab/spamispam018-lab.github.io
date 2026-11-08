@@ -6289,10 +6289,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 6806953,
+        "value": 1123897232.7577,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 5621944,
+        "value": 928240183.6008,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 4953114,
+        "value": 817809542.3545,
+        "changeShares": null
+      },
+      {
+        "name": "Boston Partners",
+        "shares": 4645278,
+        "value": 766982684.9366,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 4344088,
+        "value": 717253149.8303,
+        "changeShares": null
+      },
+      {
+        "name": "Kayne Anderson Rudnick Investment Management LLC",
+        "shares": 3390592,
+        "value": 559821253.7758,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 2895905,
+        "value": 478143394.857,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 2292541,
+        "value": 378521856.0132,
+        "changeShares": null
+      },
+      {
+        "name": "Massachusetts Financial Services Co.",
+        "shares": 2220158,
+        "value": 366570686.1643,
+        "changeShares": null
+      },
+      {
+        "name": "Deutsche Bank AG",
+        "shares": 1766125,
+        "value": 291605215.5701,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0463,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.3589,
+      "putCallRatio": 0.7244,
+      "openInterestCall": 1034,
+      "openInterestPut": 749,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

@@ -6381,10 +6381,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 20038470,
+        "value": 1335629071.1682,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 17146561,
+        "value": 1142873948.9862,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 14900348,
+        "value": 993156560.9257,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 12168256,
+        "value": 811053760.8408,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 11347085,
+        "value": 756320047.7949,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 8319707,
+        "value": 554535477.4358,
+        "changeShares": null
+      },
+      {
+        "name": "Principal Financial Group, Inc.",
+        "shares": 7704542,
+        "value": 513532733.6336,
+        "changeShares": null
+      },
+      {
+        "name": "JPMORGAN CHASE & CO",
+        "shares": 6158434,
+        "value": 410479616.7287,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 5119989,
+        "value": 341263886.6233,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 4219542,
+        "value": 281246170.4418,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0351,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-04-16"
+    ],
+    "summary": {
+      "atmIV": 0.7593,
+      "putCallRatio": 0.1364,
+      "openInterestCall": 44,
+      "openInterestPut": 6,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

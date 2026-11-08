@@ -6796,10 +6796,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Dodge & Cox Inc.",
+        "shares": 43979772,
+        "value": 2560466062.1787,
+        "changeShares": null
+      },
+      {
+        "name": "Blackrock Inc.",
+        "shares": 26624052,
+        "value": 1550030354.4018,
+        "changeShares": null
+      },
+      {
+        "name": "Price (T.Rowe) Associates Inc",
+        "shares": 24384055,
+        "value": 1419619576.0765,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 19936606,
+        "value": 1160692761.8326,
+        "changeShares": null
+      },
+      {
+        "name": "Viking Global Investors, L.P.",
+        "shares": 19934762,
+        "value": 1160585405.9269,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 13620472,
+        "value": 792972649.1118,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 12793060,
+        "value": 744801404.4537,
+        "changeShares": null
+      },
+      {
+        "name": "Flossbach von Storch SE",
+        "shares": 11771552,
+        "value": 685330050.7637,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 9146341,
+        "value": 532492431.1964,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 8899584,
+        "value": 518126441.9117,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.1364,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.6753,
+      "putCallRatio": 0.0238,
+      "openInterestCall": 714,
+      "openInterestPut": 17,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

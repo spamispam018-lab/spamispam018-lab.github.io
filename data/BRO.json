@@ -6784,10 +6784,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 22113344,
+        "value": 1420357613.8621,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 18941212,
+        "value": 1216609060.625,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 18405749,
+        "value": 1182215847.7127,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 14631444,
+        "value": 939789245.7251,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 14514119,
+        "value": 932253368.2612,
+        "changeShares": null
+      },
+      {
+        "name": "Capital World Investors",
+        "shares": 14465915,
+        "value": 929157186.7857,
+        "changeShares": null
+      },
+      {
+        "name": "Principal Financial Group, Inc.",
+        "shares": 11813029,
+        "value": 758760215.7714,
+        "changeShares": null
+      },
+      {
+        "name": "First Eagle Investment Management, LLC",
+        "shares": 11727514,
+        "value": 753267519.5666,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 8230737,
+        "value": 528666761.791,
+        "changeShares": null
+      },
+      {
+        "name": "Van Lanschot Kempen Investment Management N.V.",
+        "shares": 6709042,
+        "value": 430927085.3527,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.8602,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.6426,
+      "putCallRatio": 0.349,
+      "openInterestCall": 2229,
+      "openInterestPut": 778,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

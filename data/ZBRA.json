@@ -6793,10 +6793,88 @@
     "history": []
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 3311526,
+        "value": 949726480.1647,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 3114262,
+        "value": 893152307.3891,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 2667369,
+        "value": 764985982.83,
+        "changeShares": null
+      },
+      {
+        "name": "Boston Partners",
+        "shares": 2617838,
+        "value": 750780778.0329,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 1884644,
+        "value": 540504985.3756,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 1765967,
+        "value": 506469108.3346,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 1351501,
+        "value": 387602660.323,
+        "changeShares": null
+      },
+      {
+        "name": "Alyeska Investment Group, L.p.",
+        "shares": 1248478,
+        "value": 358056259.9141,
+        "changeShares": null
+      },
+      {
+        "name": "Fuller & Thaler Asset Management Inc.",
+        "shares": 1208889,
+        "value": 346702364.275,
+        "changeShares": null
+      },
+      {
+        "name": "Nordea Investment Management AB",
+        "shares": 1083302,
+        "value": 310684740.2498,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 1.0648,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-02-19",
+      "2027-05-21",
+      "2027-08-20"
+    ],
+    "summary": {
+      "atmIV": 0.6611,
+      "putCallRatio": 1.3414,
+      "openInterestCall": 1646,
+      "openInterestPut": 2208,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }

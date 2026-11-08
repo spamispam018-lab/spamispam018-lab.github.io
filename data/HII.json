@@ -6646,10 +6646,87 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 3375888,
+        "value": 868125502.26,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 2922717,
+        "value": 751590444.9057,
+        "changeShares": null
+      },
+      {
+        "name": "FMR, LLC",
+        "shares": 2598435,
+        "value": 668199800.5385,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 2570541,
+        "value": 661026727.291,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 2052417,
+        "value": 527788699.6359,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 1260885,
+        "value": 324242517.0279,
+        "changeShares": null
+      },
+      {
+        "name": "Invesco Ltd.",
+        "shares": 1204712,
+        "value": 309797365.877,
+        "changeShares": null
+      },
+      {
+        "name": "First Trust Advisors LP",
+        "shares": 1187494,
+        "value": 305369675.3107,
+        "changeShares": null
+      },
+      {
+        "name": "Dimensional Fund Advisors LP",
+        "shares": 1081154,
+        "value": 278023843.8624,
+        "changeShares": null
+      },
+      {
+        "name": "Van Eck Associates Corporation",
+        "shares": 1027501,
+        "value": 264226721.8921,
+        "changeShares": null
+      }
+    ],
     "summary": {
-      "institutionalPercent": null,
+      "institutionalPercent": 0.9165,
       "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-20",
+      "2026-12-18",
+      "2027-03-19",
+      "2027-06-17"
+    ],
+    "summary": {
+      "atmIV": 0.4185,
+      "putCallRatio": 0.5343,
+      "openInterestCall": 670,
+      "openInterestPut": 358,
+      "ivRank": null,
+      "impliedMove": null
     }
   }
 }
