@@ -5,6 +5,7 @@ Delta-Marktdaten-Update. NEU:
 - Chart-Muster (Golden/Death Cross, Doppel-Top/Boden, Bollinger-Squeeze) → universe.json
 - Institutional Holders (nur US-Aktien mit Daten) → stock.json
 - Options-Zusammenfassung (nur US-Aktien mit Optionsmarkt) → stock.json
+- Ersetzt WFIS.DE durch XDWF.DE für zuverlässigere Yahoo Finance Daten
 """
 
 import os
@@ -50,7 +51,9 @@ TICKERS_ETFS = [
 
 TICKERS_SECTORS = [
     "QDVE.DE", "XDWT.DE", "QDVF.DE", "WNRG.DE", "XDW0.DE",
-    "IU5C.DE", "XWTS.DE", "WHEA.DE", "WSCA.DE", "WFIS.DE", "IUSP.DE"
+    "IU5C.DE", "XWTS.DE", "WHEA.DE", "WSCA.DE", 
+    "XDWF.DE",  # NEU: Ersetzt WFIS.DE für bessere Datenqualität bei Financials
+    "IUSP.DE"
 ]
 
 KNOWN_ETF_HOLDINGS = {
@@ -262,7 +265,6 @@ def process_analyst_data(info, ticker_obj, cur):
             "nextEarningsDate": None, "epsForecast": None}
 
 
-# NEU: Institutional Holders
 def process_institutional_holders(ticker_obj, cur):
     result = {"holders": [], "summary": {"institutionalPercent": None, "institutionalCount": None}}
     try:
@@ -292,7 +294,6 @@ def process_institutional_holders(ticker_obj, cur):
     return result
 
 
-# NEU: Options-Summary
 def process_options(ticker_obj, info):
     if info.get("quoteType") != "EQUITY":
         return None
@@ -300,7 +301,6 @@ def process_options(ticker_obj, info):
         expiries = ticker_obj.options
         if not expiries:
             return None
-        # Nächste Fälligkeit
         next_expiry = expiries[0]
         chain = ticker_obj.option_chain(next_expiry)
         calls = chain.calls
@@ -315,7 +315,6 @@ def process_options(ticker_obj, info):
         if not spot:
             return None
 
-        # ATM: Strike am nächsten zum Spot
         calls_copy = calls.copy()
         calls_copy["dist"] = (calls_copy["strike"] - spot).abs()
         atm_call = calls_copy.sort_values("dist").iloc[0]
@@ -340,19 +339,16 @@ def process_options(ticker_obj, info):
         return None
 
 
-# NEU: Chart-Muster (vereinfacht aus dem Frontend)
 def compute_chart_patterns(chart_history, symbol=""):
     if not chart_history or len(chart_history) < 60:
         return {"chartPatterns": [], "hasBullishPattern": False, "hasBearishPattern": False,
                 "bollingerSqueeze": False, "cross": None, "crossDaysAgo": None}
     closes = [p["close"] for p in chart_history if p.get("close")]
-    dates = [p["date"] for p in chart_history if p.get("close")]
     n = len(closes)
     if n < 60:
         return {"chartPatterns": [], "hasBullishPattern": False, "hasBearishPattern": False,
                 "bollingerSqueeze": False, "cross": None, "crossDaysAgo": None}
 
-    # SMAs
     def sma_series(vals, period):
         out = []
         for i in range(len(vals)):
@@ -365,7 +361,6 @@ def compute_chart_patterns(chart_history, symbol=""):
     s50 = sma_series(closes, 50) if n >= 50 else [None] * n
     s200 = sma_series(closes, 200) if n >= 200 else [None] * n
 
-    # Golden/Death Cross
     cross = None
     cross_days_ago = None
     prev_sign = 0
@@ -383,7 +378,6 @@ def compute_chart_patterns(chart_history, symbol=""):
         if cross_days_ago > 60:
             cross = None
 
-    # Doppel-Top / Doppel-Boden (vereinfacht: 60-Tage-Fenster)
     patterns = []
     has_bull = False
     has_bear = False
@@ -397,12 +391,8 @@ def compute_chart_patterns(chart_history, symbol=""):
     lookback = min(60, n - 1)
     recent = closes[-lookback:]
     if len(recent) >= 20:
-        high_idx = recent.index(max(recent))
-        low_idx = recent.index(min(recent))
-        # Doppel-Top: zwei Hochs, die nah beieinander liegen (Toleranz 2 %)
         highs = sorted(recent, reverse=True)[:5]
         if len(highs) >= 2 and abs(highs[0] - highs[1]) / max(highs[0], 1) < 0.03 and highs[0] > max(recent) * 0.98:
-            # Es gibt zwei ähnliche Hochs
             if recent[-1] < highs[0] * 0.97:
                 patterns.append("double_top")
                 has_bear = True
@@ -412,7 +402,6 @@ def compute_chart_patterns(chart_history, symbol=""):
                 patterns.append("double_bottom")
                 has_bull = True
 
-    # Bollinger-Squeeze
     squeeze = False
     if n >= 20:
         window = closes[-20:]
@@ -421,7 +410,6 @@ def compute_chart_patterns(chart_history, symbol=""):
         sd = math.sqrt(var)
         if m > 0:
             bandwidth = (4 * sd) / m
-            # Vergleich mit 120-Tage-Bandbreiten (vereinfacht: nur wenn sehr eng)
             if bandwidth < 0.05:
                 squeeze = True
                 patterns.append("squeeze")
@@ -453,8 +441,23 @@ def fetch_full_stock(ticker_sym):
                "country": country, "currency": "EUR",
                "nativeCurrency": cur, "exchange": info.get("exchange", "N/A")}
 
-    raw_curr = clean_val(info.get("currentPrice") or info.get("regularMarketPrice"), 0.0)
-    raw_prev = clean_val(info.get("previousClose") or info.get("regularMarketPreviousClose"), raw_curr)
+    raw_curr = clean_val(info.get("currentPrice") or info.get("regularMarketPrice") or info.get("navPrice"), 0.0)
+    raw_prev = clean_val(info.get("previousClose") or info.get("regularMarketPreviousClose"), 0.0)
+
+    # Fallback für ETFs, die bei Yahoo keine info-Daten liefern
+    if not raw_curr:
+        try:
+            hist_check = t.history(period="5d")
+            if not hist_check.empty:
+                raw_curr = float(hist_check["Close"].iloc[-1])
+                if not raw_prev and len(hist_check) > 1:
+                    raw_prev = float(hist_check["Close"].iloc[-2])
+        except Exception:
+            pass
+
+    if not raw_prev:
+        raw_prev = raw_curr
+
     curr_p = clean_val(to_eur(raw_curr, cur), 0.0)
     prev_p = clean_val(to_eur(raw_prev, cur), curr_p)
     chg_abs = round(curr_p - prev_p, 4) if curr_p and prev_p else 0.0
@@ -619,7 +622,6 @@ def run_delta_sync(tickers):
             except Exception:
                 pass
 
-        # NEU: Institutional Holders (auch Delta-Pfad – nur bei US-Tickern relevant)
         if not stock_data.get("institutional") or not stock_data["institutional"].get("holders"):
             try:
                 cur = stock_data.get("profile", {}).get("nativeCurrency") or detect_native_currency(sym)
@@ -627,7 +629,6 @@ def run_delta_sync(tickers):
             except Exception:
                 pass
 
-        # NEU: Options (nur US, nur alle 7 Tage neu berechnen, spart API-Calls)
         try:
             t_obj = yf.Ticker(sym)
             new_options = process_options(t_obj, t_obj.info or {})
@@ -652,7 +653,6 @@ def run_delta_sync(tickers):
         u_item["dividendYield"] = stock_data.get("ratios", {}).get("dividendYield")
         u_item["exDividendDate"] = stock_data.get("exDividendDate")
 
-        # NEU: Chart-Muster ins Universe
         try:
             patterns = compute_chart_patterns(stock_data.get("chartHistory") or [], sym)
             u_item["chartPatterns"] = patterns["chartPatterns"]
