@@ -2,7 +2,8 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <!-- FIX: user-scalable=no entfernt (WCAG), maximum-scale erhöht -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Aktien Screener &amp; Analyse</title>
 
   <!-- Lokale Stylesheets -->
@@ -356,57 +357,73 @@
       }
 
       /**
-       * Rendert die Score-Ansicht (Verlauf, Kategorien 0-5, Segmentbalken)
+       * Rendert die Score-Ansicht (Verlauf, Kategorien 0-5, Segmentbalken).
+       * FIX: Nutzt jetzt die async-Version (calculateTotalScoreAsync), die auch
+       * ETF-Aggregation über die Top-Holdings unterstützt. Zeigt außerdem den
+       * ETF-Hinweis an. Die period-Pills funktionieren weiterhin.
        */
       function renderScoreView(container, stock) {
         var period = window.App.Score.getPeriod();
-        var scoreData = window.App.Score.calculateTotalScore(stock, period);
-        var html = '' +
-          '<div class="horizontal-scroll-row" style="margin-bottom: 8px;">' +
-            '<button class="chip-btn ' + (period === 'quarter' ? 'active' : '') + '" data-score-period="quarter">Quartal</button>' +
-            '<button class="chip-btn ' + (period === 'year' ? 'active' : '') + '" data-score-period="year">Jahr</button>' +
-          '</div>' +
-          '<p style="font-size: 0.7rem; color: var(--text-dim); margin: 0 4px 12px; line-height: 1.4;">' +
-            (period === 'quarter'
-              ? 'Basis: letztes Quartal. Wachstum gegenüber dem Vorjahresquartal; KGV, KUV, ROE und ROA auf 12 Monate hochgerechnet (x4). Forward KGV und PEG sind Prognosewerte.'
-              : 'Basis: letztes Geschäftsjahr. Wachstum gegenüber dem Vorjahr. Forward KGV und PEG sind Prognosewerte.') +
-          '</p>' +
-          '<div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px;">' +
-            '<div>' +
-              '<div style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Gesamt-Score</div>' +
-              '<div style="font-size: 1.05rem; font-weight: 800; color: #fff;">' + (scoreData.totalScore >= 3.5 ? 'Solides Profil' : 'Gemischtes Profil') + '</div>' +
+
+        // Lade-Platzhalter während der (möglicherweise asynchronen) ETF-Aggregation
+        container.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Berechne Score...</p></div>';
+
+        window.App.Score.calculateTotalScoreAsync(stock, period).then(function (scoreData) {
+          var html = '' +
+            '<div class="horizontal-scroll-row" style="margin-bottom: 8px;">' +
+              '<button class="chip-btn ' + (period === 'quarter' ? 'active' : '') + '" data-score-period="quarter">Quartal</button>' +
+              '<button class="chip-btn ' + (period === 'year' ? 'active' : '') + '" data-score-period="year">Jahr</button>' +
             '</div>' +
-            '<div class="score-badge-large">' + scoreData.totalScore.toFixed(1) + '</div>' +
-          '</div>';
-
-        scoreData.categories.forEach(function (cat) {
-          html += '' +
-            '<div class="card">' +
-              '<div class="card-header-dotted">' +
-                '<span class="card-title">' + cat.category + '</span>' +
-                '<span style="font-weight: 800; font-size: 0.95rem; color: var(--accent-purple-light);">' + cat.score.toFixed(1) + ' / 5.0</span>' +
+            (scoreData.isAggregated
+              ? '<div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 12px; padding: 8px 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);"><b>Hinweis (ETF):</b> Der Score wurde als gewichteter Durchschnitt aus den Fundamentaldaten der Top-5-Holdings berechnet.</div>'
+              : '') +
+            '<p style="font-size: 0.7rem; color: var(--text-dim); margin: 0 4px 12px; line-height: 1.4;">' +
+              (period === 'quarter'
+                ? 'Basis: letztes Quartal. Wachstum gegenüber dem Vorjahresquartal; KGV, KUV, ROE und ROA auf 12 Monate hochgerechnet (x4). Forward KGV und PEG sind Prognosewerte.'
+                : 'Basis: letztes Geschäftsjahr. Wachstum gegenüber dem Vorjahr. Forward KGV und PEG sind Prognosewerte.') +
+            '</p>' +
+            '<div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px;">' +
+              '<div>' +
+                '<div style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Gesamt-Score</div>' +
+                '<div style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">' +
+                  (scoreData.totalScore >= 3.5 ? 'Solides Profil' : 'Gemischtes Profil') +
+                '</div>' +
               '</div>' +
-              window.App.Score.renderSegmentBarHtml(cat.score) +
-              '<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px; font-size: 0.8rem;">';
+              '<div class="score-badge-large">' + scoreData.totalScore.toFixed(1) + '</div>' +
+            '</div>';
 
-          cat.metrics.forEach(function (m) {
+          scoreData.categories.forEach(function (cat) {
             html += '' +
-              '<div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--border-subtle);">' +
-                '<span style="color: var(--text-muted);">' + m.name + '</span>' +
-                '<strong style="font-variant-numeric: tabular-nums;">' + m.value + '</strong>' +
-              '</div>';
+              '<div class="card">' +
+                '<div class="card-header-dotted">' +
+                  '<span class="card-title">' + cat.category + '</span>' +
+                  '<span style="font-weight: 800; font-size: 0.95rem; color: var(--accent-purple-light);">' + cat.score.toFixed(1) + ' / 5.0</span>' +
+                '</div>' +
+                window.App.Score.renderSegmentBarHtml(cat.score) +
+                '<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px; font-size: 0.8rem;">';
+
+            cat.metrics.forEach(function (m) {
+              html += '' +
+                '<div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--border-subtle);">' +
+                  '<span style="color: var(--text-muted);">' + m.name + '</span>' +
+                  '<strong style="font-variant-numeric: tabular-nums;">' + m.value + '</strong>' +
+                '</div>';
+            });
+
+            html += '</div></div>';
           });
 
-          html += '</div></div>';
-        });
+          container.innerHTML = html;
 
-        container.innerHTML = html;
-
-        container.querySelectorAll('[data-score-period]').forEach(function (btn) {
-          btn.onclick = function () {
-            window.App.Score.setPeriod(btn.getAttribute('data-score-period'));
-            renderScoreView(container, stock);
-          };
+          container.querySelectorAll('[data-score-period]').forEach(function (btn) {
+            btn.onclick = function () {
+              window.App.Score.setPeriod(btn.getAttribute('data-score-period'));
+              renderScoreView(container, stock);
+            };
+          });
+        }).catch(function (err) {
+          container.innerHTML = '<div class="state-box"><p>Score-Berechnung fehlgeschlagen: ' +
+            String((err && err.message) || 'Unbekannter Fehler').replace(/</g, '&lt;') + '</p></div>';
         });
       }
 
@@ -421,4 +438,3 @@
   </script>
 </body>
 </html>
-
