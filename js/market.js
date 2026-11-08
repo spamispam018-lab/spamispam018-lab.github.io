@@ -24,14 +24,15 @@ window.App.Market = (function () {
   var LARGE_CAP_MIN = 10e9;   // 10 Mrd. €
   var MAX_STOCK_TILES = 40;
   
-  // Mapping: Sektorname -> Ticker des passenden ETFs (wie in fetch_market_data.py definiert)
+  // Mapping: Sektorname -> Ticker der passenden ETFs
   var SECTOR_ETFS = {
     'Technology': ['QDVE.DE', 'XDWT.DE'],
     'Healthcare': ['WHEA.DE'],
     'Consumer Defensive': ['WSCA.DE'],
     'Financial Services': ['WFIS.DE'],
     'Real Estate': ['IUSP.DE'],
-    'Energy': ['WNRG.DE']
+    'Energy': ['WNRG.DE', 'QDVF.DE', 'XDW0.DE'],
+    'Communication Services': ['IU5C.DE', 'XWTS.DE']
   };
 
   var state = { period: 'perf1m', sector: null, largeOnly: true };
@@ -312,7 +313,7 @@ window.App.Market = (function () {
 
     if (state.sector && window.App.News) html += window.App.News.sectorCardHtml(state.sector);
 
-    // *** NEU: Sektor-ETFs anzeigen ***
+    // Passende Sektor-ETFs anzeigen
     if (state.sector && SECTOR_ETFS[state.sector]) {
       var matchingTickers = SECTOR_ETFS[state.sector];
       var etfList = universe.filter(function(s) { return matchingTickers.indexOf(s.ticker) !== -1; });
@@ -382,7 +383,6 @@ window.App.Market = (function () {
 
     container.innerHTML = '<div class="view-container">' + html + '</div>';
 
-    // Heatmap erst nach dem Einfügen aufbauen, damit die echte Breite des Containers verwendet wird
     var holder = container.querySelector('#mk-map');
     if (holder && pendingMap) {
       var W = Math.floor(holder.getBoundingClientRect().width) || 300;
@@ -415,4 +415,3 @@ window.App.Market = (function () {
 
   return { initView: initView };
 })();
-
