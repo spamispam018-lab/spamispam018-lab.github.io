@@ -6,6 +6,8 @@
  * 2. Bewertung (KGV, EV/EBITDA, P/S, PEG)
  * 3. Wachstum (Umsatz- und Gewinnwachstum)
  * 4. Finanzielle Gesundheit (Verschuldungsgrad, Liquidität, Zinsdeckung)
+ *
+ * *NEU:* Bei ETFs wird der Score als gewichteter Durchschnitt der Top 5 Holdings berechnet.
  */
 
 window.App = window.App || {};
@@ -13,12 +15,21 @@ window.App = window.App || {};
 window.App.Score = (function () {
   'use strict';
 
-  /**
-   * Berechnet den Einzelscore einer Kennzahl anhand linearer Schwellenwerte.
-   * direction: 1 = höher ist besser, -1 = niedriger ist besser
-   */
+  var nameToTickerMap = {};
+
+  function buildNameLookup(universe) {
+    nameToTickerMap = {};
+    (universe || []).forEach(function(u) {
+      nameToTickerMap[u.ticker.toLowerCase()] = u.ticker;
+      if (u.name) {
+        var cleanName = u.name.toLowerCase().replace(/inc\.|inc|corp\.|corp|ltd\.|ltd|plc|ag|se|co\./g, '').trim();
+        nameToTickerMap[cleanName] = u.ticker;
+      }
+    });
+  }
+
   function scoreMetric(val, minGood, maxGreat, direction) {
-    if (val === null || val === undefined || isNaN(val)) return 2.5; // Neutral bei fehlenden Daten
+    if (val === null || val === undefined || isNaN(val)) return 2.5; 
     var score = 0;
 
     if (direction === 1) {
@@ -42,9 +53,6 @@ window.App.Score = (function () {
     return Math.max(0, Math.min(5, Math.round(score * 10) / 10));
   }
 
-  /**
-   * Berechnet den Profitabilitäts-Score.
-   */
   function evaluateProfitability(ratios) {
     var netMargin = ratios.profitMargins || 0;
     var opMargin = ratios.operatingMargins || 0;
@@ -70,9 +78,6 @@ window.App.Score = (function () {
     };
   }
 
-  /**
-   * Berechnet den Bewertungs-Score.
-   */
   function evaluateValuation(ratios) {
     var pe = ratios.peTrailing || 25;
     var fwdPe = ratios.peForward || pe;
@@ -98,9 +103,6 @@ window.App.Score = (function () {
     };
   }
 
-  /**
-   * Berechnet den Wachstums-Score.
-   */
   function evaluateGrowth(ratios, stock) {
     var revG = ratios.revenueGrowth || 0;
     var earnG = resolveEarningsGrowth(ratios, stock);
@@ -108,8 +110,6 @@ window.App.Score = (function () {
 
     var sRev = scoreMetric(revG, 0.05, 0.20, 1);
     var sEarn = hasEarn ? scoreMetric(earnG, 0.05, 0.25, 1) : null;
-
-    // Fehlt das Gewinnwachstum, zählt nur das Umsatzwachstum
     var avg = hasEarn ? (sRev * 0.5) + (sEarn * 0.5) : sRev;
 
     return {
@@ -122,13 +122,7 @@ window.App.Score = (function () {
     };
   }
 
-  /**
-   * Gewinnwachstum (YoY): bevorzugt ratios.earningsGrowth, sonst Nettoergebnis
-   * des letzten Quartals gegenüber dem Vorjahresquartal. null = nicht berechenbar
-   * (z. B. Vorjahresquartal negativ oder keine Quartalsdaten).
-   */
   function resolveEarningsGrowth(ratios, stock) {
-    // Bei gewähltem Zeitraum (Quartal/Jahr) kein Fallback auf einen anderen Zeitraum
     if (ratios._period) {
       var gp = ratios.earningsGrowth;
       return (gp !== null && gp !== undefined && !isNaN(gp)) ? Number(gp) : null;
@@ -158,9 +152,6 @@ window.App.Score = (function () {
     }
   }
 
-  /**
-   * Berechnet den Score für Finanzielle Gesundheit.
-   */
   function evaluateHealth(ratios) {
     var debtToEquity = ratios.debtToEquity || 100;
     var currentRatio = ratios.currentRatio || 1.2;
@@ -206,7 +197,6 @@ window.App.Score = (function () {
       .sort(function (a, b) { return a.date < b.date ? -1 : 1; });
   }
 
-  /** Vorperiode: bei Quartal das Vorjahresquartal (~365 Tage), bei Jahr das Vorjahr. */
   function findPrior(rows, last) {
     var lastT = new Date(last.date).getTime();
     var best = null, bestDiff = Infinity;
@@ -224,11 +214,6 @@ window.App.Score = (function () {
     return (cur - prev) / prev;
   }
 
-  /**
-   * Leitet die Kennzahlen aus den Quartals- bzw. Jahresabschlüssen ab.
-   * Quartal: Gewinn-/Umsatzgrößen werden für KGV, KUV, ROE und ROA auf 12 Monate hochgerechnet (x4).
-   * Nicht berechenbare Werte bleiben aus den Standard-Kennzahlen (ratios) erhalten.
-   */
   function deriveRatios(stock, period) {
     var base = (stock && stock.ratios) || {};
     var out = {};
@@ -279,10 +264,7 @@ window.App.Score = (function () {
     return out;
   }
 
-  /**
-   * Ermittelt das Gesamtrating und alle Subkategorien.
-   */
-  function calculateTotalScore(stock, period) {
+  function calculateBaseTotalScore(stock, period) {
     var ratios = (period === 'quarter' || period === 'year')
       ? deriveRatios(stock, period)
       : ((stock && stock.ratios) || {});
@@ -292,17 +274,99 @@ window.App.Score = (function () {
     var hea = evaluateHealth(ratios);
 
     var overall = (prof.score * 0.30) + (val.score * 0.25) + (gro.score * 0.25) + (hea.score * 0.20);
-    var roundedTotal = Math.round(overall * 10) / 10;
-
     return {
-      totalScore: roundedTotal,
+      totalScore: Math.round(overall * 10) / 10,
       categories: [prof, val, gro, hea]
     };
   }
 
   /**
-   * Erzeugt das HTML für die 5-Segment-Balkenanzeige.
+   * Lädt die Scores der Top 5 Holdings und gewichtet sie zu einem Gesamtscore.
+   * Gibt ein Promise zurück.
    */
+  function calculateTotalScoreAsync(stock, period) {
+    return new Promise(function(resolve) {
+      var isEtf = (stock.sector === 'Sonstige' || stock.sector === 'ETF' || !stock.sector);
+      var holdings = stock.holdings || [];
+
+      if (!isEtf || holdings.length === 0) {
+        resolve(Object.assign({ isAggregated: false }, calculateBaseTotalScore(stock, period)));
+        return;
+      }
+
+      window.App.Data.getUniverse().then(function(universe) {
+        buildNameLookup(universe);
+        var top5 = holdings.slice(0, 5);
+
+        var promises = top5.map(function(h) {
+          var cleanName = h.name.toLowerCase().replace(/inc\.|inc|corp\.|corp|ltd\.|ltd|plc|ag|se|co\./g, '').trim();
+          var targetTicker = nameToTickerMap[cleanName] || nameToTickerMap[h.name.toLowerCase()] || null;
+          
+          if (!targetTicker) {
+            var possible = universe.find(function(u) { return u.ticker.indexOf(h.name) === 0; });
+            if (possible) targetTicker = possible.ticker;
+          }
+
+          if (targetTicker) {
+            return window.App.Data.getStock(targetTicker).then(function(res) {
+                return { data: res, weight: h.weight || 0 };
+            }).catch(function() { return null; });
+          }
+          return Promise.resolve(null);
+        });
+
+        Promise.all(promises).then(function(results) {
+          var validHoldings = results.filter(function(r) { return r && r.data; });
+          
+          if (validHoldings.length === 0) {
+            resolve(Object.assign({ isAggregated: false }, calculateBaseTotalScore(stock, period)));
+            return;
+          }
+
+          var totalWeight = validHoldings.reduce(function(sum, r) { return sum + r.weight; }, 0);
+          
+          var aggTotalScore = 0;
+          var catScores = [0, 0, 0, 0]; 
+          
+          // Wir sammeln die Labels vom ersten Validen, um das Gerüst aufzubauen
+          var templateCategories = calculateBaseTotalScore(validHoldings[0].data, period).categories;
+
+          validHoldings.forEach(function(r) {
+            var normWeight = totalWeight > 0 ? (r.weight / totalWeight) : (1 / validHoldings.length);
+            var hs = calculateBaseTotalScore(r.data, period);
+            
+            aggTotalScore += hs.totalScore * normWeight;
+            
+            hs.categories.forEach(function(cat, idx) {
+              catScores[idx] += cat.score * normWeight;
+            });
+          });
+
+          // Das Gerüst mit den gewichteten Werten befüllen. 
+          // Die genauen Einzelmetriken machen gewichtet als Prozentzahlen oft wenig Sinn,
+          // weshalb wir in der Ansicht den Hinweis anzeigen.
+          var finalCategories = templateCategories.map(function(t, idx) {
+             return {
+                category: t.category,
+                score: Math.round(catScores[idx] * 10) / 10,
+                metrics: t.metrics.map(function(m) { 
+                  return { name: m.name, value: '— (Gewichtet)', score: catScores[idx] }; 
+                })
+             };
+          });
+
+          resolve({
+            totalScore: Math.round(aggTotalScore * 10) / 10,
+            categories: finalCategories,
+            isAggregated: true
+          });
+        });
+      }).catch(function() {
+         resolve(Object.assign({ isAggregated: false }, calculateBaseTotalScore(stock, period)));
+      });
+    });
+  }
+
   function renderSegmentBarHtml(score) {
     var numFilled = Math.min(5, Math.max(0, Math.round(score)));
     var colorClass = numFilled >= 4 ? 'filled-green' : (numFilled >= 2 ? 'filled-yellow' : 'filled-red');
@@ -318,7 +382,8 @@ window.App.Score = (function () {
   }
 
   return {
-    calculateTotalScore: calculateTotalScore,
+    calculateBaseTotalScore: calculateBaseTotalScore,
+    calculateTotalScoreAsync: calculateTotalScoreAsync,
     getPeriod: getPeriod,
     setPeriod: setPeriod,
     renderSegmentBarHtml: renderSegmentBarHtml
