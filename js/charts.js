@@ -7,6 +7,8 @@
  * - Gestapelte Balkendiagramme (Analysten-Empfehlungen)
  * - Donut-Charts (Ratings-Breakdown)
  * Behandelt High-DPI Displays (Retina) ohne externe Bibliotheken.
+ *
+ * FIX: Donut-Textfarbe nutzt jetzt --text-main (lesbar im Light- und Dark-Mode).
  */
 
 window.App = window.App || {};
@@ -47,9 +49,6 @@ window.App.Charts = (function () {
     return { ctx: ctx, width: width, height: height };
   }
 
-  /**
-   * Zeichnet horizontale gestrichelte Hilfslinien und die Y-Achsen-Werte links.
-   */
   /**
    * Ermittelt eine "schöne" Schrittweite (1, 2, 5 x 10^n) für die Y-Achse.
    */
@@ -220,7 +219,6 @@ window.App.Charts = (function () {
 
   /**
    * 1b. Mehrlinien-Chart (z. B. normierter Kursvergleich mehrerer Titel).
-   * opts: { labels: [], series: [{ name: '', color: '', values: [] }], formatY: fn }
    */
   function renderMultiLineChart(canvas, opts) {
     var setup = setupCanvas(canvas);
@@ -283,7 +281,6 @@ window.App.Charts = (function () {
 
   /**
    * 1c. Indikator-Chart (RSI, MACD …): Linien, optionale Histogramm-Balken und Referenzlinien.
-   * opts: { labels, lines:[{values,color}], bars:[values], refLines:[{value,color}], min, max, formatY }
    */
   function renderIndicatorChart(canvas, opts) {
     var setup = setupCanvas(canvas);
@@ -369,7 +366,6 @@ window.App.Charts = (function () {
 
   /**
    * 2. Gruppiertes Balkendiagramm (z. B. Revenue, OCF, Net Income letzte 4 Quartale).
-   * opts: { labels: ['Q2', 'Q3', 'Q4', 'Q1'], series: [{ name: '', data: [], color: '' }] }
    */
   function renderGroupedBarChart(canvas, opts) {
     var setup = setupCanvas(canvas);
@@ -438,7 +434,8 @@ window.App.Charts = (function () {
 
   /**
    * 3. Donut-Chart (Analysten-Empfehlungen: Strong Buy, Buy, Hold, Sell, Strong Sell).
-   * opts: { data: [{ label: 'Buy', value: 16, color: '#10b981' }], totalText: '4.17' }
+   * FIX: Textfarbe in der Mitte nutzt --text-main, damit der Score im Light-Mode
+   * lesbar bleibt (vorher hartkodiertes #ffffff).
    */
   function renderDonutChart(canvas, opts) {
     var setup = setupCanvas(canvas);
@@ -471,21 +468,25 @@ window.App.Charts = (function () {
 
     // Score / Text in der Mitte
     if (opts.totalText) {
+      // FIX: Textfarbe aus CSS-Variable lesen
+      var css = getComputedStyle(canvas);
+      var textColor = css.getPropertyValue('--text-main').trim() || '#ffffff';
+      var dimColor = css.getPropertyValue('--text-muted').trim() || THEME.textColor;
+
       ctx.font = 'bold 20px ' + THEME.fontFamily;
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = textColor;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(opts.totalText, centerX, centerY - 6);
 
       ctx.font = '10px ' + THEME.fontFamily;
-      ctx.fillStyle = THEME.textColor;
+      ctx.fillStyle = dimColor;
       ctx.fillText(opts.subText || 'Konsens', centerX, centerY + 14);
     }
   }
 
   /**
    * 4. Gestapeltes Balkendiagramm (Monatliche Analysten-Trends).
-   * opts: { labels: ['-3m', '-2m', '-1m', 'Aktuell'], stacks: [{ strongBuy: 18, buy: 16, hold: 7, sell: 1, strongSell: 0 }] }
    */
   function renderStackedBarChart(canvas, opts) {
     var setup = setupCanvas(canvas);
