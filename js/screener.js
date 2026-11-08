@@ -51,7 +51,7 @@ window.App.Screener = (function () {
   var currentSort = 'marketCap_desc';
   var activePresets = [];   // leer = "Alle"; mehrere aktive Filter = alle müssen zutreffen (UND)
   var autoSorted = false;   // true, wenn die Sortierung automatisch durch einen Filter gesetzt wurde
-  var sliderFilters = { maxPe: null, minYield: 0, minPerf: null };
+  var sliderFilters = { maxPe: null, minYield: 0, minPerf: null, minCrv: null, maxStop: null };
 
   var sectorPe = {};        // Branche -> Median-KGV
   var dataStamp = null;     // Date des letzten Daten-Updates
@@ -318,7 +318,7 @@ window.App.Screener = (function () {
     { id: 'bottom_knife', chip: '🔪 Fallendes Messer', name: 'Fallendes Messer',
       info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch, höchstens 2 von 6 Stabilisierungs-Signalen und frisches Tief (≤ 10 Tage) oder −10 % im letzten Monat. Abwärtstrend noch intakt.'; } },
     { id: 'low_risk', chip: '🛡️ Kleines Risiko', name: 'Kleines Risiko',
-      info: function () { return 'Long-Setup mit begrenztem Risiko: Stop knapp unter der nächsten Unterstützung höchstens ' + RR_MAX_STOP_PCT + ' % unter dem Kurs und Chance-Risiko-Verhältnis (CRV) mindestens ' + RR_MIN_CRV + ':1. Ziel ist der nächste Widerstand oder das Analystenziel. Gleiche Berechnung wie der Risk/Reward Rechner in der Detailansicht. Aktien ohne erkennbare Unterstützung erscheinen nicht.'; } },
+      info: function () { return 'Long-Setup mit begrenztem Risiko: Stop knapp unter der nächsten Unterstützung höchstens ' + RR_MAX_STOP_PCT + ' % unter dem Kurs und Chance-Risiko-Verhältnis (CRV) mindestens ' + RR_MIN_CRV + ':1. Ziel ist der nächste Widerstand oder das Analystenziel. Gleiche Berechnung wie der Risk/Reward Rechner in der Detailansicht. Aktien ohne erkennbare Unterstützung erscheinen nicht. Eigene Schwellen: Feinfilter „Mindest-CRV“ und „Maximaler Stop-Abstand“ unten.'; } },
     { id: 'news_positive', chip: '📰 Positive News', name: 'Positive Nachrichten',
       info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % positiv (automatische FinBERT-Einschätzung der Schlagzeilen).'; } },
     { id: 'news_negative', chip: '⚠️ Negative News', name: 'Negative Nachrichten',
@@ -332,15 +332,29 @@ window.App.Screener = (function () {
     return id;
   }
 
+  function normSliders(sl) {
+    sl = sl || {};
+    return {
+      maxPe: hasNum(sl.maxPe) ? sl.maxPe : null,
+      minYield: hasNum(sl.minYield) ? sl.minYield : 0,
+      minPerf: hasNum(sl.minPerf) ? sl.minPerf : null,
+      minCrv: hasNum(sl.minCrv) ? sl.minCrv : null,
+      maxStop: hasNum(sl.maxStop) ? sl.maxStop : null
+    };
+  }
+
   function passesSliders(s) {
     if (sliderFilters.maxPe !== null && !(s.pe > 0 && s.pe <= sliderFilters.maxPe)) return false;
     if (sliderFilters.minYield > 0 && !((s.dividendYield || 0) >= sliderFilters.minYield)) return false;
     if (sliderFilters.minPerf !== null && !(hasNum(s.perf52w) && s.perf52w >= sliderFilters.minPerf)) return false;
+    if (sliderFilters.minCrv !== null && !(hasNum(s.rrCrv) && s.rrCrv >= sliderFilters.minCrv)) return false;
+    if (sliderFilters.maxStop !== null && !(hasNum(s.rrStopPct) && s.rrStopPct <= sliderFilters.maxStop)) return false;
     return true;
   }
 
   function slidersActive() {
-    return sliderFilters.maxPe !== null || sliderFilters.minYield > 0 || sliderFilters.minPerf !== null;
+    return sliderFilters.maxPe !== null || sliderFilters.minYield > 0 || sliderFilters.minPerf !== null ||
+      sliderFilters.minCrv !== null || sliderFilters.maxStop !== null;
   }
 
   function peRank(s) {
@@ -461,11 +475,7 @@ window.App.Screener = (function () {
     }
     autoSorted = !!st.autoSorted;
     if (st.sliders) {
-      sliderFilters = {
-        maxPe: hasNum(st.sliders.maxPe) ? st.sliders.maxPe : null,
-        minYield: hasNum(st.sliders.minYield) ? st.sliders.minYield : 0,
-        minPerf: hasNum(st.sliders.minPerf) ? st.sliders.minPerf : null
-      };
+      sliderFilters = normSliders(st.sliders);
     }
   }
 
@@ -635,6 +645,8 @@ window.App.Screener = (function () {
     if (sliderFilters.maxPe !== null) parts.push('KGV ≤ ' + sliderFilters.maxPe);
     if (sliderFilters.minYield > 0) parts.push('Dividende ≥ ' + sliderFilters.minYield + ' %');
     if (sliderFilters.minPerf !== null) parts.push('52W ≥ ' + sliderFilters.minPerf + ' %');
+    if (sliderFilters.minCrv !== null) parts.push('CRV ≥ ' + sliderFilters.minCrv + ':1');
+    if (sliderFilters.maxStop !== null) parts.push('Stop ≤ ' + sliderFilters.maxStop + ' %');
     return parts;
   }
 
@@ -880,6 +892,8 @@ window.App.Screener = (function () {
   function peLabel(v) { return v >= 80 ? 'Beliebig' : '≤ ' + v; }
   function yieldLabel(v) { return v > 0 ? '≥ ' + v + ' %' : 'Beliebig'; }
   function perfLabel(v) { return v <= -50 ? 'Beliebig' : '≥ ' + v + ' %'; }
+  function crvLabel(v) { return v <= 0 ? 'Beliebig' : '≥ ' + String(v).replace('.', ',') + ' : 1'; }
+  function stopLabel(v) { return v >= 15 ? 'Beliebig' : '≤ ' + v + ' %'; }
 
   var scrollLocked = false;
   var savedBodyStyle = { overflow: '', overscroll: '' };
@@ -995,6 +1009,10 @@ window.App.Screener = (function () {
     if (pe) pe.value = sliderFilters.maxPe === null ? 80 : sliderFilters.maxPe;
     if (yl) yl.value = sliderFilters.minYield;
     if (pf) pf.value = sliderFilters.minPerf === null ? -50 : sliderFilters.minPerf;
+    var cr = document.getElementById('filter-slider-crv');
+    var st = document.getElementById('filter-slider-stop');
+    if (cr) cr.value = sliderFilters.minCrv === null ? 0 : sliderFilters.minCrv;
+    if (st) st.value = sliderFilters.maxStop === null ? 15 : sliderFilters.maxStop;
     updateSliderLabels();
   }
 
@@ -1008,6 +1026,10 @@ window.App.Screener = (function () {
     if (pe && lPe) lPe.textContent = peLabel(Number(pe.value));
     if (yl && lYl) lYl.textContent = yieldLabel(Number(yl.value));
     if (pf && lPf) lPf.textContent = perfLabel(Number(pf.value));
+    var cr = document.getElementById('filter-slider-crv'), st = document.getElementById('filter-slider-stop');
+    var lCr = document.getElementById('label-min-crv'), lSt = document.getElementById('label-max-stop');
+    if (cr && lCr) lCr.textContent = crvLabel(Number(cr.value));
+    if (st && lSt) lSt.textContent = stopLabel(Number(st.value));
   }
 
   function updateHeaderFilterIndicator() {
@@ -1021,17 +1043,21 @@ window.App.Screener = (function () {
     var pe = Number(document.getElementById('filter-slider-pe').value);
     var yl = Number(document.getElementById('filter-slider-yield').value);
     var pf = Number(document.getElementById('filter-slider-perf').value);
+    var crEl = document.getElementById('filter-slider-crv'), stEl = document.getElementById('filter-slider-stop');
+    var cr = crEl ? Number(crEl.value) : 0, st = stEl ? Number(stEl.value) : 15;
     sliderFilters = {
       maxPe: pe >= 80 ? null : pe,
       minYield: yl,
-      minPerf: pf <= -50 ? null : pf
+      minPerf: pf <= -50 ? null : pf,
+      minCrv: cr <= 0 ? null : cr,
+      maxStop: st >= 15 ? null : st
     };
     updateHeaderFilterIndicator();
     applyFiltersAndRender();
   }
 
   function resetSliders() {
-    sliderFilters = { maxPe: null, minYield: 0, minPerf: null };
+    sliderFilters = normSliders(null);
     syncSliderInputs();
     updateHeaderFilterIndicator();
     applyFiltersAndRender();
@@ -1109,7 +1135,7 @@ window.App.Screener = (function () {
     });
 
     // Feinfilter-Sheet
-    ['filter-slider-pe', 'filter-slider-yield', 'filter-slider-perf'].forEach(function (id) {
+    ['filter-slider-pe', 'filter-slider-yield', 'filter-slider-perf', 'filter-slider-crv', 'filter-slider-stop'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.oninput = updateSliderLabels;
     });
@@ -1139,7 +1165,8 @@ window.App.Screener = (function () {
   function currentFilterSignature() {
     return JSON.stringify({
       p: activePresets.slice().sort(),
-      pe: sliderFilters.maxPe, y: sliderFilters.minYield, pf: sliderFilters.minPerf
+      pe: sliderFilters.maxPe, y: sliderFilters.minYield, pf: sliderFilters.minPerf,
+      cr: sliderFilters.minCrv, st: sliderFilters.maxStop
     });
   }
 
@@ -1149,7 +1176,9 @@ window.App.Screener = (function () {
       p: (f.presets || []).slice().sort(),
       pe: hasNum(sl.maxPe) ? sl.maxPe : null,
       y: hasNum(sl.minYield) ? sl.minYield : 0,
-      pf: hasNum(sl.minPerf) ? sl.minPerf : null
+      pf: hasNum(sl.minPerf) ? sl.minPerf : null,
+      cr: hasNum(sl.minCrv) ? sl.minCrv : null,
+      st: hasNum(sl.maxStop) ? sl.maxStop : null
     });
   }
 
@@ -1202,7 +1231,7 @@ window.App.Screener = (function () {
       id: 'f' + Date.now(),
       name: name.slice(0, 40),
       presets: activePresets.slice(),
-      sliders: { maxPe: sliderFilters.maxPe, minYield: sliderFilters.minYield, minPerf: sliderFilters.minPerf },
+      sliders: normSliders(sliderFilters),
       sort: currentSort
     });
     saveJson(SAVED_KEY, saved);
@@ -1213,12 +1242,7 @@ window.App.Screener = (function () {
     var f = loadSavedFilters().filter(function (x) { return x.id === id; })[0];
     if (!f) return;
     activePresets = (f.presets || []).filter(function (p) { return PRESET_FILTERS[p]; });
-    var sl = f.sliders || {};
-    sliderFilters = {
-      maxPe: hasNum(sl.maxPe) ? sl.maxPe : null,
-      minYield: hasNum(sl.minYield) ? sl.minYield : 0,
-      minPerf: hasNum(sl.minPerf) ? sl.minPerf : null
-    };
+    sliderFilters = normSliders(f.sliders);
     if (f.sort && SORT_OPTIONS.some(function (o) { return o.v === f.sort; })) currentSort = f.sort;
     autoSorted = false;
     var sortEl = document.getElementById('screener-sort-select');
@@ -1277,6 +1301,8 @@ window.App.Screener = (function () {
 
     var peVal = sliderFilters.maxPe === null ? 80 : sliderFilters.maxPe;
     var perfVal = sliderFilters.minPerf === null ? -50 : sliderFilters.minPerf;
+    var crvVal = sliderFilters.minCrv === null ? 0 : sliderFilters.minCrv;
+    var stopVal = sliderFilters.maxStop === null ? 15 : sliderFilters.maxStop;
 
     return '' +
       '<div class="view-container">' +
@@ -1339,6 +1365,14 @@ window.App.Screener = (function () {
         '<div class="filter-group">' +
           '<div class="filter-label"><span>Mindest-Performance 52W</span><span id="label-min-perf">' + perfLabel(perfVal) + '</span></div>' +
           '<input type="range" id="filter-slider-perf" class="range-slider" min="-50" max="100" step="10" value="' + perfVal + '">' +
+        '</div>' +
+        '<div class="filter-group">' +
+          '<div class="filter-label"><span>Mindest-CRV (Long, Risk/Reward)</span><span id="label-min-crv">' + crvLabel(crvVal) + '</span></div>' +
+          '<input type="range" id="filter-slider-crv" class="range-slider" min="0" max="5" step="0.5" value="' + crvVal + '">' +
+        '</div>' +
+        '<div class="filter-group">' +
+          '<div class="filter-label"><span>Maximaler Stop-Abstand (an der Unterstützung)</span><span id="label-max-stop">' + stopLabel(stopVal) + '</span></div>' +
+          '<input type="range" id="filter-slider-stop" class="range-slider" min="1" max="15" step="1" value="' + stopVal + '">' +
         '</div>' +
         '<div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 10px;">Wirkt zusätzlich zu den Chips. Aktien ohne den jeweiligen Wert werden dann ausgeblendet.</div>' +
         '<button id="sheet-apply-btn" class="btn-primary" style="margin-top: 4px;">Fertig</button>' +
