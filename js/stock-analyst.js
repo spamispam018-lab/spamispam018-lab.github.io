@@ -114,8 +114,10 @@ window.App.StockAnalyst = (function () {
             '<div class="legend-item"><span class="legend-dot" style="background:#6b7280;"></span><span>Schätzung</span></div>' +
             '<div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span><span>Beat</span></div>' +
             '<div class="legend-item"><span class="legend-dot" style="background:#ef4444;"></span><span>Miss</span></div>' +
-            '<div class="legend-item"><span class="legend-dot" style="background:#3b82f6;"></span><span>Forecast</span></div>' +
+            (analysts.epsForecast && analysts.epsForecast.estimate !== null && analysts.epsForecast.estimate !== undefined
+              ? '<div class="legend-item"><span class="legend-dot" style="background:#3b82f6;"></span><span>Forecast</span></div>' : '') +
           '</div>' +
+          '<div id="analyst-eps-forecast-note" style="font-size:0.72rem;color:var(--text-dim);line-height:1.45;margin-top:8px;"></div>' +
         '</div>' +
       '</div>' +
 
@@ -154,7 +156,7 @@ window.App.StockAnalyst = (function () {
     container.innerHTML = html;
 
     // Charts & Listen initialisieren
-    renderEpsChart(epsList, currency);
+    renderEpsChart(epsList, currency, analysts.epsForecast);
     renderRecommendationsDonut(recs);
     renderRecommendationsHistory(recs.history || []);
   }
@@ -174,26 +176,53 @@ window.App.StockAnalyst = (function () {
   /**
    * Zeichnet das EPS-Balkendiagramm mit Schätzung vs. Tatsächlich.
    */
-  function renderEpsChart(epsList, currency) {
+  function renderEpsChart(epsList, currency, forecast) {
     var canvas = document.getElementById('analyst-eps-canvas');
     if (!canvas || !epsList || epsList.length === 0) return;
 
-    var items = epsList.slice(-6);
+    var hasFc = !!(forecast && forecast.estimate !== null && forecast.estimate !== undefined);
+    var items = epsList.slice(hasFc ? -5 : -6);
     var labels = [];
     var estData = [];
     var actData = [];
+    var actColors = [];
 
     items.forEach(function (it) {
       labels.push(it.quarter ? it.quarter.slice(2, 7) : 'Q');
       estData.push(it.estimate !== null ? it.estimate : 0);
       actData.push(it.actual !== null ? it.actual : 0);
+      // Beat = Ergebnis mindestens so hoch wie die Schätzung, sonst Miss
+      var miss = it.actual !== null && it.estimate !== null && it.actual < it.estimate;
+      actColors.push(miss ? '#ef4444' : '#10b981');
     });
+
+    // Prognose fürs nächste Quartal: blauer Balken im Platz von "Tatsächlich", Schätzungs-Balken bleibt leer
+    if (hasFc) {
+      labels.push(forecast.date ? forecast.date.slice(2, 7) : 'Next');
+      estData.push(0);
+      actData.push(forecast.estimate);
+      actColors.push('#3b82f6');
+    }
+
+    var note = document.getElementById('analyst-eps-forecast-note');
+    if (note) {
+      if (hasFc) {
+        var F = window.App.Format;
+        var d = forecast.date ? forecast.date.slice(8, 10) + '.' + forecast.date.slice(5, 7) + '.' + forecast.date.slice(0, 4) : null;
+        note.innerHTML = 'Nächster Bericht' + (d ? ' (ca. ' + d + ')' : '') + ': Konsens-Prognose <b style="color:var(--text-main);">' + F.currency(forecast.estimate, currency, 2) + '</b>' +
+          (forecast.low !== null && forecast.low !== undefined && forecast.high !== null && forecast.high !== undefined
+            ? ' (Spanne ' + F.currency(forecast.low, currency, 2) + ' – ' + F.currency(forecast.high, currency, 2) + ')' : '') +
+          (forecast.analysts ? ', ' + forecast.analysts + ' Analysten' : '') + '.';
+      } else {
+        note.textContent = 'Keine Prognose für das nächste Quartal in den Daten.';
+      }
+    }
 
     window.App.Charts.renderGroupedBarChart(canvas, {
       labels: labels,
       series: [
         { name: 'Schätzung', data: estData, color: '#4b5563' },
-        { name: 'Tatsächlich', data: actData, color: '#10b981' }
+        { name: 'Tatsächlich', data: actData, color: '#10b981', colors: actColors }
       ],
       formatY: function (val) {
         return window.App.Format.currency(val, currency, 2);
