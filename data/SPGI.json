@@ -6743,5 +6743,93 @@
         "amount": 0.8639
       }
     ]
+  },
+  "institutional": {
+    "holders": [
+      {
+        "name": "Blackrock Inc.",
+        "shares": 23981586,
+        "value": 9991384093.3187,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Capital Management LLC",
+        "shares": 19302219,
+        "value": 8041831923.5012,
+        "changeShares": null
+      },
+      {
+        "name": "State Street Corporation",
+        "shares": 14482789,
+        "value": 6033925680.8743,
+        "changeShares": null
+      },
+      {
+        "name": "TCI Fund Management Ltd",
+        "shares": 14081957,
+        "value": 5866928115.5269,
+        "changeShares": null
+      },
+      {
+        "name": "Morgan Stanley",
+        "shares": 7309278,
+        "value": 3045244961.6744,
+        "changeShares": null
+      },
+      {
+        "name": "Geode Capital Management, LLC",
+        "shares": 6903684,
+        "value": 2876263416.5836,
+        "changeShares": null
+      },
+      {
+        "name": "Vanguard Portfolio Management LLC",
+        "shares": 6266316,
+        "value": 2610718490.4229,
+        "changeShares": null
+      },
+      {
+        "name": "Wellington Management Group, LLP",
+        "shares": 5327461,
+        "value": 2219565840.1012,
+        "changeShares": null
+      },
+      {
+        "name": "Eagle Capital Management LLC",
+        "shares": 4067628,
+        "value": 1694684983.7621,
+        "changeShares": null
+      },
+      {
+        "name": "NORGES BANK",
+        "shares": 3866831,
+        "value": 1611027466.3395,
+        "changeShares": null
+      }
+    ],
+    "summary": {
+      "institutionalPercent": 0.9282,
+      "institutionalCount": null
+    }
+  },
+  "options": {
+    "expirations": [
+      "2026-11-13",
+      "2026-11-20",
+      "2026-11-27",
+      "2026-12-04",
+      "2026-12-11",
+      "2026-12-18",
+      "2027-01-15",
+      "2027-02-19"
+    ],
+    "summary": {
+      "atmIV": 0.4614,
+      "putCallRatio": 1.933,
+      "openInterestCall": 194,
+      "openInterestPut": 375,
+      "ivRank": null,
+      "impliedMove": null
+    }
   }
 }
