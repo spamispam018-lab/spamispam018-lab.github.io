@@ -7,6 +7,8 @@
  *
  * Alle Werte stammen aus den Abschlüssen der letzten vier Quartale (TTM) bzw. dem letzten Geschäftsjahr.
  * Reine Modellrechnung – keine Anlageberatung.
+ * 
+ * *NEU:* Bei ETFs werden die Fair Values aus den Einzelbewertungen der Top 5 Holdings gewichtet aggregiert!
  */
 
 window.App = window.App || {};
@@ -15,12 +17,12 @@ window.App.StockFairValue = (function () {
   'use strict';
 
   var GRAHAM_FACTOR = 22.5;
-  var PEER_MIN = 5;          // Mindestanzahl Vergleichsaktien für einen Branchen-Median
+  var PEER_MIN = 5;          
   var DCF_YEARS = 5;
 
-  // Vom Nutzer einstellbare DCF-Annahmen (Wachstum wird je Aktie vorbelegt)
   var dcfInputs = { growth: null, discount: 9, terminal: 2.5, ticker: null };
   var styleInjected = false;
+  var nameToTickerMap = {};
 
   function injectStyles() {
     if (styleInjected) return;
@@ -51,9 +53,17 @@ window.App.StockFairValue = (function () {
     document.head.appendChild(el);
   }
 
-  // ---------------------------------------------------------------------------
-  // Helfer
-  // ---------------------------------------------------------------------------
+  function buildNameLookup(universe) {
+    nameToTickerMap = {};
+    (universe || []).forEach(function(u) {
+      nameToTickerMap[u.ticker.toLowerCase()] = u.ticker;
+      if (u.name) {
+        var cleanName = u.name.toLowerCase().replace(/inc\.|inc|corp\.|corp|ltd\.|ltd|plc|ag|se|co\./g, '').trim();
+        nameToTickerMap[cleanName] = u.ticker;
+      }
+    });
+  }
+
   function esc(s) {
     return String(s === null || s === undefined ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -68,7 +78,6 @@ window.App.StockFairValue = (function () {
       .sort(function (a, b) { return a.date < b.date ? -1 : 1; });
   }
 
-  /** Summe der letzten vier Quartalswerte; null, wenn nicht alle vier vorhanden sind. */
   function ttm(rows, field) {
     var last4 = sorted(rows).slice(-4);
     if (last4.length < 4) return null;
@@ -106,9 +115,6 @@ window.App.StockFairValue = (function () {
     return (n > 0 ? '+' : '') + window.App.Format.number(n, d === undefined ? 1 : d) + ' %';
   }
 
-  // ---------------------------------------------------------------------------
-  // Kennzahlen aus den Abschlüssen
-  // ---------------------------------------------------------------------------
   function extractBase(stock) {
     var q = stock.quote || {};
     var price = num(q.price);
@@ -137,7 +143,6 @@ window.App.StockFairValue = (function () {
     if (cash === null) cash = lastValue(bs.annual, 'Cash_And_Cash_Equivalents');
     var netDebt = (debt !== null) ? debt - (cash || 0) : (lastValue(bs.quarterly, 'Net_Debt'));
 
-    // Umsatzwachstum als Startwert für die DCF-Wachstumsannahme
     var revG = num((stock.ratios || {}).revenueGrowth);
 
     return {
@@ -152,9 +157,6 @@ window.App.StockFairValue = (function () {
     };
   }
 
-  // ---------------------------------------------------------------------------
-  // Methoden
-  // ---------------------------------------------------------------------------
   function grahamValue(b) {
     if (b.eps === null || b.bvps === null) {
       return { ok: false, reason: 'Gewinn oder Buchwert je Aktie nicht verfügbar.' };
@@ -237,16 +239,13 @@ window.App.StockFairValue = (function () {
     return Math.round(g);
   }
 
-  // ---------------------------------------------------------------------------
-  // Gemini-Prompt für die DCF-Annahmen
-  // ---------------------------------------------------------------------------
   function yearlyLine(rows, field, scaleFn) {
     return sorted(rows).filter(function (r) { return num(r[field]) !== null; }).slice(-5).map(function (r) {
       return r.date.slice(0, 4) + ': ' + scaleFn(Number(r[field]));
     }).join(', ');
   }
 
-  function buildGeminiPrompt(b, stock, cur, universe, results) {
+  function buildGeminiPrompt(b, stock, cur, universe, results, etfHoldingsData) {
     var F = window.App.Format;
     var p = stock.profile || {};
     var r = stock.ratios || {};
@@ -255,63 +254,58 @@ window.App.StockFairValue = (function () {
     var money = function (v) { return F.compactNumber(v); };
 
     var lines = [];
-    lines.push('Hallo Gemini! Ich bewerte die Aktie ' + (p.name || stock.ticker) + ' (' + stock.ticker + ') mit einem vereinfachten DCF-Modell ' +
-      '(freier Cashflow der letzten 12 Monate, 5 Jahre Wachstum, ewiges Wachstum für den Restwert, Abzug der Nettoschulden). ' +
-      'Bitte prüfe zuerst meine Daten auf Plausibilität und berücksichtige zusätzlich aktuelle Informationen zum Unternehmen ' +
-      '(letzte Quartalszahlen, Investitionspläne, Analystenerwartungen, Branchenumfeld).');
+    lines.push('Hallo Gemini! Ich bewerte ' + (p.name || stock.ticker) + ' (' + stock.ticker + ') mit einem vereinfachten DCF-Modell ' +
+      '(freier Cashflow, 5 Jahre Wachstum, Restwert). ' +
+      'Bitte prüfe meine Daten und berücksichtige das aktuelle Marktumfeld.');
     lines.push('');
-    lines.push('Welche Werte passen für diese Aktie am besten? Ich brauche:');
+
+    if (etfHoldingsData && etfHoldingsData.length > 0) {
+      lines.push('WICHTIG: Das ist ein ETF. Die DCF- und Fair-Value-Werte wurden anteilig aus den Fundamentaldaten der größten enthaltenen Aktien (Top Holdings) berechnet.');
+      lines.push('Welche durchschnittlichen Wachstumsraten und Diskontsätze sind für die Top-Positionen dieses ETFs angemessen?');
+    } else {
+      lines.push('Welche Werte passen für diese Aktie am besten? Ich brauche:');
+    }
+
     lines.push('1. Wachstum der freien Cashflows p. a. über 5 Jahre (mein Regler: 0–20 %)');
     lines.push('2. Diskontsatz bzw. geforderte Rendite (Regler: 6–14 %)');
     lines.push('3. Ewiges Wachstum für den Restwert (Regler: 0–4 %)');
-    lines.push('Nenne jeweils ein pessimistisches, ein Basis- und ein optimistisches Szenario mit kurzer Begründung. ' +
-      'Falls der aktuelle freie Cashflow durch Sonderfaktoren (z. B. hohe Investitionen) nicht repräsentativ ist, sage das und nenne einen normalisierten Wert. ' +
-      'Schließe mit einer einzigen Zeile im Format: "Basis: Wachstum X % | Diskontsatz Y % | Ewiges Wachstum Z %".');
+    lines.push('Nenne ein pessimistisches, ein Basis- und ein optimistisches Szenario mit kurzer Begründung. ' +
+      'Schließe mit einer Zeile: "Basis: Wachstum X % | Diskontsatz Y % | Ewiges Wachstum Z %".');
     lines.push('');
-    lines.push('Meine Daten (Beträge in ' + cur + ', umgerechnet):');
-    lines.push('- Sektor/Branche: ' + (p.sector || 'N/A') + ' / ' + (p.industry || 'N/A'));
-    if (b.price) lines.push('- Kurs: ' + F.currency(b.price, cur) + (b.mcap ? ', Marktkapitalisierung ' + money(b.mcap) : ''));
-    if (b.fcf !== null) lines.push('- Freier Cashflow (' + b.fcfSource + '): ' + money(b.fcf));
-    var fcfHist = yearlyLine((fin.cashFlow || {}).annual, 'Free_Cash_Flow', money);
-    if (fcfHist) lines.push('- Freier Cashflow je Geschäftsjahr: ' + fcfHist);
-    var revHist = yearlyLine((fin.incomeStatement || {}).annual, 'Total_Revenue', money);
-    if (revHist) lines.push('- Umsatz je Geschäftsjahr: ' + revHist);
-    var niHist = yearlyLine((fin.incomeStatement || {}).annual, 'Net_Income', money);
-    if (niHist) lines.push('- Nettoergebnis je Geschäftsjahr: ' + niHist);
-    if (b.netDebt !== null) lines.push('- Nettoschulden: ' + money(b.netDebt) + (b.netDebt < 0 ? ' (Netto-Cash)' : ''));
-    if (b.eps !== null) lines.push('- Gewinn je Aktie (' + b.niSource + '): ' + F.number(b.eps, 2));
-    if (num(r.peTrailing) !== null) lines.push('- KGV: ' + F.number(r.peTrailing, 1) + (num(r.peForward) !== null ? ', Forward-KGV: ' + F.number(r.peForward, 1) : '') +
-      (num(r.pegRatio) !== null ? ', PEG: ' + F.number(r.pegRatio, 2) : ''));
-    if (num(r.revenueGrowth) !== null) lines.push('- Umsatzwachstum (YoY, letztes Quartal): ' + F.number(r.revenueGrowth * 100, 1) + ' %');
-    if (num(r.profitMargins) !== null) lines.push('- Nettomarge: ' + F.number(r.profitMargins * 100, 1) + ' %');
-    if (num(r.debtToEquity) !== null) lines.push('- Debt/Equity: ' + F.number(r.debtToEquity, 0));
-    if (num(an.mean) !== null) lines.push('- Analysten-Kursziel (Ø): ' + F.currency(an.mean, an.currency || cur) +
-      (num(an.low) !== null && num(an.high) !== null ? ' (Spanne ' + F.currency(an.low, an.currency || cur) + ' bis ' + F.currency(an.high, an.currency || cur) + ')' : '') +
-      (num(an.analystCount) !== null ? ', ' + an.analystCount + ' Analysten' : ''));
+
+    if (!etfHoldingsData) {
+      lines.push('Meine Daten (Beträge in ' + cur + '):');
+      lines.push('- Sektor: ' + (p.sector || 'N/A'));
+      if (b.price) lines.push('- Kurs: ' + F.currency(b.price, cur));
+      if (b.fcf !== null) lines.push('- Freier Cashflow (' + b.fcfSource + '): ' + money(b.fcf));
+      var fcfHist = yearlyLine((fin.cashFlow || {}).annual, 'Free_Cash_Flow', money);
+      if (fcfHist) lines.push('- Freier Cashflow historisch: ' + fcfHist);
+    }
+
     lines.push('');
-    lines.push('Meine aktuellen Annahmen: Wachstum ' + F.number(dcfInputs.growth, 0) + ' %, Diskontsatz ' + F.number(dcfInputs.discount, 1) +
+    lines.push('Meine aktuellen Annahmen (im Tool eingetragen): Wachstum ' + F.number(dcfInputs.growth, 0) + ' %, Diskontsatz ' + F.number(dcfInputs.discount, 1) +
       ' %, ewiges Wachstum ' + F.number(dcfInputs.terminal, 1) + ' %.');
     var out = [];
     if (results.dcf && results.dcf.ok) out.push('DCF ' + F.currency(results.dcf.value, cur));
     if (results.graham && results.graham.ok) out.push('Graham-Zahl ' + F.currency(results.graham.value, cur));
     if (results.peer && results.peer.ok) out.push('KGV-Vergleich ' + F.currency(results.peer.value, cur));
     if (out.length) lines.push('Daraus ergibt sich: ' + out.join(', ') + '.');
-    lines.push('Bitte weise mich darauf hin, falls meine Datengrundlage problematisch ist. Das ist eine Modellrechnung, keine Anlageberatung.');
+    
     return lines.join('\n');
   }
 
   function openGemini(promptText, ticker) {
     var safe = promptText, needsPaste = false;
     if (promptText.length > 2000) {
-      safe = 'Hallo Gemini! Ich möchte die DCF-Annahmen für die Aktie ' + ticker + ' mit dir klären. ' +
-        'Ich füge dir die Daten und meine Fragen gleich in meiner nächsten Nachricht ein. Bitte antworte zunächst nur mit \'Bereit\'.';
+      safe = 'Hallo Gemini! Ich möchte die DCF-Annahmen für ' + ticker + ' mit dir klären. ' +
+        'Ich füge dir die Daten gleich in meiner nächsten Nachricht ein. Bitte antworte zunächst nur mit \'Bereit\'.';
       needsPaste = true;
     }
     var url = 'https://gemini.google.com/app?q=' + encodeURIComponent(safe);
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(promptText).then(function () {
         if (needsPaste) {
-          window.alert('Hinweis: Der ausführliche Text wurde in deine Zwischenablage kopiert. Füge ihn bei Gemini über "Einfügen" in das Chat-Feld ein.');
+          window.alert('Hinweis: Der Text wurde in die Zwischenablage kopiert. Füge ihn bei Gemini über "Einfügen" in das Chat-Feld ein.');
         }
         window.open(url, '_blank');
       }).catch(function () { window.open(url, '_blank'); });
@@ -320,9 +314,6 @@ window.App.StockFairValue = (function () {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Rendering
-  // ---------------------------------------------------------------------------
   function render(container, stock) {
     if (!container || !stock) return;
     injectStyles();
@@ -330,24 +321,63 @@ window.App.StockFairValue = (function () {
 
     window.App.Data.getUniverse().then(function (universe) {
       if (!document.body.contains(container)) return;
-      draw(container, stock, universe || []);
+
+      var isEtf = (stock.sector === 'Sonstige' || stock.sector === 'ETF' || !stock.sector);
+      var holdings = stock.holdings || [];
+
+      if (isEtf && holdings.length > 0) {
+        buildNameLookup(universe);
+        var top5 = holdings.slice(0, 5);
+        
+        var promises = top5.map(function(h) {
+          var cleanName = h.name.toLowerCase().replace(/inc\.|inc|corp\.|corp|ltd\.|ltd|plc|ag|se|co\./g, '').trim();
+          var targetTicker = nameToTickerMap[cleanName] || nameToTickerMap[h.name.toLowerCase()] || null;
+          if (!targetTicker) {
+            var possible = universe.find(function(u) { return u.ticker.indexOf(h.name) === 0; });
+            if (possible) targetTicker = possible.ticker;
+          }
+          if (targetTicker) {
+            return window.App.Data.getStock(targetTicker).then(function(res) {
+                return { data: res, weight: h.weight || 0 };
+            }).catch(function() { return null; });
+          }
+          return Promise.resolve(null);
+        });
+
+        Promise.all(promises).then(function(results) {
+           var validHoldings = results.filter(function(r) { return r && r.data; });
+           draw(container, stock, universe, validHoldings);
+        });
+      } else {
+         draw(container, stock, universe, null);
+      }
     });
   }
 
-  function draw(container, stock, universe) {
+  function draw(container, stock, universe, etfHoldingsData) {
     var ticker = (stock.ticker || '').toUpperCase();
     var cur = (stock.quote || {}).currency || (stock.profile || {}).currency || 'EUR';
     var b = extractBase(stock);
 
     if (dcfInputs.ticker !== ticker || dcfInputs.growth === null) {
       dcfInputs.ticker = ticker;
-      dcfInputs.growth = defaultGrowth(b);
+      if (etfHoldingsData && etfHoldingsData.length > 0) {
+         var revGWeight = 0, revGSum = 0;
+         etfHoldingsData.forEach(function(h) {
+            var hb = extractBase(h.data);
+            if (hb.revGrowth !== null) {
+               revGSum += hb.revGrowth * h.weight;
+               revGWeight += h.weight;
+            }
+         });
+         var avgRevG = revGWeight > 0 ? (revGSum / revGWeight) : 0.05;
+         dcfInputs.growth = Math.round(Math.max(2, Math.min(15, avgRevG * 100)));
+      } else {
+         dcfInputs.growth = defaultGrowth(b);
+      }
       dcfInputs.discount = 9;
       dcfInputs.terminal = 2.5;
     }
-
-    var peer = peerValue(b, stock, universe);
-    var graham = grahamValue(b);
 
     var html = '' +
       '<div id="fv-results"></div>' +
@@ -372,12 +402,55 @@ window.App.StockFairValue = (function () {
       '</div>';
     container.innerHTML = html;
 
-    var lastResults = { graham: graham, peer: peer, dcf: null };
+    var lastResults = { graham: null, peer: null, dcf: null };
 
     function update() {
-      var dcf = dcfValue(b, stock, dcfInputs);
+      var etfPrice = (stock.quote || {}).price || 0;
+      var graham, peer, dcf;
+
+      // Aggregiere über Holdings, falls ETF
+      if (etfHoldingsData && etfHoldingsData.length > 0) {
+         var gWeight = 0, gUpside = 0;
+         var pWeight = 0, pUpside = 0;
+         var dWeight = 0, dUpside = 0;
+
+         etfHoldingsData.forEach(function(h) {
+            var hb = extractBase(h.data);
+            if (!hb.price) return;
+
+            var hg = grahamValue(hb);
+            if (hg.ok) {
+                gUpside += ((hg.value - hb.price) / hb.price) * h.weight;
+                gWeight += h.weight;
+            }
+            var hp = peerValue(hb, h.data, universe);
+            if (hp.ok) {
+                pUpside += ((hp.value - hb.price) / hb.price) * h.weight;
+                pWeight += h.weight;
+            }
+            var hd = dcfValue(hb, h.data, dcfInputs);
+            if (hd.ok) {
+                dUpside += ((hd.value - hb.price) / hb.price) * h.weight;
+                dWeight += h.weight;
+            }
+         });
+
+         graham = (gWeight > 0 && etfPrice > 0) ? { ok: true, value: etfPrice * (1 + (gUpside / gWeight)), note: 'Gewichteter Durchschnitt der Graham-Bewertungen der Top-Holdings.' } : { ok: false, reason: 'Gewinne oder Buchwerte der Holdings nicht berechenbar.' };
+         peer = (pWeight > 0 && etfPrice > 0) ? { ok: true, value: etfPrice * (1 + (pUpside / pWeight)), note: 'Gewichteter Durchschnitt der KGV-Bewertungen der Top-Holdings.' } : { ok: false, reason: 'Nicht genügend Branchen-Peers für die Holdings gefunden.' };
+         dcf = (dWeight > 0 && etfPrice > 0) ? { ok: true, value: etfPrice * (1 + (dUpside / dWeight)), note: 'Gewichteter Durchschnitt der DCF-Werte der Top-Holdings (Annahmen gelten übergreifend).' } : { ok: false, reason: 'Freie Cashflows der Holdings negativ oder nicht berechenbar.' };
+
+      } else {
+         graham = grahamValue(b);
+         peer = peerValue(b, stock, universe);
+         dcf = dcfValue(b, stock, dcfInputs);
+      }
+
+      lastResults.graham = graham;
+      lastResults.peer = peer;
       lastResults.dcf = dcf;
-      drawResults(container.querySelector('#fv-results'), b, cur, graham, peer, dcf);
+
+      drawResults(container.querySelector('#fv-results'), b, cur, graham, peer, dcf, etfHoldingsData, etfPrice);
+      
       container.querySelector('#fv-g-label').textContent = window.App.Format.number(dcfInputs.growth, 0) + ' %';
       container.querySelector('#fv-r-label').textContent = window.App.Format.number(dcfInputs.discount, 1) + ' %';
       container.querySelector('#fv-t-label').textContent = window.App.Format.number(dcfInputs.terminal, 1) + ' %';
@@ -389,22 +462,24 @@ window.App.StockFairValue = (function () {
     r.oninput = function () { dcfInputs.discount = Number(r.value); update(); };
     t.oninput = function () { dcfInputs.terminal = Number(t.value); update(); };
     container.querySelector('#fv-reset').onclick = function () {
-      dcfInputs.growth = defaultGrowth(b); dcfInputs.discount = 9; dcfInputs.terminal = 2.5;
+      dcfInputs.growth = etfHoldingsData ? dcfInputs.growth : defaultGrowth(b); 
+      dcfInputs.discount = 9; 
+      dcfInputs.terminal = 2.5;
       g.value = dcfInputs.growth; r.value = dcfInputs.discount; t.value = dcfInputs.terminal;
       update();
     };
     var gemBtn = container.querySelector('#fv-gemini');
     if (gemBtn) {
       gemBtn.onclick = function () {
-        openGemini(buildGeminiPrompt(b, stock, cur, universe, lastResults), ticker);
+        openGemini(buildGeminiPrompt(b, stock, cur, universe, lastResults, etfHoldingsData), ticker);
       };
     }
     update();
   }
 
-  function drawResults(el, b, cur, graham, peer, dcf) {
+  function drawResults(el, b, cur, graham, peer, dcf, etfHoldingsData, etfPrice) {
     if (!el) return;
-    var price = b.price;
+    var price = etfHoldingsData ? etfPrice : b.price;
     var methods = [
       { name: 'Graham-Zahl', res: graham },
       { name: 'KGV-Vergleich (Peers)', res: peer },
@@ -414,7 +489,10 @@ window.App.StockFairValue = (function () {
 
     var html = '';
 
-    // Zusammenfassung
+    if (etfHoldingsData && etfHoldingsData.length > 0) {
+       html += '<div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:12px; padding:8px 12px; background:var(--bg-tertiary); border-radius:var(--radius-sm); border:1px solid var(--border-subtle);"><b>Hinweis (ETF):</b> Da ein ETF keine eigene Gewinn-/Cashflow-Bilanz aufweist, wurde die Fair-Value-Spanne aus den anteiligen Einzelbewertungen der 5 größten enthaltenen Aktien (Top Holdings) gewichtet abgeleitet.</div>';
+    }
+
     html += '<div class="card"><div class="card-header-dotted"><span class="card-title">Fair-Value-Spanne</span>' +
       '<span class="sector-label">' + values.length + ' von 3 Methoden</span></div>';
 
@@ -423,7 +501,7 @@ window.App.StockFairValue = (function () {
     } else {
       var lo = Math.min.apply(null, values), hi = Math.max.apply(null, values);
       var avg = values.reduce(function (a, v) { return a + v; }, 0) / values.length;
-      var diff = (avg / price - 1) * 100;       // Potenzial bis zum Ø Fair Value
+      var diff = (avg / price - 1) * 100;
       var below = diff >= 0;
 
       html += '<div class="fv-summary">' +
@@ -431,7 +509,6 @@ window.App.StockFairValue = (function () {
         '<div class="fv-cell"><div class="fv-label">Ø Fair Value</div><div class="fv-value">' + fmtMoney(avg, cur) + '</div></div>' +
         '</div>';
 
-      // Skala: Kurs und Spanne gemeinsam darstellen
       var min = Math.min(lo, price) * 0.85, max = Math.max(hi, price) * 1.15;
       function pos(v) { return Math.max(0, Math.min(100, (v - min) / (max - min) * 100)); }
       html += '<div class="fv-range">' +
@@ -450,7 +527,6 @@ window.App.StockFairValue = (function () {
         (price >= lo && price <= hi ? ' Er liegt innerhalb der Spanne der Methoden.' : '') + '</div></div>';
     }
 
-    // Einzelne Methoden
     html += '<div class="card"><div class="card-header-dotted"><span class="card-title">Methoden im Detail</span></div>';
     methods.forEach(function (m) {
       html += '<div class="fv-method"><div class="fv-method-top"><span class="fv-method-name">' + esc(m.name) + '</span>';
@@ -467,9 +543,10 @@ window.App.StockFairValue = (function () {
     });
     html += '</div>';
 
-    // Datenbasis
-    html += '<div class="fv-note" style="padding:0 4px 12px;">Datenbasis: Gewinn ' + esc(b.niSource) + ', Cashflow ' + esc(b.fcfSource) +
-      ', Bilanz letztes Quartal. Beträge in ' + esc(cur) + '.</div>';
+    if (!etfHoldingsData) {
+      html += '<div class="fv-note" style="padding:0 4px 12px;">Datenbasis: Gewinn ' + esc(b.niSource) + ', Cashflow ' + esc(b.fcfSource) +
+        ', Bilanz letztes Quartal. Beträge in ' + esc(cur) + '.</div>';
+    }
 
     el.innerHTML = html;
   }
