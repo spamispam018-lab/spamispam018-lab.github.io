@@ -1,11 +1,51 @@
 /**
  * js/portfolio.js
  * Portfolio-Tracker mit Transaktions-Log (FIFO) und Equity-Curve.
+ * NEU: Trailing Stop-Loss pro Position.
+ * Die App merkt sich den Höchststand (Peak) jeder Aktie. Der Stop-Loss
+ * wird immer vom Höchststand berechnet und zieht bei steigenden Kursen
+ * automatisch nach oben mit, fällt aber niemals wieder nach unten.
  */
 window.App = window.App || {};
 
 window.App.Portfolio = (function () {
   'use strict';
+
+  var STOPS_KEY = 'app_portfolio_stops_v1';
+  var PEAKS_KEY = 'app_portfolio_peaks_v1';
+
+  // --- Stop-Prozente verwalten ---
+  function getStops() {
+    try { return JSON.parse(localStorage.getItem(STOPS_KEY) || '{}'); } catch (e) { return {}; }
+  }
+  function getStopPct(ticker) {
+    var stops = getStops();
+    return stops[ticker] !== undefined ? stops[ticker] : 10;
+  }
+  function setStopPct(ticker, pct) {
+    var stops = getStops();
+    stops[ticker] = pct;
+    try { localStorage.setItem(STOPS_KEY, JSON.stringify(stops)); } catch (e) {}
+  }
+
+  // --- Peak (Höchststand) verwalten ---
+  function getPeaks() {
+    try { return JSON.parse(localStorage.getItem(PEAKS_KEY) || '{}'); } catch (e) { return {}; }
+  }
+  function getPeak(ticker) {
+    var peaks = getPeaks();
+    return peaks[ticker] || null;
+  }
+  function setPeak(ticker, price) {
+    var peaks = getPeaks();
+    peaks[ticker] = price;
+    try { localStorage.setItem(PEAKS_KEY, JSON.stringify(peaks)); } catch (e) {}
+  }
+  function removePeak(ticker) {
+    var peaks = getPeaks();
+    delete peaks[ticker];
+    try { localStorage.setItem(PEAKS_KEY, JSON.stringify(peaks)); } catch (e) {}
+  }
 
   function esc(s) {
     return String(s === null || s === undefined ? '' : s)
@@ -44,7 +84,6 @@ window.App.Portfolio = (function () {
               map[t] = { ticker: t, name: t, price: null };
             });
         })).then(function () {
-          // chartHistory für Equity-Curve laden
           return Promise.all(holdingTickers.map(function (t) {
             return window.App.Data.getStock(t).then(function (st) { return { ticker: t, stock: st }; }).catch(function () { return { ticker: t, stock: null }; });
           })).then(function (stocksData) { render(container, positions, map, universe, stocksData); });
@@ -64,13 +103,38 @@ window.App.Portfolio = (function () {
       var p = positions[t];
       var u = map[t] || { price: null, name: t };
       var px = u.price;
+      
+      // TRAILING LOGIK: Peak aktualisieren, wenn aktueller Kurs höher ist
+      var peak = getPeak(t);
+      if (px && (!peak || px > peak)) {
+        peak = px;
+        setPeak(t, peak);
+      }
+
       var v = (px !== null && px !== undefined) ? px * p.shares : null;
       var inv = p.buyPrice * p.shares;
       var pl = (v !== null) ? v - inv : null;
       var plPct = (v !== null && inv) ? (pl / inv) * 100 : null;
       if (v !== null) { invested += inv; value += v; }
-      return { p: p, u: u, v: v, inv: inv, pl: pl, plPct: plPct };
+      return { p: p, u: u, v: v, inv: inv, pl: pl, plPct: plPct, peak: peak };
     });
+
+    var totalValue = value;
+    var totalRiskEur = 0;
+    
+    // Gesamtrisiko berechnen (Summe der Risiken aller Positionen ab heutigem Kurs)
+    rows.forEach(function(r) {
+      if (r.u.price && r.p.shares > 0 && r.peak) {
+        var pct = getStopPct(r.p.ticker);
+        var stopPrice = r.peak * (1 - pct / 100);
+        // Wenn der Stop unter dem aktuellen Kurs liegt, ist das Risiko aktuell real
+        var effectiveRiskPrice = Math.max(stopPrice, 0);
+        if (r.u.price > effectiveRiskPrice) {
+           totalRiskEur += (r.u.price - effectiveRiskPrice) * r.p.shares;
+        }
+      }
+    });
+    var totalRiskPct = totalValue > 0 ? (totalRiskEur / totalValue) * 100 : 0;
 
     var html = '<div class="view-container">';
     html += '<div style="margin-bottom: 16px;"><h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 4px;">Mein Portfolio</h2>';
@@ -81,6 +145,23 @@ window.App.Portfolio = (function () {
     if (rows.length) {
       var totalPl = value - invested;
       var totalPlPct = invested ? (totalPl / invested) * 100 : null;
+      
+      // Risikomanagement-Karte (Aggregiert)
+      html += '<div class="card" style="padding: 14px 16px; margin-bottom: 14px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.02) 100%); border-color: rgba(239, 68, 68, 0.3);">' +
+        '<div class="card-header-dotted" style="border-bottom-color: rgba(239, 68, 68, 0.2); margin-bottom: 10px;">' +
+          '<span class="card-title" style="color: var(--bearish);">Gesamtrisiko (Trailing)</span>' +
+        '</div>' +
+        '<div style="display: flex; justify-content: space-between; align-items: flex-end;">' +
+          '<div>' +
+            '<div style="font-size: 0.72rem; color: var(--text-dim);">Noch möglicher Verlust</div>' +
+            '<div id="pf-total-risk-eur" style="font-weight: 800; font-size: 1.3rem; color: var(--bearish);">' + F.currency(totalRiskEur) + '</div>' +
+          '</div>' +
+          '<div id="pf-total-risk-pct" style="font-weight: 700; font-size: 0.9rem; color: var(--bearish);">' + F.number(totalRiskPct, 1) + ' %</div>' +
+        '</div>' +
+        '<div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 8px; line-height: 1.4;">' +
+          'Der Stop-Loss zieht automatisch mit, wenn eine Aktie einen neuen Höchststand erreicht. Fällt der Kurs, bleibt der Stop auf dem Peak stehen.</div>' +
+      '</div>';
+
       html += '<div class="card" style="padding: 14px 16px; margin-bottom: 14px;">' +
         '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">' +
           '<div><div style="font-size: 0.7rem; color: var(--text-dim);">Investiert</div><div style="font-weight: 800;">' + F.currency(invested) + '</div></div>' +
@@ -129,7 +210,16 @@ window.App.Portfolio = (function () {
     } else {
       rows.forEach(function (r) {
         var weight = (r.v !== null && value) ? (r.v / value) * 100 : null;
-        html += '<div class="card" style="padding: 12px 14px; margin-bottom: 10px;" data-pf-ticker="' + esc(r.p.ticker) + '">' +
+        var stopPct = getStopPct(r.p.ticker);
+        
+        // Trailing Stop Berechnung
+        var stopPrice = r.peak ? r.peak * (1 - stopPct / 100) : null;
+        var posRisk = (r.u.price && stopPrice && r.u.price > stopPrice) ? (r.u.price - stopPrice) * r.p.shares : 0;
+        
+        // Ist der Stop bereits gerissen? (Aktueller Kurs unter Stop)
+        var isStopBreached = r.u.price && stopPrice && r.u.price <= stopPrice;
+
+        html += '<div class="card" style="padding: 12px 14px; margin-bottom: 10px; ' + (isStopBreached ? 'border-color: var(--bearish);' : '') + '" data-pf-ticker="' + esc(r.p.ticker) + '">' +
           '<div style="display: flex; justify-content: space-between; align-items: flex-start;">' +
             '<div style="cursor: pointer;" class="pf-goto-detail"><div style="font-weight: 700;">' + esc(r.u.name || r.p.ticker) + '</div>' +
               '<div style="font-size: 0.72rem; color: var(--text-dim);">' + esc(r.p.ticker) + ' · ' + F.number(r.p.shares, 4) + ' Stk. à ' + F.currency(r.p.buyPrice) + '</div>' +
@@ -142,7 +232,31 @@ window.App.Portfolio = (function () {
           '<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">' +
             '<div style="flex: 1; margin-right: 10px;"><div style="height: 5px; background: var(--border-subtle); border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: ' + (weight || 0).toFixed(1) + '%; background: var(--accent-purple-light, #818cf8);"></div></div></div>' +
             '<div style="font-size: 0.72rem; color: var(--text-dim); white-space: nowrap;">' +
-              (weight !== null ? F.number(weight, 1) + ' %' : '—') + ' · Kurs ' + F.currency(r.u.price) + ' · P/L ' + (r.plPct === null ? '—' : F.percent(r.plPct, true, 2)) +
+              (weight !== null ? F.number(weight, 1) + ' %' : '—') + ' · Kurs ' + F.currency(r.u.price) +
+            '</div>' +
+          '</div>' +
+          
+          // Stop-Loss-Bereich mit Peak-Anzeige
+          '<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle);">' +
+            '<div style="display: flex; flex-direction: column; gap: 4px;">' +
+              '<div style="display: flex; align-items: center; gap: 6px;">' +
+                '<span style="font-size: 0.72rem; color: var(--text-dim);">Stop:</span>' +
+                '<div style="display: flex; align-items: center; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 2px 6px;">' +
+                  '<input type="number" class="pf-stop-input" data-ticker="' + esc(r.p.ticker) + '" value="' + stopPct + '" min="1" max="99" style="width: 35px; background: transparent; border: none; color: var(--text-main); font-size: 0.75rem; text-align: right; outline: none;">' +
+                  '<span style="font-size: 0.7rem; color: var(--text-muted); margin-left: 2px;">%</span>' +
+                '</div>' +
+              '</div>' +
+              (r.peak && r.peak > r.u.price ? '<div style="font-size: 0.65rem; color: var(--text-dim);" title="Höchststand seit Kauf">Peak: ' + F.currency(r.peak) + '</div>' : '') +
+            '</div>' +
+            
+            '<div style="text-align: right;">' +
+              '<div id="pf-stop-price-' + esc(r.p.ticker) + '" style="font-size: 0.9rem; font-weight: 800; color: ' + (isStopBreached ? 'var(--bullish)' : 'var(--bearish)') + ';">' +
+                (stopPrice ? F.currency(stopPrice) : '—') + 
+              '</div>' +
+              (isStopBreached 
+                ? '<div style="font-size: 0.65rem; color: var(--bearish); font-weight: 700;">STOP GERISSEN</div>'
+                : '<div id="pf-stop-risk-' + esc(r.p.ticker) + '" style="font-size: 0.65rem; color: var(--text-dim);">Risiko: ' + F.currency(posRisk) + '</div>'
+              ) +
             '</div>' +
           '</div>' +
         '</div>';
@@ -203,6 +317,8 @@ window.App.Portfolio = (function () {
           { label: 'Stück', get: function (r) { return r.p.shares; } },
           { label: 'Ø Kaufkurs', get: function (r) { return r.p.buyPrice; } },
           { label: 'Kurs aktuell', get: function (r) { return r.u.price; } },
+          { label: 'Peak', get: function (r) { return r.peak; } },
+          { label: 'Stop-Loss %', get: function (r) { return getStopPct(r.p.ticker); } },
           { label: 'Investiert', get: function (r) { return r.inv; } },
           { label: 'Wert', get: function (r) { return r.v; } },
           { label: 'P/L', get: function (r) { return r.pl; } },
@@ -218,11 +334,61 @@ window.App.Portfolio = (function () {
       };
     });
 
-    // Equity-Curve zeichnen
+    // Event-Listener für die Stop-Loss-Inputs
+    container.querySelectorAll('.pf-stop-input').forEach(function(input) {
+      input.onchange = function() {
+        var ticker = input.getAttribute('data-ticker');
+        var newPct = parseFloat(input.value);
+        
+        if (isNaN(newPct) || newPct <= 0 || newPct >= 100) {
+          input.value = getStopPct(ticker); // Reset bei ungültiger Eingabe
+          return;
+        }
+        
+        setStopPct(ticker, newPct);
+        
+        // 1. Spezifische Position updaten
+        var r = rows.find(function(x) { return x.p.ticker === ticker; });
+        if (r && r.peak) {
+          var newStopPrice = r.peak * (1 - newPct / 100);
+          var risk = (r.u.price && r.u.price > newStopPrice) ? (r.u.price - newStopPrice) * r.p.shares : 0;
+          var isBreached = r.u.price <= newStopPrice;
+          
+          var elPrice = document.getElementById('pf-stop-price-' + ticker);
+          var elRisk = document.getElementById('pf-stop-risk-' + ticker);
+          
+          if (elPrice) {
+            elPrice.textContent = F.currency(newStopPrice);
+            elPrice.style.color = isBreached ? 'var(--bullish)' : 'var(--bearish)';
+          }
+          if (elRisk && !isBreached) {
+            elRisk.textContent = 'Risiko: ' + F.currency(risk);
+          }
+        }
+        
+        // 2. Gesamtrisiko neu berechnen und updaten
+        var newTotalRisk = 0;
+        rows.forEach(function(row) {
+          if (row.u.price && row.p.shares > 0 && row.peak) {
+            var pct = getStopPct(row.p.ticker);
+            var sPrice = row.peak * (1 - pct / 100);
+            if (row.u.price > sPrice) newTotalRisk += (row.u.price - sPrice) * row.p.shares;
+          }
+        });
+        var newTotalRiskPct = totalValue > 0 ? (newTotalRisk / totalValue) * 100 : 0;
+        
+        var elEur = document.getElementById('pf-total-risk-eur');
+        var elPct = document.getElementById('pf-total-risk-pct');
+        if (elEur) elEur.textContent = F.currency(newTotalRisk);
+        if (elPct) elPct.textContent = F.number(newTotalRiskPct, 1) + ' %';
+      };
+    });
+
     if (rows.length && stocksData) drawEquityCurve(rows, stocksData);
   }
 
   function drawEquityCurve(rows, stocksData) {
+    // ... (unverändert, da nur für das Chart zuständig)
     var canvas = document.getElementById('pf-equity-canvas');
     if (!canvas) return;
 
@@ -244,7 +410,6 @@ window.App.Portfolio = (function () {
       sd.stock.chartHistory.forEach(function (p) { priceMap[sd.ticker][p.date] = p.close; });
     });
 
-    // letzten 365 Tage
     var cutoff = dates[dates.length - 1];
     var startIdx = Math.max(0, dates.length - 260);
     var relevantDates = dates.slice(startIdx);
@@ -275,7 +440,6 @@ window.App.Portfolio = (function () {
     var last = filtered[filtered.length - 1].value;
     var totalReturn = first > 0 ? ((last / first) - 1) * 100 : 0;
 
-    // Drawdown
     var peak = first, maxDD = 0;
     filtered.forEach(function (v) {
       if (v.value > peak) peak = v.value;
@@ -283,7 +447,6 @@ window.App.Portfolio = (function () {
       if (dd < maxDD) maxDD = dd;
     });
 
-    // Volatilität
     var rets = [];
     for (var i = 1; i < filtered.length; i++) rets.push(filtered[i].value / filtered[i - 1].value - 1);
     var avg = rets.reduce(function (a, b) { return a + b; }, 0) / (rets.length || 1);
