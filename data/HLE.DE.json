@@ -12,8 +12,8 @@
   },
   "quote": {
     "price": 66.3,
-    "change": -0.8,
-    "changePercent": -1.19,
+    "change": 0.0,
+    "changePercent": 0.0,
     "marketCap": 0.0,
     "fiftyTwoWeekLow": 66.1,
     "fiftyTwoWeekHigh": 85.3,
@@ -5977,9 +5977,13 @@
       "date": "2026-11-06",
       "close": 66.3,
       "volume": 4024.0
+    },
+    {
+      "date": "2026-11-09",
+      "close": 66.3
     }
   ],
-  "updatedAt": "2026-11-08T09:06:44.380548+00:00",
+  "updatedAt": "2026-11-09T08:23:32.452453+00:00",
   "holdings": [],
   "dividends": {
     "history": [
@@ -6030,7 +6034,14 @@
     ]
   },
   "institutional": {
-    "holders": [],
+    "holders": [
+      {
+        "name": "Pacer Advisors, Inc.",
+        "shares": 180,
+        "value": 11934.0,
+        "changeShares": null
+      }
+    ],
     "summary": {
       "institutionalPercent": 0.1325,
       "institutionalCount": null
