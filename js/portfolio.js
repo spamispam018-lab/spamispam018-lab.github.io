@@ -1,7 +1,10 @@
 /**
  * js/portfolio.js
  * Portfolio-Tracker mit Transaktions-Log (FIFO) und Equity-Curve.
- * NEU: "Seit Kauf" Prozent wird jetzt prominent im Badge neben dem Euro-Betrag angezeigt.
+ * NEU: Angepasste Stop-Loss-Berechnung:
+ * 1. Ist der aktuelle Kurs >= Kaufpreis: Basis = max(Aktueller Kurs, Peak).
+ * 2. Ist der aktuelle Kurs < Kaufpreis: Basis = Kaufpreis.
+ * Die Stop-Loss-Schwelle wird immer auf diesen Basispreis angewendet.
  */
 window.App = window.App || {};
 
@@ -42,6 +45,26 @@ window.App.Portfolio = (function () {
   function esc(s) {
     return String(s === null || s === undefined ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // NEU: Zentrale Funktion zur Berechnung des Basispreises und Stop-Loss
+  function calculateStopLoss(r, stopPct) {
+    var basePrice = r.p.buyPrice; // Standardmäßig der Kaufpreis
+    var basisLabel = 'Kaufpreis';
+
+    if (r.u.price && r.u.price >= r.p.buyPrice) {
+      // Wenn im Plus: Nimm den höheren Wert von aktuellem Kurs und Peak
+      var peak = r.peak || 0;
+      basePrice = Math.max(r.u.price, peak);
+      basisLabel = (basePrice === r.u.price && basePrice !== peak) ? 'Aktuell' : 'Peak';
+    } else {
+      // Wenn im Minus (oder kein Kurs): Bleib beim Kaufpreis
+      basePrice = r.p.buyPrice;
+      basisLabel = 'Kaufpreis';
+    }
+
+    var stopPrice = basePrice * (1 - stopPct / 100);
+    return { basePrice: basePrice, stopPrice: stopPrice, basisLabel: basisLabel };
   }
 
   function initView() {
@@ -96,7 +119,7 @@ window.App.Portfolio = (function () {
       var u = map[t] || { price: null, name: t, changePercent: null };
       var px = u.price;
       
-      // TRAILING LOGIK
+      // Peak aktualisieren, wenn aktueller Kurs höher ist
       var peak = getPeak(t);
       if (px && (!peak || px > peak)) {
         peak = px;
@@ -117,13 +140,13 @@ window.App.Portfolio = (function () {
     var totalValue = value;
     var totalRiskEur = 0;
     
-    // Gesamtrisiko berechnen
+    // Gesamtrisiko berechnen mit der neuen Logik
     rows.forEach(function(r) {
-      if (r.u.price && r.p.shares > 0 && r.peak) {
+      if (r.p.shares > 0) {
         var pct = getStopPct(r.p.ticker);
-        var stopPrice = r.peak * (1 - pct / 100);
-        if (r.u.price > stopPrice) {
-           totalRiskEur += (r.u.price - stopPrice) * r.p.shares;
+        var sl = calculateStopLoss(r, pct);
+        if (r.u.price && r.u.price > sl.stopPrice) {
+           totalRiskEur += (r.u.price - sl.stopPrice) * r.p.shares;
         }
       }
     });
@@ -142,7 +165,7 @@ window.App.Portfolio = (function () {
       // Risikomanagement-Karte
       html += '<div class="card" style="padding: 14px 16px; margin-bottom: 14px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.02) 100%); border-color: rgba(239, 68, 68, 0.3);">' +
         '<div class="card-header-dotted" style="border-bottom-color: rgba(239, 68, 68, 0.2); margin-bottom: 10px;">' +
-          '<span class="card-title" style="color: var(--bearish);">Gesamtrisiko (Trailing)</span>' +
+          '<span class="card-title" style="color: var(--bearish);">Gesamtrisiko (Stop-Loss)</span>' +
         '</div>' +
         '<div style="display: flex; justify-content: space-between; align-items: flex-end;">' +
           '<div>' +
@@ -152,7 +175,7 @@ window.App.Portfolio = (function () {
           '<div id="pf-total-risk-pct" style="font-weight: 700; font-size: 0.9rem; color: var(--bearish);">' + F.number(totalRiskPct, 1) + ' %</div>' +
         '</div>' +
         '<div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 8px; line-height: 1.4;">' +
-          'Der Stop-Loss zieht automatisch mit, wenn eine Aktie einen neuen Höchststand erreicht. Fällt der Kurs, bleibt der Stop auf dem Peak stehen.</div>' +
+          'Die Stop-Loss-Berechnung nutzt den Höchststand (Trailing) oder den Kaufpreis (bei Kursverlusten).</div>' +
       '</div>';
 
       html += '<div class="card" style="padding: 14px 16px; margin-bottom: 14px;">' +
@@ -205,10 +228,11 @@ window.App.Portfolio = (function () {
         var weight = (r.v !== null && value) ? (r.v / value) * 100 : null;
         var stopPct = getStopPct(r.p.ticker);
         
-        // Trailing Stop Berechnung
-        var stopPrice = r.peak ? r.peak * (1 - stopPct / 100) : null;
-        var posRisk = (r.u.price && stopPrice && r.u.price > stopPrice) ? (r.u.price - stopPrice) * r.p.shares : 0;
+        // Stop-Loss mit neuer Logik berechnen
+        var sl = calculateStopLoss(r, stopPct);
+        var stopPrice = sl.stopPrice;
         var isStopBreached = r.u.price && stopPrice && r.u.price <= stopPrice;
+        var posRisk = (r.u.price && stopPrice && r.u.price > stopPrice) ? (r.u.price - stopPrice) * r.p.shares : 0;
 
         // Tagesperformance (Tag)
         var dailyPct = r.dailyChangePct;
@@ -226,13 +250,10 @@ window.App.Portfolio = (function () {
               '<div style="font-size: 0.72rem; color: var(--text-dim);">' + esc(r.p.ticker) + ' · ' + F.number(r.p.shares, 4) + ' Stk. à ' + F.currency(r.p.buyPrice) + '</div>' +
             '</div>' +
             
-            // Rechts oben: Gesamtwert, Tag %, Seit Kauf €/%
             '<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">' +
               '<div style="font-weight: 800; font-variant-numeric: tabular-nums;">' + F.currency(r.v) + '</div>' +
               '<div style="display: flex; gap: 6px; align-items: center;">' +
-                // Tagesperformance
                 '<div style="font-size: 0.75rem; font-weight: 700; color: ' + dailyColor + ';" title="Tagesperformance">' + dailyText + '</div>' +
-                // Seit Kauf (€ und %)
                 '<div class="badge-pill ' + F.changeClass(r.pl) + '" style="font-size: 0.68rem;" title="Seit Kauf">' + 
                   (r.pl === null ? '—' : (r.pl >= 0 ? '+' : '') + F.currency(r.pl) + ' (' + totalText + ')') + 
                 '</div>' +
@@ -246,7 +267,7 @@ window.App.Portfolio = (function () {
             '</div>' +
           '</div>' +
           
-          // Stop-Loss-Bereich
+          // Stop-Loss-Bereich (Neu mit Basis-Anzeige)
           '<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle);">' +
             '<div style="display: flex; flex-direction: column; gap: 4px;">' +
               '<div style="display: flex; align-items: center; gap: 6px;">' +
@@ -256,7 +277,10 @@ window.App.Portfolio = (function () {
                   '<span style="font-size: 0.7rem; color: var(--text-muted); margin-left: 2px;">%</span>' +
                 '</div>' +
               '</div>' +
-              (r.peak && r.peak > r.u.price ? '<div style="font-size: 0.65rem; color: var(--text-dim);" title="Höchststand seit Kauf">Peak: ' + F.currency(r.peak) + '</div>' : '') +
+              // Zeigt an, worauf sich der Stop bezieht
+              '<div style="font-size: 0.65rem; color: var(--text-dim);" title="Berechnungsgrundlage">' +
+                'Basis: ' + sl.basisLabel + ' (' + F.currency(sl.basePrice) + ')' +
+              '</div>' +
             '</div>' +
             
             '<div style="text-align: right;">' +
@@ -330,6 +354,8 @@ window.App.Portfolio = (function () {
           { label: 'Tagesperformance %', get: function (r) { return r.dailyChangePct; } },
           { label: 'Peak', get: function (r) { return r.peak; } },
           { label: 'Stop-Loss %', get: function (r) { return getStopPct(r.p.ticker); } },
+          { label: 'Stop-Loss Basis', get: function (r) { return calculateStopLoss(r, getStopPct(r.p.ticker)).basisLabel; } },
+          { label: 'Stop-Loss Kurs', get: function (r) { return calculateStopLoss(r, getStopPct(r.p.ticker)).stopPrice; } },
           { label: 'Investiert', get: function (r) { return r.inv; } },
           { label: 'Wert', get: function (r) { return r.v; } },
           { label: 'P/L', get: function (r) { return r.pl; } },
@@ -345,7 +371,7 @@ window.App.Portfolio = (function () {
       };
     });
 
-    // Event-Listener für die Stop-Loss-Inputs
+    // Event-Listener für die Stop-Loss-Inputs (Live-Update)
     container.querySelectorAll('.pf-stop-input').forEach(function(input) {
       input.onchange = function() {
         var ticker = input.getAttribute('data-ticker');
@@ -359,16 +385,16 @@ window.App.Portfolio = (function () {
         setStopPct(ticker, newPct);
         
         var r = rows.find(function(x) { return x.p.ticker === ticker; });
-        if (r && r.peak) {
-          var newStopPrice = r.peak * (1 - newPct / 100);
-          var risk = (r.u.price && r.u.price > newStopPrice) ? (r.u.price - newStopPrice) * r.p.shares : 0;
-          var isBreached = r.u.price <= newStopPrice;
+        if (r) {
+          var sl = calculateStopLoss(r, newPct);
+          var isBreached = r.u.price <= sl.stopPrice;
+          var risk = (r.u.price && r.u.price > sl.stopPrice) ? (r.u.price - sl.stopPrice) * r.p.shares : 0;
           
           var elPrice = document.getElementById('pf-stop-price-' + ticker);
           var elRisk = document.getElementById('pf-stop-risk-' + ticker);
           
           if (elPrice) {
-            elPrice.textContent = F.currency(newStopPrice);
+            elPrice.textContent = F.currency(sl.stopPrice);
             elPrice.style.color = isBreached ? 'var(--bullish)' : 'var(--bearish)';
           }
           if (elRisk && !isBreached) {
@@ -376,12 +402,13 @@ window.App.Portfolio = (function () {
           }
         }
         
+        // Gesamtrisiko neu berechnen
         var newTotalRisk = 0;
         rows.forEach(function(row) {
-          if (row.u.price && row.p.shares > 0 && row.peak) {
+          if (row.p.shares > 0) {
             var pct = getStopPct(row.p.ticker);
-            var sPrice = row.peak * (1 - pct / 100);
-            if (row.u.price > sPrice) newTotalRisk += (row.u.price - sPrice) * row.p.shares;
+            var sl2 = calculateStopLoss(row, pct);
+            if (row.u.price && row.u.price > sl2.stopPrice) newTotalRisk += (row.u.price - sl2.stopPrice) * row.p.shares;
           }
         });
         var newTotalRiskPct = totalValue > 0 ? (newTotalRisk / totalValue) * 100 : 0;
