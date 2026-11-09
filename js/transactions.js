@@ -1,7 +1,7 @@
 /**
  * js/transactions.js
  * Transaktions-Log mit FIFO-Kostenbasis.
- * Berechnet Positionen (Stück, Ø-Kaufkurs) aus Käufen/Verkäufen.
+ * NEU: update()-Funktion, um bestehende Transaktionen zu bearbeiten.
  */
 window.App = window.App || {};
 window.App.Transactions = (function () {
@@ -24,11 +24,25 @@ window.App.Transactions = (function () {
     return tx;
   }
 
+  // NEU: Funktion zum Bearbeiten einer bestehenden Transaktion
+  function update(id, updates) {
+    var list = getAll();
+    var idx = list.findIndex(function(t) { return t.id === id; });
+    if (idx !== -1) {
+      for (var k in updates) {
+        if (updates.hasOwnProperty(k)) list[idx][k] = updates[k];
+      }
+      list.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+      save(list);
+      return true;
+    }
+    return false;
+  }
+
   function remove(id) {
     save(getAll().filter(function (t) { return t.id !== id; }));
   }
 
-  /** FIFO-Positionen aus Transaktionen berechnen. */
   function computePositions() {
     var list = getAll();
     var byTicker = {};
@@ -70,7 +84,6 @@ window.App.Transactions = (function () {
     return positions;
   }
 
-  /** Migriert altes app_portfolio_v1 einmalig. */
   function migrateOldPortfolio() {
     var OLD_KEY = 'app_portfolio_v1';
     var MIGRATED_KEY = 'app_portfolio_migrated_v1';
@@ -101,6 +114,7 @@ window.App.Transactions = (function () {
   return {
     getAll: getAll,
     add: add,
+    update: update, // NEU exportiert
     remove: remove,
     computePositions: computePositions,
     migrateOldPortfolio: migrateOldPortfolio
