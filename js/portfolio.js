@@ -1,7 +1,8 @@
 /**
  * js/portfolio.js
  * Portfolio-Tracker mit Transaktions-Log (FIFO) und Equity-Curve.
- * NEU: Zeitraum-Auswahl (1W, 1M, 3M, 6M, 1J) im Equity-Curve-Chart.
+ * NEU: Der letzte Punkt der Equity-Curve wird hart auf den aktuellen Live-Portfoliowert gesetzt,
+ * damit das Diagramm exakt mit der Zusammenfassung oben übereinstimmt.
  */
 window.App = window.App || {};
 
@@ -11,10 +12,8 @@ window.App.Portfolio = (function () {
   var STOPS_KEY = 'app_portfolio_stops_v1';
   var PEAKS_KEY = 'app_portfolio_peaks_v1';
   
-  // NEU: State für den Chart-Zeitraum
   var state = { chartPeriod: '1Y' };
 
-  // --- Stop-Prozente verwalten ---
   function getStops() {
     try { return JSON.parse(localStorage.getItem(STOPS_KEY) || '{}'); } catch (e) { return {}; }
   }
@@ -28,7 +27,6 @@ window.App.Portfolio = (function () {
     try { localStorage.setItem(STOPS_KEY, JSON.stringify(stops)); } catch (e) {}
   }
 
-  // --- Peak (Höchststand) verwalten ---
   function getPeaks() {
     try { return JSON.parse(localStorage.getItem(PEAKS_KEY) || '{}'); } catch (e) { return {}; }
   }
@@ -47,18 +45,15 @@ window.App.Portfolio = (function () {
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  // NEU: Zentrale Funktion zur Berechnung des Basispreises und Stop-Loss
   function calculateStopLoss(r, stopPct) {
-    var basePrice = r.p.buyPrice; // Standardmäßig der Kaufpreis
+    var basePrice = r.p.buyPrice;
     var basisLabel = 'Kaufpreis';
 
     if (r.u.price && r.u.price >= r.p.buyPrice) {
-      // Wenn im Plus: Nimm den höheren Wert von aktuellem Kurs und Peak
       var peak = r.peak || 0;
       basePrice = Math.max(r.u.price, peak);
       basisLabel = (basePrice === r.u.price && basePrice !== peak) ? 'Aktuell' : 'Peak';
     } else {
-      // Wenn im Minus (oder kein Kurs): Bleib beim Kaufpreis
       basePrice = r.p.buyPrice;
       basisLabel = 'Kaufpreis';
     }
@@ -119,7 +114,6 @@ window.App.Portfolio = (function () {
       var u = map[t] || { price: null, name: t, changePercent: null };
       var px = u.price;
       
-      // Peak aktualisieren, wenn aktueller Kurs höher ist
       var peak = getPeak(t);
       if (px && (!peak || px > peak)) {
         peak = px;
@@ -140,7 +134,6 @@ window.App.Portfolio = (function () {
     var totalValue = value;
     var totalRiskEur = 0;
     
-    // Gesamtrisiko berechnen
     rows.forEach(function(r) {
       if (r.p.shares > 0) {
         var pct = getStopPct(r.p.ticker);
@@ -162,7 +155,6 @@ window.App.Portfolio = (function () {
       var totalPl = value - invested;
       var totalPlPct = invested ? (totalPl / invested) * 100 : null;
       
-      // Risikomanagement-Karte
       html += '<div class="card" style="padding: 14px 16px; margin-bottom: 14px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.02) 100%); border-color: rgba(239, 68, 68, 0.3);">' +
         '<div class="card-header-dotted" style="border-bottom-color: rgba(239, 68, 68, 0.2); margin-bottom: 10px;">' +
           '<span class="card-title" style="color: var(--bearish);">Gesamtrisiko (Stop-Loss)</span>' +
@@ -187,7 +179,6 @@ window.App.Portfolio = (function () {
           '<div><div style="font-size: 0.7rem; color: var(--text-dim);">Positionen</div><div style="font-weight: 800;">' + rows.length + '</div></div>' +
         '</div></div>';
 
-      // Equity-Curve mit NEUER Zeitraum-Auswahl
       html += '<div class="card">' +
         '<div class="card-header-dotted" style="flex-wrap: wrap; gap: 8px;">' +
           '<span class="card-title">Equity-Curve</span>' +
@@ -208,7 +199,6 @@ window.App.Portfolio = (function () {
         '</div>';
     }
 
-    // Transaktionen-Formular
     var datalist = universe.slice(0, 200).map(function (u) {
       return '<option value="' + esc(u.ticker) + '">' + esc(u.name) + '</option>';
     }).join('');
@@ -229,7 +219,6 @@ window.App.Portfolio = (function () {
         '<div style="width: 100%; margin-top: 4px;"><button class="chip-btn active" id="pf-add-btn" style="width: 100%; height: 38px; justify-content: center;">+ Transaktion speichern</button></div>' +
       '</div></div>';
 
-    // Positionen
     if (!rows.length) {
       html += '<div class="state-box"><div style="font-weight: 600; color: var(--text-muted);">Noch keine Positionen</div>' +
         '<div style="font-size: 0.8rem;">Füge oben deine erste Transaktion hinzu.</div></div>';
@@ -237,7 +226,6 @@ window.App.Portfolio = (function () {
       rows.forEach(function (r) {
         var weight = (r.v !== null && value) ? (r.v / value) * 100 : null;
         var stopPct = getStopPct(r.p.ticker);
-        
         var sl = calculateStopLoss(r, stopPct);
         var stopPrice = sl.stopPrice;
         var isStopBreached = r.u.price && stopPrice && r.u.price <= stopPrice;
@@ -302,7 +290,6 @@ window.App.Portfolio = (function () {
       });
     }
 
-    // Transaktions-Log
     var txs = (window.App.Transactions ? window.App.Transactions.getAll() : []).slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
     if (txs.length) {
       html += '<div class="card"><div class="card-header-dotted"><span class="card-title">Transaktions-Log</span><span class="sector-label">' + txs.length + ' Einträge</span></div>';
@@ -324,7 +311,6 @@ window.App.Portfolio = (function () {
     html += '</div>';
     container.innerHTML = html;
 
-    // Events
     var dateInput = document.getElementById('pf-in-date');
     if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().slice(0, 10);
 
@@ -376,7 +362,6 @@ window.App.Portfolio = (function () {
       };
     });
 
-    // Event-Listener für die Stop-Loss-Inputs (Live-Update)
     container.querySelectorAll('.pf-stop-input').forEach(function(input) {
       input.onchange = function() {
         var ticker = input.getAttribute('data-ticker');
@@ -407,7 +392,6 @@ window.App.Portfolio = (function () {
           }
         }
         
-        // Gesamtrisiko neu berechnen
         var newTotalRisk = 0;
         rows.forEach(function(row) {
           if (row.p.shares > 0) {
@@ -425,21 +409,22 @@ window.App.Portfolio = (function () {
       };
     });
 
-    // NEU: Event-Listener für die Zeitraum-Pills im Chart
     var eqPills = container.querySelectorAll('#pf-eq-pills .pill-btn');
     eqPills.forEach(function(btn) {
       btn.onclick = function() {
         state.chartPeriod = btn.getAttribute('data-period');
         eqPills.forEach(function(b) { b.classList.remove('active'); });
         btn.classList.add('active');
-        drawEquityCurve(rows, stocksData);
+        // NEU: Übergebe 'value' (aktueller Gesamtwert) an drawEquityCurve
+        drawEquityCurve(rows, stocksData, value);
       };
     });
 
-    if (rows.length && stocksData) drawEquityCurve(rows, stocksData);
+    if (rows.length && stocksData) drawEquityCurve(rows, stocksData, value);
   }
 
-  function drawEquityCurve(rows, stocksData) {
+  // NEU: Parameter 'currentTotalValue' hinzugefügt
+  function drawEquityCurve(rows, stocksData, currentTotalValue) {
     var canvas = document.getElementById('pf-equity-canvas');
     if (!canvas) return;
 
@@ -461,7 +446,6 @@ window.App.Portfolio = (function () {
       sd.stock.chartHistory.forEach(function (p) { priceMap[sd.ticker][p.date] = p.close; });
     });
 
-    // NEU: Präzise Zeitraum-Berechnung anhand des gewählten Zeitraums
     var spanDays = { '1W': 7, '1M': 30, '3M': 91, '6M': 182, '1Y': 365 }[state.chartPeriod] || 365;
     var lastDate = dates[dates.length - 1];
     var cutoff = new Date(lastDate + 'T00:00:00Z');
@@ -469,18 +453,13 @@ window.App.Portfolio = (function () {
     var cutoffStr = cutoff.toISOString().slice(0, 10);
     
     var relevantDates = dates.filter(function(d) { return d >= cutoffStr; });
-    
-    // Fallback falls der Zeitraum zu kurz ist für mindestens 2 Datenpunkte
-    if (relevantDates.length < 2) {
-      relevantDates = dates.slice(-10); // Nimm wenigstens die letzten 10 Handelstage
-    }
+    if (relevantDates.length < 2) relevantDates = dates.slice(-10);
 
     var values = [];
     var invested = 0;
     rows.forEach(function (r) { invested += r.inv; });
 
     var lastKnown = {};
-    // Initialisiere lastKnown mit Kursen von vor dem Cutoff, damit die Linie nicht bei 0 anfängt
     rows.forEach(function(r) {
       for (var i = 0; i < dates.length; i++) {
         var px = priceMap[r.p.ticker] && priceMap[r.p.ticker][dates[i]];
@@ -489,7 +468,7 @@ window.App.Portfolio = (function () {
       }
     });
 
-    relevantDates.forEach(function (d) {
+    relevantDates.forEach(function (d, index) {
       var total = 0;
       rows.forEach(function (r) {
         var px = priceMap[r.p.ticker] && priceMap[r.p.ticker][d];
@@ -497,6 +476,12 @@ window.App.Portfolio = (function () {
         var cur = lastKnown[r.p.ticker];
         if (cur) total += cur * r.p.shares;
       });
+      
+      // NEU: Der allerletzte Punkt im Chart wird exakt auf den aktuellen Live-Portfoliowert gesetzt
+      if (index === relevantDates.length - 1 && currentTotalValue > 0) {
+        total = currentTotalValue;
+      }
+      
       values.push({ date: d, value: total || null });
     });
 
@@ -521,7 +506,6 @@ window.App.Portfolio = (function () {
     for (var i = 1; i < filtered.length; i++) rets.push(filtered[i].value / filtered[i - 1].value - 1);
     var avg = rets.reduce(function (a, b) { return a + b; }, 0) / (rets.length || 1);
     var variance = rets.reduce(function (a, b) { return a + (b - avg) * (b - avg); }, 0) / (rets.length || 1);
-    // Annualisierte Volatilität immer auf 252 Handelstage hochrechnen
     var vol = Math.sqrt(variance) * Math.sqrt(252) * 100;
 
     window.App.Charts.renderMultiLineChart(canvas, {
