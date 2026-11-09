@@ -1,8 +1,7 @@
 /**
  * js/portfolio.js
  * Portfolio-Tracker mit Transaktions-Log (FIFO) und Equity-Curve.
- * NEU: Der letzte Punkt der Equity-Curve wird hart auf den aktuellen Live-Portfoliowert gesetzt,
- * damit das Diagramm exakt mit der Zusammenfassung oben übereinstimmt.
+ * NEU: Transaktionen können jetzt über das Stift-Symbol im Log bearbeitet werden.
  */
 window.App = window.App || {};
 
@@ -13,6 +12,8 @@ window.App.Portfolio = (function () {
   var PEAKS_KEY = 'app_portfolio_peaks_v1';
   
   var state = { chartPeriod: '1Y' };
+  // NEU: Merkt sich, welche Transaktion gerade bearbeitet wird
+  var editingTxId = null; 
 
   function getStops() {
     try { return JSON.parse(localStorage.getItem(STOPS_KEY) || '{}'); } catch (e) { return {}; }
@@ -203,7 +204,12 @@ window.App.Portfolio = (function () {
       return '<option value="' + esc(u.ticker) + '">' + esc(u.name) + '</option>';
     }).join('');
 
-    html += '<div class="card"><div class="card-header-dotted"><span class="card-title">Transaktion hinzufügen</span></div>' +
+    // NEU: Formular-Titel und Button-Text anpassen, wenn wir im Edit-Modus sind
+    var formTitle = editingTxId ? 'Transaktion bearbeiten' : 'Transaktion hinzufügen';
+    var btnText = editingTxId ? '✓ Aktualisieren' : '+ Transaktion speichern';
+    var cancelBtnDisplay = editingTxId ? 'inline-flex' : 'none';
+
+    html += '<div class="card" id="pf-form-card"><div class="card-header-dotted"><span class="card-title">' + formTitle + '</span></div>' +
       '<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: end;">' +
         '<div style="flex: 1 1 90px;"><label style="font-size: 0.7rem; color: var(--text-dim);">Ticker</label>' +
           '<input id="pf-in-ticker" class="search-input" list="pf-tickers" placeholder="AAPL" autocomplete="off" style="padding-left:14px;">' +
@@ -216,7 +222,10 @@ window.App.Portfolio = (function () {
           '<input id="pf-in-price" class="search-input" type="number" min="0" step="any" placeholder="150" style="padding-left:14px;"></div>' +
         '<div style="flex: 1 1 100px;"><label style="font-size: 0.7rem; color: var(--text-dim);">Datum</label>' +
           '<input id="pf-in-date" class="search-input" type="date" style="padding-left:14px;"></div>' +
-        '<div style="width: 100%; margin-top: 4px;"><button class="chip-btn active" id="pf-add-btn" style="width: 100%; height: 38px; justify-content: center;">+ Transaktion speichern</button></div>' +
+        '<div style="width: 100%; margin-top: 4px; display: flex; gap: 8px;">' +
+          '<button class="chip-btn active" id="pf-add-btn" style="flex: 1; height: 38px; justify-content: center;">' + btnText + '</button>' +
+          '<button class="chip-btn" id="pf-cancel-btn" style="height: 38px; justify-content: center; display: ' + cancelBtnDisplay + ';">Abbrechen</button>' +
+        '</div>' +
       '</div></div>';
 
     if (!rows.length) {
@@ -301,7 +310,11 @@ window.App.Portfolio = (function () {
           '<td><span class="badge-pill ' + typeCls + '">' + (tx.type === 'buy' ? 'Kauf' : 'Verkauf') + '</span></td>' +
           '<td style="text-align:right;">' + F.number(tx.shares, 2) + '</td>' +
           '<td style="text-align:right;">' + F.currency(tx.price) + '</td>' +
-          '<td><button class="chip-btn pf-tx-del" data-id="' + esc(tx.id) + '" style="padding:2px 6px;font-size:0.7rem;">🗑</button></td></tr>';
+          '<td style="text-align:right; white-space:nowrap;">' +
+            // NEU: Bearbeiten-Button
+            '<button class="chip-btn pf-tx-edit" data-id="' + esc(tx.id) + '" style="padding:2px 6px;font-size:0.7rem;margin-right:4px;">✏️</button>' +
+            '<button class="chip-btn pf-tx-del" data-id="' + esc(tx.id) + '" style="padding:2px 6px;font-size:0.7rem;">🗑</button>' +
+          '</td></tr>';
       });
       html += '</tbody></table></div>';
       if (txs.length > 50) html += '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:6px;">Die letzten 50 von ' + txs.length + ' Transaktionen.</div>';
@@ -311,8 +324,30 @@ window.App.Portfolio = (function () {
     html += '</div>';
     container.innerHTML = html;
 
+    // Events
     var dateInput = document.getElementById('pf-in-date');
     if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().slice(0, 10);
+
+    // NEU: Wenn wir im Edit-Modus sind, Formular vorbefüllen
+    if (editingTxId) {
+      var txToEdit = txs.find(function(t) { return t.id === editingTxId; });
+      if (txToEdit) {
+        document.getElementById('pf-in-ticker').value = txToEdit.ticker;
+        document.getElementById('pf-in-ticker').disabled = true; // Ticker beim Bearbeiten sperren
+        document.getElementById('pf-in-type').value = txToEdit.type;
+        document.getElementById('pf-in-shares').value = txToEdit.shares;
+        document.getElementById('pf-in-price').value = txToEdit.price;
+        document.getElementById('pf-in-date').value = txToEdit.date;
+        // Scroll zum Formular
+        setTimeout(function() {
+          var formCard = document.getElementById('pf-form-card');
+          if (formCard) formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    } else {
+       var tickerInput = document.getElementById('pf-in-ticker');
+       if (tickerInput) tickerInput.disabled = false;
+    }
 
     document.getElementById('pf-add-btn').onclick = function () {
       var t = (document.getElementById('pf-in-ticker').value || '').trim().toUpperCase();
@@ -320,15 +355,42 @@ window.App.Portfolio = (function () {
       var sh = parseFloat(document.getElementById('pf-in-shares').value);
       var bp = parseFloat(document.getElementById('pf-in-price').value);
       var dt = document.getElementById('pf-in-date').value || new Date().toISOString().slice(0, 10);
+      
       if (!t || !(sh > 0) || !(bp > 0)) { alert('Bitte Ticker, Stückzahl und Kurs ausfüllen.'); return; }
-      window.App.Transactions.add({ ticker: t, type: type, shares: sh, price: bp, date: dt });
+      
+      // NEU: Unterscheidung zwischen Add und Update
+      if (editingTxId) {
+        window.App.Transactions.update(editingTxId, { type: type, shares: sh, price: bp, date: dt });
+        editingTxId = null; // Modus beenden
+      } else {
+        window.App.Transactions.add({ ticker: t, type: type, shares: sh, price: bp, date: dt });
+      }
       initView();
     };
+
+    // NEU: Abbrechen-Button
+    var cancelBtn = document.getElementById('pf-cancel-btn');
+    if (cancelBtn) {
+      cancelBtn.onclick = function() {
+        editingTxId = null;
+        initView();
+      };
+    }
+
+    // NEU: Event-Listener für den Bearbeiten-Button
+    container.querySelectorAll('.pf-tx-edit').forEach(function (btn) {
+      btn.onclick = function () {
+        editingTxId = btn.getAttribute('data-id');
+        initView();
+      };
+    });
 
     container.querySelectorAll('.pf-tx-del').forEach(function (btn) {
       btn.onclick = function () {
         if (!confirm('Transaktion löschen?')) return;
-        window.App.Transactions.remove(btn.getAttribute('data-id'));
+        var id = btn.getAttribute('data-id');
+        if (editingTxId === id) editingTxId = null; // Wenn wir gerade bearbeitet haben, Modus beenden
+        window.App.Transactions.remove(id);
         initView();
       };
     });
@@ -415,7 +477,6 @@ window.App.Portfolio = (function () {
         state.chartPeriod = btn.getAttribute('data-period');
         eqPills.forEach(function(b) { b.classList.remove('active'); });
         btn.classList.add('active');
-        // NEU: Übergebe 'value' (aktueller Gesamtwert) an drawEquityCurve
         drawEquityCurve(rows, stocksData, value);
       };
     });
@@ -423,7 +484,6 @@ window.App.Portfolio = (function () {
     if (rows.length && stocksData) drawEquityCurve(rows, stocksData, value);
   }
 
-  // NEU: Parameter 'currentTotalValue' hinzugefügt
   function drawEquityCurve(rows, stocksData, currentTotalValue) {
     var canvas = document.getElementById('pf-equity-canvas');
     if (!canvas) return;
@@ -477,7 +537,6 @@ window.App.Portfolio = (function () {
         if (cur) total += cur * r.p.shares;
       });
       
-      // NEU: Der allerletzte Punkt im Chart wird exakt auf den aktuellen Live-Portfoliowert gesetzt
       if (index === relevantDates.length - 1 && currentTotalValue > 0) {
         total = currentTotalValue;
       }
