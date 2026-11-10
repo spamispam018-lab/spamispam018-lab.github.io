@@ -1,7 +1,8 @@
 /**
  * js/portfolio.js
  * Portfolio-Tracker mit Transaktions-Log (FIFO) und Equity-Curve.
- * NEU: Transaktionen können jetzt über das Stift-Symbol im Log bearbeitet werden.
+ * NEU: Layout-Anpassung – Zusammenfassung (Kachel 1) ist jetzt größer und oben.
+ * Die Stop-Loss-Risiko-Karte (Kachel 2) ist jetzt kompakter und unten.
  */
 window.App = window.App || {};
 
@@ -12,7 +13,6 @@ window.App.Portfolio = (function () {
   var PEAKS_KEY = 'app_portfolio_peaks_v1';
   
   var state = { chartPeriod: '1Y' };
-  // NEU: Merkt sich, welche Transaktion gerade bearbeitet wird
   var editingTxId = null; 
 
   function getStops() {
@@ -156,30 +156,45 @@ window.App.Portfolio = (function () {
       var totalPl = value - invested;
       var totalPlPct = invested ? (totalPl / invested) * 100 : null;
       
-      html += '<div class="card" style="padding: 14px 16px; margin-bottom: 14px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.02) 100%); border-color: rgba(239, 68, 68, 0.3);">' +
-        '<div class="card-header-dotted" style="border-bottom-color: rgba(239, 68, 68, 0.2); margin-bottom: 10px;">' +
-          '<span class="card-title" style="color: var(--bearish);">Gesamtrisiko (Stop-Loss)</span>' +
-        '</div>' +
-        '<div style="display: flex; justify-content: space-between; align-items: flex-end;">' +
+      // --- KACHEL 1: Portfolio-Zusammenfassung (Größer & weiter oben) ---
+      html += '<div class="card" style="padding: 18px 16px; margin-bottom: 14px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px var(--shadow-soft);">' +
+        '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">' +
           '<div>' +
-            '<div style="font-size: 0.72rem; color: var(--text-dim);">Noch möglicher Verlust</div>' +
-            '<div id="pf-total-risk-eur" style="font-weight: 800; font-size: 1.3rem; color: var(--bearish);">' + F.currency(totalRiskEur) + '</div>' +
+            '<div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Investiert</div>' +
+            '<div style="font-weight: 800; font-size: 1.2rem; color: var(--text-main);">' + F.currency(invested) + '</div>' +
           '</div>' +
-          '<div id="pf-total-risk-pct" style="font-weight: 700; font-size: 0.9rem; color: var(--bearish);">' + F.number(totalRiskPct, 1) + ' %</div>' +
+          '<div>' +
+            '<div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Aktueller Wert</div>' +
+            '<div style="font-weight: 800; font-size: 1.2rem; color: var(--text-main);">' + F.currency(value) + '</div>' +
+          '</div>' +
+          '<div>' +
+            '<div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Gewinn/Verlust</div>' +
+            '<div class="badge-pill ' + F.changeClass(totalPl) + '" style="display: inline-flex; font-size: 0.85rem; padding: 4px 10px; border-radius: var(--radius-md);">' + 
+              (totalPl >= 0 ? '+' : '') + F.currency(totalPl) + ' (' + F.percent(totalPlPct, true, 2) + ')' + 
+            '</div>' +
+          '</div>' +
+          '<div>' +
+            '<div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Positionen</div>' +
+            '<div style="font-weight: 800; font-size: 1.2rem; color: var(--text-main);">' + rows.length + '</div>' +
+          '</div>' +
         '</div>' +
-        '<div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 8px; line-height: 1.4;">' +
-          'Die Stop-Loss-Berechnung nutzt den Höchststand (Trailing) oder den Kaufpreis (bei Kursverlusten).</div>' +
       '</div>';
 
-      html += '<div class="card" style="padding: 14px 16px; margin-bottom: 14px;">' +
-        '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">' +
-          '<div><div style="font-size: 0.7rem; color: var(--text-dim);">Investiert</div><div style="font-weight: 800;">' + F.currency(invested) + '</div></div>' +
-          '<div><div style="font-size: 0.7rem; color: var(--text-dim);">Aktueller Wert</div><div style="font-weight: 800;">' + F.currency(value) + '</div></div>' +
-          '<div><div style="font-size: 0.7rem; color: var(--text-dim);">Gewinn/Verlust</div>' +
-            '<div class="badge-pill ' + F.changeClass(totalPl) + '" style="display: inline-block;">' + (totalPl >= 0 ? '+' : '') + F.currency(totalPl) + ' (' + F.percent(totalPlPct, true, 2) + ')</div></div>' +
-          '<div><div style="font-size: 0.7rem; color: var(--text-dim);">Positionen</div><div style="font-weight: 800;">' + rows.length + '</div></div>' +
-        '</div></div>';
+      // --- KACHEL 2: Stop-Loss Risiko (Kompakter & weiter unten) ---
+      html += '<div class="card" style="padding: 12px 14px; margin-bottom: 14px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.02) 100%); border-color: rgba(239, 68, 68, 0.2);">' +
+        '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+          '<div style="display: flex; align-items: center; gap: 8px;">' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--bearish)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>' +
+            '<div style="font-size: 0.78rem; font-weight: 600; color: var(--text-dim);">Max. Verlust (Stop-Loss)</div>' +
+          '</div>' +
+          '<div style="text-align: right; display: flex; align-items: baseline; gap: 6px;">' +
+            '<div id="pf-total-risk-eur" style="font-weight: 800; font-size: 1.05rem; color: var(--bearish);">' + F.currency(totalRiskEur) + '</div>' +
+            '<div id="pf-total-risk-pct" style="font-weight: 700; font-size: 0.8rem; color: var(--bearish);">(' + F.number(totalRiskPct, 1) + ' %)</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
 
+      // --- KACHEL 3: Equity-Curve ---
       html += '<div class="card">' +
         '<div class="card-header-dotted" style="flex-wrap: wrap; gap: 8px;">' +
           '<span class="card-title">Equity-Curve</span>' +
@@ -204,7 +219,6 @@ window.App.Portfolio = (function () {
       return '<option value="' + esc(u.ticker) + '">' + esc(u.name) + '</option>';
     }).join('');
 
-    // NEU: Formular-Titel und Button-Text anpassen, wenn wir im Edit-Modus sind
     var formTitle = editingTxId ? 'Transaktion bearbeiten' : 'Transaktion hinzufügen';
     var btnText = editingTxId ? '✓ Aktualisieren' : '+ Transaktion speichern';
     var cancelBtnDisplay = editingTxId ? 'inline-flex' : 'none';
@@ -302,43 +316,51 @@ window.App.Portfolio = (function () {
     var txs = (window.App.Transactions ? window.App.Transactions.getAll() : []).slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
     if (txs.length) {
       html += '<div class="card"><div class="card-header-dotted"><span class="card-title">Transaktions-Log</span><span class="sector-label">' + txs.length + ' Einträge</span></div>';
-      html += '<div class="table-responsive-wrapper"><table class="data-table"><thead><tr><th>Datum</th><th>Ticker</th><th>Typ</th><th style="text-align:right;">Stück</th><th style="text-align:right;">Kurs</th><th></th></tr></thead><tbody>';
+      html += '<div style="display:flex; flex-direction:column; gap:8px;">';
+      
       txs.slice(0, 50).forEach(function (tx) {
         var typeCls = tx.type === 'buy' ? 'badge-bullish' : 'badge-bearish';
-        html += '<tr><td>' + F.date(tx.date) + '</td>' +
-          '<td><strong>' + esc(tx.ticker) + '</strong></td>' +
-          '<td><span class="badge-pill ' + typeCls + '">' + (tx.type === 'buy' ? 'Kauf' : 'Verkauf') + '</span></td>' +
-          '<td style="text-align:right;">' + F.number(tx.shares, 2) + '</td>' +
-          '<td style="text-align:right;">' + F.currency(tx.price) + '</td>' +
-          '<td style="text-align:right; white-space:nowrap;">' +
-            // NEU: Bearbeiten-Button
-            '<button class="chip-btn pf-tx-edit" data-id="' + esc(tx.id) + '" style="padding:2px 6px;font-size:0.7rem;margin-right:4px;">✏️</button>' +
-            '<button class="chip-btn pf-tx-del" data-id="' + esc(tx.id) + '" style="padding:2px 6px;font-size:0.7rem;">🗑</button>' +
-          '</td></tr>';
+        html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:var(--radius-sm);">' +
+          '<div>' +
+            '<div style="font-weight:700; font-size:0.85rem; color:var(--text-main); margin-bottom:2px;">' + esc(tx.ticker) + '</div>' +
+            '<div style="font-size:0.7rem; color:var(--text-dim); display:flex; gap:8px; align-items:center;">' +
+              '<span>' + F.date(tx.date) + '</span>' +
+              '<span class="badge-pill ' + typeCls + '" style="padding:1px 5px; font-size:0.6rem;">' + (tx.type === 'buy' ? 'Kauf' : 'Verkauf') + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex; align-items:center; gap:12px;">' +
+            '<div style="text-align:right;">' +
+              '<div style="font-size:0.8rem; font-weight:600;">' + F.number(tx.shares, 2) + ' Stk.</div>' +
+              '<div style="font-size:0.7rem; color:var(--text-dim);">à ' + F.currency(tx.price) + '</div>' +
+            '</div>' +
+            '<div style="display:flex; gap:4px;">' +
+              '<button class="chip-btn pf-tx-edit" data-id="' + esc(tx.id) + '" style="padding:4px 8px; font-size:0.8rem;" title="Bearbeiten">✏️</button>' +
+              '<button class="chip-btn pf-tx-del" data-id="' + esc(tx.id) + '" style="padding:4px 8px; font-size:0.8rem;" title="Löschen">🗑</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
       });
-      html += '</tbody></table></div>';
-      if (txs.length > 50) html += '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:6px;">Die letzten 50 von ' + txs.length + ' Transaktionen.</div>';
+      
+      html += '</div>';
+      if (txs.length > 50) html += '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:8px;text-align:center;">Die letzten 50 von ' + txs.length + ' Transaktionen.</div>';
       html += '</div>';
     }
 
     html += '</div>';
     container.innerHTML = html;
 
-    // Events
     var dateInput = document.getElementById('pf-in-date');
     if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().slice(0, 10);
 
-    // NEU: Wenn wir im Edit-Modus sind, Formular vorbefüllen
     if (editingTxId) {
       var txToEdit = txs.find(function(t) { return t.id === editingTxId; });
       if (txToEdit) {
         document.getElementById('pf-in-ticker').value = txToEdit.ticker;
-        document.getElementById('pf-in-ticker').disabled = true; // Ticker beim Bearbeiten sperren
+        document.getElementById('pf-in-ticker').disabled = true;
         document.getElementById('pf-in-type').value = txToEdit.type;
         document.getElementById('pf-in-shares').value = txToEdit.shares;
         document.getElementById('pf-in-price').value = txToEdit.price;
         document.getElementById('pf-in-date').value = txToEdit.date;
-        // Scroll zum Formular
         setTimeout(function() {
           var formCard = document.getElementById('pf-form-card');
           if (formCard) formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -358,17 +380,15 @@ window.App.Portfolio = (function () {
       
       if (!t || !(sh > 0) || !(bp > 0)) { alert('Bitte Ticker, Stückzahl und Kurs ausfüllen.'); return; }
       
-      // NEU: Unterscheidung zwischen Add und Update
       if (editingTxId) {
         window.App.Transactions.update(editingTxId, { type: type, shares: sh, price: bp, date: dt });
-        editingTxId = null; // Modus beenden
+        editingTxId = null;
       } else {
         window.App.Transactions.add({ ticker: t, type: type, shares: sh, price: bp, date: dt });
       }
       initView();
     };
 
-    // NEU: Abbrechen-Button
     var cancelBtn = document.getElementById('pf-cancel-btn');
     if (cancelBtn) {
       cancelBtn.onclick = function() {
@@ -377,7 +397,6 @@ window.App.Portfolio = (function () {
       };
     }
 
-    // NEU: Event-Listener für den Bearbeiten-Button
     container.querySelectorAll('.pf-tx-edit').forEach(function (btn) {
       btn.onclick = function () {
         editingTxId = btn.getAttribute('data-id');
@@ -389,7 +408,7 @@ window.App.Portfolio = (function () {
       btn.onclick = function () {
         if (!confirm('Transaktion löschen?')) return;
         var id = btn.getAttribute('data-id');
-        if (editingTxId === id) editingTxId = null; // Wenn wir gerade bearbeitet haben, Modus beenden
+        if (editingTxId === id) editingTxId = null;
         window.App.Transactions.remove(id);
         initView();
       };
@@ -467,7 +486,7 @@ window.App.Portfolio = (function () {
         var elEur = document.getElementById('pf-total-risk-eur');
         var elPct = document.getElementById('pf-total-risk-pct');
         if (elEur) elEur.textContent = F.currency(newTotalRisk);
-        if (elPct) elPct.textContent = F.number(newTotalRiskPct, 1) + ' %';
+        if (elPct) elPct.textContent = '(' + F.number(newTotalRiskPct, 1) + ' %)';
       };
     });
 
