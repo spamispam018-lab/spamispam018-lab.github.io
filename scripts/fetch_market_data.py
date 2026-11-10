@@ -13,6 +13,7 @@ import json
 import math
 import argparse
 import sys
+import urllib.request
 from datetime import datetime, timezone
 import yfinance as yf
 
@@ -107,43 +108,137 @@ from index_lists import SP500, DAX, MDAX, dedupe  # noqa: E402
 ALL_TICKERS = dedupe(TICKERS_USA, TICKERS_EUROPE, TICKERS_JAPAN, TICKERS_ETFS, TICKERS_SECTORS, DAX, MDAX, SP500)
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
-RATES_TO_EUR = {
+# Notfall-Werte: werden nur genutzt, wenn weder Yahoo, noch Zweitquelle, noch der
+# zuletzt gespeicherte Stand (data/fx_rates.json) erreichbar sind.
+DEFAULT_RATES_TO_EUR = {
     "EUR": 1.0, "USD": 0.92, "JPY": 0.0061, "GBP": 1.17, "GBp": 0.0117, "CHF": 1.04, "DKK": 0.134
 }
+RATES_TO_EUR = dict(DEFAULT_RATES_TO_EUR)
+FX_PAIRS = {"USD": "EURUSD=X", "JPY": "EURJPY=X", "GBP": "EURGBP=X", "CHF": "EURCHF=X", "DKK": "EURDKK=X"}
+FX_FILE = os.path.join(DATA_DIR, "fx_rates.json")
+FX_META = {"sources": [], "asOf": None}
+_FX_LOADED = False
+_WARNED_CUR = set()
 
 
 def detect_native_currency(ticker):
     if ticker.endswith(".T"): return "JPY"
     if ticker.endswith((".DE", ".PA", ".AS", ".MI", ".MC")): return "EUR"
-    if ticker.endswith(".L"): return "GBP"
+    if ticker.endswith(".L"): return "GBp"  # Londoner Kurse sind in Pence, nicht in Pfund
     if ticker.endswith(".SW"): return "CHF"
     if ticker.endswith(".CO"): return "DKK"
     return "USD"
 
 
-def load_live_forex():
-    global RATES_TO_EUR
-    pairs = {"USD": "EURUSD=X", "JPY": "EURJPY=X", "GBP": "EURGBP=X", "CHF": "EURCHF=X", "DKK": "EURDKK=X"}
+def _fx_plausible(cur, foreign_per_eur):
+    """Verwirft Ausreisser (Datenfehler): Abweichung > 40 % vom Notfall-Wert."""
+    base = DEFAULT_RATES_TO_EUR.get(cur)
+    if not foreign_per_eur or foreign_per_eur <= 0:
+        return False
+    return base is None or 0.6 < (1.0 / foreign_per_eur) / base < 1.6
+
+
+def _fx_from_yahoo():
+    """Aktuellster Kurs je EUR-Paar (erst 5-Min-Kerzen = quasi live, dann Tageskerzen)."""
+    out, as_of = {}, None
+    for interval in ("5m", "1d"):
+        try:
+            data = yf.download(" ".join(FX_PAIRS.values()), period="5d", interval=interval, progress=False)
+            close_df = data["Close"] if "Close" in data else data
+            for cur, pair in FX_PAIRS.items():
+                if cur in out:
+                    continue
+                s_ = close_df[pair].dropna()
+                if not s_.empty:
+                    out[cur] = float(s_.iloc[-1])
+                    ts = s_.index[-1]
+                    as_of = max(as_of, ts.isoformat()) if as_of else ts.isoformat()
+        except Exception as e:
+            print(f"Yahoo-FX ({interval}) fehlgeschlagen: {e}")
+        if len(out) == len(FX_PAIRS):
+            break
+    return out, as_of
+
+
+def _fx_from_open_api():
+    """Zweitquelle (kostenlos, ohne Key): open.er-api.com, EZB-nahe Tageskurse."""
+    req = urllib.request.Request("https://open.er-api.com/v6/latest/EUR", headers={"User-Agent": "stock-screener"})
+    with urllib.request.urlopen(req, timeout=15) as r:
+        js = json.loads(r.read().decode("utf-8"))
+    rates = js.get("rates") or {}
+    return {cur: float(rates[cur]) for cur in FX_PAIRS if cur in rates}, js.get("time_last_update_utc")
+
+
+def _fx_from_cache():
+    with open(FX_FILE, "r", encoding="utf-8") as f:
+        js = json.load(f)
+    return dict(js.get("foreignPerEur") or {}), js.get("asOf")
+
+
+def load_live_forex(force=False):
+    """Holt aktuelle EUR-Wechselkurse (Yahoo -> open.er-api -> letzter Stand -> Notfallwerte)
+    und schreibt sie nach data/fx_rates.json (kann auch die Web-App direkt lesen)."""
+    global _FX_LOADED
+    if _FX_LOADED and not force:
+        return
+    _FX_LOADED = True
+
+    foreign_per_eur = {}
+    sources = []
+    as_of = None
+    for name, fn in (("yahoo", _fx_from_yahoo), ("open.er-api", _fx_from_open_api), ("cache", _fx_from_cache)):
+        if len(foreign_per_eur) == len(FX_PAIRS):
+            break
+        try:
+            rates, ts = fn()
+        except Exception as e:
+            print(f"FX-Quelle {name} fehlgeschlagen: {e}")
+            continue
+        used = False
+        for cur, r in rates.items():
+            if cur in FX_PAIRS and cur not in foreign_per_eur and _fx_plausible(cur, r):
+                foreign_per_eur[cur] = r
+                used = True
+        if used:
+            sources.append(name)
+            as_of = as_of or ts
+
+    for cur in FX_PAIRS:
+        if cur in foreign_per_eur:
+            RATES_TO_EUR[cur] = 1.0 / foreign_per_eur[cur]
+        else:
+            print(f"WARNUNG: Kein Wechselkurs fuer {cur} - Notfallwert {DEFAULT_RATES_TO_EUR.get(cur)} wird genutzt!")
+    RATES_TO_EUR["GBp"] = RATES_TO_EUR["GBP"] / 100.0
+
+    FX_META["sources"] = sources
+    FX_META["asOf"] = as_of or datetime.now(timezone.utc).isoformat()
+    print("FX:", ", ".join(f"1 EUR = {foreign_per_eur[c]:.4f} {c}" for c in FX_PAIRS if c in foreign_per_eur),
+          f"| Quelle: {'+'.join(sources) or 'Notfallwerte'} | Stand: {FX_META['asOf']}")
+
     try:
-        tickers_str = " ".join(pairs.values())
-        fx_data = yf.download(tickers_str, period="5d", interval="1d", progress=False)
-        close_df = fx_data["Close"] if "Close" in fx_data else fx_data
-        for cur, pair in pairs.items():
-            try:
-                s = close_df[pair].dropna()
-                if not s.empty:
-                    eur_rate = float(s.iloc[-1])
-                    if eur_rate > 0: RATES_TO_EUR[cur] = 1.0 / eur_rate
-            except Exception:
-                pass
-        RATES_TO_EUR["GBp"] = RATES_TO_EUR.get("GBP", 1.17) / 100.0
+        os.makedirs(DATA_DIR, exist_ok=True)
+        with open(FX_FILE, "w", encoding="utf-8") as f:
+            json.dump({
+                "base": "EUR",
+                "asOf": FX_META["asOf"],
+                "fetchedAt": datetime.now(timezone.utc).isoformat(),
+                "sources": sources,
+                "foreignPerEur": {"EUR": 1.0, **foreign_per_eur},
+                "ratesToEur": {k: round(v, 8) for k, v in RATES_TO_EUR.items()},
+            }, f, ensure_ascii=False, indent=2)
     except Exception as e:
-        print(f"Forex-Abruf fehlgeschlagen: {e}")
+        print(f"FX-Datei konnte nicht gespeichert werden: {e}")
 
 
 def to_eur(value, cur):
     if value is None: return None
-    return round(value * RATES_TO_EUR.get(cur, 1.0), 4)
+    rate = RATES_TO_EUR.get(cur)
+    if rate is None:
+        if cur not in _WARNED_CUR:
+            print(f"WARNUNG: Unbekannte Waehrung '{cur}' - Wert wird nicht umgerechnet")
+            _WARNED_CUR.add(cur)
+        return None
+    return round(value * rate, 4)
 
 
 def clean_val(val, default=None):
@@ -474,7 +569,9 @@ def fetch_full_stock(ticker_sym):
              "marketCap": market_cap_eur,
              "fiftyTwoWeekLow": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekLow")), cur)),
              "fiftyTwoWeekHigh": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekHigh")), cur)),
-             "volume": clean_val(info.get("regularMarketVolume")), "currency": "EUR"}
+             "volume": clean_val(info.get("regularMarketVolume")), "currency": "EUR",
+             "priceNative": clean_val(raw_curr), "nativeCurrency": cur,
+             "fxRate": RATES_TO_EUR.get(cur), "fxAsOf": FX_META["asOf"]}
     ratios = {"peTrailing": clean_val(info.get("trailingPE")),
               "peForward": clean_val(info.get("forwardPE")),
               "dividendYield": clean_val(info.get("dividendYield")),
@@ -586,8 +683,18 @@ def run_delta_sync(tickers):
                         stock_data["quote"]["change"] = chg
                         stock_data["quote"]["changePercent"] = chg_pct
                         stock_data["quote"]["currency"] = "EUR"
+                        stock_data["quote"]["priceNative"] = clean_val(last_close)
+                        stock_data["quote"]["nativeCurrency"] = cur
+                        stock_data["quote"]["fxRate"] = RATES_TO_EUR.get(cur)
+                        stock_data["quote"]["fxAsOf"] = FX_META["asOf"]
 
                         history = stock_data.setdefault("chartHistory", [])
+                        # Letzter Handelstag war evtl. nur ein Zwischenstand -> immer neu setzen
+                        last_dt = closes.index[-1]
+                        last_d = last_dt.strftime("%Y-%m-%d") if hasattr(last_dt, "strftime") else str(last_dt)[:10]
+                        for p_ in history:
+                            if p_.get("date") == last_d:
+                                p_["close"] = new_price
                         existing_dates = {p.get("date") for p in history}
                         new_points = []
                         for dt, val in closes.items():
@@ -654,6 +761,8 @@ def run_delta_sync(tickers):
         u_item["currency"] = "EUR"
         u_item["price"] = stock_data.get("quote", {}).get("price")
         u_item["changePercent"] = stock_data.get("quote", {}).get("changePercent")
+        u_item["priceNative"] = stock_data.get("quote", {}).get("priceNative")
+        u_item["nativeCurrency"] = stock_data.get("quote", {}).get("nativeCurrency")
         u_item["marketCap"] = stock_data.get("quote", {}).get("marketCap")
         u_item["dividendYield"] = stock_data.get("ratios", {}).get("dividendYield")
         u_item["exDividendDate"] = stock_data.get("exDividendDate")
