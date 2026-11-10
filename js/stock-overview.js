@@ -1,16 +1,14 @@
 /**
  * js/stock-overview.js
  * Verwaltet den Tab "Overview".
- * NEU: "Live-Kurs abrufen" nutzt den Cloudflare Worker Proxy und rechnet
- * US-Dollar live in Euro um (wie Trade Republic).
+ * NEU: "Live-Kurs abrufen" nutzt corsproxy.io, um die CORS-Blockade von Yahoo
+ * zu umgehen und rechnet US-Dollar live in Euro um (wie Trade Republic).
  */
+
 window.App = window.App || {};
 
 window.App.StockOverview = (function () {
   'use strict';
-
-  // Deine Cloudflare Worker URL
-  var PROXY_URL = "https://yahoo-proxy.spamispam018.workers.dev/"; 
 
   var currentStock = null;
   var currentPeriod = '1Y';
@@ -133,7 +131,7 @@ window.App.StockOverview = (function () {
     
     if (window.App.News) window.App.News.fillTicker(stock.ticker, container.querySelector('#news-card'));
 
-    // NEU: Live-Kurs über Cloudflare Proxy abrufen mit Währungsumrechnung
+    // NEU: Live-Kurs über CORS-Proxy abrufen mit Währungsumrechnung
     var refreshBtn = container.querySelector('#btn-refresh-stock');
     if (refreshBtn) {
       refreshBtn.onclick = function() {
@@ -141,7 +139,10 @@ window.App.StockOverview = (function () {
         refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Lade...';
         refreshBtn.disabled = true;
 
-        fetch(PROXY_URL + '?ticker=' + encodeURIComponent(currentStock.ticker))
+        var yahooApiUrl = "https://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(currentStock.ticker) + "?interval=1d&range=1d";
+        var proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(yahooApiUrl);
+
+        fetch(proxyUrl)
           .then(function(res) { return res.json(); })
           .then(function(data) {
             if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
@@ -158,13 +159,15 @@ window.App.StockOverview = (function () {
 
             // Wenn die Aktie in USD (oder anderer Währung) notiert ist, rechnen wir live in EUR um
             if (currency !== 'EUR') {
-              fetch(PROXY_URL + '?ticker=EUR' + currency + '=X')
+              var fxApiUrl = "https://query1.finance.yahoo.com/v8/finance/chart/EUR" + currency + "=X?interval=1d&range=1d";
+              var fxProxyUrl = "https://corsproxy.io/?" + encodeURIComponent(fxApiUrl);
+              
+              fetch(fxProxyUrl)
                 .then(function(fxRes) { return fxRes.json(); })
                 .then(function(fxData) {
                   if (fxData.chart && fxData.chart.result && fxData.chart.result.length > 0) {
                     var fxRate = fxData.chart.result[0].meta.regularMarketPrice;
                     if (fxRate) {
-                      // Umrechnen in Euro
                       livePrice = livePrice / fxRate;
                       prevClose = prevClose / fxRate;
                       updatePriceUI(livePrice, prevClose, 'EUR');
@@ -202,7 +205,7 @@ window.App.StockOverview = (function () {
             console.error(err);
             refreshBtn.innerHTML = originalHtml;
             refreshBtn.disabled = false;
-            alert('Live-Kurs konnte nicht geladen werden. Möglicherweise blockiert Yahoo den Proxy kurzzeitig.');
+            alert('Live-Kurs konnte nicht geladen werden. Der CORS-Proxy ist eventuell ausgelastet. Versuche es später noch einmal.');
           });
       };
     }
