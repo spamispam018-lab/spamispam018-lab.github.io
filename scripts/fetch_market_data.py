@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
 scripts/fetch_market_data.py
-Delta-Marktdaten-Update. NEU:
-- Synchronisiert das updatedAt-Feld von stock.json ins universe.json.
-- Chart-Muster (Golden/Death Cross, Doppel-Top/Boden, Bollinger-Squeeze) → universe.json
-- Institutional Holders (nur US-Aktien mit Daten) → stock.json
-- Options-Zusammenfassung (nur US-Aktien mit Optionsmarkt) → stock.json
-- Robuster Fallback für ETFs, falls Yahoo Finance info-Daten (Preise) nicht liefert.
+Delta-Marktdaten-Update.
+NEU: Die Preisermittlung wurde grundlegend überarbeitet.
+Bei ETFs (und Aktien) wird der Kurs jetzt IMMER zuerst aus der
+historischen Tagesdaten-Reihe (history) genommen, da die info-API von
+Yahoo Finance bei europäischen ETFs oft veraltete oder falsche Werte liefert.
 """
 
 import os
@@ -442,20 +441,24 @@ def fetch_full_stock(ticker_sym):
                "country": country, "currency": "EUR",
                "nativeCurrency": cur, "exchange": info.get("exchange", "N/A")}
 
-    # Robusterer Fallback für den aktuellen Kurs
-    raw_curr = clean_val(info.get("currentPrice") or info.get("regularMarketPrice") or info.get("navPrice"), 0.0)
-    raw_prev = clean_val(info.get("previousClose") or info.get("regularMarketPreviousClose"), 0.0)
+    # --- NEUE, ROBUSTE PREISERMITTLUNG ---
+    raw_curr = 0.0
+    raw_prev = 0.0
+    
+    # 1. Versuche IMMER zuerst die History zu laden (viel zuverlässiger bei ETFs)
+    try:
+        hist_check = t.history(period="5d")
+        if not hist_check.empty:
+            raw_curr = float(hist_check["Close"].iloc[-1])
+            if len(hist_check) > 1:
+                raw_prev = float(hist_check["Close"].iloc[-2])
+    except Exception:
+        pass
 
-    # Wenn info keine Kurse liefert (typisch für manche ETFs), nutzen wir die History
+    # 2. Wenn History fehlschlägt, nutze das info-Dictionary als Fallback
     if not raw_curr:
-        try:
-            hist_check = t.history(period="5d")
-            if not hist_check.empty:
-                raw_curr = float(hist_check["Close"].iloc[-1])
-                if not raw_prev and len(hist_check) > 1:
-                    raw_prev = float(hist_check["Close"].iloc[-2])
-        except Exception:
-            pass
+        raw_curr = clean_val(info.get("currentPrice") or info.get("regularMarketPrice") or info.get("navPrice"), 0.0)
+        raw_prev = clean_val(info.get("previousClose") or info.get("regularMarketPreviousClose"), 0.0)
 
     if not raw_prev:
         raw_prev = raw_curr
@@ -655,7 +658,7 @@ def run_delta_sync(tickers):
         u_item["dividendYield"] = stock_data.get("ratios", {}).get("dividendYield")
         u_item["exDividendDate"] = stock_data.get("exDividendDate")
         
-        # NEU: Das Update-Datum des Tickers auch im Universum mitschreiben
+        # Aktualisierungsdatum auch im Universum mitschreiben
         u_item["updatedAt"] = stock_data.get("updatedAt", now_iso)
 
         try:
