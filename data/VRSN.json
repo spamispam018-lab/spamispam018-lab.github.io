@@ -11,15 +11,19 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 272.0752,
-    "change": -2.5176,
-    "changePercent": -0.92,
+    "price": 278.479,
+    "change": 4.7216,
+    "changePercent": 1.72,
     "marketCap": 24658941784.9078,
     "fiftyTwoWeekLow": 186.0128,
     "fiftyTwoWeekHigh": 289.1187,
     "volume": 1020300.0,
     "avgVolume": 877979,
-    "currency": "EUR"
+    "currency": "EUR",
+    "priceNative": 311.115,
+    "nativeCurrency": "USD",
+    "fxRate": 0.8951000240191239,
+    "fxAsOf": "2026-11-10T23:05:00+00:00"
   },
   "ratios": {
     "peTrailing": 33.2261,
@@ -6338,43 +6342,47 @@
     {
       "date": "2026-11-09",
       "close": 271.1952
+    },
+    {
+      "date": "2026-11-10",
+      "close": 278.479
     }
   ],
-  "updatedAt": "2026-11-10T07:40:55.499657+00:00",
+  "updatedAt": "2026-11-10T23:09:36.564694+00:00",
   "holdings": [],
   "dividends": {
     "history": [
       {
         "date": "2010-12-16",
-        "amount": 2.6688
+        "amount": 2.6853
       },
       {
         "date": "2011-05-05",
-        "amount": 2.4464
+        "amount": 2.4615
       },
       {
         "date": "2025-05-19",
-        "amount": 0.685
+        "amount": 0.6892
       },
       {
         "date": "2025-08-19",
-        "amount": 0.685
+        "amount": 0.6892
       },
       {
         "date": "2025-11-18",
-        "amount": 0.685
+        "amount": 0.6892
       },
       {
         "date": "2026-02-19",
-        "amount": 0.7206
+        "amount": 0.725
       },
       {
         "date": "2026-05-19",
-        "amount": 0.7206
+        "amount": 0.725
       },
       {
         "date": "2026-08-19",
-        "amount": 0.7206
+        "amount": 0.725
       }
     ]
   },
@@ -6455,10 +6463,10 @@
       "2027-06-17"
     ],
     "summary": {
-      "atmIV": 0.0156,
-      "putCallRatio": 1.4808,
-      "openInterestCall": 52,
-      "openInterestPut": 77,
+      "atmIV": 0.4153,
+      "putCallRatio": 0.5993,
+      "openInterestCall": 8115,
+      "openInterestPut": 4863,
       "ivRank": null,
       "impliedMove": null
     }

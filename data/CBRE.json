@@ -11,15 +11,19 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 122.916,
-    "change": 2.3663,
-    "changePercent": 1.96,
+    "price": 120.6505,
+    "change": -3.0255,
+    "changePercent": -2.45,
     "marketCap": 34781410862.5404,
     "fiftyTwoWeekLow": 108.1557,
     "fiftyTwoWeekHigh": 155.2066,
     "volume": 1563800.0,
     "avgVolume": 2080931,
-    "currency": "EUR"
+    "currency": "EUR",
+    "priceNative": 134.79,
+    "nativeCurrency": "USD",
+    "fxRate": 0.8951000240191239,
+    "fxAsOf": "2026-11-10T23:05:00+00:00"
   },
   "ratios": {
     "peTrailing": 29.0171,
@@ -6722,9 +6726,13 @@
     {
       "date": "2026-11-09",
       "close": 123.6818
+    },
+    {
+      "date": "2026-11-10",
+      "close": 120.6505
     }
   ],
-  "updatedAt": "2026-11-10T07:40:55.499657+00:00",
+  "updatedAt": "2026-11-10T23:09:36.564694+00:00",
   "holdings": [],
   "dividends": {
     "history": []
@@ -6808,10 +6816,10 @@
       "2029-01-19"
     ],
     "summary": {
-      "atmIV": 0.0156,
-      "putCallRatio": 0.0,
-      "openInterestCall": 5,
-      "openInterestPut": 0,
+      "atmIV": 0.4822,
+      "putCallRatio": 1.4685,
+      "openInterestCall": 1844,
+      "openInterestPut": 2708,
       "ivRank": null,
       "impliedMove": null
     }

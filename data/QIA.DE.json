@@ -11,15 +11,19 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 45.205,
-    "change": -0.065,
-    "changePercent": -0.14,
+    "price": 45.12,
+    "change": -0.085,
+    "changePercent": -0.19,
     "marketCap": 9334675456.0,
     "fiftyTwoWeekLow": 27.56,
     "fiftyTwoWeekHigh": 47.595,
     "volume": 1147534.0,
     "avgVolume": 849292,
-    "currency": "EUR"
+    "currency": "EUR",
+    "priceNative": 45.12,
+    "nativeCurrency": "EUR",
+    "fxRate": 1.0,
+    "fxAsOf": "2026-11-10T23:05:00+00:00"
   },
   "ratios": {
     "peTrailing": 28.4308,
@@ -6434,36 +6438,36 @@
     },
     {
       "date": "2026-11-09",
-      "close": 45.235
+      "close": 45.12
     }
   ],
-  "updatedAt": "2026-11-09T23:12:18.949712+00:00",
+  "updatedAt": "2026-11-10T23:09:36.564694+00:00",
   "holdings": [],
   "dividends": {
     "history": [
       {
         "date": "2017-01-25",
-        "amount": 1.0724
+        "amount": 1.079
       },
       {
         "date": "2024-01-30",
-        "amount": 1.2329
+        "amount": 1.2405
       },
       {
         "date": "2025-01-29",
-        "amount": 1.2136
+        "amount": 1.2211
       },
       {
         "date": "2025-07-02",
-        "amount": 0.2341
+        "amount": 0.2356
       },
       {
         "date": "2026-01-08",
-        "amount": 2.1444
+        "amount": 2.1577
       },
       {
         "date": "2026-07-07",
-        "amount": 0.3114
+        "amount": 0.3133
       }
     ]
   },

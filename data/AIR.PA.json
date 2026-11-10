@@ -11,15 +11,19 @@
     "exchange": "PAR"
   },
   "quote": {
-    "price": 196.4,
-    "change": -2.48,
-    "changePercent": -1.25,
+    "price": 206.0,
+    "change": 9.6,
+    "changePercent": 4.89,
     "marketCap": 154987331584.0,
     "fiftyTwoWeekLow": 157.42,
     "fiftyTwoWeekHigh": 221.3,
     "volume": 1197952.0,
     "avgVolume": 986156,
-    "currency": "EUR"
+    "currency": "EUR",
+    "priceNative": 206.0,
+    "nativeCurrency": "EUR",
+    "fxRate": 1.0,
+    "fxAsOf": "2026-11-10T23:05:00+00:00"
   },
   "ratios": {
     "peTrailing": 25.1795,
@@ -6047,10 +6051,10 @@
     },
     {
       "date": "2026-11-09",
-      "close": 197.88
+      "close": 206.0
     }
   ],
-  "updatedAt": "2026-11-09T23:12:18.949712+00:00",
+  "updatedAt": "2026-11-10T23:09:36.564694+00:00",
   "holdings": [],
   "dividends": {
     "history": [
@@ -6139,7 +6143,7 @@
   "institutional": {
     "holders": [],
     "summary": {
-      "institutionalPercent": 0.3819,
+      "institutionalPercent": 0.3832,
       "institutionalCount": null
     }
   }

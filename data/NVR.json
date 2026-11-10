@@ -11,15 +11,19 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 5638.6223,
-    "change": 35.6639,
-    "changePercent": 0.64,
+    "price": 5403.1996,
+    "change": -270.2844,
+    "changePercent": -4.76,
     "marketCap": 14841071003.0353,
     "fiftyTwoWeekLow": 4899.2543,
     "fiftyTwoWeekHigh": 7303.0017,
     "volume": 32500.0,
     "avgVolume": 41392,
-    "currency": "EUR"
+    "currency": "EUR",
+    "priceNative": 6036.4199,
+    "nativeCurrency": "USD",
+    "fxRate": 0.8951000240191239,
+    "fxAsOf": "2026-11-10T23:05:00+00:00"
   },
   "ratios": {
     "peTrailing": 17.4101,
@@ -6143,51 +6147,55 @@
     {
       "date": "2026-11-09",
       "close": 5613.5275
+    },
+    {
+      "date": "2026-11-10",
+      "close": 5403.1996
     }
   ],
-  "updatedAt": "2026-11-10T07:40:55.499657+00:00",
+  "updatedAt": "2026-11-10T23:09:36.564694+00:00",
   "holdings": [],
   "dividends": {
     "history": [
       {
         "date": "1987-09-25",
-        "amount": 0.0747
+        "amount": 0.0752
       },
       {
         "date": "1987-12-24",
-        "amount": 0.1334
+        "amount": 0.1343
       },
       {
         "date": "1988-03-25",
-        "amount": 0.0712
+        "amount": 0.0716
       },
       {
         "date": "1988-07-26",
-        "amount": 0.1112
+        "amount": 0.1119
       },
       {
         "date": "1988-11-08",
-        "amount": 0.1156
+        "amount": 0.1164
       },
       {
         "date": "1989-02-16",
-        "amount": 0.1708
+        "amount": 0.1719
       },
       {
         "date": "1989-04-19",
-        "amount": 0.1797
+        "amount": 0.1808
       },
       {
         "date": "1989-07-26",
-        "amount": 0.1975
+        "amount": 0.1987
       },
       {
         "date": "1989-10-26",
-        "amount": 0.2046
+        "amount": 0.2059
       },
       {
         "date": "1990-02-23",
-        "amount": 0.1486
+        "amount": 0.1495
       }
     ]
   },

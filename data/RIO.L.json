@@ -11,15 +11,19 @@
     "exchange": "LSE"
   },
   "quote": {
-    "price": 75.2216,
-    "change": 0.1318,
-    "changePercent": 0.18,
+    "price": 75.5626,
+    "change": -1.1114,
+    "changePercent": -1.45,
     "marketCap": 1224356353.1861,
     "fiftyTwoWeekLow": 62.1045,
     "fiftyTwoWeekHigh": 109.2641,
     "volume": 2110108.0,
     "avgVolume": 2731793,
-    "currency": "EUR"
+    "currency": "EUR",
+    "priceNative": 6323.0,
+    "nativeCurrency": "GBp",
+    "fxRate": 0.011950429257567861,
+    "fxAsOf": "2026-11-10T23:05:00+00:00"
   },
   "ratios": {
     "peTrailing": 11.42,
@@ -5660,91 +5664,95 @@
     {
       "date": "2026-11-09",
       "close": 76.3362
+    },
+    {
+      "date": "2026-11-10",
+      "close": 75.5626
     }
   ],
-  "updatedAt": "2026-11-10T07:40:55.499657+00:00",
+  "updatedAt": "2026-11-10T23:09:36.564694+00:00",
   "holdings": [],
   "dividends": {
     "history": [
       {
         "date": "2017-02-23",
-        "amount": 1.2043
+        "amount": 1.2017
       },
       {
         "date": "2017-08-10",
-        "amount": 0.9956
+        "amount": 0.9934
       },
       {
         "date": "2018-03-01",
-        "amount": 1.5501
+        "amount": 1.5467
       },
       {
         "date": "2018-08-09",
-        "amount": 1.1595
+        "amount": 1.157
       },
       {
         "date": "2019-03-07",
-        "amount": 3.8265
+        "amount": 3.8183
       },
       {
         "date": "2019-08-08",
-        "amount": 2.0735
+        "amount": 2.0691
       },
       {
         "date": "2020-03-05",
-        "amount": 2.1254
+        "amount": 2.1208
       },
       {
         "date": "2020-08-06",
-        "amount": 1.434
+        "amount": 1.4309
       },
       {
         "date": "2021-03-04",
-        "amount": 3.4449
+        "amount": 3.4375
       },
       {
         "date": "2021-08-12",
-        "amount": 4.8395
+        "amount": 4.8292
       },
       {
         "date": "2022-03-10",
-        "amount": 4.2194
+        "amount": 4.2104
       },
       {
         "date": "2022-08-11",
-        "amount": 2.6543
+        "amount": 2.6486
       },
       {
         "date": "2023-03-09",
-        "amount": 2.2198
+        "amount": 2.215
       },
       {
         "date": "2023-08-10",
-        "amount": 1.6487
+        "amount": 1.6452
       },
       {
         "date": "2024-03-07",
-        "amount": 2.4404
+        "amount": 2.4351
       },
       {
         "date": "2024-08-15",
-        "amount": 1.6074
+        "amount": 1.604
       },
       {
         "date": "2025-03-06",
-        "amount": 2.1076
+        "amount": 2.1031
       },
       {
         "date": "2025-08-14",
-        "amount": 1.3004
+        "amount": 1.2976
       },
       {
         "date": "2026-03-05",
-        "amount": 2.2967
+        "amount": 2.2917
       },
       {
         "date": "2026-08-13",
-        "amount": 1.8762
+        "amount": 1.8722
       }
     ]
   },

@@ -11,15 +11,19 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 57.64,
-    "change": 0.58,
-    "changePercent": 1.02,
+    "price": 58.6,
+    "change": 0.96,
+    "changePercent": 1.67,
     "marketCap": 44958343168.0,
     "fiftyTwoWeekLow": 42.62,
     "fiftyTwoWeekHigh": 62.0,
     "volume": 1202609.0,
     "avgVolume": 1357176,
-    "currency": "EUR"
+    "currency": "EUR",
+    "priceNative": 58.6,
+    "nativeCurrency": "EUR",
+    "fxRate": 1.0,
+    "fxAsOf": "2026-11-10T23:05:00+00:00"
   },
   "ratios": {
     "peTrailing": 12.7805,
@@ -6069,10 +6073,10 @@
     },
     {
       "date": "2026-11-09",
-      "close": 57.08
+      "close": 58.6
     }
   ],
-  "updatedAt": "2026-11-09T23:12:18.949712+00:00",
+  "updatedAt": "2026-11-10T23:09:36.564694+00:00",
   "holdings": [],
   "dividends": {
     "history": [
@@ -6082,7 +6086,7 @@
       },
       {
         "date": "2007-06-13",
-        "amount": 0.4095
+        "amount": 0.412
       },
       {
         "date": "2008-04-18",
