@@ -1,28 +1,26 @@
 /**
  * js/stock-overview.js
- * Verwaltet den Tab "Overview" der Aktiendetailansicht.
- *
- * FIX: `--bg-surface-elevated` existierte nicht im Theme → durch `--bg-tertiary`
- * ersetzt. Vorher waren ETF-Holdings-Balken und 52W-Spannenbalken unsichtbar.
+ * Verwaltet den Tab "Overview".
+ * NEU: "Live-Kurs abrufen" nutzt den Cloudflare Worker Proxy und rechnet
+ * US-Dollar live in Euro um (wie Trade Republic).
  */
-
 window.App = window.App || {};
 
 window.App.StockOverview = (function () {
   'use strict';
 
+  // Deine Cloudflare Worker URL
+  var PROXY_URL = "https://yahoo-proxy.spamispam018.workers.dev/"; 
+
   var currentStock = null;
   var currentPeriod = '1Y';
-  var longHistory = null; // null = lädt noch, [] = nicht vorhanden
+  var longHistory = null;
 
   function esc(s) {
     return String(s === null || s === undefined ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  /**
-   * Haupt-Renderfunktion für die Overview-Ansicht.
-   */
   function render(container, stock) {
     if (!container || !stock) return;
     currentStock = stock;
@@ -32,8 +30,9 @@ window.App.StockOverview = (function () {
     var insider = stock.insider || { summary: {}, trades: [] };
     var financials = stock.financials || {};
     var holdings = stock.holdings || [];
+    
+    var isDataMissing = !quote.price || quote.price <= 0;
 
-    // Trailing-KGV prüfen: Wenn kein positiver Wert vorliegt, aber ein Forward-KGV existiert oder Verluste vorliegen
     var peTrailingDisplay;
     if (ratios.peTrailing !== null && ratios.peTrailing !== undefined && ratios.peTrailing > 0) {
       peTrailingDisplay = window.App.Format.number(ratios.peTrailing, 1);
@@ -43,15 +42,9 @@ window.App.StockOverview = (function () {
       peTrailingDisplay = '—';
     }
 
-    var forwardPeDisplay = (ratios.peForward && ratios.peForward > 0)
-      ? window.App.Format.number(ratios.peForward, 1)
-      : '—';
+    var forwardPeDisplay = (ratios.peForward && ratios.peForward > 0) ? window.App.Format.number(ratios.peForward, 1) : '—';
+    var divYieldDisplay = (ratios.dividendYield !== null && ratios.dividendYield !== undefined && ratios.dividendYield > 0) ? window.App.Format.number(ratios.dividendYield, 2) + ' %' : '0,00 %';
 
-    var divYieldDisplay = (ratios.dividendYield !== null && ratios.dividendYield !== undefined && ratios.dividendYield > 0)
-      ? window.App.Format.number(ratios.dividendYield, 2) + ' %'
-      : '0,00 %';
-
-    // Aktualisierungsdatum formatieren
     var updatedAtDisplay = 'Unbekannt';
     if (stock.updatedAt) {
       var d = new Date(stock.updatedAt);
@@ -72,7 +65,7 @@ window.App.StockOverview = (function () {
             '</div>' +
             '<div style="font-size: 0.72rem; color: var(--text-muted);">Frage Gemini nach den Gründen für die Kursentwicklung und einer Bewertung.</div>' +
           '</div>' +
-          '<button id="btn-ask-gemini" class="chip-btn active" style="background: var(--accent-purple); border-color: var(--accent-purple); font-size: 0.75rem; flex-shrink: 0; box-shadow: 0 4px 14px var(--accent-purple-glow);">Fragen</button>' +
+          '<button id="btn-ask-gemini" class="chip-btn active" style="background: var(--accent-purple); border-color: var(--accent-purple); font-size: 0.75rem; flex-shrink: 0; box-shadow: 0 4px 14px var(--accent-purple-glow);" ' + (isDataMissing ? 'disabled style="opacity:0.5;box-shadow:none;"' : '') + '>Fragen</button>' +
         '</div>' +
       '</div>' +
 
@@ -84,48 +77,17 @@ window.App.StockOverview = (function () {
           'Live-Kurs abrufen' +
         '</button>' +
       '</div>' +
+      
+      (isDataMissing ? '<div class="card" style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--bearish); padding: 16px; margin-bottom: 14px; text-align: center;">' +
+        '<div style="font-size: 1.1rem; font-weight: 700; color: var(--bearish); margin-bottom: 4px;">Keine Kursdaten verfügbar</div>' +
+        '<div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Bitte klicke oben auf <b>Live-Kurs abrufen</b>, um die Daten neu zu ziehen.</div>' +
+      '</div>' : '') +
 
       '<div id="news-card"></div>' +
-
-      '<!-- ETF Top Holdings (falls vorhanden) -->' +
       renderEtfHoldingsHtml(holdings) +
-
-      '<!-- 1. Bewertungs- & Marktkennzahlen -->' +
-      '<div class="card">' +
-        '<div class="card-header-dotted">' +
-          '<span class="card-title">Bewertungs- &amp; Marktkennzahlen</span>' +
-          '<span class="period-tag">Aktuell</span>' +
-        '</div>' +
-        '<div class="metrics-grid-2col">' +
-          '<div class="metric-cell">' +
-            '<span class="metric-label">Marktkapitalisierung:</span>' +
-            '<span class="metric-value">' + window.App.Format.compactNumber(quote.marketCap, quote.currency) + '</span>' +
-          '</div>' +
-          '<div class="metric-cell">' +
-            '<span class="metric-label">KGV (Trailing):</span>' +
-            '<span class="metric-value">' + peTrailingDisplay + '</span>' +
-          '</div>' +
-          '<div class="metric-cell">' +
-            '<span class="metric-label">Forward KGV:</span>' +
-            '<span class="metric-value">' + forwardPeDisplay + '</span>' +
-          '</div>' +
-          '<div class="metric-cell">' +
-            '<span class="metric-label">Dividendenrendite:</span>' +
-            '<span class="metric-value">' + divYieldDisplay + '</span>' +
-          '</div>' +
-          '<div class="metric-cell">' +
-            '<span class="metric-label">52W Tief:</span>' +
-            '<span class="metric-value">' + window.App.Format.currency(quote.fiftyTwoWeekLow, quote.currency) + '</span>' +
-          '</div>' +
-          '<div class="metric-cell">' +
-            '<span class="metric-label">52W Hoch:</span>' +
-            '<span class="metric-value">' + window.App.Format.currency(quote.fiftyTwoWeekHigh, quote.currency) + '</span>' +
-          '</div>' +
-        '</div>' +
-        renderFiftyTwoWeekRange(quote.price, quote.fiftyTwoWeekLow, quote.fiftyTwoWeekHigh, quote.currency) +
-      '</div>' +
-
-      '<!-- 2. Kursverlauf Chart -->' +
+      renderMetricsHtml(quote, ratios, peTrailingDisplay, forwardPeDisplay, divYieldDisplay, isDataMissing) +
+      
+      (!isDataMissing ? 
       '<div class="card">' +
         '<div class="card-header-dotted">' +
           '<span class="card-title">Kursverlauf</span>' +
@@ -145,7 +107,6 @@ window.App.StockOverview = (function () {
         '<div class="perf-grid" id="overview-perf-grid"></div>' +
       '</div>' +
 
-      '<!-- 3. Insider-Aktivität Kurzüberblick -->' +
       '<div class="card">' +
         '<div class="card-header-dotted">' +
           '<span class="card-title">Insider Activity</span>' +
@@ -158,7 +119,6 @@ window.App.StockOverview = (function () {
         '</div>' +
       '</div>' +
 
-      '<!-- 4. Quartals-Trend (Finanzen) -->' +
       '<div class="card">' +
         '<div class="card-header-dotted">' +
           '<span class="card-title">Financials Trend</span>' +
@@ -167,174 +127,119 @@ window.App.StockOverview = (function () {
         '<div style="height: 160px; width: 100%; position: relative; margin-top: 8px;">' +
           '<canvas id="overview-financials-canvas"></canvas>' +
         '</div>' +
-      '</div>';
+      '</div>' : '');
 
     container.innerHTML = html;
+    
     if (window.App.News) window.App.News.fillTicker(stock.ticker, container.querySelector('#news-card'));
 
-    // Gemini Event Listener binden
-    var geminiBtn = container.querySelector('#btn-ask-gemini');
-    if (geminiBtn) {
-      geminiBtn.onclick = function () {
-        var sName = currentStock.profile.name || currentStock.ticker;
-        var sTicker = currentStock.ticker;
-        var sPrice = window.App.Format.currency(currentStock.quote.price, currentStock.quote.currency);
-        var sChange = window.App.Format.number(currentStock.quote.changePercent, 2) + ' %';
-        var sPe = (currentStock.ratios && currentStock.ratios.peTrailing) ? window.App.Format.number(currentStock.ratios.peTrailing, 1) : 'unbekannt';
-
-        var promptText = "Hallo Gemini! Bitte prüfe zuerst meine Daten. Kannst du mir danach bitte erklären, warum sich der Aktienkurs von " + sName + " (" + sTicker + ") aktuell so verhält? " +
-                         "Der Kurs liegt bei " + sPrice + " mit einer heutigen Änderung von " + sChange + ". Das KGV beträgt " + sPe + ". ";
-
-        if (currentStock.chartHistory && currentStock.chartHistory.length > 60 && window.App.StockChart) {
-          var hist = currentStock.chartHistory.filter(function (p) { return p && p.close > 0; });
-          var closes = hist.map(function (p) { return p.close; });
-          var n = closes.length;
-          var cPrice = closes[n - 1];
-
-          var s50 = window.App.StockChart._sma(closes, 50);
-          var s200 = window.App.StockChart._sma(closes, 200);
-          var rsiArr = window.App.StockChart._rsi(closes, 14);
-          var m = window.App.StockChart._macd(closes);
-
-          function lastValid(arr) {
-            for (var i = arr.length - 1; i >= 0; i--) {
-              if (arr[i] !== null && arr[i] !== undefined && isFinite(arr[i])) return arr[i];
-            }
-            return null;
-          }
-
-          var s50Last = lastValid(s50);
-          var s200Last = lastValid(s200);
-          var rsiLast = lastValid(rsiArr);
-          var macdLast = lastValid(m.line);
-          var sigLast = lastValid(m.signal);
-          var mom3m = n > 63 ? (cPrice / closes[n - 1 - 63] - 1) * 100 : null;
-
-          var techText = "Hier ist das aktuelle technische Bild: ";
-          if (s200Last !== null) techText += "Der Abstand zur 200-Tage-Linie beträgt " + window.App.Format.number((cPrice / s200Last - 1) * 100, 1) + " %. ";
-          if (s50Last !== null) techText += "Der Abstand zur 50-Tage-Linie beträgt " + window.App.Format.number((cPrice / s50Last - 1) * 100, 1) + " %. ";
-          if (rsiLast !== null) techText += "Der RSI (14) liegt bei " + window.App.Format.number(rsiLast, 0) + ". ";
-          if (macdLast !== null && sigLast !== null) {
-            techText += "Der MACD liegt " + (macdLast > sigLast ? "über" : "unter") + " der Signallinie. ";
-          }
-          if (mom3m !== null) techText += "Das Momentum auf 3 Monate liegt bei " + window.App.Format.number(mom3m, 1) + " %. ";
-
-          var bc = window.App.StockChart._bottom(closes);
-          if (bc && bc.state) techText += "Boden-Check: " + ({ base: 'Bodenbildung möglich', knife: 'fallendes Messer', wait: 'unklar' })[bc.state] + " (" + bc.score + " von 6 Stabilisierungs-Signalen, " + window.App.Format.number(Math.abs(bc.dd) * 100, 0) + " % unter dem 52W-Hoch). ";
-          if (window.App.ChartAnalyse) techText += window.App.ChartAnalyse.promptText(currentStock);
-          promptText += techText;
-        }
-
-        var nws = window.App.News && window.App.News.promptBlock(sTicker, 5);
-        if (nws) promptText += "\n\nAktuelle Nachrichten (englisch, mit automatischer FinBERT-Stimmungseinschätzung):\n" + nws + "\nBitte beziehe diese Nachrichten in deine Erklärung und Bewertung ein. ";
-        promptText += "Bitte gib mir eine Bewertung der Aktie anhand dieser fundamentalen und technischen Daten und der aktuellen Marktlage.";
-
-        var urlText = promptText.length > 1800 ? "Hallo Gemini! Mein Prompt mit Kursdaten und aktuellen Nachrichten liegt in der Zwischenablage – bitte einfügen und absenden." : promptText;
-        var geminiUrl = "https://gemini.google.com/app?q=" + encodeURIComponent(urlText);
-
-        if (navigator.clipboard && window.isSecureContext) {
-          navigator.clipboard.writeText(promptText).then(function () {
-            window.open(geminiUrl, '_blank');
-          }).catch(function () {
-            window.open(geminiUrl, '_blank');
-          });
-        } else {
-          window.open(geminiUrl, '_blank');
-        }
-      };
-    }
-
+    // NEU: Live-Kurs über Cloudflare Proxy abrufen mit Währungsumrechnung
     var refreshBtn = container.querySelector('#btn-refresh-stock');
     if (refreshBtn) {
-      refreshBtn.onclick = function () {
-        var token = localStorage.getItem('GITHUB_PAT');
-
-        if (!token) {
-          token = prompt("Um Live-Daten abzurufen, gib bitte dein GitHub Personal Access Token (mit 'repo' Berechtigung) ein.\n\nEs wird sicher nur lokal in deinem Browser (localStorage) gespeichert.");
-          if (token) {
-            localStorage.setItem('GITHUB_PAT', token);
-          } else {
-            return;
-          }
-        }
-
+      refreshBtn.onclick = function() {
         var originalHtml = refreshBtn.innerHTML;
-        refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Action startet...';
+        refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Lade...';
         refreshBtn.disabled = true;
 
-        var workflowFilename = 'update_data.yml';
-        var githubApiUrl = 'https://api.github.com/repos/spamispam018-lab/spamispam018-lab.github.io/actions/workflows/' + workflowFilename + '/dispatches';
+        fetch(PROXY_URL + '?ticker=' + encodeURIComponent(currentStock.ticker))
+          .then(function(res) { return res.json(); })
+          .then(function(data) {
+            if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
+              throw new Error("Keine Daten von Yahoo erhalten.");
+            }
+            
+            var result = data.chart.result[0];
+            var meta = result.meta;
+            var livePrice = meta.regularMarketPrice;
+            var prevClose = meta.chartPreviousClose || meta.previousClose || livePrice;
+            var currency = meta.currency;
 
-        fetch(githubApiUrl, {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/vnd.github.v3+json',
-            'Authorization': 'token ' + token,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            ref: 'main',
-            inputs: {
-              sync_mode: 'delta',
-              ticker: currentStock.ticker
+            if (!livePrice) throw new Error("Kein Kurs im Datenpaket.");
+
+            // Wenn die Aktie in USD (oder anderer Währung) notiert ist, rechnen wir live in EUR um
+            if (currency !== 'EUR') {
+              fetch(PROXY_URL + '?ticker=EUR' + currency + '=X')
+                .then(function(fxRes) { return fxRes.json(); })
+                .then(function(fxData) {
+                  if (fxData.chart && fxData.chart.result && fxData.chart.result.length > 0) {
+                    var fxRate = fxData.chart.result[0].meta.regularMarketPrice;
+                    if (fxRate) {
+                      // Umrechnen in Euro
+                      livePrice = livePrice / fxRate;
+                      prevClose = prevClose / fxRate;
+                      updatePriceUI(livePrice, prevClose, 'EUR');
+                    } else {
+                      updatePriceUI(livePrice, prevClose, currency);
+                    }
+                  } else {
+                    updatePriceUI(livePrice, prevClose, currency);
+                  }
+                })
+                .catch(function() { updatePriceUI(livePrice, prevClose, currency); });
+            } else {
+              updatePriceUI(livePrice, prevClose, currency);
+            }
+
+            function updatePriceUI(price, prev, curr) {
+              var priceEl = document.getElementById('stock-header-price');
+              var changeEl = document.getElementById('stock-header-change');
+              if (priceEl && changeEl) {
+                priceEl.textContent = window.App.Format.currency(price, curr);
+                var pct = ((price - prev) / prev) * 100;
+                var chgCls = window.App.Format.changeClass(pct);
+                var sign = pct >= 0 ? '+' : '';
+                changeEl.className = 'badge-pill ' + chgCls;
+                changeEl.textContent = sign + window.App.Format.number(pct, 2) + ' %';
+              }
+              currentStock.quote.price = price;
+              currentStock.quote.changePercent = ((price - prev) / prev) * 100;
+              currentStock.quote.currency = curr;
+              refreshBtn.innerHTML = originalHtml;
+              refreshBtn.disabled = false;
             }
           })
-        })
-        .then(function (response) {
-          if (!response.ok) {
-            if (response.status === 401 || response.status === 403 || response.status === 404) {
-              localStorage.removeItem('GITHUB_PAT');
-              throw new Error("Token ungültig, abgelaufen oder fehlende Berechtigungen. Bitte Seite neu laden und erneut versuchen.");
-            }
-            throw new Error("GitHub API Fehler: " + response.status);
-          }
-
-          refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Warte auf Yahoo (15s)...';
-
-          setTimeout(function () {
-            window.App.Data.getStock(currentStock.ticker)
-              .then(function (updatedStock) {
-                var priceEl = document.getElementById('stock-header-price');
-                var changeEl = document.getElementById('stock-header-change');
-                if (priceEl && changeEl && updatedStock.quote) {
-                  priceEl.textContent = window.App.Format.currency(updatedStock.quote.price, updatedStock.quote.currency);
-                  var chgCls = window.App.Format.changeClass(updatedStock.quote.changePercent);
-                  var sign = (updatedStock.quote.changePercent >= 0) ? '+' : '';
-                  changeEl.className = 'badge-pill ' + chgCls;
-                  changeEl.textContent = sign + window.App.Format.number(updatedStock.quote.changePercent, 2) + ' %';
-                }
-                window.App.StockOverview.render(container, updatedStock);
-              })
-              .catch(function (err) {
-                console.error("Fehler beim Laden der neuen Daten:", err);
-                refreshBtn.innerHTML = originalHtml;
-                refreshBtn.disabled = false;
-                alert('Die Action wurde gestartet, aber die neuen Daten konnten noch nicht geladen werden. Bitte in wenigen Momenten nochmal versuchen.');
-              });
-          }, 15000);
-        })
-        .catch(function (err) {
-          console.error(err);
-          refreshBtn.innerHTML = originalHtml;
-          refreshBtn.disabled = false;
-          alert(err.message);
-        });
+          .catch(function(err) {
+            console.error(err);
+            refreshBtn.innerHTML = originalHtml;
+            refreshBtn.disabled = false;
+            alert('Live-Kurs konnte nicht geladen werden. Möglicherweise blockiert Yahoo den Proxy kurzzeitig.');
+          });
       };
     }
 
-    longHistory = null;
-    drawPriceChart();
-    updatePerfGrid();
-    drawFinancialsChart(financials);
-    bindPeriodPillEvents(container);
+    if (!isDataMissing) {
+        longHistory = null;
+        drawPriceChart();
+        updatePerfGrid();
+        drawFinancialsChart(financials);
+        bindPeriodPillEvents(container);
 
-    var loadingTicker = stock.ticker;
-    window.App.Data.getLongHistory(loadingTicker).then(function (pts) {
-      if (!currentStock || currentStock.ticker !== loadingTicker) return;
-      longHistory = pts || [];
-      updatePerfGrid();
-      if (currentPeriod === '5Y' || currentPeriod === '10Y') drawPriceChart();
-    });
+        var loadingTicker = stock.ticker;
+        window.App.Data.getLongHistory(loadingTicker).then(function (pts) {
+          if (!currentStock || currentStock.ticker !== loadingTicker) return;
+          longHistory = pts || [];
+          updatePerfGrid();
+          if (currentPeriod === '5Y' || currentPeriod === '10Y') drawPriceChart();
+        });
+    }
+  }
+
+  function renderMetricsHtml(quote, ratios, peTrailingDisplay, forwardPeDisplay, divYieldDisplay, isDataMissing) {
+    return '<div class="card">' +
+        '<div class="card-header-dotted">' +
+          '<span class="card-title">Bewertungs- &amp; Marktkennzahlen</span>' +
+          '<span class="period-tag">Aktuell</span>' +
+        '</div>' +
+        '<div class="metrics-grid-2col">' +
+          '<div class="metric-cell"><span class="metric-label">Marktkapitalisierung:</span><span class="metric-value">' + window.App.Format.compactNumber(quote.marketCap, quote.currency) + '</span></div>' +
+          '<div class="metric-cell"><span class="metric-label">KGV (Trailing):</span><span class="metric-value">' + peTrailingDisplay + '</span></div>' +
+          '<div class="metric-cell"><span class="metric-label">Forward KGV:</span><span class="metric-value">' + forwardPeDisplay + '</span></div>' +
+          '<div class="metric-cell"><span class="metric-label">Dividendenrendite:</span><span class="metric-value">' + divYieldDisplay + '</span></div>' +
+          '<div class="metric-cell"><span class="metric-label">52W Tief:</span><span class="metric-value">' + window.App.Format.currency(quote.fiftyTwoWeekLow, quote.currency) + '</span></div>' +
+          '<div class="metric-cell"><span class="metric-label">52W Hoch:</span><span class="metric-value">' + window.App.Format.currency(quote.fiftyTwoWeekHigh, quote.currency) + '</span></div>' +
+        '</div>' +
+        (!isDataMissing ? renderFiftyTwoWeekRange(quote.price, quote.fiftyTwoWeekLow, quote.fiftyTwoWeekHigh, quote.currency) : '') +
+      '</div>';
   }
 
   function renderEtfHoldingsHtml(holdings) {
@@ -349,7 +254,6 @@ window.App.StockOverview = (function () {
 
     holdings.forEach(function (h) {
       var w = Math.max(0, Math.min(100, h.weight || 0));
-      // FIX: --bg-tertiary statt --bg-surface-elevated (existierte nicht im Theme)
       html += '' +
         '<div style="display: flex; flex-direction: column; gap: 2px;">' +
           '<div style="display: flex; justify-content: space-between; font-size: 0.78rem;">' +
@@ -368,10 +272,7 @@ window.App.StockOverview = (function () {
 
   function renderFiftyTwoWeekRange(price, low, high, currency) {
     if (!price || !low || !high || high <= low) return '';
-
     var pct = Math.max(0, Math.min(100, ((price - low) / (high - low)) * 100));
-
-    // FIX: --bg-tertiary statt --bg-surface-elevated
     return '' +
       '<div style="margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--border-subtle);">' +
         '<div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-dim); margin-bottom: 6px;">' +
@@ -390,10 +291,8 @@ window.App.StockOverview = (function () {
     var buyVal = sum.buyValueTotal || 0;
     var sellVal = sum.sellValueTotal || 0;
     var total = buyVal + sellVal;
-
     var buyPct = total > 0 ? (buyVal / total) * 100 : 50;
     var sellPct = total > 0 ? (sellVal / total) * 100 : 50;
-
     return '' +
       '<div style="margin-top: 6px;">' +
         '<div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 6px;">' +
@@ -452,14 +351,14 @@ window.App.StockOverview = (function () {
   function updatePerfGrid() {
     var grid = document.getElementById('overview-perf-grid');
     if (!grid || !currentStock) return;
-
+    
     var periods = [['1W', '1W'], ['1M', '1M'], ['3M', '3M'], ['6M', '6M'], ['1Y', '1J'], ['5Y', '5J'], ['10Y', '10J']];
     var html = '';
-
+    
     grid.style.display = 'flex';
     grid.style.flexWrap = 'wrap';
     grid.style.gap = '8px';
-
+    
     periods.forEach(function (pd) {
       var series = getPeriodSeries(pd[0]);
       var txt = '—';
@@ -471,7 +370,7 @@ window.App.StockOverview = (function () {
       } else if ((pd[0] === '5Y' || pd[0] === '10Y') && longHistory === null) {
         txt = '…';
       }
-
+      
       html += '<div class="perf-cell ' + cls + (pd[0] === currentPeriod ? ' selected' : '') + '" style="flex: 1 1 calc(25% - 8px); min-width: 60px;">' +
         '<span class="perf-label">' + pd[1] + '</span>' +
         '<span class="perf-value">' + txt + '</span></div>';
@@ -498,10 +397,7 @@ window.App.StockOverview = (function () {
     var canvas = document.getElementById('overview-financials-canvas');
     if (!canvas) return;
 
-    var incQuarterly = (financials.incomeStatement && financials.incomeStatement.quarterly)
-      ? financials.incomeStatement.quarterly
-      : [];
-
+    var incQuarterly = (financials.incomeStatement && financials.incomeStatement.quarterly) ? financials.incomeStatement.quarterly : [];
     var recent = incQuarterly.slice(-6);
     if (recent.length === 0) {
       var ctx = canvas.getContext('2d');
@@ -512,13 +408,8 @@ window.App.StockOverview = (function () {
       return;
     }
 
-    var labels = recent.map(function (item) {
-      return (item.date || '').slice(2, 7);
-    });
-
-    var revenues = recent.map(function (item) {
-      return item.Total_Revenue || item.Operating_Revenue || 0;
-    });
+    var labels = recent.map(function (item) { return (item.date || '').slice(2, 7); });
+    var revenues = recent.map(function (item) { return item.Total_Revenue || item.Operating_Revenue || 0; });
 
     window.App.Charts.renderGroupedBarChart(canvas, {
       labels: labels,
