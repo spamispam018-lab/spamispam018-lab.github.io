@@ -1,8 +1,7 @@
 /**
  * js/stock-overview.js
  * Verwaltet den Tab "Overview".
- * NEU: Der "Live-Kurs abrufen"-Button holt sich den aktuellen Kurs 
- * und rechnet ihn (falls nötig) live über den Cloudflare Worker in Euro um.
+ * NEU: Gemini-Button wiederhergestellt und LocalStorage für Live-Kurse integriert.
  */
 
 window.App = window.App || {};
@@ -25,6 +24,17 @@ window.App.StockOverview = (function () {
   function render(container, stock) {
     if (!container || !stock) return;
     currentStock = stock;
+
+    // Prüfen, ob wir einen neueren Live-Kurs im LocalStorage haben
+    try {
+      var cachedLive = JSON.parse(localStorage.getItem('live_price_' + stock.ticker));
+      if (cachedLive && cachedLive.timestamp > new Date(stock.updatedAt).getTime()) {
+        stock.quote.price = cachedLive.price;
+        stock.quote.changePercent = cachedLive.changePercent;
+        stock.quote.currency = cachedLive.currency;
+        stock.updatedAt = new Date(cachedLive.timestamp).toISOString();
+      }
+    } catch (e) {}
 
     var quote = stock.quote || {};
     var ratios = stock.ratios || {};
@@ -134,13 +144,79 @@ window.App.StockOverview = (function () {
     
     if (window.App.News) window.App.News.fillTicker(stock.ticker, container.querySelector('#news-card'));
 
-    // Gemini Event Listener
+    // Gemini Event Listener (Wiederhergestellt)
     var geminiBtn = container.querySelector('#btn-ask-gemini');
     if (geminiBtn && !isDataMissing) {
-      // (Gemini-Logik - hier aus Platzgründen gekürzt, bitte deine bestehende Logik einfügen, falls du sie angepasst hast)
+      geminiBtn.onclick = function() {
+        var sName = currentStock.profile.name || currentStock.ticker;
+        var sTicker = currentStock.ticker;
+        var sPrice = window.App.Format.currency(currentStock.quote.price, currentStock.quote.currency);
+        var sChange = window.App.Format.number(currentStock.quote.changePercent, 2) + ' %';
+        var sPe = (currentStock.ratios && currentStock.ratios.peTrailing) ? window.App.Format.number(currentStock.ratios.peTrailing, 1) : 'unbekannt';
+
+        var promptText = "Hallo Gemini! Bitte prüfe zuerst meine Daten. Kannst du mir danach bitte erklären, warum sich der Aktienkurs von " + sName + " (" + sTicker + ") aktuell so verhält? " +
+                         "Der Kurs liegt bei " + sPrice + " mit einer heutigen Änderung von " + sChange + ". Das KGV beträgt " + sPe + ". ";
+
+        if (currentStock.chartHistory && currentStock.chartHistory.length > 60 && window.App.StockChart) {
+            var hist = currentStock.chartHistory.filter(function (p) { return p && p.close > 0; });
+            var closes = hist.map(function (p) { return p.close; });
+            var n = closes.length;
+            var cPrice = closes[n - 1];
+
+            var s50 = window.App.StockChart._sma(closes, 50);
+            var s200 = window.App.StockChart._sma(closes, 200);
+            var rsiArr = window.App.StockChart._rsi(closes, 14);
+            var m = window.App.StockChart._macd(closes);
+
+            function lastValid(arr) {
+                for (var i = arr.length - 1; i >= 0; i--) {
+                    if (arr[i] !== null && arr[i] !== undefined && isFinite(arr[i])) return arr[i];
+                }
+                return null;
+            }
+
+            var s50Last = lastValid(s50);
+            var s200Last = lastValid(s200);
+            var rsiLast = lastValid(rsiArr);
+            var macdLast = lastValid(m.line);
+            var sigLast = lastValid(m.signal);
+            var mom3m = n > 63 ? (cPrice / closes[n - 1 - 63] - 1) * 100 : null;
+
+            var techText = "Hier ist das aktuelle technische Bild: ";
+            if (s200Last !== null) techText += "Der Abstand zur 200-Tage-Linie beträgt " + window.App.Format.number((cPrice / s200Last - 1) * 100, 1) + " %. ";
+            if (s50Last !== null) techText += "Der Abstand zur 50-Tage-Linie beträgt " + window.App.Format.number((cPrice / s50Last - 1) * 100, 1) + " %. ";
+            if (rsiLast !== null) techText += "Der RSI (14) liegt bei " + window.App.Format.number(rsiLast, 0) + ". ";
+            if (macdLast !== null && sigLast !== null) {
+                techText += "Der MACD liegt " + (macdLast > sigLast ? "über" : "unter") + " der Signallinie. ";
+            }
+            if (mom3m !== null) techText += "Das Momentum auf 3 Monate liegt bei " + window.App.Format.number(mom3m, 1) + " %. ";
+
+            var bc = window.App.StockChart._bottom(closes);
+            if (bc && bc.state) techText += "Boden-Check: " + ({ base: 'Bodenbildung möglich', knife: 'fallendes Messer', wait: 'unklar' })[bc.state] + " (" + bc.score + " von 6 Stabilisierungs-Signalen, " + window.App.Format.number(Math.abs(bc.dd) * 100, 0) + " % unter dem 52W-Hoch). ";
+            if (window.App.ChartAnalyse) techText += window.App.ChartAnalyse.promptText(currentStock);
+            promptText += techText;
+        }
+
+        var nws = window.App.News && window.App.News.promptBlock(sTicker, 5);
+        if (nws) promptText += "\n\nAktuelle Nachrichten (englisch, mit automatischer FinBERT-Stimmungseinschätzung):\n" + nws + "\nBitte beziehe diese Nachrichten in deine Erklärung und Bewertung ein. ";
+        promptText += "Bitte gib mir eine Bewertung der Aktie anhand dieser fundamentalen und technischen Daten und der aktuellen Marktlage.";
+        
+        var urlText = promptText.length > 1800 ? "Hallo Gemini! Mein Prompt mit Kursdaten und aktuellen Nachrichten liegt in der Zwischenablage – bitte einfügen und absenden." : promptText;
+        var geminiUrl = "https://gemini.google.com/app?q=" + encodeURIComponent(urlText);
+        
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(promptText).then(function() {
+                window.open(geminiUrl, '_blank');
+            }).catch(function() {
+                window.open(geminiUrl, '_blank');
+            });
+        } else {
+            window.open(geminiUrl, '_blank');
+        }
+      };
     }
 
-    // Live-Kurs über Cloudflare Proxy abrufen (mit Echtzeit-Währungsumrechnung)
+    // Live-Kurs über Cloudflare Proxy abrufen (Minuten-genau + Währungsumrechnung)
     var refreshBtn = container.querySelector('#btn-refresh-stock');
     if (refreshBtn) {
       refreshBtn.onclick = function() {
@@ -151,7 +227,6 @@ window.App.StockOverview = (function () {
         var dateEl = document.getElementById('stock-updated-at');
         if (dateEl) dateEl.innerHTML = '<span style="color:var(--accent-purple-light);">Rufe Live-Daten ab...</span>';
 
-        // 1. Aktienkurs abrufen
         fetch(PROXY_URL + '/?ticker=' + encodeURIComponent(currentStock.ticker) + '&t=' + Date.now())
           .then(function(res) { 
             if (!res.ok) throw new Error("HTTP Fehler beim Aktienkurs: " + res.status);
@@ -164,11 +239,31 @@ window.App.StockOverview = (function () {
             
             var result = data.chart.result[0];
             var meta = result.meta;
-            var livePrice = meta.regularMarketPrice;
-            var livePct = meta.regularMarketChangePercent;
+            
+            var livePrice = null;
+            var livePct = null;
+
+            // NEU: Wir suchen den allerletzten gehandelten Kurs (inkl. Pre-Market) aus der Historie
+            try {
+              var quotes = result.indicators.quote[0];
+              if (quotes && quotes.close && quotes.close.length > 0) {
+                for (var i = quotes.close.length - 1; i >= 0; i--) {
+                  if (quotes.close[i] !== null) {
+                    livePrice = quotes.close[i];
+                    break;
+                  }
+                }
+              }
+            } catch(e) {}
+
+            // Fallback
+            if (!livePrice) livePrice = meta.regularMarketPrice;
+            if (!livePrice) throw new Error("Kein Kurs gefunden.");
+            
+            var prevClose = meta.chartPreviousClose || meta.previousClose || livePrice;
+            livePct = ((livePrice - prevClose) / prevClose) * 100;
             var currency = meta.currency;
 
-            // 2. Wenn US-Aktie (USD), holen wir live den Wechselkurs EUR/USD
             if (currency !== 'EUR') {
               var pair = 'EUR' + currency + '=X'; 
               return fetch(PROXY_URL + '/?ticker=' + encodeURIComponent(pair) + '&t=' + Date.now())
@@ -183,7 +278,18 @@ window.App.StockOverview = (function () {
             }
           })
           .then(function(finalData) {
-            // 3. Preise im UI aktualisieren (Immer in Euro)
+            var now = new Date();
+            
+            // NEU: Im LocalStorage sichern
+            try {
+              localStorage.setItem('live_price_' + currentStock.ticker, JSON.stringify({
+                price: finalData.price,
+                changePercent: finalData.pct,
+                currency: 'EUR',
+                timestamp: now.getTime()
+              }));
+            } catch (e) {}
+
             var priceEl = document.getElementById('stock-header-price');
             var changeEl = document.getElementById('stock-header-change');
             
@@ -198,10 +304,9 @@ window.App.StockOverview = (function () {
             currentStock.quote.price = finalData.price;
             currentStock.quote.changePercent = finalData.pct;
             currentStock.quote.currency = 'EUR';
-            currentStock.updatedAt = new Date().toISOString();
+            currentStock.updatedAt = now.toISOString();
 
             if (dateEl) {
-              var now = new Date();
               var timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
               dateEl.innerHTML = '<span style="color:var(--bullish); font-weight:700;">✓ Erfolgreich aktualisiert (' + timeStr + ' Uhr)</span>';
             }
