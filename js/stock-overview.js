@@ -1,8 +1,8 @@
 /**
  * js/stock-overview.js
  * Verwaltet den Tab "Overview".
- * NEU: Der "Live-Kurs abrufen"-Button nutzt den Cloudflare Worker Proxy,
- * liest die exakten Meta-Daten von Yahoo aus und aktualisiert das UI.
+ * NEU: Nutzt den Cloudflare Worker Proxy (yahoo-proxy.spamispam018) 
+ * für den Live-Kurs-Abruf mit verbessertem Error-Handling.
  */
 
 window.App = window.App || {};
@@ -10,8 +10,8 @@ window.App = window.App || {};
 window.App.StockOverview = (function () {
   'use strict';
 
-  // TRAGE HIER DEINE CLOUDFLARE WORKER URL EIN:
-  var PROXY_URL = "https://yahoo-proxy.DEIN-NAME.workers.dev"; 
+  // Exakte URL deines Cloudflare Workers
+  var PROXY_URL = "https://yahoo-proxy.spamispam018.workers.dev"; 
 
   var currentStock = null;
   var currentPeriod = '1Y';
@@ -137,10 +137,10 @@ window.App.StockOverview = (function () {
     // Gemini Event Listener
     var geminiBtn = container.querySelector('#btn-ask-gemini');
     if (geminiBtn && !isDataMissing) {
-      // ... (Gemini-Logik bleibt unverändert)
+      // (Gemini-Logik bleibt unverändert)
     }
 
-    // NEU: Live-Kurs über Cloudflare Proxy abrufen
+    // Live-Kurs über Cloudflare Proxy abrufen
     var refreshBtn = container.querySelector('#btn-refresh-stock');
     if (refreshBtn) {
       refreshBtn.onclick = function() {
@@ -148,12 +148,25 @@ window.App.StockOverview = (function () {
         refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Lade...';
         refreshBtn.disabled = true;
 
-        fetch(PROXY_URL + '?ticker=' + encodeURIComponent(currentStock.ticker))
-          .then(function(res) { return res.json(); })
+        // Timeout nach 10 Sekunden
+        var controller = new AbortController();
+        var timeoutId = setTimeout(function() { controller.abort(); }, 10000);
+
+        fetch(PROXY_URL + '/?ticker=' + encodeURIComponent(currentStock.ticker), {
+            method: 'GET',
+            mode: 'cors',
+            signal: controller.signal
+        })
+          .then(function(res) {
+            clearTimeout(timeoutId);
+            if (!res.ok) {
+                throw new Error("HTTP Fehler: " + res.status + " " + res.statusText);
+            }
+            return res.json();
+          })
           .then(function(data) {
-            // Exakte Pfade aus deinem Worker-JSON auslesen
             if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
-              throw new Error("Keine Daten von Yahoo erhalten.");
+              throw new Error("Yahoo lieferte keine Daten für diesen Ticker.");
             }
             
             var result = data.chart.result[0];
@@ -164,38 +177,40 @@ window.App.StockOverview = (function () {
             var currency = meta.currency;
 
             if (livePrice) {
-              // Preis im Header aktualisieren
               var priceEl = document.getElementById('stock-header-price');
               var changeEl = document.getElementById('stock-header-change');
               
               if (priceEl && changeEl) {
-                // Zeigt den Kurs in der Originalwährung an (z.B. USD bei AAPL)
                 priceEl.textContent = window.App.Format.currency(livePrice, currency);
-                
                 var chgCls = window.App.Format.changeClass(livePct);
                 var sign = livePct >= 0 ? '+' : '';
-                
                 changeEl.className = 'badge-pill ' + chgCls;
                 changeEl.textContent = sign + window.App.Format.number(livePct, 2) + ' %';
               }
               
-              // Wir updaten den lokalen Stock-Cache im Arbeitsspeicher
               currentStock.quote.price = livePrice;
               currentStock.quote.changePercent = livePct;
               currentStock.quote.currency = currency;
               
-              // Button wieder zurücksetzen
               refreshBtn.innerHTML = originalHtml;
               refreshBtn.disabled = false;
             } else {
-              throw new Error("Ungültiger Kurswert erhalten.");
+              throw new Error("Ungültiger Kurswert (null) erhalten.");
             }
           })
           .catch(function(err) {
-            console.error(err);
+            clearTimeout(timeoutId);
+            console.error('Live-Kurs Fehler:', err);
             refreshBtn.innerHTML = originalHtml;
             refreshBtn.disabled = false;
-            alert('Live-Kurs konnte nicht geladen werden: ' + err.message);
+            
+            var msg = err.message;
+            if (msg === 'Failed to fetch') {
+               msg = "Netzwerkfehler. Bitte prüfe, ob dein Worker online ist und ob ein Adblocker die Domain blockiert.";
+            } else if (msg.includes('aborted')) {
+               msg = "Zeitüberschreitung (10s). Der Worker antwortet nicht.";
+            }
+            alert('Live-Kurs Fehler:\n' + msg);
           });
       };
     }
