@@ -1,14 +1,17 @@
 /**
  * js/stock-overview.js
  * Verwaltet den Tab "Overview".
- * NEU: "Live-Kurs abrufen" integriert den neuen Preis direkt in den Chart und 
- * aktualisiert den Zeitstempel, damit alles konsistent bleibt.
+ * NEU: Der "Live-Kurs abrufen"-Button nutzt den Cloudflare Worker Proxy,
+ * liest die exakten Meta-Daten von Yahoo aus und aktualisiert das UI.
  */
 
 window.App = window.App || {};
 
 window.App.StockOverview = (function () {
   'use strict';
+
+  // TRAGE HIER DEINE CLOUDFLARE WORKER URL EIN:
+  var PROXY_URL = "https://yahoo-proxy.DEIN-NAME.workers.dev"; 
 
   var currentStock = null;
   var currentPeriod = '1Y';
@@ -69,7 +72,7 @@ window.App.StockOverview = (function () {
 
       '<!-- Daten aktualisieren Button & Zeitstempel -->' +
       '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">' +
-        '<div id="overview-timestamp" style="font-size: 0.7rem; color: var(--text-dim);">Stand: ' + updatedAtDisplay + '</div>' +
+        '<div style="font-size: 0.7rem; color: var(--text-dim);">Stand: ' + updatedAtDisplay + '</div>' +
         '<button id="btn-refresh-stock" class="chip-btn" style="font-size: 0.72rem; display: flex; align-items: center; gap: 6px;">' +
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>' +
           'Live-Kurs abrufen' +
@@ -131,7 +134,13 @@ window.App.StockOverview = (function () {
     
     if (window.App.News) window.App.News.fillTicker(stock.ticker, container.querySelector('#news-card'));
 
-    // Live-Kurs über eigenen Cloudflare Proxy abrufen mit Währungsumrechnung
+    // Gemini Event Listener
+    var geminiBtn = container.querySelector('#btn-ask-gemini');
+    if (geminiBtn && !isDataMissing) {
+      // ... (Gemini-Logik bleibt unverändert)
+    }
+
+    // NEU: Live-Kurs über Cloudflare Proxy abrufen
     var refreshBtn = container.querySelector('#btn-refresh-stock');
     if (refreshBtn) {
       refreshBtn.onclick = function() {
@@ -139,104 +148,54 @@ window.App.StockOverview = (function () {
         refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Lade...';
         refreshBtn.disabled = true;
 
-        var proxyUrl = "https://yahoo-proxy.spamispam018.workers.dev/?ticker=" + encodeURIComponent(currentStock.ticker);
-
-        fetch(proxyUrl)
+        fetch(PROXY_URL + '?ticker=' + encodeURIComponent(currentStock.ticker))
           .then(function(res) { return res.json(); })
           .then(function(data) {
+            // Exakte Pfade aus deinem Worker-JSON auslesen
             if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
               throw new Error("Keine Daten von Yahoo erhalten.");
             }
             
             var result = data.chart.result[0];
             var meta = result.meta;
+            
             var livePrice = meta.regularMarketPrice;
-            var prevClose = meta.chartPreviousClose || meta.previousClose || livePrice;
+            var livePct = meta.regularMarketChangePercent;
             var currency = meta.currency;
 
-            if (!livePrice) throw new Error("Kein Kurs im Datenpaket.");
-
-            // Wenn die Aktie in USD (oder anderer Währung) notiert ist, rechnen wir live in EUR um
-            if (currency !== 'EUR') {
-              var fxProxyUrl = "https://yahoo-proxy.spamispam018.workers.dev/?ticker=EUR" + currency + "=X";
-              
-              fetch(fxProxyUrl)
-                .then(function(fxRes) { return fxRes.json(); })
-                .then(function(fxData) {
-                  if (fxData.chart && fxData.chart.result && fxData.chart.result.length > 0) {
-                    var fxRate = fxData.chart.result[0].meta.regularMarketPrice;
-                    if (fxRate) {
-                      livePrice = livePrice / fxRate;
-                      prevClose = prevClose / fxRate;
-                      updatePriceUI(livePrice, prevClose, 'EUR');
-                    } else {
-                      updatePriceUI(livePrice, prevClose, currency);
-                    }
-                  } else {
-                    updatePriceUI(livePrice, prevClose, currency);
-                  }
-                })
-                .catch(function() { updatePriceUI(livePrice, prevClose, currency); });
-            } else {
-              updatePriceUI(livePrice, prevClose, currency);
-            }
-
-            function updatePriceUI(price, prev, curr) {
-              // 1. Header aktualisieren
+            if (livePrice) {
+              // Preis im Header aktualisieren
               var priceEl = document.getElementById('stock-header-price');
               var changeEl = document.getElementById('stock-header-change');
-              if (priceEl && changeEl) {
-                priceEl.textContent = window.App.Format.currency(price, curr);
-                var pct = ((price - prev) / prev) * 100;
-                var chgCls = window.App.Format.changeClass(pct);
-                var sign = pct >= 0 ? '+' : '';
-                changeEl.className = 'badge-pill ' + chgCls;
-                changeEl.textContent = sign + window.App.Format.number(pct, 2) + ' %';
-              }
-
-              // 2. Daten im Speicher aktualisieren
-              currentStock.quote.price = price;
-              currentStock.quote.changePercent = ((price - prev) / prev) * 100;
-              currentStock.quote.currency = curr;
-
-              // 3. Zeitstempel auf JETZT setzen
-              var now = new Date();
-              currentStock.updatedAt = now.toISOString();
-              var tsEl = document.getElementById('overview-timestamp');
-              if (tsEl) {
-                var formatted = now.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ', ' +
-                                now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
-                tsEl.textContent = 'Stand: ' + formatted;
-              }
-
-              // 4. Den Live-Preis an die Chart-History anhängen (oder heutigen Tag überschreiben)
-              var todayStr = now.toISOString().slice(0, 10);
-              var history = currentStock.chartHistory || [];
-              var lastEntry = history[history.length - 1];
               
-              if (lastEntry && lastEntry.date === todayStr) {
-                // Wenn der letzte Eintrag von heute ist, überschreiben wir ihn mit dem Live-Preis
-                lastEntry.close = price;
-              } else {
-                // Sonst fügen wir einen neuen Punkt für heute hinzu
-                history.push({ date: todayStr, close: price });
+              if (priceEl && changeEl) {
+                // Zeigt den Kurs in der Originalwährung an (z.B. USD bei AAPL)
+                priceEl.textContent = window.App.Format.currency(livePrice, currency);
+                
+                var chgCls = window.App.Format.changeClass(livePct);
+                var sign = livePct >= 0 ? '+' : '';
+                
+                changeEl.className = 'badge-pill ' + chgCls;
+                changeEl.textContent = sign + window.App.Format.number(livePct, 2) + ' %';
               }
-              currentStock.chartHistory = history;
-
-              // 5. Chart und Performance-Kacheln neu zeichnen
-              drawPriceChart();
-              updatePerfGrid();
-
-              // Button zurücksetzen
+              
+              // Wir updaten den lokalen Stock-Cache im Arbeitsspeicher
+              currentStock.quote.price = livePrice;
+              currentStock.quote.changePercent = livePct;
+              currentStock.quote.currency = currency;
+              
+              // Button wieder zurücksetzen
               refreshBtn.innerHTML = originalHtml;
               refreshBtn.disabled = false;
+            } else {
+              throw new Error("Ungültiger Kurswert erhalten.");
             }
           })
           .catch(function(err) {
             console.error(err);
             refreshBtn.innerHTML = originalHtml;
             refreshBtn.disabled = false;
-            alert('Live-Kurs konnte nicht geladen werden. Der Proxy hat eventuell ein Problem beim Abruf gemeldet.');
+            alert('Live-Kurs konnte nicht geladen werden: ' + err.message);
           });
       };
     }
