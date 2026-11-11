@@ -1,8 +1,8 @@
 /**
  * js/stock-overview.js
  * Verwaltet den Tab "Overview".
- * NEU: "Live-Kurs abrufen" nutzt corsproxy.io, um die CORS-Blockade von Yahoo
- * zu umgehen und rechnet US-Dollar live in Euro um (wie Trade Republic).
+ * NEU: "Live-Kurs abrufen" nutzt den eigenen Cloudflare Worker Proxy und 
+ * rechnet US-Dollar live in Euro um (wie Trade Republic).
  */
 
 window.App = window.App || {};
@@ -131,7 +131,7 @@ window.App.StockOverview = (function () {
     
     if (window.App.News) window.App.News.fillTicker(stock.ticker, container.querySelector('#news-card'));
 
-    // NEU: Live-Kurs über CORS-Proxy abrufen mit Währungsumrechnung
+    // Live-Kurs über eigenen Cloudflare Proxy abrufen mit Währungsumrechnung
     var refreshBtn = container.querySelector('#btn-refresh-stock');
     if (refreshBtn) {
       refreshBtn.onclick = function() {
@@ -139,8 +139,7 @@ window.App.StockOverview = (function () {
         refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Lade...';
         refreshBtn.disabled = true;
 
-        var yahooApiUrl = "https://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(currentStock.ticker) + "?interval=1d&range=1d";
-        var proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(yahooApiUrl);
+        var proxyUrl = "https://yahoo-proxy.spamispam018.workers.dev/?ticker=" + encodeURIComponent(currentStock.ticker);
 
         fetch(proxyUrl)
           .then(function(res) { return res.json(); })
@@ -159,8 +158,7 @@ window.App.StockOverview = (function () {
 
             // Wenn die Aktie in USD (oder anderer Währung) notiert ist, rechnen wir live in EUR um
             if (currency !== 'EUR') {
-              var fxApiUrl = "https://query1.finance.yahoo.com/v8/finance/chart/EUR" + currency + "=X?interval=1d&range=1d";
-              var fxProxyUrl = "https://corsproxy.io/?" + encodeURIComponent(fxApiUrl);
+              var fxProxyUrl = "https://yahoo-proxy.spamispam018.workers.dev/?ticker=EUR" + currency + "=X";
               
               fetch(fxProxyUrl)
                 .then(function(fxRes) { return fxRes.json(); })
@@ -205,7 +203,7 @@ window.App.StockOverview = (function () {
             console.error(err);
             refreshBtn.innerHTML = originalHtml;
             refreshBtn.disabled = false;
-            alert('Live-Kurs konnte nicht geladen werden. Der CORS-Proxy ist eventuell ausgelastet. Versuche es später noch einmal.');
+            alert('Live-Kurs konnte nicht geladen werden. Der Proxy hat eventuell ein Problem beim Abruf gemeldet.');
           });
       };
     }
