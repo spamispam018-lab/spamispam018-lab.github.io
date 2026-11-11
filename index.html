@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Aktien Screener &amp; Analyse</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <!-- Theme so früh wie möglich setzen, um Flash zu vermeiden -->
   <script>
     (function () {
       try {
@@ -18,7 +21,6 @@
       } catch (e) {}
     })();
   </script>
-
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -28,7 +30,12 @@
       <div id="app-header-title" class="header-title">Aktien-Screener</div>
       <div id="app-header-subtitle" class="header-subtitle">Marktübersicht &amp; Analyse</div>
     </div>
-    <div style="display:flex;gap:8px;">
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button id="pwa-install-btn" class="icon-btn" aria-label="App installieren" style="display:none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>
+        </svg>
+      </button>
       <button id="btn-cmdk-open" class="icon-btn" aria-label="Suche öffnen (Cmd+K)">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
@@ -48,46 +55,28 @@
 
   <nav class="bottom-nav">
     <a href="#/screener" class="nav-item active" data-route="screener">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
       <span>Screener</span>
     </a>
     <a href="#/market" class="nav-item" data-route="market">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <rect x="3" y="3" width="8" height="8" rx="1"></rect>
-        <rect x="13" y="3" width="8" height="5" rx="1"></rect>
-        <rect x="13" y="10" width="8" height="11" rx="1"></rect>
-        <rect x="3" y="13" width="8" height="8" rx="1"></rect>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="8" height="8" rx="1"></rect><rect x="13" y="3" width="8" height="5" rx="1"></rect><rect x="13" y="10" width="8" height="11" rx="1"></rect><rect x="3" y="13" width="8" height="8" rx="1"></rect></svg>
       <span>Markt</span>
     </a>
     <a href="#/stock" id="nav-item-stock" class="nav-item" data-route="stock">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <line x1="18" y1="20" x2="18" y2="10"></line>
-        <line x1="12" y1="20" x2="12" y2="4"></line>
-        <line x1="6" y1="20" x2="6" y2="14"></line>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
       <span>Detail</span>
     </a>
     <a href="#/compare" class="nav-item" data-route="compare">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
       <span>Vergleich</span>
     </a>
-    <a href="#/watchlist" class="nav-item" data-route="watchlist">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-      </svg>
-      <span>Watchlist</span>
-    </a>
     <a href="#/portfolio" class="nav-item" data-route="portfolio">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <rect x="2" y="7" width="20" height="14" rx="2"></rect>
-        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path></svg>
       <span>Portfolio</span>
+    </a>
+    <a href="#/watchlist" class="nav-item" data-route="watchlist">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      <span>Watchlist</span>
     </a>
   </nav>
 
@@ -102,6 +91,7 @@
   <script src="js/router.js"></script>
 
   <script src="js/export.js"></script>
+  <script src="js/pwa.js"></script>
   <script src="js/command-palette.js"></script>
   <script src="js/screener.js"></script>
   <script src="js/market.js"></script>
@@ -116,7 +106,10 @@
   <script src="js/stock-insider.js"></script>
   <script src="js/stock-analyst.js"></script>
   <script src="js/stock-financials.js"></script>
+  <script src="js/stock-institutional.js"></script>
+  <script src="js/stock-options.js"></script>
   <script src="js/compare.js"></script>
+  <script src="js/backtest.js"></script>
   <script src="js/portfolio.js"></script>
   <script src="js/dividends.js"></script>
   <script src="js/journal.js"></script>
@@ -177,6 +170,12 @@
         window.App.Journal.initView();
       });
 
+      window.App.Router.register('/backtest', function () {
+        if (headerTitle) headerTitle.textContent = 'Backtesting';
+        if (headerSubtitle) headerSubtitle.textContent = 'Filter-Performance simulieren';
+        window.App.Backtest.initView();
+      });
+
       window.App.Router.register('/compare', function () {
         if (headerTitle) headerTitle.textContent = 'Aktienvergleich';
         if (headerSubtitle) headerSubtitle.textContent = 'Kennzahlen im Vergleich';
@@ -215,14 +214,15 @@
             var chgCls = window.App.Format.changeClass(quote.changePercent);
             var sign = (quote.changePercent || 0) >= 0 ? '+' : '';
 
+            // WICHTIG: Die IDs "stock-header-price" und "stock-header-change" wurden hinzugefügt,
+            // damit der Live-Button die Werte aktualisieren kann.
             var html = '' +
               '<div class="view-container">' +
                 '<div class="search-bar-wrapper" style="margin-bottom: 10px;">' +
                   '<svg class="search-icon-left" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
-                    '<circle cx="11" cy="11" r="8"></circle>' +
-                    '<line x1="21" y1="21" x2="16.65" y2="16.65"></line>' +
+                    '<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>' +
                   '</svg>' +
-                  '<input type="text" id="detail-quick-search" class="search-input" placeholder="Ticker eingeben (z. B. NVDA, SAP.DE)..." autocomplete="off">' +
+                  '<input type="text" id="detail-quick-search" class="search-input" placeholder="Ticker eingeben..." autocomplete="off">' +
                 '</div>' +
                 '<div class="card" style="padding: 14px 16px; margin-bottom: 14px;">' +
                   '<div style="display: flex; justify-content: space-between; align-items: flex-start;">' +
@@ -230,9 +230,7 @@
                       '<div style="display: flex; align-items: center; gap: 8px;">' +
                         '<h2 style="font-size: 1.2rem; font-weight: 800; line-height: 1.2;">' + (profile.name || ticker) + '</h2>' +
                         '<button id="detail-star-btn" class="star-btn ' + (isStarred ? 'active' : '') + '">' +
-                          '<svg width="20" height="20" viewBox="0 0 24 24" fill="' + (isStarred ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2">' +
-                            '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>' +
-                          '</svg>' +
+                          '<svg width="20" height="20" viewBox="0 0 24 24" fill="' + (isStarred ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' +
                         '</button>' +
                       '</div>' +
                       '<div style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem;">' +
@@ -242,8 +240,8 @@
                       '</div>' +
                     '</div>' +
                     '<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">' +
-                      '<div style="font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums;">' + window.App.Format.currency(quote.price, quote.currency) + '</div>' +
-                      '<div class="badge-pill ' + chgCls + '">' + sign + window.App.Format.number(quote.changePercent, 2) + ' %</div>' +
+                      '<div id="stock-header-price" style="font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums;">' + window.App.Format.currency(quote.price, quote.currency) + '</div>' +
+                      '<div id="stock-header-change" class="badge-pill ' + chgCls + '">' + sign + window.App.Format.number(quote.changePercent, 2) + ' %</div>' +
                     '</div>' +
                   '</div>' +
                 '</div>' +
@@ -260,6 +258,8 @@
                   '<button class="sub-tab-btn ' + (activeTab === 'insider' ? 'active' : '') + '" data-tab="insider">Insider</button>' +
                   '<button class="sub-tab-btn ' + (activeTab === 'analyst' ? 'active' : '') + '" data-tab="analyst">Analyst</button>' +
                   '<button class="sub-tab-btn ' + (activeTab === 'financials' ? 'active' : '') + '" data-tab="financials">Financials</button>' +
+                  '<button class="sub-tab-btn ' + (activeTab === 'institutional' ? 'active' : '') + '" data-tab="institutional">Institutionen</button>' +
+                  '<button class="sub-tab-btn ' + (activeTab === 'options' ? 'active' : '') + '" data-tab="options">Optionen</button>' +
                 '</div>' +
                 '<div id="stock-active-subtab-area"></div>' +
               '</div>';
@@ -287,15 +287,11 @@
             }
 
             var cmpBtn = document.getElementById('btn-switch-compare');
-            if (cmpBtn) {
-              cmpBtn.onclick = function () { window.App.Router.navigate('/compare'); };
-            }
+            if (cmpBtn) cmpBtn.onclick = function () { window.App.Router.navigate('/compare'); };
 
-            var subTabBtns = container.querySelectorAll('[data-tab]');
-            subTabBtns.forEach(function (btn) {
+            container.querySelectorAll('[data-tab]').forEach(function (btn) {
               btn.onclick = function () {
-                var targetTab = btn.getAttribute('data-tab');
-                window.App.Router.navigate('/stock/' + ticker + '/' + targetTab);
+                window.App.Router.navigate('/stock/' + ticker + '/' + btn.getAttribute('data-tab'));
               };
             });
 
@@ -303,12 +299,10 @@
           })
           .catch(function (err) {
             console.error('Detailansicht ' + ticker + ':', err);
-            container.innerHTML = '' +
-              '<div class="view-container"><div class="state-box">' +
-                '<p style="color: var(--bearish); font-weight: 700;">Aktie nicht gefunden</p>' +
-                '<p style="font-size: 0.85rem;">Keine Daten für "' + ticker + '" verfügbar.</p>' +
-                '<p style="font-size: 0.75rem; opacity: 0.7; word-break: break-word;">Technisch: ' + String((err && err.message) || err).replace(/</g, '&lt;') + '</p>' +
-                '<button class="chip-btn active" style="margin-top: 10px;" onclick="window.App.Router.navigate(\'/screener\')">&larr; Zurück zum Screener</button>' +
+            container.innerHTML = '<div class="view-container"><div class="state-box">' +
+              '<p style="color: var(--bearish); font-weight: 700;">Aktie nicht gefunden</p>' +
+              '<p style="font-size: 0.85rem;">Keine Daten für "' + ticker + '" verfügbar.</p>' +
+              '<button class="chip-btn active" style="margin-top: 10px;" onclick="window.App.Router.navigate(\'/screener\')">&larr; Zurück zum Screener</button>' +
               '</div></div>';
           });
       }
@@ -316,7 +310,6 @@
       function renderSubTabContent(stock, activeTab) {
         var subArea = document.getElementById('stock-active-subtab-area');
         if (!subArea) return;
-
         switch (activeTab) {
           case 'overview': window.App.StockOverview.render(subArea, stock); break;
           case 'chart': window.App.StockChart.render(subArea, stock); break;
@@ -326,6 +319,8 @@
           case 'insider': window.App.StockInsider.render(subArea, stock); break;
           case 'analyst': window.App.StockAnalyst.render(subArea, stock); break;
           case 'financials': window.App.StockFinancials.render(subArea, stock); break;
+          case 'institutional': window.App.StockInstitutional.render(subArea, stock); break;
+          case 'options': window.App.StockOptions.render(subArea, stock); break;
           default: window.App.StockOverview.render(subArea, stock); break;
         }
       }
@@ -333,52 +328,32 @@
       function renderScoreView(container, stock) {
         var period = window.App.Score.getPeriod();
         container.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Berechne Score...</p></div>';
-
         window.App.Score.calculateTotalScoreAsync(stock, period).then(function (scoreData) {
-          var html = '' +
-            '<div class="horizontal-scroll-row" style="margin-bottom: 8px;">' +
+          var html = '<div class="horizontal-scroll-row" style="margin-bottom: 8px;">' +
               '<button class="chip-btn ' + (period === 'quarter' ? 'active' : '') + '" data-score-period="quarter">Quartal</button>' +
               '<button class="chip-btn ' + (period === 'year' ? 'active' : '') + '" data-score-period="year">Jahr</button>' +
             '</div>' +
-            (scoreData.isAggregated
-              ? '<div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 12px; padding: 8px 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);"><b>Hinweis (ETF):</b> Der Score wurde als gewichteter Durchschnitt aus den Fundamentaldaten der Top-5-Holdings berechnet.</div>'
-              : '') +
+            (scoreData.isAggregated ? '<div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 12px; padding: 8px 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);"><b>Hinweis (ETF):</b> Score ist gewichteter Durchschnitt der Top-5-Holdings.</div>' : '') +
             '<p style="font-size: 0.7rem; color: var(--text-dim); margin: 0 4px 12px; line-height: 1.4;">' +
-              (period === 'quarter'
-                ? 'Basis: letztes Quartal. Wachstum gegenüber dem Vorjahresquartal; KGV, KUV, ROE und ROA auf 12 Monate hochgerechnet (x4). Forward KGV und PEG sind Prognosewerte.'
-                : 'Basis: letztes Geschäftsjahr. Wachstum gegenüber dem Vorjahr. Forward KGV und PEG sind Prognosewerte.') +
-            '</p>' +
+              (period === 'quarter' ? 'Basis: letztes Quartal.' : 'Basis: letztes Geschäftsjahr.') + '</p>' +
             '<div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px;">' +
-              '<div>' +
-                '<div style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Gesamt-Score</div>' +
-                '<div style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">' +
-                  (scoreData.totalScore >= 3.5 ? 'Solides Profil' : 'Gemischtes Profil') +
-                '</div>' +
-              '</div>' +
-              '<div class="score-badge-large">' + scoreData.totalScore.toFixed(1) + '</div>' +
-            '</div>';
+              '<div><div style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Gesamt-Score</div>' +
+                '<div style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">' + (scoreData.totalScore >= 3.5 ? 'Solides Profil' : 'Gemischtes Profil') + '</div></div>' +
+              '<div class="score-badge-large">' + scoreData.totalScore.toFixed(1) + '</div></div>';
 
           scoreData.categories.forEach(function (cat) {
-            html += '<div class="card">' +
-              '<div class="card-header-dotted">' +
-                '<span class="card-title">' + cat.category + '</span>' +
-                '<span style="font-weight: 800; font-size: 0.95rem; color: var(--accent-purple-light);">' + cat.score.toFixed(1) + ' / 5.0</span>' +
-              '</div>' +
+            html += '<div class="card"><div class="card-header-dotted"><span class="card-title">' + cat.category + '</span>' +
+              '<span style="font-weight: 800; font-size: 0.95rem; color: var(--accent-purple-light);">' + cat.score.toFixed(1) + ' / 5.0</span></div>' +
               window.App.Score.renderSegmentBarHtml(cat.score) +
               '<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px; font-size: 0.8rem;">';
-
             cat.metrics.forEach(function (m) {
               html += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--border-subtle);">' +
                 '<span style="color: var(--text-muted);">' + m.name + '</span>' +
-                '<strong style="font-variant-numeric: tabular-nums;">' + m.value + '</strong>' +
-              '</div>';
+                '<strong style="font-variant-numeric: tabular-nums;">' + m.value + '</strong></div>';
             });
-
             html += '</div></div>';
           });
-
           container.innerHTML = html;
-
           container.querySelectorAll('[data-score-period]').forEach(function (btn) {
             btn.onclick = function () {
               window.App.Score.setPeriod(btn.getAttribute('data-score-period'));
@@ -386,13 +361,13 @@
             };
           });
         }).catch(function (err) {
-          container.innerHTML = '<div class="state-box"><p>Score-Berechnung fehlgeschlagen: ' +
-            String((err && err.message) || 'Unbekannter Fehler').replace(/</g, '&lt;') + '</p></div>';
+          container.innerHTML = '<div class="state-box"><p>Score fehlgeschlagen: ' + String((err && err.message) || 'Unbekannt').replace(/</g, '&lt;') + '</p></div>';
         });
       }
 
       window.addEventListener('DOMContentLoaded', function () {
         window.App.Theme.init();
+        window.App.PWA.init();
         window.App.CommandPalette.init();
         var cmdkBtn = document.getElementById('btn-cmdk-open');
         if (cmdkBtn) cmdkBtn.onclick = function () { window.App.CommandPalette.open(); };
@@ -404,6 +379,11 @@
 
         if (window.App.Alerts) window.App.Alerts.checkAndNotify();
         if (window.App.Transactions) window.App.Transactions.migrateOldPortfolio();
+        
+        // NEU: Screener-Alerts beim Start prüfen
+        if (window.App.Screener && window.App.Screener.checkScreenerAlerts) {
+          window.App.Screener.checkScreenerAlerts();
+        }
       });
     })();
   </script>
