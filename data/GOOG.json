@@ -11,19 +11,19 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 255.7727,
-    "change": -0.9785,
-    "changePercent": -0.38,
+    "price": 259.7186,
+    "change": 2.9202,
+    "changePercent": 1.14,
     "marketCap": 3108794576224.8276,
     "fiftyTwoWeekLow": 241.7204,
     "fiftyTwoWeekHigh": 360.225,
     "volume": 24585600.0,
     "avgVolume": 19199142,
     "currency": "EUR",
-    "priceNative": 284.92,
+    "priceNative": 288.16,
     "nativeCurrency": "USD",
-    "fxRate": 0.8977000084327174,
-    "fxAsOf": "2026-11-11T11:40:00+00:00"
+    "fxRate": 0.9012999783394247,
+    "fxAsOf": "2026-11-11T15:30:00+00:00"
   },
   "ratios": {
     "peTrailing": 14.8266,
@@ -6584,51 +6584,55 @@
     {
       "date": "2026-11-10",
       "close": 255.7727
+    },
+    {
+      "date": "2026-11-11",
+      "close": 259.7186
     }
   ],
-  "updatedAt": "2026-11-11T11:45:27.231885+00:00",
+  "updatedAt": "2026-11-11T15:34:20.823765+00:00",
   "holdings": [],
   "dividends": {
     "history": [
       {
         "date": "2024-06-10",
-        "amount": 0.1795
+        "amount": 0.1803
       },
       {
         "date": "2024-09-09",
-        "amount": 0.1795
+        "amount": 0.1803
       },
       {
         "date": "2024-12-09",
-        "amount": 0.1795
+        "amount": 0.1803
       },
       {
         "date": "2025-03-10",
-        "amount": 0.1795
+        "amount": 0.1803
       },
       {
         "date": "2025-06-09",
-        "amount": 0.1885
+        "amount": 0.1893
       },
       {
         "date": "2025-09-08",
-        "amount": 0.1885
+        "amount": 0.1893
       },
       {
         "date": "2025-12-08",
-        "amount": 0.1885
+        "amount": 0.1893
       },
       {
         "date": "2026-03-09",
-        "amount": 0.1885
+        "amount": 0.1893
       },
       {
         "date": "2026-06-08",
-        "amount": 0.1975
+        "amount": 0.1983
       },
       {
         "date": "2026-09-04",
-        "amount": 0.1975
+        "amount": 0.1983
       }
     ]
   },
@@ -6712,10 +6716,10 @@
       "2027-01-15"
     ],
     "summary": {
-      "atmIV": 0.001,
-      "putCallRatio": 0.372,
-      "openInterestCall": 16243,
-      "openInterestPut": 6043,
+      "atmIV": 0.3149,
+      "putCallRatio": 0.3829,
+      "openInterestCall": 70950,
+      "openInterestPut": 27164,
       "ivRank": null,
       "impliedMove": null
     }

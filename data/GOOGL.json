@@ -11,19 +11,19 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 257.981,
-    "change": -0.6913,
-    "changePercent": -0.27,
+    "price": 261.8772,
+    "change": 2.8616,
+    "changePercent": 1.1,
     "marketCap": 3118101313383.033,
     "fiftyTwoWeekLow": 241.0881,
     "fiftyTwoWeekHigh": 363.9121,
     "volume": 36283900.0,
     "avgVolume": 28968953,
     "currency": "EUR",
-    "priceNative": 287.38,
+    "priceNative": 290.555,
     "nativeCurrency": "USD",
-    "fxRate": 0.8977000084327174,
-    "fxAsOf": "2026-11-11T11:40:00+00:00"
+    "fxRate": 0.9012999783394247,
+    "fxAsOf": "2026-11-11T15:30:00+00:00"
   },
   "ratios": {
     "peTrailing": 14.871,
@@ -6408,51 +6408,55 @@
     {
       "date": "2026-11-10",
       "close": 257.981
+    },
+    {
+      "date": "2026-11-11",
+      "close": 261.8772
     }
   ],
-  "updatedAt": "2026-11-11T11:45:27.231885+00:00",
+  "updatedAt": "2026-11-11T15:34:20.823765+00:00",
   "holdings": [],
   "dividends": {
     "history": [
       {
         "date": "2024-06-10",
-        "amount": 0.1795
+        "amount": 0.1803
       },
       {
         "date": "2024-09-09",
-        "amount": 0.1795
+        "amount": 0.1803
       },
       {
         "date": "2024-12-09",
-        "amount": 0.1795
+        "amount": 0.1803
       },
       {
         "date": "2025-03-10",
-        "amount": 0.1795
+        "amount": 0.1803
       },
       {
         "date": "2025-06-09",
-        "amount": 0.1885
+        "amount": 0.1893
       },
       {
         "date": "2025-09-08",
-        "amount": 0.1885
+        "amount": 0.1893
       },
       {
         "date": "2025-12-08",
-        "amount": 0.1885
+        "amount": 0.1893
       },
       {
         "date": "2026-03-09",
-        "amount": 0.1885
+        "amount": 0.1893
       },
       {
         "date": "2026-06-08",
-        "amount": 0.1975
+        "amount": 0.1983
       },
       {
         "date": "2026-09-04",
-        "amount": 0.1975
+        "amount": 0.1983
       }
     ]
   },
@@ -6536,10 +6540,10 @@
       "2026-12-11"
     ],
     "summary": {
-      "atmIV": 0.0039,
-      "putCallRatio": 6.3372,
-      "openInterestCall": 430,
-      "openInterestPut": 2725,
+      "atmIV": 0.23,
+      "putCallRatio": 0.4361,
+      "openInterestCall": 36069,
+      "openInterestPut": 15730,
       "ivRank": null,
       "impliedMove": null
     }

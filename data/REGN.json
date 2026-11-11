@@ -11,19 +11,19 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 822.3471,
-    "change": -3.501,
-    "changePercent": -0.42,
+    "price": 823.7837,
+    "change": -1.8612,
+    "changePercent": -0.23,
     "marketCap": 83319292245.5037,
     "fiftyTwoWeekLow": 526.8136,
     "fiftyTwoWeekHigh": 883.2446,
     "volume": 1122800.0,
     "avgVolume": 780354,
     "currency": "EUR",
-    "priceNative": 916.06,
+    "priceNative": 913.995,
     "nativeCurrency": "USD",
-    "fxRate": 0.8977000084327174,
-    "fxAsOf": "2026-11-11T11:40:00+00:00"
+    "fxRate": 0.9012999783394247,
+    "fxAsOf": "2026-11-11T15:30:00+00:00"
   },
   "ratios": {
     "peTrailing": 19.9901,
@@ -6568,39 +6568,43 @@
     {
       "date": "2026-11-10",
       "close": 822.3471
+    },
+    {
+      "date": "2026-11-11",
+      "close": 823.7837
     }
   ],
-  "updatedAt": "2026-11-11T11:45:27.231885+00:00",
+  "updatedAt": "2026-11-11T15:34:20.823765+00:00",
   "holdings": [],
   "dividends": {
     "history": [
       {
         "date": "2025-02-20",
-        "amount": 0.7877
+        "amount": 0.7931
       },
       {
         "date": "2025-05-20",
-        "amount": 0.7877
+        "amount": 0.7931
       },
       {
         "date": "2025-08-18",
-        "amount": 0.7877
+        "amount": 0.7931
       },
       {
         "date": "2025-11-20",
-        "amount": 0.7877
+        "amount": 0.7931
       },
       {
         "date": "2026-02-20",
-        "amount": 0.8414
+        "amount": 0.8472
       },
       {
         "date": "2026-05-20",
-        "amount": 0.8414
+        "amount": 0.8472
       },
       {
         "date": "2026-08-18",
-        "amount": 0.8414
+        "amount": 0.8472
       }
     ]
   },
@@ -6684,10 +6688,10 @@
       "2027-01-15"
     ],
     "summary": {
-      "atmIV": 0.4673,
-      "putCallRatio": 1.1373,
-      "openInterestCall": 306,
-      "openInterestPut": 348,
+      "atmIV": 0.3265,
+      "putCallRatio": 1.3199,
+      "openInterestCall": 322,
+      "openInterestPut": 425,
       "ivRank": null,
       "impliedMove": null
     }
