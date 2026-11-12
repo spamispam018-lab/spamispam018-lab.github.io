@@ -1,7 +1,8 @@
 /**
  * js/stock-overview.js
  * Verwaltet den Tab "Overview".
- * NEU: Gemini-Button wiederhergestellt und LocalStorage für Live-Kurse integriert.
+ * NEU: Der Live-Kurs wird temporär an das Ende des Charts angehängt, 
+ * damit der Graph bis zum aktuellen Wert mitzieht.
  */
 
 window.App = window.App || {};
@@ -9,7 +10,6 @@ window.App = window.App || {};
 window.App.StockOverview = (function () {
   'use strict';
 
-  // Exakte URL deines Cloudflare Workers
   var PROXY_URL = "https://yahoo-proxy.spamispam018.workers.dev"; 
 
   var currentStock = null;
@@ -33,6 +33,7 @@ window.App.StockOverview = (function () {
         stock.quote.changePercent = cachedLive.changePercent;
         stock.quote.currency = cachedLive.currency;
         stock.updatedAt = new Date(cachedLive.timestamp).toISOString();
+        currentStock.livePrice = cachedLive.price; // NEU: Live-Preis merken
       }
     } catch (e) {}
 
@@ -144,7 +145,7 @@ window.App.StockOverview = (function () {
     
     if (window.App.News) window.App.News.fillTicker(stock.ticker, container.querySelector('#news-card'));
 
-    // Gemini Event Listener (Wiederhergestellt)
+    // Gemini Event Listener
     var geminiBtn = container.querySelector('#btn-ask-gemini');
     if (geminiBtn && !isDataMissing) {
       geminiBtn.onclick = function() {
@@ -216,7 +217,7 @@ window.App.StockOverview = (function () {
       };
     }
 
-    // Live-Kurs über Cloudflare Proxy abrufen (Minuten-genau + Währungsumrechnung)
+    // Live-Kurs über Cloudflare Proxy abrufen
     var refreshBtn = container.querySelector('#btn-refresh-stock');
     if (refreshBtn) {
       refreshBtn.onclick = function() {
@@ -243,7 +244,7 @@ window.App.StockOverview = (function () {
             var livePrice = null;
             var livePct = null;
 
-            // NEU: Wir suchen den allerletzten gehandelten Kurs (inkl. Pre-Market) aus der Historie
+            // NEU: Wir suchen den allerletzten gehandelten Kurs aus der Historie
             try {
               var quotes = result.indicators.quote[0];
               if (quotes && quotes.close && quotes.close.length > 0) {
@@ -280,7 +281,9 @@ window.App.StockOverview = (function () {
           .then(function(finalData) {
             var now = new Date();
             
-            // NEU: Im LocalStorage sichern
+            // NEU: Den Live-Preis im State speichern, damit der Chart ihn zeichnet
+            currentStock.livePrice = finalData.price;
+            
             try {
               localStorage.setItem('live_price_' + currentStock.ticker, JSON.stringify({
                 price: finalData.price,
@@ -311,6 +314,10 @@ window.App.StockOverview = (function () {
               dateEl.innerHTML = '<span style="color:var(--bullish); font-weight:700;">✓ Erfolgreich aktualisiert (' + timeStr + ' Uhr)</span>';
             }
             
+            // NEU: Chart und Performance-Raster mit dem neuen Live-Preis neu zeichnen
+            drawPriceChart();
+            updatePerfGrid();
+
             refreshBtn.innerHTML = originalHtml;
             refreshBtn.disabled = false;
           })
@@ -450,9 +457,22 @@ window.App.StockOverview = (function () {
     }
 
     var cur = currentStock.quote ? currentStock.quote.currency : 'EUR';
+    
+    // NEU: Wenn wir einen Live-Preis haben, hängen wir ihn temporär an das Chart-Ende an
+    var chartData = filtered.slice();
+    if (currentStock.livePrice) {
+      var todayStr = new Date().toISOString().slice(0, 10);
+      var lastPoint = chartData[chartData.length - 1];
+      if (lastPoint.date < todayStr) {
+        chartData.push({ date: todayStr, close: currentStock.livePrice });
+      } else {
+        lastPoint.close = currentStock.livePrice;
+      }
+    }
+
     window.App.Charts.renderLineChart(canvas, {
-      labels: filtered.map(function (p) { var d = String(p.date || ''); return d.slice(5, 7) + '/' + d.slice(2, 4); }),
-      values: filtered.map(function (p) { return p.close; }),
+      labels: chartData.map(function (p) { var d = String(p.date || ''); return d.slice(5, 7) + '/' + d.slice(2, 4); }),
+      values: chartData.map(function (p) { return p.close; }),
       formatY: function (v) { return window.App.Format.currency(v, cur, 0); }
     });
   }
@@ -483,8 +503,11 @@ window.App.StockOverview = (function () {
       var series = getPeriodSeries(pd[0]);
       var txt = '—';
       var cls = '';
-      if (series && series.length >= 2 && series[0].close) {
-        var pct = (series[series.length - 1].close / series[0].close - 1) * 100;
+      
+      if (series && series.length >= 1 && series[0].close) {
+        // NEU: Den Live-Preis für die Berechnung der Rendite nutzen
+        var endPrice = currentStock.livePrice || series[series.length - 1].close;
+        var pct = (endPrice / series[0].close - 1) * 100;
         txt = (pct >= 0 ? '+' : '') + window.App.Format.number(pct, 1) + ' %';
         cls = pct >= 0 ? 'up' : 'down';
       } else if ((pd[0] === '5Y' || pd[0] === '10Y') && longHistory === null) {
