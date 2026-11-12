@@ -11,19 +11,19 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 282.9637,
-    "change": 2.6757,
-    "changePercent": 0.95,
+    "price": 284.5411,
+    "change": 0.2896,
+    "changePercent": 0.1,
     "marketCap": 24658941784.9078,
     "fiftyTwoWeekLow": 186.0128,
     "fiftyTwoWeekHigh": 289.1187,
     "volume": 1020300.0,
     "avgVolume": 877979,
     "currency": "EUR",
-    "priceNative": 314.09,
+    "priceNative": 314.41,
     "nativeCurrency": "USD",
-    "fxRate": 0.9009000185150102,
-    "fxAsOf": "2026-11-11T23:15:00+00:00"
+    "fxRate": 0.9050000107884408,
+    "fxAsOf": "2026-11-12T17:55:00+00:00"
   },
   "ratios": {
     "peTrailing": 33.2261,
@@ -6350,43 +6350,47 @@
     {
       "date": "2026-11-11",
       "close": 282.9637
+    },
+    {
+      "date": "2026-11-12",
+      "close": 284.5411
     }
   ],
-  "updatedAt": "2026-11-11T23:20:01.428868+00:00",
+  "updatedAt": "2026-11-12T17:56:22.773821+00:00",
   "holdings": [],
   "dividends": {
     "history": [
       {
         "date": "2010-12-16",
-        "amount": 2.7027
+        "amount": 2.715
       },
       {
         "date": "2011-05-05",
-        "amount": 2.4775
+        "amount": 2.4888
       },
       {
         "date": "2025-05-19",
-        "amount": 0.6937
+        "amount": 0.6969
       },
       {
         "date": "2025-08-19",
-        "amount": 0.6937
+        "amount": 0.6969
       },
       {
         "date": "2025-11-18",
-        "amount": 0.6937
+        "amount": 0.6969
       },
       {
         "date": "2026-02-19",
-        "amount": 0.7297
+        "amount": 0.7331
       },
       {
         "date": "2026-05-19",
-        "amount": 0.7297
+        "amount": 0.7331
       },
       {
         "date": "2026-08-19",
-        "amount": 0.7297
+        "amount": 0.7331
       }
     ]
   },
@@ -6467,10 +6471,10 @@
       "2027-06-17"
     ],
     "summary": {
-      "atmIV": 0.3679,
-      "putCallRatio": 0.6014,
-      "openInterestCall": 8178,
-      "openInterestPut": 4918,
+      "atmIV": 0.3501,
+      "putCallRatio": 0.6024,
+      "openInterestCall": 8170,
+      "openInterestPut": 4922,
       "ivRank": null,
       "impliedMove": null
     }

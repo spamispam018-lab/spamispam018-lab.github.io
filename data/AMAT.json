@@ -11,19 +11,19 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 355.9276,
-    "change": 20.3153,
-    "changePercent": 6.05,
+    "price": 355.2216,
+    "change": -2.3258,
+    "changePercent": -0.65,
     "marketCap": 235158234457.8025,
     "fiftyTwoWeekLow": 181.1501,
     "fiftyTwoWeekHigh": 658.7575,
     "volume": 9458100.0,
     "avgVolume": 7211529,
     "currency": "EUR",
-    "priceNative": 395.08,
+    "priceNative": 392.51,
     "nativeCurrency": "USD",
-    "fxRate": 0.9009000185150102,
-    "fxAsOf": "2026-11-11T23:15:00+00:00"
+    "fxRate": 0.9050000107884408,
+    "fxAsOf": "2026-11-12T17:55:00+00:00"
   },
   "ratios": {
     "peTrailing": 28.7071,
@@ -6467,91 +6467,95 @@
     {
       "date": "2026-11-11",
       "close": 355.9276
+    },
+    {
+      "date": "2026-11-12",
+      "close": 355.2216
     }
   ],
-  "updatedAt": "2026-11-11T23:20:01.428868+00:00",
+  "updatedAt": "2026-11-12T17:56:22.773821+00:00",
   "holdings": [],
   "dividends": {
     "history": [
       {
         "date": "2021-11-24",
-        "amount": 0.2162
+        "amount": 0.2172
       },
       {
         "date": "2022-02-22",
-        "amount": 0.2162
+        "amount": 0.2172
       },
       {
         "date": "2022-05-25",
-        "amount": 0.2342
+        "amount": 0.2353
       },
       {
         "date": "2022-08-24",
-        "amount": 0.2342
+        "amount": 0.2353
       },
       {
         "date": "2022-11-23",
-        "amount": 0.2342
+        "amount": 0.2353
       },
       {
         "date": "2023-02-22",
-        "amount": 0.2342
+        "amount": 0.2353
       },
       {
         "date": "2023-05-24",
-        "amount": 0.2883
+        "amount": 0.2896
       },
       {
         "date": "2023-08-23",
-        "amount": 0.2883
+        "amount": 0.2896
       },
       {
         "date": "2023-11-22",
-        "amount": 0.2883
+        "amount": 0.2896
       },
       {
         "date": "2024-02-21",
-        "amount": 0.2883
+        "amount": 0.2896
       },
       {
         "date": "2024-05-22",
-        "amount": 0.3604
+        "amount": 0.362
       },
       {
         "date": "2024-08-22",
-        "amount": 0.3604
+        "amount": 0.362
       },
       {
         "date": "2024-11-21",
-        "amount": 0.3604
+        "amount": 0.362
       },
       {
         "date": "2025-02-20",
-        "amount": 0.3604
+        "amount": 0.362
       },
       {
         "date": "2025-05-22",
-        "amount": 0.4144
+        "amount": 0.4163
       },
       {
         "date": "2025-08-21",
-        "amount": 0.4144
+        "amount": 0.4163
       },
       {
         "date": "2025-11-20",
-        "amount": 0.4144
+        "amount": 0.4163
       },
       {
         "date": "2026-02-19",
-        "amount": 0.4144
+        "amount": 0.4163
       },
       {
         "date": "2026-05-21",
-        "amount": 0.4775
+        "amount": 0.4797
       },
       {
         "date": "2026-08-20",
-        "amount": 0.4775
+        "amount": 0.4797
       }
     ]
   },
@@ -6635,10 +6639,10 @@
       "2027-01-15"
     ],
     "summary": {
-      "atmIV": 1.0176,
-      "putCallRatio": 0.6596,
-      "openInterestCall": 20317,
-      "openInterestPut": 13402,
+      "atmIV": 1.2205,
+      "putCallRatio": 0.654,
+      "openInterestCall": 24619,
+      "openInterestPut": 16101,
       "ivRank": null,
       "impliedMove": null
     }

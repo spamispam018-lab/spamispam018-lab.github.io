@@ -11,19 +11,19 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 106.9999,
-    "change": 0.5045,
-    "changePercent": 0.47,
+    "price": 107.5592,
+    "change": 0.0724,
+    "changePercent": 0.07,
     "marketCap": 25355198250.1084,
     "fiftyTwoWeekLow": 71.2755,
     "fiftyTwoWeekHigh": 106.0049,
     "volume": 1899700.0,
     "avgVolume": 1789581,
     "currency": "EUR",
-    "priceNative": 118.77,
+    "priceNative": 118.85,
     "nativeCurrency": "USD",
-    "fxRate": 0.9009000185150102,
-    "fxAsOf": "2026-11-11T23:15:00+00:00"
+    "fxRate": 0.9050000107884408,
+    "fxAsOf": "2026-11-12T17:55:00+00:00"
   },
   "ratios": {
     "peTrailing": 28.9111,
@@ -6318,59 +6318,63 @@
     {
       "date": "2026-11-11",
       "close": 106.9999
+    },
+    {
+      "date": "2026-11-12",
+      "close": 107.5592
     }
   ],
-  "updatedAt": "2026-11-11T23:20:01.428868+00:00",
+  "updatedAt": "2026-11-12T17:56:22.773821+00:00",
   "holdings": [],
   "dividends": {
     "history": [
       {
         "date": "2023-12-28",
-        "amount": 0.0811
+        "amount": 0.0815
       },
       {
         "date": "2024-03-27",
-        "amount": 0.0811
+        "amount": 0.0815
       },
       {
         "date": "2024-06-28",
-        "amount": 0.0811
+        "amount": 0.0815
       },
       {
         "date": "2024-09-27",
-        "amount": 0.0811
+        "amount": 0.0815
       },
       {
         "date": "2024-12-31",
-        "amount": 0.0991
+        "amount": 0.0996
       },
       {
         "date": "2025-03-31",
-        "amount": 0.0991
+        "amount": 0.0996
       },
       {
         "date": "2025-06-30",
-        "amount": 0.0991
+        "amount": 0.0996
       },
       {
         "date": "2025-09-30",
-        "amount": 0.0991
+        "amount": 0.0996
       },
       {
         "date": "2025-12-31",
-        "amount": 0.1171
+        "amount": 0.1177
       },
       {
         "date": "2026-03-31",
-        "amount": 0.1171
+        "amount": 0.1177
       },
       {
         "date": "2026-06-30",
-        "amount": 0.1171
+        "amount": 0.1177
       },
       {
         "date": "2026-09-30",
-        "amount": 0.1171
+        "amount": 0.1177
       }
     ]
   },
@@ -6450,10 +6454,10 @@
       "2027-04-16"
     ],
     "summary": {
-      "atmIV": 0.2805,
-      "putCallRatio": 0.9884,
+      "atmIV": 0.4102,
+      "putCallRatio": 0.9899,
       "openInterestCall": 692,
-      "openInterestPut": 684,
+      "openInterestPut": 685,
       "ivRank": null,
       "impliedMove": null
     }

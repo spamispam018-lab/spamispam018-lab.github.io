@@ -11,19 +11,19 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 27.4144,
-    "change": 2.3784,
-    "changePercent": 9.5,
+    "price": 24.4622,
+    "change": -3.077,
+    "changePercent": -11.17,
     "marketCap": 16885413068.9526,
     "fiftyTwoWeekLow": 17.3491,
     "fiftyTwoWeekHigh": 45.7774,
     "volume": 36999700.0,
     "avgVolume": 43864417,
     "currency": "EUR",
-    "priceNative": 30.43,
+    "priceNative": 27.03,
     "nativeCurrency": "USD",
-    "fxRate": 0.9009000185150102,
-    "fxAsOf": "2026-11-11T23:15:00+00:00"
+    "fxRate": 0.9050000107884408,
+    "fxAsOf": "2026-11-12T17:55:00+00:00"
   },
   "ratios": {
     "peTrailing": 6.0675,
@@ -6490,9 +6490,13 @@
     {
       "date": "2026-11-11",
       "close": 27.4144
+    },
+    {
+      "date": "2026-11-12",
+      "close": 24.4622
     }
   ],
-  "updatedAt": "2026-11-11T23:20:01.428868+00:00",
+  "updatedAt": "2026-11-12T17:56:22.773821+00:00",
   "holdings": [],
   "dividends": {
     "history": []
@@ -6577,10 +6581,10 @@
       "2027-01-15"
     ],
     "summary": {
-      "atmIV": 0.6856,
-      "putCallRatio": 0.2039,
-      "openInterestCall": 159580,
-      "openInterestPut": 32543,
+      "atmIV": 1.0,
+      "putCallRatio": 0.2029,
+      "openInterestCall": 160636,
+      "openInterestPut": 32586,
       "ivRank": null,
       "impliedMove": null
     }
