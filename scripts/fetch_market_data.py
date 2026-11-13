@@ -7,6 +7,8 @@ NEU:
 - EPS-Estimates und EPS-Forecast werden geladen.
 - Intraday-Kurse (Minuten) für den absoluten Live-Kurs.
 - Synchronisiert das updatedAt-Feld von stock.json ins universe.json.
+- OPTION 1: Schema-Check im Delta-Sync – alte JSONs ohne 'upgradesDowngrades'
+  (oder ohne 'epsEstimates') werden einmalig per Full-Fetch nachgezogen.
 """
 
 import os
@@ -677,6 +679,24 @@ def run_delta_sync(tickers, is_manual=False):
                 print(f"Erst-Fetch fehlgeschlagen für {sym}: {e}")
                 continue
         else:
+            # --- OPTION 1: Schema-Check ---
+            # Alte JSONs, die noch vor dem Upgrades-Feature erzeugt wurden,
+            # haben weder 'upgradesDowngrades' noch ggf. 'epsEstimates'.
+            # Solche Dateien werden hier einmalig per Full-Fetch nachgezogen,
+            # damit die Karte "Upgrades & Downgrades" nicht dauerhaft leer bleibt.
+            an = stock_data.get("analysts") or {}
+            needs_full = ("upgradesDowngrades" not in an) or ("epsEstimates" not in an)
+
+            if needs_full:
+                print(f"Schema-Update für {sym}: führe Full-Fetch durch...")
+                try:
+                    fresh = fetch_full_stock(sym)
+                    if fresh:
+                        stock_data = fresh
+                except Exception as e:
+                    print(f"Schema-Refresh für {sym} fehlgeschlagen: {e}")
+
+            # --- bestehende Delta-Aktualisierung (unverändert) ---
             closes = extract_close_series(batch_df, sym)
             if closes is not None and not closes.empty:
                 try:
