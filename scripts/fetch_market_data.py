@@ -9,6 +9,8 @@ NEU:
 - Synchronisiert das updatedAt-Feld von stock.json ins universe.json.
 - OPTION 1: Schema-Check im Delta-Sync – alte JSONs ohne 'upgradesDowngrades'
   (oder ohne 'epsEstimates') werden einmalig per Full-Fetch nachgezogen.
+- FIX: NumPy-Typen (int64, float64, bool_, ...) werden JSON-serialisierbar
+  gemacht (in clean_val + _json_default als Fallback beim Dump).
 """
 
 import os
@@ -19,6 +21,11 @@ import sys
 from datetime import datetime, timezone
 import yfinance as yf
 import pandas as pd
+
+try:
+    import numpy as np
+except Exception:
+    np = None
 
 TICKERS_USA = [
     "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "BRK-B", "JPM", "V",
@@ -115,6 +122,41 @@ RATES_TO_EUR = {
 }
 
 
+def _json_default(o):
+    """
+    Fallback-Encoder für json.dump: konvertiert NumPy-Typen, Timestamps
+    und andere nicht-native Typen in JSON-serialisierbare Werte.
+    """
+    if np is not None:
+        try:
+            if isinstance(o, np.integer):
+                return int(o)
+            if isinstance(o, np.floating):
+                fv = float(o)
+                if math.isnan(fv) or math.isinf(fv):
+                    return None
+                return fv
+            if isinstance(o, np.bool_):
+                return bool(o)
+            if isinstance(o, np.ndarray):
+                return o.tolist()
+        except Exception:
+            pass
+    if isinstance(o, (datetime, pd.Timestamp)):
+        return o.isoformat()
+    if hasattr(o, "item"):
+        try:
+            return o.item()
+        except Exception:
+            pass
+    if hasattr(o, "isoformat"):
+        try:
+            return o.isoformat()
+        except Exception:
+            pass
+    return str(o)
+
+
 def detect_native_currency(ticker):
     if ticker.endswith(".T"): return "JPY"
     if ticker.endswith((".DE", ".PA", ".AS", ".MI", ".MC")): return "EUR"
@@ -146,14 +188,45 @@ def load_live_forex():
 
 def to_eur(value, cur):
     if value is None: return None
-    return round(value * RATES_TO_EUR.get(cur, 1.0), 4)
+    try:
+        return round(float(value) * RATES_TO_EUR.get(cur, 1.0), 4)
+    except Exception:
+        return None
 
 
 def clean_val(val, default=None):
-    if val is None: return default
-    if isinstance(val, (float, int)):
-        if math.isnan(val) or math.isinf(val): return default
-        return round(val, 4) if isinstance(val, float) else val
+    """
+    Wandelt beliebige Werte (inkl. NumPy) in native Python-Typen um,
+    damit json.dump sie verarbeiten kann. NaN/Inf → default.
+    """
+    if val is None:
+        return default
+
+    # NumPy-Typen zuerst
+    if np is not None:
+        try:
+            if isinstance(val, np.integer):
+                return int(val)
+            if isinstance(val, np.floating):
+                fv = float(val)
+                if math.isnan(fv) or math.isinf(fv):
+                    return default
+                return round(fv, 4)
+            if isinstance(val, np.bool_):
+                return bool(val)
+        except Exception:
+            pass
+
+    # Native Python-Typen
+    if isinstance(val, bool):
+        return val
+    if isinstance(val, int):
+        return val
+    if isinstance(val, float):
+        if math.isnan(val) or math.isinf(val):
+            return default
+        return round(val, 4)
+
     return val
 
 
@@ -630,7 +703,7 @@ def run_delta_sync(tickers, is_manual=False):
         try:
             stock_data = fetch_full_stock(sym)
             with open(stock_file, "w", encoding="utf-8") as f:
-                json.dump(stock_data, f, ensure_ascii=False, indent=2)
+                json.dump(stock_data, f, ensure_ascii=False, indent=2, default=_json_default)
             universe_file = os.path.join(DATA_DIR, "universe.json")
             universe_map = {}
             if os.path.exists(universe_file):
@@ -642,7 +715,7 @@ def run_delta_sync(tickers, is_manual=False):
             u_item["updatedAt"] = stock_data["updatedAt"]
             universe_map[sym] = u_item
             with open(universe_file, "w", encoding="utf-8") as f:
-                json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
+                json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2, default=_json_default)
             return
         except Exception as e:
             print(f"Manual Fetch für {sym} fehlgeschlagen: {e}")
@@ -741,7 +814,7 @@ def run_delta_sync(tickers, is_manual=False):
                     print(f"Delta-Update für {sym} fehlgeschlagen: {e}")
 
         with open(stock_file, "w", encoding="utf-8") as f:
-            json.dump(stock_data, f, ensure_ascii=False, indent=2)
+            json.dump(stock_data, f, ensure_ascii=False, indent=2, default=_json_default)
 
         u_item = universe_map.get(sym, {
             "ticker": sym,
@@ -771,7 +844,7 @@ def run_delta_sync(tickers, is_manual=False):
         universe_map[sym] = u_item
 
     with open(universe_file, "w", encoding="utf-8") as f:
-        json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
+        json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2, default=_json_default)
 
 
 def main():
