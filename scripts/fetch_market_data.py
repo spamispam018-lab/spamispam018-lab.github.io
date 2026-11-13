@@ -2,10 +2,10 @@
 """
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
-NEU: Die Preisermittlung wurde grundlegend überarbeitet.
-Bei ETFs (und Aktien) wird der Kurs jetzt IMMER zuerst aus der
-historischen Tagesdaten-Reihe (history) genommen, da die info-API von
-Yahoo Finance bei europäischen ETFs oft veraltete oder falsche Werte liefert.
+NEU: 
+- Upgrades & Downgrades der Analysten werden abgerufen und in die JSON geschrieben.
+- Intraday-Kurse (Minuten) für den absoluten Live-Kurs.
+- Synchronisiert das updatedAt-Feld von stock.json ins universe.json.
 """
 
 import os
@@ -13,7 +13,6 @@ import json
 import math
 import argparse
 import sys
-import urllib.request
 from datetime import datetime, timezone
 import yfinance as yf
 
@@ -53,8 +52,7 @@ TICKERS_ETFS = [
 TICKERS_SECTORS = [
     "QDVE.DE", "XDWT.DE", "QDVF.DE", "WNRG.DE", "XDW0.DE",
     "IU5C.DE", "XWTS.DE", "WHEA.DE", "WSCA.DE", 
-    "XDWF.DE",  # Ersetzt WFIS.DE für bessere Datenqualität bei Financials
-    "IUSP.DE"
+    "XDWF.DE", "IUSP.DE"
 ]
 
 KNOWN_ETF_HOLDINGS = {
@@ -108,137 +106,43 @@ from index_lists import SP500, DAX, MDAX, dedupe  # noqa: E402
 ALL_TICKERS = dedupe(TICKERS_USA, TICKERS_EUROPE, TICKERS_JAPAN, TICKERS_ETFS, TICKERS_SECTORS, DAX, MDAX, SP500)
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
-# Notfall-Werte: werden nur genutzt, wenn weder Yahoo, noch Zweitquelle, noch der
-# zuletzt gespeicherte Stand (data/fx_rates.json) erreichbar sind.
-DEFAULT_RATES_TO_EUR = {
+RATES_TO_EUR = {
     "EUR": 1.0, "USD": 0.92, "JPY": 0.0061, "GBP": 1.17, "GBp": 0.0117, "CHF": 1.04, "DKK": 0.134
 }
-RATES_TO_EUR = dict(DEFAULT_RATES_TO_EUR)
-FX_PAIRS = {"USD": "EURUSD=X", "JPY": "EURJPY=X", "GBP": "EURGBP=X", "CHF": "EURCHF=X", "DKK": "EURDKK=X"}
-FX_FILE = os.path.join(DATA_DIR, "fx_rates.json")
-FX_META = {"sources": [], "asOf": None}
-_FX_LOADED = False
-_WARNED_CUR = set()
 
 
 def detect_native_currency(ticker):
     if ticker.endswith(".T"): return "JPY"
     if ticker.endswith((".DE", ".PA", ".AS", ".MI", ".MC")): return "EUR"
-    if ticker.endswith(".L"): return "GBp"  # Londoner Kurse sind in Pence, nicht in Pfund
+    if ticker.endswith(".L"): return "GBP"
     if ticker.endswith(".SW"): return "CHF"
     if ticker.endswith(".CO"): return "DKK"
     return "USD"
 
 
-def _fx_plausible(cur, foreign_per_eur):
-    """Verwirft Ausreisser (Datenfehler): Abweichung > 40 % vom Notfall-Wert."""
-    base = DEFAULT_RATES_TO_EUR.get(cur)
-    if not foreign_per_eur or foreign_per_eur <= 0:
-        return False
-    return base is None or 0.6 < (1.0 / foreign_per_eur) / base < 1.6
-
-
-def _fx_from_yahoo():
-    """Aktuellster Kurs je EUR-Paar (erst 5-Min-Kerzen = quasi live, dann Tageskerzen)."""
-    out, as_of = {}, None
-    for interval in ("5m", "1d"):
-        try:
-            data = yf.download(" ".join(FX_PAIRS.values()), period="5d", interval=interval, progress=False)
-            close_df = data["Close"] if "Close" in data else data
-            for cur, pair in FX_PAIRS.items():
-                if cur in out:
-                    continue
-                s_ = close_df[pair].dropna()
-                if not s_.empty:
-                    out[cur] = float(s_.iloc[-1])
-                    ts = s_.index[-1]
-                    as_of = max(as_of, ts.isoformat()) if as_of else ts.isoformat()
-        except Exception as e:
-            print(f"Yahoo-FX ({interval}) fehlgeschlagen: {e}")
-        if len(out) == len(FX_PAIRS):
-            break
-    return out, as_of
-
-
-def _fx_from_open_api():
-    """Zweitquelle (kostenlos, ohne Key): open.er-api.com, EZB-nahe Tageskurse."""
-    req = urllib.request.Request("https://open.er-api.com/v6/latest/EUR", headers={"User-Agent": "stock-screener"})
-    with urllib.request.urlopen(req, timeout=15) as r:
-        js = json.loads(r.read().decode("utf-8"))
-    rates = js.get("rates") or {}
-    return {cur: float(rates[cur]) for cur in FX_PAIRS if cur in rates}, js.get("time_last_update_utc")
-
-
-def _fx_from_cache():
-    with open(FX_FILE, "r", encoding="utf-8") as f:
-        js = json.load(f)
-    return dict(js.get("foreignPerEur") or {}), js.get("asOf")
-
-
-def load_live_forex(force=False):
-    """Holt aktuelle EUR-Wechselkurse (Yahoo -> open.er-api -> letzter Stand -> Notfallwerte)
-    und schreibt sie nach data/fx_rates.json (kann auch die Web-App direkt lesen)."""
-    global _FX_LOADED
-    if _FX_LOADED and not force:
-        return
-    _FX_LOADED = True
-
-    foreign_per_eur = {}
-    sources = []
-    as_of = None
-    for name, fn in (("yahoo", _fx_from_yahoo), ("open.er-api", _fx_from_open_api), ("cache", _fx_from_cache)):
-        if len(foreign_per_eur) == len(FX_PAIRS):
-            break
-        try:
-            rates, ts = fn()
-        except Exception as e:
-            print(f"FX-Quelle {name} fehlgeschlagen: {e}")
-            continue
-        used = False
-        for cur, r in rates.items():
-            if cur in FX_PAIRS and cur not in foreign_per_eur and _fx_plausible(cur, r):
-                foreign_per_eur[cur] = r
-                used = True
-        if used:
-            sources.append(name)
-            as_of = as_of or ts
-
-    for cur in FX_PAIRS:
-        if cur in foreign_per_eur:
-            RATES_TO_EUR[cur] = 1.0 / foreign_per_eur[cur]
-        else:
-            print(f"WARNUNG: Kein Wechselkurs fuer {cur} - Notfallwert {DEFAULT_RATES_TO_EUR.get(cur)} wird genutzt!")
-    RATES_TO_EUR["GBp"] = RATES_TO_EUR["GBP"] / 100.0
-
-    FX_META["sources"] = sources
-    FX_META["asOf"] = as_of or datetime.now(timezone.utc).isoformat()
-    print("FX:", ", ".join(f"1 EUR = {foreign_per_eur[c]:.4f} {c}" for c in FX_PAIRS if c in foreign_per_eur),
-          f"| Quelle: {'+'.join(sources) or 'Notfallwerte'} | Stand: {FX_META['asOf']}")
-
+def load_live_forex():
+    global RATES_TO_EUR
+    pairs = {"USD": "EURUSD=X", "JPY": "EURJPY=X", "GBP": "EURGBP=X", "CHF": "EURCHF=X", "DKK": "EURDKK=X"}
     try:
-        os.makedirs(DATA_DIR, exist_ok=True)
-        with open(FX_FILE, "w", encoding="utf-8") as f:
-            json.dump({
-                "base": "EUR",
-                "asOf": FX_META["asOf"],
-                "fetchedAt": datetime.now(timezone.utc).isoformat(),
-                "sources": sources,
-                "foreignPerEur": {"EUR": 1.0, **foreign_per_eur},
-                "ratesToEur": {k: round(v, 8) for k, v in RATES_TO_EUR.items()},
-            }, f, ensure_ascii=False, indent=2)
+        tickers_str = " ".join(pairs.values())
+        fx_data = yf.download(tickers_str, period="1d", interval="1m", progress=False)
+        close_df = fx_data["Close"] if "Close" in fx_data else fx_data
+        for cur, pair in pairs.items():
+            try:
+                s = close_df[pair].dropna()
+                if not s.empty:
+                    eur_rate = float(s.iloc[-1])
+                    if eur_rate > 0: RATES_TO_EUR[cur] = 1.0 / eur_rate
+            except Exception:
+                pass
+        RATES_TO_EUR["GBp"] = RATES_TO_EUR.get("GBP", 1.17) / 100.0
     except Exception as e:
-        print(f"FX-Datei konnte nicht gespeichert werden: {e}")
+        print(f"Forex-Abruf fehlgeschlagen: {e}")
 
 
 def to_eur(value, cur):
     if value is None: return None
-    rate = RATES_TO_EUR.get(cur)
-    if rate is None:
-        if cur not in _WARNED_CUR:
-            print(f"WARNUNG: Unbekannte Waehrung '{cur}' - Wert wird nicht umgerechnet")
-            _WARNED_CUR.add(cur)
-        return None
-    return round(value * rate, 4)
+    return round(value * RATES_TO_EUR.get(cur, 1.0), 4)
 
 
 def clean_val(val, default=None):
@@ -520,6 +424,7 @@ def compute_chart_patterns(chart_history, symbol=""):
 
 
 def fetch_full_stock(ticker_sym):
+    print(f"Führe vollständigen Fetch (inkl. Intraday) für {ticker_sym} durch...")
     t = yf.Ticker(ticker_sym)
     info = t.info or {}
     cur = info.get("currency") or detect_native_currency(ticker_sym)
@@ -536,25 +441,30 @@ def fetch_full_stock(ticker_sym):
                "country": country, "currency": "EUR",
                "nativeCurrency": cur, "exchange": info.get("exchange", "N/A")}
 
-    # --- NEUE, ROBUSTE PREISERMITTLUNG ---
     raw_curr = 0.0
     raw_prev = 0.0
     
-    # 1. Versuche IMMER zuerst die History zu laden (viel zuverlässiger bei ETFs)
     try:
-        hist_check = t.history(period="5d")
-        if not hist_check.empty:
-            raw_curr = float(hist_check["Close"].iloc[-1])
-            if len(hist_check) > 1:
-                raw_prev = float(hist_check["Close"].iloc[-2])
+        intraday = t.history(period="1d", interval="1m")
+        if not intraday.empty:
+            raw_curr = float(intraday["Close"].iloc[-1])
     except Exception:
         pass
 
-    # 2. Wenn History fehlschlägt, nutze das info-Dictionary als Fallback
+    try:
+        daily = t.history(period="5d", interval="1d")
+        if not daily.empty:
+            if not raw_curr:
+                raw_curr = float(daily["Close"].iloc[-1])
+            if len(daily) > 1:
+                raw_prev = float(daily["Close"].iloc[-2])
+    except Exception:
+        pass
+
     if not raw_curr:
         raw_curr = clean_val(info.get("currentPrice") or info.get("regularMarketPrice") or info.get("navPrice"), 0.0)
-        raw_prev = clean_val(info.get("previousClose") or info.get("regularMarketPreviousClose"), 0.0)
-
+    if not raw_prev:
+        raw_prev = clean_val(info.get("previousClose") or info.get("regularMarketPreviousClose"), raw_curr)
     if not raw_prev:
         raw_prev = raw_curr
 
@@ -569,9 +479,7 @@ def fetch_full_stock(ticker_sym):
              "marketCap": market_cap_eur,
              "fiftyTwoWeekLow": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekLow")), cur)),
              "fiftyTwoWeekHigh": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekHigh")), cur)),
-             "volume": clean_val(info.get("regularMarketVolume")), "currency": "EUR",
-             "priceNative": clean_val(raw_curr), "nativeCurrency": cur,
-             "fxRate": RATES_TO_EUR.get(cur), "fxAsOf": FX_META["asOf"]}
+             "volume": clean_val(info.get("regularMarketVolume")), "currency": "EUR"}
     ratios = {"peTrailing": clean_val(info.get("trailingPE")),
               "peForward": clean_val(info.get("forwardPE")),
               "dividendYield": clean_val(info.get("dividendYield")),
@@ -591,6 +499,36 @@ def fetch_full_stock(ticker_sym):
     institutional = process_institutional_holders(t, cur)
     options = process_options(t, info)
 
+    # NEU: Upgrades & Downgrades abrufen
+    upgrades_list = []
+    try:
+        ud_df = t.upgrades_downgrades
+        if ud_df is not None and not ud_df.empty:
+            ud_df = ud_df.sort_index(ascending=False).head(10)
+            for date, row in ud_df.iterrows():
+                upgrades_list.append({
+                    "date": date.strftime("%Y-%m-%d"),
+                    "firm": str(row.get("Firm", "")),
+                    "toGrade": str(row.get("ToGrade", "")),
+                    "fromGrade": str(row.get("FromGrade", "")),
+                    "action": str(row.get("Action", ""))
+                })
+    except Exception:
+        pass
+
+    # NEU: Nächstes Earnings-Datum abrufen
+    next_earnings = None
+    try:
+        cal = t.calendar
+        if cal and 'Earnings Date' in cal and cal['Earnings Date']:
+            next_earnings = cal['Earnings Date'][0].strftime("%Y-%m-%d")
+    except Exception:
+        pass
+
+    analysts_data = process_analyst_data(info, t, cur)
+    analysts_data["upgradesDowngrades"] = upgrades_list
+    analysts_data["nextEarningsDate"] = next_earnings
+
     result = {
         "ticker": ticker_sym, "profile": profile, "quote": quote, "ratios": ratios,
         "financials": {
@@ -598,7 +536,7 @@ def fetch_full_stock(ticker_sym):
             "balanceSheet": {"quarterly": [], "annual": []},
             "cashFlow": {"quarterly": [], "annual": []}
         },
-        "analysts": process_analyst_data(info, t, cur),
+        "analysts": analysts_data,
         "insider": process_insider_data(t, cur),
         "holdings": process_fund_data(t, ticker_sym),
         "institutional": institutional,
@@ -632,8 +570,34 @@ def extract_close_series(batch_df, sym):
     return None
 
 
-def run_delta_sync(tickers):
+def run_delta_sync(tickers, is_manual=False):
     load_live_forex()
+    
+    if is_manual and len(tickers) == 1:
+        sym = tickers[0]
+        stock_file = os.path.join(DATA_DIR, f"{sym}.json")
+        try:
+            stock_data = fetch_full_stock(sym)
+            with open(stock_file, "w", encoding="utf-8") as f:
+                json.dump(stock_data, f, ensure_ascii=False, indent=2)
+            universe_file = os.path.join(DATA_DIR, "universe.json")
+            universe_map = {}
+            if os.path.exists(universe_file):
+                with open(universe_file, "r", encoding="utf-8") as f:
+                    for item in json.load(f): universe_map[item["ticker"]] = item
+            u_item = universe_map.get(sym, {"ticker": sym})
+            u_item["price"] = stock_data["quote"]["price"]
+            u_item["changePercent"] = stock_data["quote"]["changePercent"]
+            u_item["updatedAt"] = stock_data["updatedAt"]
+            universe_map[sym] = u_item
+            with open(universe_file, "w", encoding="utf-8") as f:
+                json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
+            return
+        except Exception as e:
+            print(f"Manual Fetch für {sym} fehlgeschlagen: {e}")
+            return
+
+    print(f"Starte schnelles Batch-Update für {len(tickers)} Ticker...")
     batch_df = yf.download(tickers, period="5d", interval="1d", group_by="ticker", auto_adjust=False, threads=True)
     universe_file = os.path.join(DATA_DIR, "universe.json")
     universe_map = {}
@@ -659,10 +623,9 @@ def run_delta_sync(tickers):
 
         if not stock_data:
             try:
-                print(f"Neuer Ticker, voller Fetch: {sym}")
                 stock_data = fetch_full_stock(sym)
             except Exception as e:
-                print(f"Vollständiger Fetch fehlgeschlagen für {sym}: {e}")
+                print(f"Erst-Fetch fehlgeschlagen für {sym}: {e}")
                 continue
         else:
             closes = extract_close_series(batch_df, sym)
@@ -683,18 +646,8 @@ def run_delta_sync(tickers):
                         stock_data["quote"]["change"] = chg
                         stock_data["quote"]["changePercent"] = chg_pct
                         stock_data["quote"]["currency"] = "EUR"
-                        stock_data["quote"]["priceNative"] = clean_val(last_close)
-                        stock_data["quote"]["nativeCurrency"] = cur
-                        stock_data["quote"]["fxRate"] = RATES_TO_EUR.get(cur)
-                        stock_data["quote"]["fxAsOf"] = FX_META["asOf"]
 
                         history = stock_data.setdefault("chartHistory", [])
-                        # Letzter Handelstag war evtl. nur ein Zwischenstand -> immer neu setzen
-                        last_dt = closes.index[-1]
-                        last_d = last_dt.strftime("%Y-%m-%d") if hasattr(last_dt, "strftime") else str(last_dt)[:10]
-                        for p_ in history:
-                            if p_.get("date") == last_d:
-                                p_["close"] = new_price
                         existing_dates = {p.get("date") for p in history}
                         new_points = []
                         for dt, val in closes.items():
@@ -718,37 +671,6 @@ def run_delta_sync(tickers):
                 except Exception as e:
                     print(f"Delta-Update für {sym} fehlgeschlagen: {e}")
 
-            try:
-                cur = stock_data.get("profile", {}).get("nativeCurrency") or detect_native_currency(sym)
-                new_div = process_dividends(yf.Ticker(sym), info_or_none=None, cur=cur,
-                                            existing=stock_data.get("dividends") or {})
-                stock_data["dividends"] = new_div
-                if new_div.get("exDate"):
-                    stock_data["exDividendDate"] = new_div["exDate"]
-            except Exception as e:
-                print(f"Dividenden-Update für {sym} fehlgeschlagen: {e}")
-
-        if not stock_data.get("holdings"):
-            try:
-                stock_data["holdings"] = process_fund_data(yf.Ticker(sym), sym)
-            except Exception:
-                pass
-
-        if not stock_data.get("institutional") or not stock_data["institutional"].get("holders"):
-            try:
-                cur = stock_data.get("profile", {}).get("nativeCurrency") or detect_native_currency(sym)
-                stock_data["institutional"] = process_institutional_holders(yf.Ticker(sym), cur)
-            except Exception:
-                pass
-
-        try:
-            t_obj = yf.Ticker(sym)
-            new_options = process_options(t_obj, t_obj.info or {})
-            if new_options:
-                stock_data["options"] = new_options
-        except Exception:
-            pass
-
         with open(stock_file, "w", encoding="utf-8") as f:
             json.dump(stock_data, f, ensure_ascii=False, indent=2)
 
@@ -761,13 +683,9 @@ def run_delta_sync(tickers):
         u_item["currency"] = "EUR"
         u_item["price"] = stock_data.get("quote", {}).get("price")
         u_item["changePercent"] = stock_data.get("quote", {}).get("changePercent")
-        u_item["priceNative"] = stock_data.get("quote", {}).get("priceNative")
-        u_item["nativeCurrency"] = stock_data.get("quote", {}).get("nativeCurrency")
         u_item["marketCap"] = stock_data.get("quote", {}).get("marketCap")
         u_item["dividendYield"] = stock_data.get("ratios", {}).get("dividendYield")
         u_item["exDividendDate"] = stock_data.get("exDividendDate")
-        
-        # Aktualisierungsdatum auch im Universum mitschreiben
         u_item["updatedAt"] = stock_data.get("updatedAt", now_iso)
 
         try:
@@ -794,8 +712,12 @@ def main():
     args = parser.parse_args()
     os.makedirs(DATA_DIR, exist_ok=True)
     load_live_forex()
-    target_tickers = [args.ticker.strip().upper()] if args.ticker else ALL_TICKERS
-    run_delta_sync(target_tickers)
+    
+    if args.ticker:
+        target_tickers = [args.ticker.strip().upper()]
+        run_delta_sync(target_tickers, is_manual=True)
+    else:
+        run_delta_sync(ALL_TICKERS, is_manual=False)
 
 
 if __name__ == "__main__":
