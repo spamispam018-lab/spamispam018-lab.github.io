@@ -1,8 +1,7 @@
 /**
  * js/premarket.js
  * US-Vorbörsenhandel-Indikator für deutsche Anleger.
- * NEU: 15-Minuten-Momentum & Warnung vor "Fakeouts" kurz vor US-Open (15:00-15:30).
- * NEU: Gestrichelte App-Kurs-Linie in kräftigem Orange/Gold für bessere Sichtbarkeit.
+ * NEU: Futures (NASDAQ & S&P 500), Volumen-Check, VWAP und 15-Min-RSI.
  */
 window.App = window.App || {};
 
@@ -52,27 +51,30 @@ window.App.PreMarket = (function () {
     });
   }
 
-  function fetchFx() {
-    return fetchChart('EURUSD=X', false).then(function (d) {
-      try {
-        return d.chart.result[0].meta.regularMarketPrice;
-      } catch (e) { return 1.09; }
-    });
-  }
-
   function extractSeries(data, fxToEur) {
     try {
       var result = data.chart.result[0];
       var ts = result.timestamp || [];
-      var closes = result.indicators.quote[0].close || [];
+      var quote = result.indicators.quote[0];
+      var closes = quote.close || [];
+      var volumes = quote.volume || [];
       var pts = [];
       for (var i = 0; i < ts.length; i++) {
         if (closes[i] != null) {
-          pts.push({ t: ts[i] * 1000, price: closes[i] * fxToEur });
+          pts.push({ t: ts[i] * 1000, price: closes[i] * fxToEur, volume: volumes[i] || 0 });
         }
       }
       return { points: pts, meta: result.meta };
     } catch (e) { return { points: [], meta: {} }; }
+  }
+
+  function extractFutures(data) {
+    try {
+      var meta = data.chart.result[0].meta;
+      var current = meta.regularMarketPrice;
+      var prev = meta.chartPreviousClose || meta.previousClose || current;
+      return { price: current, pct: ((current - prev) / prev) * 100 };
+    } catch (e) { return { price: null, pct: null }; }
   }
 
   function classifySession(ms) {
@@ -101,9 +103,9 @@ window.App.PreMarket = (function () {
     return timeStr + dayStr;
   }
 
-  function fmt(v) {
+  function fmt(v, d) {
     if (v == null || isNaN(v)) return '—';
-    return window.App.Format.number(v, 2);
+    return window.App.Format.number(v, d === undefined ? 2 : d);
   }
 
   function computeSignal(preEur, currentEur) {
@@ -128,6 +130,58 @@ window.App.PreMarket = (function () {
     return { delta: delta, dir: delta > 0.1 ? 'up' : delta < -0.1 ? 'down' : 'flat' };
   }
 
+  // NEU: VWAP berechnen
+  function computeVwap(points) {
+    var pv = 0, vol = 0;
+    points.forEach(function(p) {
+      if (p.price > 0 && p.volume > 0) {
+        pv += p.price * p.volume;
+        vol += p.volume;
+      }
+    });
+    return vol > 0 ? (pv / vol) : null;
+  }
+
+  // NEU: 15-Minuten RSI berechnen
+  function computeRsi15m(points) {
+    if (!points || points.length < 30) return null;
+    
+    // 1-Minuten-Kerzen zu 15-Minuten-Kerzen zusammenfassen
+    var bars15 = [];
+    var currentBar = [];
+    for (var i = 0; i < points.length; i++) {
+      currentBar.push(points[i]);
+      if (currentBar.length === 15) {
+        bars15.push(currentBar[currentBar.length - 1].price);
+        currentBar = [];
+      }
+    }
+    if (currentBar.length > 0) bars15.push(currentBar[currentBar.length - 1].price);
+    if (bars15.length < 15) return null; // Brauchen mind. 15 Perioden für RSI
+
+    // Standard RSI(14)
+    var gains = 0, losses = 0;
+    for (var i = 1; i <= 14; i++) {
+      var diff = bars15[i] - bars15[i-1];
+      if (diff >= 0) gains += diff;
+      else losses -= diff;
+    }
+    var avgGain = gains / 14;
+    var avgLoss = losses / 14;
+
+    for (var i = 15; i < bars15.length; i++) {
+      var diff = bars15[i] - bars15[i-1];
+      var g = diff > 0 ? diff : 0;
+      var l = diff < 0 ? -diff : 0;
+      avgGain = (avgGain * 13 + g) / 14;
+      avgLoss = (avgLoss * 13 + l) / 14;
+    }
+    
+    if (avgLoss === 0) return 100;
+    var rs = avgGain / avgLoss;
+    return 100 - (100 / (1 + rs));
+  }
+
   function render(container, stock) {
     if (!container || !stock) return;
     var ticker = (stock.ticker || '').toUpperCase();
@@ -150,8 +204,19 @@ window.App.PreMarket = (function () {
           '<span class="card-title">🇺🇸 US-Vorbörse · ' + ticker + '</span>' +
           '<span id="pm-session-badge" class="period-tag">—</span>' +
         '</div>' +
+        
+        // NEU: Futures Row
+        '<div id="pm-futures" style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:600; background:var(--bg-tertiary); padding:6px 10px; border-radius:var(--radius-sm); margin-bottom:10px;">' +
+          '<span id="fut-nq">NASDAQ: —</span>' +
+          '<span id="fut-es">S&P 500: —</span>' +
+        '</div>' +
+
         '<div id="pm-status" style="font-size:0.78rem;color:var(--text-dim);">Lade Vorbörsen-Daten…</div>' +
         '<div id="pm-signal" style="margin:10px 0;"></div>' +
+        
+        // NEU: Indikatoren Grid (Volumen, VWAP, RSI)
+        '<div id="pm-indicators" style="display:none; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;"></div>' +
+
         '<div id="pm-momentum"></div>' +
         '<div style="height:140px;position:relative;margin-top:6px;">' +
           '<canvas id="pm-canvas" style="width:100%;height:100%;"></canvas>' +
@@ -183,11 +248,14 @@ window.App.PreMarket = (function () {
     var statusEl = container.querySelector('#pm-status');
     if (statusEl) statusEl.textContent = 'Rufe Vorbörsen-Daten…';
 
+    // 4 parallele Requests
     return Promise.all([
       fetchChart(ticker, true),
-      fetchFx()
+      fetchChart('EURUSD=X', false),
+      fetchChart('NQ=F', false),
+      fetchChart('ES=F', false)
     ]).then(function (res) {
-      renderData(container, ticker, stock, res[0], res[1]);
+      renderData(container, ticker, stock, res[0], res[1], res[2], res[3]);
     }).catch(function (err) {
       if (statusEl) statusEl.innerHTML =
         '<span style="color:var(--bearish);">Fehler: ' + (err.message || err) + '</span>' +
@@ -195,8 +263,11 @@ window.App.PreMarket = (function () {
     });
   }
 
-  function renderData(container, ticker, stock, preData, fx) {
+  function renderData(container, ticker, stock, preData, fxData, nqData, esData) {
+    var fx = 1.09;
+    try { fx = fxData.chart.result[0].meta.regularMarketPrice; } catch(e){}
     var usdToEur = fx > 0 ? 1 / fx : 0.92;
+
     var preSeries = extractSeries(preData, usdToEur);
     var currentPriceEur = (stock.quote && stock.quote.price) || 0;
 
@@ -205,6 +276,18 @@ window.App.PreMarket = (function () {
 
     var germanNow = currentPriceEur;
     var xetraOpen = isXetraOpen();
+
+    // Futures rendern
+    var nq = extractFutures(nqData);
+    var es = extractFutures(esData);
+    var futNqEl = container.querySelector('#fut-nq');
+    var futEsEl = container.querySelector('#fut-es');
+    if (futNqEl) {
+      futNqEl.innerHTML = 'NASDAQ: <span style="color:' + (nq.pct >= 0 ? 'var(--bullish)' : 'var(--bearish)') + ';">' + (nq.pct >= 0 ? '+' : '') + fmt(nq.pct) + '%</span>';
+    }
+    if (futEsEl) {
+      futEsEl.innerHTML = 'S&P 500: <span style="color:' + (es.pct >= 0 ? 'var(--bullish)' : 'var(--bearish)') + ';">' + (es.pct >= 0 ? '+' : '') + fmt(es.pct) + '%</span>';
+    }
 
     var session = lastPre ? classifySession(lastPre.t) : 'closed';
     var sessionBadge = container.querySelector('#pm-session-badge');
@@ -229,6 +312,39 @@ window.App.PreMarket = (function () {
       } else {
         statusEl.textContent = 'Keine Vorbörsen-Daten – US-Börse geschlossen oder noch keine Trades.';
       }
+    }
+
+    // Indikatoren (Volumen, VWAP, RSI)
+    var indEl = container.querySelector('#pm-indicators');
+    if (indEl && session === 'pre') {
+      var totalVol = prePoints.reduce(function(sum, p) { return sum + p.volume; }, 0);
+      var vwap = computeVwap(prePoints);
+      var rsi15 = computeRsi15m(prePoints);
+
+      // Volumen-Fakeout-Filter (Warnung bei sehr hohem Volumen)
+      var isHighVol = totalVol > 500000; // Grober Richtwert für Pre-Market
+      var volStr = totalVol > 1000000 ? (totalVol/1000000).toFixed(2)+'M' : (totalVol/1000).toFixed(0)+'k';
+      var volColor = isHighVol ? 'var(--tag-yellow)' : 'var(--text-main)';
+
+      // RSI Farbe
+      var rsiColor = rsi15 >= 70 ? 'var(--bearish)' : rsi15 <= 30 ? 'var(--bullish)' : 'var(--text-main)';
+      
+      indEl.style.display = 'grid';
+      indEl.innerHTML = 
+        '<div style="background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
+          '<div style="font-size:0.6rem; color:var(--text-dim);">Volumen</div>' +
+          '<div style="font-weight:700; font-size:0.8rem; color:' + volColor + ';">' + volStr + '</div>' +
+        '</div>' +
+        '<div style="background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
+          '<div style="font-size:0.6rem; color:var(--text-dim);">VWAP</div>' +
+          '<div style="font-weight:700; font-size:0.8rem; color:#3b82f6;">' + (vwap ? window.App.Format.currency(vwap, 'EUR', 2) : '—') + '</div>' +
+        '</div>' +
+        '<div style="background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
+          '<div style="font-size:0.6rem; color:var(--text-dim);">RSI (15m)</div>' +
+          '<div style="font-weight:700; font-size:0.8rem; color:' + rsiColor + ';">' + (rsi15 ? fmt(rsi15, 0) : '—') + '</div>' +
+        '</div>';
+    } else if (indEl) {
+      indEl.style.display = 'none';
     }
 
     var signalEl = container.querySelector('#pm-signal');
@@ -271,7 +387,7 @@ window.App.PreMarket = (function () {
           var alertBg = isDangerZone ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.05)';
           var alertTitle = isDangerZone ? '⚠️ Achtung: Kurs dreht kurz vor US-Open!' : '📉 Vorbörse dreht nach unten';
           var alertText = isDangerZone 
-            ? 'Der Preis ist in den letzten 15 Min um ' + fmt(mom.delta) + '% gefallen. Wenn du verkaufen willst, solltest du das jetzt tun, bevor um 15:30 Uhr das große Volumen kommt.'
+            ? 'Der Preis fällt (' + fmt(mom.delta) + '% in 15 Min). Wenn du verkaufen willst, solltest du das jetzt tun.'
             : 'Der Pre-Market verliert an Momentum (' + fmt(mom.delta) + '% in 15 Min).';
 
           momEl.innerHTML = '<div style="padding:10px; background:' + alertBg + '; border-left:3px solid ' + alertColor + '; border-radius:4px; margin-top:8px;">' +
@@ -314,10 +430,32 @@ window.App.PreMarket = (function () {
         'Der Pfeil zeigt, in welche Richtung der deutsche Kurs zur US-Eröffnung tendiert.';
     }
 
-    drawChart(container, prePoints, germanNow);
+    // NEU: VWAP als zweite horizontale Linie übergeben
+    var hLines = [{
+      value: germanNow,
+      color: '#f59e0b',
+      width: 2,
+      label: 'App-Kurs ' + window.App.Format.currency(germanNow, 'EUR', 2),
+      dashed: true
+    }];
+    
+    if (session === 'pre') {
+      var vwapVal = computeVwap(prePoints);
+      if (vwapVal) {
+        hLines.push({
+          value: vwapVal,
+          color: '#3b82f6', // Blau für VWAP
+          width: 1.5,
+          label: 'VWAP ' + window.App.Format.currency(vwapVal, 'EUR', 2),
+          dashed: false // VWAP als durchgezogene Linie
+        });
+      }
+    }
+
+    drawChart(container, prePoints, hLines);
   }
 
-  function drawChart(container, points, germanNow) {
+  function drawChart(container, points, hLines) {
     var canvas = container.querySelector('#pm-canvas');
     if (!canvas) return;
 
@@ -347,13 +485,7 @@ window.App.PreMarket = (function () {
       labels: labels,
       values: values,
       formatY: function (v) { return window.App.Format.currency(v, 'EUR', 2); },
-      horizontalLines: [{
-        value: germanNow,
-        color: '#f59e0b', // NEU: Kräftiges Orange/Gold
-        width: 2,         // NEU: Etwas dicker
-        label: 'App-Kurs ' + window.App.Format.currency(germanNow, 'EUR', 2),
-        dashed: true
-      }]
+      horizontalLines: hLines
     });
   }
 
