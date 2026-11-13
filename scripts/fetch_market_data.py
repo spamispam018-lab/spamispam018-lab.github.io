@@ -3,10 +3,9 @@
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 NEU: 
-- Upgrades & Downgrades werden fehlerfrei ausgelesen.
-- Financials (GuV, Bilanz, Cashflow) werden wieder vollständig abgerufen.
-- EPS-Estimates und EPS-Forecast werden geladen.
-- Intraday-Kurse (Minuten) für den absoluten Live-Kurs.
+- Upgrades & Downgrades (funktioniert).
+- Financials nutzen jetzt die modernen yfinance-Methoden (quarterly_income_stmt etc.).
+- EPS-Estimates Datum wird korrekt ausgelesen.
 """
 
 import os
@@ -155,7 +154,6 @@ def clean_val(val, default=None):
     return val
 
 
-# NEU: Finanzdaten-Helfer wiederhergestellt
 def df_to_dict_records(df, cur):
     if df is None or df.empty: return []
     records = []
@@ -289,18 +287,25 @@ def process_analyst_data(info, ticker_obj, cur):
     try:
         eh = ticker_obj.earnings_history
         if eh is not None and not eh.empty:
-            eh = eh.sort_values(by='quarter', ascending=False).head(4)
+            eh = eh.reset_index()
+            date_col = next((c for c in eh.columns if 'date' in str(c).lower() or 'quarter' in str(c).lower()), eh.columns[0])
+            eh = eh.sort_values(by=date_col, ascending=False).head(4)
+            
             for _, row in eh.iterrows():
-                q_date = row.get('quarter')
-                q_str = q_date.strftime("%Y-%m-%d") if hasattr(q_date, "strftime") else str(q_date)[:10]
+                q_date = row.get(date_col)
+                if isinstance(q_date, pd.Timestamp):
+                    q_str = q_date.strftime("%Y-%m-%d")
+                else:
+                    q_str = str(q_date)[:10]
+                    
                 eps_estimates.append({
                     "quarter": q_str,
                     "estimate": clean_val(row.get("epsEstimate")),
                     "actual": clean_val(row.get("epsActual")),
                     "surprisePercent": clean_val(row.get("surprisePercent"))
                 })
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"Fehler bei EPS-History für {info.get('symbol', '')}: {e}")
 
     eps_forecast = None
     try:
@@ -551,11 +556,11 @@ def fetch_full_stock(ticker_sym):
     except Exception:
         pass
 
-    # NEU: Finanzdaten wiederhergestellt
+    # NEU: Finanzdaten über die modernen yfinance-Methoden
     fin_data = {
         "incomeStatement": {
-            "quarterly": df_to_dict_records(t.quarterly_financials, cur),
-            "annual": df_to_dict_records(t.financials, cur)
+            "quarterly": df_to_dict_records(t.quarterly_income_stmt, cur),
+            "annual": df_to_dict_records(t.income_stmt, cur)
         },
         "balanceSheet": {
             "quarterly": df_to_dict_records(t.quarterly_balance_sheet, cur),
@@ -571,7 +576,6 @@ def fetch_full_stock(ticker_sym):
     institutional = process_institutional_holders(t, cur)
     options = process_options(t, info)
 
-    # Upgrades & Downgrades abrufen
     upgrades_list = []
     try:
         ud_df = t.upgrades_downgrades
