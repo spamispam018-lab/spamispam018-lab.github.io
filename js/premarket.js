@@ -9,6 +9,7 @@
  * - Kein DE-Ticker-Abruf mehr (nutzt den App-Kurs).
  * - Zeitanzeige mit "heute" und "morgen".
  * - Trade Republic Handelszeit (bis 23:00) integriert.
+ * - Xetra-Status (Geöffnet/Geschlossen) inkl. Wochenend-Erkennung.
  */
 window.App = window.App || {};
 
@@ -34,6 +35,17 @@ window.App.PreMarket = (function () {
     var s = now.toLocaleString('en-US', { timeZone: 'Europe/Berlin', hour12: false });
     var m = s.match(/(\d+):(\d+):(\d+)/);
     return m ? parseInt(m[1], 10) + parseInt(m[2], 10) / 60 : 0;
+  }
+
+  function isWeekend() {
+    var day = new Date().toLocaleString('en-US', { timeZone: 'Europe/Berlin', weekday: 'short' });
+    return day === 'Sat' || day === 'Sun';
+  }
+
+  function isXetraOpen() {
+    if (isWeekend()) return false;
+    var h = cetHour();
+    return h >= 9 && h < 17.5; // 09:00 bis 17:30 Uhr
   }
 
   function fetchChart(ticker, withPrePost) {
@@ -90,6 +102,13 @@ window.App.PreMarket = (function () {
     var mm = Math.round((diff - hh) * 60);
     var timeStr = hh + 'h ' + (mm < 10 ? '0' : '') + mm + 'min';
     var dayStr = isTomorrow ? ' (morgen)' : ' (heute)';
+    
+    // Wochenende abfangen (wenn heute Freitag nach 17:30 ist oder Wochenende)
+    var day = new Date().toLocaleString('en-US', { timeZone: 'Europe/Berlin', weekday: 'short' });
+    if (day === 'Fri' && isTomorrow) dayStr = ' (Montag)';
+    if (day === 'Sat') dayStr = ' (Montag)';
+    if (day === 'Sun' && isTomorrow) dayStr = ' (Montag)';
+
     return timeStr + dayStr;
   }
 
@@ -184,8 +203,8 @@ window.App.PreMarket = (function () {
     var prePoints = preSeries.points || [];
     var lastPre = prePoints.length ? prePoints[prePoints.length - 1] : null;
 
-    // Da wir den deutschen Ticker nicht mehr abrufen, nutzen wir den Kurs aus den App-Daten
     var germanNow = currentPriceEur;
+    var xetraOpen = isXetraOpen();
 
     var session = lastPre ? classifySession(lastPre.t) : 'closed';
     var sessionBadge = container.querySelector('#pm-session-badge');
@@ -246,18 +265,29 @@ window.App.PreMarket = (function () {
     // Zeit-Info mit heute/morgen und Trade Republic
     var timesEl = container.querySelector('#pm-times');
     if (timesEl) {
+      var xetraTimeStr = '';
+      if (xetraOpen) {
+        xetraTimeStr = '⏱️ Xetra schließt in <strong>' + getTimeInfo(17.5, cetHour()) + '</strong> (17:30 CET)<br>';
+      } else {
+        xetraTimeStr = '⏱️ Xetra öffnet in <strong>' + getTimeInfo(9, cetHour()) + '</strong> (09:00 CET)<br>';
+      }
+
       timesEl.innerHTML =
         '⏱️ US-Open in <strong>' + getTimeInfo(9.5, etHour()) + '</strong> (15:30 CET)<br>' +
         '⏱️ US-Close in <strong>' + getTimeInfo(16, etHour()) + '</strong> (22:00 CET)<br>' +
         '⏱️ Trade Republic (23:00) in <strong>' + getTimeInfo(23, cetHour()) + '</strong><br>' +
-        '⏱️ Xetra schließt in <strong>' + getTimeInfo(17.5, cetHour()) + '</strong> (17:30 CET)';
+        xetraTimeStr;
     }
 
-    // Info-Zeile (ohne DE-Ticker Verweis)
+    // Info-Zeile mit Xetra-Status
     var infoEl = container.querySelector('#pm-info');
     if (infoEl) {
+      var xetraLabel = xetraOpen 
+        ? '<strong style="color:var(--bullish);">Xetra ist geöffnet</strong>' 
+        : '<strong style="color:var(--text-dim);">Xetra ist geschlossen</strong>';
+
       infoEl.innerHTML = 'Vergleich: US-Vorbörse in EUR vs. letzter Kurs in der App (' +
-        window.App.Format.currency(germanNow, 'EUR') + '). ' +
+        window.App.Format.currency(germanNow, 'EUR') + '). ' + xetraLabel + '. ' +
         'Der Pfeil zeigt, in welche Richtung der deutsche Kurs zur US-Eröffnung tendiert.';
     }
 
