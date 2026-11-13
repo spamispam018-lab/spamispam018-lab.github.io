@@ -3,8 +3,8 @@
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 NEU: 
-- Upgrades & Downgrades der Analysten werden abgerufen und in die JSON geschrieben.
-- EPS-Estimates (historische Beat/Miss-Daten) und EPS-Forecast werden geladen.
+- Upgrades & Downgrades werden fehlerfrei ausgelesen (Index-Problem behoben).
+- EPS-Estimates und EPS-Forecast werden geladen.
 - Intraday-Kurse (Minuten) für den absoluten Live-Kurs.
 - Synchronisiert das updatedAt-Feld von stock.json ins universe.json.
 """
@@ -16,6 +16,7 @@ import argparse
 import sys
 from datetime import datetime, timezone
 import yfinance as yf
+import pandas as pd
 
 TICKERS_USA = [
     "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "BRK-B", "JPM", "V",
@@ -265,7 +266,6 @@ def process_analyst_data(info, ticker_obj, cur):
         "history": []
     }
     
-    # NEU: EPS Estimates & Forecast laden
     eps_estimates = []
     try:
         eh = ticker_obj.earnings_history
@@ -536,37 +536,36 @@ def fetch_full_stock(ticker_sym):
     institutional = process_institutional_holders(t, cur)
     options = process_options(t, info)
 
-    # NEU: Upgrades & Downgrades abrufen (Robuste Variante)
+    # NEU: Upgrades & Downgrades abrufen (Fehlerfrei durch reset_index)
     upgrades_list = []
     try:
         ud_df = t.upgrades_downgrades
         if ud_df is not None and not ud_df.empty:
-            ud_df.columns = [str(c) for c in ud_df.columns]
+            ud_df = ud_df.reset_index()
+            date_cols = [c for c in ud_df.columns if 'date' in str(c).lower()]
             
-            date_col = next((c for c in ud_df.columns if 'date' in c.lower()), None)
-            if date_col:
+            if date_cols:
+                date_col = date_cols[0]
                 ud_df = ud_df.sort_values(by=date_col, ascending=False)
-            
-            for _, row in ud_df.head(10).iterrows():
-                g_date = row.get(date_col, "")
-                date_str = g_date.strftime("%Y-%m-%d") if hasattr(g_date, "strftime") else str(g_date)[:10]
                 
-                firm = next((row.get(c) for c in ud_df.columns if c.lower() == 'firm'), "")
-                to_g = next((row.get(c) for c in ud_df.columns if c.lower() == 'tograde'), "")
-                from_g = next((row.get(c) for c in ud_df.columns if c.lower() == 'fromgrade'), "")
-                action = next((row.get(c) for c in ud_df.columns if c.lower() == 'action'), "")
-
-                upgrades_list.append({
-                    "date": date_str,
-                    "firm": str(firm),
-                    "toGrade": str(to_g),
-                    "fromGrade": str(from_g),
-                    "action": str(action)
-                })
+                for _, row in ud_df.head(10).iterrows():
+                    g_date = row.get(date_col)
+                    if isinstance(g_date, pd.Timestamp):
+                        date_str = g_date.strftime("%Y-%m-%d")
+                    else:
+                        date_str = str(g_date)[:10]
+                        
+                    upgrades_list.append({
+                        "date": date_str,
+                        "firm": str(row.get("Firm", "Unbekannt")),
+                        "toGrade": str(row.get("ToGrade", "N/A")),
+                        "fromGrade": str(row.get("FromGrade", "N/A")),
+                        "action": str(row.get("Action", ""))
+                    })
     except Exception as e:
         print(f"Fehler bei Upgrades/Downgrades für {ticker_sym}: {e}")
 
-    # NEU: Nächstes Earnings-Datum abrufen
+    # Nächstes Earnings-Datum abrufen
     next_earnings = None
     try:
         cal = t.calendar
