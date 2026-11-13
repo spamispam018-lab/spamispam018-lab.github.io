@@ -3,8 +3,8 @@
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 NEU: 
+- Extrem robuster Abruf der Financials (Fallback auf alte yfinance API).
 - Upgrades & Downgrades (funktioniert).
-- Financials nutzen jetzt die modernen yfinance-Methoden (quarterly_income_stmt etc.).
 - EPS-Estimates Datum wird korrekt ausgelesen.
 """
 
@@ -484,6 +484,41 @@ def compute_chart_patterns(chart_history, symbol=""):
     }
 
 
+def fetch_financials_robust(t, cur):
+    """Hilfsfunktion, um Finanzdaten zu holen (Fallback auf alte API)."""
+    inc_q = t.quarterly_income_stmt if hasattr(t, 'quarterly_income_stmt') else None
+    if inc_q is None or inc_q.empty:
+        inc_q = t.quarterly_financials if hasattr(t, 'quarterly_financials') else None
+        
+    inc_a = t.income_stmt if hasattr(t, 'income_stmt') else None
+    if inc_a is None or inc_a.empty:
+        inc_a = t.financials if hasattr(t, 'financials') else None
+
+    bs_q = t.quarterly_balance_sheet if hasattr(t, 'quarterly_balance_sheet') else None
+    bs_a = t.balance_sheet if hasattr(t, 'balance_sheet') else None
+
+    cf_q = t.quarterly_cashflow if hasattr(t, 'quarterly_cashflow') else None
+    if cf_q is None or cf_q.empty:
+        cf_q = t.quarterly_cashflow if hasattr(t, 'quarterly_cashflow') else None
+        
+    cf_a = t.cashflow if hasattr(t, 'cashflow') else None
+
+    return {
+        "incomeStatement": {
+            "quarterly": df_to_dict_records(inc_q, cur),
+            "annual": df_to_dict_records(inc_a, cur)
+        },
+        "balanceSheet": {
+            "quarterly": df_to_dict_records(bs_q, cur),
+            "annual": df_to_dict_records(bs_a, cur)
+        },
+        "cashFlow": {
+            "quarterly": df_to_dict_records(cf_q, cur),
+            "annual": df_to_dict_records(cf_a, cur)
+        }
+    }
+
+
 def fetch_full_stock(ticker_sym):
     print(f"Führe vollständigen Fetch (inkl. Intraday) für {ticker_sym} durch...")
     t = yf.Ticker(ticker_sym)
@@ -556,21 +591,9 @@ def fetch_full_stock(ticker_sym):
     except Exception:
         pass
 
-    # NEU: Finanzdaten über die modernen yfinance-Methoden
-    fin_data = {
-        "incomeStatement": {
-            "quarterly": df_to_dict_records(t.quarterly_income_stmt, cur),
-            "annual": df_to_dict_records(t.income_stmt, cur)
-        },
-        "balanceSheet": {
-            "quarterly": df_to_dict_records(t.quarterly_balance_sheet, cur),
-            "annual": df_to_dict_records(t.balance_sheet, cur)
-        },
-        "cashFlow": {
-            "quarterly": df_to_dict_records(t.quarterly_cashflow, cur),
-            "annual": df_to_dict_records(t.cashflow, cur)
-        }
-    }
+    # NEU: Robuster Finanzdaten-Abruf
+    fin_data = fetch_financials_robust(t, cur)
+    print(f"Financials für {ticker_sym}: GuV {len(fin_data['incomeStatement']['quarterly'])}Q/{len(fin_data['incomeStatement']['annual'])}Y, Bilanz {len(fin_data['balanceSheet']['quarterly'])}Q/{len(fin_data['balanceSheet']['annual'])}Y, CF {len(fin_data['cashFlow']['quarterly'])}Q/{len(fin_data['cashFlow']['annual'])}Y")
 
     dividends_info = process_dividends(t, info, cur)
     institutional = process_institutional_holders(t, cur)
