@@ -1,8 +1,7 @@
 /**
  * js/stock-overview.js
  * Verwaltet den Tab "Overview".
- * NEU: Der Live-Kurs wird temporär an das Ende des Charts angehängt, 
- * damit der Graph bis zum aktuellen Wert mitzieht.
+ * NEU: Pre-Market-Karte (US-Vorbörse vs. Xetra) zwischen Kennzahlen und Chart.
  */
 
 window.App = window.App || {};
@@ -10,7 +9,7 @@ window.App = window.App || {};
 window.App.StockOverview = (function () {
   'use strict';
 
-  var PROXY_URL = "https://yahoo-proxy.spamispam018.workers.dev"; 
+  var PROXY_URL = "https://yahoo-proxy.spamispam018.workers.dev";
 
   var currentStock = null;
   var currentPeriod = '1Y';
@@ -25,7 +24,6 @@ window.App.StockOverview = (function () {
     if (!container || !stock) return;
     currentStock = stock;
 
-    // Prüfen, ob wir einen neueren Live-Kurs im LocalStorage haben
     try {
       var cachedLive = JSON.parse(localStorage.getItem('live_price_' + stock.ticker));
       if (cachedLive && cachedLive.timestamp > new Date(stock.updatedAt).getTime()) {
@@ -33,7 +31,7 @@ window.App.StockOverview = (function () {
         stock.quote.changePercent = cachedLive.changePercent;
         stock.quote.currency = cachedLive.currency;
         stock.updatedAt = new Date(cachedLive.timestamp).toISOString();
-        currentStock.livePrice = cachedLive.price; // NEU: Live-Preis merken
+        currentStock.livePrice = cachedLive.price;
       }
     } catch (e) {}
 
@@ -42,7 +40,7 @@ window.App.StockOverview = (function () {
     var insider = stock.insider || { summary: {}, trades: [] };
     var financials = stock.financials || {};
     var holdings = stock.holdings || [];
-    
+
     var isDataMissing = !quote.price || quote.price <= 0;
 
     var peTrailingDisplay;
@@ -89,7 +87,7 @@ window.App.StockOverview = (function () {
           'Live-Kurs abrufen' +
         '</button>' +
       '</div>' +
-      
+
       (isDataMissing ? '<div class="card" style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--bearish); padding: 16px; margin-bottom: 14px; text-align: center;">' +
         '<div style="font-size: 1.1rem; font-weight: 700; color: var(--bearish); margin-bottom: 4px;">Keine Kursdaten verfügbar</div>' +
         '<div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Bitte klicke oben auf <b>Live-Kurs abrufen</b>, um die Daten neu zu ziehen.</div>' +
@@ -98,8 +96,11 @@ window.App.StockOverview = (function () {
       '<div id="news-card"></div>' +
       renderEtfHoldingsHtml(holdings) +
       renderMetricsHtml(quote, ratios, peTrailingDisplay, forwardPeDisplay, divYieldDisplay, isDataMissing) +
-      
-      (!isDataMissing ? 
+
+      (!isDataMissing ?
+      '<!-- NEU: Pre-Market-Karte (US-Vorbörse vs. Xetra) -->' +
+      '<div id="pm-slot"></div>' +
+
       '<div class="card">' +
         '<div class="card-header-dotted">' +
           '<span class="card-title">Kursverlauf</span>' +
@@ -142,8 +143,14 @@ window.App.StockOverview = (function () {
       '</div>' : '');
 
     container.innerHTML = html;
-    
+
     if (window.App.News) window.App.News.fillTicker(stock.ticker, container.querySelector('#news-card'));
+
+    // NEU: Pre-Market-Karte rendern (nur bei US-Tickern und wenn Daten vorhanden)
+    if (window.App.PreMarket && !isDataMissing) {
+      var pmSlot = container.querySelector('#pm-slot');
+      if (pmSlot) window.App.PreMarket.render(pmSlot, stock);
+    }
 
     // Gemini Event Listener
     var geminiBtn = container.querySelector('#btn-ask-gemini');
@@ -201,10 +208,10 @@ window.App.StockOverview = (function () {
         var nws = window.App.News && window.App.News.promptBlock(sTicker, 5);
         if (nws) promptText += "\n\nAktuelle Nachrichten (englisch, mit automatischer FinBERT-Stimmungseinschätzung):\n" + nws + "\nBitte beziehe diese Nachrichten in deine Erklärung und Bewertung ein. ";
         promptText += "Bitte gib mir eine Bewertung der Aktie anhand dieser fundamentalen und technischen Daten und der aktuellen Marktlage.";
-        
+
         var urlText = promptText.length > 1800 ? "Hallo Gemini! Mein Prompt mit Kursdaten und aktuellen Nachrichten liegt in der Zwischenablage – bitte einfügen und absenden." : promptText;
         var geminiUrl = "https://gemini.google.com/app?q=" + encodeURIComponent(urlText);
-        
+
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(promptText).then(function() {
                 window.open(geminiUrl, '_blank');
@@ -229,22 +236,21 @@ window.App.StockOverview = (function () {
         if (dateEl) dateEl.innerHTML = '<span style="color:var(--accent-purple-light);">Rufe Live-Daten ab...</span>';
 
         fetch(PROXY_URL + '/?ticker=' + encodeURIComponent(currentStock.ticker) + '&t=' + Date.now())
-          .then(function(res) { 
+          .then(function(res) {
             if (!res.ok) throw new Error("HTTP Fehler beim Aktienkurs: " + res.status);
-            return res.json(); 
+            return res.json();
           })
           .then(function(data) {
             if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
               throw new Error("Yahoo lieferte keine Daten für diesen Ticker.");
             }
-            
+
             var result = data.chart.result[0];
             var meta = result.meta;
-            
+
             var livePrice = null;
             var livePct = null;
 
-            // NEU: Wir suchen den allerletzten gehandelten Kurs aus der Historie
             try {
               var quotes = result.indicators.quote[0];
               if (quotes && quotes.close && quotes.close.length > 0) {
@@ -257,21 +263,20 @@ window.App.StockOverview = (function () {
               }
             } catch(e) {}
 
-            // Fallback
             if (!livePrice) livePrice = meta.regularMarketPrice;
             if (!livePrice) throw new Error("Kein Kurs gefunden.");
-            
+
             var prevClose = meta.chartPreviousClose || meta.previousClose || livePrice;
             livePct = ((livePrice - prevClose) / prevClose) * 100;
             var currency = meta.currency;
 
             if (currency !== 'EUR') {
-              var pair = 'EUR' + currency + '=X'; 
+              var pair = 'EUR' + currency + '=X';
               return fetch(PROXY_URL + '/?ticker=' + encodeURIComponent(pair) + '&t=' + Date.now())
                 .then(function(res) { return res.json(); })
                 .then(function(fxData) {
                   var fxRate = fxData.chart.result[0].meta.regularMarketPrice;
-                  var priceInEur = livePrice / fxRate; 
+                  var priceInEur = livePrice / fxRate;
                   return { price: priceInEur, pct: livePct };
                 });
             } else {
@@ -280,10 +285,9 @@ window.App.StockOverview = (function () {
           })
           .then(function(finalData) {
             var now = new Date();
-            
-            // NEU: Den Live-Preis im State speichern, damit der Chart ihn zeichnet
+
             currentStock.livePrice = finalData.price;
-            
+
             try {
               localStorage.setItem('live_price_' + currentStock.ticker, JSON.stringify({
                 price: finalData.price,
@@ -295,7 +299,7 @@ window.App.StockOverview = (function () {
 
             var priceEl = document.getElementById('stock-header-price');
             var changeEl = document.getElementById('stock-header-change');
-            
+
             if (priceEl && changeEl) {
               priceEl.textContent = window.App.Format.currency(finalData.price, 'EUR');
               var chgCls = window.App.Format.changeClass(finalData.pct);
@@ -303,7 +307,7 @@ window.App.StockOverview = (function () {
               changeEl.className = 'badge-pill ' + chgCls;
               changeEl.textContent = sign + window.App.Format.number(finalData.pct, 2) + ' %';
             }
-            
+
             currentStock.quote.price = finalData.price;
             currentStock.quote.changePercent = finalData.pct;
             currentStock.quote.currency = 'EUR';
@@ -313,8 +317,7 @@ window.App.StockOverview = (function () {
               var timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
               dateEl.innerHTML = '<span style="color:var(--bullish); font-weight:700;">✓ Erfolgreich aktualisiert (' + timeStr + ' Uhr)</span>';
             }
-            
-            // NEU: Chart und Performance-Raster mit dem neuen Live-Preis neu zeichnen
+
             drawPriceChart();
             updatePerfGrid();
 
@@ -326,7 +329,7 @@ window.App.StockOverview = (function () {
             refreshBtn.innerHTML = originalHtml;
             refreshBtn.disabled = false;
             if (dateEl) dateEl.textContent = 'Stand: Fehler beim Laden';
-            
+
             var msg = err.message;
             if (msg === 'Failed to fetch') msg = "Netzwerkfehler. Bitte Verbindung prüfen.";
             alert('Live-Kurs Fehler:\n' + msg);
@@ -457,8 +460,7 @@ window.App.StockOverview = (function () {
     }
 
     var cur = currentStock.quote ? currentStock.quote.currency : 'EUR';
-    
-    // NEU: Wenn wir einen Live-Preis haben, hängen wir ihn temporär an das Chart-Ende an
+
     var chartData = filtered.slice();
     if (currentStock.livePrice) {
       var todayStr = new Date().toISOString().slice(0, 10);
@@ -491,21 +493,20 @@ window.App.StockOverview = (function () {
   function updatePerfGrid() {
     var grid = document.getElementById('overview-perf-grid');
     if (!grid || !currentStock) return;
-    
+
     var periods = [['1W', '1W'], ['1M', '1M'], ['3M', '3M'], ['6M', '6M'], ['1Y', '1J'], ['5Y', '5J'], ['10Y', '10J']];
     var html = '';
-    
+
     grid.style.display = 'flex';
     grid.style.flexWrap = 'wrap';
     grid.style.gap = '8px';
-    
+
     periods.forEach(function (pd) {
       var series = getPeriodSeries(pd[0]);
       var txt = '—';
       var cls = '';
-      
+
       if (series && series.length >= 1 && series[0].close) {
-        // NEU: Den Live-Preis für die Berechnung der Rendite nutzen
         var endPrice = currentStock.livePrice || series[series.length - 1].close;
         var pct = (endPrice / series[0].close - 1) * 100;
         txt = (pct >= 0 ? '+' : '') + window.App.Format.number(pct, 1) + ' %';
@@ -513,7 +514,7 @@ window.App.StockOverview = (function () {
       } else if ((pd[0] === '5Y' || pd[0] === '10Y') && longHistory === null) {
         txt = '…';
       }
-      
+
       html += '<div class="perf-cell ' + cls + (pd[0] === currentPeriod ? ' selected' : '') + '" style="flex: 1 1 calc(25% - 8px); min-width: 60px;">' +
         '<span class="perf-label">' + pd[1] + '</span>' +
         '<span class="perf-value">' + txt + '</span></div>';
