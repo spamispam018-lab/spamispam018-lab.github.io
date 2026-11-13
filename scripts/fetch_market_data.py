@@ -2,15 +2,17 @@
 """
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
-NEU: 
+NEU:
 - Upgrades & Downgrades werden fehlerfrei ausgelesen (Index-Problem behoben).
 - EPS-Estimates und EPS-Forecast werden geladen.
 - Intraday-Kurse (Minuten) für den absoluten Live-Kurs.
 - Synchronisiert das updatedAt-Feld von stock.json ins universe.json.
 - OPTION 1: Schema-Check im Delta-Sync – alte JSONs ohne 'upgradesDowngrades'
-  (oder ohne 'epsEstimates') werden einmalig per Full-Fetch nachgezogen.
+  werden einmalig ergänzt, ohne bestehende Daten (financials!) zu überschreiben.
 - FIX: NumPy-Typen (int64, float64, bool_, ...) werden JSON-serialisierbar
   gemacht (in clean_val + _json_default als Fallback beim Dump).
+- FIX: fetch_full_stock() bewahrt bei Übergabe von 'existing' die financials,
+  weil es sie selbst nicht befüllt (Quelle: separater Finanz-Fetch).
 """
 
 import os
@@ -62,7 +64,7 @@ TICKERS_ETFS = [
 
 TICKERS_SECTORS = [
     "QDVE.DE", "XDWT.DE", "QDVF.DE", "WNRG.DE", "XDW0.DE",
-    "IU5C.DE", "XWTS.DE", "WHEA.DE", "WSCA.DE", 
+    "IU5C.DE", "XWTS.DE", "WHEA.DE", "WSCA.DE",
     "XDWF.DE", "IUSP.DE"
 ]
 
@@ -123,10 +125,7 @@ RATES_TO_EUR = {
 
 
 def _json_default(o):
-    """
-    Fallback-Encoder für json.dump: konvertiert NumPy-Typen, Timestamps
-    und andere nicht-native Typen in JSON-serialisierbare Werte.
-    """
+    """Fallback-Encoder für json.dump: macht NumPy-Typen JSON-serialisierbar."""
     if np is not None:
         try:
             if isinstance(o, np.integer):
@@ -195,14 +194,9 @@ def to_eur(value, cur):
 
 
 def clean_val(val, default=None):
-    """
-    Wandelt beliebige Werte (inkl. NumPy) in native Python-Typen um,
-    damit json.dump sie verarbeiten kann. NaN/Inf → default.
-    """
+    """Wandelt beliebige Werte (inkl. NumPy) in native Python-Typen um."""
     if val is None:
         return default
-
-    # NumPy-Typen zuerst
     if np is not None:
         try:
             if isinstance(val, np.integer):
@@ -216,8 +210,6 @@ def clean_val(val, default=None):
                 return bool(val)
         except Exception:
             pass
-
-    # Native Python-Typen
     if isinstance(val, bool):
         return val
     if isinstance(val, int):
@@ -226,7 +218,6 @@ def clean_val(val, default=None):
         if math.isnan(val) or math.isinf(val):
             return default
         return round(val, 4)
-
     return val
 
 
@@ -333,14 +324,14 @@ def process_analyst_data(info, ticker_obj, cur):
         "currency": "EUR",
         "analystCount": clean_val(info.get("numberOfAnalystOpinions"), 0)
     }
-    
+
     recommendations = {
         "score": clean_val(info.get("recommendationMean")),
         "key": info.get("recommendationKey", "none"),
         "breakdown": {"strongBuy": 0, "buy": 0, "hold": 0, "sell": 0, "strongSell": 0},
         "history": []
     }
-    
+
     eps_estimates = []
     try:
         eh = ticker_obj.earnings_history
@@ -363,7 +354,7 @@ def process_analyst_data(info, ticker_obj, cur):
         ee = ticker_obj.earnings_estimate
         if ee is not None and not ee.empty and '0q' in ee.index:
             eps_forecast = {
-                "date": None, 
+                "date": None,
                 "estimate": clean_val(ee.loc['0q', 'avg']),
                 "low": clean_val(ee.loc['0q', 'low']),
                 "high": clean_val(ee.loc['0q', 'high']),
@@ -372,7 +363,7 @@ def process_analyst_data(info, ticker_obj, cur):
     except Exception:
         pass
 
-    return {"targets": targets, "recommendations": recommendations, 
+    return {"targets": targets, "recommendations": recommendations,
             "epsEstimates": eps_estimates, "nextEarningsDate": None, "epsForecast": eps_forecast}
 
 
@@ -535,7 +526,88 @@ def compute_chart_patterns(chart_history, symbol=""):
     }
 
 
-def fetch_full_stock(ticker_sym):
+def fetch_analyst_extras(ticker_sym):
+    """
+    Holt NUR Analysten-Zusatzdaten (upgradesDowngrades, epsEstimates, epsForecast,
+    nextEarningsDate). Berührt weder financials noch andere Felder.
+    Wird im Batch-Schema-Update verwendet, um bestehende stock_data nicht zu überschreiben.
+    """
+    t = yf.Ticker(ticker_sym)
+
+    upgrades_list = []
+    try:
+        ud_df = t.upgrades_downgrades
+        if ud_df is not None and not ud_df.empty:
+            ud_df = ud_df.reset_index()
+            date_cols = [c for c in ud_df.columns if 'date' in str(c).lower()]
+            if date_cols:
+                date_col = date_cols[0]
+                ud_df = ud_df.sort_values(by=date_col, ascending=False)
+                for _, row in ud_df.head(10).iterrows():
+                    g_date = row.get(date_col)
+                    date_str = g_date.strftime("%Y-%m-%d") if isinstance(g_date, pd.Timestamp) else str(g_date)[:10]
+                    upgrades_list.append({
+                        "date": date_str,
+                        "firm": str(row.get("Firm", "Unbekannt")),
+                        "toGrade": str(row.get("ToGrade", "N/A")),
+                        "fromGrade": str(row.get("FromGrade", "N/A")),
+                        "action": str(row.get("Action", ""))
+                    })
+    except Exception as e:
+        print(f"Fehler bei Upgrades/Downgrades für {ticker_sym}: {e}")
+
+    eps_estimates = []
+    try:
+        eh = t.earnings_history
+        if eh is not None and not eh.empty:
+            eh = eh.sort_values(by='quarter', ascending=False).head(4)
+            for _, row in eh.iterrows():
+                q_date = row.get('quarter')
+                q_str = q_date.strftime("%Y-%m-%d") if hasattr(q_date, "strftime") else str(q_date)[:10]
+                eps_estimates.append({
+                    "quarter": q_str,
+                    "estimate": clean_val(row.get("epsEstimate")),
+                    "actual": clean_val(row.get("epsActual")),
+                    "surprisePercent": clean_val(row.get("surprisePercent"))
+                })
+    except Exception:
+        pass
+
+    eps_forecast = None
+    try:
+        ee = t.earnings_estimate
+        if ee is not None and not ee.empty and '0q' in ee.index:
+            eps_forecast = {
+                "date": None,
+                "estimate": clean_val(ee.loc['0q', 'avg']),
+                "low": clean_val(ee.loc['0q', 'low']),
+                "high": clean_val(ee.loc['0q', 'high']),
+                "analysts": clean_val(ee.loc['0q', 'numberOfAnalysts'])
+            }
+    except Exception:
+        pass
+
+    next_earnings = None
+    try:
+        cal = t.calendar
+        if cal and 'Earnings Date' in cal and cal['Earnings Date']:
+            next_earnings = cal['Earnings Date'][0].strftime("%Y-%m-%d")
+    except Exception:
+        pass
+
+    return {
+        "upgradesDowngrades": upgrades_list,
+        "epsEstimates": eps_estimates,
+        "epsForecast": eps_forecast,
+        "nextEarningsDate": next_earnings
+    }
+
+
+def fetch_full_stock(ticker_sym, existing=None):
+    """
+    Vollständiger Fetch. 'existing' dient dazu, Felder zu bewahren, die dieser
+    Fetch NICHT befüllt (insb. 'financials', die aus einer separaten Quelle kommen).
+    """
     print(f"Führe vollständigen Fetch (inkl. Intraday) für {ticker_sym} durch...")
     t = yf.Ticker(ticker_sym)
     info = t.info or {}
@@ -555,7 +627,7 @@ def fetch_full_stock(ticker_sym):
 
     raw_curr = 0.0
     raw_prev = 0.0
-    
+
     try:
         intraday = t.history(period="1d", interval="1m")
         if not intraday.empty:
@@ -607,29 +679,31 @@ def fetch_full_stock(ticker_sym):
     except Exception:
         pass
 
-    dividends_info = process_dividends(t, info, cur)
+    # Bestehende Dividenden als Fallback mitgeben
+    existing_dividends = None
+    if existing and isinstance(existing, dict):
+        existing_dividends = existing.get("dividends")
+    dividends_info = process_dividends(t, info, cur, existing=existing_dividends)
+
     institutional = process_institutional_holders(t, cur)
     options = process_options(t, info)
 
-    # NEU: Upgrades & Downgrades abrufen (Fehlerfrei durch reset_index)
+    # Upgrades & Downgrades
     upgrades_list = []
     try:
         ud_df = t.upgrades_downgrades
         if ud_df is not None and not ud_df.empty:
             ud_df = ud_df.reset_index()
             date_cols = [c for c in ud_df.columns if 'date' in str(c).lower()]
-            
             if date_cols:
                 date_col = date_cols[0]
                 ud_df = ud_df.sort_values(by=date_col, ascending=False)
-                
                 for _, row in ud_df.head(10).iterrows():
                     g_date = row.get(date_col)
                     if isinstance(g_date, pd.Timestamp):
                         date_str = g_date.strftime("%Y-%m-%d")
                     else:
                         date_str = str(g_date)[:10]
-                        
                     upgrades_list.append({
                         "date": date_str,
                         "firm": str(row.get("Firm", "Unbekannt")),
@@ -640,7 +714,6 @@ def fetch_full_stock(ticker_sym):
     except Exception as e:
         print(f"Fehler bei Upgrades/Downgrades für {ticker_sym}: {e}")
 
-    # Nächstes Earnings-Datum abrufen
     next_earnings = None
     try:
         cal = t.calendar
@@ -653,9 +726,26 @@ def fetch_full_stock(ticker_sym):
     analysts_data["upgradesDowngrades"] = upgrades_list
     analysts_data["nextEarningsDate"] = next_earnings
 
+    # financials aus existing bewahren (dieser Fetch befüllt sie nicht)
+    preserved_financials = None
+    if existing and isinstance(existing, dict):
+        existing_fin = existing.get("financials")
+        if existing_fin:
+            # Nur bewahren, wenn wirklich Daten drin sind
+            try:
+                has_data = any(
+                    (existing_fin.get(section, {}) or {}).get("quarterly")
+                    or (existing_fin.get(section, {}) or {}).get("annual")
+                    for section in ("incomeStatement", "balanceSheet", "cashFlow")
+                )
+                if has_data:
+                    preserved_financials = existing_fin
+            except Exception:
+                preserved_financials = existing_fin
+
     result = {
         "ticker": ticker_sym, "profile": profile, "quote": quote, "ratios": ratios,
-        "financials": {
+        "financials": preserved_financials or {
             "incomeStatement": {"quarterly": [], "annual": []},
             "balanceSheet": {"quarterly": [], "annual": []},
             "cashFlow": {"quarterly": [], "annual": []}
@@ -696,12 +786,22 @@ def extract_close_series(batch_df, sym):
 
 def run_delta_sync(tickers, is_manual=False):
     load_live_forex()
-    
+
     if is_manual and len(tickers) == 1:
         sym = tickers[0]
         stock_file = os.path.join(DATA_DIR, f"{sym}.json")
+
+        # Bestehende Daten laden (financials bewahren!)
+        existing = None
+        if os.path.exists(stock_file):
+            try:
+                with open(stock_file, "r", encoding="utf-8") as f:
+                    existing = json.load(f)
+            except Exception:
+                existing = None
+
         try:
-            stock_data = fetch_full_stock(sym)
+            stock_data = fetch_full_stock(sym, existing=existing)
             with open(stock_file, "w", encoding="utf-8") as f:
                 json.dump(stock_data, f, ensure_ascii=False, indent=2, default=_json_default)
             universe_file = os.path.join(DATA_DIR, "universe.json")
@@ -752,20 +852,33 @@ def run_delta_sync(tickers, is_manual=False):
                 print(f"Erst-Fetch fehlgeschlagen für {sym}: {e}")
                 continue
         else:
-            # --- OPTION 1: Schema-Check ---
-            # Alte JSONs, die noch vor dem Upgrades-Feature erzeugt wurden,
-            # haben weder 'upgradesDowngrades' noch ggf. 'epsEstimates'.
-            # Solche Dateien werden hier einmalig per Full-Fetch nachgezogen,
-            # damit die Karte "Upgrades & Downgrades" nicht dauerhaft leer bleibt.
+            # --- OPTION 1: Schema-Check (MINIMAL, SICHER) ---
+            # Alte JSONs ohne 'upgradesDowngrades' werden ergänzt.
+            # WICHTIG: fetch_analyst_extras() berührt NUR die Analysten-Zusatzfelder,
+            # nicht financials, insider, institutional, options, dividends, chart, quote, ratios.
             an = stock_data.get("analysts") or {}
-            needs_full = ("upgradesDowngrades" not in an) or ("epsEstimates" not in an)
-
-            if needs_full:
-                print(f"Schema-Update für {sym}: führe Full-Fetch durch...")
+            if "upgradesDowngrades" not in an:
+                print(f"Schema-Update für {sym}: hole Analysten-Zusatzdaten nach...")
                 try:
-                    fresh = fetch_full_stock(sym)
-                    if fresh:
-                        stock_data = fresh
+                    extras = fetch_analyst_extras(sym)
+                    if not isinstance(an, dict):
+                        an = {}
+                    # upgradesDowngrades: immer setzen (auch leer → "keine aktuellen Upgrades")
+                    an["upgradesDowngrades"] = extras.get("upgradesDowngrades", [])
+                    # EPS / Forecast / NextEarnings: fresh bevorzugen, sonst bestehendes behalten
+                    if extras.get("epsEstimates"):
+                        an["epsEstimates"] = extras["epsEstimates"]
+                    elif "epsEstimates" not in an:
+                        an["epsEstimates"] = []
+                    if extras.get("epsForecast"):
+                        an["epsForecast"] = extras["epsForecast"]
+                    elif "epsForecast" not in an:
+                        an["epsForecast"] = None
+                    if extras.get("nextEarningsDate"):
+                        an["nextEarningsDate"] = extras["nextEarningsDate"]
+                    elif "nextEarningsDate" not in an:
+                        an["nextEarningsDate"] = None
+                    stock_data["analysts"] = an
                 except Exception as e:
                     print(f"Schema-Refresh für {sym} fehlgeschlagen: {e}")
 
@@ -854,7 +967,7 @@ def main():
     args = parser.parse_args()
     os.makedirs(DATA_DIR, exist_ok=True)
     load_live_forex()
-    
+
     if args.ticker:
         target_tickers = [args.ticker.strip().upper()]
         run_delta_sync(target_tickers, is_manual=True)
