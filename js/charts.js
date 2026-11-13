@@ -1,7 +1,7 @@
 /**
  * js/charts.js
  * Canvas-Diagramm-Engine.
- * NEU: renderRadarChart (Vergleich), renderBandChart (KGV-Historie).
+ * Unterstützt horizontale Referenzlinien in renderLineChart (opts.horizontalLines).
  */
 window.App = window.App || {};
 
@@ -108,6 +108,15 @@ window.App.Charts = (function () {
     var buffer = (maxVal - minVal) * 0.1 || (maxVal * 0.05) || 1;
     minVal -= buffer; maxVal += buffer;
 
+    // NEU: horizontale Linien in die Y-Skalierung einbeziehen
+    if (opts.horizontalLines && opts.horizontalLines.length) {
+      opts.horizontalLines.forEach(function (hl) {
+        if (hl.value == null || !isFinite(hl.value)) return;
+        if (hl.value < minVal) minVal = hl.value - buffer * 0.25;
+        if (hl.value > maxVal) maxVal = hl.value + buffer * 0.25;
+      });
+    }
+
     drawGridAndYAxis(ctx, w, h, minVal, maxVal, padding, opts.formatY);
 
     var chartW = w - padding.left - padding.right;
@@ -140,6 +149,34 @@ window.App.Charts = (function () {
     ctx.lineWidth = 2.5;
     ctx.setLineDash([]);
     ctx.stroke();
+
+    // NEU: horizontale Referenzlinien (z. B. Xetra-Kurs)
+    if (opts.horizontalLines && opts.horizontalLines.length) {
+      opts.horizontalLines.forEach(function (hl) {
+        if (hl.value == null || !isFinite(hl.value)) return;
+        var hy = padding.top + chartH - ((hl.value - minVal) / (maxVal - minVal)) * chartH;
+        if (hy < padding.top || hy > h - padding.bottom) return;
+
+        ctx.save();
+        ctx.strokeStyle = hl.color || THEME.yellow;
+        ctx.lineWidth = hl.width || 1.5;
+        ctx.setLineDash(hl.dashed === false ? [] : [6, 4]);
+        ctx.beginPath();
+        ctx.moveTo(padding.left, hy);
+        ctx.lineTo(w - padding.right, hy);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        if (hl.label) {
+          ctx.font = 'bold 9px ' + THEME.fontFamily;
+          ctx.fillStyle = hl.color || THEME.yellow;
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(hl.label, w - padding.right - 2, hy - 3);
+        }
+        ctx.restore();
+      });
+    }
 
     ctx.font = '10px ' + THEME.fontFamily;
     ctx.fillStyle = THEME.textColor;
@@ -499,10 +536,6 @@ window.App.Charts = (function () {
     });
   }
 
-  // ===========================================================================
-  // NEU: Radar-Chart für Aktienvergleich
-  // opts: { axes: ['Bewertung','Wachstum',...], series: [{ name, color, values: [0-5,...] }] }
-  // ===========================================================================
   function renderRadarChart(canvas, opts) {
     var setup = setupCanvas(canvas);
     if (!setup) return;
@@ -521,7 +554,6 @@ window.App.Charts = (function () {
     var css = getComputedStyle(canvas);
     var dim = css.getPropertyValue('--text-dim').trim() || '#94a3b8';
 
-    // Grid-Ringe
     for (var ring = 1; ring <= 5; ring++) {
       ctx.beginPath();
       for (var i = 0; i <= n; i++) {
@@ -536,7 +568,6 @@ window.App.Charts = (function () {
       ctx.stroke();
     }
 
-    // Achsen
     for (var a = 0; a < n; a++) {
       var angA = startAngle + a * angleStep;
       ctx.beginPath();
@@ -546,7 +577,6 @@ window.App.Charts = (function () {
       ctx.stroke();
     }
 
-    // Achsen-Labels
     ctx.font = '10px ' + THEME.fontFamily;
     ctx.fillStyle = dim;
     for (var la = 0; la < n; la++) {
@@ -558,7 +588,6 @@ window.App.Charts = (function () {
       ctx.fillText(axes[la], lx, ly);
     }
 
-    // Serien
     series.forEach(function (sr) {
       var vals = sr.values || [];
       ctx.beginPath();
@@ -579,10 +608,6 @@ window.App.Charts = (function () {
     });
   }
 
-  // ===========================================================================
-  // NEU: Band-Chart für KGV-Historie
-  // opts: { labels, peValues, bands: [{ value, color, label }], current }
-  // ===========================================================================
   function renderBandChart(canvas, opts) {
     var setup = setupCanvas(canvas);
     if (!setup) return;
@@ -612,7 +637,6 @@ window.App.Charts = (function () {
     var stepX = peValues.length > 1 ? chartW / (peValues.length - 1) : chartW;
     function yOf(v) { return padding.top + chartH - ((v - minVal) / (maxVal - minVal)) * chartH; }
 
-    // Referenzlinien für Perzentile
     (opts.bands || []).forEach(function (b) {
       if (b.value == null || !isFinite(b.value)) return;
       var y = yOf(b.value);
@@ -631,7 +655,6 @@ window.App.Charts = (function () {
       ctx.fillText(b.label || '', w - padding.right - 2, y - 3);
     });
 
-    // Linie
     var started = false;
     ctx.beginPath();
     peValues.forEach(function (v, i) {
@@ -644,7 +667,6 @@ window.App.Charts = (function () {
     ctx.setLineDash([]);
     ctx.stroke();
 
-    // X-Labels
     ctx.font = '10px ' + THEME.fontFamily;
     ctx.fillStyle = THEME.textColor;
     ctx.textAlign = 'center';
