@@ -4,6 +4,7 @@ scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 NEU: 
 - Upgrades & Downgrades der Analysten werden abgerufen und in die JSON geschrieben.
+- EPS-Estimates (historische Beat/Miss-Daten) und EPS-Forecast werden geladen.
 - Intraday-Kurse (Minuten) für den absoluten Live-Kurs.
 - Synchronisiert das updatedAt-Feld von stock.json ins universe.json.
 """
@@ -256,12 +257,48 @@ def process_analyst_data(info, ticker_obj, cur):
         "currency": "EUR",
         "analystCount": clean_val(info.get("numberOfAnalystOpinions"), 0)
     }
-    recommendations = {"score": clean_val(info.get("recommendationMean")),
-                       "key": info.get("recommendationKey", "none"),
-                       "breakdown": {"strongBuy": 0, "buy": 0, "hold": 0, "sell": 0, "strongSell": 0},
-                       "history": []}
-    return {"targets": targets, "recommendations": recommendations, "epsEstimates": [],
-            "nextEarningsDate": None, "epsForecast": None}
+    
+    recommendations = {
+        "score": clean_val(info.get("recommendationMean")),
+        "key": info.get("recommendationKey", "none"),
+        "breakdown": {"strongBuy": 0, "buy": 0, "hold": 0, "sell": 0, "strongSell": 0},
+        "history": []
+    }
+    
+    # NEU: EPS Estimates & Forecast laden
+    eps_estimates = []
+    try:
+        eh = ticker_obj.earnings_history
+        if eh is not None and not eh.empty:
+            eh = eh.sort_values(by='quarter', ascending=False).head(4)
+            for _, row in eh.iterrows():
+                q_date = row.get('quarter')
+                q_str = q_date.strftime("%Y-%m-%d") if hasattr(q_date, "strftime") else str(q_date)[:10]
+                eps_estimates.append({
+                    "quarter": q_str,
+                    "estimate": clean_val(row.get("epsEstimate")),
+                    "actual": clean_val(row.get("epsActual")),
+                    "surprisePercent": clean_val(row.get("surprisePercent"))
+                })
+    except Exception:
+        pass
+
+    eps_forecast = None
+    try:
+        ee = ticker_obj.earnings_estimate
+        if ee is not None and not ee.empty and '0q' in ee.index:
+            eps_forecast = {
+                "date": None, 
+                "estimate": clean_val(ee.loc['0q', 'avg']),
+                "low": clean_val(ee.loc['0q', 'low']),
+                "high": clean_val(ee.loc['0q', 'high']),
+                "analysts": clean_val(ee.loc['0q', 'numberOfAnalysts'])
+            }
+    except Exception:
+        pass
+
+    return {"targets": targets, "recommendations": recommendations, 
+            "epsEstimates": eps_estimates, "nextEarningsDate": None, "epsForecast": eps_forecast}
 
 
 def process_institutional_holders(ticker_obj, cur):
@@ -499,22 +536,35 @@ def fetch_full_stock(ticker_sym):
     institutional = process_institutional_holders(t, cur)
     options = process_options(t, info)
 
-    # NEU: Upgrades & Downgrades abrufen
+    # NEU: Upgrades & Downgrades abrufen (Robuste Variante)
     upgrades_list = []
     try:
         ud_df = t.upgrades_downgrades
         if ud_df is not None and not ud_df.empty:
-            ud_df = ud_df.sort_index(ascending=False).head(10)
-            for date, row in ud_df.iterrows():
+            ud_df.columns = [str(c) for c in ud_df.columns]
+            
+            date_col = next((c for c in ud_df.columns if 'date' in c.lower()), None)
+            if date_col:
+                ud_df = ud_df.sort_values(by=date_col, ascending=False)
+            
+            for _, row in ud_df.head(10).iterrows():
+                g_date = row.get(date_col, "")
+                date_str = g_date.strftime("%Y-%m-%d") if hasattr(g_date, "strftime") else str(g_date)[:10]
+                
+                firm = next((row.get(c) for c in ud_df.columns if c.lower() == 'firm'), "")
+                to_g = next((row.get(c) for c in ud_df.columns if c.lower() == 'tograde'), "")
+                from_g = next((row.get(c) for c in ud_df.columns if c.lower() == 'fromgrade'), "")
+                action = next((row.get(c) for c in ud_df.columns if c.lower() == 'action'), "")
+
                 upgrades_list.append({
-                    "date": date.strftime("%Y-%m-%d"),
-                    "firm": str(row.get("Firm", "")),
-                    "toGrade": str(row.get("ToGrade", "")),
-                    "fromGrade": str(row.get("FromGrade", "")),
-                    "action": str(row.get("Action", ""))
+                    "date": date_str,
+                    "firm": str(firm),
+                    "toGrade": str(to_g),
+                    "fromGrade": str(from_g),
+                    "action": str(action)
                 })
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"Fehler bei Upgrades/Downgrades für {ticker_sym}: {e}")
 
     # NEU: Nächstes Earnings-Datum abrufen
     next_earnings = None
