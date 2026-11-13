@@ -1,7 +1,7 @@
 /**
  * js/stock-analyst.js
  * Verwaltet den Analyst-Tab der Aktiendetailseite.
- * NEU: Upgrades & Downgrades Karte wird jetzt immer angezeigt.
+ * NEU: Link zu Yahoo Finance wiederhergestellt.
  */
 
 window.App = window.App || {};
@@ -244,7 +244,7 @@ window.App.StockAnalyst = (function () {
           '</div>' : '') +
         '</div>' +
 
-        // Upgrades & Downgrades Karte (Wird jetzt IMMER angezeigt)
+        // Upgrades & Downgrades Karte
         (!isAgg ?
         '<div class="card">' +
           '<div class="card-header-dotted">' +
@@ -263,7 +263,6 @@ window.App.StockAnalyst = (function () {
                 var icon = isDown ? '↓' : (isUp ? '↑' : '→');
                 var actionText = isDown ? 'Herabstufung' : (isUp ? 'Hochstufung' : 'Bestätigt');
 
-                // Fallback, falls fromGrade/toGrade leer sind
                 var fromStr = u.fromGrade || '—';
                 var toStr = u.toGrade || '—';
 
@@ -281,7 +280,13 @@ window.App.StockAnalyst = (function () {
             '</div>'
           : '<div class="state-box" style="padding: 20px 0;"><p style="font-size: 0.8rem;">Für diesen Titel liegen keine aktuellen Upgrades oder Downgrades vor.</p></div>'
           ) +
-        '</div>' : '');
+        '</div>' : '') +
+
+        // NEU: Link zu Yahoo Finance wiederhergestellt
+        '<div style="margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--border-subtle); text-align: center; font-size: 0.75rem;">' +
+          '<span style="color: var(--text-dim);">Quelle: ' + (isAgg ? 'Gewichtete Aggregation aus Holdings.' : 'Aggregierter Konsens via Yahoo Finance.') + '</span><br>' +
+          '<a href="https://de.finance.yahoo.com/quote/' + stock.ticker + '/analysis" target="_blank" rel="noopener" style="color: var(--accent-purple-light); text-decoration: none; font-weight: 600; display: inline-block; margin-top: 4px;">Detaillierte Analystenberichte auf Yahoo Finance ansehen &rarr;</a>' +
+        '</div>';
 
       container.innerHTML = html;
 
@@ -339,7 +344,7 @@ window.App.StockAnalyst = (function () {
 
       html += '<div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 60px;">' +
         '<div style="width: 20px; height: 20px; border-radius: 50%; background: ' + color + '; border: ' + border + '; box-shadow: 0 0 0 4px var(--bg-card); margin-bottom: 8px;"></div>' +
-        '<div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px;">' + (it.quarter ? it.quarter.slice(0, 5) : 'Q') + '</div>' +
+        '<div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px;">' + (it.quarter && it.quarter !== 'None' ? it.quarter.slice(0, 5) : 'Q') + '</div>' +
         '<div style="font-size: 0.65rem; font-weight: 700; color: ' + textClass + '; margin-bottom: 2px;">' + statusText + '</div>' +
         '<div style="font-size: 0.7rem; color: ' + textClass + ';">' + surpriseText + '</div>' +
       '</div>';
