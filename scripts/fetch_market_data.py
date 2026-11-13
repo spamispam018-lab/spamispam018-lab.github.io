@@ -3,8 +3,8 @@
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 NEU:
-- Extrem robuster Abruf der Financials (mehrere Getter + Retry).
-- Leere Financials in bestehenden JSON-Dateien werden automatisch nachgeladen.
+- Extrem robuster Abruf der Financials (get_*-API + Property-Fallback + Retries).
+- Leere Financials in bestehenden Dateien werden im Delta-Lauf nachgeholt (max. pro Lauf begrenzt).
 - Upgrades & Downgrades (funktioniert).
 - EPS-Estimates Datum wird korrekt ausgelesen.
 """
@@ -109,11 +109,8 @@ from index_lists import SP500, DAX, MDAX, dedupe  # noqa: E402
 ALL_TICKERS = dedupe(TICKERS_USA, TICKERS_EUROPE, TICKERS_JAPAN, TICKERS_ETFS, TICKERS_SECTORS, DAX, MDAX, SP500)
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
-# ETFs/Sektor-ETFs haben keine Bilanzdaten -> nie wegen leerer Financials nachladen
-NO_FINANCIALS = set(TICKERS_ETFS) | set(TICKERS_SECTORS)
-
-# Max. Anzahl vollständiger Nachlade-Fetches pro Lauf (wegen leerer Financials)
-REFETCH_LIMIT = 600
+# Max. Anzahl Ticker pro Lauf, bei denen leere Financials nachgeholt werden (Rate-Limit-Schutz)
+MAX_FIN_BACKFILL_PER_RUN = 50
 
 RATES_TO_EUR = {
     "EUR": 1.0, "USD": 0.92, "JPY": 0.0061, "GBP": 1.17, "GBp": 0.0117, "CHF": 1.04, "DKK": 0.134
@@ -178,16 +175,6 @@ def df_to_dict_records(df, cur):
         records.append(entry)
     records.sort(key=lambda x: x["date"])
     return records
-
-
-def has_financials(stock_data):
-    """True, wenn mindestens ein Financials-Block (GuV/Bilanz/CF) Daten enthält."""
-    f = (stock_data or {}).get("financials") or {}
-    return any(
-        (f.get(k) or {}).get(p)
-        for k in ("incomeStatement", "balanceSheet", "cashFlow")
-        for p in ("quarterly", "annual")
-    )
 
 
 def process_fund_data(ticker_obj, symbol=""):
@@ -502,37 +489,34 @@ def compute_chart_patterns(chart_history, symbol=""):
     }
 
 
-def _first_nonempty(t, getters, retries=2):
-    """Probiert mehrere Getter nacheinander, mit Retry und Pausen."""
-    for attempt in range(retries + 1):
-        for g in getters:
-            try:
-                df = g(t)
-                if df is not None and not df.empty:
-                    return df
-            except Exception as e:
-                print(f"  Getter-Fehler: {e}")
-        if attempt < retries:
-            time.sleep(1.5 * (attempt + 1))
+def _try_df(fn, retries=2):
+    """Ruft fn() auf und gibt einen nicht-leeren DataFrame zurück (mit Retries), sonst None."""
+    for i in range(retries + 1):
+        try:
+            df = fn()
+            if df is not None and not df.empty:
+                return df
+        except Exception as e:
+            print(f"  Financials-Fehler: {e}")
+        time.sleep(1.5 * (i + 1))
     return None
 
 
 def fetch_financials_robust(t, cur):
-    """Hilfsfunktion, um Finanzdaten zu holen (mehrere APIs + Retry)."""
-    inc_q = _first_nonempty(t, [lambda x: x.get_income_stmt(freq="quarterly"),
-                                lambda x: x.quarterly_income_stmt,
-                                lambda x: x.quarterly_financials])
-    inc_a = _first_nonempty(t, [lambda x: x.get_income_stmt(freq="yearly"),
-                                lambda x: x.income_stmt,
-                                lambda x: x.financials])
-    bs_q = _first_nonempty(t, [lambda x: x.get_balance_sheet(freq="quarterly"),
-                               lambda x: x.quarterly_balance_sheet])
-    bs_a = _first_nonempty(t, [lambda x: x.get_balance_sheet(freq="yearly"),
-                               lambda x: x.balance_sheet])
-    cf_q = _first_nonempty(t, [lambda x: x.get_cashflow(freq="quarterly"),
-                               lambda x: x.quarterly_cashflow])
-    cf_a = _first_nonempty(t, [lambda x: x.get_cashflow(freq="yearly"),
-                               lambda x: x.cashflow])
+    """Holt Finanzdaten: erst get_*-API (freq), dann Property-Fallback, jeweils mit Retries."""
+    def get(getter_name, attr_name, freq):
+        getter = getattr(t, getter_name, None)
+        df = _try_df(lambda: getter(freq=freq)) if getter else None
+        if df is None:
+            df = _try_df(lambda: getattr(t, attr_name))
+        return df
+
+    inc_q = get("get_income_stmt", "quarterly_income_stmt", "quarterly")
+    inc_a = get("get_income_stmt", "income_stmt", "yearly")
+    bs_q = get("get_balance_sheet", "quarterly_balance_sheet", "quarterly")
+    bs_a = get("get_balance_sheet", "balance_sheet", "yearly")
+    cf_q = get("get_cashflow", "quarterly_cashflow", "quarterly")
+    cf_a = get("get_cashflow", "cashflow", "yearly")
 
     return {
         "incomeStatement": {
@@ -548,6 +532,17 @@ def fetch_financials_robust(t, cur):
             "annual": df_to_dict_records(cf_a, cur)
         }
     }
+
+
+def financials_empty(fin):
+    """True, wenn keine einzige Finanz-Liste Daten enthält."""
+    if not fin:
+        return True
+    for section in ("incomeStatement", "balanceSheet", "cashFlow"):
+        for period in ("quarterly", "annual"):
+            if fin.get(section, {}).get(period):
+                return False
+    return True
 
 
 def fetch_full_stock(ticker_sym):
@@ -625,6 +620,8 @@ def fetch_full_stock(ticker_sym):
     # Robuster Finanzdaten-Abruf
     fin_data = fetch_financials_robust(t, cur)
     print(f"Financials für {ticker_sym}: GuV {len(fin_data['incomeStatement']['quarterly'])}Q/{len(fin_data['incomeStatement']['annual'])}Y, Bilanz {len(fin_data['balanceSheet']['quarterly'])}Q/{len(fin_data['balanceSheet']['annual'])}Y, CF {len(fin_data['cashFlow']['quarterly'])}Q/{len(fin_data['cashFlow']['annual'])}Y")
+    if financials_empty(fin_data):
+        print(f"WARNUNG: Financials für {ticker_sym} leer (yfinance-Version oder Rate-Limit prüfen).")
 
     dividends_info = process_dividends(t, info, cur)
     institutional = process_institutional_holders(t, cur)
@@ -747,7 +744,7 @@ def run_delta_sync(tickers, is_manual=False):
             pass
 
     now_iso = datetime.now(timezone.utc).isoformat()
-    refetched = 0
+    fin_backfilled = 0
 
     for sym in tickers:
         stock_file = os.path.join(DATA_DIR, f"{sym}.json")
@@ -759,25 +756,28 @@ def run_delta_sync(tickers, is_manual=False):
             except Exception:
                 pass
 
-        # Vollständiger Fetch, wenn Datei fehlt ODER Financials leer sind (außer ETFs)
-        needs_full = (not stock_data) or (
-            sym not in NO_FINANCIALS
-            and not has_financials(stock_data)
-            and refetched < REFETCH_LIMIT
-        )
-
-        if needs_full:
+        if not stock_data:
             try:
                 stock_data = fetch_full_stock(sym)
-                refetched += 1
-                time.sleep(0.5)  # Rate-Limit-Schutz
             except Exception as e:
-                print(f"Fetch fehlgeschlagen für {sym}: {e}")
-                if not stock_data:
-                    continue
-                needs_full = False  # bestehende Daten behalten, nur Delta-Update
+                print(f"Erst-Fetch fehlgeschlagen für {sym}: {e}")
+                continue
+        else:
+            # Leere Financials nachholen (begrenzt pro Lauf, um Rate-Limits zu vermeiden)
+            if financials_empty(stock_data.get("financials")) and fin_backfilled < MAX_FIN_BACKFILL_PER_RUN:
+                fin_backfilled += 1
+                try:
+                    t_obj = yf.Ticker(sym)
+                    cur_fin = stock_data.get("profile", {}).get("nativeCurrency") or detect_native_currency(sym)
+                    new_fin = fetch_financials_robust(t_obj, cur_fin)
+                    if not financials_empty(new_fin):
+                        stock_data["financials"] = new_fin
+                        print(f"Financials für {sym} nachgeholt.")
+                    else:
+                        print(f"Financials für {sym} weiterhin leer.")
+                except Exception as e:
+                    print(f"Financials-Nachholen für {sym} fehlgeschlagen: {e}")
 
-        if not needs_full:
             closes = extract_close_series(batch_df, sym)
             if closes is not None and not closes.empty:
                 try:
@@ -853,8 +853,6 @@ def run_delta_sync(tickers, is_manual=False):
 
     with open(universe_file, "w", encoding="utf-8") as f:
         json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
-
-    print(f"Fertig. Vollständig nachgeladen: {refetched} Ticker (Limit {REFETCH_LIMIT}).")
 
 
 def main():
