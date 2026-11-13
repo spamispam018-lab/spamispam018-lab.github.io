@@ -4,7 +4,11 @@
  * Zeigt die Pre-Market-Bewegung als gestrichelte Linie und berechnet,
  * ob der deutsche Kurs voraussichtlich folgen wird.
  * 
- * UPDATE: Kein Auto-Refresh mehr (spart Requests). Kein DE-Ticker-Abruf mehr.
+ * UPDATE: 
+ * - Kein Auto-Refresh mehr (spart Requests).
+ * - Kein DE-Ticker-Abruf mehr (nutzt den App-Kurs).
+ * - Zeitanzeige mit "heute" und "morgen".
+ * - Trade Republic Handelszeit (bis 23:00) integriert.
  */
 window.App = window.App || {};
 
@@ -78,22 +82,15 @@ window.App.PreMarket = (function () {
     return 'closed';
   }
 
-  function timeUntilEt(targetHour) {
-    var h = etHour();
-    var diff = targetHour - h;
-    if (diff < 0) diff += 24;
+  // NEU: Berechnet die Zeit bis zu einem Ziel und gibt "heute" oder "morgen" aus
+  function getTimeInfo(targetHour, currentHour) {
+    var isTomorrow = targetHour < currentHour;
+    var diff = isTomorrow ? (targetHour + 24) - currentHour : targetHour - currentHour;
     var hh = Math.floor(diff);
     var mm = Math.round((diff - hh) * 60);
-    return hh + 'h ' + (mm < 10 ? '0' : '') + mm + 'min';
-  }
-
-  function timeUntilCet(targetHour) {
-    var h = cetHour();
-    var diff = targetHour - h;
-    if (diff < 0) diff += 24;
-    var hh = Math.floor(diff);
-    var mm = Math.round((diff - hh) * 60);
-    return hh + 'h ' + (mm < 10 ? '0' : '') + mm + 'min';
+    var timeStr = hh + 'h ' + (mm < 10 ? '0' : '') + mm + 'min';
+    var dayStr = isTomorrow ? ' (morgen)' : ' (heute)';
+    return timeStr + dayStr;
   }
 
   function fmt(v) {
@@ -246,13 +243,14 @@ window.App.PreMarket = (function () {
       }
     }
 
-    // Zeit-Info
+    // Zeit-Info mit heute/morgen und Trade Republic
     var timesEl = container.querySelector('#pm-times');
     if (timesEl) {
       timesEl.innerHTML =
-        '⏱️ US-Open in <strong>' + timeUntilEt(9.5) + '</strong> (15:30 CET)<br>' +
-        '⏱️ US-Close in <strong>' + timeUntilEt(16) + '</strong> (22:00 CET)<br>' +
-        '⏱️ Xetra schließt in <strong>' + timeUntilCet(17.5) + '</strong> (17:30 CET)';
+        '⏱️ US-Open in <strong>' + getTimeInfo(9.5, etHour()) + '</strong> (15:30 CET)<br>' +
+        '⏱️ US-Close in <strong>' + getTimeInfo(16, etHour()) + '</strong> (22:00 CET)<br>' +
+        '⏱️ Trade Republic (23:00) in <strong>' + getTimeInfo(23, cetHour()) + '</strong><br>' +
+        '⏱️ Xetra schließt in <strong>' + getTimeInfo(17.5, cetHour()) + '</strong> (17:30 CET)';
     }
 
     // Info-Zeile (ohne DE-Ticker Verweis)
