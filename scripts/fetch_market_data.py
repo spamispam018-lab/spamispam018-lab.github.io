@@ -2,17 +2,11 @@
 """
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
-NEU:
+NEU: 
 - Upgrades & Downgrades werden fehlerfrei ausgelesen (Index-Problem behoben).
 - EPS-Estimates und EPS-Forecast werden geladen.
 - Intraday-Kurse (Minuten) für den absoluten Live-Kurs.
 - Synchronisiert das updatedAt-Feld von stock.json ins universe.json.
-- OPTION 1: Schema-Check im Delta-Sync – alte JSONs ohne 'upgradesDowngrades'
-  werden einmalig ergänzt, ohne bestehende Daten (financials!) zu überschreiben.
-- FIX: NumPy-Typen (int64, float64, bool_, ...) werden JSON-serialisierbar
-  gemacht (in clean_val + _json_default als Fallback beim Dump).
-- FIX: fetch_full_stock() bewahrt bei Übergabe von 'existing' die financials,
-  weil es sie selbst nicht befüllt (Quelle: separater Finanz-Fetch).
 """
 
 import os
@@ -23,11 +17,6 @@ import sys
 from datetime import datetime, timezone
 import yfinance as yf
 import pandas as pd
-
-try:
-    import numpy as np
-except Exception:
-    np = None
 
 TICKERS_USA = [
     "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "BRK-B", "JPM", "V",
@@ -64,7 +53,7 @@ TICKERS_ETFS = [
 
 TICKERS_SECTORS = [
     "QDVE.DE", "XDWT.DE", "QDVF.DE", "WNRG.DE", "XDW0.DE",
-    "IU5C.DE", "XWTS.DE", "WHEA.DE", "WSCA.DE",
+    "IU5C.DE", "XWTS.DE", "WHEA.DE", "WSCA.DE", 
     "XDWF.DE", "IUSP.DE"
 ]
 
@@ -124,38 +113,6 @@ RATES_TO_EUR = {
 }
 
 
-def _json_default(o):
-    """Fallback-Encoder für json.dump: macht NumPy-Typen JSON-serialisierbar."""
-    if np is not None:
-        try:
-            if isinstance(o, np.integer):
-                return int(o)
-            if isinstance(o, np.floating):
-                fv = float(o)
-                if math.isnan(fv) or math.isinf(fv):
-                    return None
-                return fv
-            if isinstance(o, np.bool_):
-                return bool(o)
-            if isinstance(o, np.ndarray):
-                return o.tolist()
-        except Exception:
-            pass
-    if isinstance(o, (datetime, pd.Timestamp)):
-        return o.isoformat()
-    if hasattr(o, "item"):
-        try:
-            return o.item()
-        except Exception:
-            pass
-    if hasattr(o, "isoformat"):
-        try:
-            return o.isoformat()
-        except Exception:
-            pass
-    return str(o)
-
-
 def detect_native_currency(ticker):
     if ticker.endswith(".T"): return "JPY"
     if ticker.endswith((".DE", ".PA", ".AS", ".MI", ".MC")): return "EUR"
@@ -187,37 +144,14 @@ def load_live_forex():
 
 def to_eur(value, cur):
     if value is None: return None
-    try:
-        return round(float(value) * RATES_TO_EUR.get(cur, 1.0), 4)
-    except Exception:
-        return None
+    return round(value * RATES_TO_EUR.get(cur, 1.0), 4)
 
 
 def clean_val(val, default=None):
-    """Wandelt beliebige Werte (inkl. NumPy) in native Python-Typen um."""
-    if val is None:
-        return default
-    if np is not None:
-        try:
-            if isinstance(val, np.integer):
-                return int(val)
-            if isinstance(val, np.floating):
-                fv = float(val)
-                if math.isnan(fv) or math.isinf(fv):
-                    return default
-                return round(fv, 4)
-            if isinstance(val, np.bool_):
-                return bool(val)
-        except Exception:
-            pass
-    if isinstance(val, bool):
-        return val
-    if isinstance(val, int):
-        return val
-    if isinstance(val, float):
-        if math.isnan(val) or math.isinf(val):
-            return default
-        return round(val, 4)
+    if val is None: return default
+    if isinstance(val, (float, int)):
+        if math.isnan(val) or math.isinf(val): return default
+        return round(val, 4) if isinstance(val, float) else val
     return val
 
 
@@ -324,14 +258,14 @@ def process_analyst_data(info, ticker_obj, cur):
         "currency": "EUR",
         "analystCount": clean_val(info.get("numberOfAnalystOpinions"), 0)
     }
-
+    
     recommendations = {
         "score": clean_val(info.get("recommendationMean")),
         "key": info.get("recommendationKey", "none"),
         "breakdown": {"strongBuy": 0, "buy": 0, "hold": 0, "sell": 0, "strongSell": 0},
         "history": []
     }
-
+    
     eps_estimates = []
     try:
         eh = ticker_obj.earnings_history
@@ -354,7 +288,7 @@ def process_analyst_data(info, ticker_obj, cur):
         ee = ticker_obj.earnings_estimate
         if ee is not None and not ee.empty and '0q' in ee.index:
             eps_forecast = {
-                "date": None,
+                "date": None, 
                 "estimate": clean_val(ee.loc['0q', 'avg']),
                 "low": clean_val(ee.loc['0q', 'low']),
                 "high": clean_val(ee.loc['0q', 'high']),
@@ -363,7 +297,7 @@ def process_analyst_data(info, ticker_obj, cur):
     except Exception:
         pass
 
-    return {"targets": targets, "recommendations": recommendations,
+    return {"targets": targets, "recommendations": recommendations, 
             "epsEstimates": eps_estimates, "nextEarningsDate": None, "epsForecast": eps_forecast}
 
 
@@ -526,88 +460,7 @@ def compute_chart_patterns(chart_history, symbol=""):
     }
 
 
-def fetch_analyst_extras(ticker_sym):
-    """
-    Holt NUR Analysten-Zusatzdaten (upgradesDowngrades, epsEstimates, epsForecast,
-    nextEarningsDate). Berührt weder financials noch andere Felder.
-    Wird im Batch-Schema-Update verwendet, um bestehende stock_data nicht zu überschreiben.
-    """
-    t = yf.Ticker(ticker_sym)
-
-    upgrades_list = []
-    try:
-        ud_df = t.upgrades_downgrades
-        if ud_df is not None and not ud_df.empty:
-            ud_df = ud_df.reset_index()
-            date_cols = [c for c in ud_df.columns if 'date' in str(c).lower()]
-            if date_cols:
-                date_col = date_cols[0]
-                ud_df = ud_df.sort_values(by=date_col, ascending=False)
-                for _, row in ud_df.head(10).iterrows():
-                    g_date = row.get(date_col)
-                    date_str = g_date.strftime("%Y-%m-%d") if isinstance(g_date, pd.Timestamp) else str(g_date)[:10]
-                    upgrades_list.append({
-                        "date": date_str,
-                        "firm": str(row.get("Firm", "Unbekannt")),
-                        "toGrade": str(row.get("ToGrade", "N/A")),
-                        "fromGrade": str(row.get("FromGrade", "N/A")),
-                        "action": str(row.get("Action", ""))
-                    })
-    except Exception as e:
-        print(f"Fehler bei Upgrades/Downgrades für {ticker_sym}: {e}")
-
-    eps_estimates = []
-    try:
-        eh = t.earnings_history
-        if eh is not None and not eh.empty:
-            eh = eh.sort_values(by='quarter', ascending=False).head(4)
-            for _, row in eh.iterrows():
-                q_date = row.get('quarter')
-                q_str = q_date.strftime("%Y-%m-%d") if hasattr(q_date, "strftime") else str(q_date)[:10]
-                eps_estimates.append({
-                    "quarter": q_str,
-                    "estimate": clean_val(row.get("epsEstimate")),
-                    "actual": clean_val(row.get("epsActual")),
-                    "surprisePercent": clean_val(row.get("surprisePercent"))
-                })
-    except Exception:
-        pass
-
-    eps_forecast = None
-    try:
-        ee = t.earnings_estimate
-        if ee is not None and not ee.empty and '0q' in ee.index:
-            eps_forecast = {
-                "date": None,
-                "estimate": clean_val(ee.loc['0q', 'avg']),
-                "low": clean_val(ee.loc['0q', 'low']),
-                "high": clean_val(ee.loc['0q', 'high']),
-                "analysts": clean_val(ee.loc['0q', 'numberOfAnalysts'])
-            }
-    except Exception:
-        pass
-
-    next_earnings = None
-    try:
-        cal = t.calendar
-        if cal and 'Earnings Date' in cal and cal['Earnings Date']:
-            next_earnings = cal['Earnings Date'][0].strftime("%Y-%m-%d")
-    except Exception:
-        pass
-
-    return {
-        "upgradesDowngrades": upgrades_list,
-        "epsEstimates": eps_estimates,
-        "epsForecast": eps_forecast,
-        "nextEarningsDate": next_earnings
-    }
-
-
-def fetch_full_stock(ticker_sym, existing=None):
-    """
-    Vollständiger Fetch. 'existing' dient dazu, Felder zu bewahren, die dieser
-    Fetch NICHT befüllt (insb. 'financials', die aus einer separaten Quelle kommen).
-    """
+def fetch_full_stock(ticker_sym):
     print(f"Führe vollständigen Fetch (inkl. Intraday) für {ticker_sym} durch...")
     t = yf.Ticker(ticker_sym)
     info = t.info or {}
@@ -627,7 +480,7 @@ def fetch_full_stock(ticker_sym, existing=None):
 
     raw_curr = 0.0
     raw_prev = 0.0
-
+    
     try:
         intraday = t.history(period="1d", interval="1m")
         if not intraday.empty:
@@ -679,31 +532,29 @@ def fetch_full_stock(ticker_sym, existing=None):
     except Exception:
         pass
 
-    # Bestehende Dividenden als Fallback mitgeben
-    existing_dividends = None
-    if existing and isinstance(existing, dict):
-        existing_dividends = existing.get("dividends")
-    dividends_info = process_dividends(t, info, cur, existing=existing_dividends)
-
+    dividends_info = process_dividends(t, info, cur)
     institutional = process_institutional_holders(t, cur)
     options = process_options(t, info)
 
-    # Upgrades & Downgrades
+    # NEU: Upgrades & Downgrades abrufen (Fehlerfrei durch reset_index)
     upgrades_list = []
     try:
         ud_df = t.upgrades_downgrades
         if ud_df is not None and not ud_df.empty:
             ud_df = ud_df.reset_index()
             date_cols = [c for c in ud_df.columns if 'date' in str(c).lower()]
+            
             if date_cols:
                 date_col = date_cols[0]
                 ud_df = ud_df.sort_values(by=date_col, ascending=False)
+                
                 for _, row in ud_df.head(10).iterrows():
                     g_date = row.get(date_col)
                     if isinstance(g_date, pd.Timestamp):
                         date_str = g_date.strftime("%Y-%m-%d")
                     else:
                         date_str = str(g_date)[:10]
+                        
                     upgrades_list.append({
                         "date": date_str,
                         "firm": str(row.get("Firm", "Unbekannt")),
@@ -714,6 +565,7 @@ def fetch_full_stock(ticker_sym, existing=None):
     except Exception as e:
         print(f"Fehler bei Upgrades/Downgrades für {ticker_sym}: {e}")
 
+    # Nächstes Earnings-Datum abrufen
     next_earnings = None
     try:
         cal = t.calendar
@@ -726,26 +578,9 @@ def fetch_full_stock(ticker_sym, existing=None):
     analysts_data["upgradesDowngrades"] = upgrades_list
     analysts_data["nextEarningsDate"] = next_earnings
 
-    # financials aus existing bewahren (dieser Fetch befüllt sie nicht)
-    preserved_financials = None
-    if existing and isinstance(existing, dict):
-        existing_fin = existing.get("financials")
-        if existing_fin:
-            # Nur bewahren, wenn wirklich Daten drin sind
-            try:
-                has_data = any(
-                    (existing_fin.get(section, {}) or {}).get("quarterly")
-                    or (existing_fin.get(section, {}) or {}).get("annual")
-                    for section in ("incomeStatement", "balanceSheet", "cashFlow")
-                )
-                if has_data:
-                    preserved_financials = existing_fin
-            except Exception:
-                preserved_financials = existing_fin
-
     result = {
         "ticker": ticker_sym, "profile": profile, "quote": quote, "ratios": ratios,
-        "financials": preserved_financials or {
+        "financials": {
             "incomeStatement": {"quarterly": [], "annual": []},
             "balanceSheet": {"quarterly": [], "annual": []},
             "cashFlow": {"quarterly": [], "annual": []}
@@ -786,24 +621,14 @@ def extract_close_series(batch_df, sym):
 
 def run_delta_sync(tickers, is_manual=False):
     load_live_forex()
-
+    
     if is_manual and len(tickers) == 1:
         sym = tickers[0]
         stock_file = os.path.join(DATA_DIR, f"{sym}.json")
-
-        # Bestehende Daten laden (financials bewahren!)
-        existing = None
-        if os.path.exists(stock_file):
-            try:
-                with open(stock_file, "r", encoding="utf-8") as f:
-                    existing = json.load(f)
-            except Exception:
-                existing = None
-
         try:
-            stock_data = fetch_full_stock(sym, existing=existing)
+            stock_data = fetch_full_stock(sym)
             with open(stock_file, "w", encoding="utf-8") as f:
-                json.dump(stock_data, f, ensure_ascii=False, indent=2, default=_json_default)
+                json.dump(stock_data, f, ensure_ascii=False, indent=2)
             universe_file = os.path.join(DATA_DIR, "universe.json")
             universe_map = {}
             if os.path.exists(universe_file):
@@ -815,7 +640,7 @@ def run_delta_sync(tickers, is_manual=False):
             u_item["updatedAt"] = stock_data["updatedAt"]
             universe_map[sym] = u_item
             with open(universe_file, "w", encoding="utf-8") as f:
-                json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2, default=_json_default)
+                json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
             return
         except Exception as e:
             print(f"Manual Fetch für {sym} fehlgeschlagen: {e}")
@@ -852,37 +677,6 @@ def run_delta_sync(tickers, is_manual=False):
                 print(f"Erst-Fetch fehlgeschlagen für {sym}: {e}")
                 continue
         else:
-            # --- OPTION 1: Schema-Check (MINIMAL, SICHER) ---
-            # Alte JSONs ohne 'upgradesDowngrades' werden ergänzt.
-            # WICHTIG: fetch_analyst_extras() berührt NUR die Analysten-Zusatzfelder,
-            # nicht financials, insider, institutional, options, dividends, chart, quote, ratios.
-            an = stock_data.get("analysts") or {}
-            if "upgradesDowngrades" not in an:
-                print(f"Schema-Update für {sym}: hole Analysten-Zusatzdaten nach...")
-                try:
-                    extras = fetch_analyst_extras(sym)
-                    if not isinstance(an, dict):
-                        an = {}
-                    # upgradesDowngrades: immer setzen (auch leer → "keine aktuellen Upgrades")
-                    an["upgradesDowngrades"] = extras.get("upgradesDowngrades", [])
-                    # EPS / Forecast / NextEarnings: fresh bevorzugen, sonst bestehendes behalten
-                    if extras.get("epsEstimates"):
-                        an["epsEstimates"] = extras["epsEstimates"]
-                    elif "epsEstimates" not in an:
-                        an["epsEstimates"] = []
-                    if extras.get("epsForecast"):
-                        an["epsForecast"] = extras["epsForecast"]
-                    elif "epsForecast" not in an:
-                        an["epsForecast"] = None
-                    if extras.get("nextEarningsDate"):
-                        an["nextEarningsDate"] = extras["nextEarningsDate"]
-                    elif "nextEarningsDate" not in an:
-                        an["nextEarningsDate"] = None
-                    stock_data["analysts"] = an
-                except Exception as e:
-                    print(f"Schema-Refresh für {sym} fehlgeschlagen: {e}")
-
-            # --- bestehende Delta-Aktualisierung (unverändert) ---
             closes = extract_close_series(batch_df, sym)
             if closes is not None and not closes.empty:
                 try:
@@ -927,7 +721,7 @@ def run_delta_sync(tickers, is_manual=False):
                     print(f"Delta-Update für {sym} fehlgeschlagen: {e}")
 
         with open(stock_file, "w", encoding="utf-8") as f:
-            json.dump(stock_data, f, ensure_ascii=False, indent=2, default=_json_default)
+            json.dump(stock_data, f, ensure_ascii=False, indent=2)
 
         u_item = universe_map.get(sym, {
             "ticker": sym,
@@ -957,7 +751,7 @@ def run_delta_sync(tickers, is_manual=False):
         universe_map[sym] = u_item
 
     with open(universe_file, "w", encoding="utf-8") as f:
-        json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2, default=_json_default)
+        json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
 
 
 def main():
@@ -967,7 +761,7 @@ def main():
     args = parser.parse_args()
     os.makedirs(DATA_DIR, exist_ok=True)
     load_live_forex()
-
+    
     if args.ticker:
         target_tickers = [args.ticker.strip().upper()]
         run_delta_sync(target_tickers, is_manual=True)
