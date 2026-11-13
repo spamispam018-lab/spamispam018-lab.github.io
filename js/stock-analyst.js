@@ -1,8 +1,7 @@
 /**
  * js/stock-analyst.js
  * Verwaltet den Analyst-Tab der Aktiendetailseite.
- * NEU: EPS-Schätzungen werden jetzt als visuelle Timeline ("Beat/Miss"-Dots) dargestellt,
- * anstatt als einfaches Balkendiagramm.
+ * NEU: Upgrades & Downgrades Karte wird jetzt immer angezeigt.
  */
 
 window.App = window.App || {};
@@ -116,7 +115,7 @@ window.App.StockAnalyst = (function () {
              },
              epsEstimates: [],
              epsForecast: null,
-             upgradesDowngrades: [] 
+             upgradesDowngrades: []
           };
 
           resolve({ analysts: aggregatedAnalysts, isAggregated: true });
@@ -213,7 +212,7 @@ window.App.StockAnalyst = (function () {
         '</div>' +
 
         (!isAgg ? 
-        '<!-- NEU: EPS Surprise Timeline -->' +
+        '<!-- EPS Surprise Timeline -->' +
         '<div class="card">' +
           '<div class="card-header-dotted">' +
             '<div class="card-title">' +
@@ -245,36 +244,43 @@ window.App.StockAnalyst = (function () {
           '</div>' : '') +
         '</div>' +
 
-        // Upgrades & Downgrades Karte
-        (!isAgg && upgrades.length > 0 ?
+        // Upgrades & Downgrades Karte (Wird jetzt IMMER angezeigt)
+        (!isAgg ?
         '<div class="card">' +
           '<div class="card-header-dotted">' +
             '<div class="card-title">' +
               '<span>Upgrades &amp; Downgrades</span>' +
-              '<span class="period-tag">Letzte ' + upgrades.length + '</span>' +
+              '<span class="period-tag">' + (upgrades.length > 0 ? 'Letzte ' + upgrades.length : 'Keine Daten') + '</span>' +
             '</div>' +
           '</div>' +
-          '<div style="display: flex; flex-direction: column; gap: 6px;">' +
-            upgrades.map(function(u) {
-              var isUp = u.action === 'up' || u.action === 'init' || (u.toGrade && u.fromGrade && u.toGrade.length > u.fromGrade.length);
-              var isDown = u.action === 'down';
-              
-              var color = isDown ? 'var(--bearish)' : (isUp ? 'var(--bullish)' : 'var(--text-muted)');
-              var icon = isDown ? '↓' : (isUp ? '↑' : '→');
-              var actionText = isDown ? 'Herabstufung' : (isUp ? 'Hochstufung' : 'Bestätigt');
+          (upgrades.length > 0 ?
+            '<div style="display: flex; flex-direction: column; gap: 6px;">' +
+              upgrades.map(function(u) {
+                var isDown = u.action === 'down' || (u.fromGrade && u.toGrade && u.toGrade.length < u.fromGrade.length);
+                var isUp = u.action === 'up' || (u.fromGrade && u.toGrade && u.toGrade.length > u.fromGrade.length);
+                
+                var color = isDown ? 'var(--bearish)' : (isUp ? 'var(--bullish)' : 'var(--text-muted)');
+                var icon = isDown ? '↓' : (isUp ? '↑' : '→');
+                var actionText = isDown ? 'Herabstufung' : (isUp ? 'Hochstufung' : 'Bestätigt');
 
-              return '<div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); font-size: 0.78rem;">' +
-                '<div style="display: flex; align-items: center; gap: 8px;">' +
-                  '<span style="color: ' + color + '; font-weight: 700; font-size: 1.1rem; width: 16px; text-align: center;">' + icon + '</span>' +
-                  '<div>' +
-                    '<div style="font-weight: 600; color: var(--text-main);">' + u.firm + '</div>' +
-                    '<div style="font-size: 0.7rem; color: var(--text-dim);">' + actionText + ' (' + (u.fromGrade || 'N/A') + ' → ' + (u.toGrade || 'N/A') + ')</div>' +
+                // Fallback, falls fromGrade/toGrade leer sind
+                var fromStr = u.fromGrade || '—';
+                var toStr = u.toGrade || '—';
+
+                return '<div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); font-size: 0.78rem;">' +
+                  '<div style="display: flex; align-items: center; gap: 8px;">' +
+                    '<span style="color: ' + color + '; font-weight: 700; font-size: 1.1rem; width: 16px; text-align: center;">' + icon + '</span>' +
+                    '<div>' +
+                      '<div style="font-weight: 600; color: var(--text-main);">' + u.firm + '</div>' +
+                      '<div style="font-size: 0.7rem; color: var(--text-dim);">' + actionText + ' (' + fromStr + ' → ' + toStr + ')</div>' +
+                    '</div>' +
                   '</div>' +
-                '</div>' +
-                '<div style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap;">' + window.App.Format.date(u.date) + '</div>' +
-              '</div>';
-            }).join('') +
-          '</div>' +
+                  '<div style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap;">' + window.App.Format.date(u.date) + '</div>' +
+                '</div>';
+              }).join('') +
+            '</div>'
+          : '<div class="state-box" style="padding: 20px 0;"><p style="font-size: 0.8rem;">Für diesen Titel liegen keine aktuellen Upgrades oder Downgrades vor.</p></div>'
+          ) +
         '</div>' : '');
 
       container.innerHTML = html;
@@ -297,20 +303,15 @@ window.App.StockAnalyst = (function () {
     return 'Verkaufen (Sell)';
   }
 
-  // NEU: Die Timeline für die EPS-Überraschungen
   function renderEpsTimeline(epsList, currency, forecast) {
     var container = document.getElementById('analyst-eps-timeline');
     if (!container || !epsList || epsList.length === 0) return;
 
     var F = window.App.Format;
     var hasFc = !!(forecast && forecast.estimate !== null && forecast.estimate !== undefined);
-    
-    // Nimm die letzten 4 Quartale
     var items = epsList.slice(-4);
-    
     var html = '';
 
-    // Wenn es eine Prognose für das nächste Quartal gibt, zeigen wir sie oben an
     if (hasFc) {
       var fcVal = F.currency(forecast.estimate, currency, 2);
       var fcDate = forecast.date ? F.date(forecast.date) : '';
@@ -320,10 +321,7 @@ window.App.StockAnalyst = (function () {
       '</div>';
     }
 
-    // Die horizontale Timeline
     html += '<div style="position: relative; display: flex; justify-content: space-between; align-items: flex-start; margin: 0 10px;">';
-    
-    // Die gestrichelte Linie im Hintergrund
     html += '<div style="position: absolute; top: 10px; left: 0; right: 0; height: 1px; border-top: 1px dashed var(--text-dim); z-index: 0;"></div>';
 
     items.forEach(function(it) {
@@ -340,18 +338,13 @@ window.App.StockAnalyst = (function () {
       var surpriseText = surprise !== null ? (surprise >= 0 ? '+' : '') + F.currency(surprise, currency, 2) : '—';
 
       html += '<div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 60px;">' +
-        // Der Punkt
         '<div style="width: 20px; height: 20px; border-radius: 50%; background: ' + color + '; border: ' + border + '; box-shadow: 0 0 0 4px var(--bg-card); margin-bottom: 8px;"></div>' +
-        // Das Quartal
         '<div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px;">' + (it.quarter ? it.quarter.slice(0, 5) : 'Q') + '</div>' +
-        // Status
         '<div style="font-size: 0.65rem; font-weight: 700; color: ' + textClass + '; margin-bottom: 2px;">' + statusText + '</div>' +
-        // Die Überraschung
         '<div style="font-size: 0.7rem; color: ' + textClass + ';">' + surpriseText + '</div>' +
       '</div>';
     });
     
-    // Wenn es eine Prognose gibt, fügen wir sie als hohlen Punkt rechts an
     if (hasFc) {
        html += '<div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 60px;">' +
         '<div style="width: 20px; height: 20px; border-radius: 50%; background: transparent; border: 2px solid var(--text-dim); box-shadow: 0 0 0 4px var(--bg-card); margin-bottom: 8px;"></div>' +
