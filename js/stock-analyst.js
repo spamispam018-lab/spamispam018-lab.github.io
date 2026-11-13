@@ -1,12 +1,7 @@
 /**
  * js/stock-analyst.js
- * Verwaltet den Analyst-Tab der Aktiendetailseite:
- * - Kursziel-Karte (Low / Median / High auf Spannenbalken mit aktuellem Kursmarker und Upside %)
- * - Forward Valuation (Forward-KGV, Trailing-KGV, 5Y-KGV-Spanne)
- * - EPS-Estimates (Balkenchart mit Beat/Miss/Forecast-Farbcodierung)
- * - Analyst Recommendations (Konsens-Score, Donut-Diagramm, gestapeltes Verlaufshistorie-Chart)
- *
- * *NEU:* Bei ETFs werden die Analysten-Bewertungen und Kursziele der Top 5 Holdings gewichtet aggregiert!
+ * Verwaltet den Analyst-Tab der Aktiendetailseite.
+ * NEU: Zeigt eine Liste der letzten Upgrades & Downgrades von Analysten.
  */
 
 window.App = window.App || {};
@@ -16,9 +11,6 @@ window.App.StockAnalyst = (function () {
 
   var nameToTickerMap = {};
 
-  /**
-   * Baut einen Lookup-Katalog aus dem Universum, um Holding-Namen in Ticker zu übersetzen.
-   */
   function buildNameLookup(universe) {
     nameToTickerMap = {};
     (universe || []).forEach(function(u) {
@@ -30,10 +22,6 @@ window.App.StockAnalyst = (function () {
     });
   }
 
-  /**
-   * Lädt die Analysten-Daten der Top 5 Holdings, falls es sich um einen ETF handelt.
-   * Gibt ein Promise zurück, das die aggregierten Daten auflöst.
-   */
   function fetchEtfAnalystData(stock) {
     return new Promise(function(resolve) {
       var isEtf = (stock.sector === 'Sonstige' || stock.sector === 'ETF' || !stock.sector);
@@ -123,10 +111,11 @@ window.App.StockAnalyst = (function () {
              recommendations: {
                 score: aggRecScore > 0 ? aggRecScore : null,
                 breakdown: aggBreakdown,
-                history: [] // Historie für Aggregation auslassen
+                history: []
              },
              epsEstimates: [],
-             epsForecast: null
+             epsForecast: null,
+             upgradesDowngrades: [] // Für ETFs lassen wir das weg
           };
 
           resolve({ analysts: aggregatedAnalysts, isAggregated: true });
@@ -137,9 +126,6 @@ window.App.StockAnalyst = (function () {
     });
   }
 
-  /**
-   * Rendert den kompletten Analyst-Tab in den Ziel-Container.
-   */
   function render(container, stock) {
     if (!container || !stock) return;
 
@@ -151,6 +137,7 @@ window.App.StockAnalyst = (function () {
       var targets = analysts.targets || {};
       var recs = analysts.recommendations || {};
       var epsList = analysts.epsEstimates || [];
+      var upgrades = analysts.upgradesDowngrades || []; // NEU
       var ratios = stock.ratios || {};
       var quote = stock.quote || {};
       var currency = targets.currency || quote.currency || 'EUR';
@@ -160,16 +147,13 @@ window.App.StockAnalyst = (function () {
       var targetLow = targets.low || (currentPrice * 0.8);
       var targetHigh = targets.high || (currentPrice * 1.3);
 
-      // Upside-Berechnung
       var upsidePct = currentPrice > 0 ? ((targetMean - currentPrice) / currentPrice) * 100 : 0;
       var upsideCls = upsidePct >= 0 ? 'badge-bullish' : 'badge-bearish';
       var upsideSign = upsidePct >= 0 ? '+' : '';
 
-      // Relative Position des aktuellen Kurses auf dem Spannenbalken
       var spanRange = targetHigh - targetLow;
       var currentPosPct = spanRange > 0 ? Math.max(0, Math.min(100, ((currentPrice - targetLow) / spanRange) * 100)) : 50;
 
-      // Konsens-Empfehlungstext
       var recScore = recs.score || 2.0;
       var recText = getRecommendationLabel(recScore);
 
@@ -189,17 +173,12 @@ window.App.StockAnalyst = (function () {
             '</div>' +
             '<span class="badge-pill ' + upsideCls + '">' + upsideSign + window.App.Format.number(upsidePct, 1) + ' % Potenzial</span>' +
           '</div>' +
-
           '<div style="margin: 16px 0 10px;">' +
-            '<!-- Spannenbalken mit Farbverlauf -->' +
             '<div style="position: relative; height: 10px; background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%); border-radius: 6px;">' +
-              '<!-- Aktueller Kursmarker -->' +
               '<div style="position: absolute; left: ' + currentPosPct + '%; top: -4px; width: 4px; height: 18px; background: #ffffff; border-radius: 2px; transform: translateX(-50%); box-shadow: 0 0 6px rgba(0,0,0,0.8);">' +
                 '<div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 0.68rem; font-weight: 700; color: #fff; white-space: nowrap;">Kurs</div>' +
               '</div>' +
             '</div>' +
-
-            '<!-- Preisbeschriftungen unter dem Balken -->' +
             '<div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.78rem;">' +
               '<div><span style="color: var(--text-dim); display: block; font-size: 0.7rem;">Tief</span><strong>' + window.App.Format.currency(targetLow, currency) + '</strong></div>' +
               '<div style="text-align: center;"><span style="color: var(--text-dim); display: block; font-size: 0.7rem;">Durchschnitt</span><strong style="color: var(--accent-purple-light);">' + window.App.Format.currency(targetMean, currency) + '</strong></div>' +
@@ -216,7 +195,6 @@ window.App.StockAnalyst = (function () {
               '<span class="period-tag">Multiples</span>' +
             '</div>' +
           '</div>' +
-
           '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">' +
             '<div style="background: var(--bg-secondary); padding: 10px; border-radius: var(--radius-sm); text-align: center;">' +
               '<div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 4px;">KGV Trailing</div>' +
@@ -242,7 +220,6 @@ window.App.StockAnalyst = (function () {
               '<span class="period-tag">Quartale</span>' +
             '</div>' +
           '</div>' +
-
           '<div class="chart-container">' +
             '<canvas id="analyst-eps-canvas" class="chart-canvas" style="height: 190px;"></canvas>' +
             '<div class="chart-legend">' +
@@ -264,30 +241,50 @@ window.App.StockAnalyst = (function () {
               '<span class="period-tag">' + recText + '</span>' +
             '</div>' +
           '</div>' +
-
           '<div style="display: flex; align-items: center; justify-content: space-around; margin-bottom: 16px;">' +
-            '<!-- Donut -->' +
             '<div style="width: 130px; height: 130px; position: relative;">' +
               '<canvas id="analyst-donut-canvas" style="width: 130px; height: 130px;"></canvas>' +
             '</div>' +
-
-            '<!-- Detail-Aufschlüsselung -->' +
             '<div id="analyst-breakdown-list" style="font-size: 0.78rem; display: flex; flex-direction: column; gap: 4px;"></div>' +
           '</div>' +
-
           (!isAgg ?
-          '<!-- Gestapeltes Verlaufshistorie-Chart -->' +
           '<div style="font-size: 0.74rem; font-weight: 600; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase;">Entwicklung der letzten 4 Monate</div>' +
           '<div class="chart-container">' +
             '<canvas id="analyst-history-canvas" class="chart-canvas" style="height: 140px;"></canvas>' +
           '</div>' : '') +
+        '</div>' +
 
-          '<!-- Verlinkung zu detaillierten Quellen -->' +
-          '<div style="margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--border-subtle); text-align: center; font-size: 0.75rem;">' +
-            '<span style="color: var(--text-dim);">Quelle: ' + (isAgg ? 'Gewichtete Aggregation aus Holdings.' : 'Aggregierter Konsens via Yahoo Finance.') + '</span><br>' +
-            '<a href="https://de.finance.yahoo.com/quote/' + stock.ticker + '/analysis" target="_blank" style="color: var(--accent-purple-light); text-decoration: none; font-weight: 600; display: inline-block; margin-top: 4px;">Detaillierte Analystenberichte ansehen &rarr;</a>' +
+        // NEU: Upgrades & Downgrades Karte
+        (!isAgg && upgrades.length > 0 ?
+        '<div class="card">' +
+          '<div class="card-header-dotted">' +
+            '<div class="card-title">' +
+              '<span>Upgrades &amp; Downgrades</span>' +
+              '<span class="period-tag">Letzte ' + upgrades.length + '</span>' +
+            '</div>' +
           '</div>' +
-        '</div>';
+          '<div style="display: flex; flex-direction: column; gap: 6px;">' +
+            upgrades.map(function(u) {
+              var isUp = u.action === 'up' || u.action === 'init' || (u.toGrade && u.fromGrade && u.toGrade.length > u.fromGrade.length);
+              var isDown = u.action === 'down';
+              
+              var color = isDown ? 'var(--bearish)' : (isUp ? 'var(--bullish)' : 'var(--text-muted)');
+              var icon = isDown ? '↓' : (isUp ? '↑' : '→');
+              var actionText = isDown ? 'Herabstufung' : (isUp ? 'Hochstufung' : 'Bestätigt');
+
+              return '<div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); font-size: 0.78rem;">' +
+                '<div style="display: flex; align-items: center; gap: 8px;">' +
+                  '<span style="color: ' + color + '; font-weight: 700; font-size: 1.1rem; width: 16px; text-align: center;">' + icon + '</span>' +
+                  '<div>' +
+                    '<div style="font-weight: 600; color: var(--text-main);">' + u.firm + '</div>' +
+                    '<div style="font-size: 0.7rem; color: var(--text-dim);">' + actionText + ' (' + (u.fromGrade || 'N/A') + ' → ' + (u.toGrade || 'N/A') + ')</div>' +
+                  '</div>' +
+                '</div>' +
+                '<div style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap;">' + window.App.Format.date(u.date) + '</div>' +
+              '</div>';
+            }).join('') +
+          '</div>' +
+        '</div>' : '');
 
       container.innerHTML = html;
 
@@ -300,9 +297,6 @@ window.App.StockAnalyst = (function () {
     });
   }
 
-  /**
-   * Wandelt den Konsens-Score (1.0 - 5.0) in lesbaren deutschen Text um.
-   */
   function getRecommendationLabel(score) {
     if (!score) return 'Halten';
     if (score <= 1.5) return 'Strong Buy';
@@ -312,9 +306,6 @@ window.App.StockAnalyst = (function () {
     return 'Verkaufen (Sell)';
   }
 
-  /**
-   * Zeichnet das EPS-Balkendiagramm mit Schätzung vs. Tatsächlich.
-   */
   function renderEpsChart(epsList, currency, forecast) {
     var canvas = document.getElementById('analyst-eps-canvas');
     if (!canvas || !epsList || epsList.length === 0) return;
@@ -367,9 +358,6 @@ window.App.StockAnalyst = (function () {
     });
   }
 
-  /**
-   * Rendert den Donut-Chart für die aktuelle Empfehlungsverteilung.
-   */
   function renderRecommendationsDonut(recs) {
     var canvas = document.getElementById('analyst-donut-canvas');
     var breakdownContainer = document.getElementById('analyst-breakdown-list');
@@ -409,9 +397,6 @@ window.App.StockAnalyst = (function () {
     }
   }
 
-  /**
-   * Rendert den gestapelten monatlichen Verlauf der Empfehlungen.
-   */
   function renderRecommendationsHistory(history) {
     var canvas = document.getElementById('analyst-history-canvas');
     if (!canvas || !history || history.length === 0) return;
