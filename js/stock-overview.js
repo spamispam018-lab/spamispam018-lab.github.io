@@ -2,6 +2,7 @@
  * js/stock-overview.js
  * Verwaltet den Tab "Overview".
  * NEU: Pre-Market-Karte (US-Vorbörse vs. Xetra) zwischen Kennzahlen und Chart.
+ * FIX: drawFinancialsChart filtert zukünftige Daten und unterstützt camelCase.
  */
 
 window.App = window.App || {};
@@ -537,12 +538,26 @@ window.App.StockOverview = (function () {
     return history.slice(start);
   }
 
+  // FIX: Finanz-Chart filtert jetzt zukünftige Daten & unterstützt camelCase
   function drawFinancialsChart(financials) {
     var canvas = document.getElementById('overview-financials-canvas');
     if (!canvas) return;
 
     var incQuarterly = (financials.incomeStatement && financials.incomeStatement.quarterly) ? financials.incomeStatement.quarterly : [];
-    var recent = incQuarterly.slice(-6);
+    
+    // 1. Zukünftige Daten herausfiltern und chronologisch sortieren
+    var nowStr = new Date().toISOString().slice(0, 10);
+    var validData = incQuarterly
+      .filter(function(item) { 
+          return item && item.date && item.date <= nowStr; // Keine Prognosen aus der Zukunft
+      })
+      .sort(function(a, b) { 
+          return a.date < b.date ? -1 : 1; 
+      });
+      
+    // 2. Die letzten 6 Quartale nehmen
+    var recent = validData.slice(-6);
+    
     if (recent.length === 0) {
       var ctx = canvas.getContext('2d');
       ctx.fillStyle = '#64748b';
@@ -552,8 +567,20 @@ window.App.StockOverview = (function () {
       return;
     }
 
-    var labels = recent.map(function (item) { return (item.date || '').slice(2, 7); });
-    var revenues = recent.map(function (item) { return item.Total_Revenue || item.Operating_Revenue || 0; });
+    var labels = recent.map(function (item) { 
+        var d = String(item.date || '');
+        return d.length >= 7 ? d.slice(2, 4) + '-' + d.slice(5, 7) : d; 
+    });
+    
+    // 3. Robuster Zugriff (camelCase & snake_case)
+    var revenues = recent.map(function (item) { 
+        var rev = item.TotalRevenue !== undefined ? item.TotalRevenue 
+                : item.Total_Revenue !== undefined ? item.Total_Revenue 
+                : item.OperatingRevenue !== undefined ? item.OperatingRevenue
+                : item.Operating_Revenue !== undefined ? item.Operating_Revenue
+                : 0;
+        return Number(rev) || 0;
+    });
 
     window.App.Charts.renderGroupedBarChart(canvas, {
       labels: labels,
