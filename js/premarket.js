@@ -2,6 +2,7 @@
  * js/premarket.js
  * US-Vorbörsenhandel-Indikator für deutsche Anleger.
  * NEU: 15-Minuten-Momentum & Warnung vor "Fakeouts" kurz vor US-Open (15:00-15:30).
+ * NEU: Gestrichelte App-Kurs-Linie in kräftigem Orange/Gold für bessere Sichtbarkeit.
  */
 window.App = window.App || {};
 
@@ -113,13 +114,12 @@ window.App.PreMarket = (function () {
     return { delta: delta, direction: dir, strength: strength };
   }
 
-  // NEU: Berechnet den Trend der letzten 15 Minuten im Pre-Market
   function computeMomentum(points) {
     if (!points || points.length < 5) return null;
     var now = Date.now();
-    var cutoff = now - (15 * 60 * 1000); // 15 Minuten
+    var cutoff = now - (15 * 60 * 1000); 
     var recent = points.filter(function(p) { return p.t >= cutoff; });
-    if (recent.length < 3) return null; // Zu wenig Daten für 15 Min
+    if (recent.length < 3) return null; 
     
     var first = recent[0].price;
     var last = recent[recent.length - 1].price;
@@ -152,7 +152,7 @@ window.App.PreMarket = (function () {
         '</div>' +
         '<div id="pm-status" style="font-size:0.78rem;color:var(--text-dim);">Lade Vorbörsen-Daten…</div>' +
         '<div id="pm-signal" style="margin:10px 0;"></div>' +
-        '<div id="pm-momentum"></div>' + // NEU: Container für Momentum-Warnung
+        '<div id="pm-momentum"></div>' +
         '<div style="height:140px;position:relative;margin-top:6px;">' +
           '<canvas id="pm-canvas" style="width:100%;height:100%;"></canvas>' +
         '</div>' +
@@ -260,12 +260,11 @@ window.App.PreMarket = (function () {
       }
     }
 
-    // NEU: Pre-Market Momentum & Fakeout-Warnung
     var momEl = container.querySelector('#pm-momentum');
     if (momEl) {
       var mom = computeMomentum(prePoints);
       if (mom && session === 'pre') {
-        var isDangerZone = (cetHour() >= 15.0 && cetHour() <= 15.5); // 15:00 bis 15:30 Uhr
+        var isDangerZone = (cetHour() >= 15.0 && cetHour() <= 15.5); 
         
         if (mom.dir === 'down') {
           var alertColor = isDangerZone ? 'var(--bearish)' : 'var(--tag-yellow)';
@@ -350,7 +349,8 @@ window.App.PreMarket = (function () {
       formatY: function (v) { return window.App.Format.currency(v, 'EUR', 2); },
       horizontalLines: [{
         value: germanNow,
-        color: '#818cf8',
+        color: '#f59e0b', // NEU: Kräftiges Orange/Gold
+        width: 2,         // NEU: Etwas dicker
         label: 'App-Kurs ' + window.App.Format.currency(germanNow, 'EUR', 2),
         dashed: true
       }]
