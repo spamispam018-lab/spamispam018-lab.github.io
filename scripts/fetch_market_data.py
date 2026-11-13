@@ -3,9 +3,10 @@
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 NEU: 
-- Upgrades & Downgrades der Analysten werden abgerufen und in die JSON geschrieben.
+- Upgrades & Downgrades werden fehlerfrei ausgelesen.
+- Financials (GuV, Bilanz, Cashflow) werden wieder vollständig abgerufen.
+- EPS-Estimates und EPS-Forecast werden geladen.
 - Intraday-Kurse (Minuten) für den absoluten Live-Kurs.
-- Synchronisiert das updatedAt-Feld von stock.json ins universe.json.
 """
 
 import os
@@ -15,6 +16,7 @@ import argparse
 import sys
 from datetime import datetime, timezone
 import yfinance as yf
+import pandas as pd
 
 TICKERS_USA = [
     "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "BRK-B", "JPM", "V",
@@ -153,6 +155,25 @@ def clean_val(val, default=None):
     return val
 
 
+# NEU: Finanzdaten-Helfer wiederhergestellt
+def df_to_dict_records(df, cur):
+    if df is None or df.empty: return []
+    records = []
+    for col in df.columns:
+        date_str = col.strftime("%Y-%m-%d") if hasattr(col, "strftime") else str(col)[:10]
+        entry = {"date": date_str}
+        for idx in df.index:
+            raw = clean_val(df.loc[idx, col])
+            key_lower = str(idx).lower()
+            if raw is not None and not any(k in key_lower for k in ["%", "ratio", "shares", "growth"]):
+                entry[str(idx).replace(" ", "_").replace("-", "_")] = clean_val(to_eur(raw, cur))
+            else:
+                entry[str(idx).replace(" ", "_").replace("-", "_")] = raw
+        records.append(entry)
+    records.sort(key=lambda x: x["date"])
+    return records
+
+
 def process_fund_data(ticker_obj, symbol=""):
     holdings = []
     try:
@@ -256,12 +277,47 @@ def process_analyst_data(info, ticker_obj, cur):
         "currency": "EUR",
         "analystCount": clean_val(info.get("numberOfAnalystOpinions"), 0)
     }
-    recommendations = {"score": clean_val(info.get("recommendationMean")),
-                       "key": info.get("recommendationKey", "none"),
-                       "breakdown": {"strongBuy": 0, "buy": 0, "hold": 0, "sell": 0, "strongSell": 0},
-                       "history": []}
-    return {"targets": targets, "recommendations": recommendations, "epsEstimates": [],
-            "nextEarningsDate": None, "epsForecast": None}
+    
+    recommendations = {
+        "score": clean_val(info.get("recommendationMean")),
+        "key": info.get("recommendationKey", "none"),
+        "breakdown": {"strongBuy": 0, "buy": 0, "hold": 0, "sell": 0, "strongSell": 0},
+        "history": []
+    }
+    
+    eps_estimates = []
+    try:
+        eh = ticker_obj.earnings_history
+        if eh is not None and not eh.empty:
+            eh = eh.sort_values(by='quarter', ascending=False).head(4)
+            for _, row in eh.iterrows():
+                q_date = row.get('quarter')
+                q_str = q_date.strftime("%Y-%m-%d") if hasattr(q_date, "strftime") else str(q_date)[:10]
+                eps_estimates.append({
+                    "quarter": q_str,
+                    "estimate": clean_val(row.get("epsEstimate")),
+                    "actual": clean_val(row.get("epsActual")),
+                    "surprisePercent": clean_val(row.get("surprisePercent"))
+                })
+    except Exception:
+        pass
+
+    eps_forecast = None
+    try:
+        ee = ticker_obj.earnings_estimate
+        if ee is not None and not ee.empty and '0q' in ee.index:
+            eps_forecast = {
+                "date": None, 
+                "estimate": clean_val(ee.loc['0q', 'avg']),
+                "low": clean_val(ee.loc['0q', 'low']),
+                "high": clean_val(ee.loc['0q', 'high']),
+                "analysts": clean_val(ee.loc['0q', 'numberOfAnalysts'])
+            }
+    except Exception:
+        pass
+
+    return {"targets": targets, "recommendations": recommendations, 
+            "epsEstimates": eps_estimates, "nextEarningsDate": None, "epsForecast": eps_forecast}
 
 
 def process_institutional_holders(ticker_obj, cur):
@@ -495,28 +551,55 @@ def fetch_full_stock(ticker_sym):
     except Exception:
         pass
 
+    # NEU: Finanzdaten wiederhergestellt
+    fin_data = {
+        "incomeStatement": {
+            "quarterly": df_to_dict_records(t.quarterly_financials, cur),
+            "annual": df_to_dict_records(t.financials, cur)
+        },
+        "balanceSheet": {
+            "quarterly": df_to_dict_records(t.quarterly_balance_sheet, cur),
+            "annual": df_to_dict_records(t.balance_sheet, cur)
+        },
+        "cashFlow": {
+            "quarterly": df_to_dict_records(t.quarterly_cashflow, cur),
+            "annual": df_to_dict_records(t.cashflow, cur)
+        }
+    }
+
     dividends_info = process_dividends(t, info, cur)
     institutional = process_institutional_holders(t, cur)
     options = process_options(t, info)
 
-    # NEU: Upgrades & Downgrades abrufen
+    # Upgrades & Downgrades abrufen
     upgrades_list = []
     try:
         ud_df = t.upgrades_downgrades
         if ud_df is not None and not ud_df.empty:
-            ud_df = ud_df.sort_index(ascending=False).head(10)
-            for date, row in ud_df.iterrows():
-                upgrades_list.append({
-                    "date": date.strftime("%Y-%m-%d"),
-                    "firm": str(row.get("Firm", "")),
-                    "toGrade": str(row.get("ToGrade", "")),
-                    "fromGrade": str(row.get("FromGrade", "")),
-                    "action": str(row.get("Action", ""))
-                })
-    except Exception:
-        pass
+            ud_df = ud_df.reset_index()
+            date_cols = [c for c in ud_df.columns if 'date' in str(c).lower()]
+            
+            if date_cols:
+                date_col = date_cols[0]
+                ud_df = ud_df.sort_values(by=date_col, ascending=False)
+                
+                for _, row in ud_df.head(10).iterrows():
+                    g_date = row.get(date_col)
+                    if isinstance(g_date, pd.Timestamp):
+                        date_str = g_date.strftime("%Y-%m-%d")
+                    else:
+                        date_str = str(g_date)[:10]
+                        
+                    upgrades_list.append({
+                        "date": date_str,
+                        "firm": str(row.get("Firm", "Unbekannt")),
+                        "toGrade": str(row.get("ToGrade", "N/A")),
+                        "fromGrade": str(row.get("FromGrade", "N/A")),
+                        "action": str(row.get("Action", ""))
+                    })
+    except Exception as e:
+        print(f"Fehler bei Upgrades/Downgrades für {ticker_sym}: {e}")
 
-    # NEU: Nächstes Earnings-Datum abrufen
     next_earnings = None
     try:
         cal = t.calendar
@@ -531,11 +614,7 @@ def fetch_full_stock(ticker_sym):
 
     result = {
         "ticker": ticker_sym, "profile": profile, "quote": quote, "ratios": ratios,
-        "financials": {
-            "incomeStatement": {"quarterly": [], "annual": []},
-            "balanceSheet": {"quarterly": [], "annual": []},
-            "cashFlow": {"quarterly": [], "annual": []}
-        },
+        "financials": fin_data,
         "analysts": analysts_data,
         "insider": process_insider_data(t, cur),
         "holdings": process_fund_data(t, ticker_sym),
