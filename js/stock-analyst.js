@@ -1,7 +1,8 @@
 /**
  * js/stock-analyst.js
  * Verwaltet den Analyst-Tab der Aktiendetailseite.
- * NEU: Zeigt eine Liste der letzten Upgrades & Downgrades von Analysten.
+ * NEU: EPS-Schätzungen werden jetzt als visuelle Timeline ("Beat/Miss"-Dots) dargestellt,
+ * anstatt als einfaches Balkendiagramm.
  */
 
 window.App = window.App || {};
@@ -115,7 +116,7 @@ window.App.StockAnalyst = (function () {
              },
              epsEstimates: [],
              epsForecast: null,
-             upgradesDowngrades: [] // Für ETFs lassen wir das weg
+             upgradesDowngrades: [] 
           };
 
           resolve({ analysts: aggregatedAnalysts, isAggregated: true });
@@ -137,7 +138,7 @@ window.App.StockAnalyst = (function () {
       var targets = analysts.targets || {};
       var recs = analysts.recommendations || {};
       var epsList = analysts.epsEstimates || [];
-      var upgrades = analysts.upgradesDowngrades || []; // NEU
+      var upgrades = analysts.upgradesDowngrades || []; 
       var ratios = stock.ratios || {};
       var quote = stock.quote || {};
       var currency = targets.currency || quote.currency || 'EUR';
@@ -212,25 +213,15 @@ window.App.StockAnalyst = (function () {
         '</div>' +
 
         (!isAgg ? 
-        '<!-- EPS Estimates Balkenchart -->' +
+        '<!-- NEU: EPS Surprise Timeline -->' +
         '<div class="card">' +
           '<div class="card-header-dotted">' +
             '<div class="card-title">' +
-              '<span>EPS: Schätzungen vs. Tatsächlich</span>' +
-              '<span class="period-tag">Quartale</span>' +
+              '<span>Gewinn je Aktie (EPS)</span>' +
+              '<span class="period-tag">Beat / Miss</span>' +
             '</div>' +
           '</div>' +
-          '<div class="chart-container">' +
-            '<canvas id="analyst-eps-canvas" class="chart-canvas" style="height: 190px;"></canvas>' +
-            '<div class="chart-legend">' +
-              '<div class="legend-item"><span class="legend-dot" style="background:#6b7280;"></span><span>Schätzung</span></div>' +
-              '<div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span><span>Beat</span></div>' +
-              '<div class="legend-item"><span class="legend-dot" style="background:#ef4444;"></span><span>Miss</span></div>' +
-              (analysts.epsForecast && analysts.epsForecast.estimate !== null && analysts.epsForecast.estimate !== undefined
-                ? '<div class="legend-item"><span class="legend-dot" style="background:#3b82f6;"></span><span>Forecast</span></div>' : '') +
-            '</div>' +
-            '<div id="analyst-eps-forecast-note" style="font-size:0.72rem;color:var(--text-dim);line-height:1.45;margin-top:8px;"></div>' +
-          '</div>' +
+          '<div id="analyst-eps-timeline"></div>' +
         '</div>' : '') +
 
         '<!-- Recommendations Donut & Historie -->' +
@@ -254,7 +245,7 @@ window.App.StockAnalyst = (function () {
           '</div>' : '') +
         '</div>' +
 
-        // NEU: Upgrades & Downgrades Karte
+        // Upgrades & Downgrades Karte
         (!isAgg && upgrades.length > 0 ?
         '<div class="card">' +
           '<div class="card-header-dotted">' +
@@ -290,7 +281,7 @@ window.App.StockAnalyst = (function () {
 
       // Charts & Listen initialisieren
       if (!isAgg) {
-        renderEpsChart(epsList, currency, analysts.epsForecast);
+        renderEpsTimeline(epsList, currency, analysts.epsForecast);
         renderRecommendationsHistory(recs.history || []);
       }
       renderRecommendationsDonut(recs);
@@ -306,56 +297,72 @@ window.App.StockAnalyst = (function () {
     return 'Verkaufen (Sell)';
   }
 
-  function renderEpsChart(epsList, currency, forecast) {
-    var canvas = document.getElementById('analyst-eps-canvas');
-    if (!canvas || !epsList || epsList.length === 0) return;
+  // NEU: Die Timeline für die EPS-Überraschungen
+  function renderEpsTimeline(epsList, currency, forecast) {
+    var container = document.getElementById('analyst-eps-timeline');
+    if (!container || !epsList || epsList.length === 0) return;
 
+    var F = window.App.Format;
     var hasFc = !!(forecast && forecast.estimate !== null && forecast.estimate !== undefined);
-    var items = epsList.slice(hasFc ? -5 : -6);
-    var labels = [];
-    var estData = [];
-    var actData = [];
-    var actColors = [];
+    
+    // Nimm die letzten 4 Quartale
+    var items = epsList.slice(-4);
+    
+    var html = '';
 
-    items.forEach(function (it) {
-      labels.push(it.quarter ? it.quarter.slice(2, 7) : 'Q');
-      estData.push(it.estimate !== null ? it.estimate : 0);
-      actData.push(it.actual !== null ? it.actual : 0);
-      var miss = it.actual !== null && it.estimate !== null && it.actual < it.estimate;
-      actColors.push(miss ? '#ef4444' : '#10b981');
-    });
-
+    // Wenn es eine Prognose für das nächste Quartal gibt, zeigen wir sie oben an
     if (hasFc) {
-      labels.push(forecast.date ? forecast.date.slice(2, 7) : 'Next');
-      estData.push(0);
-      actData.push(forecast.estimate);
-      actColors.push('#3b82f6');
+      var fcVal = F.currency(forecast.estimate, currency, 2);
+      var fcDate = forecast.date ? F.date(forecast.date) : '';
+      html += '<div style="background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 10px; text-align: center; margin-bottom: 20px;">' +
+        '<div style="font-size: 1.1rem; font-weight: 800; color: var(--text-main);">' + fcVal + ' Schätzung</div>' +
+        '<div style="font-size: 0.7rem; color: var(--text-dim);">für das nächste Quartal ' + (fcDate ? '(' + fcDate + ')' : '') + '</div>' +
+      '</div>';
     }
 
-    var note = document.getElementById('analyst-eps-forecast-note');
-    if (note) {
-      if (hasFc) {
-        var F = window.App.Format;
-        var d = forecast.date ? forecast.date.slice(8, 10) + '.' + forecast.date.slice(5, 7) + '.' + forecast.date.slice(0, 4) : null;
-        note.innerHTML = 'Nächster Bericht' + (d ? ' (ca. ' + d + ')' : '') + ': Konsens-Prognose <b style="color:var(--text-main);">' + F.currency(forecast.estimate, currency, 2) + '</b>' +
-          (forecast.low !== null && forecast.low !== undefined && forecast.high !== null && forecast.high !== undefined
-            ? ' (Spanne ' + F.currency(forecast.low, currency, 2) + ' – ' + F.currency(forecast.high, currency, 2) + ')' : '') +
-          (forecast.analysts ? ', ' + forecast.analysts + ' Analysten' : '') + '.';
-      } else {
-        note.textContent = 'Keine Prognose für das nächste Quartal in den Daten.';
-      }
-    }
+    // Die horizontale Timeline
+    html += '<div style="position: relative; display: flex; justify-content: space-between; align-items: flex-start; margin: 0 10px;">';
+    
+    // Die gestrichelte Linie im Hintergrund
+    html += '<div style="position: absolute; top: 10px; left: 0; right: 0; height: 1px; border-top: 1px dashed var(--text-dim); z-index: 0;"></div>';
 
-    window.App.Charts.renderGroupedBarChart(canvas, {
-      labels: labels,
-      series: [
-        { name: 'Schätzung', data: estData, color: '#4b5563' },
-        { name: 'Tatsächlich', data: actData, color: '#10b981', colors: actColors }
-      ],
-      formatY: function (val) {
-        return window.App.Format.currency(val, currency, 2);
-      }
+    items.forEach(function(it) {
+      var isMiss = it.actual !== null && it.estimate !== null && it.actual < it.estimate;
+      var isBeat = it.actual !== null && it.estimate !== null && it.actual >= it.estimate;
+      var isFuture = it.actual === null;
+      
+      var color = isFuture ? 'transparent' : (isBeat ? 'var(--bullish)' : 'var(--bearish)');
+      var border = isFuture ? '2px solid var(--text-dim)' : 'none';
+      var textClass = isFuture ? 'var(--text-dim)' : (isBeat ? 'var(--bullish)' : 'var(--bearish)');
+      var statusText = isFuture ? 'Ausstehend' : (isBeat ? 'Übertroffen' : 'Verfehlt');
+      
+      var surprise = (it.actual !== null && it.estimate !== null) ? (it.actual - it.estimate) : null;
+      var surpriseText = surprise !== null ? (surprise >= 0 ? '+' : '') + F.currency(surprise, currency, 2) : '—';
+
+      html += '<div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 60px;">' +
+        // Der Punkt
+        '<div style="width: 20px; height: 20px; border-radius: 50%; background: ' + color + '; border: ' + border + '; box-shadow: 0 0 0 4px var(--bg-card); margin-bottom: 8px;"></div>' +
+        // Das Quartal
+        '<div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px;">' + (it.quarter ? it.quarter.slice(0, 5) : 'Q') + '</div>' +
+        // Status
+        '<div style="font-size: 0.65rem; font-weight: 700; color: ' + textClass + '; margin-bottom: 2px;">' + statusText + '</div>' +
+        // Die Überraschung
+        '<div style="font-size: 0.7rem; color: ' + textClass + ';">' + surpriseText + '</div>' +
+      '</div>';
     });
+    
+    // Wenn es eine Prognose gibt, fügen wir sie als hohlen Punkt rechts an
+    if (hasFc) {
+       html += '<div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 60px;">' +
+        '<div style="width: 20px; height: 20px; border-radius: 50%; background: transparent; border: 2px solid var(--text-dim); box-shadow: 0 0 0 4px var(--bg-card); margin-bottom: 8px;"></div>' +
+        '<div style="font-size: 0.75rem; font-weight: 700; color: var(--text-dim); margin-bottom: 2px;">Nächstes</div>' +
+        '<div style="font-size: 0.65rem; font-weight: 700; color: var(--text-dim);">Prognose</div>' +
+        '<div style="font-size: 0.7rem; color: var(--text-dim);">—</div>' +
+      '</div>';
+    }
+
+    html += '</div>';
+    container.innerHTML = html;
   }
 
   function renderRecommendationsDonut(recs) {
