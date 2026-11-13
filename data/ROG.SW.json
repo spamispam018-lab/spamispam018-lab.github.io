@@ -18,18 +18,13 @@
     "fiftyTwoWeekLow": null,
     "fiftyTwoWeekHigh": null,
     "volume": null,
-    "avgVolume": null,
     "currency": "EUR"
   },
   "ratios": {
     "peTrailing": null,
     "peForward": null,
-    "pegRatio": null,
     "dividendYield": null,
-    "profitMargins": null,
-    "debtToEquity": null,
-    "revenueGrowth": null,
-    "earningsGrowth": null
+    "profitMargins": null
   },
   "financials": {
     "incomeStatement": {
@@ -69,7 +64,8 @@
     },
     "epsEstimates": [],
     "nextEarningsDate": null,
-    "epsForecast": null
+    "epsForecast": null,
+    "upgradesDowngrades": []
   },
   "insider": {
     "summary": {
@@ -81,17 +77,19 @@
     },
     "trades": []
   },
-  "chartHistory": [],
-  "updatedAt": "2026-11-07T13:46:31.669899+00:00",
   "holdings": [],
-  "dividends": {
-    "history": []
-  },
   "institutional": {
     "holders": [],
     "summary": {
       "institutionalPercent": null,
       "institutionalCount": null
     }
-  }
+  },
+  "options": null,
+  "chartHistory": [],
+  "dividends": {
+    "history": []
+  },
+  "exDividendDate": null,
+  "updatedAt": "2026-11-13T11:07:46.811136+00:00"
 }

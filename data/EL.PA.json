@@ -11,1249 +11,38 @@
     "exchange": "PAR"
   },
   "quote": {
-    "price": 181.05,
-    "change": 1.15,
-    "changePercent": 0.64,
-    "marketCap": 88832565248.0,
+    "price": 181.2,
+    "change": 1.3,
+    "changePercent": 0.72,
+    "marketCap": 83103596544.0,
     "fiftyTwoWeekLow": 138.3,
     "fiftyTwoWeekHigh": 323.8,
-    "volume": 1044087.0,
-    "avgVolume": 819188,
-    "currency": "EUR",
-    "priceNative": 182.55,
-    "nativeCurrency": "EUR",
-    "fxRate": 1.0,
-    "fxAsOf": "2026-11-12T23:10:00+00:00"
+    "volume": 75406,
+    "currency": "EUR"
   },
   "ratios": {
-    "peTrailing": 36.2243,
-    "peForward": 24.4481,
-    "pegRatio": 2.1,
-    "dividendYield": 2.08,
-    "profitMargins": 0.0852,
-    "debtToEquity": 38.359,
-    "revenueGrowth": 0.057,
-    "earningsGrowth": 0.123
+    "peTrailing": 34.4023,
+    "peForward": 22.8713,
+    "dividendYield": 2.19,
+    "profitMargins": 0.0852
   },
   "financials": {
     "incomeStatement": {
       "quarterly": [],
-      "annual": [
-        {
-          "date": "2021-12-31",
-          "Tax_Effect_Of_Unusual_Items": null,
-          "Tax_Rate_For_Calcs": null,
-          "Normalized_EBITDA": null,
-          "Total_Unusual_Items": -2000000.0,
-          "Total_Unusual_Items_Excluding_Goodwill": null,
-          "Net_Income_From_Continuing_Operation_Net_Minority_Interest": null,
-          "Reconciled_Depreciation": null,
-          "Reconciled_Cost_Of_Revenue": null,
-          "EBITDA": null,
-          "EBIT": null,
-          "Net_Interest_Income": null,
-          "Interest_Expense": null,
-          "Interest_Income": null,
-          "Normalized_Income": null,
-          "Net_Income_From_Continuing_And_Discontinued_Operation": null,
-          "Total_Expenses": null,
-          "Total_Operating_Income_As_Reported": null,
-          "Diluted_Average_Shares": null,
-          "Basic_Average_Shares": null,
-          "Diluted_EPS": null,
-          "Basic_EPS": null,
-          "Diluted_NI_Availto_Com_Stockholders": null,
-          "Net_Income_Common_Stockholders": null,
-          "Otherunder_Preferred_Stock_Dividend": null,
-          "Net_Income": null,
-          "Minority_Interests": null,
-          "Net_Income_Including_Noncontrolling_Interests": null,
-          "Net_Income_Continuous_Operations": null,
-          "Tax_Provision": null,
-          "Pretax_Income": null,
-          "Other_Non_Operating_Income_Expenses": 66000000.0,
-          "Special_Income_Charges": null,
-          "Other_Special_Charges": 2000000.0,
-          "Net_Non_Operating_Interest_Income_Expense": null,
-          "Total_Other_Finance_Cost": null,
-          "Interest_Expense_Non_Operating": null,
-          "Interest_Income_Non_Operating": null,
-          "Operating_Income": null,
-          "Operating_Expense": null,
-          "Other_Operating_Expenses": null,
-          "Research_And_Development": null,
-          "Selling_General_And_Administration": null,
-          "Selling_And_Marketing_Expense": null,
-          "General_And_Administrative_Expense": null,
-          "Gross_Profit": null,
-          "Cost_Of_Revenue": null,
-          "Total_Revenue": null,
-          "Operating_Revenue": null
-        },
-        {
-          "date": "2022-12-31",
-          "Tax_Effect_Of_Unusual_Items": 247700.0,
-          "Tax_Rate_For_Calcs": 0.2477,
-          "Normalized_EBITDA": 6108000000.0,
-          "Total_Unusual_Items": 1000000.0,
-          "Total_Unusual_Items_Excluding_Goodwill": 1000000.0,
-          "Net_Income_From_Continuing_Operation_Net_Minority_Interest": 2152000000.0,
-          "Reconciled_Depreciation": 2921000000.0,
-          "Reconciled_Cost_Of_Revenue": 8910000000.0,
-          "EBITDA": 6109000000.0,
-          "EBIT": 3188000000.0,
-          "Net_Interest_Income": -148000000.0,
-          "Interest_Expense": 156000000.0,
-          "Interest_Income": 26000000.0,
-          "Normalized_Income": 2151247700.0,
-          "Net_Income_From_Continuing_And_Discontinued_Operation": 2152000000.0,
-          "Total_Expenses": 21337000000.0,
-          "Total_Operating_Income_As_Reported": 3157000000.0,
-          "Diluted_Average_Shares": 445659252.0,
-          "Basic_Average_Shares": 442049822.0,
-          "Diluted_EPS": 4.83,
-          "Basic_EPS": 4.87,
-          "Diluted_NI_Availto_Com_Stockholders": 2152000000.0,
-          "Net_Income_Common_Stockholders": 2152000000.0,
-          "Otherunder_Preferred_Stock_Dividend": 0.0,
-          "Net_Income": 2152000000.0,
-          "Minority_Interests": -128000000.0,
-          "Net_Income_Including_Noncontrolling_Interests": 2281000000.0,
-          "Net_Income_Continuous_Operations": 2281000000.0,
-          "Tax_Provision": 751000000.0,
-          "Pretax_Income": 3032000000.0,
-          "Other_Non_Operating_Income_Expenses": 60000000.0,
-          "Special_Income_Charges": 1000000.0,
-          "Other_Special_Charges": -1000000.0,
-          "Net_Non_Operating_Interest_Income_Expense": -148000000.0,
-          "Total_Other_Finance_Cost": 18000000.0,
-          "Interest_Expense_Non_Operating": 156000000.0,
-          "Interest_Income_Non_Operating": 26000000.0,
-          "Operating_Income": 3156000000.0,
-          "Operating_Expense": 12427000000.0,
-          "Other_Operating_Expenses": 219000000.0,
-          "Research_And_Development": 600000000.0,
-          "Selling_General_And_Administration": 11668000000.0,
-          "Selling_And_Marketing_Expense": 9552000000.0,
-          "General_And_Administrative_Expense": 2116000000.0,
-          "Gross_Profit": 15584000000.0,
-          "Cost_Of_Revenue": 8910000000.0,
-          "Total_Revenue": 24494000000.0,
-          "Operating_Revenue": 24494000000.0
-        },
-        {
-          "date": "2023-12-31",
-          "Tax_Effect_Of_Unusual_Items": 0.0,
-          "Tax_Rate_For_Calcs": 0.2007,
-          "Normalized_EBITDA": 6123000000.0,
-          "Total_Unusual_Items": -2000000.0,
-          "Total_Unusual_Items_Excluding_Goodwill": -2000000.0,
-          "Net_Income_From_Continuing_Operation_Net_Minority_Interest": 2289000000.0,
-          "Reconciled_Depreciation": 2972000000.0,
-          "Reconciled_Cost_Of_Revenue": 9347000000.0,
-          "EBITDA": 6123000000.0,
-          "EBIT": 3233000000.0,
-          "Net_Interest_Income": -134000000.0,
-          "Interest_Expense": 116000000.0,
-          "Interest_Income": 85000000.0,
-          "Normalized_Income": 2290598600.0,
-          "Net_Income_From_Continuing_And_Discontinued_Operation": 2289000000.0,
-          "Total_Expenses": 22218000000.0,
-          "Total_Operating_Income_As_Reported": 3176000000.0,
-          "Diluted_Average_Shares": 450765862.0,
-          "Basic_Average_Shares": 448066944.0,
-          "Diluted_EPS": 5.08,
-          "Basic_EPS": 5.11,
-          "Diluted_NI_Availto_Com_Stockholders": 2289000000.0,
-          "Net_Income_Common_Stockholders": 2289000000.0,
-          "Otherunder_Preferred_Stock_Dividend": 0.0,
-          "Net_Income": 2289000000.0,
-          "Minority_Interests": -137000000.0,
-          "Net_Income_Including_Noncontrolling_Interests": 2426000000.0,
-          "Net_Income_Continuous_Operations": 2426000000.0,
-          "Tax_Provision": 609000000.0,
-          "Pretax_Income": 3035000000.0,
-          "Other_Non_Operating_Income_Expenses": null,
-          "Special_Income_Charges": -2000000.0,
-          "Other_Special_Charges": 2000000.0,
-          "Net_Non_Operating_Interest_Income_Expense": -140000000.0,
-          "Total_Other_Finance_Cost": 24000000.0,
-          "Interest_Expense_Non_Operating": 116000000.0,
-          "Interest_Income_Non_Operating": 85000000.0,
-          "Operating_Income": 3179000000.0,
-          "Operating_Expense": 12869000000.0,
-          "Other_Operating_Expenses": 246000000.0,
-          "Research_And_Development": 593000000.0,
-          "Selling_General_And_Administration": 12051000000.0,
-          "Selling_And_Marketing_Expense": 9840000000.0,
-          "General_And_Administrative_Expense": 2211000000.0,
-          "Gross_Profit": 16048000000.0,
-          "Cost_Of_Revenue": 9347000000.0,
-          "Total_Revenue": 25395000000.0,
-          "Operating_Revenue": 25395000000.0
-        },
-        {
-          "date": "2024-12-31",
-          "Tax_Effect_Of_Unusual_Items": 0.0,
-          "Tax_Rate_For_Calcs": 0.243,
-          "Normalized_EBITDA": 6593000000.0,
-          "Total_Unusual_Items": null,
-          "Total_Unusual_Items_Excluding_Goodwill": 0.0,
-          "Net_Income_From_Continuing_Operation_Net_Minority_Interest": 2359000000.0,
-          "Reconciled_Depreciation": 3049000000.0,
-          "Reconciled_Cost_Of_Revenue": 9702000000.0,
-          "EBITDA": 6593000000.0,
-          "EBIT": 3544000000.0,
-          "Net_Interest_Income": -184000000.0,
-          "Interest_Expense": 253000000.0,
-          "Interest_Income": 92000000.0,
-          "Normalized_Income": 2359000000.0,
-          "Net_Income_From_Continuing_And_Discontinued_Operation": 2359000000.0,
-          "Total_Expenses": 23060000000.0,
-          "Total_Operating_Income_As_Reported": 3448000000.0,
-          "Diluted_Average_Shares": 460012730.0,
-          "Basic_Average_Shares": 453926761.0,
-          "Diluted_EPS": 5.13,
-          "Basic_EPS": 5.2,
-          "Diluted_NI_Availto_Com_Stockholders": 2359000000.0,
-          "Net_Income_Common_Stockholders": 2359000000.0,
-          "Otherunder_Preferred_Stock_Dividend": 0.0,
-          "Net_Income": 2359000000.0,
-          "Minority_Interests": -132000000.0,
-          "Net_Income_Including_Noncontrolling_Interests": 2491000000.0,
-          "Net_Income_Continuous_Operations": 2491000000.0,
-          "Tax_Provision": 800000000.0,
-          "Pretax_Income": 3291000000.0,
-          "Other_Non_Operating_Income_Expenses": null,
-          "Special_Income_Charges": 0.0,
-          "Other_Special_Charges": null,
-          "Net_Non_Operating_Interest_Income_Expense": -184000000.0,
-          "Total_Other_Finance_Cost": 23000000.0,
-          "Interest_Expense_Non_Operating": 253000000.0,
-          "Interest_Income_Non_Operating": 92000000.0,
-          "Operating_Income": 3447000000.0,
-          "Operating_Expense": 13358000000.0,
-          "Other_Operating_Expenses": 252000000.0,
-          "Research_And_Development": 630000000.0,
-          "Selling_General_And_Administration": 12531000000.0,
-          "Selling_And_Marketing_Expense": 10338000000.0,
-          "General_And_Administrative_Expense": 2193000000.0,
-          "Gross_Profit": 16805000000.0,
-          "Cost_Of_Revenue": 9702000000.0,
-          "Total_Revenue": 26508000000.0,
-          "Operating_Revenue": 26508000000.0
-        },
-        {
-          "date": "2025-12-31",
-          "Tax_Effect_Of_Unusual_Items": 705000.0,
-          "Tax_Rate_For_Calcs": 0.235,
-          "Normalized_EBITDA": 6596000000.0,
-          "Total_Unusual_Items": 3000000.0,
-          "Total_Unusual_Items_Excluding_Goodwill": 3000000.0,
-          "Net_Income_From_Continuing_Operation_Net_Minority_Interest": 2315000000.0,
-          "Reconciled_Depreciation": 3090000000.0,
-          "Reconciled_Cost_Of_Revenue": 11237000000.0,
-          "EBITDA": 6599000000.0,
-          "EBIT": 3509000000.0,
-          "Net_Interest_Income": -264000000.0,
-          "Interest_Expense": 314000000.0,
-          "Interest_Income": 85000000.0,
-          "Normalized_Income": 2312705000.0,
-          "Net_Income_From_Continuing_And_Discontinued_Operation": 2315000000.0,
-          "Total_Expenses": 25114000000.0,
-          "Total_Operating_Income_As_Reported": 3379000000.0,
-          "Diluted_Average_Shares": 464669477.0,
-          "Basic_Average_Shares": 459018876.0,
-          "Diluted_EPS": 4.98,
-          "Basic_EPS": 5.04,
-          "Diluted_NI_Availto_Com_Stockholders": 2315000000.0,
-          "Net_Income_Common_Stockholders": 2315000000.0,
-          "Otherunder_Preferred_Stock_Dividend": 0.0,
-          "Net_Income": 2315000000.0,
-          "Minority_Interests": -128000000.0,
-          "Net_Income_Including_Noncontrolling_Interests": 2443000000.0,
-          "Net_Income_Continuous_Operations": 2443000000.0,
-          "Tax_Provision": 752000000.0,
-          "Pretax_Income": 3195000000.0,
-          "Other_Non_Operating_Income_Expenses": null,
-          "Special_Income_Charges": 3000000.0,
-          "Other_Special_Charges": -3000000.0,
-          "Net_Non_Operating_Interest_Income_Expense": -264000000.0,
-          "Total_Other_Finance_Cost": 35000000.0,
-          "Interest_Expense_Non_Operating": 314000000.0,
-          "Interest_Income_Non_Operating": 85000000.0,
-          "Operating_Income": 3377000000.0,
-          "Operating_Expense": 13877000000.0,
-          "Other_Operating_Expenses": 249000000.0,
-          "Research_And_Development": 664000000.0,
-          "Selling_General_And_Administration": 12980000000.0,
-          "Selling_And_Marketing_Expense": 10650000000.0,
-          "General_And_Administrative_Expense": 2330000000.0,
-          "Gross_Profit": 17254000000.0,
-          "Cost_Of_Revenue": 11237000000.0,
-          "Total_Revenue": 28491000000.0,
-          "Operating_Revenue": 28491000000.0
-        }
-      ]
+      "annual": []
     },
     "balanceSheet": {
-      "quarterly": [
-        {
-          "date": "2025-06-30",
-          "Treasury_Shares_Number": 1994944.0,
-          "Ordinary_Shares_Number": null,
-          "Share_Issued": 463145529.0,
-          "Net_Debt": null,
-          "Total_Debt": 14050000000.0,
-          "Tangible_Book_Value": null,
-          "Invested_Capital": 48404000000.0,
-          "Working_Capital": null,
-          "Net_Tangible_Assets": null,
-          "Capital_Lease_Obligations": 3470000000.0,
-          "Common_Stock_Equity": 37824000000.0,
-          "Total_Capitalization": null,
-          "Total_Equity_Gross_Minority_Interest": 38405000000.0,
-          "Minority_Interest": null,
-          "Stockholders_Equity": null,
-          "Other_Equity_Interest": null,
-          "Treasury_Stock": 486000000.0,
-          "Retained_Earnings": null,
-          "Additional_Paid_In_Capital": null,
-          "Capital_Stock": 83000000.0,
-          "Common_Stock": 83000000.0,
-          "Total_Liabilities_Net_Minority_Interest": null,
-          "Total_Non_Current_Liabilities_Net_Minority_Interest": 12135000000.0,
-          "Other_Non_Current_Liabilities": 31000000.0,
-          "Derivative_Product_Liabilities": 106000000.0,
-          "Non_Current_Pension_And_Other_Postretirement_Benefit_Plans": 434000000.0,
-          "Tradeand_Other_Payables_Non_Current": 65000000.0,
-          "Non_Current_Deferred_Taxes_Liabilities": 1929000000.0,
-          "Long_Term_Debt_And_Capital_Lease_Obligation": null,
-          "Long_Term_Capital_Lease_Obligation": null,
-          "Long_Term_Debt": null,
-          "Long_Term_Provisions": null,
-          "Current_Liabilities": 11388000000.0,
-          "Other_Current_Liabilities": null,
-          "Current_Debt_And_Capital_Lease_Obligation": 4677000000.0,
-          "Current_Capital_Lease_Obligation": 904000000.0,
-          "Current_Debt": 3773000000.0,
-          "Current_Provisions": 230000000.0,
-          "Payables": null,
-          "Other_Payable": null,
-          "Total_Tax_Payable": 1891000000.0,
-          "Accounts_Payable": 2520000000.0,
-          "Total_Assets": 61928000000.0,
-          "Total_Non_Current_Assets": null,
-          "Other_Non_Current_Assets": null,
-          "Non_Current_Deferred_Taxes_Assets": null,
-          "Investmentin_Financial_Assets": 714000000.0,
-          "Available_For_Sale_Securities": 714000000.0,
-          "Long_Term_Equity_Investment": null,
-          "Investmentsin_Associatesat_Cost": null,
-          "Goodwill_And_Other_Intangible_Assets": null,
-          "Other_Intangible_Assets": null,
-          "Goodwill": 30154000000.0,
-          "Net_PPE": null,
-          "Accumulated_Depreciation": null,
-          "Gross_PPE": 14959000000.0,
-          "Other_Properties": 2489000000.0,
-          "Machinery_Furniture_Equipment": 4864000000.0,
-          "Buildings_And_Improvements": null,
-          "Land_And_Improvements": null,
-          "Properties": null,
-          "Current_Assets": null,
-          "Other_Current_Assets": null,
-          "Hedging_Assets_Current": null,
-          "Prepaid_Assets": null,
-          "Inventory": null,
-          "Inventories_Adjustments_Allowances": null,
-          "Other_Inventories": null,
-          "Finished_Goods": null,
-          "Raw_Materials": null,
-          "Taxes_Receivable": 548000000.0,
-          "Accounts_Receivable": 3437000000.0,
-          "Allowance_For_Doubtful_Accounts_Receivable": null,
-          "Gross_Accounts_Receivable": null,
-          "Cash_Cash_Equivalents_And_Short_Term_Investments": 3159000000.0,
-          "Cash_And_Cash_Equivalents": null,
-          "Cash_Equivalents": null,
-          "Cash_Financial": 2763000000.0
-        },
-        {
-          "date": "2025-12-31",
-          "Treasury_Shares_Number": 99289.0,
-          "Ordinary_Shares_Number": 463190305.0,
-          "Share_Issued": 463289594.0,
-          "Net_Debt": 7295000000.0,
-          "Total_Debt": 14398000000.0,
-          "Tangible_Book_Value": -1877000000.0,
-          "Invested_Capital": 49728000000.0,
-          "Working_Capital": 1108000000.0,
-          "Net_Tangible_Assets": -1877000000.0,
-          "Capital_Lease_Obligations": 3559000000.0,
-          "Common_Stock_Equity": 38889000000.0,
-          "Total_Capitalization": 46951000000.0,
-          "Total_Equity_Gross_Minority_Interest": 39493000000.0,
-          "Minority_Interest": 604000000.0,
-          "Stockholders_Equity": 38889000000.0,
-          "Other_Equity_Interest": 1000000.0,
-          "Treasury_Stock": 25000000.0,
-          "Retained_Earnings": 2315000000.0,
-          "Additional_Paid_In_Capital": 24825000000.0,
-          "Capital_Stock": 83000000.0,
-          "Common_Stock": 83000000.0,
-          "Total_Liabilities_Net_Minority_Interest": 24402000000.0,
-          "Total_Non_Current_Liabilities_Net_Minority_Interest": 13500000000.0,
-          "Other_Non_Current_Liabilities": 34000000.0,
-          "Derivative_Product_Liabilities": 107000000.0,
-          "Non_Current_Pension_And_Other_Postretirement_Benefit_Plans": 445000000.0,
-          "Tradeand_Other_Payables_Non_Current": 126000000.0,
-          "Non_Current_Deferred_Taxes_Liabilities": 1878000000.0,
-          "Long_Term_Debt_And_Capital_Lease_Obligation": 10715000000.0,
-          "Long_Term_Capital_Lease_Obligation": 2653000000.0,
-          "Long_Term_Debt": 8062000000.0,
-          "Long_Term_Provisions": 195000000.0,
-          "Current_Liabilities": 10902000000.0,
-          "Other_Current_Liabilities": 1560000000.0,
-          "Current_Debt_And_Capital_Lease_Obligation": 3683000000.0,
-          "Current_Capital_Lease_Obligation": 906000000.0,
-          "Current_Debt": 2777000000.0,
-          "Current_Provisions": 231000000.0,
-          "Payables": 5225000000.0,
-          "Other_Payable": 344000000.0,
-          "Total_Tax_Payable": 1998000000.0,
-          "Accounts_Payable": 2883000000.0,
-          "Total_Assets": 63895000000.0,
-          "Total_Non_Current_Assets": 51886000000.0,
-          "Other_Non_Current_Assets": 539000000.0,
-          "Non_Current_Deferred_Taxes_Assets": 359000000.0,
-          "Investmentin_Financial_Assets": 849000000.0,
-          "Available_For_Sale_Securities": 849000000.0,
-          "Long_Term_Equity_Investment": 88000000.0,
-          "Investmentsin_Associatesat_Cost": 88000000.0,
-          "Goodwill_And_Other_Intangible_Assets": 40766000000.0,
-          "Other_Intangible_Assets": 9753000000.0,
-          "Goodwill": 31013000000.0,
-          "Net_PPE": 9043000000.0,
-          "Accumulated_Depreciation": -6578000000.0,
-          "Gross_PPE": null,
-          "Other_Properties": 5213000000.0,
-          "Machinery_Furniture_Equipment": 2554000000.0,
-          "Buildings_And_Improvements": 3350000000.0,
-          "Land_And_Improvements": 4504000000.0,
-          "Properties": 0.0,
-          "Current_Assets": 12010000000.0,
-          "Other_Current_Assets": 298000000.0,
-          "Hedging_Assets_Current": 26000000.0,
-          "Prepaid_Assets": 437000000.0,
-          "Inventory": 3542000000.0,
-          "Inventories_Adjustments_Allowances": -568000000.0,
-          "Other_Inventories": 1000000.0,
-          "Finished_Goods": 3171000000.0,
-          "Raw_Materials": 938000000.0,
-          "Taxes_Receivable": 511000000.0,
-          "Accounts_Receivable": 3638000000.0,
-          "Allowance_For_Doubtful_Accounts_Receivable": -180000000.0,
-          "Gross_Accounts_Receivable": 3818000000.0,
-          "Cash_Cash_Equivalents_And_Short_Term_Investments": 3544000000.0,
-          "Cash_And_Cash_Equivalents": 3544000000.0,
-          "Cash_Equivalents": 386000000.0,
-          "Cash_Financial": 3159000000.0
-        },
-        {
-          "date": "2026-06-30",
-          "Treasury_Shares_Number": 4655973.0,
-          "Ordinary_Shares_Number": 459591575.0,
-          "Share_Issued": 464247548.0,
-          "Net_Debt": 9478000000.0,
-          "Total_Debt": 15316000000.0,
-          "Tangible_Book_Value": -2326000000.0,
-          "Invested_Capital": 50626000000.0,
-          "Working_Capital": -1403000000.0,
-          "Net_Tangible_Assets": -2326000000.0,
-          "Capital_Lease_Obligations": 3907000000.0,
-          "Common_Stock_Equity": 39217000000.0,
-          "Total_Capitalization": 45947000000.0,
-          "Total_Equity_Gross_Minority_Interest": 39928000000.0,
-          "Minority_Interest": 711000000.0,
-          "Stockholders_Equity": 39217000000.0,
-          "Other_Equity_Interest": -1000000.0,
-          "Treasury_Stock": 993000000.0,
-          "Retained_Earnings": 1566000000.0,
-          "Additional_Paid_In_Capital": 24533000000.0,
-          "Capital_Stock": 84000000.0,
-          "Common_Stock": 84000000.0,
-          "Total_Liabilities_Net_Minority_Interest": 25129000000.0,
-          "Total_Non_Current_Liabilities_Net_Minority_Interest": 12486000000.0,
-          "Other_Non_Current_Liabilities": 43000000.0,
-          "Derivative_Product_Liabilities": 115000000.0,
-          "Non_Current_Pension_And_Other_Postretirement_Benefit_Plans": 446000000.0,
-          "Tradeand_Other_Payables_Non_Current": 142000000.0,
-          "Non_Current_Deferred_Taxes_Liabilities": 1875000000.0,
-          "Long_Term_Debt_And_Capital_Lease_Obligation": 9655000000.0,
-          "Long_Term_Capital_Lease_Obligation": 2925000000.0,
-          "Long_Term_Debt": 6730000000.0,
-          "Long_Term_Provisions": 210000000.0,
-          "Current_Liabilities": 12643000000.0,
-          "Other_Current_Liabilities": 1537000000.0,
-          "Current_Debt_And_Capital_Lease_Obligation": 5661000000.0,
-          "Current_Capital_Lease_Obligation": 982000000.0,
-          "Current_Debt": 4679000000.0,
-          "Current_Provisions": 221000000.0,
-          "Payables": 5159000000.0,
-          "Other_Payable": 343000000.0,
-          "Total_Tax_Payable": 2173000000.0,
-          "Accounts_Payable": 2643000000.0,
-          "Total_Assets": 65057000000.0,
-          "Total_Non_Current_Assets": 53819000000.0,
-          "Other_Non_Current_Assets": 667000000.0,
-          "Non_Current_Deferred_Taxes_Assets": 467000000.0,
-          "Investmentin_Financial_Assets": 1143000000.0,
-          "Available_For_Sale_Securities": 1143000000.0,
-          "Long_Term_Equity_Investment": 90000000.0,
-          "Investmentsin_Associatesat_Cost": 90000000.0,
-          "Goodwill_And_Other_Intangible_Assets": 41543000000.0,
-          "Other_Intangible_Assets": 9476000000.0,
-          "Goodwill": 32067000000.0,
-          "Net_PPE": 9546000000.0,
-          "Accumulated_Depreciation": -7142000000.0,
-          "Gross_PPE": 16688000000.0,
-          "Other_Properties": 2765000000.0,
-          "Machinery_Furniture_Equipment": 5524000000.0,
-          "Buildings_And_Improvements": 3675000000.0,
-          "Land_And_Improvements": 4724000000.0,
-          "Properties": 0.0,
-          "Current_Assets": 11240000000.0,
-          "Other_Current_Assets": 415000000.0,
-          "Hedging_Assets_Current": 119000000.0,
-          "Prepaid_Assets": 583000000.0,
-          "Inventory": 3828000000.0,
-          "Inventories_Adjustments_Allowances": null,
-          "Other_Inventories": null,
-          "Finished_Goods": null,
-          "Raw_Materials": null,
-          "Taxes_Receivable": 516000000.0,
-          "Accounts_Receivable": 3834000000.0,
-          "Allowance_For_Doubtful_Accounts_Receivable": null,
-          "Gross_Accounts_Receivable": null,
-          "Cash_Cash_Equivalents_And_Short_Term_Investments": 1931000000.0,
-          "Cash_And_Cash_Equivalents": 1931000000.0,
-          "Cash_Equivalents": 273000000.0,
-          "Cash_Financial": 1658000000.0
-        }
-      ],
-      "annual": [
-        {
-          "date": "2021-12-31",
-          "Treasury_Shares_Number": null,
-          "Ordinary_Shares_Number": null,
-          "Share_Issued": null,
-          "Net_Debt": null,
-          "Total_Debt": null,
-          "Tangible_Book_Value": null,
-          "Invested_Capital": null,
-          "Working_Capital": null,
-          "Net_Tangible_Assets": null,
-          "Capital_Lease_Obligations": null,
-          "Common_Stock_Equity": null,
-          "Total_Capitalization": null,
-          "Total_Equity_Gross_Minority_Interest": null,
-          "Minority_Interest": null,
-          "Stockholders_Equity": null,
-          "Other_Equity_Interest": -1000000.0,
-          "Treasury_Stock": null,
-          "Retained_Earnings": null,
-          "Additional_Paid_In_Capital": null,
-          "Capital_Stock": null,
-          "Common_Stock": null,
-          "Total_Liabilities_Net_Minority_Interest": null,
-          "Total_Non_Current_Liabilities_Net_Minority_Interest": null,
-          "Other_Non_Current_Liabilities": null,
-          "Derivative_Product_Liabilities": null,
-          "Non_Current_Pension_And_Other_Postretirement_Benefit_Plans": null,
-          "Tradeand_Other_Payables_Non_Current": null,
-          "Non_Current_Deferred_Revenue": 27000000.0,
-          "Non_Current_Deferred_Taxes_Liabilities": null,
-          "Long_Term_Debt_And_Capital_Lease_Obligation": null,
-          "Long_Term_Capital_Lease_Obligation": null,
-          "Long_Term_Debt": null,
-          "Long_Term_Provisions": null,
-          "Current_Liabilities": null,
-          "Other_Current_Liabilities": null,
-          "Current_Debt_And_Capital_Lease_Obligation": null,
-          "Current_Capital_Lease_Obligation": null,
-          "Current_Debt": null,
-          "Pensionand_Other_Post_Retirement_Benefit_Plans_Current": 1514000000.0,
-          "Current_Provisions": null,
-          "Payables": null,
-          "Other_Payable": null,
-          "Total_Tax_Payable": null,
-          "Accounts_Payable": null,
-          "Total_Assets": null,
-          "Total_Non_Current_Assets": null,
-          "Other_Non_Current_Assets": null,
-          "Defined_Pension_Benefit": 51000000.0,
-          "Non_Current_Prepaid_Assets": 258000000.0,
-          "Non_Current_Deferred_Taxes_Assets": null,
-          "Investmentin_Financial_Assets": null,
-          "Available_For_Sale_Securities": null,
-          "Financial_Assets_Designatedas_Fair_Value_Through_Profitor_Loss_Total": 2000000.0,
-          "Long_Term_Equity_Investment": null,
-          "Goodwill_And_Other_Intangible_Assets": null,
-          "Other_Intangible_Assets": null,
-          "Goodwill": null,
-          "Net_PPE": null,
-          "Accumulated_Depreciation": -4886000000.0,
-          "Gross_PPE": null,
-          "Other_Properties": null,
-          "Machinery_Furniture_Equipment": null,
-          "Buildings_And_Improvements": null,
-          "Land_And_Improvements": null,
-          "Properties": 0.0,
-          "Current_Assets": null,
-          "Other_Current_Assets": null,
-          "Hedging_Assets_Current": 42000000.0,
-          "Assets_Held_For_Sale_Current": 82000000.0,
-          "Current_Deferred_Assets": 195000000.0,
-          "Prepaid_Assets": 82000000.0,
-          "Inventory": null,
-          "Inventories_Adjustments_Allowances": null,
-          "Other_Inventories": null,
-          "Finished_Goods": null,
-          "Work_In_Process": 101000000.0,
-          "Raw_Materials": null,
-          "Other_Receivables": 20000000.0,
-          "Taxes_Receivable": null,
-          "Accounts_Receivable": null,
-          "Allowance_For_Doubtful_Accounts_Receivable": -220000000.0,
-          "Gross_Accounts_Receivable": null,
-          "Cash_Cash_Equivalents_And_Short_Term_Investments": null,
-          "Other_Short_Term_Investments": null,
-          "Cash_And_Cash_Equivalents": null,
-          "Cash_Equivalents": null,
-          "Cash_Financial": 1588000000.0
-        },
-        {
-          "date": "2022-12-31",
-          "Treasury_Shares_Number": 2360650.0,
-          "Ordinary_Shares_Number": 445327583.0,
-          "Share_Issued": 447688233.0,
-          "Net_Debt": 7062000000.0,
-          "Total_Debt": 12204000000.0,
-          "Tangible_Book_Value": -5401000000.0,
-          "Invested_Capital": 46477000000.0,
-          "Working_Capital": 752000000.0,
-          "Net_Tangible_Assets": -5401000000.0,
-          "Capital_Lease_Obligations": 3182000000.0,
-          "Common_Stock_Equity": 37455000000.0,
-          "Total_Capitalization": 46313000000.0,
-          "Total_Equity_Gross_Minority_Interest": 38147000000.0,
-          "Minority_Interest": 692000000.0,
-          "Stockholders_Equity": 37455000000.0,
-          "Other_Equity_Interest": null,
-          "Treasury_Stock": 360000000.0,
-          "Retained_Earnings": 2152000000.0,
-          "Additional_Paid_In_Capital": 23066000000.0,
-          "Capital_Stock": 81000000.0,
-          "Common_Stock": 81000000.0,
-          "Total_Liabilities_Net_Minority_Interest": 22414000000.0,
-          "Total_Non_Current_Liabilities_Net_Minority_Interest": 14526000000.0,
-          "Other_Non_Current_Liabilities": 43000000.0,
-          "Derivative_Product_Liabilities": 153000000.0,
-          "Non_Current_Pension_And_Other_Postretirement_Benefit_Plans": 431000000.0,
-          "Tradeand_Other_Payables_Non_Current": 26000000.0,
-          "Non_Current_Deferred_Revenue": null,
-          "Non_Current_Deferred_Taxes_Liabilities": 2377000000.0,
-          "Long_Term_Debt_And_Capital_Lease_Obligation": 11194000000.0,
-          "Long_Term_Capital_Lease_Obligation": 2336000000.0,
-          "Long_Term_Debt": 8858000000.0,
-          "Long_Term_Provisions": 302000000.0,
-          "Current_Liabilities": 7888000000.0,
-          "Other_Current_Liabilities": 1408000000.0,
-          "Current_Debt_And_Capital_Lease_Obligation": 1010000000.0,
-          "Current_Capital_Lease_Obligation": 846000000.0,
-          "Current_Debt": 164000000.0,
-          "Pensionand_Other_Post_Retirement_Benefit_Plans_Current": 1401000000.0,
-          "Current_Provisions": 283000000.0,
-          "Payables": 4924000000.0,
-          "Other_Payable": 515000000.0,
-          "Total_Tax_Payable": 2112000000.0,
-          "Accounts_Payable": 2297000000.0,
-          "Total_Assets": 60561000000.0,
-          "Total_Non_Current_Assets": 51920000000.0,
-          "Other_Non_Current_Assets": 817000000.0,
-          "Defined_Pension_Benefit": 0.0,
-          "Non_Current_Prepaid_Assets": 254000000.0,
-          "Non_Current_Deferred_Taxes_Assets": 408000000.0,
-          "Investmentin_Financial_Assets": 309000000.0,
-          "Available_For_Sale_Securities": 307000000.0,
-          "Financial_Assets_Designatedas_Fair_Value_Through_Profitor_Loss_Total": 2000000.0,
-          "Long_Term_Equity_Investment": 83000000.0,
-          "Goodwill_And_Other_Intangible_Assets": 42856000000.0,
-          "Other_Intangible_Assets": 12122000000.0,
-          "Goodwill": 30734000000.0,
-          "Net_PPE": 7756000000.0,
-          "Accumulated_Depreciation": -5409000000.0,
-          "Gross_PPE": 13165000000.0,
-          "Other_Properties": 6552000000.0,
-          "Machinery_Furniture_Equipment": 4168000000.0,
-          "Buildings_And_Improvements": 2972000000.0,
-          "Land_And_Improvements": 3641000000.0,
-          "Properties": 0.0,
-          "Current_Assets": 8640000000.0,
-          "Other_Current_Assets": 258000000.0,
-          "Hedging_Assets_Current": 29000000.0,
-          "Assets_Held_For_Sale_Current": 0.0,
-          "Current_Deferred_Assets": 213000000.0,
-          "Prepaid_Assets": 121000000.0,
-          "Inventory": 2789000000.0,
-          "Inventories_Adjustments_Allowances": -477000000.0,
-          "Other_Inventories": 1000000.0,
-          "Finished_Goods": 2365000000.0,
-          "Work_In_Process": 110000000.0,
-          "Raw_Materials": 790000000.0,
-          "Other_Receivables": null,
-          "Taxes_Receivable": 556000000.0,
-          "Accounts_Receivable": 2697000000.0,
-          "Allowance_For_Doubtful_Accounts_Receivable": -180000000.0,
-          "Gross_Accounts_Receivable": 2877000000.0,
-          "Cash_Cash_Equivalents_And_Short_Term_Investments": 1960000000.0,
-          "Other_Short_Term_Investments": null,
-          "Cash_And_Cash_Equivalents": 1960000000.0,
-          "Cash_Equivalents": null,
-          "Cash_Financial": 1756000000.0
-        },
-        {
-          "date": "2023-12-31",
-          "Treasury_Shares_Number": 1803854.0,
-          "Ordinary_Shares_Number": 452043361.0,
-          "Share_Issued": 453847215.0,
-          "Net_Debt": 5859000000.0,
-          "Total_Debt": 11657000000.0,
-          "Tangible_Book_Value": -3042000000.0,
-          "Invested_Capital": 46656000000.0,
-          "Working_Capital": 1279000000.0,
-          "Net_Tangible_Assets": -3042000000.0,
-          "Capital_Lease_Obligations": 3240000000.0,
-          "Common_Stock_Equity": 38239000000.0,
-          "Total_Capitalization": 46098000000.0,
-          "Total_Equity_Gross_Minority_Interest": 38892000000.0,
-          "Minority_Interest": 653000000.0,
-          "Stockholders_Equity": 38239000000.0,
-          "Other_Equity_Interest": null,
-          "Treasury_Stock": 312000000.0,
-          "Retained_Earnings": 2289000000.0,
-          "Additional_Paid_In_Capital": 22882000000.0,
-          "Capital_Stock": 82000000.0,
-          "Common_Stock": 82000000.0,
-          "Total_Liabilities_Net_Minority_Interest": 21631000000.0,
-          "Total_Non_Current_Liabilities_Net_Minority_Interest": 13190000000.0,
-          "Other_Non_Current_Liabilities": 36000000.0,
-          "Derivative_Product_Liabilities": 71000000.0,
-          "Non_Current_Pension_And_Other_Postretirement_Benefit_Plans": 431000000.0,
-          "Tradeand_Other_Payables_Non_Current": 15000000.0,
-          "Non_Current_Deferred_Revenue": null,
-          "Non_Current_Deferred_Taxes_Liabilities": 2145000000.0,
-          "Long_Term_Debt_And_Capital_Lease_Obligation": 10258000000.0,
-          "Long_Term_Capital_Lease_Obligation": 2399000000.0,
-          "Long_Term_Debt": 7859000000.0,
-          "Long_Term_Provisions": 234000000.0,
-          "Current_Liabilities": 8441000000.0,
-          "Other_Current_Liabilities": 1510000000.0,
-          "Current_Debt_And_Capital_Lease_Obligation": 1399000000.0,
-          "Current_Capital_Lease_Obligation": 841000000.0,
-          "Current_Debt": 558000000.0,
-          "Pensionand_Other_Post_Retirement_Benefit_Plans_Current": null,
-          "Current_Provisions": 345000000.0,
-          "Payables": 4822000000.0,
-          "Other_Payable": 490000000.0,
-          "Total_Tax_Payable": 1951000000.0,
-          "Accounts_Payable": 2381000000.0,
-          "Total_Assets": 60523000000.0,
-          "Total_Non_Current_Assets": 50802000000.0,
-          "Other_Non_Current_Assets": 306000000.0,
-          "Defined_Pension_Benefit": null,
-          "Non_Current_Prepaid_Assets": 219000000.0,
-          "Non_Current_Deferred_Taxes_Assets": 387000000.0,
-          "Investmentin_Financial_Assets": 324000000.0,
-          "Available_For_Sale_Securities": 324000000.0,
-          "Financial_Assets_Designatedas_Fair_Value_Through_Profitor_Loss_Total": 2000000.0,
-          "Long_Term_Equity_Investment": 81000000.0,
-          "Goodwill_And_Other_Intangible_Assets": 41281000000.0,
-          "Other_Intangible_Assets": 11016000000.0,
-          "Goodwill": 30265000000.0,
-          "Net_PPE": 8251000000.0,
-          "Accumulated_Depreciation": -5660000000.0,
-          "Gross_PPE": 13911000000.0,
-          "Other_Properties": 7043000000.0,
-          "Machinery_Furniture_Equipment": 4408000000.0,
-          "Buildings_And_Improvements": 3021000000.0,
-          "Land_And_Improvements": 3847000000.0,
-          "Properties": 0.0,
-          "Current_Assets": 9720000000.0,
-          "Other_Current_Assets": 525000000.0,
-          "Hedging_Assets_Current": 12000000.0,
-          "Assets_Held_For_Sale_Current": null,
-          "Current_Deferred_Assets": 228000000.0,
-          "Prepaid_Assets": 116000000.0,
-          "Inventory": 2750000000.0,
-          "Inventories_Adjustments_Allowances": -487000000.0,
-          "Other_Inventories": -1000000.0,
-          "Finished_Goods": 2458000000.0,
-          "Work_In_Process": 114000000.0,
-          "Raw_Materials": 780000000.0,
-          "Other_Receivables": null,
-          "Taxes_Receivable": 578000000.0,
-          "Accounts_Receivable": 2936000000.0,
-          "Allowance_For_Doubtful_Accounts_Receivable": -166000000.0,
-          "Gross_Accounts_Receivable": 3102000000.0,
-          "Cash_Cash_Equivalents_And_Short_Term_Investments": 2558000000.0,
-          "Other_Short_Term_Investments": 1000000.0,
-          "Cash_And_Cash_Equivalents": 2558000000.0,
-          "Cash_Equivalents": null,
-          "Cash_Financial": 1663000000.0
-        },
-        {
-          "date": "2024-12-31",
-          "Treasury_Shares_Number": 798593.0,
-          "Ordinary_Shares_Number": 456708608.0,
-          "Share_Issued": 457507201.0,
-          "Net_Debt": 7318000000.0,
-          "Total_Debt": 13216000000.0,
-          "Tangible_Book_Value": -2671000000.0,
-          "Invested_Capital": 49945000000.0,
-          "Working_Capital": 966000000.0,
-          "Net_Tangible_Assets": -2671000000.0,
-          "Capital_Lease_Obligations": 3647000000.0,
-          "Common_Stock_Equity": 40376000000.0,
-          "Total_Capitalization": 48945000000.0,
-          "Total_Equity_Gross_Minority_Interest": 41002000000.0,
-          "Minority_Interest": 626000000.0,
-          "Stockholders_Equity": 40376000000.0,
-          "Other_Equity_Interest": null,
-          "Treasury_Stock": 172000000.0,
-          "Retained_Earnings": 2359000000.0,
-          "Additional_Paid_In_Capital": 23539000000.0,
-          "Capital_Stock": 82000000.0,
-          "Common_Stock": 82000000.0,
-          "Total_Liabilities_Net_Minority_Interest": 23277000000.0,
-          "Total_Non_Current_Liabilities_Net_Minority_Interest": 14196000000.0,
-          "Other_Non_Current_Liabilities": 26000000.0,
-          "Derivative_Product_Liabilities": 109000000.0,
-          "Non_Current_Pension_And_Other_Postretirement_Benefit_Plans": 455000000.0,
-          "Tradeand_Other_Payables_Non_Current": 57000000.0,
-          "Non_Current_Deferred_Revenue": null,
-          "Non_Current_Deferred_Taxes_Liabilities": 2033000000.0,
-          "Long_Term_Debt_And_Capital_Lease_Obligation": 9804000000.0,
-          "Long_Term_Capital_Lease_Obligation": 2733000000.0,
-          "Long_Term_Debt": 7071000000.0,
-          "Long_Term_Provisions": 214000000.0,
-          "Current_Liabilities": 9081000000.0,
-          "Other_Current_Liabilities": 3679000000.0,
-          "Current_Debt_And_Capital_Lease_Obligation": 1914000000.0,
-          "Current_Capital_Lease_Obligation": 914000000.0,
-          "Current_Debt": 1000000000.0,
-          "Pensionand_Other_Post_Retirement_Benefit_Plans_Current": null,
-          "Current_Provisions": 271000000.0,
-          "Payables": 5019000000.0,
-          "Other_Payable": 388000000.0,
-          "Total_Tax_Payable": 1974000000.0,
-          "Accounts_Payable": 2657000000.0,
-          "Total_Assets": 64279000000.0,
-          "Total_Non_Current_Assets": 54232000000.0,
-          "Other_Non_Current_Assets": 603000000.0,
-          "Defined_Pension_Benefit": null,
-          "Non_Current_Prepaid_Assets": null,
-          "Non_Current_Deferred_Taxes_Assets": 391000000.0,
-          "Investmentin_Financial_Assets": 737000000.0,
-          "Available_For_Sale_Securities": 737000000.0,
-          "Financial_Assets_Designatedas_Fair_Value_Through_Profitor_Loss_Total": null,
-          "Long_Term_Equity_Investment": 85000000.0,
-          "Goodwill_And_Other_Intangible_Assets": 43047000000.0,
-          "Other_Intangible_Assets": 10980000000.0,
-          "Goodwill": 32067000000.0,
-          "Net_PPE": 9175000000.0,
-          "Accumulated_Depreciation": null,
-          "Gross_PPE": 9173000000.0,
-          "Other_Properties": 4992000000.0,
-          "Machinery_Furniture_Equipment": 2635000000.0,
-          "Buildings_And_Improvements": 3427000000.0,
-          "Land_And_Improvements": 4484000000.0,
-          "Properties": null,
-          "Current_Assets": 10047000000.0,
-          "Other_Current_Assets": 331000000.0,
-          "Hedging_Assets_Current": null,
-          "Assets_Held_For_Sale_Current": null,
-          "Current_Deferred_Assets": null,
-          "Prepaid_Assets": null,
-          "Inventory": 3152000000.0,
-          "Inventories_Adjustments_Allowances": -553000000.0,
-          "Other_Inventories": null,
-          "Finished_Goods": 2838000000.0,
-          "Work_In_Process": null,
-          "Raw_Materials": 868000000.0,
-          "Other_Receivables": null,
-          "Taxes_Receivable": 294000000.0,
-          "Accounts_Receivable": 3261000000.0,
-          "Allowance_For_Doubtful_Accounts_Receivable": null,
-          "Gross_Accounts_Receivable": 3447000000.0,
-          "Cash_Cash_Equivalents_And_Short_Term_Investments": 2251000000.0,
-          "Other_Short_Term_Investments": null,
-          "Cash_And_Cash_Equivalents": 2251000000.0,
-          "Cash_Equivalents": 375000000.0,
-          "Cash_Financial": null
-        },
-        {
-          "date": "2025-12-31",
-          "Treasury_Shares_Number": 99289.0,
-          "Ordinary_Shares_Number": 463190305.0,
-          "Share_Issued": 463289594.0,
-          "Net_Debt": 7295000000.0,
-          "Total_Debt": 14398000000.0,
-          "Tangible_Book_Value": -1877000000.0,
-          "Invested_Capital": 49728000000.0,
-          "Working_Capital": 1108000000.0,
-          "Net_Tangible_Assets": -1877000000.0,
-          "Capital_Lease_Obligations": 3559000000.0,
-          "Common_Stock_Equity": 38889000000.0,
-          "Total_Capitalization": 46951000000.0,
-          "Total_Equity_Gross_Minority_Interest": 39493000000.0,
-          "Minority_Interest": 604000000.0,
-          "Stockholders_Equity": 38889000000.0,
-          "Other_Equity_Interest": 1000000.0,
-          "Treasury_Stock": 25000000.0,
-          "Retained_Earnings": 2315000000.0,
-          "Additional_Paid_In_Capital": 24825000000.0,
-          "Capital_Stock": 83000000.0,
-          "Common_Stock": 83000000.0,
-          "Total_Liabilities_Net_Minority_Interest": 24402000000.0,
-          "Total_Non_Current_Liabilities_Net_Minority_Interest": 13500000000.0,
-          "Other_Non_Current_Liabilities": 34000000.0,
-          "Derivative_Product_Liabilities": 107000000.0,
-          "Non_Current_Pension_And_Other_Postretirement_Benefit_Plans": 445000000.0,
-          "Tradeand_Other_Payables_Non_Current": 126000000.0,
-          "Non_Current_Deferred_Revenue": null,
-          "Non_Current_Deferred_Taxes_Liabilities": 1878000000.0,
-          "Long_Term_Debt_And_Capital_Lease_Obligation": 10715000000.0,
-          "Long_Term_Capital_Lease_Obligation": 2653000000.0,
-          "Long_Term_Debt": 8062000000.0,
-          "Long_Term_Provisions": 195000000.0,
-          "Current_Liabilities": 10902000000.0,
-          "Other_Current_Liabilities": 1560000000.0,
-          "Current_Debt_And_Capital_Lease_Obligation": 3683000000.0,
-          "Current_Capital_Lease_Obligation": 906000000.0,
-          "Current_Debt": 2777000000.0,
-          "Pensionand_Other_Post_Retirement_Benefit_Plans_Current": null,
-          "Current_Provisions": 231000000.0,
-          "Payables": 5225000000.0,
-          "Other_Payable": 344000000.0,
-          "Total_Tax_Payable": 1998000000.0,
-          "Accounts_Payable": 2883000000.0,
-          "Total_Assets": 63895000000.0,
-          "Total_Non_Current_Assets": 51886000000.0,
-          "Other_Non_Current_Assets": 539000000.0,
-          "Defined_Pension_Benefit": null,
-          "Non_Current_Prepaid_Assets": null,
-          "Non_Current_Deferred_Taxes_Assets": 359000000.0,
-          "Investmentin_Financial_Assets": 849000000.0,
-          "Available_For_Sale_Securities": 849000000.0,
-          "Financial_Assets_Designatedas_Fair_Value_Through_Profitor_Loss_Total": null,
-          "Long_Term_Equity_Investment": 88000000.0,
-          "Goodwill_And_Other_Intangible_Assets": 40766000000.0,
-          "Other_Intangible_Assets": 9753000000.0,
-          "Goodwill": 31013000000.0,
-          "Net_PPE": 9043000000.0,
-          "Accumulated_Depreciation": -6578000000.0,
-          "Gross_PPE": 15621000000.0,
-          "Other_Properties": 5213000000.0,
-          "Machinery_Furniture_Equipment": 2554000000.0,
-          "Buildings_And_Improvements": 3350000000.0,
-          "Land_And_Improvements": 4504000000.0,
-          "Properties": 0.0,
-          "Current_Assets": 12010000000.0,
-          "Other_Current_Assets": 298000000.0,
-          "Hedging_Assets_Current": 26000000.0,
-          "Assets_Held_For_Sale_Current": null,
-          "Current_Deferred_Assets": null,
-          "Prepaid_Assets": 437000000.0,
-          "Inventory": 3542000000.0,
-          "Inventories_Adjustments_Allowances": -568000000.0,
-          "Other_Inventories": 1000000.0,
-          "Finished_Goods": 3171000000.0,
-          "Work_In_Process": null,
-          "Raw_Materials": 938000000.0,
-          "Other_Receivables": null,
-          "Taxes_Receivable": 511000000.0,
-          "Accounts_Receivable": 3638000000.0,
-          "Allowance_For_Doubtful_Accounts_Receivable": -180000000.0,
-          "Gross_Accounts_Receivable": 3818000000.0,
-          "Cash_Cash_Equivalents_And_Short_Term_Investments": 3544000000.0,
-          "Other_Short_Term_Investments": null,
-          "Cash_And_Cash_Equivalents": 3544000000.0,
-          "Cash_Equivalents": null,
-          "Cash_Financial": 3159000000.0
-        }
-      ]
+      "quarterly": [],
+      "annual": []
     },
     "cashFlow": {
       "quarterly": [],
-      "annual": [
-        {
-          "date": "2021-12-31",
-          "Free_Cash_Flow": null,
-          "Repurchase_Of_Capital_Stock": null,
-          "Repayment_Of_Debt": null,
-          "Issuance_Of_Debt": null,
-          "Issuance_Of_Capital_Stock": null,
-          "Capital_Expenditure": null,
-          "End_Cash_Position": null,
-          "Other_Cash_Adjustment_Outside_Changein_Cash": -1000000.0,
-          "Beginning_Cash_Position": null,
-          "Effect_Of_Exchange_Rate_Changes": null,
-          "Changes_In_Cash": null,
-          "Financing_Cash_Flow": null,
-          "Net_Other_Financing_Charges": null,
-          "Cash_Dividends_Paid": null,
-          "Common_Stock_Dividend_Paid": null,
-          "Net_Common_Stock_Issuance": null,
-          "Common_Stock_Payments": null,
-          "Common_Stock_Issuance": null,
-          "Net_Issuance_Payments_Of_Debt": null,
-          "Net_Short_Term_Debt_Issuance": null,
-          "Short_Term_Debt_Issuance": null,
-          "Net_Long_Term_Debt_Issuance": null,
-          "Long_Term_Debt_Payments": null,
-          "Long_Term_Debt_Issuance": null,
-          "Investing_Cash_Flow": null,
-          "Net_Other_Investing_Changes": null,
-          "Net_Investment_Purchase_And_Sale": null,
-          "Net_Business_Purchase_And_Sale": null,
-          "Purchase_Of_Business": null,
-          "Net_PPE_Purchase_And_Sale": null,
-          "Sale_Of_PPE": null,
-          "Purchase_Of_PPE": null,
-          "Operating_Cash_Flow": null,
-          "Taxes_Refund_Paid": null,
-          "Interest_Paid_Cfo": null,
-          "Change_In_Working_Capital": null,
-          "Change_In_Other_Current_Assets": null,
-          "Change_In_Receivables": -197000000.0,
-          "Other_Non_Cash_Items": null,
-          "Stock_Based_Compensation": null,
-          "Provisionand_Write_Offof_Assets": null,
-          "Deferred_Tax": null,
-          "Depreciation_And_Amortization": null,
-          "Amortization_Cash_Flow": null,
-          "Depreciation": null,
-          "Gain_Loss_On_Investment_Securities": null,
-          "Net_Income_From_Continuing_Operations": null
-        },
-        {
-          "date": "2022-12-31",
-          "Free_Cash_Flow": 3211000000.0,
-          "Repurchase_Of_Capital_Stock": -431000000.0,
-          "Repayment_Of_Debt": -1410000000.0,
-          "Issuance_Of_Debt": 0.0,
-          "Issuance_Of_Capital_Stock": 37000000.0,
-          "Capital_Expenditure": -1572000000.0,
-          "End_Cash_Position": 1960000000.0,
-          "Other_Cash_Adjustment_Outside_Changein_Cash": null,
-          "Beginning_Cash_Position": 3293000000.0,
-          "Effect_Of_Exchange_Rate_Changes": 83000000.0,
-          "Changes_In_Cash": -1416000000.0,
-          "Financing_Cash_Flow": -3580000000.0,
-          "Net_Other_Financing_Charges": -1182000000.0,
-          "Cash_Dividends_Paid": -454000000.0,
-          "Common_Stock_Dividend_Paid": -454000000.0,
-          "Net_Common_Stock_Issuance": -394000000.0,
-          "Common_Stock_Payments": -431000000.0,
-          "Common_Stock_Issuance": 37000000.0,
-          "Net_Issuance_Payments_Of_Debt": -1410000000.0,
-          "Net_Short_Term_Debt_Issuance": -507000000.0,
-          "Short_Term_Debt_Issuance": null,
-          "Net_Long_Term_Debt_Issuance": -1410000000.0,
-          "Long_Term_Debt_Payments": -1410000000.0,
-          "Long_Term_Debt_Issuance": 0.0,
-          "Investing_Cash_Flow": -2619000000.0,
-          "Net_Other_Investing_Changes": 2000000.0,
-          "Net_Investment_Purchase_And_Sale": -101000000.0,
-          "Net_Business_Purchase_And_Sale": -965000000.0,
-          "Purchase_Of_Business": -965000000.0,
-          "Net_PPE_Purchase_And_Sale": -1555000000.0,
-          "Sale_Of_PPE": 17000000.0,
-          "Purchase_Of_PPE": -1572000000.0,
-          "Operating_Cash_Flow": 4783000000.0,
-          "Taxes_Refund_Paid": -940000000.0,
-          "Interest_Paid_Cfo": -125000000.0,
-          "Change_In_Working_Capital": -356000000.0,
-          "Change_In_Other_Current_Assets": -356000000.0,
-          "Change_In_Receivables": null,
-          "Other_Non_Cash_Items": 59000000.0,
-          "Stock_Based_Compensation": 191000000.0,
-          "Provisionand_Write_Offof_Assets": -51000000.0,
-          "Deferred_Tax": 751000000.0,
-          "Depreciation_And_Amortization": 2921000000.0,
-          "Amortization_Cash_Flow": 1302000000.0,
-          "Depreciation": 1619000000.0,
-          "Gain_Loss_On_Investment_Securities": 2000000.0,
-          "Net_Income_From_Continuing_Operations": 2281000000.0
-        },
-        {
-          "date": "2023-12-31",
-          "Free_Cash_Flow": 3330000000.0,
-          "Repurchase_Of_Capital_Stock": -271000000.0,
-          "Repayment_Of_Debt": -1964000000.0,
-          "Issuance_Of_Debt": 438000000.0,
-          "Issuance_Of_Capital_Stock": 34000000.0,
-          "Capital_Expenditure": -1531000000.0,
-          "End_Cash_Position": 2558000000.0,
-          "Other_Cash_Adjustment_Outside_Changein_Cash": null,
-          "Beginning_Cash_Position": 1960000000.0,
-          "Effect_Of_Exchange_Rate_Changes": -114000000.0,
-          "Changes_In_Cash": 712000000.0,
-          "Financing_Cash_Flow": -2425000000.0,
-          "Net_Other_Financing_Charges": -64000000.0,
-          "Cash_Dividends_Paid": -487000000.0,
-          "Common_Stock_Dividend_Paid": -487000000.0,
-          "Net_Common_Stock_Issuance": -237000000.0,
-          "Common_Stock_Payments": -271000000.0,
-          "Common_Stock_Issuance": 34000000.0,
-          "Net_Issuance_Payments_Of_Debt": -590000000.0,
-          "Net_Short_Term_Debt_Issuance": 438000000.0,
-          "Short_Term_Debt_Issuance": 438000000.0,
-          "Net_Long_Term_Debt_Issuance": -1028000000.0,
-          "Long_Term_Debt_Payments": -1964000000.0,
-          "Long_Term_Debt_Issuance": 0.0,
-          "Investing_Cash_Flow": -1724000000.0,
-          "Net_Other_Investing_Changes": 4000000.0,
-          "Net_Investment_Purchase_And_Sale": -94000000.0,
-          "Net_Business_Purchase_And_Sale": -114000000.0,
-          "Purchase_Of_Business": -114000000.0,
-          "Net_PPE_Purchase_And_Sale": -1520000000.0,
-          "Sale_Of_PPE": 11000000.0,
-          "Purchase_Of_PPE": -1531000000.0,
-          "Operating_Cash_Flow": 4861000000.0,
-          "Taxes_Refund_Paid": -916000000.0,
-          "Interest_Paid_Cfo": -136000000.0,
-          "Change_In_Working_Capital": -459000000.0,
-          "Change_In_Other_Current_Assets": -459000000.0,
-          "Change_In_Receivables": null,
-          "Other_Non_Cash_Items": 135000000.0,
-          "Stock_Based_Compensation": 195000000.0,
-          "Provisionand_Write_Offof_Assets": 32000000.0,
-          "Deferred_Tax": 609000000.0,
-          "Depreciation_And_Amortization": 2972000000.0,
-          "Amortization_Cash_Flow": 1304000000.0,
-          "Depreciation": 1643000000.0,
-          "Gain_Loss_On_Investment_Securities": 4000000.0,
-          "Net_Income_From_Continuing_Operations": 2426000000.0
-        },
-        {
-          "date": "2024-12-31",
-          "Free_Cash_Flow": 3352000000.0,
-          "Repurchase_Of_Capital_Stock": -274000000.0,
-          "Repayment_Of_Debt": -2240000000.0,
-          "Issuance_Of_Debt": 1987000000.0,
-          "Issuance_Of_Capital_Stock": 35000000.0,
-          "Capital_Expenditure": -1522000000.0,
-          "End_Cash_Position": 2251000000.0,
-          "Other_Cash_Adjustment_Outside_Changein_Cash": null,
-          "Beginning_Cash_Position": 2558000000.0,
-          "Effect_Of_Exchange_Rate_Changes": 88000000.0,
-          "Changes_In_Cash": -395000000.0,
-          "Financing_Cash_Flow": -1647000000.0,
-          "Net_Other_Financing_Charges": 100000000.0,
-          "Cash_Dividends_Paid": -1163000000.0,
-          "Common_Stock_Dividend_Paid": -1163000000.0,
-          "Net_Common_Stock_Issuance": -239000000.0,
-          "Common_Stock_Payments": -274000000.0,
-          "Common_Stock_Issuance": 35000000.0,
-          "Net_Issuance_Payments_Of_Debt": -253000000.0,
-          "Net_Short_Term_Debt_Issuance": 396000000.0,
-          "Short_Term_Debt_Issuance": 396000000.0,
-          "Net_Long_Term_Debt_Issuance": -253000000.0,
-          "Long_Term_Debt_Payments": -2240000000.0,
-          "Long_Term_Debt_Issuance": 1987000000.0,
-          "Investing_Cash_Flow": -3622000000.0,
-          "Net_Other_Investing_Changes": 12000000.0,
-          "Net_Investment_Purchase_And_Sale": -367000000.0,
-          "Net_Business_Purchase_And_Sale": -1755000000.0,
-          "Purchase_Of_Business": -1755000000.0,
-          "Net_PPE_Purchase_And_Sale": -1512000000.0,
-          "Sale_Of_PPE": 10000000.0,
-          "Purchase_Of_PPE": -1522000000.0,
-          "Operating_Cash_Flow": 4874000000.0,
-          "Taxes_Refund_Paid": -982000000.0,
-          "Interest_Paid_Cfo": -181000000.0,
-          "Change_In_Working_Capital": -607000000.0,
-          "Change_In_Other_Current_Assets": -607000000.0,
-          "Change_In_Receivables": null,
-          "Other_Non_Cash_Items": 175000000.0,
-          "Stock_Based_Compensation": 162000000.0,
-          "Provisionand_Write_Offof_Assets": null,
-          "Deferred_Tax": 800000000.0,
-          "Depreciation_And_Amortization": 3049000000.0,
-          "Amortization_Cash_Flow": 1300000000.0,
-          "Depreciation": 1749000000.0,
-          "Gain_Loss_On_Investment_Securities": 6000000.0,
-          "Net_Income_From_Continuing_Operations": 2491000000.0
-        },
-        {
-          "date": "2025-12-31",
-          "Free_Cash_Flow": 3766000000.0,
-          "Repurchase_Of_Capital_Stock": -376000000.0,
-          "Repayment_Of_Debt": -2470000000.0,
-          "Issuance_Of_Debt": 992000000.0,
-          "Issuance_Of_Capital_Stock": 36000000.0,
-          "Capital_Expenditure": -1525000000.0,
-          "End_Cash_Position": 3544000000.0,
-          "Other_Cash_Adjustment_Outside_Changein_Cash": null,
-          "Beginning_Cash_Position": 2251000000.0,
-          "Effect_Of_Exchange_Rate_Changes": -391000000.0,
-          "Changes_In_Cash": 1684000000.0,
-          "Financing_Cash_Flow": -1054000000.0,
-          "Net_Other_Financing_Charges": 1418000000.0,
-          "Cash_Dividends_Paid": -547000000.0,
-          "Common_Stock_Dividend_Paid": -547000000.0,
-          "Net_Common_Stock_Issuance": -340000000.0,
-          "Common_Stock_Payments": -376000000.0,
-          "Common_Stock_Issuance": 36000000.0,
-          "Net_Issuance_Payments_Of_Debt": -1478000000.0,
-          "Net_Short_Term_Debt_Issuance": 1503000000.0,
-          "Short_Term_Debt_Issuance": 1503000000.0,
-          "Net_Long_Term_Debt_Issuance": -1478000000.0,
-          "Long_Term_Debt_Payments": -2470000000.0,
-          "Long_Term_Debt_Issuance": 992000000.0,
-          "Investing_Cash_Flow": -2553000000.0,
-          "Net_Other_Investing_Changes": 12000000.0,
-          "Net_Investment_Purchase_And_Sale": -141000000.0,
-          "Net_Business_Purchase_And_Sale": -911000000.0,
-          "Purchase_Of_Business": -911000000.0,
-          "Net_PPE_Purchase_And_Sale": -1513000000.0,
-          "Sale_Of_PPE": 12000000.0,
-          "Purchase_Of_PPE": -1525000000.0,
-          "Operating_Cash_Flow": 5291000000.0,
-          "Taxes_Refund_Paid": -764000000.0,
-          "Interest_Paid_Cfo": -226000000.0,
-          "Change_In_Working_Capital": -446000000.0,
-          "Change_In_Other_Current_Assets": -446000000.0,
-          "Change_In_Receivables": null,
-          "Other_Non_Cash_Items": 158000000.0,
-          "Stock_Based_Compensation": 280000000.0,
-          "Provisionand_Write_Offof_Assets": -22000000.0,
-          "Deferred_Tax": 752000000.0,
-          "Depreciation_And_Amortization": 3090000000.0,
-          "Amortization_Cash_Flow": 1260000000.0,
-          "Depreciation": 1830000000.0,
-          "Gain_Loss_On_Investment_Securities": 1000000.0,
-          "Net_Income_From_Continuing_Operations": 2443000000.0
-        }
-      ]
+      "annual": []
     }
   },
   "analysts": {
     "targets": {
-      "current": 193.8,
+      "current": 181.3,
       "low": 139.0,
       "median": 210.0,
       "mean": 215.913,
@@ -1262,45 +51,27 @@
       "analystCount": 23
     },
     "recommendations": {
-      "score": 1.7391,
-      "key": "buy",
+      "score": null,
+      "key": "none",
       "breakdown": {
-        "strongBuy": 7,
-        "buy": 12,
-        "hold": 4,
+        "strongBuy": 0,
+        "buy": 0,
+        "hold": 0,
         "sell": 0,
         "strongSell": 0
       },
-      "history": [
-        {
-          "period": "0m",
-          "strongBuy": 7,
-          "buy": 12,
-          "hold": 3,
-          "sell": 1,
-          "strongSell": 0
-        },
-        {
-          "period": "-1m",
-          "strongBuy": 7,
-          "buy": 11,
-          "hold": 4,
-          "sell": 1,
-          "strongSell": 0
-        },
-        {
-          "period": "-2m",
-          "strongBuy": 7,
-          "buy": 12,
-          "hold": 4,
-          "sell": 0,
-          "strongSell": 0
-        }
-      ]
+      "history": []
     },
     "epsEstimates": [],
-    "nextEarningsDate": "2026-02-11",
-    "epsForecast": null
+    "nextEarningsDate": null,
+    "epsForecast": {
+      "date": null,
+      "estimate": null,
+      "low": null,
+      "high": null,
+      "analysts": null
+    },
+    "upgradesDowngrades": []
   },
   "insider": {
     "summary": {
@@ -1312,4084 +83,2557 @@
     },
     "trades": []
   },
+  "holdings": [],
+  "institutional": {
+    "holders": [
+      {
+        "name": "Atlas Capital Advisors Inc",
+        "shares": 645,
+        "value": 116938.0,
+        "changeShares": null
+      },
+      {
+        "name": "Pacer Advisors, Inc.",
+        "shares": 3583,
+        "value": 649597.0,
+        "changeShares": null
+      },
+      {
+        "name": "Generali Investments Cee, Investicni Spolecnost, A.s.",
+        "shares": 9657,
+        "value": 1750814.0,
+        "changeShares": null
+      }
+    ],
+    "summary": {
+      "institutionalPercent": 0.2761,
+      "institutionalCount": null
+    }
+  },
+  "options": null,
   "chartHistory": [
     {
-      "date": "2024-11-06",
-      "open": 217.3996,
-      "high": 223.0726,
-      "low": 215.9574,
-      "close": 217.3035,
-      "volume": 737268.0
-    },
-    {
-      "date": "2024-11-07",
-      "open": 217.3035,
-      "high": 219.8996,
-      "low": 216.7266,
-      "close": 219.2265,
-      "volume": 654230.0
-    },
-    {
-      "date": "2024-11-08",
-      "open": 219.3227,
-      "high": 220.2842,
-      "low": 217.4958,
-      "close": 218.9381,
-      "volume": 395724.0
-    },
-    {
-      "date": "2024-11-11",
-      "open": 220.6688,
-      "high": 223.2649,
-      "low": 220.3803,
-      "close": 222.1111,
-      "volume": 455453.0
-    },
-    {
-      "date": "2024-11-12",
-      "open": 219.8996,
-      "high": 220.4765,
-      "low": 217.3035,
-      "close": 217.5919,
-      "volume": 514107.0
-    },
-    {
       "date": "2024-11-13",
-      "open": 216.7266,
-      "high": 218.6496,
-      "low": 215.2843,
       "close": 217.1112,
       "volume": 460014.0
     },
     {
       "date": "2024-11-14",
-      "open": 217.1112,
-      "high": 220.8611,
-      "low": 216.4381,
       "close": 220.3803,
       "volume": 633432.0
     },
     {
       "date": "2024-11-15",
-      "open": 218.3612,
-      "high": 221.2457,
-      "low": 217.9766,
       "close": 220.188,
       "volume": 494000.0
     },
     {
       "date": "2024-11-18",
-      "open": 220.188,
-      "high": 220.765,
-      "low": 218.9381,
       "close": 220.765,
       "volume": 468659.0
     },
     {
       "date": "2024-11-19",
-      "open": 220.765,
-      "high": 225.2841,
-      "low": 219.9957,
       "close": 225.2841,
       "volume": 1100846.0
     },
     {
       "date": "2024-11-20",
-      "open": 226.5341,
-      "high": 227.2071,
-      "low": 224.0341,
       "close": 224.8033,
       "volume": 630049.0
     },
     {
       "date": "2024-11-21",
-      "open": 224.1303,
-      "high": 225.188,
-      "low": 221.8226,
       "close": 223.4572,
       "volume": 559745.0
     },
     {
       "date": "2024-11-22",
-      "open": 224.3226,
-      "high": 227.784,
-      "low": 222.9764,
       "close": 226.2456,
       "volume": 456715.0
     },
     {
       "date": "2024-11-25",
-      "open": 227.3994,
-      "high": 228.7456,
-      "low": 223.7457,
       "close": 225.3802,
       "volume": 1116965.0
     },
     {
       "date": "2024-11-26",
-      "open": 223.938,
-      "high": 224.8033,
-      "low": 222.4957,
       "close": 222.4957,
       "volume": 469286.0
     },
     {
       "date": "2024-11-27",
-      "open": 221.7265,
-      "high": 222.3995,
-      "low": 220.188,
       "close": 221.438,
       "volume": 325072.0
     },
     {
       "date": "2024-11-28",
-      "open": 222.688,
-      "high": 223.3611,
-      "low": 219.3227,
       "close": 219.7073,
       "volume": 413372.0
     },
     {
       "date": "2024-11-29",
-      "open": 218.7458,
-      "high": 221.0534,
-      "low": 218.4573,
       "close": 220.9573,
       "volume": 430240.0
     },
     {
       "date": "2024-12-02",
-      "open": 219.2265,
-      "high": 223.4572,
-      "low": 219.2265,
       "close": 221.9188,
       "volume": 374860.0
     },
     {
       "date": "2024-12-03",
-      "open": 218.8419,
-      "high": 221.2457,
-      "low": 217.8804,
       "close": 219.7073,
       "volume": 535176.0
     },
     {
       "date": "2024-12-04",
-      "open": 220.2842,
-      "high": 221.5342,
-      "low": 219.8034,
       "close": 220.6688,
       "volume": 313177.0
     },
     {
       "date": "2024-12-05",
-      "open": 221.3419,
-      "high": 222.5919,
-      "low": 220.6688,
       "close": 220.9573,
       "volume": 311931.0
     },
     {
       "date": "2024-12-06",
-      "open": 220.4765,
-      "high": 222.9764,
-      "low": 219.8034,
       "close": 221.7265,
       "volume": 346832.0
     },
     {
       "date": "2024-12-09",
-      "open": 222.1111,
-      "high": 222.4957,
-      "low": 219.8996,
       "close": 221.0534,
       "volume": 393186.0
     },
     {
       "date": "2024-12-10",
-      "open": 221.2457,
-      "high": 221.8226,
-      "low": 217.8804,
       "close": 217.8804,
       "volume": 359763.0
     },
     {
       "date": "2024-12-11",
-      "open": 218.1689,
-      "high": 222.3996,
-      "low": 217.7843,
       "close": 222.3996,
       "volume": 352456.0
     },
     {
       "date": "2024-12-12",
-      "open": 222.3034,
-      "high": 224.4187,
-      "low": 221.5342,
       "close": 222.3034,
       "volume": 351387.0
     },
     {
       "date": "2024-12-13",
-      "open": 223.5534,
-      "high": 224.2264,
-      "low": 221.2457,
       "close": 222.3034,
       "volume": 505731.0
     },
     {
       "date": "2024-12-16",
-      "open": 222.4957,
-      "high": 226.5341,
-      "low": 222.0149,
       "close": 225.0918,
       "volume": 505098.0
     },
     {
       "date": "2024-12-17",
-      "open": 223.6495,
-      "high": 225.5726,
-      "low": 223.6495,
       "close": 224.3226,
       "volume": 485083.0
     },
     {
       "date": "2024-12-18",
-      "open": 224.9956,
-      "high": 226.7264,
-      "low": 224.1303,
       "close": 225.4764,
       "volume": 450718.0
     },
     {
       "date": "2024-12-19",
-      "open": 224.0341,
-      "high": 225.6687,
-      "low": 221.3419,
       "close": 222.9764,
       "volume": 494469.0
     },
     {
       "date": "2024-12-20",
-      "open": 221.438,
-      "high": 222.4957,
-      "low": 219.3227,
       "close": 222.3034,
       "volume": 1034320.0
     },
     {
       "date": "2024-12-23",
-      "open": 221.1496,
-      "high": 223.8418,
-      "low": 221.1496,
       "close": 223.1688,
       "volume": 347337.0
     },
     {
       "date": "2024-12-24",
-      "open": 222.8803,
-      "high": 224.0341,
-      "low": 222.8803,
       "close": 222.9764,
       "volume": 133238.0
     },
     {
       "date": "2024-12-27",
-      "open": 221.8226,
-      "high": 225.4764,
-      "low": 221.5342,
       "close": 225.4764,
       "volume": 364184.0
     },
     {
       "date": "2024-12-30",
-      "open": 224.4187,
-      "high": 226.1495,
-      "low": 222.9764,
       "close": 223.3611,
       "volume": 350296.0
     },
     {
       "date": "2024-12-31",
-      "open": 222.2072,
-      "high": 226.5341,
-      "low": 222.2072,
       "close": 226.5341,
       "volume": 163474.0
     },
     {
       "date": "2025-01-02",
-      "open": 225.2841,
-      "high": 226.3418,
-      "low": 221.1496,
       "close": 225.1879,
       "volume": 471812.0
     },
     {
       "date": "2025-01-03",
-      "open": 224.0341,
-      "high": 224.9957,
-      "low": 220.6688,
       "close": 221.3419,
       "volume": 395127.0
     },
     {
       "date": "2025-01-06",
-      "open": 221.3419,
-      "high": 224.4187,
-      "low": 220.4765,
       "close": 224.0341,
       "volume": 516872.0
     },
     {
       "date": "2025-01-07",
-      "open": 222.3995,
-      "high": 227.111,
-      "low": 222.3995,
       "close": 225.7649,
       "volume": 502149.0
     },
     {
       "date": "2025-01-08",
-      "open": 225.9572,
-      "high": 227.2071,
-      "low": 222.5918,
       "close": 224.8033,
       "volume": 414519.0
     },
     {
       "date": "2025-01-09",
-      "open": 224.4187,
-      "high": 227.3033,
-      "low": 224.1303,
       "close": 226.5341,
       "volume": 328142.0
     },
     {
       "date": "2025-01-10",
-      "open": 226.5341,
-      "high": 227.7841,
-      "low": 224.4187,
       "close": 226.0533,
       "volume": 426973.0
     },
     {
       "date": "2025-01-13",
-      "open": 225.0918,
-      "high": 226.1495,
-      "low": 224.1303,
       "close": 224.4187,
       "volume": 389077.0
     },
     {
       "date": "2025-01-14",
-      "open": 225.9572,
-      "high": 227.6879,
-      "low": 224.5149,
       "close": 224.5149,
       "volume": 516319.0
     },
     {
       "date": "2025-01-15",
-      "open": 225.0918,
-      "high": 228.8417,
-      "low": 223.8418,
       "close": 227.5918,
       "volume": 584648.0
     },
     {
       "date": "2025-01-16",
-      "open": 228.2648,
-      "high": 232.0147,
-      "low": 228.2648,
       "close": 230.9571,
       "volume": 574169.0
     },
     {
       "date": "2025-01-17",
-      "open": 231.9186,
-      "high": 235.4762,
-      "low": 231.1494,
       "close": 234.707,
       "volume": 622473.0
     },
     {
       "date": "2025-01-20",
-      "open": 235.5724,
-      "high": 236.4377,
-      "low": 234.9954,
       "close": 235.6685,
       "volume": 515104.0
     },
     {
       "date": "2025-01-21",
-      "open": 235.957,
-      "high": 240.38,
-      "low": 235.1878,
       "close": 240.38,
       "volume": 608894.0
     },
     {
       "date": "2025-01-22",
-      "open": 241.1492,
-      "high": 247.1106,
-      "low": 241.1492,
       "close": 243.7453,
       "volume": 899109.0
     },
     {
       "date": "2025-01-23",
-      "open": 244.1299,
-      "high": 245.476,
-      "low": 242.6876,
       "close": 244.7068,
       "volume": 458685.0
     },
     {
       "date": "2025-01-24",
-      "open": 245.3799,
-      "high": 246.4375,
-      "low": 242.7838,
       "close": 246.2452,
       "volume": 592595.0
     },
     {
       "date": "2025-01-27",
-      "open": 245.1876,
-      "high": 247.6875,
-      "low": 243.3607,
       "close": 247.6875,
       "volume": 585707.0
     },
     {
       "date": "2025-01-28",
-      "open": 247.2068,
-      "high": 250.3798,
-      "low": 247.2068,
       "close": 249.5144,
       "volume": 463094.0
     },
     {
       "date": "2025-01-29",
-      "open": 252.1105,
-      "high": 253.5528,
-      "low": 251.4374,
       "close": 253.1682,
       "volume": 490106.0
     },
     {
       "date": "2025-01-30",
-      "open": 253.5528,
-      "high": 255.2835,
-      "low": 251.0528,
       "close": 254.8989,
       "volume": 612049.0
     },
     {
       "date": "2025-01-31",
-      "open": 255.1874,
-      "high": 256.5335,
-      "low": 254.6104,
       "close": 255.4758,
       "volume": 605070.0
     },
     {
       "date": "2025-02-03",
-      "open": 251.4374,
-      "high": 254.7066,
-      "low": 250.9567,
       "close": 253.8412,
       "volume": 619514.0
     },
     {
       "date": "2025-02-04",
-      "open": 253.9374,
-      "high": 259.0334,
-      "low": 253.2643,
       "close": 258.3604,
       "volume": 503826.0
     },
     {
       "date": "2025-02-05",
-      "open": 259.2258,
-      "high": 261.0526,
-      "low": 257.3989,
       "close": 260.668,
       "volume": 395081.0
     },
     {
       "date": "2025-02-06",
-      "open": 262.0142,
-      "high": 262.3026,
-      "low": 258.9373,
       "close": 260.2834,
       "volume": 536645.0
     },
     {
       "date": "2025-02-07",
-      "open": 259.5142,
-      "high": 260.7642,
-      "low": 258.6489,
       "close": 259.5142,
       "volume": 600154.0
     },
     {
       "date": "2025-02-10",
-      "open": 258.9373,
-      "high": 262.3026,
-      "low": 258.9373,
       "close": 261.8218,
       "volume": 485188.0
     },
     {
       "date": "2025-02-11",
-      "open": 265.1872,
-      "high": 267.1102,
-      "low": 264.3218,
       "close": 266.341,
       "volume": 584593.0
     },
     {
       "date": "2025-02-12",
-      "open": 266.8217,
-      "high": 267.3987,
-      "low": 262.8795,
       "close": 265.3795,
       "volume": 693900.0
     },
     {
       "date": "2025-02-13",
-      "open": 269.2256,
-      "high": 284.4176,
-      "low": 269.2256,
       "close": 284.4176,
       "volume": 1079349.0
     },
     {
       "date": "2025-02-14",
-      "open": 280.3792,
-      "high": 286.5329,
-      "low": 280.283,
       "close": 283.1676,
       "volume": 819143.0
     },
     {
       "date": "2025-02-17",
-      "open": 282.783,
-      "high": 283.456,
-      "low": 278.7446,
       "close": 282.783,
       "volume": 515380.0
     },
     {
       "date": "2025-02-18",
-      "open": 283.3599,
-      "high": 284.8983,
-      "low": 279.8023,
       "close": 283.2637,
       "volume": 544612.0
     },
     {
       "date": "2025-02-19",
-      "open": 283.7445,
-      "high": 284.8022,
-      "low": 281.0523,
       "close": 282.5907,
       "volume": 650338.0
     },
     {
       "date": "2025-02-20",
-      "open": 280.8599,
-      "high": 282.9753,
-      "low": 280.5715,
       "close": 281.2445,
       "volume": 554818.0
     },
     {
       "date": "2025-02-21",
-      "open": 282.5907,
-      "high": 282.6868,
-      "low": 278.6484,
       "close": 279.7061,
       "volume": 802344.0
     },
     {
       "date": "2025-02-24",
-      "open": 279.3215,
-      "high": 280.9561,
-      "low": 276.2447,
       "close": 276.3408,
       "volume": 508264.0
     },
     {
       "date": "2025-02-25",
-      "open": 275.187,
-      "high": 276.6293,
-      "low": 268.6487,
       "close": 268.6487,
       "volume": 720718.0
     },
     {
       "date": "2025-02-26",
-      "open": 270.8602,
-      "high": 271.9178,
-      "low": 268.264,
       "close": 271.5332,
       "volume": 674177.0
     },
     {
       "date": "2025-02-27",
-      "open": 269.4179,
-      "high": 278.4561,
-      "low": 269.2255,
       "close": 277.3023,
       "volume": 570712.0
     },
     {
       "date": "2025-02-28",
-      "open": 275.0908,
-      "high": 276.9177,
-      "low": 273.6486,
       "close": 275.86,
       "volume": 1423291.0
     },
     {
       "date": "2025-03-03",
-      "open": 275.2831,
-      "high": 278.36,
-      "low": 271.9178,
       "close": 276.1485,
       "volume": 533511.0
     },
     {
       "date": "2025-03-04",
-      "open": 274.8985,
-      "high": 277.3023,
-      "low": 273.2639,
       "close": 274.4178,
       "volume": 618560.0
     },
     {
       "date": "2025-03-05",
-      "open": 276.437,
-      "high": 276.6293,
-      "low": 268.841,
       "close": 269.4179,
       "volume": 749266.0
     },
     {
       "date": "2025-03-06",
-      "open": 270.9563,
-      "high": 270.9563,
-      "low": 256.3412,
       "close": 261.0526,
       "volume": 1016499.0
     },
     {
       "date": "2025-03-07",
-      "open": 259.418,
-      "high": 262.4949,
-      "low": 256.5335,
       "close": 261.5334,
       "volume": 659777.0
     },
     {
       "date": "2025-03-10",
-      "open": 263.9372,
-      "high": 265.7641,
-      "low": 261.918,
       "close": 262.7834,
       "volume": 720725.0
     },
     {
       "date": "2025-03-11",
-      "open": 263.841,
-      "high": 264.8025,
-      "low": 254.5143,
       "close": 255.2835,
       "volume": 990741.0
     },
     {
       "date": "2025-03-12",
-      "open": 257.3027,
-      "high": 259.995,
-      "low": 255.7643,
       "close": 259.6104,
       "volume": 461956.0
     },
     {
       "date": "2025-03-13",
-      "open": 259.0334,
-      "high": 259.5142,
-      "low": 251.4374,
       "close": 252.4951,
       "volume": 814073.0
     },
     {
       "date": "2025-03-14",
-      "open": 252.7836,
-      "high": 254.0336,
-      "low": 250.8605,
       "close": 251.3413,
       "volume": 875939.0
     },
     {
       "date": "2025-03-17",
-      "open": 251.9182,
-      "high": 254.1297,
-      "low": 251.149,
       "close": 253.4566,
       "volume": 410518.0
     },
     {
       "date": "2025-03-18",
-      "open": 254.8989,
-      "high": 255.572,
-      "low": 251.9182,
       "close": 253.3605,
       "volume": 615436.0
     },
     {
       "date": "2025-03-19",
-      "open": 252.5913,
-      "high": 254.9951,
-      "low": 251.6298,
       "close": 254.9951,
       "volume": 455329.0
     },
     {
       "date": "2025-03-20",
-      "open": 255.572,
-      "high": 255.8604,
-      "low": 252.9759,
       "close": 255.8604,
       "volume": 500446.0
     },
     {
       "date": "2025-03-21",
-      "open": 254.1297,
-      "high": 257.1104,
-      "low": 252.3989,
       "close": 257.1104,
       "volume": 1372973.0
     },
     {
       "date": "2025-03-24",
-      "open": 259.3219,
-      "high": 260.0911,
-      "low": 255.9566,
       "close": 260.0911,
       "volume": 616054.0
     },
     {
       "date": "2025-03-25",
-      "open": 260.8603,
-      "high": 267.0141,
-      "low": 260.668,
       "close": 266.5333,
       "volume": 740285.0
     },
     {
       "date": "2025-03-26",
-      "open": 265.091,
-      "high": 265.2833,
-      "low": 261.4372,
       "close": 262.6872,
       "volume": 400744.0
     },
     {
       "date": "2025-03-27",
-      "open": 261.245,
-      "high": 262.2065,
-      "low": 257.5912,
       "close": 258.9373,
       "volume": 583340.0
     },
     {
       "date": "2025-03-28",
-      "open": 259.2257,
-      "high": 259.8027,
-      "low": 254.7066,
       "close": 256.3412,
       "volume": 525076.0
     },
     {
       "date": "2025-03-31",
-      "open": 255.3797,
-      "high": 257.6873,
-      "low": 252.5913,
       "close": 255.1874,
       "volume": 626311.0
     },
     {
       "date": "2025-04-01",
-      "open": 257.7835,
-      "high": 259.1296,
-      "low": 255.5719,
       "close": 257.1104,
       "volume": 400177.0
     },
     {
       "date": "2025-04-02",
-      "open": 256.7258,
-      "high": 258.2642,
-      "low": 254.2258,
       "close": 257.3027,
       "volume": 467235.0
     },
     {
       "date": "2025-04-03",
-      "open": 248.2644,
-      "high": 248.4567,
-      "low": 234.707,
       "close": 238.7454,
       "volume": 1230016.0
     },
     {
       "date": "2025-04-04",
-      "open": 236.3416,
-      "high": 239.8992,
-      "low": 230.3802,
       "close": 234.0339,
       "volume": 1358990.0
     },
     {
       "date": "2025-04-07",
-      "open": 223.2649,
-      "high": 237.5916,
-      "low": 217.2073,
       "close": 223.938,
       "volume": 1698535.0
     },
     {
       "date": "2025-04-08",
-      "open": 227.8802,
-      "high": 234.9955,
-      "low": 225.4764,
       "close": 232.4955,
       "volume": 909731.0
     },
     {
       "date": "2025-04-09",
-      "open": 223.3611,
-      "high": 229.6109,
-      "low": 223.0726,
       "close": 224.8995,
       "volume": 973610.0
     },
     {
       "date": "2025-04-10",
-      "open": 245.5722,
-      "high": 247.8798,
-      "low": 232.6878,
       "close": 232.6878,
       "volume": 1142568.0
     },
     {
       "date": "2025-04-11",
-      "open": 234.1301,
-      "high": 237.0146,
-      "low": 230.3802,
       "close": 231.9186,
       "volume": 801527.0
     },
     {
       "date": "2025-04-14",
-      "open": 236.63,
-      "high": 239.6107,
-      "low": 235.4762,
       "close": 237.5916,
       "volume": 696308.0
     },
     {
       "date": "2025-04-15",
-      "open": 237.7839,
-      "high": 242.1107,
-      "low": 237.7839,
       "close": 241.5338,
       "volume": 527380.0
     },
     {
       "date": "2025-04-16",
-      "open": 239.7069,
-      "high": 240.6684,
-      "low": 237.3031,
       "close": 240.1877,
       "volume": 649432.0
     },
     {
       "date": "2025-04-17",
-      "open": 238.8415,
-      "high": 239.7069,
-      "low": 237.1108,
       "close": 237.7839,
       "volume": 556740.0
     },
     {
       "date": "2025-04-22",
-      "open": 238.5531,
-      "high": 243.9376,
-      "low": 236.3416,
       "close": 243.4568,
       "volume": 505607.0
     },
     {
       "date": "2025-04-23",
-      "open": 245.1876,
-      "high": 249.1298,
-      "low": 244.9953,
       "close": 247.399,
       "volume": 838272.0
     },
     {
       "date": "2025-04-24",
-      "open": 245.7645,
-      "high": 245.9568,
-      "low": 238.3608,
       "close": 242.303,
       "volume": 639097.0
     },
     {
       "date": "2025-04-25",
-      "open": 243.3607,
-      "high": 245.476,
-      "low": 241.2453,
       "close": 243.553,
       "volume": 534593.0
     },
     {
       "date": "2025-04-28",
-      "open": 243.7453,
-      "high": 244.5145,
-      "low": 240.1877,
       "close": 240.4761,
       "volume": 617135.0
     },
     {
       "date": "2025-04-29",
-      "open": 241.4376,
-      "high": 243.4568,
-      "low": 239.7069,
       "close": 240.7646,
       "volume": 637136.0
     },
     {
       "date": "2025-04-30",
-      "open": 241.3415,
-      "high": 244.3222,
-      "low": 240.9569,
       "close": 242.9761,
       "volume": 820211.0
     },
     {
       "date": "2025-05-02",
-      "open": 245.476,
-      "high": 247.976,
-      "low": 244.4183,
       "close": 247.5914,
       "volume": 666880.0
     },
     {
       "date": "2025-05-05",
-      "open": 246.8222,
-      "high": 248.5529,
-      "low": 246.1491,
       "close": 247.0145,
       "volume": 182321.0
     },
     {
       "date": "2025-05-06",
-      "open": 247.0144,
-      "high": 247.3029,
-      "low": 241.053,
       "close": 241.053,
       "volume": 448597.0
     },
     {
       "date": "2025-05-07",
-      "open": 241.688,
-      "high": 242.5672,
-      "low": 237.6827,
       "close": 238.0734,
       "volume": 729324.0
     },
     {
       "date": "2025-05-08",
-      "open": 237.8781,
-      "high": 240.9065,
-      "low": 237.4385,
       "close": 238.4642,
       "volume": 542795.0
     },
     {
       "date": "2025-05-09",
-      "open": 239.3434,
-      "high": 240.8088,
-      "low": 236.7058,
       "close": 236.7058,
       "volume": 779629.0
     },
     {
       "date": "2025-05-12",
-      "open": 240.3203,
-      "high": 246.768,
-      "low": 240.125,
       "close": 243.3488,
       "volume": 952217.0
     },
     {
       "date": "2025-05-13",
-      "open": 243.3488,
-      "high": 248.8195,
-      "low": 243.3488,
       "close": 248.8195,
       "volume": 830966.0
     },
     {
       "date": "2025-05-14",
-      "open": 248.9172,
-      "high": 249.3079,
-      "low": 244.0326,
       "close": 244.1303,
       "volume": 590134.0
     },
     {
       "date": "2025-05-15",
-      "open": 243.7395,
-      "high": 247.6472,
-      "low": 242.958,
       "close": 247.3541,
       "volume": 573651.0
     },
     {
       "date": "2025-05-16",
-      "open": 248.9172,
-      "high": 258.0024,
-      "low": 248.5264,
       "close": 254.681,
       "volume": 808212.0
     },
     {
       "date": "2025-05-19",
-      "open": 254.8763,
-      "high": 255.4625,
-      "low": 253.0202,
       "close": 254.4856,
       "volume": 453853.0
     },
     {
       "date": "2025-05-20",
-      "open": 255.6579,
-      "high": 256.1463,
-      "low": 253.8017,
       "close": 255.3648,
       "volume": 446493.0
     },
     {
       "date": "2025-05-21",
-      "open": 254.1925,
-      "high": 255.0717,
-      "low": 252.9225,
       "close": 254.3879,
       "volume": 423282.0
     },
     {
       "date": "2025-05-22",
-      "open": 252.6294,
-      "high": 257.6117,
-      "low": 252.5317,
       "close": 256.5371,
       "volume": 459680.0
     },
     {
       "date": "2025-05-23",
-      "open": 257.6117,
-      "high": 259.1747,
-      "low": 241.0042,
       "close": 244.228,
       "volume": 817476.0
     },
     {
       "date": "2025-05-26",
-      "open": 249.1125,
-      "high": 250.1872,
-      "low": 247.061,
       "close": 249.3079,
       "volume": 406878.0
     },
     {
       "date": "2025-05-27",
-      "open": 249.3079,
-      "high": 250.5779,
-      "low": 246.9634,
       "close": 247.3541,
       "volume": 2413615.0
     },
     {
       "date": "2025-05-28",
-      "open": 245.6934,
-      "high": 247.1587,
-      "low": 241.7857,
       "close": 241.8834,
       "volume": 628414.0
     },
     {
       "date": "2025-05-29",
-      "open": 245.4003,
-      "high": 247.4518,
-      "low": 241.7857,
       "close": 241.9811,
       "volume": 293293.0
     },
     {
       "date": "2025-05-30",
-      "open": 243.1534,
-      "high": 245.1072,
-      "low": 238.4642,
       "close": 239.0504,
       "volume": 1804077.0
     },
     {
       "date": "2025-06-02",
-      "open": 238.1711,
-      "high": 239.9296,
-      "low": 235.9242,
       "close": 239.4411,
       "volume": 452194.0
     },
     {
       "date": "2025-06-03",
-      "open": 240.7111,
-      "high": 240.8088,
-      "low": 237.4873,
       "close": 239.0504,
       "volume": 482806.0
     },
     {
       "date": "2025-06-04",
-      "open": 240.6134,
-      "high": 240.6134,
-      "low": 236.5104,
       "close": 238.2688,
       "volume": 488033.0
     },
     {
       "date": "2025-06-05",
-      "open": 239.8319,
-      "high": 244.4234,
-      "low": 239.1481,
       "close": 239.8319,
       "volume": 445273.0
     },
     {
       "date": "2025-06-06",
-      "open": 239.7342,
-      "high": 243.5442,
-      "low": 239.7342,
       "close": 242.5672,
       "volume": 299538.0
     },
     {
       "date": "2025-06-09",
-      "open": 241.7857,
-      "high": 244.228,
-      "low": 241.395,
       "close": 243.5442,
       "volume": 360288.0
     },
     {
       "date": "2025-06-10",
-      "open": 244.0326,
-      "high": 245.8887,
-      "low": 243.2511,
       "close": 245.5957,
       "volume": 600099.0
     },
     {
       "date": "2025-06-11",
-      "open": 245.498,
-      "high": 246.1818,
-      "low": 243.5442,
       "close": 244.228,
       "volume": 474278.0
     },
     {
       "date": "2025-06-12",
-      "open": 242.0788,
-      "high": 242.5672,
-      "low": 239.1481,
       "close": 241.0042,
       "volume": 379941.0
     },
     {
       "date": "2025-06-13",
-      "open": 236.2173,
-      "high": 238.0734,
-      "low": 234.8496,
       "close": 236.4127,
       "volume": 680251.0
     },
     {
       "date": "2025-06-16",
-      "open": 236.9988,
-      "high": 238.7573,
-      "low": 235.9242,
       "close": 237.1942,
       "volume": 612637.0
     },
     {
       "date": "2025-06-17",
-      "open": 234.4589,
-      "high": 235.6312,
-      "low": 233.5797,
       "close": 234.9473,
       "volume": 527272.0
     },
     {
       "date": "2025-06-18",
-      "open": 234.1658,
-      "high": 236.8035,
-      "low": 233.6773,
       "close": 235.8265,
       "volume": 460754.0
     },
     {
       "date": "2025-06-19",
-      "open": 233.5797,
-      "high": 235.5335,
-      "low": 232.7004,
       "close": 234.752,
       "volume": 373909.0
     },
     {
       "date": "2025-06-20",
-      "open": 236.0219,
-      "high": 237.4873,
-      "low": 234.4589,
       "close": 235.2404,
       "volume": 2019539.0
     },
     {
       "date": "2025-06-23",
-      "open": 233.9704,
-      "high": 236.7058,
-      "low": 233.8727,
       "close": 235.1427,
       "volume": 290129.0
     },
     {
       "date": "2025-06-24",
-      "open": 240.6134,
-      "high": 241.2973,
-      "low": 235.7289,
       "close": 236.8035,
       "volume": 532979.0
     },
     {
       "date": "2025-06-25",
-      "open": 237.1942,
-      "high": 237.4873,
-      "low": 232.212,
       "close": 232.6027,
       "volume": 450659.0
     },
     {
       "date": "2025-06-26",
-      "open": 231.1374,
-      "high": 232.7004,
-      "low": 225.6178,
       "close": 225.7644,
       "volume": 884472.0
     },
     {
       "date": "2025-06-27",
-      "open": 226.6436,
-      "high": 229.5743,
-      "low": 226.1551,
       "close": 228.8905,
       "volume": 528591.0
     },
     {
       "date": "2025-06-30",
-      "open": 229.0859,
-      "high": 230.1605,
-      "low": 227.4251,
       "close": 227.5228,
       "volume": 591065.0
     },
     {
       "date": "2025-07-01",
-      "open": 228.402,
-      "high": 230.0628,
-      "low": 226.4482,
       "close": 229.4766,
       "volume": 412773.0
     },
     {
       "date": "2025-07-02",
-      "open": 231.5281,
-      "high": 232.4074,
-      "low": 228.7928,
       "close": 231.2351,
       "volume": 430902.0
     },
     {
       "date": "2025-07-03",
-      "open": 231.2351,
-      "high": 232.3097,
-      "low": 228.7928,
       "close": 230.1605,
       "volume": 332203.0
     },
     {
       "date": "2025-07-04",
-      "open": 228.3043,
-      "high": 228.9882,
-      "low": 226.9367,
       "close": 228.0112,
       "volume": 378375.0
     },
     {
       "date": "2025-07-07",
-      "open": 228.5974,
-      "high": 231.7235,
-      "low": 227.132,
       "close": 231.4304,
       "volume": 269896.0
     },
     {
       "date": "2025-07-08",
-      "open": 231.4304,
-      "high": 234.6542,
-      "low": 230.4535,
       "close": 233.8727,
       "volume": 392256.0
     },
     {
       "date": "2025-07-09",
-      "open": 242.2742,
-      "high": 250.5779,
-      "low": 241.1019,
       "close": 247.061,
       "volume": 803978.0
     },
     {
       "date": "2025-07-10",
-      "open": 247.061,
-      "high": 249.0149,
-      "low": 243.2511,
       "close": 244.228,
       "volume": 449466.0
     },
     {
       "date": "2025-07-11",
-      "open": 242.6649,
-      "high": 243.5442,
-      "low": 236.2173,
       "close": 236.8035,
       "volume": 531674.0
     },
     {
       "date": "2025-07-14",
-      "open": 234.0681,
-      "high": 238.1711,
-      "low": 232.9935,
       "close": 238.1711,
       "volume": 262402.0
     },
     {
       "date": "2025-07-15",
-      "open": 238.1711,
-      "high": 239.2457,
-      "low": 236.4127,
       "close": 236.6081,
       "volume": 316264.0
     },
     {
       "date": "2025-07-16",
-      "open": 236.8035,
-      "high": 241.9811,
-      "low": 236.5104,
       "close": 237.2919,
       "volume": 423592.0
     },
     {
       "date": "2025-07-17",
-      "open": 238.4642,
-      "high": 239.0504,
-      "low": 236.9012,
       "close": 238.5619,
       "volume": 321320.0
     },
     {
       "date": "2025-07-18",
-      "open": 239.7342,
-      "high": 241.1996,
-      "low": 236.9012,
       "close": 238.1711,
       "volume": 272641.0
     },
     {
       "date": "2025-07-21",
-      "open": 238.2688,
-      "high": 238.9527,
-      "low": 236.7058,
       "close": 237.8781,
       "volume": 272384.0
     },
     {
       "date": "2025-07-22",
-      "open": 236.4127,
-      "high": 238.4642,
-      "low": 235.8265,
       "close": 236.7058,
       "volume": 248595.0
     },
     {
       "date": "2025-07-23",
-      "open": 240.5157,
-      "high": 241.7857,
-      "low": 238.4642,
       "close": 240.5157,
       "volume": 453252.0
     },
     {
       "date": "2025-07-24",
-      "open": 243.6418,
-      "high": 244.1303,
-      "low": 240.125,
       "close": 241.4926,
       "volume": 358514.0
     },
     {
       "date": "2025-07-25",
-      "open": 241.2973,
-      "high": 245.4003,
-      "low": 240.8088,
       "close": 243.9349,
       "volume": 379822.0
     },
     {
       "date": "2025-07-28",
-      "open": 247.4518,
-      "high": 248.7218,
-      "low": 240.418,
       "close": 240.5157,
       "volume": 381844.0
     },
     {
       "date": "2025-07-29",
-      "open": 251.2618,
-      "high": 258.8817,
-      "low": 249.8941,
       "close": 257.1232,
       "volume": 904568.0
     },
     {
       "date": "2025-07-30",
-      "open": 254.1925,
-      "high": 258.0025,
-      "low": 252.3363,
       "close": 252.3363,
       "volume": 516814.0
     },
     {
       "date": "2025-07-31",
-      "open": 254.7786,
-      "high": 259.2724,
-      "low": 253.2156,
       "close": 254.5833,
       "volume": 660870.0
     },
     {
       "date": "2025-08-01",
-      "open": 253.5087,
-      "high": 254.8763,
-      "low": 248.5264,
       "close": 249.4056,
       "volume": 608013.0
     },
     {
       "date": "2025-08-04",
-      "open": 250.1872,
-      "high": 252.3363,
-      "low": 248.1356,
       "close": 250.2849,
       "volume": 368299.0
     },
     {
       "date": "2025-08-05",
-      "open": 250.6756,
-      "high": 251.2618,
-      "low": 246.9634,
       "close": 247.061,
       "volume": 349052.0
     },
     {
       "date": "2025-08-06",
-      "open": 247.3541,
-      "high": 247.4518,
-      "low": 242.5672,
       "close": 243.5442,
       "volume": 347856.0
     },
     {
       "date": "2025-08-07",
-      "open": 243.5442,
-      "high": 248.5264,
-      "low": 243.1534,
       "close": 246.3772,
       "volume": 327869.0
     },
     {
       "date": "2025-08-08",
-      "open": 247.9403,
-      "high": 248.9172,
-      "low": 246.4749,
       "close": 247.061,
       "volume": 292156.0
     },
     {
       "date": "2025-08-11",
-      "open": 248.7218,
-      "high": 248.7218,
-      "low": 245.8887,
       "close": 245.8887,
       "volume": 274432.0
     },
     {
       "date": "2025-08-12",
-      "open": 246.9633,
-      "high": 248.331,
-      "low": 245.2049,
       "close": 247.9403,
       "volume": 331701.0
     },
     {
       "date": "2025-08-13",
-      "open": 248.5264,
-      "high": 256.7325,
-      "low": 248.2333,
       "close": 255.8532,
       "volume": 491656.0
     },
     {
       "date": "2025-08-14",
-      "open": 255.7555,
-      "high": 258.0025,
-      "low": 255.1694,
       "close": 257.0255,
       "volume": 327758.0
     },
     {
       "date": "2025-08-15",
-      "open": 259.8586,
-      "high": 262.6916,
-      "low": 258.6863,
       "close": 261.3239,
       "volume": 529619.0
     },
     {
       "date": "2025-08-18",
-      "open": 261.0309,
-      "high": 262.3986,
-      "low": 259.4678,
       "close": 261.617,
       "volume": 253966.0
     },
     {
       "date": "2025-08-19",
-      "open": 261.4216,
-      "high": 266.8924,
-      "low": 261.3239,
       "close": 265.5247,
       "volume": 292127.0
     },
     {
       "date": "2025-08-20",
-      "open": 264.8408,
-      "high": 269.3346,
-      "low": 264.4501,
       "close": 269.1393,
       "volume": 420520.0
     },
     {
       "date": "2025-08-21",
-      "open": 268.5531,
-      "high": 268.8462,
-      "low": 264.3524,
       "close": 265.7201,
       "volume": 341957.0
     },
     {
       "date": "2025-08-22",
-      "open": 264.157,
-      "high": 266.7947,
-      "low": 264.157,
       "close": 265.7201,
       "volume": 255738.0
     },
     {
       "date": "2025-08-25",
-      "open": 265.2316,
-      "high": 265.6224,
-      "low": 262.887,
       "close": 262.9847,
       "volume": 188628.0
     },
     {
       "date": "2025-08-26",
-      "open": 259.5655,
-      "high": 263.5708,
-      "low": 258.4909,
       "close": 259.7609,
       "volume": 823866.0
     },
     {
       "date": "2025-08-27",
-      "open": 259.8586,
-      "high": 262.2032,
-      "low": 259.1747,
       "close": 260.347,
       "volume": 411800.0
     },
     {
       "date": "2025-08-28",
-      "open": 260.347,
-      "high": 260.7378,
-      "low": 255.6579,
       "close": 257.3186,
       "volume": 351943.0
     },
     {
       "date": "2025-08-29",
-      "open": 257.1232,
-      "high": 257.7094,
-      "low": 253.1179,
       "close": 254.1925,
       "volume": 468613.0
     },
     {
       "date": "2025-09-01",
-      "open": 255.0717,
-      "high": 255.2671,
-      "low": 252.2387,
       "close": 252.7271,
       "volume": 346465.0
     },
     {
       "date": "2025-09-02",
-      "open": 252.4341,
-      "high": 253.7041,
-      "low": 248.9172,
       "close": 251.1641,
       "volume": 426128.0
     },
     {
       "date": "2025-09-03",
-      "open": 251.6525,
-      "high": 253.1179,
-      "low": 249.9918,
       "close": 252.0433,
       "volume": 335009.0
     },
     {
       "date": "2025-09-04",
-      "open": 251.6525,
-      "high": 254.1925,
-      "low": 251.3594,
       "close": 254.1925,
       "volume": 267502.0
     },
     {
       "date": "2025-09-05",
-      "open": 254.2902,
-      "high": 255.4625,
-      "low": 251.3594,
       "close": 253.6064,
       "volume": 359025.0
     },
     {
       "date": "2025-09-08",
-      "open": 253.0202,
-      "high": 256.8301,
-      "low": 251.8479,
       "close": 255.9509,
       "volume": 288723.0
     },
     {
       "date": "2025-09-09",
-      "open": 256.9279,
-      "high": 256.9279,
-      "low": 253.3133,
       "close": 253.9971,
       "volume": 330970.0
     },
     {
       "date": "2025-09-10",
-      "open": 258.1978,
-      "high": 265.427,
-      "low": 256.7325,
       "close": 258.9794,
       "volume": 569617.0
     },
     {
       "date": "2025-09-11",
-      "open": 258.5886,
-      "high": 262.9847,
-      "low": 258.1001,
       "close": 260.4447,
       "volume": 281382.0
     },
     {
       "date": "2025-09-12",
-      "open": 259.8586,
-      "high": 259.9563,
-      "low": 255.9509,
       "close": 258.5886,
       "volume": 327208.0
     },
     {
       "date": "2025-09-15",
-      "open": 258.9794,
-      "high": 262.3986,
-      "low": 258.9794,
       "close": 260.347,
       "volume": 263437.0
     },
     {
       "date": "2025-09-16",
-      "open": 260.1516,
-      "high": 266.99,
-      "low": 260.054,
       "close": 264.3524,
       "volume": 466501.0
     },
     {
       "date": "2025-09-17",
-      "open": 266.2085,
-      "high": 269.3346,
-      "low": 263.9616,
       "close": 263.9616,
       "volume": 354544.0
     },
     {
       "date": "2025-09-18",
-      "open": 265.1339,
-      "high": 269.53,
-      "low": 264.4501,
       "close": 268.1623,
       "volume": 450809.0
     },
     {
       "date": "2025-09-19",
-      "open": 267.5762,
-      "high": 271.3861,
-      "low": 266.7947,
       "close": 267.3808,
       "volume": 1042693.0
     },
     {
       "date": "2025-09-22",
-      "open": 269.7254,
-      "high": 269.7254,
-      "low": 266.697,
       "close": 268.5531,
       "volume": 320294.0
     },
     {
       "date": "2025-09-23",
-      "open": 268.3577,
-      "high": 268.9439,
-      "low": 264.2547,
       "close": 268.0646,
       "volume": 322024.0
     },
     {
       "date": "2025-09-24",
-      "open": 266.8924,
-      "high": 267.4785,
-      "low": 260.6401,
       "close": 263.2778,
       "volume": 435268.0
     },
     {
       "date": "2025-09-25",
-      "open": 260.6401,
-      "high": 261.8124,
-      "low": 257.4163,
       "close": 259.8586,
       "volume": 292954.0
     },
     {
       "date": "2025-09-26",
-      "open": 263.3755,
-      "high": 267.2831,
-      "low": 263.2778,
       "close": 265.427,
       "volume": 336710.0
     },
     {
       "date": "2025-09-29",
-      "open": 267.5762,
-      "high": 271.1908,
-      "low": 266.7947,
       "close": 268.5531,
       "volume": 415284.0
     },
     {
       "date": "2025-09-30",
-      "open": 267.6739,
-      "high": 271.1908,
-      "low": 266.8924,
       "close": 269.6277,
       "volume": 355761.0
     },
     {
       "date": "2025-10-01",
-      "open": 271.2885,
-      "high": 271.8746,
-      "low": 266.697,
       "close": 270.5069,
       "volume": 395766.0
     },
     {
       "date": "2025-10-02",
-      "open": 271.5815,
-      "high": 274.903,
-      "low": 269.9208,
       "close": 273.7307,
       "volume": 387727.0
     },
     {
       "date": "2025-10-03",
-      "open": 277.0522,
-      "high": 277.9315,
-      "low": 273.34,
       "close": 276.2707,
       "volume": 485483.0
     },
     {
       "date": "2025-10-06",
-      "open": 276.5638,
-      "high": 276.5638,
-      "low": 268.0646,
       "close": 269.7254,
       "volume": 490850.0
     },
     {
       "date": "2025-10-07",
-      "open": 268.4554,
-      "high": 270.0185,
-      "low": 266.3062,
       "close": 270.0185,
       "volume": 383266.0
     },
     {
       "date": "2025-10-08",
-      "open": 269.53,
-      "high": 273.9261,
-      "low": 268.7973,
       "close": 272.2654,
       "volume": 388958.0
     },
     {
       "date": "2025-10-09",
-      "open": 272.4607,
-      "high": 273.1446,
-      "low": 270.5069,
       "close": 271.5815,
       "volume": 359030.0
     },
     {
       "date": "2025-10-10",
-      "open": 272.1677,
-      "high": 273.7308,
-      "low": 266.697,
       "close": 267.0877,
       "volume": 329031.0
     },
     {
       "date": "2025-10-13",
-      "open": 268.6508,
-      "high": 270.2139,
-      "low": 266.8924,
       "close": 268.26,
       "volume": 310343.0
     },
     {
       "date": "2025-10-14",
-      "open": 265.6223,
-      "high": 267.4785,
-      "low": 264.0593,
       "close": 265.9154,
       "volume": 293020.0
     },
     {
       "date": "2025-10-15",
-      "open": 270.5069,
-      "high": 270.8,
-      "low": 262.1055,
       "close": 263.9616,
       "volume": 425551.0
     },
     {
       "date": "2025-10-16",
-      "open": 265.1339,
-      "high": 271.2885,
-      "low": 264.157,
       "close": 270.2139,
       "volume": 373659.0
     },
     {
       "date": "2025-10-17",
-      "open": 296.9812,
-      "high": 307.9226,
-      "low": 292.9759,
       "close": 305.285,
       "volume": 1146703.0
     },
     {
       "date": "2025-10-20",
-      "open": 303.8196,
-      "high": 308.3134,
-      "low": 302.5496,
       "close": 306.6526,
       "volume": 443636.0
     },
     {
       "date": "2025-10-21",
-      "open": 306.7504,
-      "high": 310.5603,
-      "low": 306.0665,
       "close": 309.2903,
       "volume": 349920.0
     },
     {
       "date": "2025-10-22",
-      "open": 307.7273,
-      "high": 308.3134,
-      "low": 304.2104,
       "close": 304.2104,
       "volume": 411290.0
     },
     {
       "date": "2025-10-23",
-      "open": 303.9173,
-      "high": 306.4573,
-      "low": 303.2335,
       "close": 304.8942,
       "volume": 264329.0
     },
     {
       "date": "2025-10-24",
-      "open": 306.0665,
-      "high": 306.2619,
-      "low": 303.2335,
       "close": 306.1642,
       "volume": 231188.0
     },
     {
       "date": "2025-10-27",
-      "open": 305.4804,
-      "high": 309.4857,
-      "low": 304.6988,
       "close": 309.1926,
       "volume": 318833.0
     },
     {
       "date": "2025-10-28",
-      "open": 309.6811,
-      "high": 311.928,
-      "low": 308.6065,
       "close": 310.1696,
       "volume": 247475.0
     },
     {
       "date": "2025-10-29",
-      "open": 308.8019,
-      "high": 312.3188,
-      "low": 308.5088,
       "close": 310.9511,
       "volume": 292618.0
     },
     {
       "date": "2025-10-30",
-      "open": 310.365,
-      "high": 312.4164,
-      "low": 308.5088,
       "close": 312.1234,
       "volume": 248981.0
     },
     {
       "date": "2025-10-31",
-      "open": 312.6118,
-      "high": 313.1491,
-      "low": 309.4857,
       "close": 309.9742,
       "volume": 315398.0
     },
     {
       "date": "2025-11-03",
-      "open": 308.6065,
-      "high": 311.6349,
-      "low": 307.9227,
       "close": 309.6811,
       "volume": 249401.0
     },
     {
       "date": "2025-11-04",
-      "open": 307.7273,
-      "high": 309.0949,
-      "low": 303.3312,
       "close": 309.0949,
       "volume": 296100.0
     },
     {
       "date": "2025-11-05",
-      "open": 309.5834,
-      "high": 310.8534,
-      "low": 306.1642,
       "close": 308.9973,
       "volume": 288898.0
     },
     {
       "date": "2025-11-06",
-      "open": 307.0434,
-      "high": 308.118,
-      "low": 304.015,
       "close": 305.4804,
       "volume": 409895.0
     },
     {
       "date": "2025-11-07",
-      "open": 306.848,
-      "high": 307.0434,
-      "low": 300.1074,
       "close": 301.2796,
       "volume": 437076.0
     },
     {
       "date": "2025-11-10",
-      "open": 304.1127,
-      "high": 306.3596,
-      "low": 301.475,
       "close": 304.6011,
       "volume": 310136.0
     },
     {
       "date": "2025-11-11",
-      "open": 306.555,
-      "high": 309.9742,
-      "low": 304.4058,
       "close": 308.118,
       "volume": 287780.0
     },
     {
       "date": "2025-11-12",
-      "open": 309.9742,
-      "high": 315.1518,
-      "low": 309.2903,
       "close": 313.2957,
       "volume": 401630.0
     },
     {
       "date": "2025-11-13",
-      "open": 314.1749,
-      "high": 316.3241,
-      "low": 310.8534,
       "close": 312.5141,
       "volume": 361576.0
     },
     {
       "date": "2025-11-14",
-      "open": 310.0719,
-      "high": 312.5141,
-      "low": 308.118,
       "close": 311.5372,
       "volume": 348356.0
     },
     {
       "date": "2025-11-17",
-      "open": 311.6349,
-      "high": 313.2957,
-      "low": 306.9457,
       "close": 308.3134,
       "volume": 281910.0
     },
     {
       "date": "2025-11-18",
-      "open": 307.1411,
-      "high": 307.3365,
-      "low": 301.2797,
       "close": 304.2104,
       "volume": 397037.0
     },
     {
       "date": "2025-11-19",
-      "open": 304.2104,
-      "high": 304.3081,
-      "low": 301.5727,
       "close": 301.5727,
       "volume": 309011.0
     },
     {
       "date": "2025-11-20",
-      "open": 305.0896,
-      "high": 305.9688,
-      "low": 301.9635,
       "close": 304.015,
       "volume": 293028.0
     },
     {
       "date": "2025-11-21",
-      "open": 301.2796,
-      "high": 302.4519,
-      "low": 297.2743,
       "close": 298.9351,
       "volume": 678984.0
     },
     {
       "date": "2025-11-24",
-      "open": 304.2104,
-      "high": 304.3081,
-      "low": 296.6882,
       "close": 296.6882,
       "volume": 1380583.0
     },
     {
       "date": "2025-11-25",
-      "open": 298.3489,
-      "high": 301.7681,
-      "low": 296.6882,
       "close": 301.5727,
       "volume": 517945.0
     },
     {
       "date": "2025-11-26",
-      "open": 302.8427,
-      "high": 306.1642,
-      "low": 301.3774,
       "close": 305.8712,
       "volume": 302306.0
     },
     {
       "date": "2025-11-27",
-      "open": 307.2388,
-      "high": 309.6811,
-      "low": 305.0896,
       "close": 305.8712,
       "volume": 213138.0
     },
     {
       "date": "2025-11-28",
-      "open": 302.4519,
-      "high": 304.5035,
-      "low": 300.9866,
       "close": 301.5727,
       "volume": 355028.0
     },
     {
       "date": "2025-12-01",
-      "open": 298.8374,
-      "high": 300.6935,
-      "low": 294.539,
       "close": 299.912,
       "volume": 429960.0
     },
     {
       "date": "2025-12-02",
-      "open": 300.4004,
-      "high": 302.745,
-      "low": 298.8374,
       "close": 300.3027,
       "volume": 287503.0
     },
     {
       "date": "2025-12-03",
-      "open": 299.7166,
-      "high": 302.0612,
-      "low": 298.4466,
       "close": 301.6704,
       "volume": 239453.0
     },
     {
       "date": "2025-12-04",
-      "open": 301.5727,
-      "high": 303.0381,
-      "low": 296.1997,
       "close": 296.1997,
       "volume": 483679.0
     },
     {
       "date": "2025-12-05",
-      "open": 299.6189,
-      "high": 301.8658,
-      "low": 294.9297,
       "close": 295.6136,
       "volume": 380353.0
     },
     {
       "date": "2025-12-08",
-      "open": 293.9528,
-      "high": 296.1997,
-      "low": 293.3666,
       "close": 296.1997,
       "volume": 292158.0
     },
     {
       "date": "2025-12-09",
-      "open": 293.0736,
-      "high": 294.3436,
-      "low": 276.4661,
       "close": 279.6899,
       "volume": 713361.0
     },
     {
       "date": "2025-12-10",
-      "open": 277.443,
-      "high": 281.1553,
-      "low": 276.9546,
       "close": 278.4199,
       "volume": 510026.0
     },
     {
       "date": "2025-12-11",
-      "open": 279.2014,
-      "high": 280.7645,
-      "low": 276.3684,
       "close": 278.3222,
       "volume": 392307.0
     },
     {
       "date": "2025-12-12",
-      "open": 277.7361,
-      "high": 278.0292,
-      "low": 274.903,
       "close": 275.5869,
       "volume": 379699.0
     },
     {
       "date": "2025-12-15",
-      "open": 276.6615,
-      "high": 280.0807,
-      "low": 275.7822,
       "close": 275.9776,
       "volume": 563860.0
     },
     {
       "date": "2025-12-16",
-      "open": 275.0007,
-      "high": 276.7591,
-      "low": 269.7254,
       "close": 271.7769,
       "volume": 759488.0
     },
     {
       "date": "2025-12-17",
-      "open": 271.4838,
-      "high": 271.9723,
-      "low": 265.5247,
       "close": 267.3808,
       "volume": 592269.0
     },
     {
       "date": "2025-12-18",
-      "open": 268.0646,
-      "high": 272.6561,
-      "low": 266.697,
       "close": 269.9208,
       "volume": 544204.0
     },
     {
       "date": "2025-12-19",
-      "open": 270.6046,
-      "high": 270.8,
-      "low": 267.9669,
       "close": 268.4554,
       "volume": 1170768.0
     },
     {
       "date": "2025-12-22",
-      "open": 268.6508,
-      "high": 268.7485,
-      "low": 264.8408,
       "close": 266.3062,
       "volume": 370414.0
     },
     {
       "date": "2025-12-23",
-      "open": 266.3062,
-      "high": 266.3062,
-      "low": 262.6916,
       "close": 263.8639,
       "volume": 316036.0
     },
     {
       "date": "2025-12-24",
-      "open": 266.0131,
-      "high": 267.6739,
-      "low": 263.8639,
       "close": 263.8639,
       "volume": 68361.0
     },
     {
       "date": "2025-12-29",
-      "open": 265.7201,
-      "high": 266.1108,
-      "low": 263.0824,
       "close": 264.9385,
       "volume": 361186.0
     },
     {
       "date": "2025-12-30",
-      "open": 263.3755,
-      "high": 264.9385,
-      "low": 262.7893,
       "close": 264.5478,
       "volume": 343908.0
     },
     {
       "date": "2025-12-31",
-      "open": 264.157,
-      "high": 264.157,
-      "low": 262.3008,
       "close": 263.6685,
       "volume": 148527.0
     },
     {
       "date": "2026-01-02",
-      "open": 262.3009,
-      "high": 264.2547,
-      "low": 258.2955,
       "close": 259.3701,
       "volume": 469014.0
     },
     {
       "date": "2026-01-05",
-      "open": 260.8355,
-      "high": 261.0309,
-      "low": 256.244,
       "close": 257.3186,
       "volume": 479058.0
     },
     {
       "date": "2026-01-06",
-      "open": 257.514,
-      "high": 272.07,
-      "low": 255.6579,
       "close": 270.8,
       "volume": 812366.0
     },
     {
       "date": "2026-01-07",
-      "open": 270.3115,
-      "high": 272.2654,
-      "low": 266.0131,
       "close": 266.2085,
       "volume": 639786.0
     },
     {
       "date": "2026-01-08",
-      "open": 262.3986,
-      "high": 267.9669,
-      "low": 259.1747,
       "close": 266.4039,
       "volume": 557449.0
     },
     {
       "date": "2026-01-09",
-      "open": 263.0824,
-      "high": 272.5584,
-      "low": 263.0824,
       "close": 271.4838,
       "volume": 833678.0
     },
     {
       "date": "2026-01-12",
-      "open": 269.6277,
-      "high": 270.2139,
-      "low": 266.7947,
       "close": 269.6277,
       "volume": 428659.0
     },
     {
       "date": "2026-01-13",
-      "open": 266.99,
-      "high": 274.903,
-      "low": 263.6685,
       "close": 271.5815,
       "volume": 743601.0
     },
     {
       "date": "2026-01-14",
-      "open": 277.1499,
-      "high": 279.3968,
-      "low": 272.8515,
       "close": 272.9492,
       "volume": 829552.0
     },
     {
       "date": "2026-01-15",
-      "open": 278.2245,
-      "high": 279.4945,
-      "low": 273.2423,
       "close": 275.4892,
       "volume": 824567.0
     },
     {
       "date": "2026-01-16",
-      "open": 276.3684,
-      "high": 276.3684,
-      "low": 263.6685,
       "close": 264.7431,
       "volume": 755575.0
     },
     {
       "date": "2026-01-19",
-      "open": 257.6117,
-      "high": 263.0824,
-      "low": 256.7325,
       "close": 260.054,
       "volume": 475213.0
     },
     {
       "date": "2026-01-20",
-      "open": 258.1978,
-      "high": 261.5193,
-      "low": 256.4394,
       "close": 261.0309,
       "volume": 398771.0
     },
     {
       "date": "2026-01-21",
-      "open": 260.347,
-      "high": 263.4732,
-      "low": 260.1516,
       "close": 261.617,
       "volume": 411560.0
     },
     {
       "date": "2026-01-22",
-      "open": 263.7662,
-      "high": 264.8408,
-      "low": 258.5886,
       "close": 261.8124,
       "volume": 440702.0
     },
     {
       "date": "2026-01-23",
-      "open": 259.8586,
-      "high": 262.1055,
-      "low": 258.9794,
       "close": 258.9794,
       "volume": 337123.0
     },
     {
       "date": "2026-01-26",
-      "open": 253.9971,
-      "high": 256.4394,
-      "low": 248.7218,
       "close": 251.3594,
       "volume": 651656.0
     },
     {
       "date": "2026-01-27",
-      "open": 251.3594,
-      "high": 251.7502,
-      "low": 248.6241,
       "close": 251.0664,
       "volume": 393954.0
     },
     {
       "date": "2026-01-28",
-      "open": 250.0895,
-      "high": 251.0664,
-      "low": 246.0841,
       "close": 247.4518,
       "volume": 415405.0
     },
     {
       "date": "2026-01-29",
-      "open": 251.2618,
-      "high": 253.5086,
-      "low": 248.331,
       "close": 248.7218,
       "volume": 552472.0
     },
     {
       "date": "2026-01-30",
-      "open": 248.6241,
-      "high": 254.681,
-      "low": 248.2333,
       "close": 251.9456,
       "volume": 607830.0
     },
     {
       "date": "2026-02-02",
-      "open": 253.411,
-      "high": 254.3879,
-      "low": 250.4802,
       "close": 250.7733,
       "volume": 379576.0
     },
     {
       "date": "2026-02-03",
-      "open": 251.8479,
-      "high": 253.3133,
-      "low": 248.5264,
       "close": 249.9918,
       "volume": 347219.0
     },
     {
       "date": "2026-02-04",
-      "open": 250.1872,
-      "high": 255.3648,
-      "low": 249.3079,
       "close": 254.5833,
       "volume": 434687.0
     },
     {
       "date": "2026-02-05",
-      "open": 255.0717,
-      "high": 256.7325,
-      "low": 250.7733,
       "close": 252.6294,
       "volume": 411681.0
     },
     {
       "date": "2026-02-06",
-      "open": 250.7733,
-      "high": 251.5548,
-      "low": 247.2564,
       "close": 249.2103,
       "volume": 449515.0
     },
     {
       "date": "2026-02-09",
-      "open": 249.1126,
-      "high": 250.871,
-      "low": 246.3772,
       "close": 248.9172,
       "volume": 460638.0
     },
     {
       "date": "2026-02-10",
-      "open": 249.8941,
-      "high": 250.7733,
-      "low": 244.7164,
       "close": 244.7164,
       "volume": 696521.0
     },
     {
       "date": "2026-02-11",
-      "open": 244.7164,
-      "high": 247.8426,
-      "low": 242.3719,
       "close": 245.0095,
       "volume": 655047.0
     },
     {
       "date": "2026-02-12",
-      "open": 269.6277,
-      "high": 269.6277,
-      "low": 248.5264,
       "close": 255.2671,
       "volume": 1363381.0
     },
     {
       "date": "2026-02-13",
-      "open": 256.9278,
-      "high": 258.6863,
-      "low": 249.8941,
       "close": 252.3363,
       "volume": 853962.0
     },
     {
       "date": "2026-02-16",
-      "open": 251.2618,
-      "high": 252.0433,
-      "low": 240.0273,
       "close": 240.0273,
       "volume": 753832.0
     },
     {
       "date": "2026-02-17",
-      "open": 242.7626,
-      "high": 245.3026,
-      "low": 237.2919,
       "close": 237.4873,
       "volume": 687369.0
     },
     {
       "date": "2026-02-18",
-      "open": 232.0166,
-      "high": 233.3843,
-      "low": 226.6436,
       "close": 230.6489,
       "volume": 1194543.0
     },
     {
       "date": "2026-02-19",
-      "open": 230.5512,
-      "high": 235.1427,
-      "low": 226.3505,
       "close": 227.6205,
       "volume": 1022841.0
     },
     {
       "date": "2026-02-20",
-      "open": 228.2066,
-      "high": 233.9704,
-      "low": 226.1551,
       "close": 232.7004,
       "volume": 1040773.0
     },
     {
       "date": "2026-02-23",
-      "open": 231.4304,
-      "high": 235.045,
-      "low": 229.9651,
       "close": 230.5512,
       "volume": 516165.0
     },
     {
       "date": "2026-02-24",
-      "open": 228.5974,
-      "high": 229.4766,
-      "low": 226.2528,
       "close": 229.0859,
       "volume": 709516.0
     },
     {
       "date": "2026-02-25",
-      "open": 229.3789,
-      "high": 231.7235,
-      "low": 228.109,
       "close": 231.6258,
       "volume": 533309.0
     },
     {
       "date": "2026-02-26",
-      "open": 231.5281,
-      "high": 233.775,
-      "low": 228.8905,
       "close": 233.775,
       "volume": 543499.0
     },
     {
       "date": "2026-02-27",
-      "open": 231.8212,
-      "high": 233.0423,
-      "low": 220.0006,
       "close": 220.0006,
       "volume": 2313408.0
     },
     {
       "date": "2026-03-02",
-      "open": 208.0823,
-      "high": 217.656,
-      "low": 203.1977,
       "close": 214.2368,
       "volume": 1227200.0
     },
     {
       "date": "2026-03-03",
-      "open": 212.5761,
-      "high": 215.2137,
-      "low": 209.4499,
       "close": 209.4499,
       "volume": 1061230.0
     },
     {
       "date": "2026-03-04",
-      "open": 211.8922,
-      "high": 216.9722,
-      "low": 209.8407,
       "close": 214.2368,
       "volume": 970112.0
     },
     {
       "date": "2026-03-05",
-      "open": 213.0645,
-      "high": 214.0414,
-      "low": 209.8407,
       "close": 210.9153,
       "volume": 646178.0
     },
     {
       "date": "2026-03-06",
-      "open": 211.4037,
-      "high": 212.9668,
-      "low": 203.6861,
       "close": 207.8869,
       "volume": 684284.0
     },
     {
       "date": "2026-03-09",
-      "open": 204.37,
-      "high": 205.3469,
-      "low": 200.4623,
       "close": 203.4908,
       "volume": 694668.0
     },
     {
       "date": "2026-03-10",
-      "open": 207.1053,
-      "high": 209.8407,
-      "low": 205.7377,
       "close": 208.0822,
       "volume": 603451.0
     },
     {
       "date": "2026-03-11",
-      "open": 205.1515,
-      "high": 207.0076,
-      "low": 203.2954,
       "close": 205.1515,
       "volume": 453428.0
     },
     {
       "date": "2026-03-12",
-      "open": 205.933,
-      "high": 206.0307,
-      "low": 202.7092,
       "close": 205.933,
       "volume": 632345.0
     },
     {
       "date": "2026-03-13",
-      "open": 204.8584,
-      "high": 204.8584,
-      "low": 199.3877,
       "close": 199.9739,
       "volume": 601040.0
     },
     {
       "date": "2026-03-16",
-      "open": 200.7554,
-      "high": 201.3416,
-      "low": 196.9455,
       "close": 199.1923,
       "volume": 551070.0
     },
     {
       "date": "2026-03-17",
-      "open": 198.8016,
-      "high": 199.8762,
-      "low": 196.1639,
       "close": 198.3131,
       "volume": 522948.0
     },
     {
       "date": "2026-03-18",
-      "open": 199.8762,
-      "high": 201.5369,
-      "low": 196.5547,
       "close": 198.4108,
       "volume": 786702.0
     },
     {
       "date": "2026-03-19",
-      "open": 195.9686,
-      "high": 196.5547,
-      "low": 193.4286,
       "close": 194.1124,
       "volume": 814085.0
     },
     {
       "date": "2026-03-20",
-      "open": 195.5778,
-      "high": 196.7501,
-      "low": 190.0094,
       "close": 190.2536,
       "volume": 1439197.0
     },
     {
       "date": "2026-03-23",
-      "open": 187.5671,
-      "high": 198.8993,
-      "low": 186.7367,
       "close": 188.5928,
       "volume": 935750.0
     },
     {
       "date": "2026-03-24",
-      "open": 189.179,
-      "high": 190.5955,
-      "low": 186.2971,
       "close": 188.2998,
       "volume": 615584.0
     },
     {
       "date": "2026-03-25",
-      "open": 190.449,
-      "high": 191.7678,
-      "low": 188.9836,
       "close": 190.1559,
       "volume": 542511.0
     },
     {
       "date": "2026-03-26",
-      "open": 189.2767,
-      "high": 191.7678,
-      "low": 187.5671,
       "close": 189.814,
       "volume": 567037.0
     },
     {
       "date": "2026-03-27",
-      "open": 191.6213,
-      "high": 191.6213,
-      "low": 188.5929,
       "close": 190.3025,
       "volume": 579340.0
     },
     {
       "date": "2026-03-30",
-      "open": 192.4517,
-      "high": 193.4774,
-      "low": 189.6675,
       "close": 193.1355,
       "volume": 485656.0
     },
     {
       "date": "2026-03-31",
-      "open": 192.8913,
-      "high": 194.7962,
-      "low": 192.4516,
       "close": 193.8193,
       "volume": 799577.0
     },
     {
       "date": "2026-04-01",
-      "open": 197.3362,
-      "high": 197.4339,
-      "low": 182.4872,
       "close": 189.4721,
       "volume": 1451051.0
     },
     {
       "date": "2026-04-02",
-      "open": 187.8602,
-      "high": 188.1044,
-      "low": 184.0502,
       "close": 186.8344,
       "volume": 795406.0
     },
     {
       "date": "2026-04-07",
-      "open": 186.8833,
-      "high": 190.6444,
-      "low": 185.4667,
       "close": 185.8087,
       "volume": 587247.0
     },
     {
       "date": "2026-04-08",
-      "open": 194.8939,
-      "high": 199.4854,
-      "low": 194.2101,
       "close": 196.0662,
       "volume": 1012042.0
     },
     {
       "date": "2026-04-09",
-      "open": 194.7474,
-      "high": 194.9916,
-      "low": 190.4978,
       "close": 192.7447,
       "volume": 525306.0
     },
     {
       "date": "2026-04-10",
-      "open": 193.4286,
-      "high": 197.1408,
-      "low": 193.3309,
       "close": 194.6497,
       "volume": 429155.0
     },
     {
       "date": "2026-04-13",
-      "open": 190.8886,
-      "high": 193.0866,
-      "low": 190.4978,
       "close": 192.5005,
       "volume": 431149.0
     },
     {
       "date": "2026-04-14",
-      "open": 194.5032,
-      "high": 199.9739,
-      "low": 193.3309,
       "close": 199.9739,
       "volume": 554562.0
     },
     {
       "date": "2026-04-15",
-      "open": 200.56,
-      "high": 201.2439,
-      "low": 198.2154,
       "close": 199.8762,
       "volume": 613164.0
     },
     {
       "date": "2026-04-16",
-      "open": 200.3646,
-      "high": 204.2723,
-      "low": 199.3877,
       "close": 202.1231,
       "volume": 584721.0
     },
     {
       "date": "2026-04-17",
-      "open": 201.7323,
-      "high": 212.3807,
-      "low": 201.7323,
       "close": 210.7199,
       "volume": 1020490.0
     },
     {
       "date": "2026-04-20",
-      "open": 203.1977,
-      "high": 206.1284,
-      "low": 201.5369,
       "close": 201.7323,
       "volume": 615840.0
     },
     {
       "date": "2026-04-21",
-      "open": 202.1231,
-      "high": 204.5654,
-      "low": 201.5369,
       "close": 201.9277,
       "volume": 386785.0
     },
     {
       "date": "2026-04-22",
-      "open": 200.3647,
-      "high": 200.3647,
-      "low": 195.3824,
       "close": 196.8478,
       "volume": 458314.0
     },
     {
       "date": "2026-04-23",
-      "open": 186.8344,
-      "high": 194.1124,
-      "low": 185.6133,
       "close": 187.3717,
       "volume": 1116866.0
     },
     {
       "date": "2026-04-24",
-      "open": 184.2456,
-      "high": 186.1994,
-      "low": 180.0937,
       "close": 181.4126,
       "volume": 1339786.0
     },
     {
       "date": "2026-04-27",
-      "open": 181.5102,
-      "high": 184.3433,
-      "low": 180.8264,
       "close": 182.1452,
       "volume": 883185.0
     },
     {
       "date": "2026-04-28",
-      "open": 181.1195,
-      "high": 183.2198,
-      "low": 177.9934,
       "close": 178.4818,
       "volume": 643358.0
     },
     {
       "date": "2026-04-29",
-      "open": 178.2864,
-      "high": 178.4818,
-      "low": 174.9649,
       "close": 176.4303,
       "volume": 703779.0
     },
     {
       "date": "2026-04-30",
-      "open": 175.3557,
-      "high": 177.9445,
-      "low": 173.7438,
       "close": 177.0653,
       "volume": 1056641.0
     },
     {
       "date": "2026-05-04",
-      "open": 178.2864,
-      "high": 178.4818,
-      "low": 169.25,
       "close": 169.25,
       "volume": 944572.0
     },
     {
       "date": "2026-05-05",
-      "open": 171.4,
-      "high": 173.5,
-      "low": 168.65,
       "close": 171.5,
       "volume": 741287.0
     },
     {
       "date": "2026-05-06",
-      "open": 172.95,
-      "high": 178.6,
-      "low": 172.0,
       "close": 176.7,
       "volume": 808173.0
     },
     {
       "date": "2026-05-07",
-      "open": 177.35,
-      "high": 180.3,
-      "low": 176.1,
       "close": 176.3,
       "volume": 708010.0
     },
     {
       "date": "2026-05-08",
-      "open": 175.0,
-      "high": 175.0,
-      "low": 171.2,
       "close": 171.4,
       "volume": 700283.0
     },
     {
       "date": "2026-05-11",
-      "open": 171.75,
-      "high": 174.2,
-      "low": 165.75,
       "close": 167.0,
       "volume": 768136.0
     },
     {
       "date": "2026-05-12",
-      "open": 163.75,
-      "high": 166.5,
-      "low": 162.5,
       "close": 165.9,
       "volume": 795593.0
     },
     {
       "date": "2026-05-13",
-      "open": 167.75,
-      "high": 170.45,
-      "low": 165.45,
       "close": 170.45,
       "volume": 780415.0
     },
     {
       "date": "2026-05-14",
-      "open": 171.0,
-      "high": 173.25,
-      "low": 170.6,
       "close": 173.2,
       "volume": 725358.0
     },
     {
       "date": "2026-05-15",
-      "open": 172.0,
-      "high": 175.025,
-      "low": 172.0,
       "close": 173.25,
       "volume": 745564.0
     },
     {
       "date": "2026-05-18",
-      "open": 171.25,
-      "high": 175.5,
-      "low": 170.0,
       "close": 174.2,
       "volume": 506851.0
     },
     {
       "date": "2026-05-19",
-      "open": 175.3,
-      "high": 178.05,
-      "low": 174.8,
       "close": 176.0,
       "volume": 509867.0
     },
     {
       "date": "2026-05-20",
-      "open": 176.3,
-      "high": 177.8,
-      "low": 173.8,
       "close": 176.7,
       "volume": 619245.0
     },
     {
       "date": "2026-05-21",
-      "open": 176.5,
-      "high": 177.3,
-      "low": 174.0,
       "close": 175.4,
       "volume": 542566.0
     },
     {
       "date": "2026-05-22",
-      "open": 177.4,
-      "high": 177.8,
-      "low": 173.25,
       "close": 173.25,
       "volume": 539250.0
     },
     {
       "date": "2026-05-25",
-      "open": 174.95,
-      "high": 176.5,
-      "low": 173.8,
       "close": 175.1,
       "volume": 399479.0
     },
     {
       "date": "2026-05-26",
-      "open": 174.8,
-      "high": 175.15,
-      "low": 172.1,
       "close": 172.1,
       "volume": 491803.0
     },
     {
       "date": "2026-05-27",
-      "open": 174.05,
-      "high": 176.55,
-      "low": 173.8,
       "close": 174.65,
       "volume": 607802.0
     },
     {
       "date": "2026-05-28",
-      "open": 174.0,
-      "high": 176.05,
-      "low": 172.05,
       "close": 174.8,
       "volume": 518574.0
     },
     {
       "date": "2026-05-29",
-      "open": 175.25,
-      "high": 178.85,
-      "low": 174.25,
       "close": 175.15,
       "volume": 957539.0
     },
     {
       "date": "2026-06-01",
-      "open": 174.95,
-      "high": 176.45,
-      "low": 170.8,
       "close": 172.8,
       "volume": 590386.0
     },
     {
       "date": "2026-06-02",
-      "open": 172.8,
-      "high": 174.0,
-      "low": 168.3,
       "close": 171.1,
       "volume": 558160.0
     },
     {
       "date": "2026-06-03",
-      "open": 170.65,
-      "high": 171.65,
-      "low": 169.55,
       "close": 169.75,
       "volume": 498261.0
     },
     {
       "date": "2026-06-04",
-      "open": 170.0,
-      "high": 177.55,
-      "low": 169.85,
       "close": 176.25,
       "volume": 742080.0
     },
     {
       "date": "2026-06-05",
-      "open": 176.25,
-      "high": 180.1,
-      "low": 173.3,
       "close": 174.05,
       "volume": 608050.0
     },
     {
       "date": "2026-06-08",
-      "open": 172.0,
-      "high": 174.8,
-      "low": 171.3,
       "close": 173.15,
       "volume": 469097.0
     },
     {
       "date": "2026-06-09",
-      "open": 171.95,
-      "high": 179.9,
-      "low": 171.55,
       "close": 179.7,
       "volume": 723399.0
     },
     {
       "date": "2026-06-10",
-      "open": 179.2,
-      "high": 179.7,
-      "low": 175.45,
       "close": 178.6,
       "volume": 798940.0
     },
     {
       "date": "2026-06-11",
-      "open": 176.6,
-      "high": 179.45,
-      "low": 176.25,
       "close": 178.75,
       "volume": 629852.0
     },
     {
       "date": "2026-06-12",
-      "open": 181.85,
-      "high": 187.8,
-      "low": 180.3,
       "close": 182.7,
       "volume": 1013524.0
     },
     {
       "date": "2026-06-15",
-      "open": 186.65,
-      "high": 188.9,
-      "low": 184.05,
       "close": 184.05,
       "volume": 894982.0
     },
     {
       "date": "2026-06-16",
-      "open": 184.3,
-      "high": 185.6,
-      "low": 181.9,
       "close": 183.55,
       "volume": 575933.0
     },
     {
       "date": "2026-06-17",
-      "open": 184.0,
-      "high": 184.0,
-      "low": 174.75,
       "close": 174.75,
       "volume": 924237.0
     },
     {
       "date": "2026-06-18",
-      "open": 174.85,
-      "high": 178.1,
-      "low": 173.3,
       "close": 177.6,
       "volume": 1034162.0
     },
     {
       "date": "2026-06-19",
-      "open": 177.15,
-      "high": 177.7,
-      "low": 173.35,
       "close": 173.55,
       "volume": 1406953.0
     },
     {
       "date": "2026-06-22",
-      "open": 173.5,
-      "high": 173.85,
-      "low": 168.5,
       "close": 168.5,
       "volume": 788008.0
     },
     {
       "date": "2026-06-23",
-      "open": 168.3,
-      "high": 172.5,
-      "low": 168.15,
       "close": 168.15,
       "volume": 584534.0
     },
     {
       "date": "2026-06-24",
-      "open": 167.6,
-      "high": 169.55,
-      "low": 160.9,
       "close": 168.6,
       "volume": 1257943.0
     },
     {
       "date": "2026-06-25",
-      "open": 169.2,
-      "high": 169.2,
-      "low": 163.8,
       "close": 166.1,
       "volume": 1096851.0
     },
     {
       "date": "2026-06-26",
-      "open": 168.2,
-      "high": 169.65,
-      "low": 165.4,
       "close": 168.65,
       "volume": 668376.0
     },
     {
       "date": "2026-06-29",
-      "open": 168.0,
-      "high": 168.15,
-      "low": 163.25,
       "close": 163.5,
       "volume": 549046.0
     },
     {
       "date": "2026-06-30",
-      "open": 163.75,
-      "high": 164.4,
-      "low": 160.6,
       "close": 164.05,
       "volume": 804096.0
     },
     {
       "date": "2026-07-01",
-      "open": 164.4,
-      "high": 173.0,
-      "low": 163.75,
       "close": 173.0,
       "volume": 624503.0
     },
     {
       "date": "2026-07-02",
-      "open": 173.55,
-      "high": 176.5,
-      "low": 172.45,
       "close": 175.35,
       "volume": 729851.0
     },
     {
       "date": "2026-07-03",
-      "open": 175.3,
-      "high": 175.3,
-      "low": 171.5,
       "close": 172.2,
       "volume": 382310.0
     },
     {
       "date": "2026-07-06",
-      "open": 173.1,
-      "high": 177.95,
-      "low": 171.5,
       "close": 172.6,
       "volume": 441178.0
     },
     {
       "date": "2026-07-07",
-      "open": 174.55,
-      "high": 177.1,
-      "low": 174.55,
       "close": 175.9,
       "volume": 665892.0
     },
     {
       "date": "2026-07-08",
-      "open": 175.0,
-      "high": 176.1,
-      "low": 167.2,
       "close": 169.35,
       "volume": 1028938.0
     },
     {
       "date": "2026-07-09",
-      "open": 169.5,
-      "high": 171.65,
-      "low": 168.65,
       "close": 171.65,
       "volume": 498736.0
     },
     {
       "date": "2026-07-10",
-      "open": 171.85,
-      "high": 173.8,
-      "low": 170.5,
       "close": 171.4,
       "volume": 562146.0
     },
     {
       "date": "2026-07-13",
-      "open": 170.25,
-      "high": 171.6,
-      "low": 168.3,
       "close": 169.4,
       "volume": 442636.0
     },
     {
       "date": "2026-07-14",
-      "open": 164.1,
-      "high": 166.7,
-      "low": 162.65,
       "close": 165.15,
       "volume": 483080.0
     },
     {
       "date": "2026-07-15",
-      "open": 164.6,
-      "high": 169.7,
-      "low": 163.5,
       "close": 168.2,
       "volume": 536190.0
     },
     {
       "date": "2026-07-16",
-      "open": 167.95,
-      "high": 170.0,
-      "low": 166.6,
       "close": 169.5,
       "volume": 434839.0
     },
     {
       "date": "2026-07-17",
-      "open": 168.1,
-      "high": 169.85,
-      "low": 166.7,
       "close": 166.7,
       "volume": 608531.0
     },
     {
       "date": "2026-07-20",
-      "open": 165.25,
-      "high": 169.35,
-      "low": 165.1,
       "close": 168.25,
       "volume": 492740.0
     },
     {
       "date": "2026-07-21",
-      "open": 166.0,
-      "high": 167.55,
-      "low": 164.5,
       "close": 165.95,
       "volume": 600243.0
     },
     {
       "date": "2026-07-22",
-      "open": 164.85,
-      "high": 167.9,
-      "low": 162.75,
       "close": 164.4,
       "volume": 550383.0
     },
     {
       "date": "2026-07-23",
-      "open": 164.0,
-      "high": 164.15,
-      "low": 160.8,
       "close": 161.9,
       "volume": 646431.0
     },
     {
       "date": "2026-07-24",
-      "open": 161.95,
-      "high": 163.5,
-      "low": 161.2,
       "close": 163.5,
       "volume": 403970.0
     },
     {
       "date": "2026-07-27",
-      "open": 165.8,
-      "high": 167.35,
-      "low": 165.3,
       "close": 165.4,
       "volume": 631651.0
     },
     {
       "date": "2026-07-28",
-      "open": 168.5,
-      "high": 169.1,
-      "low": 165.35,
       "close": 168.65,
       "volume": 543146.0
     },
     {
       "date": "2026-07-29",
-      "open": 175.7,
-      "high": 176.25,
-      "low": 161.65,
       "close": 165.1,
       "volume": 1307407.0
     },
     {
       "date": "2026-07-30",
-      "open": 164.2,
-      "high": 168.35,
-      "low": 162.85,
       "close": 163.6,
       "volume": 987622.0
     },
     {
       "date": "2026-07-31",
-      "open": 161.65,
-      "high": 167.7,
-      "low": 161.05,
       "close": 164.05,
       "volume": 892324.0
     },
     {
       "date": "2026-08-03",
-      "open": 164.7,
-      "high": 172.5,
-      "low": 162.6,
       "close": 169.6,
       "volume": 1033878.0
     },
     {
       "date": "2026-08-04",
-      "open": 169.55,
-      "high": 173.05,
-      "low": 168.4,
       "close": 170.5,
       "volume": 1062469.0
     },
     {
       "date": "2026-08-05",
-      "open": 170.5,
-      "high": 173.2,
-      "low": 168.3,
       "close": 171.45,
       "volume": 748115.0
     },
     {
       "date": "2026-08-06",
-      "open": 173.2,
-      "high": 176.6,
-      "low": 170.45,
       "close": 171.3,
       "volume": 871524.0
     },
     {
       "date": "2026-08-07",
-      "open": 171.8,
-      "high": 175.8,
-      "low": 171.25,
       "close": 172.3,
       "volume": 786218.0
     },
     {
       "date": "2026-08-10",
-      "open": 172.8,
-      "high": 172.8,
-      "low": 167.85,
       "close": 171.25,
       "volume": 816879.0
     },
     {
       "date": "2026-08-11",
-      "open": 171.05,
-      "high": 173.05,
-      "low": 170.15,
       "close": 171.75,
       "volume": 315876.0
     },
     {
       "date": "2026-08-12",
-      "open": 171.0,
-      "high": 171.1,
-      "low": 163.5,
       "close": 164.4,
       "volume": 909698.0
     },
     {
       "date": "2026-08-13",
-      "open": 165.0,
-      "high": 165.8,
-      "low": 163.15,
       "close": 163.75,
       "volume": 473898.0
     },
     {
       "date": "2026-08-14",
-      "open": 164.0,
-      "high": 165.45,
-      "low": 161.85,
       "close": 162.55,
       "volume": 420058.0
     },
     {
       "date": "2026-08-17",
-      "open": 162.8,
-      "high": 162.8,
-      "low": 159.7,
       "close": 159.8,
       "volume": 479807.0
     },
     {
       "date": "2026-08-18",
-      "open": 159.8,
-      "high": 164.5,
-      "low": 159.2,
       "close": 163.9,
       "volume": 646674.0
     },
     {
       "date": "2026-08-19",
-      "open": 163.25,
-      "high": 164.45,
-      "low": 161.3,
       "close": 163.45,
       "volume": 546330.0
     },
     {
       "date": "2026-08-20",
-      "open": 163.2,
-      "high": 163.3,
-      "low": 160.1,
       "close": 161.2,
       "volume": 383630.0
     },
     {
       "date": "2026-08-21",
-      "open": 160.65,
-      "high": 163.9,
-      "low": 159.55,
       "close": 163.2,
       "volume": 431682.0
     },
     {
       "date": "2026-08-24",
-      "open": 163.05,
-      "high": 163.65,
-      "low": 161.2,
       "close": 161.7,
       "volume": 368555.0
     },
     {
       "date": "2026-08-25",
-      "open": 161.0,
-      "high": 163.55,
-      "low": 159.15,
       "close": 159.15,
       "volume": 749548.0
     },
     {
       "date": "2026-08-26",
-      "open": 159.2,
-      "high": 161.5,
-      "low": 159.2,
       "close": 159.2,
       "volume": 545229.0
     },
     {
       "date": "2026-08-27",
-      "open": 159.25,
-      "high": 159.65,
-      "low": 156.15,
       "close": 157.5,
       "volume": 658698.0
     },
     {
       "date": "2026-08-28",
-      "open": 161.15,
-      "high": 163.45,
-      "low": 160.95,
       "close": 161.35,
       "volume": 856329.0
     },
     {
       "date": "2026-08-31",
-      "open": 161.35,
-      "high": 162.5,
-      "low": 160.0,
       "close": 160.35,
       "volume": 1233344.0
     },
     {
       "date": "2026-09-01",
-      "open": 160.8,
-      "high": 162.25,
-      "low": 159.0,
       "close": 159.55,
       "volume": 587241.0
     },
     {
       "date": "2026-09-02",
-      "open": 158.65,
-      "high": 160.45,
-      "low": 157.65,
       "close": 158.7,
       "volume": 795604.0
     },
     {
       "date": "2026-09-03",
-      "open": 157.45,
-      "high": 158.45,
-      "low": 152.4,
       "close": 152.95,
       "volume": 844705.0
     },
     {
       "date": "2026-09-04",
-      "open": 153.1,
-      "high": 153.1,
-      "low": 148.95,
       "close": 149.8,
       "volume": 951221.0
     },
     {
       "date": "2026-09-07",
-      "open": 149.0,
-      "high": 149.45,
-      "low": 146.65,
       "close": 148.55,
       "volume": 856879.0
     },
     {
       "date": "2026-09-08",
-      "open": 147.1,
-      "high": 152.4,
-      "low": 147.0,
       "close": 149.6,
       "volume": 622252.0
     },
     {
       "date": "2026-09-09",
-      "open": 147.95,
-      "high": 152.25,
-      "low": 146.4,
       "close": 149.0,
       "volume": 1121237.0
     },
     {
       "date": "2026-09-10",
-      "open": 148.65,
-      "high": 148.8,
-      "low": 144.65,
       "close": 145.85,
       "volume": 864157.0
     },
     {
       "date": "2026-09-11",
-      "open": 146.3,
-      "high": 148.25,
-      "low": 145.8,
       "close": 146.4,
       "volume": 645110.0
     },
     {
       "date": "2026-09-14",
-      "open": 147.35,
-      "high": 148.6,
-      "low": 146.2,
       "close": 147.7,
       "volume": 812119.0
     },
     {
       "date": "2026-09-15",
-      "open": 147.35,
-      "high": 148.3,
-      "low": 144.4,
       "close": 144.4,
       "volume": 669233.0
     },
     {
       "date": "2026-09-16",
-      "open": 144.35,
-      "high": 146.05,
-      "low": 143.05,
       "close": 145.1,
       "volume": 582878.0
     },
     {
       "date": "2026-09-17",
-      "open": 144.6,
-      "high": 145.3,
-      "low": 140.7,
       "close": 141.45,
       "volume": 900090.0
     },
     {
       "date": "2026-09-18",
-      "open": 139.95,
-      "high": 140.6,
-      "low": 138.3,
       "close": 139.0,
       "volume": 1757984.0
     },
     {
       "date": "2026-09-21",
-      "open": 139.15,
-      "high": 141.65,
-      "low": 138.85,
       "close": 141.25,
       "volume": 661208.0
     },
     {
       "date": "2026-09-22",
-      "open": 141.5,
-      "high": 144.75,
-      "low": 140.1,
       "close": 144.5,
       "volume": 752356.0
     },
     {
       "date": "2026-09-23",
-      "open": 145.0,
-      "high": 149.95,
-      "low": 144.55,
       "close": 149.95,
       "volume": 1292164.0
     },
     {
       "date": "2026-09-24",
-      "open": 151.4,
-      "high": 151.6,
-      "low": 144.7,
       "close": 144.7,
       "volume": 1110189.0
     },
     {
       "date": "2026-09-25",
-      "open": 143.55,
-      "high": 144.35,
-      "low": 141.65,
       "close": 143.9,
       "volume": 800577.0
     },
     {
       "date": "2026-09-28",
-      "open": 145.0,
-      "high": 148.35,
-      "low": 144.15,
       "close": 146.1,
       "volume": 619197.0
     },
     {
       "date": "2026-09-29",
-      "open": 146.85,
-      "high": 147.15,
-      "low": 144.35,
       "close": 144.6,
       "volume": 710620.0
     },
     {
       "date": "2026-09-30",
-      "open": 144.95,
-      "high": 147.95,
-      "low": 143.6,
       "close": 145.6,
       "volume": 823526.0
     },
     {
       "date": "2026-10-01",
-      "open": 144.3,
-      "high": 146.6,
-      "low": 143.5,
       "close": 144.6,
       "volume": 865650.0
     },
     {
       "date": "2026-10-02",
-      "open": 145.0,
-      "high": 146.7,
-      "low": 142.75,
       "close": 142.8,
       "volume": 636433.0
     },
     {
       "date": "2026-10-05",
-      "open": 142.45,
-      "high": 146.45,
-      "low": 141.65,
       "close": 144.5,
       "volume": 626260.0
     },
     {
       "date": "2026-10-06",
-      "open": 146.15,
-      "high": 147.9,
-      "low": 144.65,
       "close": 146.7,
       "volume": 730539.0
     },
     {
       "date": "2026-10-07",
-      "open": 145.3,
-      "high": 146.95,
-      "low": 144.5,
       "close": 146.65,
       "volume": 756687.0
     },
     {
       "date": "2026-10-08",
-      "open": 146.0,
-      "high": 146.3,
-      "low": 142.8,
       "close": 143.0,
       "volume": 671944.0
     },
     {
       "date": "2026-10-09",
-      "open": 144.85,
-      "high": 148.15,
-      "low": 144.85,
       "close": 146.35,
       "volume": 717256.0
     },
     {
       "date": "2026-10-12",
-      "open": 147.5,
-      "high": 147.85,
-      "low": 144.8,
       "close": 146.75,
       "volume": 407314.0
     },
     {
       "date": "2026-10-13",
-      "open": 147.3,
-      "high": 150.05,
-      "low": 144.2,
       "close": 146.3,
       "volume": 493428.0
     },
     {
       "date": "2026-10-14",
-      "open": 147.45,
-      "high": 150.8,
-      "low": 146.5,
       "close": 148.1,
       "volume": 679058.0
     },
     {
       "date": "2026-10-15",
-      "open": 149.95,
-      "high": 150.95,
-      "low": 147.8,
       "close": 148.7,
       "volume": 674394.0
     },
     {
       "date": "2026-10-16",
-      "open": 149.85,
-      "high": 154.4,
-      "low": 148.85,
       "close": 154.4,
       "volume": 1162899.0
     },
     {
       "date": "2026-10-19",
-      "open": 151.6,
-      "high": 153.2,
-      "low": 149.2,
       "close": 152.05,
       "volume": 805876.0
     },
     {
       "date": "2026-10-20",
-      "open": 153.55,
-      "high": 154.85,
-      "low": 150.5,
       "close": 150.5,
       "volume": 751961.0
     },
     {
       "date": "2026-10-21",
-      "open": 165.0,
-      "high": 175.05,
-      "low": 163.1,
       "close": 173.8,
       "volume": 2530187.0
     },
     {
       "date": "2026-10-22",
-      "open": 174.4,
-      "high": 177.15,
-      "low": 171.7,
       "close": 177.15,
       "volume": 1564100.0
     },
     {
       "date": "2026-10-23",
-      "open": 176.7,
-      "high": 182.95,
-      "low": 175.6,
       "close": 181.2,
       "volume": 1330599.0
     },
     {
       "date": "2026-10-26",
-      "open": 181.7,
-      "high": 182.55,
-      "low": 174.85,
       "close": 175.0,
       "volume": 898581.0
     },
     {
       "date": "2026-10-27",
-      "open": 174.05,
-      "high": 182.4,
-      "low": 173.8,
       "close": 181.8,
       "volume": 1216053.0
     },
     {
       "date": "2026-10-28",
-      "open": 180.6,
-      "high": 181.95,
-      "low": 177.2,
       "close": 177.7,
       "volume": 740992.0
     },
     {
       "date": "2026-10-29",
-      "open": 177.4,
-      "high": 180.75,
-      "low": 177.4,
       "close": 178.2,
       "volume": 508938.0
     },
     {
       "date": "2026-10-30",
-      "open": 179.0,
-      "high": 186.4,
-      "low": 176.8,
       "close": 184.3,
       "volume": 1087058.0
     },
     {
       "date": "2026-11-02",
-      "open": 183.9,
-      "high": 187.45,
-      "low": 183.55,
       "close": 186.9,
       "volume": 862261.0
     },
     {
       "date": "2026-11-03",
-      "open": 186.5,
-      "high": 188.4,
-      "low": 184.25,
       "close": 184.25,
       "volume": 774672.0
     },
     {
       "date": "2026-11-04",
-      "open": 183.35,
-      "high": 190.7,
-      "low": 180.6,
       "close": 189.1,
       "volume": 903131.0
     },
     {
       "date": "2026-11-05",
-      "open": 191.8,
-      "high": 193.5,
-      "low": 188.5,
       "close": 191.95,
       "volume": 1190121.0
     },
@@ -5400,27 +2644,30 @@
     },
     {
       "date": "2026-11-09",
-      "close": 190.6
+      "close": 190.6,
+      "volume": 1050057.0
     },
     {
       "date": "2026-11-10",
-      "close": 187.6
+      "close": 187.6,
+      "volume": 889132.0
     },
     {
       "date": "2026-11-11",
-      "close": 182.55
+      "close": 182.55,
+      "volume": 793468.0
     },
     {
       "date": "2026-11-12",
-      "close": 179.9
+      "close": 179.9,
+      "volume": 730482.0
     },
     {
       "date": "2026-11-13",
-      "close": 181.1
+      "close": 181.3,
+      "volume": 75406.0
     }
   ],
-  "updatedAt": "2026-11-13T10:38:59.252282+00:00",
-  "holdings": [],
   "dividends": {
     "history": [
       {
@@ -5503,44 +2750,11 @@
         "date": "2026-05-05",
         "amount": 4.0
       }
-    ]
-  },
-  "institutional": {
-    "holders": [
-      {
-        "name": "Paradigm Asset Management Company, LLC",
-        "shares": 4100,
-        "value": 794580.0,
-        "changeShares": null
-      },
-      {
-        "name": "Atlas Capital Advisors Inc",
-        "shares": 645,
-        "value": 125001.0,
-        "changeShares": null
-      },
-      {
-        "name": "Pacer Advisors, Inc.",
-        "shares": 3583,
-        "value": 694385.0,
-        "changeShares": null
-      },
-      {
-        "name": "Heritage Wealth Advisors",
-        "shares": 88,
-        "value": 17054.0,
-        "changeShares": null
-      },
-      {
-        "name": "Generali Investments Cee, Investicni Spolecnost, A.s.",
-        "shares": 9657,
-        "value": 1871526.0,
-        "changeShares": null
-      }
     ],
-    "summary": {
-      "institutionalPercent": 0.2763,
-      "institutionalCount": null
-    }
-  }
+    "exDate": "2026-05-05",
+    "rate": 4.0,
+    "yield": 2.19
+  },
+  "exDividendDate": "2026-05-05",
+  "updatedAt": "2026-11-13T11:05:23.191046+00:00"
 }
