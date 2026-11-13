@@ -1,15 +1,7 @@
 /**
  * js/premarket.js
  * US-Vorbörsenhandel-Indikator für deutsche Anleger.
- * Zeigt die Pre-Market-Bewegung als gestrichelte Linie und berechnet,
- * ob der deutsche Kurs voraussichtlich folgen wird.
- * 
- * UPDATE: 
- * - Kein Auto-Refresh mehr (spart Requests).
- * - Kein DE-Ticker-Abruf mehr (nutzt den App-Kurs).
- * - Zeitanzeige mit "heute" und "morgen".
- * - Trade Republic Handelszeit (bis 23:00) integriert.
- * - Xetra-Status (Geöffnet/Geschlossen) inkl. Wochenend-Erkennung.
+ * NEU: 15-Minuten-Momentum & Warnung vor "Fakeouts" kurz vor US-Open (15:00-15:30).
  */
 window.App = window.App || {};
 
@@ -45,7 +37,7 @@ window.App.PreMarket = (function () {
   function isXetraOpen() {
     if (isWeekend()) return false;
     var h = cetHour();
-    return h >= 9 && h < 17.5; // 09:00 bis 17:30 Uhr
+    return h >= 9 && h < 17.5;
   }
 
   function fetchChart(ticker, withPrePost) {
@@ -94,7 +86,6 @@ window.App.PreMarket = (function () {
     return 'closed';
   }
 
-  // NEU: Berechnet die Zeit bis zu einem Ziel und gibt "heute" oder "morgen" aus
   function getTimeInfo(targetHour, currentHour) {
     var isTomorrow = targetHour < currentHour;
     var diff = isTomorrow ? (targetHour + 24) - currentHour : targetHour - currentHour;
@@ -102,13 +93,10 @@ window.App.PreMarket = (function () {
     var mm = Math.round((diff - hh) * 60);
     var timeStr = hh + 'h ' + (mm < 10 ? '0' : '') + mm + 'min';
     var dayStr = isTomorrow ? ' (morgen)' : ' (heute)';
-    
-    // Wochenende abfangen (wenn heute Freitag nach 17:30 ist oder Wochenende)
     var day = new Date().toLocaleString('en-US', { timeZone: 'Europe/Berlin', weekday: 'short' });
     if (day === 'Fri' && isTomorrow) dayStr = ' (Montag)';
     if (day === 'Sat') dayStr = ' (Montag)';
     if (day === 'Sun' && isTomorrow) dayStr = ' (Montag)';
-
     return timeStr + dayStr;
   }
 
@@ -125,6 +113,21 @@ window.App.PreMarket = (function () {
     return { delta: delta, direction: dir, strength: strength };
   }
 
+  // NEU: Berechnet den Trend der letzten 15 Minuten im Pre-Market
+  function computeMomentum(points) {
+    if (!points || points.length < 5) return null;
+    var now = Date.now();
+    var cutoff = now - (15 * 60 * 1000); // 15 Minuten
+    var recent = points.filter(function(p) { return p.t >= cutoff; });
+    if (recent.length < 3) return null; // Zu wenig Daten für 15 Min
+    
+    var first = recent[0].price;
+    var last = recent[recent.length - 1].price;
+    var delta = ((last / first) - 1) * 100;
+    
+    return { delta: delta, dir: delta > 0.1 ? 'up' : delta < -0.1 ? 'down' : 'flat' };
+  }
+
   function render(container, stock) {
     if (!container || !stock) return;
     var ticker = (stock.ticker || '').toUpperCase();
@@ -137,8 +140,6 @@ window.App.PreMarket = (function () {
 
     container.innerHTML = buildShell(ticker);
     bindEvents(container, ticker, stock);
-    
-    // Initialer Aufruf beim Öffnen der Aktie
     refresh(container, ticker, stock);
   }
 
@@ -151,6 +152,7 @@ window.App.PreMarket = (function () {
         '</div>' +
         '<div id="pm-status" style="font-size:0.78rem;color:var(--text-dim);">Lade Vorbörsen-Daten…</div>' +
         '<div id="pm-signal" style="margin:10px 0;"></div>' +
+        '<div id="pm-momentum"></div>' + // NEU: Container für Momentum-Warnung
         '<div style="height:140px;position:relative;margin-top:6px;">' +
           '<canvas id="pm-canvas" style="width:100%;height:100%;"></canvas>' +
         '</div>' +
@@ -165,7 +167,6 @@ window.App.PreMarket = (function () {
   function bindEvents(container, ticker, stock) {
     var btn = container.querySelector('#pm-refresh');
     if (btn) btn.onclick = function () { 
-      // Button deaktivieren während des Ladens
       btn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Lädt...';
       btn.style.opacity = '0.7';
       btn.disabled = true;
@@ -182,7 +183,6 @@ window.App.PreMarket = (function () {
     var statusEl = container.querySelector('#pm-status');
     if (statusEl) statusEl.textContent = 'Rufe Vorbörsen-Daten…';
 
-    // Nur noch 2 Requests: US-Chart und EUR/USD Wechselkurs
     return Promise.all([
       fetchChart(ticker, true),
       fetchFx()
@@ -219,7 +219,6 @@ window.App.PreMarket = (function () {
                                   session === 'regular' ? 'var(--bullish)' : 'var(--text-dim)';
     }
 
-    // Statuszeile
     var statusEl = container.querySelector('#pm-status');
     if (statusEl) {
       if (lastPre) {
@@ -232,7 +231,6 @@ window.App.PreMarket = (function () {
       }
     }
 
-    // Signal
     var signalEl = container.querySelector('#pm-signal');
     if (signalEl) {
       var signal = computeSignal(lastPre ? lastPre.price : null, germanNow);
@@ -262,7 +260,34 @@ window.App.PreMarket = (function () {
       }
     }
 
-    // Zeit-Info mit heute/morgen und Trade Republic
+    // NEU: Pre-Market Momentum & Fakeout-Warnung
+    var momEl = container.querySelector('#pm-momentum');
+    if (momEl) {
+      var mom = computeMomentum(prePoints);
+      if (mom && session === 'pre') {
+        var isDangerZone = (cetHour() >= 15.0 && cetHour() <= 15.5); // 15:00 bis 15:30 Uhr
+        
+        if (mom.dir === 'down') {
+          var alertColor = isDangerZone ? 'var(--bearish)' : 'var(--tag-yellow)';
+          var alertBg = isDangerZone ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.05)';
+          var alertTitle = isDangerZone ? '⚠️ Achtung: Kurs dreht kurz vor US-Open!' : '📉 Vorbörse dreht nach unten';
+          var alertText = isDangerZone 
+            ? 'Der Preis ist in den letzten 15 Min um ' + fmt(mom.delta) + '% gefallen. Wenn du verkaufen willst, solltest du das jetzt tun, bevor um 15:30 Uhr das große Volumen kommt.'
+            : 'Der Pre-Market verliert an Momentum (' + fmt(mom.delta) + '% in 15 Min).';
+
+          momEl.innerHTML = '<div style="padding:10px; background:' + alertBg + '; border-left:3px solid ' + alertColor + '; border-radius:4px; margin-top:8px;">' +
+            '<div style="font-weight:700; color:' + alertColor + '; font-size:0.8rem;">' + alertTitle + '</div>' +
+            '<div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px; line-height:1.4;">' + alertText + '</div></div>';
+        } else if (mom.dir === 'up') {
+          momEl.innerHTML = '<div style="font-size:0.72rem; color:var(--bullish); text-align:center; margin-top:6px; font-weight:600;">📈 Pre-Market-Momentum: +' + fmt(mom.delta) + '% (letzte 15 Min)</div>';
+        } else {
+          momEl.innerHTML = '<div style="font-size:0.72rem; color:var(--text-muted); text-align:center; margin-top:6px;">➡️ Pre-Market-Momentum: seitwärts (letzte 15 Min)</div>';
+        }
+      } else {
+        momEl.innerHTML = '';
+      }
+    }
+
     var timesEl = container.querySelector('#pm-times');
     if (timesEl) {
       var xetraTimeStr = '';
@@ -279,7 +304,6 @@ window.App.PreMarket = (function () {
         xetraTimeStr;
     }
 
-    // Info-Zeile mit Xetra-Status
     var infoEl = container.querySelector('#pm-info');
     if (infoEl) {
       var xetraLabel = xetraOpen 
@@ -291,7 +315,6 @@ window.App.PreMarket = (function () {
         'Der Pfeil zeigt, in welche Richtung der deutsche Kurs zur US-Eröffnung tendiert.';
     }
 
-    // Mini-Chart
     drawChart(container, prePoints, germanNow);
   }
 
@@ -334,7 +357,6 @@ window.App.PreMarket = (function () {
     });
   }
 
-  // Stub, damit alte Aufrufe (z.B. in index.html) nicht crashen
   function stopAutoRefresh() { /* Kein Timer mehr vorhanden */ }
 
   return { render: render, stopAutoRefresh: stopAutoRefresh };
