@@ -11,9 +11,9 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 21.04,
-    "change": 0.04,
-    "changePercent": 0.19,
+    "price": 21.06,
+    "change": 0.06,
+    "changePercent": 0.29,
     "marketCap": 9841920000.0,
     "fiftyTwoWeekLow": 12.49,
     "fiftyTwoWeekHigh": 21.84,
@@ -2154,38 +2154,47 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.0917,
-        "actual": 0.15,
-        "surprisePercent": 0.6356
+        "quarter": "None",
+        "estimate": 0.59,
+        "actual": 0.71,
+        "surprisePercent": 0.2034
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.28,
-        "actual": 0.34,
-        "surprisePercent": 0.2143
-      },
-      {
-        "quarter": "2026-06-30",
+        "quarter": "None",
         "estimate": 0.54,
         "actual": 0.65,
         "surprisePercent": 0.2037
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.59,
-        "actual": 0.71,
-        "surprisePercent": 0.2034
+        "quarter": "None",
+        "estimate": 0.28,
+        "actual": 0.34,
+        "surprisePercent": 0.2143
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.0917,
+        "actual": 0.15,
+        "surprisePercent": 0.6356
       }
     ],
     "nextEarningsDate": "2026-11-03",
     "epsForecast": {
-      "date": "2026-11-03",
-      "estimate": 0.275,
-      "low": 0.25,
-      "high": 0.3,
-      "analysts": 2
-    }
+      "date": null,
+      "estimate": 0.28,
+      "low": 0.28,
+      "high": 0.28,
+      "analysts": 1
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2018-11-16",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Buy",
+        "action": "down"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6272,7 +6281,7 @@
       "close": 21.0
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

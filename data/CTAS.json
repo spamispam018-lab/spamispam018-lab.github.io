@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 205.8829,
-    "change": 0.2353,
+    "price": 205.8146,
+    "change": 0.2352,
     "changePercent": 0.11,
     "marketCap": 78635178841.638,
     "fiftyTwoWeekLow": 143.5307,
@@ -2257,38 +2257,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-11-30",
-        "estimate": 1.0675,
-        "actual": 1.0776,
-        "surprisePercent": 0.0096
+        "quarter": "None",
+        "estimate": 1.3497,
+        "actual": 1.39,
+        "surprisePercent": 0.0299
       },
       {
-        "quarter": "2026-02-28",
-        "estimate": 1.1036,
-        "actual": 1.1044,
-        "surprisePercent": 0.0006
-      },
-      {
-        "quarter": "2026-05-31",
-        "estimate": 1.1047,
-        "actual": 1.1489,
+        "quarter": "None",
+        "estimate": 1.2404,
+        "actual": 1.29,
         "surprisePercent": 0.04
       },
       {
-        "quarter": "2026-08-31",
-        "estimate": 1.2021,
-        "actual": 1.2379,
-        "surprisePercent": 0.0299
+        "quarter": "None",
+        "estimate": 1.2392,
+        "actual": 1.24,
+        "surprisePercent": 0.0006
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.1986,
+        "actual": 1.21,
+        "surprisePercent": 0.0096
       }
     ],
     "nextEarningsDate": "2026-12-17",
     "epsForecast": {
-      "date": "2026-12-17",
-      "estimate": 1.2138,
-      "low": 1.1934,
-      "high": 1.2379,
+      "date": null,
+      "estimate": 1.3629,
+      "low": 1.34,
+      "high": 1.39,
       "analysts": 14
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-09-30",
+        "firm": "Citigroup",
+        "toGrade": "Sell",
+        "fromGrade": "Sell",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-29",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "Baird",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-22",
+        "firm": "Citigroup",
+        "toGrade": "Sell",
+        "fromGrade": "Sell",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-17",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-16",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-16",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6620,7 +6692,7 @@
       "close": 205.7463
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

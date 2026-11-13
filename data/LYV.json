@@ -11,7 +11,7 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 163.0087,
+    "price": 162.9546,
     "change": -0.0181,
     "changePercent": -0.01,
     "marketCap": 36787375704.5954,
@@ -2250,38 +2250,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": -0.9327,
-        "actual": -0.944,
-        "surprisePercent": -0.0122
+        "quarter": "None",
+        "estimate": 1.5004,
+        "actual": 1.69,
+        "surprisePercent": 0.1264
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": -0.2813,
-        "actual": -1.6476,
-        "surprisePercent": -4.8568
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.5113,
-        "actual": 0.9351,
+        "quarter": "None",
+        "estimate": 0.5741,
+        "actual": 1.05,
         "surprisePercent": 0.8289
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.3363,
-        "actual": 1.5051,
-        "surprisePercent": 0.1264
+        "quarter": "None",
+        "estimate": -0.3159,
+        "actual": -1.85,
+        "surprisePercent": -4.8568
+      },
+      {
+        "quarter": "None",
+        "estimate": -1.0473,
+        "actual": -1.06,
+        "surprisePercent": -0.0122
       }
     ],
     "nextEarningsDate": "2026-11-05",
     "epsForecast": {
-      "date": "2026-11-05",
-      "estimate": -1.219,
-      "low": -1.5051,
-      "high": -0.9895,
-      "analysts": 10
-    }
+      "date": null,
+      "estimate": -1.4206,
+      "low": -1.94,
+      "high": -1.111,
+      "analysts": 11
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-10",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-07",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "StoneX",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Susquehanna",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-03",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-31",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-31",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6637,7 +6709,7 @@
       "close": 162.9006
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

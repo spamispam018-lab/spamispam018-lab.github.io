@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 301.6303,
-    "change": -2.1718,
+    "price": 301.5303,
+    "change": -2.1711,
     "changePercent": -0.71,
     "marketCap": 56154908070.0192,
     "fiftyTwoWeekLow": 228.4771,
@@ -2008,38 +2008,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.2185,
-        "actual": 2.3209,
-        "surprisePercent": 0.0462
+        "quarter": "None",
+        "estimate": 2.2946,
+        "actual": 2.1071,
+        "surprisePercent": -0.0817
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.1541,
-        "actual": 2.2014,
-        "surprisePercent": 0.0219
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.2517,
-        "actual": 2.1857,
+        "quarter": "None",
+        "estimate": 2.5283,
+        "actual": 2.4542,
         "surprisePercent": -0.0293
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.0436,
-        "actual": 1.8766,
-        "surprisePercent": -0.0817
+        "quarter": "None",
+        "estimate": 2.4187,
+        "actual": 2.4718,
+        "surprisePercent": 0.0219
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.491,
+        "actual": 2.606,
+        "surprisePercent": 0.0462
       }
     ],
     "nextEarningsDate": "2026-10-26",
     "epsForecast": {
-      "date": "2026-10-26",
-      "estimate": 1.7634,
-      "low": 1.7634,
-      "high": 1.7634,
-      "analysts": 1
-    }
+      "date": null,
+      "estimate": 2.0314,
+      "low": 1.98,
+      "high": 2.1043,
+      "analysts": 3
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-21",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-21",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-10",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6395,7 +6467,7 @@
       "close": 301.4303
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

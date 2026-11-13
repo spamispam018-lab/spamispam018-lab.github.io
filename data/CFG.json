@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 58.6918,
-    "change": -0.4706,
+    "price": 58.6724,
+    "change": -0.4703,
     "changePercent": -0.8,
     "marketCap": 23609977100.4565,
     "fiftyTwoWeekLow": 43.6399,
@@ -1753,38 +1753,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.9843,
-        "actual": 1.0064,
-        "surprisePercent": 0.0224
+        "quarter": "None",
+        "estimate": 1.3859,
+        "actual": 1.41,
+        "surprisePercent": 0.0174
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.9701,
-        "actual": 1.0064,
-        "surprisePercent": 0.0373
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.1092,
-        "actual": 1.1578,
+        "quarter": "None",
+        "estimate": 1.2454,
+        "actual": 1.3,
         "surprisePercent": 0.0439
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.2343,
-        "actual": 1.2558,
-        "surprisePercent": 0.0174
+        "quarter": "None",
+        "estimate": 1.0893,
+        "actual": 1.13,
+        "surprisePercent": 0.0373
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.1052,
+        "actual": 1.13,
+        "surprisePercent": 0.0224
       }
     ],
     "nextEarningsDate": "2027-01-15",
     "epsForecast": {
-      "date": "2027-01-15",
-      "estimate": 1.3141,
-      "low": 1.2825,
-      "high": 1.3448,
+      "date": null,
+      "estimate": 1.4755,
+      "low": 1.44,
+      "high": 1.51,
       "analysts": 15
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-20",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Stephens & Co.",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-28",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6140,7 +6212,7 @@
       "close": 58.6529
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 97.0596,
-    "change": -2.3799,
+    "price": 97.0274,
+    "change": -2.3791,
     "changePercent": -2.39,
     "marketCap": 107031672448.5148,
     "fiftyTwoWeekLow": 73.0033,
@@ -2104,38 +2104,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.5227,
-        "actual": 0.4987,
-        "surprisePercent": -0.0459
+        "quarter": "None",
+        "estimate": 0.7057,
+        "actual": 0.8,
+        "surprisePercent": 0.1335
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.3888,
-        "actual": 0.4453,
-        "surprisePercent": 0.1451
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.5788,
-        "actual": 0.757,
+        "quarter": "None",
+        "estimate": 0.6499,
+        "actual": 0.85,
         "surprisePercent": 0.3079
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.6285,
-        "actual": 0.7125,
-        "surprisePercent": 0.1335
+        "quarter": "None",
+        "estimate": 0.4366,
+        "actual": 0.5,
+        "surprisePercent": 0.1451
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.5869,
+        "actual": 0.56,
+        "surprisePercent": -0.0459
       }
     ],
     "nextEarningsDate": "2027-01-27",
     "epsForecast": {
-      "date": "2027-01-27",
-      "estimate": 0.6702,
-      "low": 0.6145,
-      "high": 0.7214,
-      "analysts": 27
-    }
+      "date": null,
+      "estimate": 0.7512,
+      "low": 0.69,
+      "high": 0.81,
+      "analysts": 29
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-06",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Guggenheim",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "DA Davidson",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-09",
+        "firm": "DA Davidson",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6491,7 +6563,7 @@
       "close": 96.9952
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

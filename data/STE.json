@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 229.3379,
-    "change": -2.5608,
+    "price": 229.2618,
+    "change": -2.56,
     "changePercent": -1.1,
     "marketCap": 21820035874.0643,
     "fiftyTwoWeekLow": 173.7936,
@@ -2288,38 +2288,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.2555,
-        "actual": 2.2532,
-        "surprisePercent": -0.001
+        "quarter": "None",
+        "estimate": 2.6769,
+        "actual": 2.94,
+        "surprisePercent": 0.0983
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.537,
-        "actual": 2.5204,
-        "surprisePercent": -0.0065
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.2204,
-        "actual": 2.3067,
+        "quarter": "None",
+        "estimate": 2.4931,
+        "actual": 2.59,
         "surprisePercent": 0.0389
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.3841,
-        "actual": 2.6184,
-        "surprisePercent": 0.0983
+        "quarter": "None",
+        "estimate": 2.8486,
+        "actual": 2.83,
+        "surprisePercent": -0.0065
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.5325,
+        "actual": 2.53,
+        "surprisePercent": -0.001
       }
     ],
     "nextEarningsDate": "2027-02-03",
     "epsForecast": {
-      "date": "2027-02-03",
-      "estimate": 2.4941,
-      "low": 2.467,
-      "high": 2.5138,
-      "analysts": 6
-    }
+      "date": null,
+      "estimate": 2.7913,
+      "low": 2.74,
+      "high": 2.8289,
+      "analysts": 7
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-06",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-07",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-07",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-07-28",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-05-13",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2025-08-08",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2025-07-22",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2025-07-15",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Equal-Weight",
+        "action": "up"
+      },
+      {
+        "date": "2025-05-29",
+        "firm": "Jefferies",
+        "toGrade": "Hold",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2025-05-19",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6675,7 +6747,7 @@
       "close": 229.1858
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

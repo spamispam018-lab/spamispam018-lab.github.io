@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 418.6882,
-    "change": 0.5158,
+    "price": 418.5494,
+    "change": 0.5157,
     "changePercent": 0.12,
     "marketCap": 76881585673.3779,
     "fiftyTwoWeekLow": 322.8906,
@@ -2082,38 +2082,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 2.4792,
-        "actual": 2.5828,
-        "surprisePercent": 0.0418
+        "quarter": "None",
+        "estimate": 3.6733,
+        "actual": 3.91,
+        "surprisePercent": 0.0644
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 3.1681,
-        "actual": 3.3576,
-        "surprisePercent": 0.0598
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 2.8158,
-        "actual": 2.9835,
+        "quarter": "None",
+        "estimate": 3.1617,
+        "actual": 3.35,
         "surprisePercent": 0.0595
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 3.2715,
-        "actual": 3.4823,
-        "surprisePercent": 0.0644
+        "quarter": "None",
+        "estimate": 3.5572,
+        "actual": 3.77,
+        "surprisePercent": 0.0598
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.7837,
+        "actual": 2.9,
+        "surprisePercent": 0.0418
       }
     ],
     "nextEarningsDate": "2026-12-08",
     "epsForecast": {
-      "date": "2026-12-08",
-      "estimate": 3.6811,
-      "low": 3.5706,
-      "high": 3.7851,
+      "date": null,
+      "estimate": 4.1332,
+      "low": 4.0092,
+      "high": 4.25,
       "analysts": 16
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-20",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "HSBC",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "BNP Paribas",
+        "toGrade": "Neutral",
+        "fromGrade": "Underperform",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-10",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Equal-Weight",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-08",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Equal-Weight",
+        "action": "up"
+      },
+      {
+        "date": "2026-08-27",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6469,7 +6541,7 @@
       "close": 418.4106
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

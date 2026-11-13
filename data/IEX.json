@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 215.3934,
-    "change": -1.7464,
+    "price": 215.3219,
+    "change": -1.7459,
     "changePercent": -0.8,
     "marketCap": 14849185841.987,
     "fiftyTwoWeekLow": 143.032,
@@ -2190,38 +2190,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.8177,
-        "actual": 1.8703,
-        "surprisePercent": 0.0289
+        "quarter": "None",
+        "estimate": 2.2412,
+        "actual": 2.33,
+        "surprisePercent": 0.0396
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.5791,
-        "actual": 1.7812,
-        "surprisePercent": 0.128
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.8795,
-        "actual": 2.0662,
+        "quarter": "None",
+        "estimate": 2.1104,
+        "actual": 2.32,
         "surprisePercent": 0.0993
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.996,
-        "actual": 2.0751,
-        "surprisePercent": 0.0396
+        "quarter": "None",
+        "estimate": 1.773,
+        "actual": 2.0,
+        "surprisePercent": 0.128
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.041,
+        "actual": 2.1,
+        "surprisePercent": 0.0289
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 2.0466,
-      "low": 2.0306,
-      "high": 2.0751,
+      "date": null,
+      "estimate": 2.298,
+      "low": 2.28,
+      "high": 2.33,
       "analysts": 13
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-29",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Stifel",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-09",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-12",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Neutral",
+        "action": "up"
+      },
+      {
+        "date": "2026-08-06",
+        "firm": "DA Davidson",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-06",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6577,7 +6649,7 @@
       "close": 215.2505
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

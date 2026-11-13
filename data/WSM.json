@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 226.5689,
-    "change": -10.5963,
+    "price": 226.4937,
+    "change": -10.5929,
     "changePercent": -4.47,
     "marketCap": 26649702019.7474,
     "fiftyTwoWeekLow": 147.4049,
@@ -1789,38 +1789,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 1.6646,
-        "actual": 1.7456,
-        "surprisePercent": 0.0487
+        "quarter": "None",
+        "estimate": 2.0598,
+        "actual": 2.84,
+        "surprisePercent": 0.3787
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 2.5918,
-        "actual": 2.7075,
-        "surprisePercent": 0.0446
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 1.6013,
-        "actual": 1.7189,
+        "quarter": "None",
+        "estimate": 1.798,
+        "actual": 1.93,
         "surprisePercent": 0.0734
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 1.8345,
-        "actual": 2.5293,
-        "surprisePercent": 0.3787
+        "quarter": "None",
+        "estimate": 2.9101,
+        "actual": 3.04,
+        "surprisePercent": 0.0446
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.869,
+        "actual": 1.96,
+        "surprisePercent": 0.0487
       }
     ],
-    "nextEarningsDate": "2026-11-18",
+    "nextEarningsDate": "2026-11-19",
     "epsForecast": {
-      "date": "2026-11-18",
-      "estimate": 1.9617,
-      "low": 1.8881,
-      "high": 2.084,
+      "date": null,
+      "estimate": 2.2027,
+      "low": 2.12,
+      "high": 2.34,
       "analysts": 11
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-09",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-02",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-27",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-27",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-27",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6176,7 +6248,7 @@
       "close": 226.4186
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

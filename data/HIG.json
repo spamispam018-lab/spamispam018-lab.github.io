@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 123.8808,
-    "change": -0.2534,
+    "price": 123.8397,
+    "change": -0.2533,
     "changePercent": -0.2,
     "marketCap": 31911198344.4218,
     "fiftyTwoWeekLow": 107.2473,
@@ -1648,38 +1648,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.8645,
-        "actual": 3.6159,
-        "surprisePercent": 0.2623
+        "quarter": "None",
+        "estimate": 3.1704,
+        "actual": 3.5,
+        "surprisePercent": 0.104
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 3.0186,
-        "actual": 2.752,
-        "surprisePercent": -0.0883
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.7962,
-        "actual": 3.0459,
+        "quarter": "None",
+        "estimate": 3.1396,
+        "actual": 3.42,
         "surprisePercent": 0.0893
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.8236,
-        "actual": 3.1171,
-        "surprisePercent": 0.104
+        "quarter": "None",
+        "estimate": 3.3894,
+        "actual": 3.09,
+        "surprisePercent": -0.0883
+      },
+      {
+        "quarter": "None",
+        "estimate": 3.2163,
+        "actual": 4.06,
+        "surprisePercent": 0.2623
       }
     ],
     "nextEarningsDate": "2027-01-28",
     "epsForecast": {
-      "date": "2027-01-28",
-      "estimate": 2.8667,
-      "low": 2.4533,
-      "high": 3.2507,
+      "date": null,
+      "estimate": 3.2188,
+      "low": 2.7546,
+      "high": 3.65,
       "analysts": 22
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-11",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Overweight",
+        "action": "down"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-06",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-06",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6035,7 +6107,7 @@
       "close": 123.7987
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

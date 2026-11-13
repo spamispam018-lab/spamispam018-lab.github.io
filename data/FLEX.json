@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 70.6908,
-    "change": -0.7692,
+    "price": 70.6674,
+    "change": -0.7689,
     "changePercent": -1.08,
     "marketCap": 22959148412.0442,
     "fiftyTwoWeekLow": 47.2647,
@@ -2148,38 +2148,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.7009,
-        "actual": 0.7748,
-        "surprisePercent": 0.1054
+        "quarter": "None",
+        "estimate": 1.0583,
+        "actual": 1.18,
+        "surprisePercent": 0.115
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.7808,
-        "actual": 0.8283,
-        "surprisePercent": 0.0607
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.8178,
-        "actual": 0.8906,
+        "quarter": "None",
+        "estimate": 0.9183,
+        "actual": 1.0,
         "surprisePercent": 0.089
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.9425,
-        "actual": 1.0509,
-        "surprisePercent": 0.115
+        "quarter": "None",
+        "estimate": 0.8767,
+        "actual": 0.93,
+        "surprisePercent": 0.0607
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.787,
+        "actual": 0.87,
+        "surprisePercent": 0.1054
       }
     ],
     "nextEarningsDate": "2027-01-27",
     "epsForecast": {
-      "date": "2027-01-27",
-      "estimate": 1.1169,
-      "low": 1.0865,
-      "high": 1.1756,
+      "date": null,
+      "estimate": 1.2552,
+      "low": 1.22,
+      "high": 1.32,
       "analysts": 9
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "Freedom Capital Markets",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-12",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-28",
+        "firm": "Freedom Capital Markets",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-08",
+        "firm": "Freedom Capital Markets",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-30",
+        "firm": "Goldman Sachs",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-30",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-06-04",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-05-28",
+        "firm": "Freedom Capital Markets",
+        "toGrade": "Hold",
+        "fromGrade": "",
+        "action": "init"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6535,7 +6607,7 @@
       "close": 70.6439
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 144.1868,
-    "change": -0.7872,
+    "price": 144.139,
+    "change": -0.787,
     "changePercent": -0.54,
     "marketCap": 38604968303.9946,
     "fiftyTwoWeekLow": 119.5733,
@@ -2094,38 +2094,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.5641,
-        "actual": 1.5408,
-        "surprisePercent": -0.0149
+        "quarter": "None",
+        "estimate": 1.4713,
+        "actual": 1.56,
+        "surprisePercent": 0.0603
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.2371,
-        "actual": 1.3359,
-        "surprisePercent": 0.0798
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.3911,
-        "actual": 1.4428,
+        "quarter": "None",
+        "estimate": 1.562,
+        "actual": 1.62,
         "surprisePercent": 0.0371
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.3104,
-        "actual": 1.3894,
-        "surprisePercent": 0.0603
+        "quarter": "None",
+        "estimate": 1.3891,
+        "actual": 1.5,
+        "surprisePercent": 0.0798
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.7562,
+        "actual": 1.73,
+        "surprisePercent": -0.0149
       }
     ],
     "nextEarningsDate": "2027-02-03",
     "epsForecast": {
-      "date": "2027-02-03",
-      "estimate": 1.5325,
-      "low": 1.327,
-      "high": 1.6743,
-      "analysts": 21
-    }
+      "date": null,
+      "estimate": 1.7152,
+      "low": 1.49,
+      "high": 1.88,
+      "analysts": 22
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-05",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "BTIG",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "reit"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-06",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-29",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "Argus Research",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6481,7 +6553,7 @@
       "close": 144.0912
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

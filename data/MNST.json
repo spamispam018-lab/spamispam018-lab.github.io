@@ -11,7 +11,7 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 41.2363,
+    "price": 41.2226,
     "change": 0.1538,
     "changePercent": 0.37,
     "marketCap": 79707315230.7516,
@@ -1955,38 +1955,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.2145,
-        "actual": 0.2048,
-        "surprisePercent": -0.045
+        "quarter": "None",
+        "estimate": 0.2984,
+        "actual": 0.29,
+        "surprisePercent": -0.0281
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.2345,
-        "actual": 0.2583,
-        "surprisePercent": 0.1016
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.258,
-        "actual": 0.2627,
+        "quarter": "None",
+        "estimate": 0.2897,
+        "actual": 0.295,
         "surprisePercent": 0.0184
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.2658,
-        "actual": 0.2583,
-        "surprisePercent": -0.0281
+        "quarter": "None",
+        "estimate": 0.2633,
+        "actual": 0.29,
+        "surprisePercent": 0.1016
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.2408,
+        "actual": 0.23,
+        "surprisePercent": -0.045
       }
     ],
     "nextEarningsDate": "2026-11-05",
     "epsForecast": {
-      "date": "2026-11-05",
-      "estimate": 0.2323,
-      "low": 0.2137,
-      "high": 0.2405,
-      "analysts": 6
-    }
+      "date": null,
+      "estimate": 0.2619,
+      "low": 0.24,
+      "high": 0.27,
+      "analysts": 8
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "Bernstein",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-07",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-07",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-07",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6342,7 +6414,7 @@
       "close": 41.209
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 226.6594,
-    "change": -2.6423,
+    "price": 226.5842,
+    "change": -2.6414,
     "changePercent": -1.15,
     "marketCap": 32695319053.718,
     "fiftyTwoWeekLow": 136.9491,
@@ -2391,38 +2391,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.4388,
-        "actual": 1.7723,
-        "surprisePercent": 0.2318
+        "quarter": "None",
+        "estimate": 1.9919,
+        "actual": 2.62,
+        "surprisePercent": 0.3153
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.6293,
-        "actual": 3.1795,
-        "surprisePercent": 0.2093
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.8075,
-        "actual": 3.2062,
+        "quarter": "None",
+        "estimate": 2.0295,
+        "actual": 3.6,
         "surprisePercent": 0.7738
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.774,
-        "actual": 2.3334,
-        "surprisePercent": 0.3153
+        "quarter": "None",
+        "estimate": 2.9522,
+        "actual": 3.57,
+        "surprisePercent": 0.2093
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.6155,
+        "actual": 1.99,
+        "surprisePercent": 0.2318
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 2.5265,
-      "low": 2.1731,
-      "high": 3.4467,
+      "date": null,
+      "estimate": 2.8231,
+      "low": 2.44,
+      "high": 3.87,
       "analysts": 27
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "HC Wainwright & Co.",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Canaccord Genuity",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Wedbush",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6778,7 +6850,7 @@
       "close": 226.5091
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

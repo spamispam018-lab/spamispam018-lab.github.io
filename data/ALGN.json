@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 151.0912,
-    "change": -4.624,
+    "price": 151.0411,
+    "change": -4.6225,
     "changePercent": -2.97,
     "marketCap": 10420895061.6345,
     "fiftyTwoWeekLow": 115.9841,
@@ -2036,38 +2036,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.6443,
-        "actual": 2.9301,
-        "surprisePercent": 0.1081
+        "quarter": "None",
+        "estimate": 2.7637,
+        "actual": 2.8,
+        "surprisePercent": 0.0131
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.0364,
-        "actual": 2.2978,
-        "surprisePercent": 0.1284
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.3114,
-        "actual": 2.3512,
+        "quarter": "None",
+        "estimate": 2.5953,
+        "actual": 2.64,
         "surprisePercent": 0.0172
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.4614,
-        "actual": 2.4937,
-        "surprisePercent": 0.0131
+        "quarter": "None",
+        "estimate": 2.2865,
+        "actual": 2.58,
+        "surprisePercent": 0.1284
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.9691,
+        "actual": 3.29,
+        "surprisePercent": 0.1081
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 2.7178,
-      "low": 2.654,
-      "high": 2.841,
-      "analysts": 12
-    }
+      "date": null,
+      "estimate": 3.0515,
+      "low": 2.98,
+      "high": 3.19,
+      "analysts": 13
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-29",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Baird",
+        "toGrade": "Neutral",
+        "fromGrade": "Outperform",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Leerink Partners",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-09",
+        "firm": "Stifel",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "Outperform",
+        "action": "down"
+      },
+      {
+        "date": "2026-07-23",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-09",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-04-30",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6335,7 +6407,7 @@
       "close": 150.991
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

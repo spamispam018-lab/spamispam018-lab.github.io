@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 210.0092,
-    "change": -2.1989,
+    "price": 209.9396,
+    "change": -2.1981,
     "changePercent": -1.04,
     "marketCap": 33821448578.9629,
     "fiftyTwoWeekLow": 116.1534,
@@ -2294,38 +2294,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.0756,
-        "actual": 1.1489,
-        "surprisePercent": 0.0682
+        "quarter": "None",
+        "estimate": 1.9718,
+        "actual": 2.09,
+        "surprisePercent": 0.0599
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.2418,
-        "actual": 1.2558,
-        "surprisePercent": 0.0112
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.4402,
-        "actual": 1.5497,
+        "quarter": "None",
+        "estimate": 1.6171,
+        "actual": 1.74,
         "surprisePercent": 0.076
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.7561,
-        "actual": 1.8614,
-        "surprisePercent": 0.0599
+        "quarter": "None",
+        "estimate": 1.3943,
+        "actual": 1.41,
+        "surprisePercent": 0.0112
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.2077,
+        "actual": 1.29,
+        "surprisePercent": 0.0682
       }
     ],
     "nextEarningsDate": "2027-02-03",
     "epsForecast": {
-      "date": "2027-02-03",
-      "estimate": 2.1376,
-      "low": 2.0573,
-      "high": 2.2443,
-      "analysts": 20
-    }
+      "date": null,
+      "estimate": 2.403,
+      "low": 2.31,
+      "high": 2.52,
+      "analysts": 21
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-06",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "B. Riley Securities",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "StoneX",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "B. Riley Securities",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6681,7 +6753,7 @@
       "close": 209.8699
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

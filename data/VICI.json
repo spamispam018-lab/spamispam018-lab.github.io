@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 22.4415,
-    "change": -0.1267,
+    "price": 22.4341,
+    "change": -0.1266,
     "changePercent": -0.56,
     "marketCap": 24310011005.8614,
     "fiftyTwoWeekLow": 19.9719,
@@ -2056,38 +2056,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.6234,
-        "actual": 0.5043,
-        "surprisePercent": -0.1911
+        "quarter": "None",
+        "estimate": 0.72,
+        "actual": 0.3114,
+        "surprisePercent": -0.5675
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.6323,
-        "actual": 0.7273,
-        "surprisePercent": 0.1501
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.6323,
-        "actual": 0.4316,
+        "quarter": "None",
+        "estimate": 0.71,
+        "actual": 0.4846,
         "surprisePercent": -0.3175
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.6412,
-        "actual": 0.2773,
-        "surprisePercent": -0.5675
+        "quarter": "None",
+        "estimate": 0.71,
+        "actual": 0.8166,
+        "surprisePercent": 0.1501
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.7,
+        "actual": 0.5662,
+        "surprisePercent": -0.1911
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 0.6501,
-      "low": 0.6501,
-      "high": 0.6501,
+      "date": null,
+      "estimate": 0.73,
+      "low": 0.73,
+      "high": 0.73,
       "analysts": 1
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-05",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Stifel",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Macquarie",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "Citizens",
+        "toGrade": "Market Outperform",
+        "fromGrade": "Market Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Overweight",
+        "action": "down"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6443,7 +6515,7 @@
       "close": 22.4266
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

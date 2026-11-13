@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 127.8352,
-    "change": -1.475,
+    "price": 127.7928,
+    "change": -1.4745,
     "changePercent": -1.14,
     "marketCap": 21914203755.7003,
     "fiftyTwoWeekLow": 76.4856,
@@ -1935,38 +1935,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 0.9638,
-        "actual": 1.0776,
-        "surprisePercent": 0.118
+        "quarter": "None",
+        "estimate": 1.1434,
+        "actual": 2.7,
+        "surprisePercent": 1.3613
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 2.2546,
-        "actual": 2.28,
-        "surprisePercent": 0.0113
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 1.3728,
-        "actual": 1.5497,
+        "quarter": "None",
+        "estimate": 1.5414,
+        "actual": 1.74,
         "surprisePercent": 0.1289
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 1.0183,
-        "actual": 2.4046,
-        "surprisePercent": 1.3613
+        "quarter": "None",
+        "estimate": 2.5315,
+        "actual": 2.56,
+        "surprisePercent": 0.0113
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.0822,
+        "actual": 1.21,
+        "surprisePercent": 0.118
       }
     ],
     "nextEarningsDate": "2026-11-24",
     "epsForecast": {
-      "date": "2026-11-24",
-      "estimate": 0.8227,
-      "low": 0.757,
-      "high": 1.2469,
-      "analysts": 24
-    }
+      "date": null,
+      "estimate": 0.9218,
+      "low": 0.85,
+      "high": 1.4,
+      "analysts": 25
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-05",
+        "firm": "Loop Capital",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Loop Capital",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-29",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-04",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-31",
+        "firm": "Piper Sandler",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-25",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-25",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-19",
+        "firm": "Jefferies",
+        "toGrade": "Hold",
+        "fromGrade": "Underperform",
+        "action": "up"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6322,7 +6394,7 @@
       "close": 127.7505
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

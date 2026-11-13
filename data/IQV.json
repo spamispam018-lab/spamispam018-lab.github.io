@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 245.3274,
-    "change": -3.0948,
+    "price": 245.2461,
+    "change": -3.0937,
     "changePercent": -1.25,
     "marketCap": 39897173872.447,
     "fiftyTwoWeekLow": 137.5992,
@@ -2193,38 +2193,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 3.025,
-        "actual": 3.0459,
-        "surprisePercent": 0.0069
+        "quarter": "None",
+        "estimate": 3.2759,
+        "actual": 3.34,
+        "surprisePercent": 0.0196
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.5085,
-        "actual": 2.5828,
-        "surprisePercent": 0.0296
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.6992,
-        "actual": 2.8054,
+        "quarter": "None",
+        "estimate": 3.0307,
+        "actual": 3.15,
         "surprisePercent": 0.0394
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.9175,
-        "actual": 2.9746,
-        "surprisePercent": 0.0196
+        "quarter": "None",
+        "estimate": 2.8166,
+        "actual": 2.9,
+        "surprisePercent": 0.0296
+      },
+      {
+        "quarter": "None",
+        "estimate": 3.3965,
+        "actual": 3.42,
+        "surprisePercent": 0.0069
       }
     ],
     "nextEarningsDate": "2026-10-27",
     "epsForecast": {
-      "date": "2026-10-27",
-      "estimate": 3.1887,
-      "low": 3.1617,
-      "high": 3.224,
+      "date": null,
+      "estimate": 3.5804,
+      "low": 3.55,
+      "high": 3.62,
       "analysts": 16
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-29",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Baird",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Stifel",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-29",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-28",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6580,7 +6652,7 @@
       "close": 245.1648
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

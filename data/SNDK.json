@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 848.3076,
-    "change": -36.4041,
+    "price": 848.0263,
+    "change": -36.3921,
     "changePercent": -4.11,
     "marketCap": 105822410055.268,
     "fiftyTwoWeekLow": 162.9816,
@@ -2196,38 +2196,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 3.1558,
-        "actual": 5.5218,
-        "surprisePercent": 0.7497
+        "quarter": "None",
+        "estimate": 46.4061,
+        "actual": 49.51,
+        "surprisePercent": 0.0669
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 13.0573,
-        "actual": 20.8492,
-        "surprisePercent": 0.5967
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 30.7394,
-        "actual": 34.9564,
+        "quarter": "None",
+        "estimate": 34.515,
+        "actual": 39.25,
         "surprisePercent": 0.1372
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 41.3297,
-        "actual": 44.0941,
-        "surprisePercent": 0.0669
+        "quarter": "None",
+        "estimate": 14.6611,
+        "actual": 23.41,
+        "surprisePercent": 0.5967
+      },
+      {
+        "quarter": "None",
+        "estimate": 3.5434,
+        "actual": 6.2,
+        "surprisePercent": 0.7497
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 50.8699,
-      "low": 49.8742,
-      "high": 53.5435,
+      "date": null,
+      "estimate": 57.1181,
+      "low": 56.0,
+      "high": 60.12,
       "analysts": 17
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-02",
+        "firm": "Fox Advisors",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Overweight",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-06",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-22",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-08-25",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6063,7 +6135,7 @@
       "close": 847.7451
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

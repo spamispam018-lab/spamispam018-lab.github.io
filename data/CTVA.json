@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 8.316,
-    "change": -2.6695,
+    "price": 8.3133,
+    "change": -2.6685,
     "changePercent": -24.3,
     "marketCap": 7071115898.7268,
     "fiftyTwoWeekLow": 8.4932,
@@ -2044,15 +2044,94 @@
         }
       ]
     },
-    "epsEstimates": [],
-    "nextEarningsDate": "2026-11-11",
+    "epsEstimates": [
+      {
+        "quarter": "None",
+        "estimate": 0.0957,
+        "actual": 0.06,
+        "surprisePercent": -0.3731
+      }
+    ],
+    "nextEarningsDate": "2027-02-02",
     "epsForecast": {
-      "date": "2026-11-11",
-      "estimate": 0.0852,
+      "date": null,
+      "estimate": 0.0957,
       "low": 0.0,
-      "high": 0.1611,
+      "high": 0.1809,
       "analysts": 6
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-12",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Sector Weight",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-06",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Neutral",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-17",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-16",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-16",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-16",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-11",
+        "firm": "Keybanc",
+        "toGrade": "Sector Weight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-08-18",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6408,7 +6487,7 @@
       "close": 8.3105
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

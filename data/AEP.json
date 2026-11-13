@@ -11,7 +11,7 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 116.6507,
+    "price": 116.612,
     "change": -0.2714,
     "changePercent": -0.23,
     "marketCap": 61362059232.5075,
@@ -2466,38 +2466,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.023,
-        "actual": 1.0598,
-        "surprisePercent": 0.036
+        "quarter": "None",
+        "estimate": 2.0393,
+        "actual": 2.23,
+        "surprisePercent": 0.0935
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.3963,
-        "actual": 1.4606,
-        "surprisePercent": 0.0461
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.3194,
-        "actual": 1.2112,
+        "quarter": "None",
+        "estimate": 1.4815,
+        "actual": 1.36,
         "surprisePercent": -0.082
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.8162,
-        "actual": 1.9861,
-        "surprisePercent": 0.0935
+        "quarter": "None",
+        "estimate": 1.5678,
+        "actual": 1.64,
+        "surprisePercent": 0.0461
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.1487,
+        "actual": 1.19,
+        "surprisePercent": 0.036
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 1.1895,
-      "low": 1.0468,
-      "high": 1.3003,
+      "date": null,
+      "estimate": 1.3206,
+      "low": 1.1754,
+      "high": 1.381,
       "analysts": 10
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-02",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Jefferies",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "HSBC",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Neutral",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "BMO Capital",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Sector Weight",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6853,7 +6925,7 @@
       "close": 116.5733
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

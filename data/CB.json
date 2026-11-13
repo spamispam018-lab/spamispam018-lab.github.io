@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 336.4056,
-    "change": 1.294,
+    "price": 336.2941,
+    "change": 1.2936,
     "changePercent": 0.39,
     "marketCap": 124210303157.4309,
     "fiftyTwoWeekLow": 253.4943,
@@ -1865,38 +1865,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 6.0347,
-        "actual": 6.6974,
-        "surprisePercent": 0.1098
+        "quarter": "None",
+        "estimate": 6.7983,
+        "actual": 7.66,
+        "surprisePercent": 0.1268
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 5.8877,
-        "actual": 6.074,
-        "surprisePercent": 0.0316
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 6.0073,
-        "actual": 6.4658,
+        "quarter": "None",
+        "estimate": 6.7451,
+        "actual": 7.26,
         "surprisePercent": 0.0763
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 6.0546,
-        "actual": 6.8221,
-        "surprisePercent": 0.1268
+        "quarter": "None",
+        "estimate": 6.6109,
+        "actual": 6.82,
+        "surprisePercent": 0.0316
+      },
+      {
+        "quarter": "None",
+        "estimate": 6.7759,
+        "actual": 7.52,
+        "surprisePercent": 0.1098
       }
     ],
     "nextEarningsDate": "2026-10-20",
     "epsForecast": {
-      "date": "2026-10-20",
-      "estimate": 6.5316,
-      "low": 5.5396,
-      "high": 7.0447,
+      "date": null,
+      "estimate": 7.3338,
+      "low": 6.22,
+      "high": 7.91,
       "analysts": 21
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-28",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6252,7 +6324,7 @@
       "close": 336.1826
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

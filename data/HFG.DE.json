@@ -11,9 +11,9 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 2.99,
-    "change": 0.1,
-    "changePercent": 3.46,
+    "price": 2.987,
+    "change": 0.097,
+    "changePercent": 3.36,
     "marketCap": 433132736.0,
     "fiftyTwoWeekLow": 2.156,
     "fiftyTwoWeekHigh": 6.252,
@@ -2033,38 +2033,54 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.004,
-        "actual": 0.4176,
-        "surprisePercent": -0.5841
+        "quarter": "None",
+        "estimate": -0.3494,
+        "actual": null,
+        "surprisePercent": null
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": -0.8048,
-        "actual": -0.38,
-        "surprisePercent": 0.5278
-      },
-      {
-        "quarter": "2026-06-30",
+        "quarter": "None",
         "estimate": 0.0175,
         "actual": 0.02,
         "surprisePercent": 0.1416
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": -0.3494,
-        "actual": null,
-        "surprisePercent": null
+        "quarter": "None",
+        "estimate": -0.8048,
+        "actual": -0.38,
+        "surprisePercent": 0.5278
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.004,
+        "actual": 0.4176,
+        "surprisePercent": -0.5841
       }
     ],
     "nextEarningsDate": "2026-11-05",
     "epsForecast": {
-      "date": "2026-11-05",
+      "date": null,
       "estimate": 0.2377,
       "low": 0.2377,
       "high": 0.2377,
-      "analysts": 1
-    }
+      "analysts": 1.0
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2021-07-08",
+        "firm": "Bernstein",
+        "toGrade": "Underperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2018-12-03",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "",
+        "action": "init"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6151,7 +6167,7 @@
       "close": 2.966
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

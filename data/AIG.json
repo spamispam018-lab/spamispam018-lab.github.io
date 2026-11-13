@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 74.7176,
-    "change": -0.2534,
+    "price": 74.6928,
+    "change": -0.2533,
     "changePercent": -0.34,
     "marketCap": 35899259567.6368,
     "fiftyTwoWeekLow": 63.456,
@@ -1854,38 +1854,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.6946,
-        "actual": 1.7456,
-        "surprisePercent": 0.0301
+        "quarter": "None",
+        "estimate": 1.8819,
+        "actual": 2.06,
+        "surprisePercent": 0.0946
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.6784,
-        "actual": 1.8792,
-        "surprisePercent": 0.1196
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.717,
-        "actual": 1.7812,
+        "quarter": "None",
+        "estimate": 1.9279,
+        "actual": 2.0,
         "surprisePercent": 0.0374
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.676,
-        "actual": 1.8347,
-        "surprisePercent": 0.0946
+        "quarter": "None",
+        "estimate": 1.8846,
+        "actual": 2.11,
+        "surprisePercent": 0.1196
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.9027,
+        "actual": 1.96,
+        "surprisePercent": 0.0301
       }
     ],
     "nextEarningsDate": "2026-11-03",
     "epsForecast": {
-      "date": "2026-11-03",
-      "estimate": 1.8464,
-      "low": 1.7367,
-      "high": 2.0167,
+      "date": null,
+      "estimate": 2.0696,
+      "low": 1.95,
+      "high": 2.2644,
       "analysts": 18
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-10",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Piper Sandler",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-06",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-06",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-16",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-02",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6241,7 +6313,7 @@
       "close": 74.6681
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

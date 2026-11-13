@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 93.5757,
-    "change": -1.5836,
+    "price": 93.5447,
+    "change": -1.583,
     "changePercent": -1.66,
     "marketCap": 18609446992.4271,
     "fiftyTwoWeekLow": 49.0726,
@@ -1845,38 +1845,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 1.1691,
-        "actual": 1.2469,
-        "surprisePercent": 0.0665
+        "quarter": "None",
+        "estimate": 1.3798,
+        "actual": 1.47,
+        "surprisePercent": 0.0653
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 2.1964,
-        "actual": 2.3245,
-        "surprisePercent": 0.0583
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 1.0928,
-        "actual": 1.14,
+        "quarter": "None",
+        "estimate": 1.227,
+        "actual": 1.28,
         "surprisePercent": 0.0432
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 1.2289,
-        "actual": 1.3092,
-        "surprisePercent": 0.0653
+        "quarter": "None",
+        "estimate": 2.4662,
+        "actual": 2.61,
+        "surprisePercent": 0.0583
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.3127,
+        "actual": 1.4,
+        "surprisePercent": 0.0665
       }
     ],
     "nextEarningsDate": "2026-11-24",
     "epsForecast": {
-      "date": "2026-11-24",
-      "estimate": 1.3275,
-      "low": 1.229,
-      "high": 1.3804,
+      "date": null,
+      "estimate": 1.493,
+      "low": 1.38,
+      "high": 1.55,
       "analysts": 21
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-06",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-29",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-08",
+        "firm": "DA Davidson",
+        "toGrade": "Neutral",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "DA Davidson",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6232,7 +6304,7 @@
       "close": 93.5137
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

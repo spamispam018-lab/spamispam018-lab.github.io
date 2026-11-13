@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 39.9966,
-    "change": -0.8415,
+    "price": 39.9833,
+    "change": -0.8413,
     "changePercent": -2.06,
     "marketCap": 55186632134.8476,
     "fiftyTwoWeekLow": 35.2414,
@@ -2567,38 +2567,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.6957,
-        "actual": 0.7125,
-        "surprisePercent": 0.0243
+        "quarter": "None",
+        "estimate": 0.7232,
+        "actual": 0.73,
+        "surprisePercent": 0.0094
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.7011,
-        "actual": 0.7125,
-        "surprisePercent": 0.0162
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.7374,
-        "actual": 0.7659,
+        "quarter": "None",
+        "estimate": 0.828,
+        "actual": 0.86,
         "surprisePercent": 0.0386
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.6441,
-        "actual": 0.6501,
-        "surprisePercent": 0.0094
+        "quarter": "None",
+        "estimate": 0.7872,
+        "actual": 0.8,
+        "surprisePercent": 0.0162
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.7811,
+        "actual": 0.8,
+        "surprisePercent": 0.0243
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 0.6908,
-      "low": 0.6845,
-      "high": 0.7036,
-      "analysts": 24
-    }
+      "date": null,
+      "estimate": 0.7758,
+      "low": 0.7686,
+      "high": 0.79,
+      "analysts": 23
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-30",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Jefferies",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Canaccord Genuity",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Leerink Partners",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6954,7 +7026,7 @@
       "close": 39.9701
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

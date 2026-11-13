@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 143.5986,
-    "change": 1.104,
+    "price": 143.551,
+    "change": 1.1036,
     "changePercent": 0.77,
     "marketCap": 15520702901.0016,
     "fiftyTwoWeekLow": 94.1197,
@@ -1936,38 +1936,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-09-30",
-        "estimate": 1.496,
-        "actual": 1.5586,
-        "surprisePercent": 0.0418
+        "quarter": "None",
+        "estimate": 1.8254,
+        "actual": 1.84,
+        "surprisePercent": 0.008
       },
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.3388,
-        "actual": 1.3626,
-        "surprisePercent": 0.0178
-      },
-      {
-        "quarter": "2026-03-31",
-        "estimate": 1.4554,
-        "actual": 1.5586,
+        "quarter": "None",
+        "estimate": 1.6342,
+        "actual": 1.75,
         "surprisePercent": 0.0709
       },
       {
-        "quarter": "2026-06-30",
-        "estimate": 1.6257,
-        "actual": 1.6387,
-        "surprisePercent": 0.008
+        "quarter": "None",
+        "estimate": 1.5032,
+        "actual": 1.53,
+        "surprisePercent": 0.0178
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.6798,
+        "actual": 1.75,
+        "surprisePercent": 0.0418
       }
     ],
     "nextEarningsDate": "2026-11-23",
     "epsForecast": {
-      "date": "2026-11-23",
-      "estimate": 1.8918,
-      "low": 1.8482,
-      "high": 1.9237,
+      "date": null,
+      "estimate": 2.1242,
+      "low": 2.0752,
+      "high": 2.16,
       "analysts": 12
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-23",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-10",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-05",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-05",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-22",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-02",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-05-19",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-05-07",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6323,7 +6395,7 @@
       "close": 143.5034
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

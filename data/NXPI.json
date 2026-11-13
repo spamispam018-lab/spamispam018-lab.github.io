@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 241.8707,
-    "change": -2.0089,
+    "price": 241.7905,
+    "change": -2.0082,
     "changePercent": -0.82,
     "marketCap": 55736361858.6802,
     "fiftyTwoWeekLow": 162.9816,
@@ -2317,38 +2317,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.9489,
-        "actual": 2.9835,
-        "surprisePercent": 0.0118
+        "quarter": "None",
+        "estimate": 4.1174,
+        "actual": 4.2,
+        "surprisePercent": 0.0201
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.6578,
-        "actual": 2.7164,
-        "surprisePercent": 0.022
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 3.1413,
-        "actual": 3.2151,
+        "quarter": "None",
+        "estimate": 3.5271,
+        "actual": 3.61,
         "surprisePercent": 0.0235
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 3.667,
-        "actual": 3.7406,
-        "surprisePercent": 0.0201
+        "quarter": "None",
+        "estimate": 2.9843,
+        "actual": 3.05,
+        "surprisePercent": 0.022
+      },
+      {
+        "quarter": "None",
+        "estimate": 3.3111,
+        "actual": 3.35,
+        "surprisePercent": 0.0118
       }
     ],
     "nextEarningsDate": "2026-10-27",
     "epsForecast": {
-      "date": "2026-10-27",
-      "estimate": 3.8894,
-      "low": 3.7227,
-      "high": 4.0136,
+      "date": null,
+      "estimate": 4.3671,
+      "low": 4.18,
+      "high": 4.5066,
       "analysts": 21
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-28",
+        "firm": "Jefferies",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Stifel",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6704,7 +6776,7 @@
       "close": 241.7104
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

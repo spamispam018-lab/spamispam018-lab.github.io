@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 236.2241,
-    "change": 1.1401,
+    "price": 236.1458,
+    "change": 1.1398,
     "changePercent": 0.48,
     "marketCap": 27376639470.789,
     "fiftyTwoWeekLow": 165.0656,
@@ -2437,38 +2437,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 3.0002,
-        "actual": 3.3665,
-        "surprisePercent": 0.1221
+        "quarter": "None",
+        "estimate": 8.8874,
+        "actual": 9.39,
+        "surprisePercent": 0.0566
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.2264,
-        "actual": 1.7456,
-        "surprisePercent": 0.4234
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 4.6784,
-        "actual": 5.1299,
+        "quarter": "None",
+        "estimate": 5.253,
+        "actual": 5.76,
         "surprisePercent": 0.0965
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 7.9152,
-        "actual": 8.3628,
-        "surprisePercent": 0.0566
+        "quarter": "None",
+        "estimate": 1.377,
+        "actual": 1.96,
+        "surprisePercent": 0.4234
+      },
+      {
+        "quarter": "None",
+        "estimate": 3.3687,
+        "actual": 3.78,
+        "surprisePercent": 0.1221
       }
     ],
     "nextEarningsDate": "2026-11-04",
     "epsForecast": {
-      "date": "2026-11-04",
-      "estimate": 3.8618,
-      "low": 3.1171,
-      "high": 5.5574,
+      "date": null,
+      "estimate": 4.3078,
+      "low": 3.5,
+      "high": 6.24,
       "analysts": 24
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-11",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Jefferies",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Susquehanna",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Piper Sandler",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "reit"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Wedbush",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6824,7 +6896,7 @@
       "close": 236.0675
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

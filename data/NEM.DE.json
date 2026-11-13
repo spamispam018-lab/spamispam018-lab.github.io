@@ -11,9 +11,9 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 64.0,
-    "change": -0.7,
-    "changePercent": -1.08,
+    "price": 63.85,
+    "change": -0.85,
+    "changePercent": -1.31,
     "marketCap": 7478028800.0,
     "fiftyTwoWeekLow": 50.45,
     "fiftyTwoWeekHigh": 96.8,
@@ -1749,38 +1749,54 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.5925,
-        "actual": 0.56,
-        "surprisePercent": -0.0548
+        "quarter": "None",
+        "estimate": 0.5767,
+        "actual": 0.59,
+        "surprisePercent": 0.0231
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.5666,
-        "actual": 0.52,
-        "surprisePercent": -0.0822
-      },
-      {
-        "quarter": "2026-06-30",
+        "quarter": "None",
         "estimate": 0.5836,
         "actual": 0.57,
         "surprisePercent": -0.0233
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.5767,
-        "actual": 0.59,
-        "surprisePercent": 0.0231
+        "quarter": "None",
+        "estimate": 0.5666,
+        "actual": 0.52,
+        "surprisePercent": -0.0822
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.5925,
+        "actual": 0.56,
+        "surprisePercent": -0.0548
       }
     ],
     "nextEarningsDate": "2026-11-05",
     "epsForecast": {
-      "date": "2026-11-05",
+      "date": null,
       "estimate": 0.6804,
       "low": 0.6609,
       "high": 0.7,
       "analysts": 2
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2021-10-06",
+        "firm": "Stifel",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2021-10-06",
+        "firm": "Deutsche Bank",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -5867,7 +5883,7 @@
       "close": 63.75
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

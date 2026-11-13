@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 113.0401,
-    "change": 1.5202,
+    "price": 113.0026,
+    "change": 1.5197,
     "changePercent": 1.36,
     "marketCap": 15554462746.845,
     "fiftyTwoWeekLow": 67.1698,
@@ -2334,38 +2334,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.0892,
-        "actual": 2.3067,
-        "surprisePercent": 0.1041
+        "quarter": "None",
+        "estimate": 3.053,
+        "actual": 2.87,
+        "surprisePercent": -0.06
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.4331,
-        "actual": 3.5446,
-        "surprisePercent": 0.4568
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 4.9602,
-        "actual": 4.2126,
+        "quarter": "None",
+        "estimate": 5.5694,
+        "actual": 4.73,
         "surprisePercent": -0.1507
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.719,
-        "actual": 2.5561,
-        "surprisePercent": -0.06
+        "quarter": "None",
+        "estimate": 2.732,
+        "actual": 3.98,
+        "surprisePercent": 0.4568
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.3458,
+        "actual": 2.59,
+        "surprisePercent": 0.1041
       }
     ],
     "nextEarningsDate": "2026-11-05",
     "epsForecast": {
-      "date": "2026-11-05",
-      "estimate": 3.279,
-      "low": 2.6362,
-      "high": 4.3748,
-      "analysts": 6
-    }
+      "date": null,
+      "estimate": 3.6476,
+      "low": 3.3,
+      "high": 4.3221,
+      "analysts": 7
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-11",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-11",
+        "firm": "Freedom Broker",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Freedom Broker",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "CIBC",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-28",
+        "firm": "Rothschild & Co",
+        "toGrade": "Neutral",
+        "fromGrade": "Sell",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-11",
+        "firm": "Keybanc",
+        "toGrade": "Underweight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-08-10",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Outperform",
+        "fromGrade": "Sector Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6721,7 +6793,7 @@
       "close": 112.9652
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

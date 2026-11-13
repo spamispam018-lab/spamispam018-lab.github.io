@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 43.1275,
-    "change": 0.8325,
+    "price": 43.1132,
+    "change": 0.8322,
     "changePercent": 1.97,
     "marketCap": 13345604131.3824,
     "fiftyTwoWeekLow": 20.5375,
@@ -2187,38 +2187,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.5719,
-        "actual": 0.8105,
-        "surprisePercent": 0.4173
+        "quarter": "None",
+        "estimate": 1.5919,
+        "actual": 1.94,
+        "surprisePercent": 0.2187
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.0165,
-        "actual": 1.229,
-        "surprisePercent": 0.209
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.6664,
-        "actual": 1.6833,
+        "quarter": "None",
+        "estimate": 1.8711,
+        "actual": 1.89,
         "surprisePercent": 0.0101
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.4178,
-        "actual": 1.7278,
-        "surprisePercent": 0.2187
+        "quarter": "None",
+        "estimate": 1.1414,
+        "actual": 1.38,
+        "surprisePercent": 0.209
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.6421,
+        "actual": 0.91,
+        "surprisePercent": 0.4173
       }
     ],
     "nextEarningsDate": "2026-11-04",
     "epsForecast": {
-      "date": "2026-11-04",
-      "estimate": 1.7539,
-      "low": 1.4677,
-      "high": 2.1069,
-      "analysts": 20
-    }
+      "date": null,
+      "estimate": 2.068,
+      "low": 1.48,
+      "high": 2.7211,
+      "analysts": 23
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "Bernstein",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Stephens & Co.",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Perform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Mizuho",
+        "toGrade": "Underperform",
+        "fromGrade": "Underperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Morgan Stanley",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6574,7 +6646,7 @@
       "close": 43.0989
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

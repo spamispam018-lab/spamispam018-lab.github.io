@@ -11,7 +11,7 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 166.9179,
+    "price": 166.8625,
     "change": 0.0724,
     "changePercent": 0.04,
     "marketCap": 57569968907.6177,
@@ -1970,38 +1970,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.4942,
-        "actual": 0.5255,
-        "surprisePercent": 0.0633
+        "quarter": "None",
+        "estimate": 0.6409,
+        "actual": 0.81,
+        "surprisePercent": 0.2638
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.4519,
-        "actual": 0.5344,
-        "surprisePercent": 0.1825
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.5194,
-        "actual": 0.5789,
+        "quarter": "None",
+        "estimate": 0.5832,
+        "actual": 0.65,
         "surprisePercent": 0.1145
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.5708,
-        "actual": 0.7214,
-        "surprisePercent": 0.2638
+        "quarter": "None",
+        "estimate": 0.5074,
+        "actual": 0.6,
+        "surprisePercent": 0.1825
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.5549,
+        "actual": 0.59,
+        "surprisePercent": 0.0633
       }
     ],
     "nextEarningsDate": "2026-11-04",
     "epsForecast": {
-      "date": "2026-11-04",
-      "estimate": 0.6165,
-      "low": 0.5579,
-      "high": 0.633,
+      "date": null,
+      "estimate": 0.694,
+      "low": 0.6263,
+      "high": 0.7107,
       "analysts": 38
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-05",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Outperform",
+        "fromGrade": "Sector Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "DA Davidson",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Macquarie",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6357,7 +6429,7 @@
       "close": 166.8072
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

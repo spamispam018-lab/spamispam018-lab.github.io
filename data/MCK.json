@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 974.6226,
-    "change": -2.4795,
+    "price": 974.2995,
+    "change": -2.4785,
     "changePercent": -0.25,
     "marketCap": 109082835247.2394,
     "fiftyTwoWeekLow": 644.5166,
@@ -2255,38 +2255,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 8.26,
-        "actual": 8.3183,
-        "surprisePercent": 0.0071
+        "quarter": "None",
+        "estimate": 10.7531,
+        "actual": 11.68,
+        "surprisePercent": 0.0862
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 10.3025,
-        "actual": 10.4112,
-        "surprisePercent": 0.0106
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 8.4924,
-        "actual": 8.8438,
+        "quarter": "None",
+        "estimate": 9.5355,
+        "actual": 9.93,
         "surprisePercent": 0.0414
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 9.5768,
-        "actual": 10.4023,
-        "surprisePercent": 0.0862
+        "quarter": "None",
+        "estimate": 11.5679,
+        "actual": 11.69,
+        "surprisePercent": 0.0106
+      },
+      {
+        "quarter": "None",
+        "estimate": 9.2745,
+        "actual": 9.34,
+        "surprisePercent": 0.0071
       }
     ],
     "nextEarningsDate": "2027-02-03",
     "epsForecast": {
-      "date": "2027-02-03",
-      "estimate": 9.7149,
-      "low": 9.2712,
-      "high": 10.429,
-      "analysts": 13
-    }
+      "date": null,
+      "estimate": 10.9538,
+      "low": 10.49,
+      "high": 11.71,
+      "analysts": 10
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-10",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Leerink Partners",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Leerink Partners",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-14",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6642,7 +6714,7 @@
       "close": 973.9764
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

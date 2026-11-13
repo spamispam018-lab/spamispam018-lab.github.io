@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 5261.3964,
-    "change": -73.3512,
+    "price": 5259.6517,
+    "change": -73.3269,
     "changePercent": -1.37,
     "marketCap": 14841071003.0353,
     "fiftyTwoWeekLow": 4899.2543,
@@ -1822,38 +1822,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 94.3199,
-        "actual": 108.2447,
-        "surprisePercent": 0.1476
+        "quarter": "None",
+        "estimate": 102.7726,
+        "actual": 89.45,
+        "surprisePercent": -0.1296
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 70.5345,
-        "actual": 60.3477,
-        "surprisePercent": -0.1444
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 80.1369,
-        "actual": 74.7756,
+        "quarter": "None",
+        "estimate": 89.9798,
+        "actual": 83.96,
         "surprisePercent": -0.0669
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 91.5303,
-        "actual": 79.6651,
-        "surprisePercent": -0.1296
+        "quarter": "None",
+        "estimate": 79.198,
+        "actual": 67.76,
+        "surprisePercent": -0.1444
+      },
+      {
+        "quarter": "None",
+        "estimate": 105.9048,
+        "actual": 121.54,
+        "surprisePercent": 0.1476
       }
     ],
     "nextEarningsDate": "2027-01-27",
     "epsForecast": {
-      "date": "2027-01-27",
-      "estimate": 85.8572,
-      "low": 75.9601,
-      "high": 93.8881,
+      "date": null,
+      "estimate": 96.4027,
+      "low": 85.29,
+      "high": 105.42,
       "analysts": 7
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-03",
+        "firm": "Morgan Stanley",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Morgan Stanley",
+        "toGrade": "Underweight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-07-25",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-24",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-20",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-07",
+        "firm": "Zelman & Assoc",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-04-23",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-04-23",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-04-20",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6161,7 +6233,7 @@
       "close": 5257.9076
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

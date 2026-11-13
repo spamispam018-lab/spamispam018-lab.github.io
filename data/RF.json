@@ -11,7 +11,7 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 25.7987,
+    "price": 25.7901,
     "change": -0.1176,
     "changePercent": -0.45,
     "marketCap": 21431193001.0774,
@@ -1720,38 +1720,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.5448,
-        "actual": 0.5076,
-        "surprisePercent": -0.0681
+        "quarter": "None",
+        "estimate": 0.6605,
+        "actual": 0.73,
+        "surprisePercent": 0.1052
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.5291,
-        "actual": 0.5522,
-        "surprisePercent": 0.0436
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.5612,
-        "actual": 0.6056,
+        "quarter": "None",
+        "estimate": 0.6301,
+        "actual": 0.68,
         "surprisePercent": 0.0791
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.5882,
-        "actual": 0.6501,
-        "surprisePercent": 0.1052
+        "quarter": "None",
+        "estimate": 0.5941,
+        "actual": 0.62,
+        "surprisePercent": 0.0436
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.6117,
+        "actual": 0.57,
+        "surprisePercent": -0.0681
       }
     ],
     "nextEarningsDate": "2027-01-22",
     "epsForecast": {
-      "date": "2027-01-22",
-      "estimate": 0.6142,
-      "low": 0.5878,
-      "high": 0.6323,
+      "date": null,
+      "estimate": 0.6896,
+      "low": 0.66,
+      "high": 0.71,
       "analysts": 15
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-30",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "DA Davidson",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Stephens & Co.",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6107,7 +6179,7 @@
       "close": 25.7816
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

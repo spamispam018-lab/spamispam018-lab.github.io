@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 57.8955,
-    "change": -0.5701,
+    "price": 57.8763,
+    "change": -0.5699,
     "changePercent": -0.98,
     "marketCap": 7722421099.0915,
     "fiftyTwoWeekLow": 48.2354,
@@ -1843,38 +1843,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.7495,
-        "actual": 0.8015,
-        "surprisePercent": 0.0695
+        "quarter": "None",
+        "estimate": 0.8948,
+        "actual": 0.93,
+        "surprisePercent": 0.0393
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.8403,
-        "actual": 0.757,
-        "surprisePercent": -0.0991
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.8229,
-        "actual": 0.9173,
+        "quarter": "None",
+        "estimate": 0.924,
+        "actual": 1.03,
         "surprisePercent": 0.1148
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.7969,
-        "actual": 0.8283,
-        "surprisePercent": 0.0393
+        "quarter": "None",
+        "estimate": 0.9435,
+        "actual": 0.85,
+        "surprisePercent": -0.0991
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.8416,
+        "actual": 0.9,
+        "surprisePercent": 0.0695
       }
     ],
     "nextEarningsDate": "2027-01-28",
     "epsForecast": {
-      "date": "2027-01-28",
-      "estimate": 0.7503,
-      "low": 0.727,
-      "high": 0.7837,
+      "date": null,
+      "estimate": 0.8425,
+      "low": 0.8163,
+      "high": 0.88,
       "analysts": 9
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-30",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Stifel",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-07-31",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-31",
+        "firm": "Stifel",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-20",
+        "firm": "Stifel",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-06-10",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-05-15",
+        "firm": "JP Morgan",
+        "toGrade": "Underweight",
+        "fromGrade": "Neutral",
+        "action": "down"
+      },
+      {
+        "date": "2026-05-04",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-05-04",
+        "firm": "DA Davidson",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6230,7 +6302,7 @@
       "close": 57.8571
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

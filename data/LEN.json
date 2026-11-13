@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 75.6315,
-    "change": -2.4885,
+    "price": 75.6065,
+    "change": -2.4876,
     "changePercent": -3.19,
     "marketCap": 18801904926.0814,
     "fiftyTwoWeekLow": 63.928,
@@ -2081,38 +2081,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-11-30",
-        "estimate": 1.9407,
-        "actual": 1.8079,
-        "surprisePercent": -0.0684
+        "quarter": "None",
+        "estimate": 1.2882,
+        "actual": 1.23,
+        "surprisePercent": -0.0452
       },
       {
-        "quarter": "2026-02-28",
-        "estimate": 0.8448,
-        "actual": 0.7837,
-        "surprisePercent": -0.0723
-      },
-      {
-        "quarter": "2026-05-31",
-        "estimate": 1.0991,
-        "actual": 1.1667,
+        "quarter": "None",
+        "estimate": 1.2341,
+        "actual": 1.31,
         "surprisePercent": 0.0615
       },
       {
-        "quarter": "2026-08-31",
-        "estimate": 1.1473,
-        "actual": 1.0955,
-        "surprisePercent": -0.0452
+        "quarter": "None",
+        "estimate": 0.9486,
+        "actual": 0.88,
+        "surprisePercent": -0.0723
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.1791,
+        "actual": 2.03,
+        "surprisePercent": -0.0684
       }
     ],
     "nextEarningsDate": "2026-12-15",
     "epsForecast": {
-      "date": "2026-12-15",
-      "estimate": 1.281,
-      "low": 1.2201,
-      "high": 1.3804,
+      "date": null,
+      "estimate": 1.4383,
+      "low": 1.37,
+      "high": 1.55,
       "analysts": 11
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-03",
+        "firm": "Morgan Stanley",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-06",
+        "firm": "Melius Research",
+        "toGrade": "Sell",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Morgan Stanley",
+        "toGrade": "Underweight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-22",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Underperform",
+        "fromGrade": "Underperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-21",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "RBC Capital",
+        "toGrade": "Underperform",
+        "fromGrade": "Underperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "Barclays",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Underperform",
+        "fromGrade": "Underperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6468,7 +6540,7 @@
       "close": 75.5814
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

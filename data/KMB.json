@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 96.9962,
-    "change": -1.5112,
+    "price": 96.9641,
+    "change": -1.5107,
     "changePercent": -1.53,
     "marketCap": 59261911917.0629,
     "fiftyTwoWeekLow": 82.3102,
@@ -2010,38 +2010,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.6136,
-        "actual": 1.6565,
-        "surprisePercent": 0.0266
+        "quarter": "None",
+        "estimate": 1.6593,
+        "actual": 1.7,
+        "surprisePercent": 0.0245
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.7161,
-        "actual": 1.7545,
-        "surprisePercent": 0.0224
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.7866,
-        "actual": 1.8881,
+        "quarter": "None",
+        "estimate": 2.006,
+        "actual": 2.12,
         "surprisePercent": 0.0568
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.4778,
-        "actual": 1.514,
-        "surprisePercent": 0.0245
+        "quarter": "None",
+        "estimate": 1.9269,
+        "actual": 1.97,
+        "surprisePercent": 0.0224
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.8118,
+        "actual": 1.86,
+        "surprisePercent": 0.0266
       }
     ],
     "nextEarningsDate": "2027-02-02",
     "epsForecast": {
-      "date": "2027-02-02",
-      "estimate": 1.3726,
-      "low": 1.1163,
-      "high": 1.4428,
-      "analysts": 7
-    }
+      "date": null,
+      "estimate": 1.5298,
+      "low": 1.2534,
+      "high": 1.62,
+      "analysts": 8
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "BNP Paribas",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Canaccord Genuity",
+        "toGrade": "Hold",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "BNP Paribas",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6397,7 +6469,7 @@
       "close": 96.9319
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

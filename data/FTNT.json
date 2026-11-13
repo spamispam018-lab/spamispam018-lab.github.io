@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 117.2207,
-    "change": 1.303,
+    "price": 117.1819,
+    "change": 1.3026,
     "changePercent": 1.12,
     "marketCap": 77761745656.7048,
     "fiftyTwoWeekLow": 65.5044,
@@ -2159,38 +2159,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.6621,
-        "actual": 0.7214,
-        "surprisePercent": 0.0895
+        "quarter": "None",
+        "estimate": 0.8585,
+        "actual": 0.91,
+        "surprisePercent": 0.06
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.5507,
-        "actual": 0.7303,
-        "surprisePercent": 0.3263
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.665,
-        "actual": 0.8015,
+        "quarter": "None",
+        "estimate": 0.7467,
+        "actual": 0.9,
         "surprisePercent": 0.2053
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.7646,
-        "actual": 0.8105,
-        "surprisePercent": 0.06
+        "quarter": "None",
+        "estimate": 0.6183,
+        "actual": 0.82,
+        "surprisePercent": 0.3263
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.7434,
+        "actual": 0.81,
+        "surprisePercent": 0.0895
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 0.8373,
-      "low": 0.8194,
-      "high": 0.8817,
+      "date": null,
+      "estimate": 0.9401,
+      "low": 0.92,
+      "high": 0.99,
       "analysts": 39
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-02",
+        "firm": "Amerx",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Susquehanna",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Wedbush",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Piper Sandler",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Stifel",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6546,7 +6618,7 @@
       "close": 117.143
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

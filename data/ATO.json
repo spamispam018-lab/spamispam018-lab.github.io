@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 159.19,
-    "change": 0.2443,
+    "price": 159.1372,
+    "change": 0.2442,
     "changePercent": 0.15,
     "marketCap": 26070112096.2118,
     "fiftyTwoWeekLow": 137.7952,
@@ -1854,38 +1854,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.1716,
-        "actual": 2.1731,
-        "surprisePercent": 0.0007
+        "quarter": "None",
+        "estimate": 1.1385,
+        "actual": 1.17,
+        "surprisePercent": 0.0277
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 3.0345,
-        "actual": 3.0904,
-        "surprisePercent": 0.0184
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.2061,
-        "actual": 1.2736,
+        "quarter": "None",
+        "estimate": 1.3542,
+        "actual": 1.43,
         "surprisePercent": 0.056
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.014,
-        "actual": 1.042,
-        "surprisePercent": 0.0277
+        "quarter": "None",
+        "estimate": 3.4072,
+        "actual": 3.47,
+        "surprisePercent": 0.0184
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.4383,
+        "actual": 2.44,
+        "surprisePercent": 0.0007
       }
     ],
     "nextEarningsDate": "2027-02-03",
     "epsForecast": {
-      "date": "2027-02-03",
-      "estimate": 2.2835,
-      "low": 2.182,
-      "high": 2.3601,
-      "analysts": 3
-    }
+      "date": null,
+      "estimate": 2.5891,
+      "low": 2.45,
+      "high": 2.6645,
+      "analysts": 4
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-06",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-06",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Jefferies",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-11",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Overweight",
+        "action": "down"
+      },
+      {
+        "date": "2026-08-21",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-13",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-17",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6241,7 +6313,7 @@
       "close": 159.0845
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

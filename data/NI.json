@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 41.4535,
-    "change": 0.2353,
+    "price": 41.4397,
+    "change": 0.2352,
     "changePercent": 0.57,
     "marketCap": 18860777179.8112,
     "fiftyTwoWeekLow": 34.2172,
@@ -2366,38 +2366,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.4412,
-        "actual": 0.4542,
-        "surprisePercent": 0.0294
+        "quarter": "None",
+        "estimate": 0.2309,
+        "actual": 0.27,
+        "surprisePercent": 0.1691
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.9314,
-        "actual": 0.944,
-        "surprisePercent": 0.0136
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.1404,
-        "actual": 0.1425,
+        "quarter": "None",
+        "estimate": 0.1577,
+        "actual": 0.16,
         "surprisePercent": 0.0148
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.2056,
-        "actual": 0.2405,
-        "surprisePercent": 0.1691
+        "quarter": "None",
+        "estimate": 1.0458,
+        "actual": 1.06,
+        "surprisePercent": 0.0136
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.4954,
+        "actual": 0.51,
+        "surprisePercent": 0.0294
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 0.5224,
-      "low": 0.4898,
-      "high": 0.5905,
+      "date": null,
+      "estimate": 0.5867,
+      "low": 0.55,
+      "high": 0.663,
       "analysts": 7
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-22",
+        "firm": "HSBC",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-29",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Perform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-28",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-26",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-17",
+        "firm": "Ladenburg Thalmann",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6753,7 +6825,7 @@
       "close": 41.426
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

@@ -11,7 +11,7 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 432.4246,
+    "price": 432.2812,
     "change": 0.1538,
     "changePercent": 0.04,
     "marketCap": 42037470397.8274,
@@ -2140,38 +2140,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 4.5768,
-        "actual": 4.6401,
-        "surprisePercent": 0.0138
+        "quarter": "None",
+        "estimate": 5.7894,
+        "actual": 5.89,
+        "surprisePercent": 0.0174
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 4.4406,
-        "actual": 4.5955,
-        "surprisePercent": 0.0349
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 4.7079,
-        "actual": 4.7915,
+        "quarter": "None",
+        "estimate": 5.2861,
+        "actual": 5.38,
         "surprisePercent": 0.0178
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 5.1561,
-        "actual": 5.2457,
-        "surprisePercent": 0.0174
+        "quarter": "None",
+        "estimate": 4.986,
+        "actual": 5.16,
+        "surprisePercent": 0.0349
+      },
+      {
+        "quarter": "None",
+        "estimate": 5.139,
+        "actual": 5.21,
+        "surprisePercent": 0.0138
       }
     ],
     "nextEarningsDate": "2027-01-26",
     "epsForecast": {
-      "date": "2027-01-26",
-      "estimate": 5.3188,
-      "low": 5.1566,
-      "high": 5.3882,
+      "date": null,
+      "estimate": 5.9721,
+      "low": 5.79,
+      "high": 6.05,
       "analysts": 15
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-26",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Underweight",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Jefferies",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-18",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-06",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-07-29",
+        "firm": "JP Morgan",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-24",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-24",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6527,7 +6599,7 @@
       "close": 432.1378
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

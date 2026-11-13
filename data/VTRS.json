@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 18.7043,
-    "change": -0.3529,
+    "price": 18.6981,
+    "change": -0.3528,
     "changePercent": -1.85,
     "marketCap": 20328986655.8034,
     "fiftyTwoWeekLow": 8.8972,
@@ -2346,38 +2346,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.4727,
-        "actual": 0.5076,
-        "surprisePercent": 0.0739
+        "quarter": "None",
+        "estimate": 0.638,
+        "actual": 0.71,
+        "surprisePercent": 0.1128
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.4471,
-        "actual": 0.5255,
-        "surprisePercent": 0.1754
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.5342,
-        "actual": 0.6145,
+        "quarter": "None",
+        "estimate": 0.5998,
+        "actual": 0.69,
         "surprisePercent": 0.1504
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.5682,
-        "actual": 0.6323,
-        "surprisePercent": 0.1128
+        "quarter": "None",
+        "estimate": 0.502,
+        "actual": 0.59,
+        "surprisePercent": 0.1754
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.5308,
+        "actual": 0.57,
+        "surprisePercent": 0.0739
       }
     ],
     "nextEarningsDate": "2026-11-05",
     "epsForecast": {
-      "date": "2026-11-05",
-      "estimate": 0.5402,
-      "low": 0.5076,
-      "high": 0.5611,
+      "date": null,
+      "estimate": 0.6065,
+      "low": 0.57,
+      "high": 0.63,
       "analysts": 6
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-07",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Piper Sandler",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-23",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-16",
+        "firm": "Piper Sandler",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-09",
+        "firm": "Leerink Partners",
+        "toGrade": "Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-08",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-05-19",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-05-08",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6412,7 +6484,7 @@
       "close": 18.6919
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

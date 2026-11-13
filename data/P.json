@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 99.6295,
-    "change": 3.2576,
+    "price": 99.5965,
+    "change": 3.2566,
     "changePercent": 3.38,
     "marketCap": 28713030693.0074,
     "fiftyTwoWeekLow": 50.5688,
@@ -2034,38 +2034,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 0.5203,
-        "actual": 0.5166,
-        "surprisePercent": -0.0072
+        "quarter": "None",
+        "estimate": 0.5786,
+        "actual": 0.7,
+        "surprisePercent": 0.2097
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 0.5744,
-        "actual": 0.6145,
-        "surprisePercent": 0.0699
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 0.3521,
-        "actual": 0.4186,
+        "quarter": "None",
+        "estimate": 0.3954,
+        "actual": 0.47,
         "surprisePercent": 0.1885
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 0.5153,
-        "actual": 0.6234,
-        "surprisePercent": 0.2097
+        "quarter": "None",
+        "estimate": 0.6449,
+        "actual": 0.69,
+        "surprisePercent": 0.0699
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.5842,
+        "actual": 0.58,
+        "surprisePercent": -0.0072
       }
     ],
     "nextEarningsDate": "2026-11-18",
     "epsForecast": {
-      "date": "2026-11-18",
-      "estimate": 0.6854,
-      "low": 0.5878,
-      "high": 0.7499,
+      "date": null,
+      "estimate": 0.7717,
+      "low": 0.66,
+      "high": 0.842,
       "analysts": 19
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "UBS",
+        "toGrade": "Sell",
+        "fromGrade": "Sell",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "Lake Street",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6421,7 +6493,7 @@
       "close": 99.5634
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

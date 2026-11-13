@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 401.486,
-    "change": -2.3799,
+    "price": 401.3529,
+    "change": -2.3791,
     "changePercent": -0.59,
     "marketCap": 46395064132.1544,
     "fiftyTwoWeekLow": 145.2674,
@@ -1738,38 +1738,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": -3.551,
-        "actual": -3.5268,
-        "surprisePercent": 0.0068
+        "quarter": "None",
+        "estimate": -1.0047,
+        "actual": -0.7,
+        "surprisePercent": 0.3033
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 9.0865,
-        "actual": 9.1822,
-        "surprisePercent": 0.0105
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 6.2299,
-        "actual": 6.7775,
+        "quarter": "None",
+        "estimate": 6.9951,
+        "actual": 7.61,
         "surprisePercent": 0.0879
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": -0.8948,
-        "actual": -0.6234,
-        "surprisePercent": 0.3033
+        "quarter": "None",
+        "estimate": 10.2026,
+        "actual": 10.31,
+        "surprisePercent": 0.0105
+      },
+      {
+        "quarter": "None",
+        "estimate": -3.9872,
+        "actual": -3.96,
+        "surprisePercent": 0.0068
       }
     ],
     "nextEarningsDate": "2026-11-06",
     "epsForecast": {
-      "date": "2026-11-06",
-      "estimate": -7.0086,
-      "low": -9.485,
-      "high": -5.8869,
+      "date": null,
+      "estimate": -7.5482,
+      "low": -7.84,
+      "high": -6.61,
       "analysts": 22
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-11",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-10",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6125,7 +6197,7 @@
       "close": 401.2198
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

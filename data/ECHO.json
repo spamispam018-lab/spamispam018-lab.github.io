@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 88.7978,
-    "change": -3.683,
+    "price": 88.7684,
+    "change": -3.6817,
     "changePercent": -3.98,
     "marketCap": 24520588249.5058,
     "fiftyTwoWeekLow": 58.5665,
@@ -2475,38 +2475,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": -0.6696,
-        "actual": -3.7049,
-        "surprisePercent": -4.5326
+        "quarter": "None",
+        "estimate": 0.2431,
+        "actual": 7.97,
+        "surprisePercent": 31.7808
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": -0.5002,
-        "actual": -0.4542,
-        "surprisePercent": 0.092
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": -0.0784,
-        "actual": 21.4815,
+        "quarter": "None",
+        "estimate": -0.088,
+        "actual": 24.12,
         "surprisePercent": 275.1532
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.2165,
-        "actual": 7.0982,
-        "surprisePercent": 31.7808
+        "quarter": "None",
+        "estimate": -0.5616,
+        "actual": -0.51,
+        "surprisePercent": 0.092
+      },
+      {
+        "quarter": "None",
+        "estimate": -0.7519,
+        "actual": -4.16,
+        "surprisePercent": -4.5326
       }
     ],
     "nextEarningsDate": "2026-11-03",
     "epsForecast": {
-      "date": "2026-11-03",
-      "estimate": 0.7475,
-      "low": 0.747,
-      "high": 0.7481,
+      "date": null,
+      "estimate": 0.8393,
+      "low": 0.8387,
+      "high": 0.84,
       "analysts": 2
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-04",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Underweight",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-08",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Neutral",
+        "action": "up"
+      },
+      {
+        "date": "2026-08-04",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-04",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-17",
+        "firm": "Raymond James",
+        "toGrade": "Strong Buy",
+        "fromGrade": "Market Perform",
+        "action": "up"
+      },
+      {
+        "date": "2026-05-18",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-03-03",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-02-04",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6862,7 +6934,7 @@
       "close": 88.739
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

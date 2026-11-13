@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 118.2433,
-    "change": -5.0674,
+    "price": 118.2041,
+    "change": -5.0657,
     "changePercent": -4.11,
     "marketCap": 31776534698.7027,
     "fiftyTwoWeekLow": 117.1597,
@@ -2339,38 +2339,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.8372,
-        "actual": -2.2176,
-        "surprisePercent": -3.6489
+        "quarter": "None",
+        "estimate": 0.0817,
+        "actual": 2.51,
+        "surprisePercent": 29.7297
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.0395,
-        "actual": -1.327,
-        "surprisePercent": -34.5888
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": -0.2062,
-        "actual": -1.2112,
+        "quarter": "None",
+        "estimate": -0.2315,
+        "actual": -1.36,
         "surprisePercent": -4.8747
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.0728,
-        "actual": 2.2354,
-        "surprisePercent": 29.7297
+        "quarter": "None",
+        "estimate": 0.0444,
+        "actual": -1.49,
+        "surprisePercent": -34.5888
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.94,
+        "actual": -2.49,
+        "surprisePercent": -3.6489
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": -0.0774,
-      "low": -0.3652,
-      "high": 0.2137,
+      "date": null,
+      "estimate": -0.0916,
+      "low": -0.41,
+      "high": 0.24,
       "analysts": 19
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "B. Riley Securities",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "reit"
+      },
+      {
+        "date": "2026-11-07",
+        "firm": "Freedom Broker",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Morgan Stanley",
+        "toGrade": "Underweight",
+        "fromGrade": "Equal-Weight",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-31",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-31",
+        "firm": "Canaccord Genuity",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Goldman Sachs",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6726,7 +6798,7 @@
       "close": 118.1649
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

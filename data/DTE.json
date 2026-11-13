@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 125.9621,
-    "change": -0.4434,
+    "price": 125.9203,
+    "change": -0.4433,
     "changePercent": -0.35,
     "marketCap": 25042766918.6373,
     "fiftyTwoWeekLow": 106.5882,
@@ -2223,38 +2223,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.357,
-        "actual": 1.4695,
-        "surprisePercent": 0.0829
+        "quarter": "None",
+        "estimate": 2.1462,
+        "actual": 2.3,
+        "surprisePercent": 0.0716
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.8117,
-        "actual": 1.7367,
-        "surprisePercent": -0.0414
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.0112,
-        "actual": 1.1756,
+        "quarter": "None",
+        "estimate": 1.1354,
+        "actual": 1.32,
         "surprisePercent": 0.1626
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.9114,
-        "actual": 2.0484,
-        "surprisePercent": 0.0716
+        "quarter": "None",
+        "estimate": 2.0342,
+        "actual": 1.95,
+        "surprisePercent": -0.0414
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.5237,
+        "actual": 1.65,
+        "surprisePercent": 0.0829
       }
     ],
     "nextEarningsDate": "2026-11-05",
     "epsForecast": {
-      "date": "2026-11-05",
-      "estimate": 2.009,
-      "low": 1.869,
-      "high": 2.1464,
+      "date": null,
+      "estimate": 2.2558,
+      "low": 2.0986,
+      "high": 2.41,
       "analysts": 8
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-07",
+        "firm": "Ladenburg Thalmann",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "HSBC",
+        "toGrade": "Hold",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "BMO Capital",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "BMO Capital",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-29",
+        "firm": "BMO Capital",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-28",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6610,7 +6682,7 @@
       "close": 125.8786
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

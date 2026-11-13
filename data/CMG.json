@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 31.8253,
-    "change": -1.3302,
+    "price": 31.8148,
+    "change": -1.3297,
     "changePercent": -4.01,
     "marketCap": 38788813455.1067,
     "fiftyTwoWeekLow": 24.3226,
@@ -1983,38 +1983,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.2122,
-        "actual": 0.2227,
-        "surprisePercent": 0.0489
+        "quarter": "None",
+        "estimate": 0.2908,
+        "actual": 0.27,
+        "surprisePercent": -0.0715
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.2108,
-        "actual": 0.2137,
-        "surprisePercent": 0.014
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.2827,
-        "actual": 0.2939,
+        "quarter": "None",
+        "estimate": 0.3174,
+        "actual": 0.33,
         "surprisePercent": 0.0396
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.259,
-        "actual": 0.2405,
-        "surprisePercent": -0.0715
+        "quarter": "None",
+        "estimate": 0.2367,
+        "actual": 0.24,
+        "surprisePercent": 0.014
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.2383,
+        "actual": 0.25,
+        "surprisePercent": 0.0489
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 0.2184,
-      "low": 0.2114,
-      "high": 0.2316,
-      "analysts": 29
-    }
+      "date": null,
+      "estimate": 0.245,
+      "low": 0.2374,
+      "high": 0.26,
+      "analysts": 30
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-29",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "BNP Paribas",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "DA Davidson",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Guggenheim",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Stephens & Co.",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6370,7 +6442,7 @@
       "close": 31.8042
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

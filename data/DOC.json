@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 18.2066,
-    "change": -0.2353,
+    "price": 18.2006,
+    "change": -0.2351,
     "changePercent": -1.28,
     "marketCap": 13100106997.4862,
     "fiftyTwoWeekLow": 13.9826,
@@ -2311,32 +2311,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.0534,
-        "actual": 0.0851,
-        "surprisePercent": 0.5933
+        "quarter": "None",
+        "estimate": 0.025,
+        "actual": 0.0386,
+        "surprisePercent": 0.544
       },
       {
-        "quarter": "2026-06-30",
-        "estimate": 0.0239,
-        "actual": 0.0712,
+        "quarter": "None",
+        "estimate": 0.0268,
+        "actual": 0.08,
         "surprisePercent": 1.9862
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.0223,
-        "actual": 0.0344,
-        "surprisePercent": 0.544
+        "quarter": "None",
+        "estimate": 0.0602,
+        "actual": 0.28,
+        "surprisePercent": 3.6473
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.06,
+        "actual": 0.0956,
+        "surprisePercent": 0.5933
       }
     ],
     "nextEarningsDate": "2027-02-01",
     "epsForecast": {
-      "date": "2027-02-01",
-      "estimate": 0.0223,
-      "low": 0.0178,
-      "high": 0.0356,
+      "date": null,
+      "estimate": 0.03,
+      "low": 0.02,
+      "high": 0.04,
       "analysts": 2
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-11",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-21",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-31",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-13",
+        "firm": "Baird",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-11",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6692,7 +6770,7 @@
       "close": 18.1945
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

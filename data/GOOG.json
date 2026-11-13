@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 267.2622,
-    "change": 4.2711,
+    "price": 267.1736,
+    "change": 4.2697,
     "changePercent": 1.62,
     "marketCap": 3108794576224.8276,
     "fiftyTwoWeekLow": 241.7204,
@@ -2207,38 +2207,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.352,
-        "actual": 2.5115,
-        "surprisePercent": 0.0678
+        "quarter": "None",
+        "estimate": 2.9842,
+        "actual": 2.67,
+        "surprisePercent": -0.1053
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.3422,
-        "actual": 2.4581,
-        "surprisePercent": 0.0495
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.5941,
-        "actual": 2.5382,
+        "quarter": "None",
+        "estimate": 2.9127,
+        "actual": 2.85,
         "surprisePercent": -0.0215
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.6578,
-        "actual": 2.3779,
-        "surprisePercent": -0.1053
+        "quarter": "None",
+        "estimate": 2.6299,
+        "actual": 2.76,
+        "surprisePercent": 0.0495
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.6409,
+        "actual": 2.82,
+        "surprisePercent": 0.0678
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 2.9096,
-      "low": 2.5793,
-      "high": 3.3131,
+      "date": null,
+      "estimate": 3.267,
+      "low": 2.8961,
+      "high": 3.72,
       "analysts": 16
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-29",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Outperform",
+        "fromGrade": "Sector Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-23",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-23",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-07-23",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-06-09",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6594,7 +6666,7 @@
       "close": 267.085
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

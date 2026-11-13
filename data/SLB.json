@@ -11,7 +11,7 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 46.0685,
+    "price": 46.0532,
     "change": -0.0452,
     "changePercent": -0.1,
     "marketCap": 65623164996.3815,
@@ -2360,38 +2360,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.6618,
-        "actual": 0.6947,
-        "surprisePercent": 0.0496
+        "quarter": "None",
+        "estimate": 0.6147,
+        "actual": 0.64,
+        "surprisePercent": 0.0411
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.458,
-        "actual": 0.4631,
-        "surprisePercent": 0.0113
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.4608,
-        "actual": 0.4898,
+        "quarter": "None",
+        "estimate": 0.5174,
+        "actual": 0.55,
         "surprisePercent": 0.063
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.5475,
-        "actual": 0.57,
-        "surprisePercent": 0.0411
+        "quarter": "None",
+        "estimate": 0.5142,
+        "actual": 0.52,
+        "surprisePercent": 0.0113
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.7431,
+        "actual": 0.78,
+        "surprisePercent": 0.0496
       }
     ],
     "nextEarningsDate": "2027-01-22",
     "epsForecast": {
-      "date": "2027-01-22",
-      "estimate": 0.6634,
-      "low": 0.6491,
-      "high": 0.7089,
+      "date": null,
+      "estimate": 0.7449,
+      "low": 0.7288,
+      "high": 0.796,
       "analysts": 21
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-26",
+        "firm": "Freedom Broker",
+        "toGrade": "Hold",
+        "fromGrade": "Sell",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-14",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-09",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-27",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6747,7 +6819,7 @@
       "close": 46.0379
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

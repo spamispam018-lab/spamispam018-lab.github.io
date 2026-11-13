@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 118.5419,
-    "change": -1.484,
+    "price": 118.5026,
+    "change": -1.4835,
     "changePercent": -1.24,
     "marketCap": 16453882020.9094,
     "fiftyTwoWeekLow": 92.1603,
@@ -887,26 +887,98 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2026-06-30",
-        "estimate": 1.425,
-        "actual": null,
-        "surprisePercent": null
+        "quarter": "None",
+        "estimate": 1.39,
+        "actual": 1.49,
+        "surprisePercent": 0.0719
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.2379,
-        "actual": 1.327,
-        "surprisePercent": 0.0719
+        "quarter": "None",
+        "estimate": 1.6,
+        "actual": null,
+        "surprisePercent": null
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 1.3923,
-      "low": 1.3181,
-      "high": 1.4606,
+      "date": null,
+      "estimate": 1.5633,
+      "low": 1.48,
+      "high": 1.64,
       "analysts": 11
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-30",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "Stifel",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-29",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-10",
+        "firm": "Bernstein",
+        "toGrade": "Market Perform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-08",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-07-15",
+        "firm": "Citizens",
+        "toGrade": "Market Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-07-08",
+        "firm": "Stephens & Co.",
+        "toGrade": "Overweight",
+        "fromGrade": "",
+        "action": "init"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -2102,7 +2174,7 @@
       "close": 118.4633
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

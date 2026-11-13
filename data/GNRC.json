@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 174.5371,
-    "change": -1.0135,
+    "price": 174.4792,
+    "change": -1.0132,
     "changePercent": -0.58,
     "marketCap": 9287345629.7015,
     "fiftyTwoWeekLow": 120.0542,
@@ -2356,38 +2356,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.5759,
-        "actual": 1.4339,
-        "surprisePercent": -0.0902
+        "quarter": "None",
+        "estimate": 2.4283,
+        "actual": 2.54,
+        "surprisePercent": 0.046
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.1832,
-        "actual": 1.6031,
-        "surprisePercent": 0.3549
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.7917,
-        "actual": 2.5917,
+        "quarter": "None",
+        "estimate": 2.0118,
+        "actual": 2.91,
         "surprisePercent": 0.4465
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.1627,
-        "actual": 2.2621,
-        "surprisePercent": 0.046
+        "quarter": "None",
+        "estimate": 1.3285,
+        "actual": 1.8,
+        "surprisePercent": 0.3549
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.7695,
+        "actual": 1.61,
+        "surprisePercent": -0.0902
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 2.3256,
-      "low": 2.1107,
-      "high": 2.5026,
-      "analysts": 15
-    }
+      "date": null,
+      "estimate": 2.6348,
+      "low": 2.37,
+      "high": 2.81,
+      "analysts": 16
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Stifel",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Sector Weight",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-30",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6743,7 +6815,7 @@
       "close": 174.4214
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

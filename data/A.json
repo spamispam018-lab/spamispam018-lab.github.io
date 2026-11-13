@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 156.5568,
-    "change": -3.5653,
+    "price": 156.5048,
+    "change": -3.5642,
     "changePercent": -2.23,
     "marketCap": 43886004810.6626,
     "fiftyTwoWeekLow": 96.4976,
@@ -1716,38 +1716,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 1.4108,
-        "actual": 1.4161,
-        "surprisePercent": 0.0037
+        "quarter": "None",
+        "estimate": 1.4861,
+        "actual": 1.62,
+        "surprisePercent": 0.0901
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 1.2186,
-        "actual": 1.2112,
-        "surprisePercent": -0.006
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 1.2542,
-        "actual": 1.327,
+        "quarter": "None",
+        "estimate": 1.4083,
+        "actual": 1.49,
         "surprisePercent": 0.058
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 1.3235,
-        "actual": 1.4428,
-        "surprisePercent": 0.0901
+        "quarter": "None",
+        "estimate": 1.3683,
+        "actual": 1.36,
+        "surprisePercent": -0.006
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.5841,
+        "actual": 1.59,
+        "surprisePercent": 0.0037
       }
     ],
     "nextEarningsDate": "2026-11-23",
     "epsForecast": {
-      "date": "2026-11-23",
-      "estimate": 1.538,
-      "low": 1.5229,
-      "high": 1.5497,
+      "date": null,
+      "estimate": 1.7269,
+      "low": 1.71,
+      "high": 1.74,
       "analysts": 17
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-26",
+        "firm": "Deutsche Bank",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-27",
+        "firm": "Stifel",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-27",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-27",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-27",
+        "firm": "Goldman Sachs",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-27",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6103,7 +6175,7 @@
       "close": 156.4529
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

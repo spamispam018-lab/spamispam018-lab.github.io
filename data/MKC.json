@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 41.9964,
-    "change": -0.4796,
+    "price": 41.9825,
+    "change": -0.4794,
     "changePercent": -1.13,
     "marketCap": 11598165035.1886,
     "fiftyTwoWeekLow": 38.5189,
@@ -1901,38 +1901,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-11-30",
-        "estimate": 0.7803,
-        "actual": 0.7659,
-        "surprisePercent": -0.0183
+        "quarter": "None",
+        "estimate": 0.7559,
+        "actual": 0.86,
+        "surprisePercent": 0.1378
       },
       {
-        "quarter": "2026-02-28",
-        "estimate": 0.5312,
-        "actual": 0.5878,
-        "surprisePercent": 0.1066
-      },
-      {
-        "quarter": "2026-05-31",
-        "estimate": 0.6207,
-        "actual": 0.7125,
+        "quarter": "None",
+        "estimate": 0.6969,
+        "actual": 0.8,
         "surprisePercent": 0.148
       },
       {
-        "quarter": "2026-08-31",
-        "estimate": 0.6732,
-        "actual": 0.7659,
-        "surprisePercent": 0.1378
+        "quarter": "None",
+        "estimate": 0.5964,
+        "actual": 0.66,
+        "surprisePercent": 0.1066
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.8761,
+        "actual": 0.86,
+        "surprisePercent": -0.0183
       }
     ],
     "nextEarningsDate": "2027-01-21",
     "epsForecast": {
-      "date": "2027-01-21",
-      "estimate": 0.6938,
-      "low": 0.6701,
-      "high": 0.7659,
+      "date": null,
+      "estimate": 0.779,
+      "low": 0.7523,
+      "high": 0.86,
       "analysts": 10
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-02",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "BNP Paribas",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "Stifel",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-14",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-06-29",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-06-26",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-06-26",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6072,7 +6144,7 @@
       "close": 41.9686
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

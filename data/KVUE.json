@@ -2426,38 +2426,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.1983,
-        "actual": 0.2405,
-        "surprisePercent": 0.2124
+        "quarter": "None",
+        "estimate": 0.2941,
+        "actual": 0.29,
+        "surprisePercent": -0.014
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.2316,
-        "actual": 0.285,
-        "surprisePercent": 0.2303
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.2841,
-        "actual": 0.2761,
+        "quarter": "None",
+        "estimate": 0.319,
+        "actual": 0.31,
         "surprisePercent": -0.0282
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.2619,
-        "actual": 0.2583,
-        "surprisePercent": -0.014
+        "quarter": "None",
+        "estimate": 0.2601,
+        "actual": 0.32,
+        "surprisePercent": 0.2303
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.2227,
+        "actual": 0.27,
+        "surprisePercent": 0.2124
       }
     ],
     "nextEarningsDate": "2026-10-30",
     "epsForecast": {
-      "date": "2026-10-30",
-      "estimate": 0.2366,
-      "low": 0.2227,
-      "high": 0.2494,
+      "date": null,
+      "estimate": 0.2657,
+      "low": 0.25,
+      "high": 0.28,
       "analysts": 7
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-02",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-11",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-21",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-16",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-04-15",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-04-14",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-04-07",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-03-06",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-02-18",
+        "firm": "Canaccord Genuity",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-02-18",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {

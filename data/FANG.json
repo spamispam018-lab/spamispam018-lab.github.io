@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 164.8728,
-    "change": 1.104,
+    "price": 164.8181,
+    "change": 1.1036,
     "changePercent": 0.67,
     "marketCap": 44494765473.5451,
     "fiftyTwoWeekLow": 124.1599,
@@ -2321,38 +2321,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.7844,
-        "actual": 1.5497,
-        "surprisePercent": -0.1316
+        "quarter": "None",
+        "estimate": 5.6005,
+        "actual": 5.86,
+        "surprisePercent": 0.0463
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 3.3403,
-        "actual": 3.7673,
-        "surprisePercent": 0.1278
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 5.3276,
-        "actual": 5.7712,
+        "quarter": "None",
+        "estimate": 5.982,
+        "actual": 6.48,
         "surprisePercent": 0.0832
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 4.9879,
-        "actual": 5.219,
-        "surprisePercent": 0.0463
+        "quarter": "None",
+        "estimate": 3.7506,
+        "actual": 4.23,
+        "surprisePercent": 0.1278
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.0036,
+        "actual": 1.74,
+        "surprisePercent": -0.1316
       }
     ],
     "nextEarningsDate": "2026-11-02",
     "epsForecast": {
-      "date": "2026-11-02",
-      "estimate": 4.9879,
-      "low": 2.3245,
-      "high": 5.8157,
-      "analysts": 29
-    }
+      "date": null,
+      "estimate": 6.8454,
+      "low": 5.42,
+      "high": 8.5353,
+      "analysts": 25
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "Bernstein",
+        "toGrade": "Market Perform",
+        "fromGrade": "Outperform",
+        "action": "down"
+      },
+      {
+        "date": "2026-11-11",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-17",
+        "firm": "Raymond James",
+        "toGrade": "Strong Buy",
+        "fromGrade": "Strong Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-14",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6708,7 +6780,7 @@
       "close": 164.7635
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

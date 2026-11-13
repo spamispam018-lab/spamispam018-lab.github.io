@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 81.1605,
-    "change": 0.5701,
+    "price": 81.1336,
+    "change": 0.5699,
     "changePercent": 0.71,
     "marketCap": 33573884887.9679,
     "fiftyTwoWeekLow": 58.1746,
@@ -2016,38 +2016,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.5156,
-        "actual": 0.5611,
-        "surprisePercent": 0.0883
+        "quarter": "None",
+        "estimate": 0.6858,
+        "actual": 0.67,
+        "surprisePercent": -0.023
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.4194,
-        "actual": 0.4453,
-        "surprisePercent": 0.0618
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.4515,
-        "actual": 0.6145,
+        "quarter": "None",
+        "estimate": 0.507,
+        "actual": 0.69,
         "surprisePercent": 0.3609
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.6108,
-        "actual": 0.5967,
-        "surprisePercent": -0.023
+        "quarter": "None",
+        "estimate": 0.4709,
+        "actual": 0.5,
+        "surprisePercent": 0.0618
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.5789,
+        "actual": 0.63,
+        "surprisePercent": 0.0883
       }
     ],
     "nextEarningsDate": "2026-10-21",
     "epsForecast": {
-      "date": "2026-10-21",
-      "estimate": 0.6277,
-      "low": 0.6056,
-      "high": 0.6591,
+      "date": null,
+      "estimate": 0.7048,
+      "low": 0.68,
+      "high": 0.74,
       "analysts": 7
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-22",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-30",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-14",
+        "firm": "JP Morgan",
+        "toGrade": "Underweight",
+        "fromGrade": "Neutral",
+        "action": "down"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Equal-Weight",
+        "action": "up"
+      },
+      {
+        "date": "2026-07-28",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-24",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-24",
+        "firm": "Citizens",
+        "toGrade": "Market Outperform",
+        "fromGrade": "Market Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-23",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-23",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6403,7 +6475,7 @@
       "close": 81.1067
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

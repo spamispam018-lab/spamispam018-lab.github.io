@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 206.2267,
-    "change": -0.9411,
+    "price": 206.1583,
+    "change": -0.9408,
     "changePercent": -0.45,
     "marketCap": 22808494028.3864,
     "fiftyTwoWeekLow": 150.5131,
@@ -2304,38 +2304,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-11-30",
-        "estimate": 1.8678,
-        "actual": 1.8525,
-        "surprisePercent": -0.0082
+        "quarter": "None",
+        "estimate": 2.0535,
+        "actual": 2.05,
+        "surprisePercent": -0.0017
       },
       {
-        "quarter": "2026-02-28",
-        "estimate": 2.6196,
-        "actual": 2.6273,
-        "surprisePercent": 0.0029
-      },
-      {
-        "quarter": "2026-05-31",
-        "estimate": 3.2391,
-        "actual": 3.2596,
+        "quarter": "None",
+        "estimate": 3.6369,
+        "actual": 3.66,
         "surprisePercent": 0.0064
       },
       {
-        "quarter": "2026-08-31",
-        "estimate": 1.8289,
-        "actual": 1.8258,
-        "surprisePercent": -0.0017
+        "quarter": "None",
+        "estimate": 2.9413,
+        "actual": 2.95,
+        "surprisePercent": 0.0029
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.0972,
+        "actual": 2.08,
+        "surprisePercent": -0.0082
       }
     ],
     "nextEarningsDate": "2026-12-18",
     "epsForecast": {
-      "date": "2026-12-18",
-      "estimate": 2.0073,
-      "low": 1.8436,
-      "high": 2.084,
+      "date": null,
+      "estimate": 2.2538,
+      "low": 2.07,
+      "high": 2.34,
       "analysts": 27
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-09-25",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "Freedom Capital Markets",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "BMO Capital",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "Stephens & Co.",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-21",
+        "firm": "Freedom Capital Markets",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-16",
+        "firm": "Seaport Global",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6691,7 +6763,7 @@
       "close": 206.09
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

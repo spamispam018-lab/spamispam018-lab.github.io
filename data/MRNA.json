@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 209.3486,
-    "change": -15.691,
+    "price": 209.2792,
+    "change": -15.6858,
     "changePercent": -6.97,
     "marketCap": 90380679548.5329,
     "fiftyTwoWeekLow": 19.8428,
@@ -2076,38 +2076,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": -2.3165,
-        "actual": -1.8792,
-        "surprisePercent": 0.1888
+        "quarter": "None",
+        "estimate": -1.2546,
+        "actual": 0.38,
+        "surprisePercent": 1.3029
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": -3.4555,
-        "actual": -3.0281,
-        "surprisePercent": 0.1237
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": -1.8339,
-        "actual": -1.7545,
+        "quarter": "None",
+        "estimate": -2.0592,
+        "actual": -1.97,
         "surprisePercent": 0.0433
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": -1.1174,
-        "actual": 0.3384,
-        "surprisePercent": 1.3029
+        "quarter": "None",
+        "estimate": -3.8799,
+        "actual": -3.4,
+        "surprisePercent": 0.1237
+      },
+      {
+        "quarter": "None",
+        "estimate": -2.601,
+        "actual": -2.11,
+        "surprisePercent": 0.1888
       }
     ],
     "nextEarningsDate": "2026-11-06",
     "epsForecast": {
-      "date": "2026-11-06",
-      "estimate": -1.9096,
-      "low": -3.8207,
-      "high": -1.5099,
-      "analysts": 10
-    }
+      "date": null,
+      "estimate": -2.1445,
+      "low": -4.29,
+      "high": -0.0308,
+      "analysts": 14
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "Goldman Sachs",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "William Blair",
+        "toGrade": "Market Perform",
+        "fromGrade": "Outperform",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Goldman Sachs",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-30",
+        "firm": "Citigroup",
+        "toGrade": "Sell",
+        "fromGrade": "Neutral",
+        "action": "down"
+      },
+      {
+        "date": "2026-09-03",
+        "firm": "Rothschild & Co",
+        "toGrade": "Sell",
+        "fromGrade": "Neutral",
+        "action": "down"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6463,7 +6535,7 @@
       "close": 209.2098
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

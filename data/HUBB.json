@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 396.3281,
-    "change": -4.977,
+    "price": 396.1967,
+    "change": -4.9753,
     "changePercent": -1.24,
     "marketCap": 20207946236.0071,
     "fiftyTwoWeekLow": 359.6461,
@@ -2313,38 +2313,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 4.205,
-        "actual": 4.2126,
-        "surprisePercent": 0.0018
+        "quarter": "None",
+        "estimate": 5.753,
+        "actual": 5.91,
+        "surprisePercent": 0.0273
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 3.4421,
-        "actual": 3.5001,
-        "surprisePercent": 0.0168
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 4.7994,
-        "actual": 4.9162,
+        "quarter": "None",
+        "estimate": 5.3889,
+        "actual": 5.52,
         "surprisePercent": 0.0243
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 5.1237,
-        "actual": 5.2635,
-        "surprisePercent": 0.0273
+        "quarter": "None",
+        "estimate": 3.8649,
+        "actual": 3.93,
+        "surprisePercent": 0.0168
+      },
+      {
+        "quarter": "None",
+        "estimate": 4.7215,
+        "actual": 4.73,
+        "surprisePercent": 0.0018
       }
     ],
     "nextEarningsDate": "2026-10-27",
     "epsForecast": {
-      "date": "2026-10-27",
-      "estimate": 4.6548,
-      "low": 4.4887,
-      "high": 4.8716,
+      "date": null,
+      "estimate": 5.2272,
+      "low": 5.04,
+      "high": 5.47,
       "analysts": 14
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-11",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Baird",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-02",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-21",
+        "firm": "Baird",
+        "toGrade": "Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-05-04",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6700,7 +6772,7 @@
       "close": 396.0653
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

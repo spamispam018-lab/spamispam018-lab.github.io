@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 97.9283,
-    "change": -2.2351,
+    "price": 97.8958,
+    "change": -2.2344,
     "changePercent": -2.23,
     "marketCap": 20596838356.1622,
     "fiftyTwoWeekLow": 75.8978,
@@ -1696,38 +1696,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.1948,
-        "actual": 2.1731,
-        "surprisePercent": -0.0099
+        "quarter": "None",
+        "estimate": 2.6495,
+        "actual": 2.86,
+        "surprisePercent": 0.0795
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.0899,
-        "actual": 2.2443,
-        "surprisePercent": 0.0739
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.2429,
-        "actual": 2.2889,
+        "quarter": "None",
+        "estimate": 2.5184,
+        "actual": 2.57,
         "surprisePercent": 0.0205
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.3597,
-        "actual": 2.5471,
-        "surprisePercent": 0.0795
+        "quarter": "None",
+        "estimate": 2.3466,
+        "actual": 2.52,
+        "surprisePercent": 0.0739
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.4644,
+        "actual": 2.44,
+        "surprisePercent": -0.0099
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 2.0768,
-      "low": 1.8703,
-      "high": 2.1998,
+      "date": null,
+      "estimate": 2.3319,
+      "low": 2.1,
+      "high": 2.47,
       "analysts": 11
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-30",
+        "firm": "JP Morgan",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Barclays",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "JP Morgan",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "BMO Capital",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-09",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6083,7 +6155,7 @@
       "close": 97.8633
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 74.057,
-    "change": -0.6877,
+    "price": 74.0325,
+    "change": -0.6875,
     "changePercent": -0.92,
     "marketCap": 33172648144.2962,
     "fiftyTwoWeekLow": 52.3233,
@@ -2537,38 +2537,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.2452,
-        "actual": 1.2825,
-        "surprisePercent": 0.0299
+        "quarter": "None",
+        "estimate": 1.2041,
+        "actual": 1.34,
+        "surprisePercent": 0.1128
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.9351,
-        "actual": 0.8817,
-        "surprisePercent": -0.0571
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.9226,
-        "actual": 1.0064,
+        "quarter": "None",
+        "estimate": 1.0359,
+        "actual": 1.13,
         "surprisePercent": 0.0909
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.0724,
-        "actual": 1.1934,
-        "surprisePercent": 0.1128
+        "quarter": "None",
+        "estimate": 1.05,
+        "actual": 0.99,
+        "surprisePercent": -0.0571
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.3981,
+        "actual": 1.44,
+        "surprisePercent": 0.0299
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 1.3867,
-      "low": 1.3626,
-      "high": 1.425,
+      "date": null,
+      "estimate": 1.5571,
+      "low": 1.53,
+      "high": 1.6,
       "analysts": 18
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-11",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6924,7 +6996,7 @@
       "close": 74.0079
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

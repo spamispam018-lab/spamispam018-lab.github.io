@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 301.5399,
-    "change": 4.1897,
+    "price": 301.4399,
+    "change": 4.1883,
     "changePercent": 1.41,
     "marketCap": 9793586456.0008,
     "fiftyTwoWeekLow": 251.152,
@@ -1987,38 +1987,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 4.7974,
-        "actual": 4.7648,
-        "surprisePercent": -0.0068
+        "quarter": "None",
+        "estimate": 4.3891,
+        "actual": 4.6,
+        "surprisePercent": 0.0481
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 3.8046,
-        "actual": 3.6782,
-        "surprisePercent": -0.0332
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 3.713,
-        "actual": 3.6248,
+        "quarter": "None",
+        "estimate": 4.1691,
+        "actual": 4.07,
         "surprisePercent": -0.0238
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 3.909,
-        "actual": 4.0968,
-        "surprisePercent": 0.0481
+        "quarter": "None",
+        "estimate": 4.2719,
+        "actual": 4.13,
+        "surprisePercent": -0.0332
+      },
+      {
+        "quarter": "None",
+        "estimate": 5.3866,
+        "actual": 5.35,
+        "surprisePercent": -0.0068
       }
     ],
     "nextEarningsDate": "2026-10-13",
     "epsForecast": {
-      "date": "2026-10-13",
-      "estimate": 5.6639,
-      "low": 5.4149,
-      "high": 5.9137,
+      "date": null,
+      "estimate": 6.3591,
+      "low": 6.08,
+      "high": 6.64,
       "analysts": 21
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-14",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Baird",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "StoneX",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6374,7 +6446,7 @@
       "close": 301.3399
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

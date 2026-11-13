@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 277.9038,
-    "change": -7.5198,
+    "price": 277.8117,
+    "change": -7.5172,
     "changePercent": -2.63,
     "marketCap": 22700257872.3439,
     "fiftyTwoWeekLow": 273.4173,
@@ -2176,38 +2176,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.4236,
-        "actual": 1.9148,
-        "surprisePercent": 0.3451
+        "quarter": "None",
+        "estimate": 1.8889,
+        "actual": 1.72,
+        "surprisePercent": -0.0894
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.4225,
-        "actual": 1.4339,
-        "surprisePercent": 0.008
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.6422,
-        "actual": 1.6743,
+        "quarter": "None",
+        "estimate": 1.8439,
+        "actual": 1.88,
         "surprisePercent": 0.0196
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.6823,
-        "actual": 1.5318,
-        "surprisePercent": -0.0894
+        "quarter": "None",
+        "estimate": 1.5972,
+        "actual": 1.61,
+        "surprisePercent": 0.008
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.5984,
+        "actual": 2.15,
+        "surprisePercent": 0.3451
       }
     ],
     "nextEarningsDate": "2026-11-05",
     "epsForecast": {
-      "date": "2026-11-05",
-      "estimate": 1.7626,
-      "low": 1.3983,
-      "high": 2.1464,
+      "date": null,
+      "estimate": 1.9485,
+      "low": 1.57,
+      "high": 2.41,
       "analysts": 17
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-07",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-03",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-06",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-06",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6563,7 +6635,7 @@
       "close": 277.7196
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

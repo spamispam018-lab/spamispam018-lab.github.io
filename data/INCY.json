@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 110.1263,
-    "change": -0.5158,
+    "price": 110.0898,
+    "change": -0.5156,
     "changePercent": -0.47,
     "marketCap": 21720693391.8201,
     "fiftyTwoWeekLow": 79.4869,
@@ -2016,38 +2016,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.7068,
-        "actual": 1.6031,
-        "surprisePercent": -0.0608
+        "quarter": "None",
+        "estimate": -3.8682,
+        "actual": -3.6,
+        "surprisePercent": 0.0693
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.193,
-        "actual": 1.612,
-        "surprisePercent": 0.3512
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.9118,
-        "actual": 2.752,
+        "quarter": "None",
+        "estimate": 2.1466,
+        "actual": 3.09,
         "surprisePercent": 0.4395
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": -3.4451,
-        "actual": -3.2062,
-        "surprisePercent": 0.0693
+        "quarter": "None",
+        "estimate": 1.3395,
+        "actual": 1.81,
+        "surprisePercent": 0.3512
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.9164,
+        "actual": 1.8,
+        "surprisePercent": -0.0608
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 1.7569,
-      "low": 1.4161,
-      "high": 2.7431,
+      "date": null,
+      "estimate": 1.9727,
+      "low": 1.59,
+      "high": 3.08,
       "analysts": 18
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-05",
+        "firm": "Leerink Partners",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Bernstein",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Perform",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "HC Wainwright & Co.",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6403,7 +6475,7 @@
       "close": 110.0533
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

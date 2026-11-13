@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 101.6474,
-    "change": -1.095,
+    "price": 101.6137,
+    "change": -1.0946,
     "changePercent": -1.07,
     "marketCap": 12354006926.0745,
     "fiftyTwoWeekLow": 63.7588,
@@ -2141,38 +2141,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.4056,
-        "actual": 1.6031,
-        "surprisePercent": 0.1405
+        "quarter": "None",
+        "estimate": 1.8974,
+        "actual": 2.08,
+        "surprisePercent": 0.0963
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.3514,
-        "actual": 1.425,
-        "surprisePercent": 0.0544
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.509,
-        "actual": 1.6298,
+        "quarter": "None",
+        "estimate": 1.6943,
+        "actual": 1.83,
         "surprisePercent": 0.0801
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.6898,
-        "actual": 1.8525,
-        "surprisePercent": 0.0963
+        "quarter": "None",
+        "estimate": 1.5174,
+        "actual": 1.6,
+        "surprisePercent": 0.0544
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.5783,
+        "actual": 1.8,
+        "surprisePercent": 0.1405
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 1.8531,
-      "low": 1.6476,
-      "high": 2.0039,
+      "date": null,
+      "estimate": 2.0807,
+      "low": 1.85,
+      "high": 2.25,
       "analysts": 12
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-02",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-31",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Outperform",
+        "action": "down"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "Baird",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-26",
+        "firm": "Wells Fargo",
+        "toGrade": "Underweight",
+        "fromGrade": "Equal-Weight",
+        "action": "down"
+      },
+      {
+        "date": "2026-08-03",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-03",
+        "firm": "Wedbush",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-31",
+        "firm": "William Blair",
+        "toGrade": "Market Perform",
+        "fromGrade": "Outperform",
+        "action": "down"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6528,7 +6600,7 @@
       "close": 101.58
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

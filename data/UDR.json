@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 32.694,
-    "change": -0.3891,
+    "price": 32.6832,
+    "change": -0.389,
     "changePercent": -1.18,
     "marketCap": 11825634969.5391,
     "fiftyTwoWeekLow": 29.4792,
@@ -2041,38 +2041,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-09-30",
-        "estimate": 0.1141,
-        "actual": 0.1069,
-        "surprisePercent": -0.0635
+        "quarter": "None",
+        "estimate": null,
+        "actual": 0.67,
+        "surprisePercent": null
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.1158,
-        "actual": 0.428,
+        "quarter": "None",
+        "estimate": 0.1304,
+        "actual": 0.21,
+        "surprisePercent": 0.6101
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.13,
+        "actual": 0.4806,
         "surprisePercent": 2.6969
       },
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.1382,
-        "actual": 0.5967,
+        "quarter": "None",
+        "estimate": 0.1552,
+        "actual": 0.67,
         "surprisePercent": 3.3165
-      },
-      {
-        "quarter": "2026-09-30",
-        "estimate": null,
-        "actual": 0.5967,
-        "surprisePercent": null
       }
     ],
     "nextEarningsDate": "2026-11-02",
     "epsForecast": {
-      "date": "2026-11-02",
-      "estimate": 0.1302,
-      "low": 0.1247,
-      "high": 0.0,
+      "date": null,
+      "estimate": 0.1462,
+      "low": 0.14,
+      "high": 0.15,
       "analysts": 3
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-11",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-10",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Piper Sandler",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-21",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6252,7 +6324,7 @@
       "close": 32.6724
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

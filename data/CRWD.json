@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 208.0094,
-    "change": 0.733,
+    "price": 207.9404,
+    "change": 0.7327,
     "changePercent": 0.35,
     "marketCap": 197796866591.1331,
     "fiftyTwoWeekLow": 76.3075,
@@ -1977,38 +1977,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 0.2096,
-        "actual": 0.2137,
-        "surprisePercent": 0.0198
+        "quarter": "None",
+        "estimate": 0.2914,
+        "actual": 0.31,
+        "surprisePercent": 0.0638
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 0.2455,
-        "actual": 0.2494,
-        "surprisePercent": 0.0156
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 0.2377,
-        "actual": 0.2449,
+        "quarter": "None",
+        "estimate": 0.2669,
+        "actual": 0.275,
         "surprisePercent": 0.0305
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 0.2595,
-        "actual": 0.2761,
-        "surprisePercent": 0.0638
+        "quarter": "None",
+        "estimate": 0.2757,
+        "actual": 0.28,
+        "surprisePercent": 0.0156
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.2353,
+        "actual": 0.24,
+        "surprisePercent": 0.0198
       }
     ],
     "nextEarningsDate": "2026-12-01",
     "epsForecast": {
-      "date": "2026-12-01",
-      "estimate": 0.2773,
-      "low": 0.2756,
-      "high": 0.2939,
+      "date": null,
+      "estimate": 0.3115,
+      "low": 0.3095,
+      "high": 0.33,
       "analysts": 44
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "Bernstein",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Deutsche Bank",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Freedom Broker",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-09",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6364,7 +6436,7 @@
       "close": 207.8714
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

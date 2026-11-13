@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 189.7032,
-    "change": 2.8323,
+    "price": 189.6403,
+    "change": 2.8314,
     "changePercent": 1.52,
     "marketCap": 62709760887.7085,
     "fiftyTwoWeekLow": 131.65,
@@ -2348,38 +2348,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.1547,
-        "actual": 1.2112,
-        "surprisePercent": 0.049
+        "quarter": "None",
+        "estimate": 1.8237,
+        "actual": 2.21,
+        "surprisePercent": 0.2118
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.9009,
-        "actual": 1.042,
-        "surprisePercent": 0.1567
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.272,
-        "actual": 1.3537,
+        "quarter": "None",
+        "estimate": 1.4282,
+        "actual": 1.52,
         "surprisePercent": 0.0642
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.6242,
-        "actual": 1.9682,
-        "surprisePercent": 0.2118
+        "quarter": "None",
+        "estimate": 1.0115,
+        "actual": 1.17,
+        "surprisePercent": 0.1567
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.2965,
+        "actual": 1.36,
+        "surprisePercent": 0.049
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 2.0317,
-      "low": 1.9772,
-      "high": 2.1553,
-      "analysts": 24
-    }
+      "date": null,
+      "estimate": 2.2879,
+      "low": 2.23,
+      "high": 2.42,
+      "analysts": 25
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-02",
+        "firm": "GLJ Research",
+        "toGrade": "Sell",
+        "fromGrade": "Sell",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-09",
+        "firm": "GLJ Research",
+        "toGrade": "Sell",
+        "fromGrade": "Sell",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6735,7 +6807,7 @@
       "close": 189.5775
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

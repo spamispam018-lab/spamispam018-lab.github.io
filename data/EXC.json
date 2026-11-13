@@ -11,7 +11,7 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 41.2906,
+    "price": 41.2769,
     "change": 0.0181,
     "changePercent": 0.04,
     "marketCap": 42047465749.0199,
@@ -2148,38 +2148,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.4866,
-        "actual": 0.5255,
-        "surprisePercent": 0.0798
+        "quarter": "None",
+        "estimate": 0.7889,
+        "actual": 0.87,
+        "surprisePercent": 0.1028
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.79,
-        "actual": 0.8105,
-        "surprisePercent": 0.026
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.3986,
-        "actual": 0.383,
+        "quarter": "None",
+        "estimate": 0.4476,
+        "actual": 0.43,
         "surprisePercent": -0.0393
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.7026,
-        "actual": 0.7748,
-        "surprisePercent": 0.1028
+        "quarter": "None",
+        "estimate": 0.887,
+        "actual": 0.91,
+        "surprisePercent": 0.026
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.5464,
+        "actual": 0.59,
+        "surprisePercent": 0.0798
       }
     ],
     "nextEarningsDate": "2026-10-30",
     "epsForecast": {
-      "date": "2026-10-30",
-      "estimate": 0.6813,
-      "low": 0.668,
-      "high": 0.6947,
+      "date": null,
+      "estimate": 0.765,
+      "low": 0.75,
+      "high": 0.78,
       "analysts": 2
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-22",
+        "firm": "HSBC",
+        "toGrade": "Hold",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Keybanc",
+        "toGrade": "Sector Weight",
+        "fromGrade": "Underweight",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-22",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-21",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-13",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6535,7 +6607,7 @@
       "close": 41.2632
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

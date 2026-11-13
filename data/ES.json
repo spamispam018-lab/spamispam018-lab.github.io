@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 64.3836,
-    "change": 0.552,
+    "price": 64.3623,
+    "change": 0.5518,
     "changePercent": 0.86,
     "marketCap": 23429243640.7923,
     "fiftyTwoWeekLow": 55.8591,
@@ -2142,38 +2142,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.9815,
-        "actual": 0.9975,
-        "surprisePercent": 0.0164
+        "quarter": "None",
+        "estimate": 0.9246,
+        "actual": 0.92,
+        "surprisePercent": -0.005
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.4507,
-        "actual": 1.5408,
-        "surprisePercent": 0.0621
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.779,
-        "actual": 0.7748,
+        "quarter": "None",
+        "estimate": 0.8747,
+        "actual": 0.87,
         "surprisePercent": -0.0053
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.8235,
-        "actual": 0.8194,
-        "surprisePercent": -0.005
+        "quarter": "None",
+        "estimate": 1.6289,
+        "actual": 1.73,
+        "surprisePercent": 0.0621
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.102,
+        "actual": 1.12,
+        "surprisePercent": 0.0164
       }
     ],
     "nextEarningsDate": "2026-11-04",
     "epsForecast": {
-      "date": "2026-11-04",
-      "estimate": 0.9883,
-      "low": 0.8194,
-      "high": 1.042,
+      "date": null,
+      "estimate": 1.1097,
+      "low": 0.92,
+      "high": 1.17,
       "analysts": 6
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-22",
+        "firm": "HSBC",
+        "toGrade": "Hold",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "JP Morgan",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-03",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-22",
+        "firm": "BMO Capital",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-02",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-06-11",
+        "firm": "Argus Research",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-05-11",
+        "firm": "BMO Capital",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-05-08",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-04-21",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Underperform",
+        "fromGrade": "Sector Underperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-04-20",
+        "firm": "Seaport Global",
+        "toGrade": "Neutral",
+        "fromGrade": "Buy",
+        "action": "down"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6529,7 +6601,7 @@
       "close": 64.3409
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

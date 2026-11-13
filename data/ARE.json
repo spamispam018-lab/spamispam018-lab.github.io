@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 40.0871,
-    "change": -0.7058,
+    "price": 40.0738,
+    "change": -0.7056,
     "changePercent": -1.73,
     "marketCap": 6948892178.9148,
     "fiftyTwoWeekLow": 34.146,
@@ -2167,38 +2167,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.2692,
-        "actual": -5.6554,
-        "surprisePercent": -22.0077
+        "quarter": "None",
+        "estimate": 0.0,
+        "actual": -0.0305,
+        "surprisePercent": 0.0
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.1281,
-        "actual": 1.8703,
-        "surprisePercent": 13.5996
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.1069,
-        "actual": 0.1348,
+        "quarter": "None",
+        "estimate": 0.12,
+        "actual": 0.1514,
         "surprisePercent": 0.2617
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.0,
-        "actual": -0.0272,
-        "surprisePercent": 0.0
+        "quarter": "None",
+        "estimate": 0.1438,
+        "actual": 2.1,
+        "surprisePercent": 13.5996
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.3023,
+        "actual": -6.35,
+        "surprisePercent": -22.0077
       }
     ],
     "nextEarningsDate": "2027-01-25",
     "epsForecast": {
-      "date": "2027-01-25",
-      "estimate": -0.0178,
-      "low": -0.0178,
-      "high": -0.0178,
+      "date": null,
+      "estimate": -0.02,
+      "low": -0.02,
+      "high": -0.02,
       "analysts": 1
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-03",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "BNP Paribas",
+        "toGrade": "Underperform",
+        "fromGrade": "Underperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "JP Morgan",
+        "toGrade": "Underweight",
+        "fromGrade": "Neutral",
+        "action": "down"
+      },
+      {
+        "date": "2026-09-21",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-24",
+        "firm": "Baird",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-17",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-17",
+        "firm": "Citizens",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-10",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6554,7 +6626,7 @@
       "close": 40.0605
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

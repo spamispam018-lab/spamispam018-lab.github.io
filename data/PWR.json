@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 548.5142,
-    "change": -1.6107,
+    "price": 548.3323,
+    "change": -1.6102,
     "changePercent": -0.29,
     "marketCap": 72585846382.4158,
     "fiftyTwoWeekLow": 363.6895,
@@ -2277,38 +2277,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.6883,
-        "actual": 2.8143,
-        "surprisePercent": 0.0469
+        "quarter": "None",
+        "estimate": 5.0294,
+        "actual": 6.06,
+        "surprisePercent": 0.2049
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.811,
-        "actual": 2.3868,
-        "surprisePercent": 0.318
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.9476,
-        "actual": 3.7762,
+        "quarter": "None",
+        "estimate": 3.3096,
+        "actual": 4.24,
         "surprisePercent": 0.2811
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 4.4792,
-        "actual": 5.3971,
-        "surprisePercent": 0.2049
+        "quarter": "None",
+        "estimate": 2.0334,
+        "actual": 2.68,
+        "surprisePercent": 0.318
+      },
+      {
+        "quarter": "None",
+        "estimate": 3.0185,
+        "actual": 3.16,
+        "surprisePercent": 0.0469
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 4.62,
-      "low": 4.3907,
-      "high": 4.9518,
-      "analysts": 18
-    }
+      "date": null,
+      "estimate": 5.196,
+      "low": 4.93,
+      "high": 5.56,
+      "analysts": 19
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-28",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Market Perform",
+        "action": "up"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6664,7 +6736,7 @@
       "close": 548.1505
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

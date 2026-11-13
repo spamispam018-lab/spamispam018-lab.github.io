@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 77.9481,
-    "change": -2.0632,
+    "price": 77.9222,
+    "change": -2.0625,
     "changePercent": -2.58,
     "marketCap": 8471341026.8797,
     "fiftyTwoWeekLow": 61.1849,
@@ -2194,38 +2194,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.1533,
-        "actual": 1.1934,
-        "surprisePercent": 0.0348
+        "quarter": "None",
+        "estimate": 1.3577,
+        "actual": 1.37,
+        "surprisePercent": 0.0091
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.0841,
-        "actual": 1.1756,
-        "surprisePercent": 0.0844
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.1033,
-        "actual": 1.1311,
+        "quarter": "None",
+        "estimate": 1.2388,
+        "actual": 1.27,
         "surprisePercent": 0.0252
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.2092,
-        "actual": 1.2201,
-        "surprisePercent": 0.0091
+        "quarter": "None",
+        "estimate": 1.2172,
+        "actual": 1.32,
+        "surprisePercent": 0.0844
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.2949,
+        "actual": 1.34,
+        "surprisePercent": 0.0348
       }
     ],
     "nextEarningsDate": "2026-11-03",
     "epsForecast": {
-      "date": "2026-11-03",
-      "estimate": 1.2486,
-      "low": 1.229,
-      "high": 1.2647,
+      "date": null,
+      "estimate": 1.4021,
+      "low": 1.38,
+      "high": 1.42,
       "analysts": 14
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-04",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Leerink Partners",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-19",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-06",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-05",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-05",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-05",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-07-29",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-28",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6581,7 +6653,7 @@
       "close": 77.8964
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

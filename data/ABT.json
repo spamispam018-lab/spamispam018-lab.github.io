@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 97.0505,
-    "change": -1.846,
+    "price": 97.0183,
+    "change": -1.8454,
     "changePercent": -1.87,
     "marketCap": 169565310870.6858,
     "fiftyTwoWeekLow": 73.0033,
@@ -2127,38 +2127,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.3314,
-        "actual": 1.3359,
-        "surprisePercent": 0.0034
+        "quarter": "None",
+        "estimate": 1.4196,
+        "actual": 1.42,
+        "surprisePercent": 0.0003
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.0208,
-        "actual": 1.0242,
-        "surprisePercent": 0.0033
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.137,
-        "actual": 1.1667,
+        "quarter": "None",
+        "estimate": 1.2767,
+        "actual": 1.31,
         "surprisePercent": 0.0261
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.2643,
-        "actual": 1.2647,
-        "surprisePercent": 0.0003
+        "quarter": "None",
+        "estimate": 1.1462,
+        "actual": 1.15,
+        "surprisePercent": 0.0033
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.4949,
+        "actual": 1.5,
+        "surprisePercent": 0.0034
       }
     ],
     "nextEarningsDate": "2027-01-28",
     "epsForecast": {
-      "date": "2027-01-28",
-      "estimate": 1.459,
-      "low": 1.4517,
-      "high": 1.4615,
+      "date": null,
+      "estimate": 1.6382,
+      "low": 1.63,
+      "high": 1.641,
       "analysts": 23
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-27",
+        "firm": "Argus Research",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Baird",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6514,7 +6586,7 @@
       "close": 96.9862
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

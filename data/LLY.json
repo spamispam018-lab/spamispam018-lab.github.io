@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 1291.5458,
-    "change": -9.058,
+    "price": 1291.1175,
+    "change": -9.055,
     "changePercent": -0.7,
     "marketCap": 1074136801793.3766,
     "fiftyTwoWeekLow": 757.4727,
@@ -2384,38 +2384,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 6.153,
-        "actual": 6.7152,
-        "surprisePercent": 0.0914
+        "quarter": "None",
+        "estimate": 6.3455,
+        "actual": 7.48,
+        "surprisePercent": 0.1788
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 6.0482,
-        "actual": 7.6147,
-        "surprisePercent": 0.259
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 5.8642,
-        "actual": 7.4633,
+        "quarter": "None",
+        "estimate": 6.5845,
+        "actual": 8.38,
         "surprisePercent": 0.2727
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 5.6514,
-        "actual": 6.6618,
-        "surprisePercent": 0.1788
+        "quarter": "None",
+        "estimate": 6.7911,
+        "actual": 8.55,
+        "surprisePercent": 0.259
+      },
+      {
+        "quarter": "None",
+        "estimate": 6.9088,
+        "actual": 7.54,
+        "surprisePercent": 0.0914
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 10.0012,
-      "low": 9.2356,
-      "high": 11.0609,
-      "analysts": 17
-    }
+      "date": null,
+      "estimate": 11.2277,
+      "low": 10.37,
+      "high": 12.4195,
+      "analysts": 16
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "Jefferies",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-31",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Outperform",
+        "fromGrade": "Sector Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6771,7 +6843,7 @@
       "close": 1290.6894
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

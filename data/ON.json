@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 66.7183,
-    "change": 0.0996,
+    "price": 66.6962,
+    "change": 0.0995,
     "changePercent": 0.15,
     "marketCap": 21949617941.6041,
     "fiftyTwoWeekLow": 39.6856,
@@ -2341,32 +2341,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-09-30",
-        "estimate": 0.5262,
-        "actual": 0.5611,
-        "surprisePercent": 0.0663
+        "quarter": "None",
+        "estimate": 0.8784,
+        "actual": 0.9,
+        "surprisePercent": 0.0245
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.5477,
-        "actual": 0.57,
+        "quarter": "None",
+        "estimate": 0.7153,
+        "actual": 0.74,
+        "surprisePercent": 0.0345
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.615,
+        "actual": 0.64,
         "surprisePercent": 0.0406
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.7823,
-        "actual": 0.8015,
-        "surprisePercent": 0.0245
+        "quarter": "None",
+        "estimate": 0.6241,
+        "actual": 0.64,
+        "surprisePercent": 0.0255
       }
     ],
     "nextEarningsDate": "2026-11-02",
     "epsForecast": {
-      "date": "2026-11-02",
-      "estimate": 0.9031,
-      "low": 0.757,
-      "high": 0.8283,
-      "analysts": 28
-    }
+      "date": null,
+      "estimate": 1.014,
+      "low": 0.98,
+      "high": 1.06,
+      "analysts": 27
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-04",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "B. Riley Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "reit"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "Rosenblatt",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "B. Riley Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6722,7 +6800,7 @@
       "close": 66.674
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 273.6599,
-    "change": -2.1265,
+    "price": 273.5691,
+    "change": -2.1258,
     "changePercent": -0.77,
     "marketCap": 43797148327.3245,
     "fiftyTwoWeekLow": 131.8548,
@@ -1831,38 +1831,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 1.7378,
-        "actual": 1.8168,
-        "surprisePercent": 0.0455
+        "quarter": "None",
+        "estimate": 2.2218,
+        "actual": 2.35,
+        "surprisePercent": 0.0577
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 1.7235,
-        "actual": 1.8347,
-        "surprisePercent": 0.0645
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 1.9016,
-        "actual": 1.995,
+        "quarter": "None",
+        "estimate": 2.1352,
+        "actual": 2.24,
         "surprisePercent": 0.0491
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 1.9788,
-        "actual": 2.0929,
-        "surprisePercent": 0.0577
+        "quarter": "None",
+        "estimate": 1.9352,
+        "actual": 2.06,
+        "surprisePercent": 0.0645
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.9512,
+        "actual": 2.04,
+        "surprisePercent": 0.0455
       }
     ],
-    "nextEarningsDate": "2026-11-25",
+    "nextEarningsDate": "2026-12-03",
     "epsForecast": {
-      "date": "2026-11-25",
-      "estimate": 2.0873,
-      "low": 2.0662,
-      "high": 2.1375,
+      "date": null,
+      "estimate": 2.3437,
+      "low": 2.32,
+      "high": 2.4,
       "analysts": 25
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-11",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Canaccord Genuity",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-07",
+        "firm": "Jefferies",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6218,7 +6290,7 @@
       "close": 273.4784
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

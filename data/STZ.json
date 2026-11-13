@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 130.8486,
-    "change": 0.4344,
+    "price": 130.8052,
+    "change": 0.4343,
     "changePercent": 0.33,
     "marketCap": 21396692623.7406,
     "fiftyTwoWeekLow": 98.5015,
@@ -2490,38 +2490,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-11-30",
-        "estimate": 2.3452,
-        "actual": 2.7253,
-        "surprisePercent": 0.1621
+        "quarter": "None",
+        "estimate": 3.5459,
+        "actual": 3.74,
+        "surprisePercent": 0.0547
       },
       {
-        "quarter": "2026-02-28",
-        "estimate": 1.5273,
-        "actual": 1.6922,
-        "surprisePercent": 0.1079
-      },
-      {
-        "quarter": "2026-05-31",
-        "estimate": 2.8515,
-        "actual": 3.0548,
+        "quarter": "None",
+        "estimate": 3.2017,
+        "actual": 3.43,
         "surprisePercent": 0.0713
       },
       {
-        "quarter": "2026-08-31",
-        "estimate": 3.158,
-        "actual": 3.3309,
-        "surprisePercent": 0.0547
+        "quarter": "None",
+        "estimate": 1.7149,
+        "actual": 1.9,
+        "surprisePercent": 0.1079
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.6332,
+        "actual": 3.06,
+        "surprisePercent": 0.1621
       }
     ],
     "nextEarningsDate": "2027-01-07",
     "epsForecast": {
-      "date": "2027-01-07",
-      "estimate": 2.4283,
-      "low": 2.2443,
-      "high": 2.6451,
+      "date": null,
+      "estimate": 2.7266,
+      "low": 2.52,
+      "high": 2.97,
       "analysts": 19
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-08",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "Freedom Broker",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "Piper Sandler",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "Deutsche Bank",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "HSBC",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6877,7 +6949,7 @@
       "close": 130.7618
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 245.988,
-    "change": -4.2983,
+    "price": 245.9065,
+    "change": -4.2968,
     "changePercent": -1.72,
     "marketCap": 43098141316.5768,
     "fiftyTwoWeekLow": 206.9243,
@@ -2465,38 +2465,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.4579,
-        "actual": 2.5471,
-        "surprisePercent": 0.0363
+        "quarter": "None",
+        "estimate": 2.9452,
+        "actual": 3.28,
+        "surprisePercent": 0.1137
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.2912,
-        "actual": 2.4225,
-        "surprisePercent": 0.0573
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.495,
-        "actual": 2.7876,
+        "quarter": "None",
+        "estimate": 2.8014,
+        "actual": 3.13,
         "surprisePercent": 0.1173
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.623,
-        "actual": 2.9212,
-        "surprisePercent": 0.1137
+        "quarter": "None",
+        "estimate": 2.5726,
+        "actual": 2.72,
+        "surprisePercent": 0.0573
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.7598,
+        "actual": 2.86,
+        "surprisePercent": 0.0363
       }
     ],
     "nextEarningsDate": "2027-01-28",
     "epsForecast": {
-      "date": "2027-01-28",
-      "estimate": 2.822,
-      "low": 2.6718,
-      "high": 2.9924,
-      "analysts": 15
-    }
+      "date": null,
+      "estimate": 3.1742,
+      "low": 3.0,
+      "high": 3.36,
+      "analysts": 16
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-03",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-31",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Goldman Sachs",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-09",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-23",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-15",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-08-03",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6852,7 +6924,7 @@
       "close": 245.8249
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 300.1644,
-    "change": -2.8685,
+    "price": 300.0649,
+    "change": -2.8675,
     "changePercent": -0.95,
     "marketCap": 10299582870.428,
     "fiftyTwoWeekLow": 164.7628,
@@ -1998,38 +1998,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-11-30",
-        "estimate": 3.8817,
-        "actual": 4.0167,
-        "surprisePercent": 0.0348
+        "quarter": "None",
+        "estimate": 4.3451,
+        "actual": 4.52,
+        "surprisePercent": 0.0403
       },
       {
-        "quarter": "2026-02-28",
-        "estimate": 3.8983,
-        "actual": 3.9721,
-        "surprisePercent": 0.0189
-      },
-      {
-        "quarter": "2026-05-31",
-        "estimate": 3.9647,
-        "actual": 4.0345,
+        "quarter": "None",
+        "estimate": 4.4517,
+        "actual": 4.53,
         "surprisePercent": 0.0176
       },
       {
-        "quarter": "2026-08-31",
-        "estimate": 3.8698,
-        "actual": 4.0256,
-        "surprisePercent": 0.0403
+        "quarter": "None",
+        "estimate": 4.3771,
+        "actual": 4.46,
+        "surprisePercent": 0.0189
+      },
+      {
+        "quarter": "None",
+        "estimate": 4.3585,
+        "actual": 4.51,
+        "surprisePercent": 0.0348
       }
     ],
     "nextEarningsDate": "2026-12-17",
     "epsForecast": {
-      "date": "2026-12-17",
-      "estimate": 4.4522,
-      "low": 4.2304,
-      "high": 4.5688,
-      "analysts": 16
-    }
+      "date": null,
+      "estimate": 5.0059,
+      "low": 4.75,
+      "high": 5.13,
+      "analysts": 15
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-11",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-11",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-11",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-11",
+        "firm": "Stifel",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Barclays",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Wells Fargo",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "BMO Capital",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Wells Fargo",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Stifel",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-11",
+        "firm": "Deutsche Bank",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6385,7 +6457,7 @@
       "close": 299.9654
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

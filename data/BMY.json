@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 56.3934,
-    "change": -0.5339,
+    "price": 56.3747,
+    "change": -0.5337,
     "changePercent": -0.94,
     "marketCap": 113124831239.5715,
     "fiftyTwoWeekLow": 40.3179,
@@ -2582,38 +2582,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.0731,
-        "actual": 1.1222,
-        "surprisePercent": 0.0457
+        "quarter": "None",
+        "estimate": 1.1716,
+        "actual": 1.35,
+        "surprisePercent": 0.1523
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.2656,
-        "actual": 1.4072,
-        "surprisePercent": 0.1118
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.4223,
-        "actual": 1.8168,
+        "quarter": "None",
+        "estimate": 1.597,
+        "actual": 2.04,
         "surprisePercent": 0.2774
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.0434,
-        "actual": 1.2023,
-        "surprisePercent": 0.1523
+        "quarter": "None",
+        "estimate": 1.4211,
+        "actual": 1.58,
+        "surprisePercent": 0.1118
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.2049,
+        "actual": 1.26,
+        "surprisePercent": 0.0457
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 1.3391,
-      "low": 1.1735,
-      "high": 1.4517,
+      "date": null,
+      "estimate": 1.499,
+      "low": 1.3176,
+      "high": 1.63,
       "analysts": 22
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-30",
+        "firm": "Morgan Stanley",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Morgan Stanley",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "Leerink Partners",
+        "toGrade": "Market Perform",
+        "fromGrade": "Outperform",
+        "action": "down"
+      },
+      {
+        "date": "2026-09-16",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-10",
+        "firm": "HSBC",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-05",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-08-03",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6969,7 +7041,7 @@
       "close": 56.356
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

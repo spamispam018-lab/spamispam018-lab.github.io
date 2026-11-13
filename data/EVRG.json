@@ -11,7 +11,7 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 79.8755,
+    "price": 79.849,
     "change": -0.0634,
     "changePercent": -0.08,
     "marketCap": 18282296229.5467,
@@ -2277,38 +2277,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.4938,
-        "actual": 0.3741,
-        "surprisePercent": -0.2426
+        "quarter": "None",
+        "estimate": 2.3206,
+        "actual": 2.58,
+        "surprisePercent": 0.1118
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.54,
-        "actual": 0.6145,
-        "surprisePercent": 0.1381
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.7135,
-        "actual": 0.7837,
+        "quarter": "None",
+        "estimate": 0.8011,
+        "actual": 0.88,
         "surprisePercent": 0.0985
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.0667,
-        "actual": 2.2978,
-        "surprisePercent": 0.1118
+        "quarter": "None",
+        "estimate": 0.6063,
+        "actual": 0.69,
+        "surprisePercent": 0.1381
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.5545,
+        "actual": 0.42,
+        "surprisePercent": -0.2426
       }
     ],
     "nextEarningsDate": "2026-11-05",
     "epsForecast": {
-      "date": "2026-11-05",
-      "estimate": 0.3251,
-      "low": 0.2405,
-      "high": 0.3919,
+      "date": null,
+      "estimate": 0.3375,
+      "low": 0.27,
+      "high": 0.44,
       "analysts": 4
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-27",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "HSBC",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-24",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-22",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-06-30",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-05-08",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-04-14",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6664,7 +6736,7 @@
       "close": 79.8226
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

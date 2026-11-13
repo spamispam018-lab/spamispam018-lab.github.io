@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 168.5286,
-    "change": -2.3889,
+    "price": 168.4727,
+    "change": -2.3881,
     "changePercent": -1.4,
     "marketCap": 85206859599.127,
     "fiftyTwoWeekLow": 124.0976,
@@ -2464,38 +2464,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.601,
-        "actual": 1.6298,
-        "surprisePercent": 0.0179
+        "quarter": "None",
+        "estimate": 2.3834,
+        "actual": 2.46,
+        "surprisePercent": 0.0321
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.7668,
-        "actual": 1.9059,
-        "surprisePercent": 0.0788
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.0007,
-        "actual": 2.1375,
+        "quarter": "None",
+        "estimate": 2.2464,
+        "actual": 2.4,
         "surprisePercent": 0.0684
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.1227,
-        "actual": 2.1909,
-        "surprisePercent": 0.0321
+        "quarter": "None",
+        "estimate": 1.9838,
+        "actual": 2.14,
+        "surprisePercent": 0.0788
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.7977,
+        "actual": 1.83,
+        "surprisePercent": 0.0179
       }
     ],
     "nextEarningsDate": "2027-01-19",
     "epsForecast": {
-      "date": "2027-01-19",
-      "estimate": 1.8065,
-      "low": 1.7456,
-      "high": 1.8347,
+      "date": null,
+      "estimate": 2.0269,
+      "low": 1.96,
+      "high": 2.06,
       "analysts": 13
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "Wolfe Research",
+        "toGrade": "Peer Perform",
+        "fromGrade": "Outperform",
+        "action": "down"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Goldman Sachs",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Bernstein",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "RBC Capital",
+        "toGrade": "Underperform",
+        "fromGrade": "Underperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-09",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "Bernstein",
+        "toGrade": "Market Perform",
+        "fromGrade": "Underperform",
+        "action": "up"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6851,7 +6923,7 @@
       "close": 168.4168
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

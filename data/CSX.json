@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 47.4168,
-    "change": 0.4525,
+    "price": 47.401,
+    "change": 0.4523,
     "changePercent": 0.96,
     "marketCap": 81039775799.3533,
     "fiftyTwoWeekLow": 29.9512,
@@ -1914,38 +1914,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.367,
-        "actual": 0.3473,
-        "surprisePercent": -0.0536
+        "quarter": "None",
+        "estimate": 0.5315,
+        "actual": 0.57,
+        "surprisePercent": 0.0725
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.3472,
-        "actual": 0.383,
-        "surprisePercent": 0.1027
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.4624,
-        "actual": 0.4809,
+        "quarter": "None",
+        "estimate": 0.5192,
+        "actual": 0.54,
         "surprisePercent": 0.0401
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.4734,
-        "actual": 0.5076,
-        "surprisePercent": 0.0725
+        "quarter": "None",
+        "estimate": 0.3899,
+        "actual": 0.43,
+        "surprisePercent": 0.1027
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.4121,
+        "actual": 0.39,
+        "surprisePercent": -0.0536
       }
     ],
     "nextEarningsDate": "2027-01-28",
     "epsForecast": {
-      "date": "2027-01-28",
-      "estimate": 0.4634,
-      "low": 0.4364,
-      "high": 0.4913,
+      "date": null,
+      "estimate": 0.5203,
+      "low": 0.49,
+      "high": 0.5517,
       "analysts": 14
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-27",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6301,7 +6373,7 @@
       "close": 47.3853
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

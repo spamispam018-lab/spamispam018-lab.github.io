@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 32.0516,
-    "change": -2.5608,
+    "price": 32.0409,
+    "change": -2.56,
     "changePercent": -7.4,
     "marketCap": 44398011203.5896,
     "fiftyTwoWeekLow": 22.1584,
@@ -2441,38 +2441,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.5243,
-        "actual": 0.5344,
-        "surprisePercent": 0.0191
+        "quarter": "None",
+        "estimate": 0.6203,
+        "actual": 0.66,
+        "surprisePercent": 0.0639
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.3332,
-        "actual": 0.3473,
-        "surprisePercent": 0.0425
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.4781,
-        "actual": 0.5076,
+        "quarter": "None",
+        "estimate": 0.5368,
+        "actual": 0.57,
         "surprisePercent": 0.0618
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.5524,
-        "actual": 0.5878,
-        "surprisePercent": 0.0639
+        "quarter": "None",
+        "estimate": 0.3741,
+        "actual": 0.39,
+        "surprisePercent": 0.0425
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.5887,
+        "actual": 0.6,
+        "surprisePercent": 0.0191
       }
     ],
     "nextEarningsDate": "2026-11-03",
     "epsForecast": {
-      "date": "2026-11-03",
-      "estimate": 0.5957,
-      "low": 0.57,
-      "high": 0.6323,
+      "date": null,
+      "estimate": 0.6681,
+      "low": 0.63,
+      "high": 0.71,
       "analysts": 16
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-05",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-15",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6828,7 +6900,7 @@
       "close": 32.0303
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

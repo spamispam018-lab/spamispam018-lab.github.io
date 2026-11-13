@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 140.8205,
-    "change": 1.674,
+    "price": 140.7738,
+    "change": 1.6735,
     "changePercent": 1.2,
     "marketCap": 67939810159.4797,
     "fiftyTwoWeekLow": 90.4771,
@@ -1872,38 +1872,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.9556,
-        "actual": 2.0217,
-        "surprisePercent": 0.0338
+        "quarter": "None",
+        "estimate": 4.4538,
+        "actual": 4.87,
+        "surprisePercent": 0.0934
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.8592,
-        "actual": 3.037,
-        "surprisePercent": 0.0622
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 4.4225,
-        "actual": 4.5154,
+        "quarter": "None",
+        "estimate": 4.9657,
+        "actual": 5.07,
         "surprisePercent": 0.021
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 3.9666,
-        "actual": 4.3373,
-        "surprisePercent": 0.0934
+        "quarter": "None",
+        "estimate": 3.2104,
+        "actual": 3.41,
+        "surprisePercent": 0.0622
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.1958,
+        "actual": 2.27,
+        "surprisePercent": 0.0338
       }
     ],
     "nextEarningsDate": "2026-11-05",
     "epsForecast": {
-      "date": "2026-11-05",
-      "estimate": 4.9185,
-      "low": 4.209,
-      "high": 5.6019,
-      "analysts": 19
-    }
+      "date": null,
+      "estimate": 5.6765,
+      "low": 5.17,
+      "high": 6.6079,
+      "analysts": 21
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-10",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Perform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-09",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-17",
+        "firm": "Raymond James",
+        "toGrade": "Strong Buy",
+        "fromGrade": "Strong Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6259,7 +6331,7 @@
       "close": 140.7272
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

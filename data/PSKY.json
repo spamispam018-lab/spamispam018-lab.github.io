@@ -1906,38 +1906,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-09-30",
-        "estimate": 0.3612,
-        "actual": -0.1069,
-        "surprisePercent": -1.2959
+        "quarter": "None",
+        "estimate": 0.1843,
+        "actual": 0.18,
+        "surprisePercent": -0.0233
       },
       {
-        "quarter": "2025-12-31",
-        "estimate": -0.0128,
-        "actual": -0.1069,
-        "surprisePercent": -7.3218
-      },
-      {
-        "quarter": "2026-03-31",
-        "estimate": 0.1353,
-        "actual": 0.2048,
+        "quarter": "None",
+        "estimate": 0.1519,
+        "actual": 0.23,
         "surprisePercent": 0.5138
       },
       {
-        "quarter": "2026-06-30",
-        "estimate": 0.1641,
-        "actual": 0.1603,
-        "surprisePercent": -0.0233
+        "quarter": "None",
+        "estimate": -0.0144,
+        "actual": -0.12,
+        "surprisePercent": -7.3218
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.4056,
+        "actual": -0.12,
+        "surprisePercent": -1.2959
       }
     ],
-    "nextEarningsDate": null,
+    "nextEarningsDate": "2026-11-09",
     "epsForecast": {
       "date": null,
-      "estimate": 0.1721,
-      "low": 0.0534,
-      "high": 0.668,
+      "estimate": 0.1932,
+      "low": 0.06,
+      "high": 0.75,
       "analysts": 18
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-12",
+        "firm": "StoneX",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Barclays",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-22",
+        "firm": "Citizens",
+        "toGrade": "Market Outperform",
+        "fromGrade": "Market Outperform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-22",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-14",
+        "firm": "Citizens",
+        "toGrade": "Market Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-08-05",
+        "firm": "UBS",
+        "toGrade": "Sell",
+        "fromGrade": "Sell",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-05",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-05",
+        "firm": "Benchmark",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-05-05",
+        "firm": "Wells Fargo",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-05-05",
+        "firm": "Guggenheim",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {

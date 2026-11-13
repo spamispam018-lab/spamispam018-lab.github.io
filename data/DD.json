@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 139.988,
-    "change": -0.8235,
+    "price": 139.9416,
+    "change": -0.8232,
     "changePercent": -0.58,
     "marketCap": 17294432689.1824,
     "fiftyTwoWeekLow": 98.9913,
@@ -2521,38 +2521,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.153,
-        "actual": 1.229,
-        "surprisePercent": 0.066
+        "quarter": "None",
+        "estimate": 1.8751,
+        "actual": 2.09,
+        "surprisePercent": 0.1146
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.2939,
-        "actual": 1.4695,
-        "surprisePercent": 0.1358
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.5685,
-        "actual": 1.6743,
+        "quarter": "None",
+        "estimate": 1.7611,
+        "actual": 1.88,
         "surprisePercent": 0.0675
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.67,
-        "actual": 1.8614,
-        "surprisePercent": 0.1146
+        "quarter": "None",
+        "estimate": 1.4528,
+        "actual": 1.65,
+        "surprisePercent": 0.1358
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.2946,
+        "actual": 1.38,
+        "surprisePercent": 0.066
       }
     ],
     "nextEarningsDate": "2026-11-03",
     "epsForecast": {
-      "date": "2026-11-03",
-      "estimate": 1.7102,
-      "low": 1.666,
-      "high": 1.7456,
+      "date": null,
+      "estimate": 1.9253,
+      "low": 1.88,
+      "high": 1.96,
       "analysts": 14
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-05",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "Fermium Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-09",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Overweight",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6908,7 +6980,7 @@
       "close": 139.8952
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

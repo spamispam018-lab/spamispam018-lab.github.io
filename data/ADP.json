@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 278.6368,
-    "change": 1.4116,
+    "price": 278.5444,
+    "change": 1.4112,
     "changePercent": 0.51,
     "marketCap": 106650783905.1904,
     "fiftyTwoWeekLow": 167.5772,
@@ -2234,38 +2234,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.2876,
-        "actual": 2.3334,
-        "surprisePercent": 0.02
+        "quarter": "None",
+        "estimate": 2.766,
+        "actual": 2.82,
+        "surprisePercent": 0.0195
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.935,
-        "actual": 3.0014,
-        "surprisePercent": 0.0226
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.3146,
-        "actual": 2.3512,
+        "quarter": "None",
+        "estimate": 2.5989,
+        "actual": 2.64,
         "surprisePercent": 0.0158
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.4634,
-        "actual": 2.5115,
-        "surprisePercent": 0.0195
+        "quarter": "None",
+        "estimate": 3.2955,
+        "actual": 3.37,
+        "surprisePercent": 0.0226
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.5686,
+        "actual": 2.62,
+        "surprisePercent": 0.02
       }
     ],
     "nextEarningsDate": "2027-01-27",
     "epsForecast": {
-      "date": "2027-01-27",
-      "estimate": 2.5958,
-      "low": 2.5293,
-      "high": 2.6836,
+      "date": null,
+      "estimate": 2.9146,
+      "low": 2.84,
+      "high": 3.0132,
       "analysts": 15
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-30",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Stifel",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Jefferies",
+        "toGrade": "Underperform",
+        "fromGrade": "Underperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-05",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-03",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6621,7 +6693,7 @@
       "close": 278.4521
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

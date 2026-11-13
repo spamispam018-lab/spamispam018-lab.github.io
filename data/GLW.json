@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 108.1356,
-    "change": -0.8687,
+    "price": 108.0997,
+    "change": -0.8684,
     "changePercent": -0.8,
     "marketCap": 81420000417.8904,
     "fiftyTwoWeekLow": 68.9243,
@@ -2396,38 +2396,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.6282,
-        "actual": 0.6412,
-        "surprisePercent": 0.0208
+        "quarter": "None",
+        "estimate": 0.88,
+        "actual": 0.91,
+        "surprisePercent": 0.0341
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.6159,
-        "actual": 0.6234,
-        "surprisePercent": 0.0121
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.6713,
-        "actual": 0.6947,
+        "quarter": "None",
+        "estimate": 0.7538,
+        "actual": 0.78,
         "surprisePercent": 0.0348
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.7837,
-        "actual": 0.8105,
-        "surprisePercent": 0.0341
+        "quarter": "None",
+        "estimate": 0.6916,
+        "actual": 0.7,
+        "surprisePercent": 0.0121
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.7054,
+        "actual": 0.72,
+        "surprisePercent": 0.0208
       }
     ],
     "nextEarningsDate": "2027-01-26",
     "epsForecast": {
-      "date": "2027-01-26",
-      "estimate": 0.8716,
-      "low": 0.8639,
-      "high": 0.8817,
-      "analysts": 11
-    }
+      "date": null,
+      "estimate": 0.9729,
+      "low": 0.9,
+      "high": 0.99,
+      "analysts": 12
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-11",
+        "firm": "Jefferies",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Bernstein",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-30",
+        "firm": "Bernstein",
+        "toGrade": "Market Perform",
+        "fromGrade": "",
+        "action": "init"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6783,7 +6855,7 @@
       "close": 108.0639
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

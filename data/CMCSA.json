@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 22.4415,
-    "change": -0.1991,
+    "price": 22.4341,
+    "change": -0.199,
     "changePercent": -0.88,
     "marketCap": 77134869331.7706,
     "fiftyTwoWeekLow": 18.2397,
@@ -2250,38 +2250,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.6754,
-        "actual": 0.7481,
-        "surprisePercent": 0.1076
+        "quarter": "None",
+        "estimate": 0.9866,
+        "actual": 1.07,
+        "surprisePercent": 0.0845
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.6497,
-        "actual": 0.7036,
-        "surprisePercent": 0.0829
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.8607,
-        "actual": 0.9262,
+        "quarter": "None",
+        "estimate": 0.9664,
+        "actual": 1.04,
         "surprisePercent": 0.0762
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.8787,
-        "actual": 0.953,
-        "surprisePercent": 0.0845
+        "quarter": "None",
+        "estimate": 0.7295,
+        "actual": 0.79,
+        "surprisePercent": 0.0829
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.7584,
+        "actual": 0.84,
+        "surprisePercent": 0.1076
       }
     ],
     "nextEarningsDate": "2027-01-28",
     "epsForecast": {
-      "date": "2027-01-28",
-      "estimate": 0.5406,
-      "low": 0.383,
-      "high": 0.6646,
+      "date": null,
+      "estimate": 0.607,
+      "low": 0.43,
+      "high": 0.7462,
       "analysts": 20
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-26",
+        "firm": "Freedom Broker",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-29",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-28",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "Keybanc",
+        "toGrade": "Underweight",
+        "fromGrade": "Sector Weight",
+        "action": "down"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6637,7 +6709,7 @@
       "close": 22.4266
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

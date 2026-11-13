@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 205.3671,
-    "change": -3.9453,
+    "price": 205.299,
+    "change": -3.944,
     "changePercent": -1.88,
     "marketCap": 35781580723.0681,
     "fiftyTwoWeekLow": 163.7475,
@@ -2211,38 +2211,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-09-30",
-        "estimate": -0.5552,
-        "actual": -0.6501,
-        "surprisePercent": -0.171
+        "quarter": "None",
+        "estimate": -0.8626,
+        "actual": -0.29,
+        "surprisePercent": 0.6638
       },
       {
-        "quarter": "2025-12-31",
-        "estimate": -0.238,
-        "actual": -0.4453,
-        "surprisePercent": -0.8712
-      },
-      {
-        "quarter": "2026-03-31",
-        "estimate": -0.4612,
-        "actual": -0.285,
+        "quarter": "None",
+        "estimate": -0.5179,
+        "actual": -0.32,
         "surprisePercent": 0.3821
       },
       {
-        "quarter": "2026-06-30",
-        "estimate": -0.1862,
-        "actual": -0.1603,
-        "surprisePercent": 0.139
+        "quarter": "None",
+        "estimate": -0.2672,
+        "actual": -0.5,
+        "surprisePercent": -0.8712
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.9343,
+        "actual": 1.4619,
+        "surprisePercent": 0.5648
       }
     ],
-    "nextEarningsDate": "2026-11-09",
+    "nextEarningsDate": "2027-02-09",
     "epsForecast": {
-      "date": "2026-11-09",
-      "estimate": -0.7682,
-      "low": -1.0153,
-      "high": -0.6234,
-      "analysts": 11
-    }
+      "date": null,
+      "estimate": 0.9703,
+      "low": 0.9,
+      "high": 1.09,
+      "analysts": 20
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-10",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-10",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-11-07",
+        "firm": "Macquarie",
+        "toGrade": "Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Freedom Capital Markets",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-10",
+        "firm": "Roth Capital",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-10",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-10",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-10",
+        "firm": "DA Davidson",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6598,7 +6670,7 @@
       "close": 205.2309
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

@@ -11,9 +11,9 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 34.74,
-    "change": 0.3,
-    "changePercent": 0.87,
+    "price": 34.72,
+    "change": 0.28,
+    "changePercent": 0.81,
     "marketCap": 3060261376.0,
     "fiftyTwoWeekLow": 22.62,
     "fiftyTwoWeekHigh": 46.54,
@@ -1156,38 +1156,39 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-09-30",
-        "estimate": 0.6752,
-        "actual": null,
-        "surprisePercent": null
+        "quarter": "None",
+        "estimate": 0.3833,
+        "actual": 0.54,
+        "surprisePercent": 0.4087
       },
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.195,
-        "actual": 0.03,
-        "surprisePercent": -0.8462
-      },
-      {
-        "quarter": "2026-03-31",
+        "quarter": "None",
         "estimate": 0.27,
         "actual": 0.45,
         "surprisePercent": 0.6667
       },
       {
-        "quarter": "2026-06-30",
-        "estimate": 0.3833,
-        "actual": 0.54,
-        "surprisePercent": 0.4087
+        "quarter": "None",
+        "estimate": 0.195,
+        "actual": 0.03,
+        "surprisePercent": -0.8462
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.6752,
+        "actual": null,
+        "surprisePercent": null
       }
     ],
     "nextEarningsDate": "2026-12-10",
     "epsForecast": {
-      "date": "2026-12-10",
+      "date": null,
       "estimate": 0.4767,
       "low": 0.37,
       "high": 0.59,
-      "analysts": 3
-    }
+      "analysts": 3.0
+    },
+    "upgradesDowngrades": []
   },
   "insider": {
     "summary": {
@@ -5274,7 +5275,7 @@
       "close": 34.56
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

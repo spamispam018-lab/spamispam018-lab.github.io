@@ -11,7 +11,7 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 28.9568,
+    "price": 28.9472,
     "change": -0.1538,
     "changePercent": -0.53,
     "marketCap": 26358722389.987,
@@ -2042,38 +2042,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 0.3474,
-        "actual": 0.3652,
-        "surprisePercent": 0.0509
+        "quarter": "None",
+        "estimate": 0.3826,
+        "actual": 0.35,
+        "surprisePercent": -0.0852
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 0.3489,
-        "actual": 0.3206,
-        "surprisePercent": -0.0812
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 0.3623,
-        "actual": 0.383,
+        "quarter": "None",
+        "estimate": 0.4068,
+        "actual": 0.43,
         "surprisePercent": 0.0571
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 0.3407,
-        "actual": 0.3117,
-        "surprisePercent": -0.0852
+        "quarter": "None",
+        "estimate": 0.3918,
+        "actual": 0.36,
+        "surprisePercent": -0.0812
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.3901,
+        "actual": 0.41,
+        "surprisePercent": 0.0509
       }
     ],
     "nextEarningsDate": "2026-11-19",
     "epsForecast": {
-      "date": "2026-11-19",
-      "estimate": 0.3545,
-      "low": 0.3349,
-      "high": 0.3741,
+      "date": null,
+      "estimate": 0.398,
+      "low": 0.376,
+      "high": 0.42,
       "analysts": 7
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-09-28",
+        "firm": "BNP Paribas",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-17",
+        "firm": "HSBC",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-09-14",
+        "firm": "Freedom Broker",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-11",
+        "firm": "Barrington Research",
+        "toGrade": "Outperform",
+        "fromGrade": "Market Perform",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-11",
+        "firm": "Baird",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-03",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Neutral",
+        "action": "up"
+      },
+      {
+        "date": "2026-08-26",
+        "firm": "Barclays",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "Stephens & Co.",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-07-22",
+        "firm": "Barclays",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-06-26",
+        "firm": "Freedom Broker",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6413,7 +6485,7 @@
       "close": 28.9331
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 110.7688,
-    "change": -0.5701,
+    "price": 110.7321,
+    "change": -0.5699,
     "changePercent": -0.51,
     "marketCap": 36425339706.8779,
     "fiftyTwoWeekLow": 81.8381,
@@ -1590,38 +1590,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.9965,
-        "actual": 2.939,
-        "surprisePercent": -0.0192
+        "quarter": "None",
+        "estimate": 3.3174,
+        "actual": 3.77,
+        "surprisePercent": 0.1364
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.7604,
-        "actual": 3.2151,
-        "surprisePercent": 0.1648
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 3.1332,
-        "actual": 3.6337,
+        "quarter": "None",
+        "estimate": 3.518,
+        "actual": 4.08,
         "surprisePercent": 0.1598
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.9545,
-        "actual": 3.3576,
-        "surprisePercent": 0.1364
+        "quarter": "None",
+        "estimate": 3.0994,
+        "actual": 3.61,
+        "surprisePercent": 0.1648
+      },
+      {
+        "quarter": "None",
+        "estimate": 3.3645,
+        "actual": 3.3,
+        "surprisePercent": -0.0192
       }
     ],
     "nextEarningsDate": "2027-02-02",
     "epsForecast": {
-      "date": "2027-02-02",
-      "estimate": 2.6392,
-      "low": 2.5204,
-      "high": 2.7075,
-      "analysts": 6
-    }
+      "date": null,
+      "estimate": 2.9909,
+      "low": 2.83,
+      "high": 3.13,
+      "analysts": 10
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "Wells Fargo",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-12",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-11",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Piper Sandler",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Barclays",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Wells Fargo",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Barclays",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Morgan Stanley",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -5977,7 +6049,7 @@
       "close": 110.6954
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

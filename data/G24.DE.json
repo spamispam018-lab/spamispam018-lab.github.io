@@ -11,9 +11,9 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 90.85,
-    "change": -0.3,
-    "changePercent": -0.33,
+    "price": 90.6,
+    "change": -0.55,
+    "changePercent": -0.6,
     "marketCap": 6204944384.0,
     "fiftyTwoWeekLow": 62.7,
     "fiftyTwoWeekHigh": 94.65,
@@ -1799,26 +1799,35 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2026-06-30",
-        "estimate": 0.99,
-        "actual": 1.02,
-        "surprisePercent": 0.0303
-      },
-      {
-        "quarter": "2026-09-30",
+        "quarter": "None",
         "estimate": 1.07,
         "actual": 1.09,
         "surprisePercent": 0.0187
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.99,
+        "actual": 1.02,
+        "surprisePercent": 0.0303
       }
     ],
     "nextEarningsDate": "2026-11-04",
     "epsForecast": {
-      "date": "2026-11-04",
-      "estimate": 1.01,
-      "low": 1.01,
-      "high": 1.01,
-      "analysts": 1
-    }
+      "date": null,
+      "estimate": 1.09,
+      "low": 1.09,
+      "high": 1.09,
+      "analysts": 1.0
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2021-09-30",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Overweight",
+        "action": "down"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -5905,7 +5914,7 @@
       "close": 90.85
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

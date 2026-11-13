@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 73.6498,
-    "change": 0.9411,
+    "price": 73.6254,
+    "change": 0.9408,
     "changePercent": 1.29,
     "marketCap": 26376334636.5407,
     "fiftyTwoWeekLow": 48.2711,
@@ -2265,38 +2265,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.5795,
-        "actual": 0.6056,
-        "surprisePercent": 0.045
+        "quarter": "None",
+        "estimate": 0.674,
+        "actual": 0.73,
+        "surprisePercent": 0.0831
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.4191,
-        "actual": 0.4987,
-        "surprisePercent": 0.1899
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.5416,
-        "actual": 0.6234,
+        "quarter": "None",
+        "estimate": 0.6081,
+        "actual": 0.7,
         "surprisePercent": 0.1511
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.6003,
-        "actual": 0.6501,
-        "surprisePercent": 0.0831
+        "quarter": "None",
+        "estimate": 0.4706,
+        "actual": 0.56,
+        "surprisePercent": 0.1899
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.6507,
+        "actual": 0.68,
+        "surprisePercent": 0.045
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 0.6386,
-      "low": 0.5967,
-      "high": 0.6867,
+      "date": null,
+      "estimate": 0.717,
+      "low": 0.67,
+      "high": 0.771,
       "analysts": 21
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-31",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-31",
+        "firm": "Canaccord Genuity",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "StoneX",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6652,7 +6724,7 @@
       "close": 73.601
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

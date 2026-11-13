@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 251.6889,
-    "change": 0.6244,
+    "price": 251.6055,
+    "change": 0.6242,
     "changePercent": 0.25,
     "marketCap": 55934269812.2913,
     "fiftyTwoWeekLow": 160.7106,
@@ -2126,38 +2126,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.1069,
-        "actual": 2.3423,
-        "surprisePercent": 0.1117
+        "quarter": "None",
+        "estimate": 2.9393,
+        "actual": 3.26,
+        "surprisePercent": 0.1091
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.4832,
-        "actual": 2.8232,
-        "surprisePercent": 0.137
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.1558,
-        "actual": 2.3156,
+        "quarter": "None",
+        "estimate": 2.4206,
+        "actual": 2.6,
         "surprisePercent": 0.0741
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.6178,
-        "actual": 2.9034,
-        "surprisePercent": 0.1091
+        "quarter": "None",
+        "estimate": 2.7882,
+        "actual": 3.17,
+        "surprisePercent": 0.137
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.3657,
+        "actual": 2.63,
+        "surprisePercent": 0.1117
       }
     ],
     "nextEarningsDate": "2027-02-04",
     "epsForecast": {
-      "date": "2027-02-04",
-      "estimate": 2.7934,
-      "low": 2.6095,
-      "high": 3.2427,
-      "analysts": 8
-    }
+      "date": null,
+      "estimate": 3.1264,
+      "low": 2.93,
+      "high": 3.641,
+      "analysts": 10
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-10",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-19",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-08-13",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6513,7 +6585,7 @@
       "close": 251.522
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

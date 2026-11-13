@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 110.7145,
-    "change": -2.3709,
+    "price": 110.6778,
+    "change": -2.3701,
     "changePercent": -2.1,
     "marketCap": 24076519237.2113,
     "fiftyTwoWeekLow": 83.1741,
@@ -2416,38 +2416,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.4063,
-        "actual": 1.3448,
-        "surprisePercent": -0.0437
+        "quarter": "None",
+        "estimate": 2.1219,
+        "actual": 2.25,
+        "surprisePercent": 0.0604
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.5724,
-        "actual": 1.6298,
-        "surprisePercent": 0.0365
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.0068,
-        "actual": 1.9861,
+        "quarter": "None",
+        "estimate": 2.2533,
+        "actual": 2.23,
         "surprisePercent": -0.0104
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.8898,
-        "actual": 2.0039,
-        "surprisePercent": 0.0604
+        "quarter": "None",
+        "estimate": 1.7655,
+        "actual": 1.83,
+        "surprisePercent": 0.0365
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.579,
+        "actual": 1.51,
+        "surprisePercent": -0.0437
       }
     ],
     "nextEarningsDate": "2027-01-26",
     "epsForecast": {
-      "date": "2027-01-26",
-      "estimate": 1.5001,
-      "low": 1.4161,
-      "high": 1.5586,
+      "date": null,
+      "estimate": 1.6843,
+      "low": 1.59,
+      "high": 1.75,
       "analysts": 21
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-29",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-09",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6803,7 +6875,7 @@
       "close": 110.6411
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

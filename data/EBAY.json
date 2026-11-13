@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 108.7147,
-    "change": -2.2984,
+    "price": 108.6786,
+    "change": -2.2977,
     "changePercent": -2.07,
     "marketCap": 47683647297.7841,
     "fiftyTwoWeekLow": 69.4943,
@@ -2355,38 +2355,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.2024,
-        "actual": 1.2558,
-        "surprisePercent": 0.0444
+        "quarter": "None",
+        "estimate": 1.4166,
+        "actual": 1.51,
+        "surprisePercent": 0.066
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.4077,
-        "actual": 1.4784,
-        "surprisePercent": 0.0503
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.3413,
-        "actual": 1.425,
+        "quarter": "None",
+        "estimate": 1.506,
+        "actual": 1.6,
         "surprisePercent": 0.0624
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.2616,
-        "actual": 1.3448,
-        "surprisePercent": 0.066
+        "quarter": "None",
+        "estimate": 1.5806,
+        "actual": 1.66,
+        "surprisePercent": 0.0503
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.3501,
+        "actual": 1.41,
+        "surprisePercent": 0.0444
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 1.3472,
-      "low": 1.3181,
-      "high": 1.3894,
+      "date": null,
+      "estimate": 1.5127,
+      "low": 1.48,
+      "high": 1.56,
       "analysts": 23
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-05",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Susquehanna",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Bernstein",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Wedbush",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6742,7 +6814,7 @@
       "close": 108.6426
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

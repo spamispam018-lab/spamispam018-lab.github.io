@@ -11,7 +11,7 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 370.3665,
+    "price": 370.2437,
     "change": 0.19,
     "changePercent": 0.05,
     "marketCap": 156897523787.9199,
@@ -1830,38 +1830,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 1.9903,
-        "actual": 2.0128,
-        "surprisePercent": 0.0113
+        "quarter": "None",
+        "estimate": 3.3391,
+        "actual": 3.45,
+        "surprisePercent": 0.0332
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 2.0562,
-        "actual": 2.1909,
-        "surprisePercent": 0.0655
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 2.5908,
-        "actual": 2.752,
+        "quarter": "None",
+        "estimate": 2.909,
+        "actual": 3.09,
         "surprisePercent": 0.0622
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 2.9738,
-        "actual": 3.0726,
-        "surprisePercent": 0.0332
+        "quarter": "None",
+        "estimate": 2.3088,
+        "actual": 2.46,
+        "surprisePercent": 0.0655
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.2348,
+        "actual": 2.26,
+        "surprisePercent": 0.0113
       }
     ],
     "nextEarningsDate": "2026-11-24",
     "epsForecast": {
-      "date": "2026-11-24",
-      "estimate": 3.4591,
-      "low": 3.3665,
-      "high": 3.6248,
+      "date": null,
+      "estimate": 3.884,
+      "low": 3.78,
+      "high": 4.07,
       "analysts": 26
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-19",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-08",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-24",
+        "firm": "Baird",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-21",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "init"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Market Perform",
+        "action": "up"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "Seaport Global",
+        "toGrade": "Buy",
+        "fromGrade": "Neutral",
+        "action": "up"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6217,7 +6289,7 @@
       "close": 370.121
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

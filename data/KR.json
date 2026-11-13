@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 63.1711,
-    "change": 0.2896,
+    "price": 63.1501,
+    "change": 0.2894,
     "changePercent": 0.46,
     "marketCap": 35609124435.614,
     "fiftyTwoWeekLow": 48.2265,
@@ -1995,38 +1995,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 0.9196,
-        "actual": 0.9351,
-        "surprisePercent": 0.0169
+        "quarter": "None",
+        "estimate": 1.0526,
+        "actual": 1.09,
+        "surprisePercent": 0.0356
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 1.0707,
-        "actual": 1.14,
-        "surprisePercent": 0.0647
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 1.4189,
-        "actual": 1.4072,
+        "quarter": "None",
+        "estimate": 1.5932,
+        "actual": 1.58,
         "surprisePercent": -0.0083
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 0.9375,
-        "actual": 0.9708,
-        "surprisePercent": 0.0356
+        "quarter": "None",
+        "estimate": 1.2022,
+        "actual": 1.28,
+        "surprisePercent": 0.0647
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.0326,
+        "actual": 1.05,
+        "surprisePercent": 0.0169
       }
     ],
     "nextEarningsDate": "2026-12-03",
     "epsForecast": {
-      "date": "2026-12-03",
-      "estimate": 1.0328,
-      "low": 0.9815,
-      "high": 1.1129,
+      "date": null,
+      "estimate": 1.1617,
+      "low": 1.102,
+      "high": 1.2495,
       "analysts": 19
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-21",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-15",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-14",
+        "firm": "Telsey Advisory Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-14",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-01",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-11",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-07",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-02",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6382,7 +6454,7 @@
       "close": 63.1292
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

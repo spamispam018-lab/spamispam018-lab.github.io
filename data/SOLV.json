@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 80.3642,
-    "change": 0.172,
+    "price": 80.3375,
+    "change": 0.1718,
     "changePercent": 0.21,
     "marketCap": 13680395501.2237,
     "fiftyTwoWeekLow": 55.5562,
@@ -2050,38 +2050,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.3316,
-        "actual": 1.3983,
-        "surprisePercent": 0.05
+        "quarter": "None",
+        "estimate": 1.3442,
+        "actual": 1.45,
+        "surprisePercent": 0.0787
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.2056,
-        "actual": 1.3181,
-        "surprisePercent": 0.0933
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.6976,
-        "actual": 2.2711,
+        "quarter": "None",
+        "estimate": 1.9061,
+        "actual": 2.55,
         "surprisePercent": 0.3378
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.1972,
-        "actual": 1.2914,
-        "surprisePercent": 0.0787
+        "quarter": "None",
+        "estimate": 1.3537,
+        "actual": 1.48,
+        "surprisePercent": 0.0933
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.4952,
+        "actual": 1.57,
+        "surprisePercent": 0.05
       }
     ],
     "nextEarningsDate": "2026-11-05",
     "epsForecast": {
-      "date": "2026-11-05",
-      "estimate": 1.5815,
-      "low": 1.5675,
-      "high": 1.612,
+      "date": null,
+      "estimate": 1.7726,
+      "low": 1.7562,
+      "high": 1.81,
       "analysts": 10
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-06",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-14",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-06",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-06",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-06",
+        "firm": "Wedbush",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-06",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-06",
+        "firm": "Stifel",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-06",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-28",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Neutral",
+        "action": "up"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6437,7 +6509,7 @@
       "close": 80.3109
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

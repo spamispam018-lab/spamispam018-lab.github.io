@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 111.0222,
-    "change": -3.511,
+    "price": 110.9854,
+    "change": -3.5098,
     "changePercent": -3.07,
     "marketCap": 21782604378.23,
     "fiftyTwoWeekLow": 64.8453,
@@ -2000,38 +2000,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.5678,
-        "actual": 0.7303,
-        "surprisePercent": 0.2863
+        "quarter": "None",
+        "estimate": 1.2084,
+        "actual": 1.46,
+        "surprisePercent": 0.2082
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.8194,
-        "actual": 0.9619,
-        "surprisePercent": 0.1739
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.9547,
-        "actual": 1.0598,
+        "quarter": "None",
+        "estimate": 1.072,
+        "actual": 1.19,
         "surprisePercent": 0.1101
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.0762,
-        "actual": 1.3003,
-        "surprisePercent": 0.2082
+        "quarter": "None",
+        "estimate": 0.92,
+        "actual": 1.08,
+        "surprisePercent": 0.1739
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.6375,
+        "actual": 0.82,
+        "surprisePercent": 0.2863
       }
     ],
     "nextEarningsDate": "2026-11-04",
     "epsForecast": {
-      "date": "2026-11-04",
-      "estimate": 1.1421,
-      "low": 1.0955,
-      "high": 1.229,
+      "date": null,
+      "estimate": 1.2824,
+      "low": 1.23,
+      "high": 1.38,
       "analysts": 7
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-06",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Fermium Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-14",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-06",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-01",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-05-13",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -4459,7 +4531,7 @@
       "close": 110.9486
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

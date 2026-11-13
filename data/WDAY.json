@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 172.5101,
-    "change": -0.4706,
+    "price": 172.4529,
+    "change": -0.4704,
     "changePercent": -0.27,
     "marketCap": 41403476945.0915,
     "fiftyTwoWeekLow": 98.2877,
@@ -2060,38 +2060,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 1.9358,
-        "actual": 2.0662,
-        "surprisePercent": 0.0674
+        "quarter": "None",
+        "estimate": 2.6122,
+        "actual": 2.75,
+        "surprisePercent": 0.0527
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 2.0673,
-        "actual": 2.1998,
-        "surprisePercent": 0.0641
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 2.2417,
-        "actual": 2.369,
+        "quarter": "None",
+        "estimate": 2.517,
+        "actual": 2.66,
         "surprisePercent": 0.0568
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 2.3265,
-        "actual": 2.4492,
-        "surprisePercent": 0.0527
+        "quarter": "None",
+        "estimate": 2.3212,
+        "actual": 2.47,
+        "surprisePercent": 0.0641
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.1736,
+        "actual": 2.32,
+        "surprisePercent": 0.0674
       }
     ],
     "nextEarningsDate": "2026-11-24",
     "epsForecast": {
-      "date": "2026-11-24",
-      "estimate": 2.4446,
-      "low": 2.2621,
-      "high": 2.5989,
+      "date": null,
+      "estimate": 2.7449,
+      "low": 2.54,
+      "high": 2.9181,
       "analysts": 36
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-16",
+        "firm": "Keybanc",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Overweight",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Stifel",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "Jefferies",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-31",
+        "firm": "Goldman Sachs",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Freedom Broker",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Stifel",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6447,7 +6519,7 @@
       "close": 172.3958
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 71.469,
-    "change": 0.6877,
+    "price": 71.4453,
+    "change": 0.6875,
     "changePercent": 0.97,
     "marketCap": 45539141051.4999,
     "fiftyTwoWeekLow": 67.8734,
@@ -2288,38 +2288,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.044,
-        "actual": 1.14,
-        "surprisePercent": 0.092
+        "quarter": "None",
+        "estimate": 1.2118,
+        "actual": 1.4,
+        "surprisePercent": 0.1553
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.3487,
-        "actual": 1.3448,
-        "surprisePercent": -0.0029
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.9422,
-        "actual": 1.0331,
+        "quarter": "None",
+        "estimate": 1.0579,
+        "actual": 1.16,
         "surprisePercent": 0.0965
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.0792,
-        "actual": 1.2469,
-        "surprisePercent": 0.1553
+        "quarter": "None",
+        "estimate": 1.5144,
+        "actual": 1.51,
+        "surprisePercent": -0.0029
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.1722,
+        "actual": 1.28,
+        "surprisePercent": 0.092
       }
     ],
     "nextEarningsDate": "2026-11-05",
     "epsForecast": {
-      "date": "2026-11-05",
-      "estimate": 1.078,
-      "low": 0.8906,
-      "high": 1.1934,
+      "date": null,
+      "estimate": 1.2004,
+      "low": 1.0,
+      "high": 1.32,
       "analysts": 12
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-22",
+        "firm": "HSBC",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-29",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Perform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-03",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-02",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-01",
+        "firm": "Jefferies",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-08-31",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Outperform",
+        "action": "down"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6675,7 +6747,7 @@
       "close": 71.4216
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

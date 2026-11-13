@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 234.8035,
-    "change": -0.4796,
+    "price": 234.7256,
+    "change": -0.4794,
     "changePercent": -0.2,
     "marketCap": 48715900776.4643,
     "fiftyTwoWeekLow": 165.2081,
@@ -2015,38 +2015,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 2.2247,
-        "actual": 2.3779,
-        "surprisePercent": 0.0689
+        "quarter": "None",
+        "estimate": 3.1238,
+        "actual": 3.3,
+        "surprisePercent": 0.0564
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 2.3543,
-        "actual": 2.5382,
-        "surprisePercent": 0.0781
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 2.5326,
-        "actual": 2.6629,
+        "quarter": "None",
+        "estimate": 2.8437,
+        "actual": 2.99,
         "surprisePercent": 0.0515
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 2.7821,
-        "actual": 2.939,
-        "surprisePercent": 0.0564
+        "quarter": "None",
+        "estimate": 2.6435,
+        "actual": 2.85,
+        "surprisePercent": 0.0781
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.4979,
+        "actual": 2.67,
+        "surprisePercent": 0.0689
       }
     ],
     "nextEarningsDate": "2026-11-24",
     "epsForecast": {
-      "date": "2026-11-24",
-      "estimate": 2.7323,
-      "low": 2.7074,
-      "high": 2.7668,
+      "date": null,
+      "estimate": 3.0679,
+      "low": 3.0399,
+      "high": 3.1066,
       "analysts": 28
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-09-28",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-21",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-17",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-15",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-02",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-31",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-31",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "BNP Paribas",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6402,7 +6474,7 @@
       "close": 234.6478
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

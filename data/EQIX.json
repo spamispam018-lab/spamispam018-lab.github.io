@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 970.7496,
-    "change": 4.262,
+    "price": 970.4277,
+    "change": 4.2606,
     "changePercent": 0.44,
     "marketCap": 89280497809.0661,
     "fiftyTwoWeekLow": 641.7913,
@@ -2556,38 +2556,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 3.4541,
-        "actual": 3.0042,
-        "surprisePercent": -0.1302
+        "quarter": "None",
+        "estimate": 3.9583,
+        "actual": 5.2191,
+        "surprisePercent": 0.3185
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 3.8586,
-        "actual": 3.7119,
-        "surprisePercent": -0.038
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 4.2705,
-        "actual": 4.5408,
+        "quarter": "None",
+        "estimate": 4.795,
+        "actual": 5.0985,
         "surprisePercent": 0.0633
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 3.5253,
-        "actual": 4.6482,
-        "surprisePercent": 0.3185
+        "quarter": "None",
+        "estimate": 4.3325,
+        "actual": 4.1678,
+        "surprisePercent": -0.038
+      },
+      {
+        "quarter": "None",
+        "estimate": 3.8783,
+        "actual": 3.3732,
+        "surprisePercent": -0.1302
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 3.8207,
-      "low": 3.3754,
-      "high": 4.0523,
+      "date": null,
+      "estimate": 4.29,
+      "low": 3.79,
+      "high": 4.55,
       "analysts": 5
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-29",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "CIBC",
+        "toGrade": "Outperformer",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-21",
+        "firm": "Rothschild & Co",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-10",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-08",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-18",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6943,7 +7015,7 @@
       "close": 970.1059
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

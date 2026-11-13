@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 198.8789,
-    "change": -0.371,
+    "price": 198.813,
+    "change": -0.3709,
     "changePercent": -0.19,
     "marketCap": 27816285357.7839,
     "fiftyTwoWeekLow": 160.0871,
@@ -1780,38 +1780,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 3.9801,
-        "actual": 4.1591,
-        "surprisePercent": 0.045
+        "quarter": "None",
+        "estimate": 4.9238,
+        "actual": 5.04,
+        "surprisePercent": 0.0236
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 3.5832,
-        "actual": 3.6782,
-        "surprisePercent": 0.0265
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 4.1517,
-        "actual": 4.738,
+        "quarter": "None",
+        "estimate": 4.6616,
+        "actual": 5.32,
         "surprisePercent": 0.1412
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 4.3852,
-        "actual": 4.4887,
-        "surprisePercent": 0.0236
+        "quarter": "None",
+        "estimate": 4.0233,
+        "actual": 4.13,
+        "surprisePercent": 0.0265
+      },
+      {
+        "quarter": "None",
+        "estimate": 4.469,
+        "actual": 4.67,
+        "surprisePercent": 0.045
       }
     ],
     "nextEarningsDate": "2027-01-19",
     "epsForecast": {
-      "date": "2027-01-19",
-      "estimate": 4.4393,
-      "low": 4.3729,
-      "high": 4.5332,
+      "date": null,
+      "estimate": 4.9846,
+      "low": 4.91,
+      "high": 5.09,
       "analysts": 16
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-27",
+        "firm": "Wolfe Research",
+        "toGrade": "Underperform",
+        "fromGrade": "Peer Perform",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "DA Davidson",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Raymond James",
+        "toGrade": "Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6167,7 +6239,7 @@
       "close": 198.7471
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 85.8298,
-    "change": -1.0135,
+    "price": 85.8013,
+    "change": -1.0132,
     "changePercent": -1.17,
     "marketCap": 10431248822.7739,
     "fiftyTwoWeekLow": 79.9501,
@@ -2461,38 +2461,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": -0.4346,
-        "actual": -0.472,
-        "surprisePercent": -0.086
+        "quarter": "None",
+        "estimate": 2.5295,
+        "actual": 2.58,
+        "surprisePercent": 0.02
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.1698,
-        "actual": 2.6273,
-        "surprisePercent": 1.246
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.8862,
-        "actual": 3.3398,
+        "quarter": "None",
+        "estimate": 3.2407,
+        "actual": 3.75,
         "surprisePercent": 0.1571
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.2528,
-        "actual": 2.2978,
-        "surprisePercent": 0.02
+        "quarter": "None",
+        "estimate": 1.3135,
+        "actual": 2.95,
+        "surprisePercent": 1.246
+      },
+      {
+        "quarter": "None",
+        "estimate": -0.488,
+        "actual": -0.53,
+        "surprisePercent": -0.086
       }
     ],
     "nextEarningsDate": "2026-11-04",
     "epsForecast": {
-      "date": "2026-11-04",
-      "estimate": 1.3238,
-      "low": 0.668,
-      "high": 1.7853,
-      "analysts": 11
-    }
+      "date": null,
+      "estimate": 1.2749,
+      "low": 0.04,
+      "high": 2.0046,
+      "analysts": 13
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Outperform",
+        "fromGrade": "Sector Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6848,7 +6920,7 @@
       "close": 85.7729
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

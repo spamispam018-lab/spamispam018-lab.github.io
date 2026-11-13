@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 100.6701,
-    "change": -6.4429,
+    "price": 100.6367,
+    "change": -6.4408,
     "changePercent": -6.02,
     "marketCap": 32621787559.5622,
     "fiftyTwoWeekLow": 75.3812,
@@ -1801,38 +1801,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.6192,
-        "actual": 2.7609,
-        "surprisePercent": 0.0541
+        "quarter": "None",
+        "estimate": 2.5729,
+        "actual": 2.54,
+        "surprisePercent": -0.0128
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.9636,
-        "actual": 1.0598,
-        "surprisePercent": 0.0998
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.6475,
-        "actual": 1.7723,
+        "quarter": "None",
+        "estimate": 1.8498,
+        "actual": 1.99,
         "surprisePercent": 0.0758
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.2915,
-        "actual": 2.2621,
-        "surprisePercent": -0.0128
+        "quarter": "None",
+        "estimate": 1.082,
+        "actual": 1.19,
+        "surprisePercent": 0.0998
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.9409,
+        "actual": 3.1,
+        "surprisePercent": 0.0541
       }
     ],
     "nextEarningsDate": "2027-01-26",
     "epsForecast": {
-      "date": "2027-01-26",
-      "estimate": 1.1715,
-      "low": 0.8015,
-      "high": 2.7342,
+      "date": null,
+      "estimate": 1.3024,
+      "low": 0.9,
+      "high": 3.07,
       "analysts": 20
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-22",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-06",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-28",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6188,7 +6260,7 @@
       "close": 100.6034
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

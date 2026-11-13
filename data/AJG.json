@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 250.9107,
-    "change": -4.2802,
+    "price": 250.8275,
+    "change": -4.2787,
     "changePercent": -1.68,
     "marketCap": 64310074980.6382,
     "fiftyTwoWeekLow": 169.8838,
@@ -2108,38 +2108,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.0904,
-        "actual": 2.1197,
-        "surprisePercent": 0.014
+        "quarter": "None",
+        "estimate": 2.986,
+        "actual": 3.0,
+        "surprisePercent": 0.0047
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 3.9424,
-        "actual": 3.981,
-        "surprisePercent": 0.0098
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.5058,
-        "actual": 2.5293,
+        "quarter": "None",
+        "estimate": 2.8136,
+        "actual": 2.84,
         "surprisePercent": 0.0094
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.6594,
-        "actual": 2.6718,
-        "surprisePercent": 0.0047
+        "quarter": "None",
+        "estimate": 4.4266,
+        "actual": 4.47,
+        "surprisePercent": 0.0098
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.3472,
+        "actual": 2.38,
+        "surprisePercent": 0.014
       }
     ],
     "nextEarningsDate": "2027-01-28",
     "epsForecast": {
-      "date": "2027-01-28",
-      "estimate": 2.472,
-      "low": 2.4046,
-      "high": 2.5739,
+      "date": null,
+      "estimate": 2.7756,
+      "low": 2.7,
+      "high": 2.89,
       "analysts": 21
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-03",
+        "firm": "Jefferies",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6495,7 +6567,7 @@
       "close": 250.7443
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

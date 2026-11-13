@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 356.241,
-    "change": -10.0354,
+    "price": 356.1229,
+    "change": -10.032,
     "changePercent": -2.74,
     "marketCap": 115440673856.2236,
     "fiftyTwoWeekLow": 200.5565,
@@ -2167,38 +2167,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.622,
-        "actual": 2.8856,
-        "surprisePercent": 0.1005
+        "quarter": "None",
+        "estimate": 4.0306,
+        "actual": 4.3,
+        "surprisePercent": 0.0668
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 3.0666,
-        "actual": 3.1706,
-        "surprisePercent": 0.0339
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 3.3345,
-        "actual": 3.3487,
+        "quarter": "None",
+        "estimate": 3.7441,
+        "actual": 3.76,
         "surprisePercent": 0.0043
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 3.5897,
-        "actual": 3.8296,
-        "surprisePercent": 0.0668
+        "quarter": "None",
+        "estimate": 3.4433,
+        "actual": 3.56,
+        "surprisePercent": 0.0339
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.9441,
+        "actual": 3.24,
+        "surprisePercent": 0.1005
       }
     ],
     "nextEarningsDate": "2026-11-04",
     "epsForecast": {
-      "date": "2026-11-04",
-      "estimate": 4.2212,
-      "low": 3.981,
-      "high": 4.6757,
-      "analysts": 16
-    }
+      "date": null,
+      "estimate": 4.7409,
+      "low": 4.47,
+      "high": 5.25,
+      "analysts": 17
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-06",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Outperform",
+        "fromGrade": "Sector Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Macquarie",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Goldman Sachs",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Piper Sandler",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "reit"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Wedbush",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6554,7 +6626,7 @@
       "close": 356.0048
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

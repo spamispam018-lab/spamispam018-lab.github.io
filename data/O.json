@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 53.6244,
-    "change": -0.2805,
+    "price": 53.6066,
+    "change": -0.2804,
     "changePercent": -0.52,
     "marketCap": 50145972880.5435,
     "fiftyTwoWeekLow": 47.3359,
@@ -2426,38 +2426,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-09-30",
-        "estimate": 0.357,
-        "actual": 0.3194,
-        "surprisePercent": -0.1052
+        "quarter": "None",
+        "estimate": 0.4347,
+        "actual": 0.4286,
+        "surprisePercent": -0.0141
       },
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.3414,
-        "actual": 0.285,
-        "surprisePercent": -0.1651
+        "quarter": "None",
+        "estimate": 0.4227,
+        "actual": 0.3691,
+        "surprisePercent": -0.1269
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.3716,
-        "actual": 0.3065,
+        "quarter": "None",
+        "estimate": 0.4172,
+        "actual": 0.3442,
         "surprisePercent": -0.175
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.3871,
-        "actual": 0.3817,
-        "surprisePercent": -0.0141
+        "quarter": "None",
+        "estimate": 0.4058,
+        "actual": 0.3317,
+        "surprisePercent": -0.1826
       }
     ],
     "nextEarningsDate": "2026-11-02",
     "epsForecast": {
-      "date": "2026-11-02",
-      "estimate": 0.3871,
-      "low": 0.3859,
-      "high": 0.3885,
+      "date": null,
+      "estimate": 0.4259,
+      "low": 0.4101,
+      "high": 0.4417,
       "analysts": 2
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-10",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Outperform",
+        "action": "down"
+      },
+      {
+        "date": "2026-09-21",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-17",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6813,7 +6885,7 @@
       "close": 53.5888
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

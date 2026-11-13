@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 148.8108,
-    "change": -3.9363,
+    "price": 148.7615,
+    "change": -3.935,
     "changePercent": -2.58,
     "marketCap": 113149272426.794,
     "fiftyTwoWeekLow": 62.9572,
@@ -2137,38 +2137,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 0.6571,
-        "actual": 0.6769,
-        "surprisePercent": 0.0301
+        "quarter": "None",
+        "estimate": 0.9308,
+        "actual": 0.94,
+        "surprisePercent": 0.0099
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 0.705,
-        "actual": 0.7125,
-        "surprisePercent": 0.0105
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 0.708,
-        "actual": 0.7125,
+        "quarter": "None",
+        "estimate": 0.795,
+        "actual": 0.8,
         "surprisePercent": 0.0064
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 0.829,
-        "actual": 0.8372,
-        "surprisePercent": 0.0099
+        "quarter": "None",
+        "estimate": 0.7916,
+        "actual": 0.8,
+        "surprisePercent": 0.0105
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.7378,
+        "actual": 0.76,
+        "surprisePercent": 0.0301
       }
     ],
     "nextEarningsDate": "2026-12-01",
     "epsForecast": {
-      "date": "2026-12-01",
-      "estimate": 0.9806,
-      "low": 0.9586,
-      "high": 1.0153,
-      "analysts": 33
-    }
+      "date": null,
+      "estimate": 1.101,
+      "low": 1.0763,
+      "high": 1.14,
+      "analysts": 32
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "B. Riley Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "B. Riley Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "B of A Securities",
+        "toGrade": "Neutral",
+        "fromGrade": "Buy",
+        "action": "down"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6524,7 +6596,7 @@
       "close": 148.7121
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

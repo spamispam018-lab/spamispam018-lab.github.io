@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 166.022,
-    "change": 2.1175,
+    "price": 165.967,
+    "change": 2.1168,
     "changePercent": 1.29,
     "marketCap": 59729121626.5434,
     "fiftyTwoWeekLow": 130.2339,
@@ -2248,38 +2248,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.3473,
-        "actual": 0.355,
-        "surprisePercent": 0.0221
+        "quarter": "None",
+        "estimate": 0.575,
+        "actual": 0.6076,
+        "surprisePercent": 0.0567
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.3989,
-        "actual": 0.4097,
-        "surprisePercent": 0.0271
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.6501,
-        "actual": 0.5526,
+        "quarter": "None",
+        "estimate": 0.73,
+        "actual": 0.6205,
         "surprisePercent": -0.15
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.5121,
-        "actual": 0.5411,
-        "surprisePercent": 0.0567
+        "quarter": "None",
+        "estimate": 0.4479,
+        "actual": 0.46,
+        "surprisePercent": 0.0271
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.39,
+        "actual": 0.3986,
+        "surprisePercent": 0.0221
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 0.383,
-      "low": 0.383,
-      "high": 0.383,
+      "date": null,
+      "estimate": 0.43,
+      "low": 0.43,
+      "high": 0.43,
       "analysts": 1
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-31",
+        "firm": "Freedom Broker",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "CIBC",
+        "toGrade": "Outperformer",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-21",
+        "firm": "Rothschild & Co",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-10",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-18",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-14",
+        "firm": "HSBC",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-08-05",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6435,7 +6507,7 @@
       "close": 165.9119
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

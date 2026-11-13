@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 218.1171,
-    "change": 1.2216,
+    "price": 218.0448,
+    "change": 1.2212,
     "changePercent": 0.56,
     "marketCap": 46701936005.5169,
     "fiftyTwoWeekLow": 167.8533,
@@ -1873,38 +1873,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.7313,
-        "actual": 1.7901,
-        "surprisePercent": 0.034
+        "quarter": "None",
+        "estimate": 2.108,
+        "actual": 2.21,
+        "surprisePercent": 0.0484
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.6919,
-        "actual": 1.7545,
-        "surprisePercent": 0.037
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.776,
-        "actual": 1.8614,
+        "quarter": "None",
+        "estimate": 1.9941,
+        "actual": 2.09,
         "surprisePercent": 0.0481
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.8774,
-        "actual": 1.9682,
-        "surprisePercent": 0.0484
+        "quarter": "None",
+        "estimate": 1.8997,
+        "actual": 1.97,
+        "surprisePercent": 0.037
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.944,
+        "actual": 2.01,
+        "surprisePercent": 0.034
       }
     ],
     "nextEarningsDate": "2027-02-02",
     "epsForecast": {
-      "date": "2027-02-02",
-      "estimate": 2.0468,
-      "low": 2.0039,
-      "high": 2.084,
-      "analysts": 16
-    }
+      "date": null,
+      "estimate": 2.3001,
+      "low": 2.25,
+      "high": 2.34,
+      "analysts": 18
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-04",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "Baird",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-11",
+        "firm": "BNP Paribas",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-06",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-06",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-05",
+        "firm": "DA Davidson",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-05",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6260,7 +6332,7 @@
       "close": 217.9725
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

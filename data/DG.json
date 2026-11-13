@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 121.8086,
-    "change": -2.5609,
+    "price": 121.7682,
+    "change": -2.56,
     "changePercent": -2.06,
     "marketCap": 26279667917.1066,
     "fiftyTwoWeekLow": 86.6742,
@@ -1674,38 +1674,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 0.8288,
-        "actual": 1.14,
-        "surprisePercent": 0.3755
+        "quarter": "None",
+        "estimate": 2.0077,
+        "actual": 2.48,
+        "surprisePercent": 0.2353
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 1.4586,
-        "actual": 1.7189,
-        "surprisePercent": 0.1785
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 1.6768,
-        "actual": 1.7812,
+        "quarter": "None",
+        "estimate": 1.8828,
+        "actual": 2.0,
         "surprisePercent": 0.0622
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 1.7881,
-        "actual": 2.2087,
-        "surprisePercent": 0.2353
+        "quarter": "None",
+        "estimate": 1.6377,
+        "actual": 1.93,
+        "surprisePercent": 0.1785
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.9306,
+        "actual": 1.28,
+        "surprisePercent": 0.3755
       }
     ],
     "nextEarningsDate": "2026-12-03",
     "epsForecast": {
-      "date": "2026-12-03",
-      "estimate": 1.256,
-      "low": 1.2023,
-      "high": 1.3537,
+      "date": null,
+      "estimate": 1.4117,
+      "low": 1.35,
+      "high": 1.52,
       "analysts": 24
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-06",
+        "firm": "Gordon Haskett",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "HSBC",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-08",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-04",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-31",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Telsey Advisory Group",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "BNP Paribas",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Piper Sandler",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6061,7 +6133,7 @@
       "close": 121.7278
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

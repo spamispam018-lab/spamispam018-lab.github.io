@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 50.2672,
-    "change": 0.0543,
+    "price": 50.2505,
+    "change": 0.0542,
     "changePercent": 0.11,
     "marketCap": 54145083709.1461,
     "fiftyTwoWeekLow": 34.7071,
@@ -1749,38 +1749,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.2303,
-        "actual": 0.2316,
-        "surprisePercent": 0.0054
+        "quarter": "None",
+        "estimate": 0.337,
+        "actual": 0.35,
+        "surprisePercent": 0.0387
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.265,
-        "actual": 0.2672,
-        "surprisePercent": 0.0084
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.2902,
-        "actual": 0.2939,
+        "quarter": "None",
+        "estimate": 0.3259,
+        "actual": 0.33,
         "surprisePercent": 0.0125
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.3001,
-        "actual": 0.3117,
-        "surprisePercent": 0.0387
+        "quarter": "None",
+        "estimate": 0.2975,
+        "actual": 0.3,
+        "surprisePercent": 0.0084
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.2586,
+        "actual": 0.26,
+        "surprisePercent": 0.0054
       }
     ],
     "nextEarningsDate": "2027-01-19",
     "epsForecast": {
-      "date": "2027-01-19",
-      "estimate": 0.2693,
-      "low": 0.2583,
-      "high": 0.2761,
-      "analysts": 11
-    }
+      "date": null,
+      "estimate": 0.3037,
+      "low": 0.3,
+      "high": 0.31,
+      "analysts": 10
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-21",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "DA Davidson",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Bernstein",
+        "toGrade": "Underperform",
+        "fromGrade": "Underperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Baird",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-16",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-16",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-15",
+        "firm": "DA Davidson",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-13",
+        "firm": "Rothschild & Co",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-07-08",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-06",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6136,7 +6208,7 @@
       "close": 50.2339
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

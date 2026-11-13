@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 120.0169,
-    "change": -0.6425,
+    "price": 119.9771,
+    "change": -0.6423,
     "changePercent": -0.53,
     "marketCap": 23242596872.9955,
     "fiftyTwoWeekLow": 88.1793,
@@ -2316,38 +2316,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.9853,
-        "actual": 2.3957,
-        "surprisePercent": 0.2067
+        "quarter": "None",
+        "estimate": 1.5633,
+        "actual": 1.82,
+        "surprisePercent": 0.1642
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.1571,
-        "actual": 1.4784,
-        "surprisePercent": 0.2777
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.1369,
-        "actual": 1.1756,
+        "quarter": "None",
+        "estimate": 1.2765,
+        "actual": 1.32,
         "surprisePercent": 0.0341
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.3923,
-        "actual": 1.6209,
-        "surprisePercent": 0.1642
+        "quarter": "None",
+        "estimate": 1.2992,
+        "actual": 1.66,
+        "surprisePercent": 0.2777
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.2292,
+        "actual": 2.69,
+        "surprisePercent": 0.2067
       }
     ],
     "nextEarningsDate": "2027-02-04",
     "epsForecast": {
-      "date": "2027-02-04",
-      "estimate": 2.7221,
-      "low": 2.6718,
-      "high": 2.7605,
-      "analysts": 16
-    }
+      "date": null,
+      "estimate": 3.0678,
+      "low": 3.0,
+      "high": 3.18,
+      "analysts": 17
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-10",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "Baird",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "Raymond James",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-14",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6703,7 +6775,7 @@
       "close": 119.9373
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

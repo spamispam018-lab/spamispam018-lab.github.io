@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 216.1716,
-    "change": 0.3258,
+    "price": 216.0999,
+    "change": 0.3257,
     "changePercent": 0.15,
     "marketCap": 29476170284.6454,
     "fiftyTwoWeekLow": 160.5503,
@@ -2356,38 +2356,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.4261,
-        "actual": 2.5026,
-        "surprisePercent": 0.0315
+        "quarter": "None",
+        "estimate": 2.6732,
+        "actual": 2.91,
+        "surprisePercent": 0.0886
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.4936,
-        "actual": 2.5471,
-        "surprisePercent": 0.0215
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.5764,
-        "actual": 2.6273,
+        "quarter": "None",
+        "estimate": 2.8928,
+        "actual": 2.95,
         "surprisePercent": 0.0198
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.3808,
-        "actual": 2.5917,
-        "surprisePercent": 0.0886
+        "quarter": "None",
+        "estimate": 2.7999,
+        "actual": 2.86,
+        "surprisePercent": 0.0215
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.7241,
+        "actual": 2.81,
+        "surprisePercent": 0.0315
       }
     ],
     "nextEarningsDate": "2027-01-28",
     "epsForecast": {
-      "date": "2027-01-28",
-      "estimate": 2.6628,
-      "low": 2.6095,
-      "high": 2.7876,
+      "date": null,
+      "estimate": 2.9899,
+      "low": 2.93,
+      "high": 3.13,
       "analysts": 13
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-02",
+        "firm": "Canaccord Genuity",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-15",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Sector Perform",
+        "action": "up"
+      },
+      {
+        "date": "2026-08-31",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-19",
+        "firm": "Rothschild & Co",
+        "toGrade": "Neutral",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-08-07",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-07",
+        "firm": "Piper Sandler",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6743,7 +6815,7 @@
       "close": 216.0282
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

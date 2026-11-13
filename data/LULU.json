@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 94.5259,
-    "change": -2.7056,
+    "price": 94.4945,
+    "change": -2.7048,
     "changePercent": -2.78,
     "marketCap": 11428628010.4322,
     "fiftyTwoWeekLow": 80.4933,
@@ -1844,38 +1844,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 1.9699,
-        "actual": 2.3067,
-        "surprisePercent": 0.171
+        "quarter": "None",
+        "estimate": 1.7877,
+        "actual": 2.92,
+        "surprisePercent": 0.6334
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 4.2562,
-        "actual": 4.462,
-        "surprisePercent": 0.0483
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 1.4899,
-        "actual": 1.5051,
+        "quarter": "None",
+        "estimate": 1.6729,
+        "actual": 1.69,
         "surprisePercent": 0.0102
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 1.5921,
-        "actual": 2.6006,
-        "surprisePercent": 0.6334
+        "quarter": "None",
+        "estimate": 4.779,
+        "actual": 5.01,
+        "surprisePercent": 0.0483
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.2118,
+        "actual": 2.59,
+        "surprisePercent": 0.171
       }
     ],
     "nextEarningsDate": "2026-12-10",
     "epsForecast": {
-      "date": "2026-12-10",
-      "estimate": 0.9275,
-      "low": 0.8015,
-      "high": 1.4784,
-      "analysts": 20
-    }
+      "date": null,
+      "estimate": 1.0427,
+      "low": 0.9,
+      "high": 1.66,
+      "analysts": 21
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-10",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Wolfe Research",
+        "toGrade": "Underperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-14",
+        "firm": "Argus Research",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-09",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-09",
+        "firm": "BMO Capital",
+        "toGrade": "Underperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-04",
+        "firm": "Telsey Advisory Group",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-04",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-04",
+        "firm": "BNP Paribas",
+        "toGrade": "Underperform",
+        "fromGrade": "Underperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-04",
+        "firm": "Goldman Sachs",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6231,7 +6303,7 @@
       "close": 94.4632
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

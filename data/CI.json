@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 268.0947,
-    "change": -4.6874,
+    "price": 268.0058,
+    "change": -4.6859,
     "changePercent": -1.72,
     "marketCap": 68899115814.1468,
     "fiftyTwoWeekLow": 228.4593,
@@ -2307,38 +2307,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 7.0205,
-        "actual": 7.1961,
-        "surprisePercent": 0.025
+        "quarter": "None",
+        "estimate": 7.5073,
+        "actual": 7.98,
+        "surprisePercent": 0.063
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 6.7742,
-        "actual": 6.9379,
-        "surprisePercent": 0.0241
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 6.7684,
-        "actual": 6.9289,
+        "quarter": "None",
+        "estimate": 7.5997,
+        "actual": 7.78,
         "surprisePercent": 0.0237
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 6.6861,
-        "actual": 7.1071,
-        "surprisePercent": 0.063
+        "quarter": "None",
+        "estimate": 7.6063,
+        "actual": 7.79,
+        "surprisePercent": 0.0241
+      },
+      {
+        "quarter": "None",
+        "estimate": 7.8828,
+        "actual": 8.08,
+        "surprisePercent": 0.025
       }
     ],
     "nextEarningsDate": "2027-02-04",
     "epsForecast": {
-      "date": "2027-02-04",
-      "estimate": 6.5025,
-      "low": 6.2788,
-      "high": 6.7954,
-      "analysts": 18
-    }
+      "date": null,
+      "estimate": 7.1843,
+      "low": 7.05,
+      "high": 7.46,
+      "analysts": 21
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "Jefferies",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-12",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-11",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-04",
+        "firm": "Jefferies",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6694,7 +6766,7 @@
       "close": 267.917
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

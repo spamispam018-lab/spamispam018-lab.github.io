@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 266.0316,
-    "change": -1.855,
+    "price": 265.9433,
+    "change": -1.8545,
     "changePercent": -0.69,
     "marketCap": 30739203289.7816,
     "fiftyTwoWeekLow": 149.8184,
@@ -2186,38 +2186,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 0.6854,
-        "actual": 0.8105,
-        "surprisePercent": 0.1824
+        "quarter": "None",
+        "estimate": 1.7276,
+        "actual": 2.11,
+        "surprisePercent": 0.2214
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 1.0405,
-        "actual": 1.2023,
-        "surprisePercent": 0.1555
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 1.3002,
-        "actual": 1.4606,
+        "quarter": "None",
+        "estimate": 1.4599,
+        "actual": 1.64,
         "surprisePercent": 0.1234
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 1.5386,
-        "actual": 1.8792,
-        "surprisePercent": 0.2214
+        "quarter": "None",
+        "estimate": 1.1683,
+        "actual": 1.35,
+        "surprisePercent": 0.1555
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.7696,
+        "actual": 0.91,
+        "surprisePercent": 0.1824
       }
     ],
     "nextEarningsDate": "2026-12-10",
     "epsForecast": {
-      "date": "2026-12-10",
-      "estimate": 1.4401,
-      "low": 1.327,
-      "high": 1.661,
+      "date": null,
+      "estimate": 1.617,
+      "low": 1.49,
+      "high": 1.865,
       "analysts": 5
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-09-30",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-21",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "In-Line",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-17",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-17",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-17",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-17",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-04",
+        "firm": "B. Riley Securities",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-04",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-04",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-04",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6573,7 +6645,7 @@
       "close": 265.8552
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

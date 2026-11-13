@@ -11,7 +11,7 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 30.0789,
+    "price": 30.0689,
     "change": -0.2081,
     "changePercent": -0.69,
     "marketCap": 7287292271.8097,
@@ -2245,38 +2245,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.492,
-        "actual": 1.425,
-        "surprisePercent": 1.8962
+        "quarter": "None",
+        "estimate": 0.0835,
+        "actual": -0.11,
+        "surprisePercent": -2.3166
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.4734,
-        "actual": 0.4364,
-        "surprisePercent": -0.0783
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.5139,
-        "actual": 0.5255,
+        "quarter": "None",
+        "estimate": 0.577,
+        "actual": 0.59,
         "surprisePercent": 0.0224
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.0744,
-        "actual": -0.098,
-        "surprisePercent": -2.3166
+        "quarter": "None",
+        "estimate": 0.5316,
+        "actual": 0.49,
+        "surprisePercent": -0.0783
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.5524,
+        "actual": 1.6,
+        "surprisePercent": 1.8962
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 0.3855,
-      "low": 0.1959,
-      "high": 0.7214,
+      "date": null,
+      "estimate": 0.4328,
+      "low": 0.22,
+      "high": 0.81,
       "analysts": 9
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-05",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Macquarie",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Stifel",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Stifel",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6632,7 +6704,7 @@
       "close": 30.0589
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

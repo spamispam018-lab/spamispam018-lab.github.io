@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 30.3322,
-    "change": -0.6244,
+    "price": 30.3222,
+    "change": -0.6242,
     "changePercent": -2.02,
     "marketCap": 16909779473.438,
     "fiftyTwoWeekLow": 27.7692,
@@ -2243,38 +2243,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-11-30",
-        "estimate": 0.9147,
-        "actual": 0.9797,
-        "surprisePercent": 0.0709
+        "quarter": "None",
+        "estimate": 0.7177,
+        "actual": 0.75,
+        "surprisePercent": 0.0449
       },
       {
-        "quarter": "2026-02-28",
-        "estimate": 0.6488,
-        "actual": 0.57,
-        "surprisePercent": -0.1214
-      },
-      {
-        "quarter": "2026-05-31",
-        "estimate": 0.7097,
-        "actual": 0.8461,
+        "quarter": "None",
+        "estimate": 0.7969,
+        "actual": 0.95,
         "surprisePercent": 0.1921
       },
       {
-        "quarter": "2026-08-31",
-        "estimate": 0.6392,
-        "actual": 0.668,
-        "surprisePercent": 0.0449
+        "quarter": "None",
+        "estimate": 0.7285,
+        "actual": 0.64,
+        "surprisePercent": -0.1214
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.0271,
+        "actual": 1.1,
+        "surprisePercent": 0.0709
       }
     ],
     "nextEarningsDate": "2026-12-23",
     "epsForecast": {
-      "date": "2026-12-23",
-      "estimate": 0.8428,
-      "low": 0.7303,
-      "high": 0.8728,
+      "date": null,
+      "estimate": 0.9457,
+      "low": 0.82,
+      "high": 0.98,
       "analysts": 17
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "Piper Sandler",
+        "toGrade": "Neutral",
+        "fromGrade": "Overweight",
+        "action": "down"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-21",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-14",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-01",
+        "firm": "B of A Securities",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-02",
+        "firm": "Freedom Broker",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-02",
+        "firm": "JP Morgan",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-02",
+        "firm": "BNP Paribas",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6630,7 +6702,7 @@
       "close": 30.3121
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

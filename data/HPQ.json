@@ -11,7 +11,7 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 26.1335,
+    "price": 26.1248,
     "change": -0.0724,
     "changePercent": -0.28,
     "marketCap": 22857478545.1063,
@@ -1830,38 +1830,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 0.822,
-        "actual": 0.8283,
-        "surprisePercent": 0.0076
+        "quarter": "None",
+        "estimate": 0.6917,
+        "actual": 0.83,
+        "surprisePercent": 0.1999
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 0.6831,
-        "actual": 0.7214,
-        "surprisePercent": 0.0561
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 0.6369,
-        "actual": 0.7659,
+        "quarter": "None",
+        "estimate": 0.7151,
+        "actual": 0.86,
         "surprisePercent": 0.2026
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 0.616,
-        "actual": 0.7392,
-        "surprisePercent": 0.1999
+        "quarter": "None",
+        "estimate": 0.767,
+        "actual": 0.81,
+        "surprisePercent": 0.0561
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.923,
+        "actual": 0.93,
+        "surprisePercent": 0.0076
       }
     ],
     "nextEarningsDate": "2026-11-24",
     "epsForecast": {
-      "date": "2026-11-24",
-      "estimate": 0.6636,
-      "low": 0.6323,
-      "high": 0.7036,
+      "date": null,
+      "estimate": 0.7451,
+      "low": 0.71,
+      "high": 0.79,
       "analysts": 13
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-09-11",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-08-28",
+        "firm": "Barclays",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-27",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-27",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-27",
+        "firm": "Morgan Stanley",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-24",
+        "firm": "Morgan Stanley",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-24",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-12",
+        "firm": "Goldman Sachs",
+        "toGrade": "Sell",
+        "fromGrade": "Sell",
+        "action": "main"
+      },
+      {
+        "date": "2026-06-02",
+        "firm": "Goldman Sachs",
+        "toGrade": "Sell",
+        "fromGrade": "Sell",
+        "action": "main"
+      },
+      {
+        "date": "2026-05-28",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6217,7 +6289,7 @@
       "close": 26.1162
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

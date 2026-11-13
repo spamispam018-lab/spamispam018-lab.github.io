@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 209.0591,
-    "change": -0.8777,
+    "price": 208.9897,
+    "change": -0.8775,
     "changePercent": -0.42,
     "marketCap": 79643534675.9161,
     "fiftyTwoWeekLow": 157.7092,
@@ -1644,38 +1644,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 3.7508,
-        "actual": 4.3462,
-        "surprisePercent": 0.1587
+        "quarter": "None",
+        "estimate": 4.8924,
+        "actual": 4.97,
+        "surprisePercent": 0.0159
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 3.5151,
-        "actual": 3.6782,
-        "surprisePercent": 0.0464
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 3.9659,
-        "actual": 4.2838,
+        "quarter": "None",
+        "estimate": 4.453,
+        "actual": 4.81,
         "surprisePercent": 0.0802
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 4.3572,
-        "actual": 4.4263,
-        "surprisePercent": 0.0159
+        "quarter": "None",
+        "estimate": 3.9469,
+        "actual": 4.13,
+        "surprisePercent": 0.0464
+      },
+      {
+        "quarter": "None",
+        "estimate": 4.2115,
+        "actual": 4.88,
+        "surprisePercent": 0.1587
       }
     ],
     "nextEarningsDate": "2027-01-15",
     "epsForecast": {
-      "date": "2027-01-15",
-      "estimate": 4.4805,
-      "low": 4.3195,
-      "high": 4.6641,
+      "date": null,
+      "estimate": 5.0308,
+      "low": 4.85,
+      "high": 5.237,
       "analysts": 17
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-02",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "Raymond James",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6031,7 +6103,7 @@
       "close": 208.9204
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

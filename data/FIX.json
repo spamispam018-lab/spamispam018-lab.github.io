@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 1020.8087,
-    "change": -30.3503,
+    "price": 1020.4702,
+    "change": -30.3403,
     "changePercent": -2.89,
     "marketCap": 31892947708.6495,
     "fiftyTwoWeekLow": 749.5908,
@@ -2115,38 +2115,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 6.016,
-        "actual": 8.345,
-        "surprisePercent": 0.3871
+        "quarter": "None",
+        "estimate": 12.851,
+        "actual": 13.91,
+        "surprisePercent": 0.0824
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 6.0608,
-        "actual": 9.3603,
-        "surprisePercent": 0.5444
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 9.3114,
-        "actual": 11.1593,
+        "quarter": "None",
+        "estimate": 10.4551,
+        "actual": 12.53,
         "surprisePercent": 0.1985
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 11.4452,
-        "actual": 12.3884,
-        "surprisePercent": 0.0824
+        "quarter": "None",
+        "estimate": 6.8052,
+        "actual": 10.51,
+        "surprisePercent": 0.5444
+      },
+      {
+        "quarter": "None",
+        "estimate": 6.7549,
+        "actual": 9.37,
+        "surprisePercent": 0.3871
       }
     ],
     "nextEarningsDate": "2026-10-22",
     "epsForecast": {
-      "date": "2026-10-22",
-      "estimate": 12.431,
-      "low": 11.8184,
-      "high": 13.0474,
-      "analysts": 10
-    }
+      "date": null,
+      "estimate": 13.9564,
+      "low": 13.27,
+      "high": 14.65,
+      "analysts": 11
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-10",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-21",
+        "firm": "DA Davidson",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-07-27",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-27",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-09",
+        "firm": "Goldman Sachs",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-06-08",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6502,7 +6574,7 @@
       "close": 1020.1318
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

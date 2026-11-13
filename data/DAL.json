@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 78.3191,
-    "change": -4.3164,
+    "price": 78.2931,
+    "change": -4.315,
     "changePercent": -5.22,
     "marketCap": 51094254465.3917,
     "fiftyTwoWeekLow": 49.224,
@@ -1963,38 +1963,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.3768,
-        "actual": 1.3804,
-        "surprisePercent": 0.0027
+        "quarter": "None",
+        "estimate": 1.7572,
+        "actual": 1.72,
+        "surprisePercent": -0.0212
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.5119,
-        "actual": 0.57,
-        "surprisePercent": 0.1135
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.3298,
-        "actual": 1.3894,
+        "quarter": "None",
+        "estimate": 1.4931,
+        "actual": 1.56,
         "surprisePercent": 0.0448
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.565,
-        "actual": 1.5318,
-        "surprisePercent": -0.0212
+        "quarter": "None",
+        "estimate": 0.5748,
+        "actual": 0.64,
+        "surprisePercent": 0.1135
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.5459,
+        "actual": 1.55,
+        "surprisePercent": 0.0027
       }
     ],
     "nextEarningsDate": "2027-01-13",
     "epsForecast": {
-      "date": "2027-01-13",
-      "estimate": 1.2679,
-      "low": 1.1578,
-      "high": 1.4517,
+      "date": null,
+      "estimate": 1.4242,
+      "low": 1.3,
+      "high": 1.63,
       "analysts": 19
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-12",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-06",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-28",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "Rothschild & Co",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6350,7 +6422,7 @@
       "close": 78.2672
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

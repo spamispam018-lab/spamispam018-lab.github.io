@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 412.6435,
-    "change": -5.3751,
+    "price": 412.5066,
+    "change": -5.3734,
     "changePercent": -1.29,
     "marketCap": 25932261976.3079,
     "fiftyTwoWeekLow": 241.5512,
@@ -2174,38 +2174,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 5.2907,
-        "actual": 5.3793,
-        "surprisePercent": 0.0168
+        "quarter": "None",
+        "estimate": 7.2032,
+        "actual": 7.54,
+        "surprisePercent": 0.0468
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 4.8718,
-        "actual": 5.1655,
-        "surprisePercent": 0.0603
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 5.8647,
-        "actual": 6.2343,
+        "quarter": "None",
+        "estimate": 6.585,
+        "actual": 7.0,
         "surprisePercent": 0.063
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 6.4152,
-        "actual": 6.7152,
-        "surprisePercent": 0.0468
+        "quarter": "None",
+        "estimate": 5.4702,
+        "actual": 5.8,
+        "surprisePercent": 0.0603
+      },
+      {
+        "quarter": "None",
+        "estimate": 5.9405,
+        "actual": 6.04,
+        "surprisePercent": 0.0168
       }
     ],
     "nextEarningsDate": "2027-02-03",
     "epsForecast": {
-      "date": "2027-02-03",
-      "estimate": 6.8447,
-      "low": 6.7775,
-      "high": 6.9022,
-      "analysts": 10
-    }
+      "date": null,
+      "estimate": 7.6771,
+      "low": 7.61,
+      "high": 7.75,
+      "analysts": 14
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Outperform",
+        "fromGrade": "Sector Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-02",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-08-31",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6561,7 +6633,7 @@
       "close": 412.3699
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

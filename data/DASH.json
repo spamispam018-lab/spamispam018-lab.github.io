@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 156.1677,
-    "change": -5.1398,
+    "price": 156.1159,
+    "change": -5.1381,
     "changePercent": -3.19,
     "marketCap": 69763137318.0302,
     "fiftyTwoWeekLow": 127.6244,
@@ -2059,38 +2059,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.5196,
-        "actual": 0.4275,
-        "surprisePercent": -0.1773
+        "quarter": "None",
+        "estimate": 0.8065,
+        "actual": 1.06,
+        "surprisePercent": 0.3143
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.3241,
-        "actual": 0.3741,
-        "surprisePercent": 0.154
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.4198,
-        "actual": 0.4097,
+        "quarter": "None",
+        "estimate": 0.4714,
+        "actual": 0.46,
         "surprisePercent": -0.0243
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.7183,
-        "actual": 0.944,
-        "surprisePercent": 0.3143
+        "quarter": "None",
+        "estimate": 0.3639,
+        "actual": 0.42,
+        "surprisePercent": 0.154
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.5834,
+        "actual": 0.48,
+        "surprisePercent": -0.1773
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 0.7377,
-      "low": 0.5611,
-      "high": 0.9619,
+      "date": null,
+      "estimate": 0.8283,
+      "low": 0.63,
+      "high": 1.08,
       "analysts": 31
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-06",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Wedbush",
+        "toGrade": "Outperform",
+        "fromGrade": "Neutral",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-31",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Outperform",
+        "fromGrade": "Sector Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6446,7 +6518,7 @@
       "close": 156.0641
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

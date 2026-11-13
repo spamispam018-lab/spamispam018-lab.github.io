@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 90.0828,
-    "change": -5.5289,
+    "price": 90.0529,
+    "change": -5.5271,
     "changePercent": -5.78,
     "marketCap": 16354461107.9898,
     "fiftyTwoWeekLow": 79.5137,
@@ -1844,38 +1844,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.8295,
-        "actual": 1.1044,
-        "surprisePercent": 0.3314
+        "quarter": "None",
+        "estimate": 1.3258,
+        "actual": 1.4,
+        "surprisePercent": 0.056
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.5022,
-        "actual": 0.8995,
-        "surprisePercent": 0.7912
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.8593,
-        "actual": 1.1133,
+        "quarter": "None",
+        "estimate": 0.9648,
+        "actual": 1.25,
         "surprisePercent": 0.2956
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.1808,
-        "actual": 1.2469,
-        "surprisePercent": 0.056
+        "quarter": "None",
+        "estimate": 0.5639,
+        "actual": 1.01,
+        "surprisePercent": 0.7912
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.9314,
+        "actual": 1.24,
+        "surprisePercent": 0.3314
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 1.6244,
-      "low": 1.4072,
-      "high": 1.7723,
+      "date": null,
+      "estimate": 1.8298,
+      "low": 1.58,
+      "high": 1.99,
       "analysts": 22
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-12",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-10",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "DA Davidson",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "Outperform",
+        "action": "down"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Loop Capital",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-31",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wedbush",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6231,7 +6303,7 @@
       "close": 90.0231
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

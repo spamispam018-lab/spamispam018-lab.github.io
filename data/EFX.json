@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 169.0172,
-    "change": -1.475,
+    "price": 168.9612,
+    "change": -1.4745,
     "changePercent": -0.87,
     "marketCap": 19837412365.8067,
     "fiftyTwoWeekLow": 122.0225,
@@ -1832,38 +1832,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.8289,
-        "actual": 1.8614,
-        "surprisePercent": 0.0178
+        "quarter": "None",
+        "estimate": 2.1978,
+        "actual": 2.26,
+        "surprisePercent": 0.0283
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.5101,
-        "actual": 1.6565,
-        "surprisePercent": 0.097
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.9592,
-        "actual": 2.0039,
+        "quarter": "None",
+        "estimate": 2.1998,
+        "actual": 2.25,
         "surprisePercent": 0.0228
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.9574,
-        "actual": 2.0128,
-        "surprisePercent": 0.0283
+        "quarter": "None",
+        "estimate": 1.6956,
+        "actual": 1.86,
+        "surprisePercent": 0.097
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.0535,
+        "actual": 2.09,
+        "surprisePercent": 0.0178
       }
     ],
     "nextEarningsDate": "2026-10-20",
     "epsForecast": {
-      "date": "2026-10-20",
-      "estimate": 1.8959,
-      "low": 1.8542,
-      "high": 1.9593,
+      "date": null,
+      "estimate": 2.1288,
+      "low": 2.082,
+      "high": 2.2,
       "analysts": 18
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-26",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Outperform",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "BMO Capital",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Stifel",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "Oppenheimer",
+        "toGrade": "Perform",
+        "fromGrade": "Outperform",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6219,7 +6291,7 @@
       "close": 168.9052
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

@@ -11,7 +11,7 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 49.1994,
+    "price": 49.1831,
     "change": -0.19,
     "changePercent": -0.38,
     "marketCap": 38167295951.6694,
@@ -2287,38 +2287,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.3172,
-        "actual": 0.3028,
-        "surprisePercent": -0.0454
+        "quarter": "None",
+        "estimate": 0.7671,
+        "actual": 0.87,
+        "surprisePercent": 0.1341
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.4531,
-        "actual": 0.5076,
-        "surprisePercent": 0.1203
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.7281,
-        "actual": 0.7659,
+        "quarter": "None",
+        "estimate": 0.8175,
+        "actual": 0.86,
         "surprisePercent": 0.052
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.6832,
-        "actual": 0.7748,
-        "surprisePercent": 0.1341
+        "quarter": "None",
+        "estimate": 0.5088,
+        "actual": 0.57,
+        "surprisePercent": 0.1203
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.3562,
+        "actual": 0.34,
+        "surprisePercent": -0.0454
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 0.5182,
-      "low": 0.4435,
-      "high": 0.855,
+      "date": null,
+      "estimate": 0.5636,
+      "low": 0.498,
+      "high": 0.65,
       "analysts": 22
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-02",
+        "firm": "Baird",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "BNP Paribas",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Goldman Sachs",
+        "toGrade": "Neutral",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6570,7 +6642,7 @@
       "close": 49.1668
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

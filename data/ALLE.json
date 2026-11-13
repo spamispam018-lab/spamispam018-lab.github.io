@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 171.9944,
-    "change": -0.9229,
+    "price": 171.9373,
+    "change": -0.9227,
     "changePercent": -0.53,
     "marketCap": 14040438812.595,
     "fiftyTwoWeekLow": 111.3262,
@@ -1835,38 +1835,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.7632,
-        "actual": 1.7278,
-        "surprisePercent": -0.0201
+        "quarter": "None",
+        "estimate": 2.5063,
+        "actual": 2.6,
+        "surprisePercent": 0.0374
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.689,
-        "actual": 1.6031,
-        "surprisePercent": -0.0509
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.9739,
-        "actual": 2.1375,
+        "quarter": "None",
+        "estimate": 2.2164,
+        "actual": 2.4,
         "surprisePercent": 0.0829
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.2321,
-        "actual": 2.3156,
-        "surprisePercent": 0.0374
+        "quarter": "None",
+        "estimate": 1.8965,
+        "actual": 1.8,
+        "surprisePercent": -0.0509
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.9798,
+        "actual": 1.94,
+        "surprisePercent": -0.0201
       }
     ],
     "nextEarningsDate": "2026-10-22",
     "epsForecast": {
-      "date": "2026-10-22",
-      "estimate": 2.062,
-      "low": 2.056,
-      "high": 2.084,
-      "analysts": 9
-    }
+      "date": null,
+      "estimate": 2.3148,
+      "low": 2.3085,
+      "high": 2.34,
+      "analysts": 10
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-03",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Goldman Sachs",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Neutral",
+        "action": "up"
+      },
+      {
+        "date": "2026-08-10",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-24",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-24",
+        "firm": "B of A Securities",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-24",
+        "firm": "Baird",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-06-11",
+        "firm": "Longbow Research",
+        "toGrade": "Buy",
+        "fromGrade": "Neutral",
+        "action": "up"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6222,7 +6294,7 @@
       "close": 171.8803
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

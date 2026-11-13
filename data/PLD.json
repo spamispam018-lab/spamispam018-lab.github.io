@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 116.3249,
-    "change": -1.3393,
+    "price": 116.2863,
+    "change": -1.3388,
     "changePercent": -1.14,
     "marketCap": 109936467422.584,
     "fiftyTwoWeekLow": 108.12,
@@ -1871,38 +1871,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.6087,
-        "actual": 1.2998,
-        "surprisePercent": 1.1352
+        "quarter": "None",
+        "estimate": 0.79,
+        "actual": 0.8423,
+        "surprisePercent": 0.0662
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.6453,
-        "actual": 0.9119,
-        "surprisePercent": 0.413
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.665,
-        "actual": 0.9864,
+        "quarter": "None",
+        "estimate": 0.7467,
+        "actual": 1.1075,
         "surprisePercent": 0.4833
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.7036,
-        "actual": 0.7502,
-        "surprisePercent": 0.0662
+        "quarter": "None",
+        "estimate": 0.7246,
+        "actual": 1.0239,
+        "surprisePercent": 0.413
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.6835,
+        "actual": 1.4595,
+        "surprisePercent": 1.1352
       }
     ],
     "nextEarningsDate": "2027-01-20",
     "epsForecast": {
-      "date": "2027-01-20",
-      "estimate": 0.6739,
-      "low": 0.6323,
-      "high": 0.7481,
+      "date": null,
+      "estimate": 0.7567,
+      "low": 0.71,
+      "high": 0.84,
       "analysts": 3
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-02",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Raymond James",
+        "toGrade": "Outperform",
+        "fromGrade": "Market Perform",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Baird",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Outperform",
+        "fromGrade": "Sector Perform",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-01",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-05",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Sector Perform",
+        "action": "up"
+      },
+      {
+        "date": "2026-07-23",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-21",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6250,7 +6322,7 @@
       "close": 116.2478
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

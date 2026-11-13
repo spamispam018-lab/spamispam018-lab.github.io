@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 160.9455,
-    "change": -2.4704,
+    "price": 160.8922,
+    "change": -2.4695,
     "changePercent": -1.51,
     "marketCap": 85743070063.281,
     "fiftyTwoWeekLow": 108.4674,
@@ -2208,38 +2208,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.4898,
-        "actual": 1.5229,
-        "surprisePercent": 0.0223
+        "quarter": "None",
+        "estimate": 1.9707,
+        "actual": 2.02,
+        "surprisePercent": 0.025
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.0153,
-        "actual": 2.0929,
-        "surprisePercent": 0.0386
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.6372,
-        "actual": 1.6922,
+        "quarter": "None",
+        "estimate": 1.8383,
+        "actual": 1.9,
         "surprisePercent": 0.0336
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.7551,
-        "actual": 1.799,
-        "surprisePercent": 0.025
+        "quarter": "None",
+        "estimate": 2.2628,
+        "actual": 2.35,
+        "surprisePercent": 0.0386
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.6728,
+        "actual": 1.71,
+        "surprisePercent": 0.0223
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 1.7207,
-      "low": 1.6387,
-      "high": 1.8614,
-      "analysts": 13
-    }
+      "date": null,
+      "estimate": 1.9322,
+      "low": 1.84,
+      "high": 2.09,
+      "analysts": 12
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-30",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "Wells Fargo",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-09",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "Wells Fargo",
+        "toGrade": "Underweight",
+        "fromGrade": "",
+        "action": "init"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6595,7 +6667,7 @@
       "close": 160.8388
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

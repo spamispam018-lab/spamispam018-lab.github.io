@@ -11,7 +11,7 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 27.1832,
+    "price": 27.1742,
     "change": -0.0543,
     "changePercent": -0.2,
     "marketCap": 12497100045.4316,
@@ -2117,38 +2117,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 0.4248,
-        "actual": 0.4186,
-        "surprisePercent": -0.0146
+        "quarter": "None",
+        "estimate": 0.3686,
+        "actual": 0.38,
+        "surprisePercent": 0.031
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 0.4143,
-        "actual": 0.5166,
-        "surprisePercent": 0.2468
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 0.2862,
-        "actual": 0.1069,
+        "quarter": "None",
+        "estimate": 0.3213,
+        "actual": 0.12,
         "surprisePercent": -0.6265
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 0.3283,
-        "actual": 0.3384,
-        "surprisePercent": 0.031
+        "quarter": "None",
+        "estimate": 0.4652,
+        "actual": 0.58,
+        "surprisePercent": 0.2468
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.477,
+        "actual": 0.47,
+        "surprisePercent": -0.0146
       }
     ],
     "nextEarningsDate": "2026-12-03",
     "epsForecast": {
-      "date": "2026-12-03",
-      "estimate": 0.4132,
-      "low": 0.3883,
-      "high": 0.4275,
+      "date": null,
+      "estimate": 0.4639,
+      "low": 0.436,
+      "high": 0.48,
       "analysts": 14
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-09-04",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-03",
+        "firm": "JP Morgan",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-03",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-03",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-01",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-27",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-21",
+        "firm": "JP Morgan",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-03",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-06-26",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-06-25",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Overweight",
+        "action": "down"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6312,7 +6384,7 @@
       "close": 27.1652
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

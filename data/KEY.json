@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 19.3015,
-    "change": -0.0996,
+    "price": 19.2951,
+    "change": -0.0995,
     "changePercent": -0.51,
     "marketCap": 19608719460.1106,
     "fiftyTwoWeekLow": 15.0602,
@@ -1930,38 +1930,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.3436,
-        "actual": 0.3652,
-        "surprisePercent": 0.0628
+        "quarter": "None",
+        "estimate": 0.462,
+        "actual": 0.51,
+        "surprisePercent": 0.1038
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.3627,
-        "actual": 0.3919,
-        "surprisePercent": 0.0802
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.3753,
-        "actual": 0.3919,
+        "quarter": "None",
+        "estimate": 0.4214,
+        "actual": 0.44,
         "surprisePercent": 0.0441
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.4115,
-        "actual": 0.4542,
-        "surprisePercent": 0.1038
+        "quarter": "None",
+        "estimate": 0.4073,
+        "actual": 0.44,
+        "surprisePercent": 0.0802
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.3858,
+        "actual": 0.41,
+        "surprisePercent": 0.0628
       }
     ],
     "nextEarningsDate": "2027-01-20",
     "epsForecast": {
-      "date": "2027-01-20",
-      "estimate": 0.446,
-      "low": 0.4275,
-      "high": 0.472,
+      "date": null,
+      "estimate": 0.5008,
+      "low": 0.48,
+      "high": 0.53,
       "analysts": 14
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-30",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "DA Davidson",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-23",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-15",
+        "firm": "Stephens & Co.",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "reit"
+      },
+      {
+        "date": "2026-07-22",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-22",
+        "firm": "DA Davidson",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6317,7 +6389,7 @@
       "close": 19.2887
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

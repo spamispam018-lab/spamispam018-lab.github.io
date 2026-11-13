@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 26.8665,
-    "change": -0.8596,
+    "price": 26.8576,
+    "change": -0.8593,
     "changePercent": -3.1,
     "marketCap": 15740368983.1482,
     "fiftyTwoWeekLow": 15.835,
@@ -2612,38 +2612,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.562,
-        "actual": 0.57,
-        "surprisePercent": 0.0143
+        "quarter": "None",
+        "estimate": 0.7188,
+        "actual": 0.74,
+        "surprisePercent": 0.0295
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.5771,
-        "actual": 0.5967,
-        "surprisePercent": 0.034
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.614,
-        "actual": 0.6323,
+        "quarter": "None",
+        "estimate": 0.6894,
+        "actual": 0.71,
         "surprisePercent": 0.0299
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.6402,
-        "actual": 0.6591,
-        "surprisePercent": 0.0295
+        "quarter": "None",
+        "estimate": 0.648,
+        "actual": 0.67,
+        "surprisePercent": 0.034
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.631,
+        "actual": 0.64,
+        "surprisePercent": 0.0143
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 0.6603,
-      "low": 0.6591,
-      "high": 0.6635,
+      "date": null,
+      "estimate": 0.7414,
+      "low": 0.74,
+      "high": 0.745,
       "analysts": 7
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-11",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-07",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-07",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-07",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-05-08",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-05-08",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6999,7 +7071,7 @@
       "close": 26.8487
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

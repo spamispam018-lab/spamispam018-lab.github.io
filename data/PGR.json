@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 213.0949,
-    "change": 1.7736,
+    "price": 213.0243,
+    "change": 1.7731,
     "changePercent": 0.84,
     "marketCap": 117526068908.8133,
     "fiftyTwoWeekLow": 168.5034,
@@ -1664,38 +1664,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 3.9475,
-        "actual": 4.1577,
-        "surprisePercent": 0.0533
+        "quarter": "None",
+        "estimate": 4.4035,
+        "actual": 4.5956,
+        "surprisePercent": 0.0436
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 4.3504,
-        "actual": 4.4202,
-        "surprisePercent": 0.0161
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 4.3089,
-        "actual": 4.3233,
+        "quarter": "None",
+        "estimate": 4.8382,
+        "actual": 4.8543,
         "surprisePercent": 0.0033
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 3.9285,
-        "actual": 4.0929,
-        "surprisePercent": 0.0418
+        "quarter": "None",
+        "estimate": 4.8847,
+        "actual": 4.9631,
+        "surprisePercent": 0.0161
+      },
+      {
+        "quarter": "None",
+        "estimate": 4.4323,
+        "actual": 4.6684,
+        "surprisePercent": 0.0533
       }
     ],
     "nextEarningsDate": "2027-01-27",
     "epsForecast": {
-      "date": "2027-01-27",
-      "estimate": 3.6434,
-      "low": 3.0548,
-      "high": 4.5258,
+      "date": null,
+      "estimate": 4.0909,
+      "low": 3.43,
+      "high": 5.0817,
       "analysts": 20
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-03",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Wells Fargo",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-16",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-27",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "Wells Fargo",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Outperform",
+        "fromGrade": "Market Perform",
+        "action": "up"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6051,7 +6123,7 @@
       "close": 212.9536
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

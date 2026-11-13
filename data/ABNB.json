@@ -11,7 +11,7 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 163.9045,
+    "price": 163.8502,
     "change": 0.0,
     "changePercent": 0.0,
     "marketCap": 100972950195.873,
@@ -1963,38 +1963,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.5913,
-        "actual": 0.4987,
-        "surprisePercent": -0.1565
+        "quarter": "None",
+        "estimate": 2.8472,
+        "actual": 3.16,
+        "surprisePercent": 0.1099
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.2697,
-        "actual": 0.2316,
-        "surprisePercent": -0.1413
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.1145,
-        "actual": 1.2201,
+        "quarter": "None",
+        "estimate": 1.2514,
+        "actual": 1.37,
         "surprisePercent": 0.0948
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.5357,
-        "actual": 2.8143,
-        "surprisePercent": 0.1099
+        "quarter": "None",
+        "estimate": 0.3028,
+        "actual": 0.26,
+        "surprisePercent": -0.1413
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.6639,
+        "actual": 0.56,
+        "surprisePercent": -0.1565
       }
     ],
     "nextEarningsDate": "2026-11-05",
     "epsForecast": {
-      "date": "2026-11-05",
-      "estimate": 0.7139,
-      "low": 0.5789,
-      "high": 0.8728,
-      "analysts": 30
-    }
+      "date": null,
+      "estimate": 0.8103,
+      "low": 0.65,
+      "high": 1.0,
+      "analysts": 32
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "Jefferies",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Rothschild & Co",
+        "toGrade": "Neutral",
+        "fromGrade": "Sell",
+        "action": "up"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Canaccord Genuity",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "B. Riley Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6350,7 +6422,7 @@
       "close": 163.7959
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

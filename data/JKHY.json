@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 159.2896,
-    "change": 0.1177,
+    "price": 159.2367,
+    "change": 0.1176,
     "changePercent": 0.07,
     "marketCap": 10816904309.5913,
     "fiftyTwoWeekLow": 107.7994,
@@ -1874,38 +1874,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.2647,
-        "actual": 1.4805,
-        "surprisePercent": 0.1707
+        "quarter": "None",
+        "estimate": 2.005,
+        "actual": 2.1269,
+        "surprisePercent": 0.0608
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.2602,
-        "actual": 1.3909,
-        "surprisePercent": 0.1037
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.2825,
-        "actual": 1.3646,
+        "quarter": "None",
+        "estimate": 1.44,
+        "actual": 1.5322,
         "surprisePercent": 0.064
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.7857,
-        "actual": 1.8942,
-        "surprisePercent": 0.0608
+        "quarter": "None",
+        "estimate": 1.415,
+        "actual": 1.5617,
+        "surprisePercent": 0.1037
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.42,
+        "actual": 1.6623,
+        "surprisePercent": 0.1707
       }
     ],
     "nextEarningsDate": "2027-02-02",
     "epsForecast": {
-      "date": "2027-02-02",
-      "estimate": 1.5534,
-      "low": 1.4517,
-      "high": 1.6654,
+      "date": null,
+      "estimate": 1.7442,
+      "low": 1.63,
+      "high": 1.87,
       "analysts": 12
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-06",
+        "firm": "DA Davidson",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-09",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Neutral",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-30",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-30",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-28",
+        "firm": "Seaport Global",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-16",
+        "firm": "Raymond James",
+        "toGrade": "Strong Buy",
+        "fromGrade": "Strong Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6261,7 +6333,7 @@
       "close": 159.1839
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

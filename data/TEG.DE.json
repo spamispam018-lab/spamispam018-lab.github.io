@@ -2086,15 +2086,23 @@
         }
       ]
     },
-    "epsEstimates": [],
+    "epsEstimates": [
+      {
+        "quarter": "None",
+        "estimate": 0.38,
+        "actual": 0.33,
+        "surprisePercent": -0.1316
+      }
+    ],
     "nextEarningsDate": "2026-11-10",
     "epsForecast": {
-      "date": "2026-11-10",
+      "date": null,
       "estimate": 0.38,
       "low": 0.38,
       "high": 0.38,
       "analysts": 1
-    }
+    },
+    "upgradesDowngrades": []
   },
   "insider": {
     "summary": {

@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 26.5498,
-    "change": -1.2125,
+    "price": 26.541,
+    "change": -1.2121,
     "changePercent": -4.37,
     "marketCap": 35422736671.4431,
     "fiftyTwoWeekLow": 19.1036,
@@ -2049,38 +2049,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-11-30",
-        "estimate": 0.2184,
-        "actual": 0.3028,
-        "surprisePercent": 0.3864
+        "quarter": "None",
+        "estimate": 1.3508,
+        "actual": 1.43,
+        "surprisePercent": 0.0586
       },
       {
-        "quarter": "2026-02-28",
-        "estimate": 0.1635,
-        "actual": 0.1781,
-        "surprisePercent": 0.0894
-      },
-      {
-        "quarter": "2026-05-31",
-        "estimate": 0.3016,
-        "actual": 0.3652,
+        "quarter": "None",
+        "estimate": 0.3386,
+        "actual": 0.41,
         "surprisePercent": 0.2108
       },
       {
-        "quarter": "2026-08-31",
-        "estimate": 1.203,
-        "actual": 1.2736,
-        "surprisePercent": 0.0586
+        "quarter": "None",
+        "estimate": 0.1836,
+        "actual": 0.2,
+        "surprisePercent": 0.0894
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.2452,
+        "actual": 0.34,
+        "surprisePercent": 0.3864
       }
     ],
     "nextEarningsDate": "2026-12-18",
     "epsForecast": {
-      "date": "2026-12-18",
-      "estimate": 0.1994,
-      "low": 0.1603,
-      "high": 0.2672,
+      "date": null,
+      "estimate": 0.2239,
+      "low": 0.18,
+      "high": 0.3,
       "analysts": 23
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-13",
+        "firm": "Tigress Financial",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Freedom Broker",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-01",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-30",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-30",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-30",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-30",
+        "firm": "BNP Paribas",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6115,7 +6187,7 @@
       "close": 26.5322
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

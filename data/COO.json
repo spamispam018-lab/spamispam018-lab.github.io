@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 56.2757,
-    "change": -0.6697,
+    "price": 56.2571,
+    "change": -0.6694,
     "changePercent": -1.18,
     "marketCap": 10560928472.6657,
     "fiftyTwoWeekLow": 45.43,
@@ -1758,38 +1758,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 0.9916,
-        "actual": 1.0242,
-        "surprisePercent": 0.0329
+        "quarter": "None",
+        "estimate": 1.1201,
+        "actual": 1.15,
+        "surprisePercent": 0.0267
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 0.9151,
-        "actual": 0.9797,
-        "surprisePercent": 0.0705
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 0.975,
-        "actual": 1.0776,
+        "quarter": "None",
+        "estimate": 1.0948,
+        "actual": 1.21,
         "surprisePercent": 0.1052
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 0.9976,
-        "actual": 1.0242,
-        "surprisePercent": 0.0267
+        "quarter": "None",
+        "estimate": 1.0275,
+        "actual": 1.1,
+        "surprisePercent": 0.0705
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.1134,
+        "actual": 1.15,
+        "surprisePercent": 0.0329
       }
     ],
     "nextEarningsDate": "2026-12-03",
     "epsForecast": {
-      "date": "2026-12-03",
-      "estimate": 0.9513,
-      "low": 0.9324,
-      "high": 0.9619,
+      "date": null,
+      "estimate": 1.0681,
+      "low": 1.0469,
+      "high": 1.08,
       "analysts": 16
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-07",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-15",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-11",
+        "firm": "Mizuho",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-10",
+        "firm": "William Blair",
+        "toGrade": "Market Perform",
+        "fromGrade": "Outperform",
+        "action": "down"
+      },
+      {
+        "date": "2026-09-10",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-10",
+        "firm": "Stifel",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-10",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-10",
+        "firm": "Piper Sandler",
+        "toGrade": "Neutral",
+        "fromGrade": "Overweight",
+        "action": "down"
+      },
+      {
+        "date": "2026-09-10",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-10",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6145,7 +6217,7 @@
       "close": 56.2384
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

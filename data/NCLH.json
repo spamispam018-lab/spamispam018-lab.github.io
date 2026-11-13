@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 16.3425,
-    "change": -0.6877,
+    "price": 16.3371,
+    "change": -0.6875,
     "changePercent": -4.04,
     "marketCap": 7329912504.0135,
     "fiftyTwoWeekLow": 12.139,
@@ -1878,38 +1878,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.2364,
-        "actual": 0.2494,
-        "surprisePercent": 0.0551
+        "quarter": "None",
+        "estimate": 0.9407,
+        "actual": 1.12,
+        "surprisePercent": 0.1906
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.127,
-        "actual": 0.2048,
-        "surprisePercent": 0.6125
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.3481,
-        "actual": 0.4275,
+        "quarter": "None",
+        "estimate": 0.3909,
+        "actual": 0.48,
         "surprisePercent": 0.228
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.8378,
-        "actual": 0.9975,
-        "surprisePercent": 0.1906
+        "quarter": "None",
+        "estimate": 0.1426,
+        "actual": 0.23,
+        "surprisePercent": 0.6125
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.2654,
+        "actual": 0.28,
+        "surprisePercent": 0.0551
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": -0.0939,
-      "low": -0.1158,
-      "high": -0.0546,
-      "analysts": 21
-    }
+      "date": null,
+      "estimate": -0.1047,
+      "low": -0.13,
+      "high": -0.0613,
+      "analysts": 22
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-31",
+        "firm": "Freedom Broker",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Goldman Sachs",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "BNP Paribas",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "JP Morgan",
+        "toGrade": "Underweight",
+        "fromGrade": "Neutral",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Susquehanna",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-02",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6265,7 +6337,7 @@
       "close": 16.3317
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

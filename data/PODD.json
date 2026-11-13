@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 135.0925,
-    "change": -0.6697,
+    "price": 135.0477,
+    "change": -0.6694,
     "changePercent": -0.49,
     "marketCap": 9051759032.4301,
     "fiftyTwoWeekLow": 112.5731,
@@ -2234,38 +2234,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.3027,
-        "actual": 1.3804,
-        "surprisePercent": 0.0597
+        "quarter": "None",
+        "estimate": 1.5875,
+        "actual": 1.99,
+        "surprisePercent": 0.2535
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.0604,
-        "actual": 1.2647,
-        "surprisePercent": 0.1926
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.2937,
-        "actual": 1.4784,
+        "quarter": "None",
+        "estimate": 1.4526,
+        "actual": 1.66,
         "surprisePercent": 0.1428
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.4138,
-        "actual": 1.7723,
-        "surprisePercent": 0.2535
+        "quarter": "None",
+        "estimate": 1.1907,
+        "actual": 1.42,
+        "surprisePercent": 0.1926
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.4627,
+        "actual": 1.55,
+        "surprisePercent": 0.0597
       }
     ],
     "nextEarningsDate": "2026-11-04",
     "epsForecast": {
-      "date": "2026-11-04",
-      "estimate": 1.5574,
-      "low": 1.425,
-      "high": 1.7456,
-      "analysts": 22
-    }
+      "date": null,
+      "estimate": 1.7527,
+      "low": 1.6,
+      "high": 1.96,
+      "analysts": 23
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "reit"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Leerink Partners",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Jefferies",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6621,7 +6693,7 @@
       "close": 135.0029
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

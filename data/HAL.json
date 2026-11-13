@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 29.6445,
-    "change": -0.1539,
+    "price": 29.6347,
+    "change": -0.1538,
     "changePercent": -0.52,
     "marketCap": 23454839400.5156,
     "fiftyTwoWeekLow": 22.194,
@@ -2042,38 +2042,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.4865,
-        "actual": 0.6145,
-        "surprisePercent": 0.2632
+        "quarter": "None",
+        "estimate": 0.585,
+        "actual": 0.6,
+        "surprisePercent": 0.0257
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.4436,
-        "actual": 0.4898,
-        "surprisePercent": 0.1042
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.4789,
-        "actual": 0.4898,
+        "quarter": "None",
+        "estimate": 0.5377,
+        "actual": 0.55,
         "surprisePercent": 0.0228
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.521,
-        "actual": 0.5344,
-        "surprisePercent": 0.0257
+        "quarter": "None",
+        "estimate": 0.4981,
+        "actual": 0.55,
+        "surprisePercent": 0.1042
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.5462,
+        "actual": 0.69,
+        "surprisePercent": 0.2632
       }
     ],
     "nextEarningsDate": "2027-01-20",
     "epsForecast": {
-      "date": "2027-01-20",
-      "estimate": 0.5671,
-      "low": 0.5522,
-      "high": 0.6323,
+      "date": null,
+      "estimate": 0.6367,
+      "low": 0.62,
+      "high": 0.71,
       "analysts": 21
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-22",
+        "firm": "Freedom Broker",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Jefferies",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-14",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-27",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-23",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-22",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6429,7 +6501,7 @@
       "close": 29.6249
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

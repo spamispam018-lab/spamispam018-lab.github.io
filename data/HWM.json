@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 201.8922,
-    "change": -0.8054,
+    "price": 201.8253,
+    "change": -0.8051,
     "changePercent": -0.4,
     "marketCap": 72889748833.9278,
     "fiftyTwoWeekLow": 163.4447,
@@ -2430,38 +2430,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.8603,
-        "actual": 0.9351,
-        "surprisePercent": 0.087
+        "quarter": "None",
+        "estimate": 1.3702,
+        "actual": 1.46,
+        "surprisePercent": 0.0655
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.9853,
-        "actual": 1.0865,
-        "surprisePercent": 0.1028
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.1098,
-        "actual": 1.1845,
+        "quarter": "None",
+        "estimate": 1.2461,
+        "actual": 1.33,
         "surprisePercent": 0.0674
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.2203,
-        "actual": 1.3003,
-        "surprisePercent": 0.0655
+        "quarter": "None",
+        "estimate": 1.1063,
+        "actual": 1.22,
+        "surprisePercent": 0.1028
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.966,
+        "actual": 1.05,
+        "surprisePercent": 0.087
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 1.3401,
-      "low": 1.2469,
-      "high": 1.3715,
+      "date": null,
+      "estimate": 1.5047,
+      "low": 1.4,
+      "high": 1.54,
       "analysts": 18
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-03",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Sector Weight",
+        "action": "up"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Jefferies",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-31",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "BNP Paribas",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Susquehanna",
+        "toGrade": "Positive",
+        "fromGrade": "Positive",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-09",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-15",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6817,7 +6889,7 @@
       "close": 201.7584
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

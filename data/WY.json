@@ -11,7 +11,7 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 18.5143,
+    "price": 18.5081,
     "change": -0.1719,
     "changePercent": -0.92,
     "marketCap": 13459625005.7291,
@@ -2192,38 +2192,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": -0.1158,
-        "actual": -0.0802,
-        "surprisePercent": 0.3079
+        "quarter": "None",
+        "estimate": 0.035,
+        "actual": 0.08,
+        "surprisePercent": 1.2831
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.0445,
-        "actual": 0.098,
-        "surprisePercent": 1.1991
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.0695,
-        "actual": 0.1158,
+        "quarter": "None",
+        "estimate": 0.078,
+        "actual": 0.13,
         "surprisePercent": 0.6658
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.0312,
-        "actual": 0.0712,
-        "surprisePercent": 1.2831
+        "quarter": "None",
+        "estimate": 0.05,
+        "actual": 0.11,
+        "surprisePercent": 1.1991
+      },
+      {
+        "quarter": "None",
+        "estimate": -0.13,
+        "actual": -0.09,
+        "surprisePercent": 0.3079
       }
     ],
     "nextEarningsDate": "2027-01-28",
     "epsForecast": {
-      "date": "2027-01-28",
-      "estimate": -0.065,
-      "low": -0.1133,
-      "high": -0.0178,
+      "date": null,
+      "estimate": -0.0814,
+      "low": -0.1289,
+      "high": -0.02,
       "analysts": 10
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-02",
+        "firm": "CIBC",
+        "toGrade": "Outperformer",
+        "fromGrade": "Outperformer",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "CIBC",
+        "toGrade": "Outperformer",
+        "fromGrade": "Outperformer",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "DA Davidson",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-14",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Neutral",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-05",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-03",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-04",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6579,7 +6651,7 @@
       "close": 18.502
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

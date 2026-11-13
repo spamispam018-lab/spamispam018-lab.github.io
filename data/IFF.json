@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 72.7359,
-    "change": -2.0541,
+    "price": 72.7117,
+    "change": -2.0535,
     "changePercent": -2.75,
     "marketCap": 18424341478.6008,
     "fiftyTwoWeekLow": 54.9774,
@@ -2589,38 +2589,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.7407,
-        "actual": 0.7125,
-        "surprisePercent": -0.0381
+        "quarter": "None",
+        "estimate": 0.8153,
+        "actual": 0.83,
+        "surprisePercent": 0.018
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.9555,
-        "actual": 1.1133,
-        "surprisePercent": 0.1651
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.9945,
-        "actual": 0.7303,
+        "quarter": "None",
+        "estimate": 1.1167,
+        "actual": 0.82,
         "surprisePercent": -0.2657
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.7261,
-        "actual": 0.7392,
-        "surprisePercent": 0.018
+        "quarter": "None",
+        "estimate": 1.0729,
+        "actual": 1.25,
+        "surprisePercent": 0.1651
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.8317,
+        "actual": 0.8,
+        "surprisePercent": -0.0381
       }
     ],
     "nextEarningsDate": "2026-11-03",
     "epsForecast": {
-      "date": "2026-11-03",
-      "estimate": 0.561,
-      "low": 0.4777,
-      "high": 0.7214,
+      "date": null,
+      "estimate": 0.6302,
+      "low": 0.5364,
+      "high": 0.81,
       "analysts": 14
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-06",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-06",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-11",
+        "firm": "Keybanc",
+        "toGrade": "Sector Weight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-08-07",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6976,7 +7048,7 @@
       "close": 72.6876
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

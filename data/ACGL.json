@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 98.8513,
-    "change": 0.0634,
+    "price": 98.8185,
+    "change": 0.0633,
     "changePercent": 0.06,
     "marketCap": 31102198695.2961,
     "fiftyTwoWeekLow": 77.5276,
@@ -1693,38 +1693,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.2913,
-        "actual": 2.654,
-        "surprisePercent": 0.1583
+        "quarter": "None",
+        "estimate": 2.3038,
+        "actual": 2.67,
+        "surprisePercent": 0.159
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.1942,
-        "actual": 2.2265,
-        "surprisePercent": 0.0147
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.1924,
-        "actual": 2.28,
+        "quarter": "None",
+        "estimate": 2.4617,
+        "actual": 2.56,
         "surprisePercent": 0.0399
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 2.0518,
-        "actual": 2.3779,
-        "surprisePercent": 0.159
+        "quarter": "None",
+        "estimate": 2.4637,
+        "actual": 2.5,
+        "surprisePercent": 0.0147
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.5727,
+        "actual": 2.98,
+        "surprisePercent": 0.1583
       }
     ],
     "nextEarningsDate": "2026-10-27",
     "epsForecast": {
-      "date": "2026-10-27",
-      "estimate": 2.2705,
-      "low": 2.0217,
-      "high": 2.5293,
+      "date": null,
+      "estimate": 2.5494,
+      "low": 2.27,
+      "high": 2.84,
       "analysts": 18
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-04",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Overweight",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Keefe, Bruyette & Woods",
+        "toGrade": "Market Perform",
+        "fromGrade": "Market Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-09",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6080,7 +6152,7 @@
       "close": 98.7857
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

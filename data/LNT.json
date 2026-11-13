@@ -11,7 +11,7 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 66.103,
+    "price": 66.081,
     "change": -0.5157,
     "changePercent": -0.77,
     "marketCap": 16786046875.1089,
@@ -1953,38 +1953,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.5205,
-        "actual": 0.5344,
-        "surprisePercent": 0.0267
+        "quarter": "None",
+        "estimate": 1.3079,
+        "actual": 1.52,
+        "surprisePercent": 0.1622
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.7101,
-        "actual": 0.7303,
-        "surprisePercent": 0.0285
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.5158,
-        "actual": 0.5789,
+        "quarter": "None",
+        "estimate": 0.5792,
+        "actual": 0.65,
         "surprisePercent": 0.1223
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.1648,
-        "actual": 1.3537,
-        "surprisePercent": 0.1622
+        "quarter": "None",
+        "estimate": 0.7973,
+        "actual": 0.82,
+        "surprisePercent": 0.0285
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.5844,
+        "actual": 0.6,
+        "surprisePercent": 0.0267
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 0.4008,
-      "low": 0.4008,
-      "high": 0.4008,
+      "date": null,
+      "estimate": 0.45,
+      "low": 0.45,
+      "high": 0.45,
       "analysts": 1
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-02",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "HSBC",
+        "toGrade": "Hold",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-03",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-03",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-22",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-15",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-08",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-05-04",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-04-17",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6164,7 +6236,7 @@
       "close": 66.0591
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

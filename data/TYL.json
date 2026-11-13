@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 383.3066,
-    "change": -1.7465,
+    "price": 383.1795,
+    "change": -1.7459,
     "changePercent": -0.45,
     "marketCap": 14892125724.7923,
     "fiftyTwoWeekLow": 241.097,
@@ -2187,38 +2187,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 2.431,
-        "actual": 2.3512,
-        "surprisePercent": -0.0328
+        "quarter": "None",
+        "estimate": 3.4868,
+        "actual": 3.52,
+        "surprisePercent": 0.0095
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.6788,
-        "actual": 2.752,
-        "surprisePercent": 0.0273
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 2.7332,
-        "actual": 2.7431,
+        "quarter": "None",
+        "estimate": 3.0689,
+        "actual": 3.08,
         "surprisePercent": 0.0036
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 3.1054,
-        "actual": 3.1349,
-        "surprisePercent": 0.0095
+        "quarter": "None",
+        "estimate": 3.0078,
+        "actual": 3.09,
+        "surprisePercent": 0.0273
+      },
+      {
+        "quarter": "None",
+        "estimate": 2.7296,
+        "actual": 2.64,
+        "surprisePercent": -0.0328
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 3.0426,
-      "low": 2.9479,
-      "high": 3.1617,
+      "date": null,
+      "estimate": 3.4163,
+      "low": 3.31,
+      "high": 3.55,
       "analysts": 22
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-03",
+        "firm": "Goldman Sachs",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "DA Davidson",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Equal-Weight",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "Goldman Sachs",
+        "toGrade": "Neutral",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-09-28",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-24",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6574,7 +6646,7 @@
       "close": 383.0524
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

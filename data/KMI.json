@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 28.9658,
-    "change": 0.38,
+    "price": 28.9562,
+    "change": 0.3799,
     "changePercent": 1.33,
     "marketCap": 59441401429.7357,
     "fiftyTwoWeekLow": 23.3696,
@@ -2038,38 +2038,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.3252,
-        "actual": 0.3473,
-        "surprisePercent": 0.0682
+        "quarter": "None",
+        "estimate": 0.3273,
+        "actual": 0.35,
+        "surprisePercent": 0.0695
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.3501,
-        "actual": 0.4275,
-        "surprisePercent": 0.221
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.2786,
-        "actual": 0.3295,
+        "quarter": "None",
+        "estimate": 0.3128,
+        "actual": 0.37,
         "surprisePercent": 0.1828
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.2915,
-        "actual": 0.3117,
-        "surprisePercent": 0.0695
+        "quarter": "None",
+        "estimate": 0.3931,
+        "actual": 0.48,
+        "surprisePercent": 0.221
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.3651,
+        "actual": 0.39,
+        "surprisePercent": 0.0682
       }
     ],
     "nextEarningsDate": "2027-01-27",
     "epsForecast": {
-      "date": "2027-01-27",
-      "estimate": 0.3405,
-      "low": 0.3117,
-      "high": 0.383,
+      "date": null,
+      "estimate": 0.3825,
+      "low": 0.35,
+      "high": 0.43,
       "analysts": 15
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-03",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-28",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Jefferies",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Freedom Broker",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "BMO Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6425,7 +6497,7 @@
       "close": 28.9466
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 156.8101,
-    "change": -2.8414,
+    "price": 156.7581,
+    "change": -2.8405,
     "changePercent": -1.78,
     "marketCap": 31875452196.1243,
     "fiftyTwoWeekLow": 139.0777,
@@ -2422,38 +2422,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.2507,
-        "actual": 1.5229,
-        "surprisePercent": 0.2177
+        "quarter": "None",
+        "estimate": 2.1106,
+        "actual": 2.64,
+        "surprisePercent": 0.2508
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.8209,
-        "actual": 2.0929,
-        "surprisePercent": 0.1493
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.2714,
-        "actual": 1.6922,
+        "quarter": "None",
+        "estimate": 1.4276,
+        "actual": 1.9,
         "surprisePercent": 0.3309
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.8797,
-        "actual": 2.3512,
-        "surprisePercent": 0.2508
+        "quarter": "None",
+        "estimate": 2.0446,
+        "actual": 2.35,
+        "surprisePercent": 0.1493
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.4043,
+        "actual": 1.71,
+        "surprisePercent": 0.2177
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 1.5974,
-      "low": 1.5408,
-      "high": 1.6565,
+      "date": null,
+      "estimate": 1.7936,
+      "low": 1.73,
+      "high": 1.86,
       "analysts": 18
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-02",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-31",
+        "firm": "UBS",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "BNP Paribas",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-15",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6809,7 +6881,7 @@
       "close": 156.7061
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

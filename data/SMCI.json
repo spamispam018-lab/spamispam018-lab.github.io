@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 24.4233,
-    "change": -3.1128,
+    "price": 24.4152,
+    "change": -3.1118,
     "changePercent": -11.3,
     "marketCap": 16885413068.9526,
     "fiftyTwoWeekLow": 17.3491,
@@ -2109,38 +2109,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.4345,
-        "actual": 0.6145,
-        "surprisePercent": 0.4143
+        "quarter": "None",
+        "estimate": 1.2346,
+        "actual": 1.81,
+        "surprisePercent": 0.4661
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.5562,
-        "actual": 0.7481,
-        "surprisePercent": 0.3451
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.8528,
-        "actual": 1.514,
+        "quarter": "None",
+        "estimate": 0.9575,
+        "actual": 1.7,
         "surprisePercent": 0.7755
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.0995,
-        "actual": 1.612,
-        "surprisePercent": 0.4661
+        "quarter": "None",
+        "estimate": 0.6245,
+        "actual": 0.84,
+        "surprisePercent": 0.3451
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.4879,
+        "actual": 0.69,
+        "surprisePercent": 0.4143
       }
     ],
     "nextEarningsDate": "2027-02-02",
     "epsForecast": {
-      "date": "2027-02-02",
-      "estimate": 1.5318,
-      "low": 0.7837,
-      "high": 1.6476,
+      "date": null,
+      "estimate": 1.7811,
+      "low": 1.7,
+      "high": 1.92,
       "analysts": 17
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-10",
+        "firm": "Susquehanna",
+        "toGrade": "Negative",
+        "fromGrade": "Negative",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "B of A Securities",
+        "toGrade": "Underperform",
+        "fromGrade": "Underperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-21",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-08",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-06",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-12",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-12",
+        "firm": "Goldman Sachs",
+        "toGrade": "Sell",
+        "fromGrade": "Sell",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-12",
+        "firm": "Mizuho",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6496,7 +6568,7 @@
       "close": 24.4071
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

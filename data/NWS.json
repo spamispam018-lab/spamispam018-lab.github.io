@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 26.3959,
-    "change": -0.6878,
+    "price": 26.3872,
+    "change": -0.6875,
     "changePercent": -2.54,
     "marketCap": 13845910673.9036,
     "fiftyTwoWeekLow": 22.7016,
@@ -2369,38 +2369,68 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.3332,
-        "actual": 0.3562,
-        "surprisePercent": 0.0692
+        "quarter": "None",
+        "estimate": 0.2599,
+        "actual": 0.28,
+        "surprisePercent": 0.0774
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.1773,
-        "actual": 0.187,
-        "surprisePercent": 0.0546
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.2061,
-        "actual": 0.3117,
+        "quarter": "None",
+        "estimate": 0.2314,
+        "actual": 0.35,
         "surprisePercent": 0.5124
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.2315,
-        "actual": 0.2494,
-        "surprisePercent": 0.0774
+        "quarter": "None",
+        "estimate": 0.1991,
+        "actual": 0.21,
+        "surprisePercent": 0.0546
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.3741,
+        "actual": 0.4,
+        "surprisePercent": 0.0692
       }
     ],
     "nextEarningsDate": "2027-02-04",
     "epsForecast": {
-      "date": "2027-02-04",
-      "estimate": 0.426,
-      "low": 0.4008,
-      "high": 0.4592,
-      "analysts": 4
-    }
+      "date": null,
+      "estimate": 0.4585,
+      "low": 0.44,
+      "high": 0.48,
+      "analysts": 3
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2017-07-26",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Neutral",
+        "action": "up"
+      },
+      {
+        "date": "2016-10-27",
+        "firm": "B of A Securities",
+        "toGrade": "Underperform",
+        "fromGrade": "Neutral",
+        "action": "down"
+      },
+      {
+        "date": "2014-11-06",
+        "firm": "Jefferies",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "main"
+      },
+      {
+        "date": "2012-11-12",
+        "firm": "Shaw Stockbroking",
+        "toGrade": "Buy",
+        "fromGrade": "Hold",
+        "action": "up"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6460,7 +6490,7 @@
       "close": 26.3784
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

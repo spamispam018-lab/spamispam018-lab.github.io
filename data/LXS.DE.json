@@ -11,9 +11,9 @@
     "exchange": "GER"
   },
   "quote": {
-    "price": 13.4,
-    "change": 0.2,
-    "changePercent": 1.52,
+    "price": 13.45,
+    "change": 0.25,
+    "changePercent": 1.89,
     "marketCap": 0.0,
     "fiftyTwoWeekLow": 11.03,
     "fiftyTwoWeekHigh": 22.02,
@@ -2061,32 +2061,54 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": -0.8082,
-        "actual": 0.37,
-        "surprisePercent": 1.4578
+        "quarter": "None",
+        "estimate": null,
+        "actual": 0.09,
+        "surprisePercent": null
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": -0.42,
-        "actual": -0.5,
-        "surprisePercent": -0.1905
-      },
-      {
-        "quarter": "2026-06-30",
+        "quarter": "None",
         "estimate": 0.41,
         "actual": 0.51,
         "surprisePercent": 0.2439
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": null,
-        "actual": 0.09,
-        "surprisePercent": null
+        "quarter": "None",
+        "estimate": -0.42,
+        "actual": -0.5,
+        "surprisePercent": -0.1905
+      },
+      {
+        "quarter": "None",
+        "estimate": -0.8082,
+        "actual": 0.37,
+        "surprisePercent": 1.4578
       }
     ],
     "nextEarningsDate": "2026-11-05",
-    "epsForecast": null
+    "epsForecast": {
+      "date": null,
+      "estimate": null,
+      "low": null,
+      "high": null,
+      "analysts": null
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2021-09-15",
+        "firm": "Credit Suisse",
+        "toGrade": "Outperform",
+        "fromGrade": "Neutral",
+        "action": "up"
+      },
+      {
+        "date": "2021-08-19",
+        "firm": "Goldman Sachs",
+        "toGrade": "Buy",
+        "fromGrade": "Sell",
+        "action": "up"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6173,7 +6195,7 @@
       "close": 13.25
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

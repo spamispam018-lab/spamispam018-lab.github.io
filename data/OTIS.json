@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 69.804,
-    "change": -0.3258,
+    "price": 69.7808,
+    "change": -0.3257,
     "changePercent": -0.46,
     "marketCap": 26772539049.2015,
     "fiftyTwoWeekLow": 56.6205,
@@ -2066,38 +2066,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.9205,
-        "actual": 0.9173,
-        "surprisePercent": -0.0035
+        "quarter": "None",
+        "estimate": 1.0143,
+        "actual": 1.05,
+        "surprisePercent": 0.0352
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.7994,
-        "actual": 0.7926,
-        "surprisePercent": -0.0085
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.8987,
-        "actual": 0.8995,
+        "quarter": "None",
+        "estimate": 1.0091,
+        "actual": 1.01,
         "surprisePercent": 0.0009
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.9033,
-        "actual": 0.9351,
-        "surprisePercent": 0.0352
+        "quarter": "None",
+        "estimate": 0.8976,
+        "actual": 0.89,
+        "surprisePercent": -0.0085
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.0336,
+        "actual": 1.03,
+        "surprisePercent": -0.0035
       }
     ],
     "nextEarningsDate": "2027-01-27",
     "epsForecast": {
-      "date": "2027-01-27",
-      "estimate": 0.9615,
-      "low": 0.83,
-      "high": 1.0153,
+      "date": null,
+      "estimate": 1.0751,
+      "low": 0.932,
+      "high": 1.14,
       "analysts": 9
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-29",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Wells Fargo",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-25",
+        "firm": "Wells Fargo",
+        "toGrade": "Underweight",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-07-23",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-23",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-04-23",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-04-23",
+        "firm": "Barclays",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-04-13",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-04-08",
+        "firm": "Wolfe Research",
+        "toGrade": "Peer Perform",
+        "fromGrade": "Outperform",
+        "action": "down"
+      },
+      {
+        "date": "2026-04-01",
+        "firm": "Barclays",
+        "toGrade": "Underweight",
+        "fromGrade": "Underweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6453,7 +6525,7 @@
       "close": 69.7577
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

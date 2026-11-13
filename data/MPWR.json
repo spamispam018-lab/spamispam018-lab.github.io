@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 1309.7523,
-    "change": -28.3143,
+    "price": 1309.318,
+    "change": -28.3049,
     "changePercent": -2.12,
     "marketCap": 51704696827.8727,
     "fiftyTwoWeekLow": 742.0384,
@@ -2175,38 +2175,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 4.2184,
-        "actual": 4.266,
-        "surprisePercent": 0.0113
+        "quarter": "None",
+        "estimate": 7.7498,
+        "actual": 8.19,
+        "surprisePercent": 0.0568
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 4.3651,
-        "actual": 4.5421,
-        "surprisePercent": 0.0405
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 5.2374,
-        "actual": 5.789,
+        "quarter": "None",
+        "estimate": 5.8807,
+        "actual": 6.5,
         "surprisePercent": 0.1053
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 6.902,
-        "actual": 7.2941,
-        "surprisePercent": 0.0568
+        "quarter": "None",
+        "estimate": 4.9013,
+        "actual": 5.1,
+        "surprisePercent": 0.0405
+      },
+      {
+        "quarter": "None",
+        "estimate": 4.7365,
+        "actual": 4.79,
+        "surprisePercent": 0.0113
       }
     ],
     "nextEarningsDate": "2026-10-29",
     "epsForecast": {
-      "date": "2026-10-29",
-      "estimate": 8.389,
-      "low": 8.345,
-      "high": 8.5142,
+      "date": null,
+      "estimate": 9.4193,
+      "low": 9.37,
+      "high": 9.56,
       "analysts": 13
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-30",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Neutral",
+        "action": "up"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-19",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-03",
+        "firm": "StoneX",
+        "toGrade": "Buy",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-07-31",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-31",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-31",
+        "firm": "Keybanc",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-31",
+        "firm": "Rosenblatt",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6562,7 +6634,7 @@
       "close": 1308.8839
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

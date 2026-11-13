@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 282.6817,
-    "change": -5.7914,
+    "price": 282.588,
+    "change": -5.7894,
     "changePercent": -2.01,
     "marketCap": 110485307049.4491,
     "fiftyTwoWeekLow": 237.7929,
@@ -2037,38 +2037,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 3.9146,
-        "actual": 3.981,
-        "surprisePercent": 0.017
+        "quarter": "None",
+        "estimate": 3.5475,
+        "actual": 3.52,
+        "surprisePercent": -0.0077
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 2.6572,
-        "actual": 2.3156,
-        "surprisePercent": -0.1286
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 3.1066,
-        "actual": 3.2864,
+        "quarter": "None",
+        "estimate": 3.4882,
+        "actual": 3.69,
         "surprisePercent": 0.0579
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 3.1594,
-        "actual": 3.1349,
-        "surprisePercent": -0.0077
+        "quarter": "None",
+        "estimate": 2.9836,
+        "actual": 2.6,
+        "surprisePercent": -0.1286
+      },
+      {
+        "quarter": "None",
+        "estimate": 4.3954,
+        "actual": 4.47,
+        "surprisePercent": 0.017
       }
     ],
     "nextEarningsDate": "2027-01-28",
     "epsForecast": {
-      "date": "2027-01-28",
-      "estimate": 4.474,
-      "low": 4.4441,
-      "high": 4.4976,
+      "date": null,
+      "estimate": 5.0235,
+      "low": 4.99,
+      "high": 5.05,
       "analysts": 25
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "Piper Sandler",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Truist Securities",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "reit"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Stifel",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-31",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "TD Cowen",
+        "toGrade": "Hold",
+        "fromGrade": "Hold",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Canaccord Genuity",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-10-30",
+        "firm": "Citizens",
+        "toGrade": "Market Outperform",
+        "fromGrade": "Market Outperform",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6424,7 +6496,7 @@
       "close": 282.4943
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

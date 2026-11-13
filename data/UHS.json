@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 175.4058,
-    "change": -2.6514,
+    "price": 175.3477,
+    "change": -2.6504,
     "changePercent": -1.49,
     "marketCap": 10261687174.4334,
     "fiftyTwoWeekLow": 124.7566,
@@ -2036,38 +2036,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 5.2634,
-        "actual": 5.2368,
-        "surprisePercent": -0.0051
+        "quarter": "None",
+        "estimate": 5.155,
+        "actual": 5.22,
+        "surprisePercent": 0.0126
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 4.862,
-        "actual": 5.0052,
-        "surprisePercent": 0.0295
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 5.3498,
-        "actual": 5.3258,
+        "quarter": "None",
+        "estimate": 6.0069,
+        "actual": 5.98,
         "surprisePercent": -0.0045
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 4.5911,
-        "actual": 4.649,
-        "surprisePercent": 0.0126
+        "quarter": "None",
+        "estimate": 5.4592,
+        "actual": 5.62,
+        "surprisePercent": 0.0295
+      },
+      {
+        "quarter": "None",
+        "estimate": 5.9099,
+        "actual": 5.88,
+        "surprisePercent": -0.0051
       }
     ],
     "nextEarningsDate": "2026-10-27",
     "epsForecast": {
-      "date": "2026-10-27",
-      "estimate": 5.023,
-      "low": 4.364,
-      "high": 5.2393,
-      "analysts": 15
-    }
+      "date": null,
+      "estimate": 5.6156,
+      "low": 4.9,
+      "high": 5.8828,
+      "analysts": 14
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-11",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-02",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Baird",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "Leerink Partners",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-03",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-30",
+        "firm": "Goldman Sachs",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-29",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-29",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6423,7 +6495,7 @@
       "close": 175.2895
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

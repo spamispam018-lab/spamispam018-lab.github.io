@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 123.0483,
-    "change": -0.4163,
+    "price": 123.0075,
+    "change": -0.4161,
     "changePercent": -0.34,
     "marketCap": 132546353093.1882,
     "fiftyTwoWeekLow": 109.3491,
@@ -1862,38 +1862,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-10-31",
-        "estimate": 1.0855,
-        "actual": 1.14,
-        "surprisePercent": 0.0502
+        "quarter": "None",
+        "estimate": 1.1866,
+        "actual": 1.22,
+        "surprisePercent": 0.0281
       },
       {
-        "quarter": "2026-01-31",
-        "estimate": 1.2349,
-        "actual": 1.2736,
-        "surprisePercent": 0.0313
-      },
-      {
-        "quarter": "2026-04-30",
-        "estimate": 0.9041,
-        "actual": 1.0598,
+        "quarter": "None",
+        "estimate": 1.0151,
+        "actual": 1.19,
         "surprisePercent": 0.1723
       },
       {
-        "quarter": "2026-07-31",
-        "estimate": 1.0568,
-        "actual": 1.0865,
-        "surprisePercent": 0.0281
+        "quarter": "None",
+        "estimate": 1.3866,
+        "actual": 1.43,
+        "surprisePercent": 0.0313
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.2188,
+        "actual": 1.28,
+        "surprisePercent": 0.0502
       }
     ],
     "nextEarningsDate": "2026-11-18",
     "epsForecast": {
-      "date": "2026-11-18",
-      "estimate": 1.1938,
-      "low": 1.1756,
-      "high": 1.2558,
-      "analysts": 17
-    }
+      "date": null,
+      "estimate": 1.3321,
+      "low": 1.19,
+      "high": 1.41,
+      "analysts": 18
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-10",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-10",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-22",
+        "firm": "Wolfe Research",
+        "toGrade": "Peer Perform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-08-26",
+        "firm": "Jefferies",
+        "toGrade": "Hold",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "Citigroup",
+        "toGrade": "Neutral",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "BTIG",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-20",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6249,7 +6321,7 @@
       "close": 122.9667
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

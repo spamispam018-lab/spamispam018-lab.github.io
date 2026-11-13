@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 23.093,
-    "change": -0.2353,
+    "price": 23.0854,
+    "change": -0.2352,
     "changePercent": -1.01,
     "marketCap": 15229354829.4637,
     "fiftyTwoWeekLow": 14.9355,
@@ -1915,38 +1915,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.1712,
-        "actual": 0.1781,
-        "surprisePercent": 0.0407
+        "quarter": "None",
+        "estimate": 0.0934,
+        "actual": 0.1,
+        "surprisePercent": 0.0711
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.2968,
-        "actual": 0.6412,
-        "surprisePercent": 1.16
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.2986,
-        "actual": 0.3117,
+        "quarter": "None",
+        "estimate": 0.3353,
+        "actual": 0.35,
         "surprisePercent": 0.0439
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.0832,
-        "actual": 0.0891,
-        "surprisePercent": 0.0711
+        "quarter": "None",
+        "estimate": 0.3333,
+        "actual": 0.72,
+        "surprisePercent": 1.16
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.1922,
+        "actual": 0.2,
+        "surprisePercent": 0.0407
       }
     ],
     "nextEarningsDate": "2026-11-04",
     "epsForecast": {
-      "date": "2026-11-04",
-      "estimate": 0.1953,
-      "low": 0.1781,
-      "high": 0.2227,
-      "analysts": 5
-    }
+      "date": null,
+      "estimate": 0.2529,
+      "low": 0.24,
+      "high": 0.29,
+      "analysts": 4
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-10",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-13",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-12",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-10",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-11",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-28",
+        "firm": "Evercore ISI Group",
+        "toGrade": "In-Line",
+        "fromGrade": "In-Line",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-23",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-21",
+        "firm": "JP Morgan",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6302,7 +6374,7 @@
       "close": 23.0777
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

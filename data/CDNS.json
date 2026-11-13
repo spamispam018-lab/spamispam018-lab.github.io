@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 301.6213,
-    "change": 3.6739,
+    "price": 301.5213,
+    "change": 3.6727,
     "changePercent": 1.23,
     "marketCap": 78177150993.0888,
     "fiftyTwoWeekLow": 234.0078,
@@ -2212,38 +2212,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 1.7031,
-        "actual": 1.7723,
-        "surprisePercent": 0.0407
+        "quarter": "None",
+        "estimate": 2.0532,
+        "actual": 2.11,
+        "surprisePercent": 0.0277
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 1.6789,
-        "actual": 1.7456,
-        "surprisePercent": 0.0398
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.8305,
-        "actual": 1.8792,
+        "quarter": "None",
+        "estimate": 2.0553,
+        "actual": 2.11,
         "surprisePercent": 0.0266
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.8286,
-        "actual": 1.8792,
-        "surprisePercent": 0.0277
+        "quarter": "None",
+        "estimate": 1.8851,
+        "actual": 1.96,
+        "surprisePercent": 0.0398
+      },
+      {
+        "quarter": "None",
+        "estimate": 1.9123,
+        "actual": 1.99,
+        "surprisePercent": 0.0407
       }
     ],
     "nextEarningsDate": "2026-10-26",
     "epsForecast": {
-      "date": "2026-10-26",
-      "estimate": 1.9853,
-      "low": 1.9728,
-      "high": 2.0298,
+      "date": null,
+      "estimate": 2.2291,
+      "low": 2.2151,
+      "high": 2.2791,
       "analysts": 17
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-27",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "Baird",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-27",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-23",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-28",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-28",
+        "firm": "Rosenblatt",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-28",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-28",
+        "firm": "Baird",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-28",
+        "firm": "Needham",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6599,7 +6671,7 @@
       "close": 301.4213
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 59.461,
-    "change": -2.0541,
+    "price": 59.4413,
+    "change": -2.0534,
     "changePercent": -3.34,
     "marketCap": 25034017338.4055,
     "fiftyTwoWeekLow": 43.0521,
@@ -2212,38 +2212,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.4604,
-        "actual": 0.7303,
-        "surprisePercent": 0.586
+        "quarter": "None",
+        "estimate": 2.0227,
+        "actual": 2.54,
+        "surprisePercent": 0.2557
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.8622,
-        "actual": 1.1756,
-        "surprisePercent": 0.3635
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.233,
-        "actual": 1.5942,
+        "quarter": "None",
+        "estimate": 1.3845,
+        "actual": 1.79,
         "surprisePercent": 0.2929
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 1.8014,
-        "actual": 2.2621,
-        "surprisePercent": 0.2557
+        "quarter": "None",
+        "estimate": 0.9681,
+        "actual": 1.32,
+        "surprisePercent": 0.3635
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.517,
+        "actual": 0.82,
+        "surprisePercent": 0.586
       }
     ],
     "nextEarningsDate": "2026-11-02",
     "epsForecast": {
-      "date": "2026-11-02",
-      "estimate": 1.8014,
-      "low": 1.327,
-      "high": 2.0306,
-      "analysts": 15
-    }
+      "date": null,
+      "estimate": 0.61,
+      "low": 0.61,
+      "high": 0.61,
+      "analysts": 1
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-09",
+        "firm": "Seaport Global",
+        "toGrade": "Buy",
+        "fromGrade": "Neutral",
+        "action": "up"
+      },
+      {
+        "date": "2026-11-03",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-16",
+        "firm": "B of A Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Underperform",
+        "action": "up"
+      },
+      {
+        "date": "2026-09-23",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-09-14",
+        "firm": "Citizens",
+        "toGrade": "Market Outperform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-08-25",
+        "firm": "Guggenheim",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "reit"
+      },
+      {
+        "date": "2026-08-14",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Equal-Weight",
+        "action": "up"
+      },
+      {
+        "date": "2026-08-14",
+        "firm": "JP Morgan",
+        "toGrade": "Overweight",
+        "fromGrade": "Neutral",
+        "action": "up"
+      },
+      {
+        "date": "2026-08-07",
+        "firm": "Seaport Global",
+        "toGrade": "Neutral",
+        "fromGrade": "Buy",
+        "action": "down"
+      },
+      {
+        "date": "2026-07-06",
+        "firm": "Wells Fargo",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6543,7 +6615,7 @@
       "close": 59.4216
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

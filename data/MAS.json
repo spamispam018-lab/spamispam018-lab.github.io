@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 76.446,
-    "change": -0.3891,
+    "price": 76.4206,
+    "change": -0.389,
     "changePercent": -0.51,
     "marketCap": 14115701253.5174,
     "fiftyTwoWeekLow": 51.7979,
@@ -2174,38 +2174,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.7076,
-        "actual": 0.7303,
-        "surprisePercent": 0.0321
+        "quarter": "None",
+        "estimate": 1.0253,
+        "actual": 1.19,
+        "surprisePercent": 0.1606
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.7809,
-        "actual": 0.9262,
-        "surprisePercent": 0.1862
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 1.1673,
-        "actual": 1.4606,
+        "quarter": "None",
+        "estimate": 1.3107,
+        "actual": 1.64,
         "surprisePercent": 0.2513
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.9131,
-        "actual": 1.0598,
-        "surprisePercent": 0.1606
+        "quarter": "None",
+        "estimate": 0.8768,
+        "actual": 1.04,
+        "surprisePercent": 0.1862
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.7945,
+        "actual": 0.82,
+        "surprisePercent": 0.0321
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 0.7573,
-      "low": 0.7249,
-      "high": 0.7879,
-      "analysts": 20
-    }
+      "date": null,
+      "estimate": 0.8502,
+      "low": 0.8139,
+      "high": 0.8847,
+      "analysts": 21
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-05",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Barclays",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Oppenheimer",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "reit"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Baird",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-07",
+        "firm": "RBC Capital",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-06",
+        "firm": "Melius Research",
+        "toGrade": "Hold",
+        "fromGrade": "",
+        "action": "init"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6561,7 +6633,7 @@
       "close": 76.3953
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": [

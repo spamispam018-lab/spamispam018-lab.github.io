@@ -11,8 +11,8 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 82.8526,
-    "change": 0.9229,
+    "price": 82.8252,
+    "change": 0.9227,
     "changePercent": 1.13,
     "marketCap": 64414406018.6327,
     "fiftyTwoWeekLow": 73.5555,
@@ -1903,38 +1903,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.6445,
-        "actual": 0.6323,
-        "surprisePercent": -0.019
+        "quarter": "None",
+        "estimate": 0.9268,
+        "actual": 0.97,
+        "surprisePercent": 0.0466
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.6205,
-        "actual": 0.6412,
-        "surprisePercent": 0.0335
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.7646,
-        "actual": 0.7659,
+        "quarter": "None",
+        "estimate": 0.8585,
+        "actual": 0.86,
         "surprisePercent": 0.0017
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.8254,
-        "actual": 0.8639,
-        "surprisePercent": 0.0466
+        "quarter": "None",
+        "estimate": 0.6967,
+        "actual": 0.72,
+        "surprisePercent": 0.0335
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.7237,
+        "actual": 0.71,
+        "surprisePercent": -0.019
       }
     ],
     "nextEarningsDate": "2026-10-28",
     "epsForecast": {
-      "date": "2026-10-28",
-      "estimate": 0.6937,
-      "low": 0.6769,
-      "high": 0.7141,
+      "date": null,
+      "estimate": 0.7789,
+      "low": 0.76,
+      "high": 0.8018,
       "analysts": 19
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-10-31",
+        "firm": "UBS",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-29",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-26",
+        "firm": "Evercore ISI Group",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-10-20",
+        "firm": "RBC Capital",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-29",
+        "firm": "Bernstein",
+        "toGrade": "Market Perform",
+        "fromGrade": "",
+        "action": "init"
+      },
+      {
+        "date": "2026-09-18",
+        "firm": "DA Davidson",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-09-16",
+        "firm": "DA Davidson",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-08-03",
+        "firm": "Citigroup",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-31",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-07-30",
+        "firm": "Morgan Stanley",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6290,7 +6362,7 @@
       "close": 82.7977
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []

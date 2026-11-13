@@ -11,8 +11,8 @@
     "exchange": "NYQ"
   },
   "quote": {
-    "price": 74.4371,
-    "change": -3.1309,
+    "price": 74.4124,
+    "change": -3.1299,
     "changePercent": -4.04,
     "marketCap": 46021861795.0207,
     "fiftyTwoWeekLow": 42.9363,
@@ -2279,38 +2279,110 @@
     },
     "epsEstimates": [
       {
-        "quarter": "2025-12-31",
-        "estimate": 0.578,
-        "actual": 0.5789,
-        "surprisePercent": 0.0015
+        "quarter": "None",
+        "estimate": 1.0255,
+        "actual": 1.13,
+        "surprisePercent": 0.1019
       },
       {
-        "quarter": "2026-03-31",
-        "estimate": 0.6029,
-        "actual": 0.757,
-        "surprisePercent": 0.2555
-      },
-      {
-        "quarter": "2026-06-30",
-        "estimate": 0.7784,
-        "actual": 0.9084,
+        "quarter": "None",
+        "estimate": 0.874,
+        "actual": 1.02,
         "surprisePercent": 0.1671
       },
       {
-        "quarter": "2026-09-30",
-        "estimate": 0.9133,
-        "actual": 1.0064,
-        "surprisePercent": 0.1019
+        "quarter": "None",
+        "estimate": 0.677,
+        "actual": 0.85,
+        "surprisePercent": 0.2555
+      },
+      {
+        "quarter": "None",
+        "estimate": 0.649,
+        "actual": 0.65,
+        "surprisePercent": 0.0015
       }
     ],
     "nextEarningsDate": "2026-11-03",
     "epsForecast": {
-      "date": "2026-11-03",
-      "estimate": 1.0254,
-      "low": 0.9886,
-      "high": 1.0598,
+      "date": null,
+      "estimate": 1.1515,
+      "low": 1.11,
+      "high": 1.19,
       "analysts": 31
-    }
+    },
+    "upgradesDowngrades": [
+      {
+        "date": "2026-11-11",
+        "firm": "Bernstein",
+        "toGrade": "Outperform",
+        "fromGrade": "Outperform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-11",
+        "firm": "Truist Securities",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-09",
+        "firm": "Cantor Fitzgerald",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Barclays",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Wells Fargo",
+        "toGrade": "Overweight",
+        "fromGrade": "Overweight",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Argus Research",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-05",
+        "firm": "Macquarie",
+        "toGrade": "Neutral",
+        "fromGrade": "Neutral",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Scotiabank",
+        "toGrade": "Sector Perform",
+        "fromGrade": "Sector Perform",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "TD Cowen",
+        "toGrade": "Buy",
+        "fromGrade": "Buy",
+        "action": "main"
+      },
+      {
+        "date": "2026-11-04",
+        "firm": "Morgan Stanley",
+        "toGrade": "Equal-Weight",
+        "fromGrade": "Equal-Weight",
+        "action": "main"
+      }
+    ]
   },
   "insider": {
     "summary": {
@@ -6666,7 +6738,7 @@
       "close": 74.3877
     }
   ],
-  "updatedAt": "2026-11-13T11:05:23.191046+00:00",
+  "updatedAt": "2026-11-13T11:17:41.215692+00:00",
   "holdings": [],
   "dividends": {
     "history": []
