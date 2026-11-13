@@ -1,14 +1,8 @@
 /**
  * js/stock-financials.js
- * Verwaltet den Financials-Tab der Aktiendetailseite mit zwei Unter-Bereichen:
- * 1. Charts-Subtab:
- *    - Steuerungsleiste: Zeitraum (5Y, 10Y, Max) und Periode (Quarterly, Annual, TTM)
- *    - 16 Metrik-Karten: Revenue, Gross Profit, Operating Income, Net Income,
- *      Cost of Revenue, Operating Cash Flow, Free Cash Flow, Shares Outstanding,
- *      EPS, Dividends, Valuation (P/E, P/OCF, P/FCF), Multiples (EV/EBITDA, EV/Sales, P/S, P/B),
- *      Margins, Liquidity, Returns on Capital (ROIC, ROE, ROCE, ROA), Leverage, Cash vs Debt, CapEx/Rev
- * 2. Statements-Subtab:
- *    - Scrollbare Tabellen für Income Statement, Balance Sheet und Cash Flow Statement
+ * Verwaltet den Financials-Tab.
+ * NEU: Robuster Zugriff auf Datenfelder (unterstützt sowohl snake_case "Total_Revenue"
+ * als auch camelCase "TotalRevenue", da yfinance die API geändert hat).
  */
 
 window.App = window.App || {};
@@ -16,13 +10,18 @@ window.App = window.App || {};
 window.App.StockFinancials = (function () {
   'use strict';
 
-  var currentSubView = 'charts'; // 'charts' | 'statements'
-  var activePeriod = 'quarterly'; // 'quarterly' | 'annual'
-  var activeStatement = 'income'; // 'income' | 'balance' | 'cashflow'
+  var currentSubView = 'charts';
+  var activePeriod = 'quarterly';
+  var activeStatement = 'income';
 
-  /**
-   * Rendert die Financials-Gesamtansicht.
-   */
+  // NEU: Hilfsfunktion, um Werte unabhängig von der Schreibweise zu holen
+  function getVal(obj, camelKey, snakeKey) {
+    if (!obj) return undefined;
+    if (obj[camelKey] !== undefined && obj[camelKey] !== null) return obj[camelKey];
+    if (snakeKey && obj[snakeKey] !== undefined && obj[snakeKey] !== null) return obj[snakeKey];
+    return undefined;
+  }
+
   function render(container, stock) {
     if (!container || !stock) return;
 
@@ -32,7 +31,6 @@ window.App.StockFinancials = (function () {
         '<button class="main-tab-btn ' + (currentSubView === 'charts' ? 'active' : '') + '" data-fin-sub="charts">Kennzahlen-Charts</button>' +
         '<button class="main-tab-btn ' + (currentSubView === 'statements' ? 'active' : '') + '" data-fin-sub="statements">Finanzberichte (Statements)</button>' +
       '</div>' +
-
       '<div id="financials-subview-content"></div>';
 
     container.innerHTML = html;
@@ -41,9 +39,6 @@ window.App.StockFinancials = (function () {
     renderActiveSubView(stock);
   }
 
-  /**
-   * Schaltet zwischen Charts- und Statements-Ansicht um.
-   */
   function bindSubNavEvents(container, stock) {
     var buttons = container.querySelectorAll('[data-fin-sub]');
     buttons.forEach(function (btn) {
@@ -56,9 +51,6 @@ window.App.StockFinancials = (function () {
     });
   }
 
-  /**
-   * Lädt die ausgewählte Teilansicht.
-   */
   function renderActiveSubView(stock) {
     var subContainer = document.getElementById('financials-subview-content');
     if (!subContainer) return;
@@ -69,10 +61,6 @@ window.App.StockFinancials = (function () {
       renderStatementsView(subContainer, stock);
     }
   }
-
-  /* ==========================================================================
-     1. CHARTS SUB-TAB
-     ========================================================================== */
 
   function renderChartsView(container, stock) {
     var currency = (stock.quote && stock.quote.currency) || 'EUR';
@@ -99,7 +87,6 @@ window.App.StockFinancials = (function () {
 
     container.innerHTML = html;
 
-    // Perioden-Umschaltung binden
     var periodBtns = container.querySelectorAll('[data-chart-period]');
     periodBtns.forEach(function (btn) {
       btn.onclick = function () {
@@ -132,7 +119,12 @@ window.App.StockFinancials = (function () {
     var balList = (fin.balanceSheet && fin.balanceSheet[activePeriod]) || [];
     var cfList = (fin.cashFlow && fin.cashFlow[activePeriod]) || [];
 
-    if (incList.length === 0) return;
+    if (incList.length === 0) {
+      // Fallback, falls die Daten leer sind
+      var grid = document.getElementById('financials-charts-grid');
+      if (grid) grid.innerHTML = '<div class="state-box"><p>Keine Finanzdaten verfügbar.</p></div>';
+      return;
+    }
 
     var labels = incList.map(function (it) {
       return it.date ? it.date.slice(2, 7) : 'P';
@@ -141,7 +133,10 @@ window.App.StockFinancials = (function () {
     // 1. Revenue
     var canvasRev = document.getElementById('chart-rev');
     if (canvasRev) {
-      var revVals = incList.map(function (it) { return it.Total_Revenue || 0; });
+      var revVals = incList.map(function (it) {
+        var v = getVal(it, 'TotalRevenue', 'Total_Revenue');
+        return v !== undefined ? v : 0;
+      });
       window.App.Charts.renderGroupedBarChart(canvasRev, {
         labels: labels,
         series: [{ name: 'Revenue', data: revVals, color: '#6366f1' }],
@@ -152,7 +147,10 @@ window.App.StockFinancials = (function () {
     // 2. Net Income
     var canvasNet = document.getElementById('chart-net-inc');
     if (canvasNet) {
-      var netVals = incList.map(function (it) { return it.Net_Income || 0; });
+      var netVals = incList.map(function (it) {
+        var v = getVal(it, 'NetIncome', 'Net_Income');
+        return v !== undefined ? v : 0;
+      });
       window.App.Charts.renderGroupedBarChart(canvasNet, {
         labels: labels,
         series: [{ name: 'Net Income', data: netVals, color: '#10b981' }],
@@ -163,8 +161,14 @@ window.App.StockFinancials = (function () {
     // 3. Operating vs Free Cash Flow
     var canvasCf = document.getElementById('chart-cf');
     if (canvasCf) {
-      var ocfVals = cfList.map(function (it) { return it.Operating_Cash_Flow || 0; });
-      var fcfVals = cfList.map(function (it) { return it.Free_Cash_Flow || 0; });
+      var ocfVals = cfList.map(function (it) {
+        var v = getVal(it, 'OperatingCashFlow', 'Operating_Cash_Flow');
+        return v !== undefined ? v : 0;
+      });
+      var fcfVals = cfList.map(function (it) {
+        var v = getVal(it, 'FreeCashFlow', 'Free_Cash_Flow');
+        return v !== undefined ? v : 0;
+      });
       window.App.Charts.renderGroupedBarChart(canvasCf, {
         labels: labels,
         series: [
@@ -178,13 +182,13 @@ window.App.StockFinancials = (function () {
     // 4. Margins (%)
     var canvasMargins = document.getElementById('chart-margins');
     if (canvasMargins) {
-      // Perioden ohne Umsatzangabe auslassen (sonst entstehen absurde Prozentwerte)
       var mLabels = [], netMargVals = [];
       incList.forEach(function (it, i) {
-        var r = it.Total_Revenue;
-        if (!r || it.Net_Income === null || it.Net_Income === undefined) return;
+        var r = getVal(it, 'TotalRevenue', 'Total_Revenue');
+        var ni = getVal(it, 'NetIncome', 'Net_Income');
+        if (!r || ni === undefined || ni === null) return;
         mLabels.push(labels[i]);
-        netMargVals.push((it.Net_Income / r) * 100);
+        netMargVals.push((ni / r) * 100);
       });
       window.App.Charts.renderLineChart(canvasMargins, {
         labels: mLabels,
@@ -196,8 +200,14 @@ window.App.StockFinancials = (function () {
     // 5. Cash vs Debt
     var canvasDebt = document.getElementById('chart-debt-cash');
     if (canvasDebt) {
-      var cashVals = balList.map(function (it) { return it.Cash_And_Cash_Equivalents || 0; });
-      var debtVals = balList.map(function (it) { return it.Total_Debt || 0; });
+      var cashVals = balList.map(function (it) {
+        var v = getVal(it, 'CashAndCashEquivalents', 'Cash_And_Cash_Equivalents');
+        return v !== undefined ? v : 0;
+      });
+      var debtVals = balList.map(function (it) {
+        var v = getVal(it, 'TotalDebt', 'Total_Debt');
+        return v !== undefined ? v : 0;
+      });
       window.App.Charts.renderGroupedBarChart(canvasDebt, {
         labels: labels,
         series: [
@@ -211,13 +221,13 @@ window.App.StockFinancials = (function () {
     // 6. Returns (%)
     var canvasReturns = document.getElementById('chart-returns');
     if (canvasReturns) {
-      // Perioden ohne Eigenkapital oder Ergebnis auslassen
       var rLabels = [], roeVals = [];
       incList.forEach(function (it, i) {
-        var eq = balList[i] && balList[i].Stockholders_Equity;
-        if (!eq || it.Net_Income === null || it.Net_Income === undefined) return;
+        var eq = balList[i] ? getVal(balList[i], 'StockholdersEquity', 'Stockholders_Equity') : undefined;
+        var ni = getVal(it, 'NetIncome', 'Net_Income');
+        if (!eq || ni === undefined || ni === null) return;
         rLabels.push(labels[i]);
-        roeVals.push((it.Net_Income / eq) * 100);
+        roeVals.push((ni / eq) * 100);
       });
       window.App.Charts.renderLineChart(canvasReturns, {
         labels: rLabels,
@@ -227,15 +237,10 @@ window.App.StockFinancials = (function () {
     }
   }
 
-  /* ==========================================================================
-     2. STATEMENTS SUB-TAB
-     ========================================================================== */
-
   function renderStatementsView(container, stock) {
     var currency = (stock.quote && stock.quote.currency) || 'EUR';
 
     var html = '' +
-      '<!-- Statements Umschalter -->' +
       '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">' +
         '<div class="horizontal-scroll-row" style="margin-bottom: 0; padding-bottom: 0;">' +
           '<button class="sub-tab-btn ' + (activeStatement === 'income' ? 'active' : '') + '" data-stmt="income">Gewinn &amp; Verlust</button>' +
@@ -248,14 +253,12 @@ window.App.StockFinancials = (function () {
         '</select>' +
       '</div>' +
 
-      '<!-- Scrollbare Tabelle -->' +
       '<div class="card" style="padding: 10px;">' +
         '<div id="statement-table-wrapper" class="table-responsive-wrapper"></div>' +
       '</div>';
 
     container.innerHTML = html;
 
-    // Statement Tabs binden
     var stmtBtns = container.querySelectorAll('[data-stmt]');
     stmtBtns.forEach(function (btn) {
       btn.onclick = function () {
@@ -266,7 +269,6 @@ window.App.StockFinancials = (function () {
       };
     });
 
-    // Dropdown Periode
     var periodSelect = document.getElementById('stmt-period-select');
     if (periodSelect) {
       periodSelect.onchange = function (e) {
@@ -289,30 +291,30 @@ window.App.StockFinancials = (function () {
     if (activeStatement === 'income') {
       dataList = (fin.incomeStatement && fin.incomeStatement[activePeriod]) || [];
       rowsMeta = [
-        { label: 'Umsatzerlöse (Total Revenue)', key: 'Total_Revenue' },
-        { label: 'Herstellungskosten (Cost of Revenue)', key: 'Cost_of_Revenue' },
-        { label: 'Bruttoergebnis (Gross Profit)', key: 'Gross_Profit', bold: true },
-        { label: 'Betriebsergebnis (Operating Income)', key: 'Operating_Income', bold: true },
-        { label: 'Jahresüberschuss (Net Income)', key: 'Net_Income', highlight: true },
-        { label: 'Verwässertes EPS', key: 'Diluted_EPS', isNumber: true }
+        { label: 'Umsatzerlöse (Total Revenue)', camel: 'TotalRevenue', snake: 'Total_Revenue' },
+        { label: 'Herstellungskosten (Cost of Revenue)', camel: 'CostOfRevenue', snake: 'Cost_Of_Revenue' },
+        { label: 'Bruttoergebnis (Gross Profit)', camel: 'GrossProfit', snake: 'Gross_Profit', bold: true },
+        { label: 'Betriebsergebnis (Operating Income)', camel: 'OperatingIncome', snake: 'Operating_Income', bold: true },
+        { label: 'Jahresüberschuss (Net Income)', camel: 'NetIncome', snake: 'Net_Income', highlight: true },
+        { label: 'Verwässertes EPS', camel: 'DilutedEPS', snake: 'Diluted_EPS', isNumber: true }
       ];
     } else if (activeStatement === 'balance') {
       dataList = (fin.balanceSheet && fin.balanceSheet[activePeriod]) || [];
       rowsMeta = [
-        { label: 'Umlaufvermögen (Current Assets)', key: 'Current_Assets' },
-        { label: 'Zahlungsmittel (Cash &amp; Equiv.)', key: 'Cash_And_Cash_Equivalents' },
-        { label: 'Gesamtvermögen (Total Assets)', key: 'Total_Assets', bold: true },
-        { label: 'Kurzfristige Verbindlichkeiten', key: 'Current_Liabilities' },
-        { label: 'Gesamtverschuldung (Total Debt)', key: 'Total_Debt' },
-        { label: 'Gesamtverbindlichkeiten', key: 'Total_Liabilities_Net_Minority_Interest' },
-        { label: 'Eigenkapital (Stockholders Equity)', key: 'Stockholders_Equity', highlight: true }
+        { label: 'Umlaufvermögen (Current Assets)', camel: 'CurrentAssets', snake: 'Current_Assets' },
+        { label: 'Zahlungsmittel (Cash &amp; Equiv.)', camel: 'CashAndCashEquivalents', snake: 'Cash_And_Cash_Equivalents' },
+        { label: 'Gesamtvermögen (Total Assets)', camel: 'TotalAssets', snake: 'Total_Assets', bold: true },
+        { label: 'Kurzfristige Verbindlichkeiten', camel: 'CurrentLiabilities', snake: 'Current_Liabilities' },
+        { label: 'Gesamtverschuldung (Total Debt)', camel: 'TotalDebt', snake: 'Total_Debt' },
+        { label: 'Gesamtverbindlichkeiten', camel: 'TotalLiabilitiesNetMinorityInterest', snake: 'Total_Liabilities_Net_Minority_Interest' },
+        { label: 'Eigenkapital (Stockholders Equity)', camel: 'StockholdersEquity', snake: 'Stockholders_Equity', highlight: true }
       ];
     } else {
       dataList = (fin.cashFlow && fin.cashFlow[activePeriod]) || [];
       rowsMeta = [
-        { label: 'Operativer Cashflow (Operating CF)', key: 'Operating_Cash_Flow', bold: true },
-        { label: 'Investitionsausgaben (CapEx)', key: 'Capital_Expenditure' },
-        { label: 'Free Cash Flow (FCF)', key: 'Free_Cash_Flow', highlight: true }
+        { label: 'Operativer Cashflow (Operating CF)', camel: 'OperatingCashFlow', snake: 'Operating_Cash_Flow', bold: true },
+        { label: 'Investitionsausgaben (CapEx)', camel: 'CapitalExpenditure', snake: 'Capital_Expenditure' },
+        { label: 'Free Cash Flow (FCF)', camel: 'FreeCashFlow', snake: 'Free_Cash_Flow', highlight: true }
       ];
     }
 
@@ -321,7 +323,6 @@ window.App.StockFinancials = (function () {
       return;
     }
 
-    // HTML Tabelle aufbauen
     var html = '<table class="data-table"><thead><tr><th>Position (' + currency + ')</th>';
     dataList.forEach(function (entry) {
       html += '<th style="text-align: right;">' + window.App.Format.date(entry.date) + '</th>';
@@ -333,7 +334,7 @@ window.App.StockFinancials = (function () {
       html += '<tr style="' + rowStyle + '"><td>' + row.label + '</td>';
 
       dataList.forEach(function (entry) {
-        var rawVal = entry[row.key];
+        var rawVal = getVal(entry, row.camel, row.snake);
         var formatted = '—';
         if (rawVal !== undefined && rawVal !== null) {
           formatted = row.isNumber ? window.App.Format.number(rawVal, 2) : window.App.Format.compactNumber(rawVal);
