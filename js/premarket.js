@@ -3,6 +3,8 @@
  * US-Vorbörsenhandel-Indikator für deutsche Anleger.
  * Zeigt die Pre-Market-Bewegung als gestrichelte Linie und berechnet,
  * ob der deutsche Kurs voraussichtlich folgen wird.
+ * 
+ * UPDATE: Kein Auto-Refresh mehr (spart Requests). Kein DE-Ticker-Abruf mehr.
  */
 window.App = window.App || {};
 
@@ -10,38 +12,10 @@ window.App.PreMarket = (function () {
   'use strict';
 
   var PROXY_URL = 'https://yahoo-proxy.spamispam018.workers.dev';
-  var REFRESH_MS = 60_000;      // 1 Minute
-  var ACTIVE_START_CET = 14;    // ab 14:00 CET auto-refresh
-  var ACTIVE_END_CET = 22;      // bis 22:00 CET
-
-  // US → deutsche Börse-Mapping (Xetra)
-  // Für alle, die nicht drin sind, wird "kein Twin" angezeigt.
-  var US_TO_DE = {
-    'AAPL': 'APC.DE', 'MSFT': 'MSF.DE', 'GOOGL': 'ABEA.DE',
-    'AMZN': 'AMZ.DE', 'TSLA': 'TL0.DE', 'META': 'FB2A.DE',
-    'NVDA': 'NVD.DE', 'AMD': 'AMD.DE', 'INTC': 'INL.DE',
-    'NFLX': 'NFC.DE', 'JPM': 'CMC.DE', 'V': '3V64.DE',
-    'MA': 'M4I.DE', 'JNJ': 'JNJ.DE', 'PFE': 'PFE.DE',
-    'KO': 'CCC3.DE', 'PEP': 'PEP.DE', 'MCD': 'MDO.DE',
-    'DIS': 'WDP.DE', 'BA': 'BCO.DE', 'CAT': 'CAT1.DE',
-    'XOM': 'XONA.DE', 'CVX': 'CHV.DE', 'WMT': 'WMT.DE',
-    'PG': 'PRG.DE', 'HD': 'HDI.DE', 'UNH': 'UNH.DE',
-    'GS': 'GOS.DE', 'MS': 'MSY.DE', 'BAC': 'BAC.DE',
-    'BRK-B': 'BRYN.DE', 'CRM': 'FOO.DE', 'ORCL': 'ORC.DE',
-    'QCOM': 'QCI.DE', 'AVGO': 'AVGO.DE', 'TXN': 'TXN.DE'
-  };
-
-  var state = { timer: null, visible: true, ticker: null };
+  var state = { ticker: null };
 
   function isUsTicker(t) {
     return t && !/\.(DE|PA|AS|L|SW|MI|MC|T|TO|AX|CO)$/i.test(t);
-  }
-
-  function cetHour() {
-    var now = new Date();
-    var s = now.toLocaleString('en-US', { timeZone: 'Europe/Berlin', hour12: false });
-    var m = s.match(/(\d+):(\d+):(\d+)/);
-    return m ? parseInt(m[1], 10) + parseInt(m[2], 10) / 60 : 0;
   }
 
   function etHour() {
@@ -51,9 +25,11 @@ window.App.PreMarket = (function () {
     return m ? parseInt(m[1], 10) + parseInt(m[2], 10) / 60 : 0;
   }
 
-  function shouldAutoRefresh() {
-    var h = cetHour();
-    return state.visible && h >= ACTIVE_START_CET && h < ACTIVE_END_CET;
+  function cetHour() {
+    var now = new Date();
+    var s = now.toLocaleString('en-US', { timeZone: 'Europe/Berlin', hour12: false });
+    var m = s.match(/(\d+):(\d+):(\d+)/);
+    return m ? parseInt(m[1], 10) + parseInt(m[2], 10) / 60 : 0;
   }
 
   function fetchChart(ticker, withPrePost) {
@@ -68,10 +44,9 @@ window.App.PreMarket = (function () {
   }
 
   function fetchFx() {
-    // EUR/USD – wir brauchen USD → EUR = 1 / EURUSD
     return fetchChart('EURUSD=X', false).then(function (d) {
       try {
-        return d.chart.result[0].meta.regularMarketPrice; // z. B. 1.09
+        return d.chart.result[0].meta.regularMarketPrice;
       } catch (e) { return 1.09; }
     });
   }
@@ -146,20 +121,12 @@ window.App.PreMarket = (function () {
 
     container.innerHTML = buildShell(ticker);
     bindEvents(container, ticker, stock);
+    
+    // Initialer Aufruf beim Öffnen der Aktie
     refresh(container, ticker, stock);
-
-    stopAutoRefresh();
-    if (shouldAutoRefresh()) {
-      state.timer = setInterval(function () {
-        if (shouldAutoRefresh() && document.getElementById('pm-card')) {
-          refresh(container, ticker, stock, true);
-        }
-      }, REFRESH_MS);
-    }
   }
 
   function buildShell(ticker) {
-    var de = US_TO_DE[ticker];
     return '' +
       '<div class="card" id="pm-card">' +
         '<div class="card-header-dotted">' +
@@ -173,10 +140,7 @@ window.App.PreMarket = (function () {
         '</div>' +
         '<div id="pm-times" style="margin-top:10px;font-size:0.72rem;color:var(--text-dim);line-height:1.6;"></div>' +
         '<div style="margin-top:12px;display:flex;gap:8px;">' +
-          '<button class="chip-btn" id="pm-refresh" style="flex:1;justify-content:center;">🔄 Jetzt aktualisieren</button>' +
-          (de
-            ? '<button class="chip-btn" id="pm-de-goto" data-ticker="' + de + '" style="flex:1;justify-content:center;">🇩🇪 ' + de + ' öffnen</button>'
-            : '') +
+          '<button class="chip-btn active" id="pm-refresh" style="flex:1;justify-content:center;height:38px;">🔄 Jetzt aktualisieren</button>' +
         '</div>' +
         '<div id="pm-info" style="font-size:0.68rem;color:var(--text-dim);margin-top:10px;line-height:1.5;"></div>' +
       '</div>';
@@ -184,25 +148,30 @@ window.App.PreMarket = (function () {
 
   function bindEvents(container, ticker, stock) {
     var btn = container.querySelector('#pm-refresh');
-    if (btn) btn.onclick = function () { refresh(container, ticker, stock); };
-    var deBtn = container.querySelector('#pm-de-goto');
-    if (deBtn) deBtn.onclick = function () {
-      window.App.Router.navigate('/stock/' + deBtn.getAttribute('data-ticker') + '/overview');
+    if (btn) btn.onclick = function () { 
+      // Button deaktivieren während des Ladens
+      btn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Lädt...';
+      btn.style.opacity = '0.7';
+      btn.disabled = true;
+      
+      refresh(container, ticker, stock).then(function() {
+        btn.innerHTML = '🔄 Jetzt aktualisieren';
+        btn.style.opacity = '1';
+        btn.disabled = false;
+      });
     };
   }
 
-  function refresh(container, ticker, stock, silent) {
+  function refresh(container, ticker, stock) {
     var statusEl = container.querySelector('#pm-status');
-    if (!silent && statusEl) statusEl.textContent = 'Rufe Vorbörsen-Daten…';
+    if (statusEl) statusEl.textContent = 'Rufe Vorbörsen-Daten…';
 
-    var de = US_TO_DE[ticker];
-
-    Promise.all([
+    // Nur noch 2 Requests: US-Chart und EUR/USD Wechselkurs
+    return Promise.all([
       fetchChart(ticker, true),
-      de ? fetchChart(de, false) : Promise.resolve(null),
       fetchFx()
     ]).then(function (res) {
-      renderData(container, ticker, stock, de, res[0], res[1], res[2]);
+      renderData(container, ticker, stock, res[0], res[1]);
     }).catch(function (err) {
       if (statusEl) statusEl.innerHTML =
         '<span style="color:var(--bearish);">Fehler: ' + (err.message || err) + '</span>' +
@@ -210,19 +179,16 @@ window.App.PreMarket = (function () {
     });
   }
 
-  function renderData(container, ticker, stock, de, preData, deData, fx) {
-    // Umrechnung USD → EUR (FX von Yahoo ist EURUSD, also 1 EUR = x USD)
+  function renderData(container, ticker, stock, preData, fx) {
     var usdToEur = fx > 0 ? 1 / fx : 0.92;
     var preSeries = extractSeries(preData, usdToEur);
-    var deSeries = deData ? extractSeries(deData, 1) : null;
-
     var currentPriceEur = (stock.quote && stock.quote.price) || 0;
+
     var prePoints = preSeries.points || [];
     var lastPre = prePoints.length ? prePoints[prePoints.length - 1] : null;
-    var lastDe = deSeries && deSeries.points.length ? deSeries.points[deSeries.points.length - 1] : null;
 
-    // Bevorzugt deutschen Live-Kurs (falls vorhanden), sonst stock.quote
-    var germanNow = lastDe ? lastDe.price : currentPriceEur;
+    // Da wir den deutschen Ticker nicht mehr abrufen, nutzen wir den Kurs aus den App-Daten
+    var germanNow = currentPriceEur;
 
     var session = lastPre ? classifySession(lastPre.t) : 'closed';
     var sessionBadge = container.querySelector('#pm-session-badge');
@@ -241,7 +207,8 @@ window.App.PreMarket = (function () {
     var statusEl = container.querySelector('#pm-status');
     if (statusEl) {
       if (lastPre) {
-        statusEl.innerHTML = 'Letzter Vorbörsenkurs: <strong>' +
+        var labelText = session === 'pre' ? 'Letzter Vorbörsenkurs' : (session === 'regular' ? 'Letzter US-Kurs' : 'Letzter Nachbörsenkurs');
+        statusEl.innerHTML = labelText + ': <strong>' +
           window.App.Format.currency(lastPre.price, 'EUR') + '</strong>' +
           ' um ' + new Date(lastPre.t).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
       } else {
@@ -282,25 +249,18 @@ window.App.PreMarket = (function () {
     // Zeit-Info
     var timesEl = container.querySelector('#pm-times');
     if (timesEl) {
-      var usOpen = timeUntilEt(9.5);
-      var usClose = timeUntilEt(16);
-      var xetraClose = timeUntilCet(17.5);
       timesEl.innerHTML =
-        '⏱️ US-Open in <strong>' + usOpen + '</strong> (15:30 CET)<br>' +
-        '⏱️ US-Close in <strong>' + usClose + '</strong> (22:00 CET)<br>' +
-        '⏱️ Xetra schließt in <strong>' + xetraClose + '</strong> (17:30 CET)';
+        '⏱️ US-Open in <strong>' + timeUntilEt(9.5) + '</strong> (15:30 CET)<br>' +
+        '⏱️ US-Close in <strong>' + timeUntilEt(16) + '</strong> (22:00 CET)<br>' +
+        '⏱️ Xetra schließt in <strong>' + timeUntilCet(17.5) + '</strong> (17:30 CET)';
     }
 
-    // Info-Zeile
+    // Info-Zeile (ohne DE-Ticker Verweis)
     var infoEl = container.querySelector('#pm-info');
     if (infoEl) {
-      infoEl.innerHTML = de
-        ? 'Vergleich: US-Vorbörse in EUR vs. <strong>' + de + '</strong> (Xetra, ' +
-          window.App.Format.currency(germanNow, 'EUR') + '). ' +
-          'Der Pfeil zeigt, in welche Richtung der deutsche Kurs zur US-Eröffnung tendiert.'
-        : 'Vergleich: US-Vorbörse in EUR vs. letzter Kurs in der App (' +
-          window.App.Format.currency(currentPriceEur, 'EUR') + '). ' +
-          'Für diesen Ticker ist kein Xetra-Pendant hinterlegt.';
+      infoEl.innerHTML = 'Vergleich: US-Vorbörse in EUR vs. letzter Kurs in der App (' +
+        window.App.Format.currency(germanNow, 'EUR') + '). ' +
+        'Der Pfeil zeigt, in welche Richtung der deutsche Kurs zur US-Eröffnung tendiert.';
     }
 
     // Mini-Chart
@@ -311,11 +271,11 @@ window.App.PreMarket = (function () {
     var canvas = container.querySelector('#pm-canvas');
     if (!canvas) return;
 
-    // Nur Pre-Market- und Post-Market-Punkte
     var filtered = points.filter(function (p) {
       var s = classifySession(p.t);
-      return s === 'pre' || s === 'post';
+      return s === 'pre' || s === 'post' || s === 'regular';
     });
+    
     if (filtered.length < 2) {
       var g = canvas.getContext('2d');
       var W = canvas.parentElement.clientWidth;
@@ -327,15 +287,12 @@ window.App.PreMarket = (function () {
       return;
     }
 
-    // Fallback auf Charts-Engine – aber wir brauchen eine horizontale Linie
-    // für den deutschen Kurs.
     var labels = filtered.map(function (p) {
       var d = new Date(p.t);
       return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
     });
     var values = filtered.map(function (p) { return p.price; });
 
-    // Hier ruft die Charts-Engine eine horizontale Linie auf
     window.App.Charts.renderLineChart(canvas, {
       labels: labels,
       values: values,
@@ -343,19 +300,14 @@ window.App.PreMarket = (function () {
       horizontalLines: [{
         value: germanNow,
         color: '#818cf8',
-        label: 'Xetra ' + window.App.Format.currency(germanNow, 'EUR', 2),
+        label: 'App-Kurs ' + window.App.Format.currency(germanNow, 'EUR', 2),
         dashed: true
       }]
     });
   }
 
-  function stopAutoRefresh() {
-    if (state.timer) { clearInterval(state.timer); state.timer = null; }
-  }
-
-  document.addEventListener('visibilitychange', function () {
-    state.visible = document.visibilityState === 'visible';
-  });
+  // Stub, damit alte Aufrufe (z.B. in index.html) nicht crashen
+  function stopAutoRefresh() { /* Kein Timer mehr vorhanden */ }
 
   return { render: render, stopAutoRefresh: stopAutoRefresh };
 })();
