@@ -1,6 +1,7 @@
 /**
  * js/strategies.js
  * Vordefinierte Anlagestrategien (Value, Growth, Dividende).
+ * NEU: Nutzt exakte Filter aus den Screenshots (ROE, Payout, Debt/EBITDA, RS-Rating).
  */
 window.App = window.App || {};
 
@@ -67,30 +68,35 @@ window.App.Strategies = (function () {
     var filtered = [];
 
     if (currentStrategy === 'value') {
-      infoEl.innerHTML = '<b>Ziel:</b> Werthaltige, profitable Unternehmen mit stabilen Margen und moderater Bewertung (ähnlich Warren Buffett).<br><br><b>Kriterien:</b> Marktkap. > 1 Mrd. €, KGV < 20, Verschuldung (D/E) < 150 %, positive Nettomarge.';
+      infoEl.innerHTML = '<b>A. Value &amp; Qualität (Warren Buffett / Susan Levermann):</b><br><br><b>Kriterien:</b> Marktkap. > 1 Mrd. €, KGV < 20, Eigenkapitalrendite (ROE) > 15 %, Verschuldung (Net Debt / EBITDA) < 2,5, positive Nettomarge.';
       
       filtered = allStocks.filter(function (s) {
         return Number(s.marketCap) > 1e9 && 
                Number(s.pe) > 0 && Number(s.pe) < 20 && 
-               (!s.debtToEquity || Number(s.debtToEquity) < 150) && 
+               Number(s.returnOnEquity) > 0.15 && 
+               (!s.debtToEbitda || Number(s.debtToEbitda) < 2.5) &&
                Number(s.profitMargins) > 0;
       });
     } 
     else if (currentStrategy === 'growth') {
-      infoEl.innerHTML = '<b>Ziel:</b> Marktführer mit starker Dynamik und rasant steigenden Umsätzen (ähnlich Mark Minervini).<br><br><b>Kriterien:</b> Golden Cross (SMA50 > SMA200), starke 3-Monats-Performance (> 15 %), Umsatzwachstum > 10 %.';
+      infoEl.innerHTML = '<b>B. Growth &amp; Momentum (Mark Minervini / IBD 50):</b><br><br><b>Kriterien:</b> Trendstärke (Golden Cross, SMA50 > SMA200), Relative Stärke (Top 20 % des Marktes, RS-Rating ≥ 80), Umsatzwachstum > 20 %, Mindestliquidität (Volumen > 100.000).';
       
       filtered = allStocks.filter(function (s) {
         return s.cross === 'golden' && 
-               Number(s.perf3m) > 15 && 
-               Number(s.revGrowth) >= 0.10;
+               Number(s.rsRating) >= 80 && 
+               Number(s.revGrowth) >= 0.20 &&
+               Number(s.volume) > 100000;
       });
     } 
     else if (currentStrategy === 'dividend') {
-      infoEl.innerHTML = '<b>Ziel:</b> Cashflow-starke Bestandsunternehmen mit sicheren Ausschüttungen.<br><br><b>Kriterien:</b> Dividendenrendite zwischen 2,5 % und 6 % (Vorsicht vor Value Traps), positive Nettomarge.';
+      infoEl.innerHTML = '<b>C. Dividenden-Strategie:</b><br><br><b>Kriterien:</b> Dividendenrendite zwischen 2,5 % und 6 %, Payout Ratio (Ausschüttungsquote) < 60 %, positive Nettomarge.';
       
       filtered = allStocks.filter(function (s) {
         var dy = Number(s.dividendYield);
-        return dy >= 2.5 && dy <= 6 && Number(s.profitMargins) > 0;
+        var payout = Number(s.payoutRatio);
+        return dy >= 2.5 && dy <= 6 && 
+               (!payout || payout < 0.60) &&
+               Number(s.profitMargins) > 0;
       });
     }
 
