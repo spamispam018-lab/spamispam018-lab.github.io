@@ -1,398 +1,291 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-  <title>Aktien Screener &amp; Analyse</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#6366f1">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+/**
+ * js/stock-score.js
+ * Ganzheitliche Scoring-Engine (0 bis 100) auf Basis ALLER verfügbaren Daten.
+ * Kombiniert Fundamentaldaten, Technik, Analysten und Smart Money/News.
+ */
+window.App = window.App || {};
 
-  <script>
-    (function () {
-      try {
-        var stored = localStorage.getItem('app_theme');
-        if (stored === 'light' || stored === 'dark') {
-          document.documentElement.setAttribute('data-theme', stored);
-        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-          document.documentElement.setAttribute('data-theme', 'light');
-        }
-      } catch (e) {}
-    })();
-  </script>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
+window.App.Score = (function () {
+  'use strict';
 
-  <header class="app-header">
-    <div class="header-title-group">
-      <div id="app-header-title" class="header-title">Aktien-Screener</div>
-      <div id="app-header-subtitle" class="header-subtitle">Marktübersicht &amp; Analyse</div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <button id="pwa-install-btn" class="icon-btn" aria-label="App installieren" style="display:none;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>
-        </svg>
-      </button>
-      <button id="btn-cmdk-open" class="icon-btn" aria-label="Suche öffnen (Cmd+K)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-      </button>
-      <button id="btn-theme-toggle" class="icon-btn" aria-label="Theme wechseln"></button>
-      <button id="btn-header-filter" class="icon-btn" aria-label="Filter öffnen">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-        </svg>
-      </button>
-    </div>
-  </header>
+  var nameToTickerMap = {};
+  var PERIOD_KEY = 'app_score_period';
 
-  <main id="app-view-content"></main>
+  // Hilfsfunktion für robuste Zahlen
+  function num(v) {
+    return (v !== null && v !== undefined && v !== '' && !isNaN(v)) ? Number(v) : null;
+  }
 
-  <nav class="bottom-nav">
-    <a href="#/screener" class="nav-item active" data-route="screener">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-      <span>Screener</span>
-    </a>
-    <a href="#/market" class="nav-item" data-route="market">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="8" height="8" rx="1"></rect><rect x="13" y="3" width="8" height="5" rx="1"></rect><rect x="13" y="10" width="8" height="11" rx="1"></rect><rect x="3" y="13" width="8" height="8" rx="1"></rect></svg>
-      <span>Markt</span>
-    </a>
-    <a href="#/stock" id="nav-item-stock" class="nav-item" data-route="stock">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-      <span>Detail</span>
-    </a>
-    <a href="#/compare" class="nav-item" data-route="compare">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-      <span>Vergleich</span>
-    </a>
-    <a href="#/portfolio" class="nav-item" data-route="portfolio">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path></svg>
-      <span>Portfolio</span>
-    </a>
-    <a href="#/watchlist" class="nav-item" data-route="watchlist">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-      <span>Watchlist</span>
-    </a>
-  </nav>
+  function buildNameLookup(universe) {
+    nameToTickerMap = {};
+    (universe || []).forEach(function (u) {
+      nameToTickerMap[u.ticker.toLowerCase()] = u.ticker;
+      if (u.name) {
+        var cleanName = u.name.toLowerCase().replace(/inc\.|inc|corp\.|corp|ltd\.|ltd|plc|ag|se|co\./g, '').trim();
+        nameToTickerMap[cleanName] = u.ticker;
+      }
+    });
+  }
 
-  <script src="data/fallback.js"></script>
+  // ===========================================================================
+  // 1. FUNDAMENTAL-SCORES (Bisherige Logik, leicht angepasst)
+  // ===========================================================================
+  function scoreMetric(val, minGood, maxGreat, direction) {
+    if (val === null || val === undefined || isNaN(val)) return 2.5;
+    var score = 0;
+    if (direction === 1) {
+      if (val <= minGood) score = Math.max(0, (val / minGood) * 2.5);
+      else if (val >= maxGreat) score = 5.0;
+      else score = 2.5 + ((val - minGood) / (maxGreat - minGood)) * 2.5;
+    } else {
+      if (val >= minGood) score = Math.max(0, 5.0 - ((val - minGood) / (maxGreat - minGood)) * 2.5);
+      else if (val <= maxGreat) score = 5.0;
+      else score = 2.5 + ((minGood - val) / (minGood - maxGreat)) * 2.5;
+    }
+    return Math.max(0, Math.min(5, Math.round(score * 10) / 10));
+  }
 
-  <script src="js/format.js"></script>
-  <script src="js/theme.js"></script>
-  <script src="js/data.js"></script>
-  <script src="js/transactions.js"></script>
-  <script src="js/charts.js"></script>
-  <script src="js/stock-score.js"></script>
-  <script src="js/router.js"></script>
+  function weightedAvg(parts) {
+    var totalWeight = parts.reduce(function (a, p) { return a + p[1]; }, 0);
+    if (totalWeight <= 0) return 2.5;
+    return parts.reduce(function (acc, p) { return acc + p[0] * p[1]; }, 0) / totalWeight;
+  }
 
-  <script src="js/export.js"></script>
-  <script src="js/pwa.js"></script>
-  <script src="js/command-palette.js"></script>
-  <script src="js/screener.js"></script>
-  <script src="js/market.js"></script>
-  <script src="js/watchlist.js"></script>
-  <script src="js/news.js"></script>
-  <script src="js/stock-overview.js"></script>
-  <script src="js/chart-analyse.js"></script>
-  <script src="js/stock-chart.js"></script>
-  <script src="js/stock-forecast.js"></script>
-  <script src="js/stock-peers.js"></script>
-  <script src="js/stock-fairvalue.js"></script>
-  <script src="js/stock-insider.js"></script>
-  <script src="js/stock-analyst.js"></script>
-  <script src="js/stock-financials.js"></script>
-  <script src="js/stock-institutional.js"></script>
-  <script src="js/stock-options.js"></script>
-  <script src="js/compare.js"></script>
-  <script src="js/backtest.js"></script>
-  <script src="js/portfolio.js"></script>
-  <script src="js/dividends.js"></script>
-  <script src="js/journal.js"></script>
-  <script src="js/alerts.js"></script>
-  <script src="js/earnings.js"></script>
-  <script src="js/premarket.js"></script>
+  function evalFundamentals(stock, period) {
+    var r = stock.ratios || {};
+    // Fallback auf einfache Ratio-Prüfung, wenn deriveRatios fehlschlägt
+    var pe = num(r.peTrailing);
+    var fwdPe = num(r.peForward);
+    var pm = num(r.profitMargins);
+    var revG = num(r.revenueGrowth);
+    var de = num(r.debtToEquity);
+    var div = num(r.dividendYield);
 
-  <script>
-    (function () {
-      'use strict';
+    var parts = [];
+    if (pe !== null) parts.push([pe > 0 ? scoreMetric(pe, 28, 12, -1) : 0, 0.3]);
+    if (fwdPe !== null) parts.push([fwdPe > 0 ? scoreMetric(fwdPe, 24, 10, -1) : 0, 0.3]);
+    if (pm !== null) parts.push([scoreMetric(pm, 0.05, 0.20, 1), 0.2]);
+    if (revG !== null) parts.push([scoreMetric(revG, 0.05, 0.20, 1), 0.2]);
+    if (de !== null) parts.push([scoreMetric(de, 150, 40, -1), 0.1]);
+    if (div !== null && div > 0) parts.push([scoreMetric(div, 0, 4, 1), 0.1]);
 
-      var headerTitle = document.getElementById('app-header-title');
-      var headerSubtitle = document.getElementById('app-header-subtitle');
-      var stockNavLink = document.getElementById('nav-item-stock');
+    return Math.round(weightedAvg(parts) * 10) / 10; // 0 bis 5
+  }
 
-      function syncStockNavTarget(ticker) {
-        if (stockNavLink) stockNavLink.setAttribute('href', '#/stock/' + ticker + '/overview');
+  // ===========================================================================
+  // 2. TECHNIK-SCORE (RSI, SMA, Trends)
+  // ===========================================================================
+  function evalTechnicals(stock) {
+    var rsi = num(stock.rsi);
+    var cross = stock.cross; 
+    var price = num(stock.quote ? stock.quote.price : null);
+    var r = stock.ratios || {};
+    
+    var parts = [];
+    
+    // RSI: 30-70 ist neutral (2.5). Unter 30 (überverkauft) = 4-5 (Kaufchance). Über 70 = 1-2.
+    if (rsi !== null) {
+      if (rsi <= 30) parts.push([4.5, 0.3]);
+      else if (rsi >= 70) parts.push([1.5, 0.3]);
+      else parts.push([2.5, 0.3]);
+    }
+    
+    // Golden/Death Cross
+    if (cross === 'golden') parts.push([4.5, 0.4]);
+    else if (cross === 'death') parts.push([1.5, 0.4]);
+    else parts.push([2.5, 0.4]);
+
+    // Trend (Kurs über SMA 50/200) - grob geschätzt über das Tief/Hoch Verhältnis
+    var rangePos = num(stock.rangePos);
+    if (rangePos !== null) {
+        // Kurs nahe Hoch (80-100%) ist gut für Trend, aber schlecht für Einstieg
+        if (rangePos > 80) parts.push([4.0, 0.3]);
+        else if (rangePos < 20) parts.push([2.0, 0.3]); // Bounce-Kandidat
+        else parts.push([3.0, 0.3]);
+    }
+    
+    return Math.round(weightedAvg(parts) * 10) / 10;
+  }
+
+  // ===========================================================================
+  // 3. ANALYSTEN-SCORE (Kursziele & Ratings)
+  // ===========================================================================
+  function evalAnalysts(stock) {
+    var an = stock.analysts || {};
+    var targets = an.targets || {};
+    var recs = an.recommendations || {};
+    var price = num(stock.quote ? stock.quote.price : null);
+    
+    var parts = [];
+    
+    // Upside Potential
+    if (price > 0 && num(targets.mean) > 0) {
+      var upside = ((targets.mean - price) / price) * 100;
+      parts.push([scoreMetric(upside, 0, 25, 1), 0.6]); // 25% Upside = 5 Sterne
+    }
+    
+    // Empfehlungs-Score (1=Strong Buy, 5=Sell)
+    var recScore = num(recs.score);
+    if (recScore !== null) {
+      // Umdrehen: 1 wird zu 5, 5 wird zu 1
+      var mappedScore = 6 - recScore;
+      parts.push([Math.max(0, Math.min(5, mappedScore)), 0.4]);
+    }
+    
+    return parts.length > 0 ? Math.round(weightedAvg(parts) * 10) / 10 : 2.5;
+  }
+
+  // ===========================================================================
+  // 4. SMART MONEY & NEWS SCORE
+  // ===========================================================================
+  function evalSmartMoney(stock) {
+    var insider = stock.insider || {};
+    var summary = insider.summary || {};
+    var parts = [];
+    
+    // Insider Sentiment
+    if (summary.sentiment === 'Bullish') parts.push([4.5, 0.5]);
+    else if (summary.sentiment === 'Bearish') parts.push([1.5, 0.5]);
+    else parts.push([2.5, 0.5]);
+    
+    // News (FinBERT) Score
+    var newsScore = 0;
+    if (window.App.News && window.App.News.cache && window.App.News.cache.index) {
+        var n = window.App.News.cache.index[stock.ticker];
+        if (n && n.score !== undefined) newsScore = n.score;
+    }
+    
+    // News Score geht meist von -1 bis +1
+    if (newsScore > 0.2) parts.push([4.0, 0.5]);
+    else if (newsScore < -0.2) parts.push([2.0, 0.5]);
+    else parts.push([3.0, 0.5]);
+    
+    return Math.round(weightedAvg(parts) * 10) / 10;
+  }
+
+  // ===========================================================================
+  // HAUPTFUNKTION
+  // ===========================================================================
+  function calculateHolisticScore(stock, period) {
+    // 1. Fundamentaldaten (0-5)
+    var sFund = evalFundamentals(stock, period);
+    // 2. Technik (0-5)
+    var sTech = evalTechnicals(stock);
+    // 3. Analysten (0-5)
+    var sAnalyst = evalAnalysts(stock);
+    // 4. Smart Money & News (0-5)
+    var sSmart = evalSmartMoney(stock);
+
+    // Gewichtung: 40% Fundamental, 25% Technik, 20% Analysten, 15% Smart Money
+    var totalPoints = (sFund * 0.40) + (sTech * 0.25) + (sAnalyst * 0.20) + (sSmart * 0.15);
+    
+    // Umgerechnet auf 0 - 100 (da 5 Punkte = 100)
+    var finalScore100 = Math.round(totalPoints * 20);
+
+    return {
+      totalScore: Math.round(totalPoints * 10) / 10, // z.B. 3.8 von 5.0
+      score100: finalScore100, // z.B. 76 von 100
+      categories: [
+        { category: 'Fundamentaldaten', score: sFund, weight: '40%', metrics: [] },
+        { category: 'Technisches Bild', score: sTech, weight: '25%', metrics: [] },
+        { category: 'Analysten-Konsens', score: sAnalyst, weight: '20%', metrics: [] },
+        { category: 'Smart Money & News', score: sSmart, weight: '15%', metrics: [] }
+      ]
+    };
+  }
+
+  // ETF-Logik (bleibt erhalten)
+  function calculateTotalScoreAsync(stock, period) {
+    return new Promise(function (resolve) {
+      var isEtf = (stock.sector === 'Sonstige' || stock.sector === 'ETF' || !stock.sector);
+      var holdings = stock.holdings || [];
+
+      if (!isEtf || holdings.length === 0) {
+        resolve(Object.assign({ isAggregated: false }, calculateHolisticScore(stock, period)));
+        return;
       }
 
-      window.App.Router.register('/screener', function () {
-        if (headerTitle) headerTitle.textContent = 'Aktien-Screener';
-        if (headerSubtitle) headerSubtitle.textContent = 'Marktübersicht & Filter';
-        window.App.Screener.initView();
-      });
+      window.App.Data.getUniverse().then(function (universe) {
+        buildNameLookup(universe);
+        var top5 = holdings.slice(0, 5);
 
-      window.App.Router.register('/market', function () {
-        if (headerTitle) headerTitle.textContent = 'Markt';
-        if (headerSubtitle) headerSubtitle.textContent = 'Sektoren & Heatmap';
-        window.App.Market.initView();
-      });
+        var promises = top5.map(function (h) {
+          var cleanName = h.name.toLowerCase().replace(/inc\.|inc|corp\.|corp|ltd\.|ltd|plc|ag|se|co\./g, '').trim();
+          var targetTicker = nameToTickerMap[cleanName] || nameToTickerMap[h.name.toLowerCase()] || null;
 
-      window.App.Router.register('/watchlist', function () {
-        if (headerTitle) headerTitle.textContent = 'Watchlist';
-        if (headerSubtitle) headerSubtitle.textContent = 'Favoriten, Alarme & Termine';
-        window.App.Watchlist.initView();
-      });
+          if (!targetTicker) {
+            var possible = universe.find(function (u) { return u.ticker.indexOf(h.name) === 0; });
+            if (possible) targetTicker = possible.ticker;
+          }
 
-      window.App.Router.register('/watchlist/:tab', function (params) {
-        if (headerTitle) headerTitle.textContent = 'Watchlist';
-        if (headerSubtitle) headerSubtitle.textContent = 'Favoriten, Alarme & Termine';
-        window.App.Watchlist.initView(params);
-      });
-
-      window.App.Router.register('/portfolio', function () {
-        if (headerTitle) headerTitle.textContent = 'Portfolio';
-        if (headerSubtitle) headerSubtitle.textContent = 'Bestände & Performance';
-        window.App.Portfolio.initView();
-      });
-
-      window.App.Router.register('/dividends', function () {
-        if (headerTitle) headerTitle.textContent = 'Dividenden';
-        if (headerSubtitle) headerSubtitle.textContent = 'Kalender & Yield on Cost';
-        window.App.Dividends.initView();
-      });
-
-      window.App.Router.register('/journal', function () {
-        if (headerTitle) headerTitle.textContent = 'Journal';
-        if (headerSubtitle) headerSubtitle.textContent = 'Thesen & Notizen';
-        window.App.Journal.initView();
-      });
-
-      window.App.Router.register('/backtest', function () {
-        if (headerTitle) headerTitle.textContent = 'Backtesting';
-        if (headerSubtitle) headerSubtitle.textContent = 'Filter-Performance simulieren';
-        window.App.Backtest.initView();
-      });
-
-      window.App.Router.register('/compare', function () {
-        if (headerTitle) headerTitle.textContent = 'Aktienvergleich';
-        if (headerSubtitle) headerSubtitle.textContent = 'Kennzahlen im Vergleich';
-        window.App.Compare.initView();
-      });
-
-      window.App.Router.register('/stock', function () {
-        var last = window.App.Data.getLastTicker();
-        window.App.Router.navigate('/stock/' + last + '/overview');
-      });
-
-      window.App.Router.register('/stock/:ticker/:tab', function (params) {
-        var ticker = (params.ticker || window.App.Data.getLastTicker()).toUpperCase();
-        var tab = params.tab || 'overview';
-        window.App.Data.setLastTicker(ticker);
-        syncStockNavTarget(ticker);
-
-        var headerFilterBtn = document.getElementById('btn-header-filter');
-        if (headerFilterBtn) headerFilterBtn.style.display = 'none';
-
-        if (headerTitle) headerTitle.textContent = ticker;
-        if (headerSubtitle) headerSubtitle.textContent = 'Detailanalyse';
-
-        renderStockDetailShell(ticker, tab);
-      });
-
-      function renderStockDetailShell(ticker, activeTab) {
-        var container = document.getElementById('app-view-content');
-        if (!container) return;
-
-        window.App.Data.getStock(ticker)
-          .then(function (stock) {
-            var profile = stock.profile || {};
-            var quote = stock.quote || {};
-            var isStarred = window.App.Data.isWatchlisted(ticker);
-            var chgCls = window.App.Format.changeClass(quote.changePercent);
-            var sign = (quote.changePercent || 0) >= 0 ? '+' : '';
-
-            var html = '' +
-              '<div class="view-container">' +
-                '<div class="search-bar-wrapper" style="margin-bottom: 10px;">' +
-                  '<svg class="search-icon-left" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
-                    '<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>' +
-                  '</svg>' +
-                  '<input type="text" id="detail-quick-search" class="search-input" placeholder="Ticker eingeben..." autocomplete="off">' +
-                '</div>' +
-                '<div class="card" style="padding: 14px 16px; margin-bottom: 14px;">' +
-                  '<div style="display: flex; justify-content: space-between; align-items: flex-start;">' +
-                    '<div style="display: flex; flex-direction: column; gap: 4px;">' +
-                      '<div style="display: flex; align-items: center; gap: 8px;">' +
-                        '<h2 style="font-size: 1.2rem; font-weight: 800; line-height: 1.2;">' + (profile.name || ticker) + '</h2>' +
-                        '<button id="detail-star-btn" class="star-btn ' + (isStarred ? 'active' : '') + '">' +
-                          '<svg width="20" height="20" viewBox="0 0 24 24" fill="' + (isStarred ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' +
-                        '</button>' +
-                      '</div>' +
-                      '<div style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem;">' +
-                        '<span class="ticker-badge">' + ticker + '</span>' +
-                        '<span class="sector-label">• ' + (profile.sector || 'Markt') + '</span>' +
-                        '<span class="sector-label" style="opacity: 0.7;">• ' + (profile.exchange || '') + '</span>' +
-                      '</div>' +
-                    '</div>' +
-                    '<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">' +
-                      '<div id="stock-header-price" style="font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums;">' + window.App.Format.currency(quote.price, quote.currency) + '</div>' +
-                      '<div id="stock-header-change" class="badge-pill ' + chgCls + '">' + sign + window.App.Format.number(quote.changePercent, 2) + ' %</div>' +
-                    '</div>' +
-                  '</div>' +
-                '</div>' +
-                '<div class="main-tabs-row">' +
-                  '<button class="main-tab-btn active">Stock</button>' +
-                  '<button class="main-tab-btn" id="btn-switch-compare">Compare</button>' +
-                '</div>' +
-                '<div class="horizontal-scroll-row" id="stock-subtabs-bar" style="margin-bottom: 14px;">' +
-                  '<button class="sub-tab-btn ' + (activeTab === 'overview' ? 'active' : '') + '" data-tab="overview">Overview</button>' +
-                  '<button class="sub-tab-btn ' + (activeTab === 'chart' ? 'active' : '') + '" data-tab="chart">Chart</button>' +
-                  '<button class="sub-tab-btn ' + (activeTab === 'score' ? 'active' : '') + '" data-tab="score">Score</button>' +
-                  '<button class="sub-tab-btn ' + (activeTab === 'peers' ? 'active' : '') + '" data-tab="peers">Peers</button>' +
-                  '<button class="sub-tab-btn ' + (activeTab === 'fairvalue' ? 'active' : '') + '" data-tab="fairvalue">Fair Value</button>' +
-                  '<button class="sub-tab-btn ' + (activeTab === 'insider' ? 'active' : '') + '" data-tab="insider">Insider</button>' +
-                  '<button class="sub-tab-btn ' + (activeTab === 'analyst' ? 'active' : '') + '" data-tab="analyst">Analyst</button>' +
-                  '<button class="sub-tab-btn ' + (activeTab === 'financials' ? 'active' : '') + '" data-tab="financials">Financials</button>' +
-                  '<button class="sub-tab-btn ' + (activeTab === 'institutional' ? 'active' : '') + '" data-tab="institutional">Institutionen</button>' +
-                  '<button class="sub-tab-btn ' + (activeTab === 'options' ? 'active' : '') + '" data-tab="options">Optionen</button>' +
-                '</div>' +
-                '<div id="stock-active-subtab-area"></div>' +
-              '</div>';
-
-            container.innerHTML = html;
-
-            var searchInput = document.getElementById('detail-quick-search');
-            if (searchInput) {
-              searchInput.onkeydown = function (e) {
-                if (e.key === 'Enter') {
-                  var newTick = (searchInput.value || '').trim().toUpperCase();
-                  if (newTick) window.App.Router.navigate('/stock/' + newTick + '/overview');
-                }
-              };
-            }
-
-            var starBtn = document.getElementById('detail-star-btn');
-            if (starBtn) {
-              starBtn.onclick = function () {
-                var nowStarred = window.App.Data.toggleWatchlist(ticker);
-                starBtn.classList.toggle('active', nowStarred);
-                var svg = starBtn.querySelector('svg');
-                if (svg) svg.setAttribute('fill', nowStarred ? 'currentColor' : 'none');
-              };
-            }
-
-            var cmpBtn = document.getElementById('btn-switch-compare');
-            if (cmpBtn) cmpBtn.onclick = function () { window.App.Router.navigate('/compare'); };
-
-            container.querySelectorAll('[data-tab]').forEach(function (btn) {
-              btn.onclick = function () {
-                window.App.Router.navigate('/stock/' + ticker + '/' + btn.getAttribute('data-tab'));
-              };
-            });
-
-            renderSubTabContent(stock, activeTab);
-          })
-          .catch(function (err) {
-            console.error('Detailansicht ' + ticker + ':', err);
-            container.innerHTML = '<div class="view-container"><div class="state-box">' +
-              '<p style="color: var(--bearish); font-weight: 700;">Aktie nicht gefunden</p>' +
-              '<p style="font-size: 0.85rem;">Keine Daten für "' + ticker + '" verfügbar.</p>' +
-              '<button class="chip-btn active" style="margin-top: 10px;" onclick="window.App.Router.navigate(\'/screener\')">&larr; Zurück zum Screener</button>' +
-              '</div></div>';
-          });
-      }
-
-      function renderSubTabContent(stock, activeTab) {
-        if (window.App.PreMarket) window.App.PreMarket.stopAutoRefresh();
-        
-        var subArea = document.getElementById('stock-active-subtab-area');
-        if (!subArea) return;
-        switch (activeTab) {
-          case 'overview': window.App.StockOverview.render(subArea, stock); break;
-          case 'chart': window.App.StockChart.render(subArea, stock); break;
-          case 'score': renderScoreView(subArea, stock); break;
-          case 'peers': window.App.StockPeers.render(subArea, stock); break;
-          case 'fairvalue': window.App.StockFairValue.render(subArea, stock); break;
-          case 'insider': window.App.StockInsider.render(subArea, stock); break;
-          case 'analyst': window.App.StockAnalyst.render(subArea, stock); break;
-          case 'financials': window.App.StockFinancials.render(subArea, stock); break;
-          case 'institutional': window.App.StockInstitutional.render(subArea, stock); break;
-          case 'options': window.App.StockOptions.render(subArea, stock); break;
-          default: window.App.StockOverview.render(subArea, stock); break;
-        }
-      }
-
-      function renderScoreView(container, stock) {
-        container.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Berechne Score...</p></div>';
-        
-        window.App.Score.calculateTotalScoreAsync(stock).then(function (scoreData) {
-          var html = 
-            (scoreData.isAggregated ? '<div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 12px; padding: 8px 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);"><b>Hinweis (ETF):</b> Score ist gewichteter Durchschnitt der Top-5-Holdings.</div>' : '') +
-            '<div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px;">' +
-              '<div><div style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Gesamt-Score (0-100)</div>' +
-                '<div style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">' + (scoreData.score100 >= 65 ? 'Starkes Profil' : scoreData.score100 >= 45 ? 'Gemischtes Profil' : 'Schwaches Profil') + '</div></div>' +
-              '<div class="score-badge-large">' + scoreData.score100 + '</div></div>';
-
-          scoreData.categories.forEach(function (cat) {
-            html += '<div class="card">' +
-              '<div class="card-header-dotted">' +
-                '<div style="display:flex; flex-direction:column;">' +
-                  '<span class="card-title">' + cat.category + '</span>' +
-                  '<span style="font-size:0.65rem; color:var(--text-dim);">Gewichtung: ' + cat.weight + '</span>' +
-                '</div>' +
-                '<span style="font-weight: 800; font-size: 0.95rem; color: var(--accent-purple-light);">' + cat.score.toFixed(1) + ' / 5.0</span>' +
-              '</div>' +
-              
-              window.App.Score.renderSegmentBarHtml(cat.score) +
-              
-              // NEU: Die Begründung
-              '<div style="margin-top: 12px; padding: 10px; background: var(--bg-tertiary); border-radius: var(--radius-sm); font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">' +
-                '<strong style="color: var(--text-main);">Begründung:</strong> ' + cat.reason +
-              '</div>' +
-
-              // NEU: Die Detail-Daten
-              '<div style="display: flex; flex-direction: column; gap: 6px; margin-top: 12px; font-size: 0.8rem;">';
-            
-            cat.metrics.forEach(function (m) {
-              html += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--border-subtle);">' +
-                '<span style="color: var(--text-dim);">' + m.name + '</span>' +
-                '<strong style="font-variant-numeric: tabular-nums; color: var(--text-main);">' + m.value + '</strong></div>';
-            });
-            
-            html += '</div></div>';
-          });
-          
-          container.innerHTML = html;
-        }).catch(function (err) {
-          container.innerHTML = '<div class="state-box"><p>Score fehlgeschlagen: ' + String((err && err.message) || 'Unbekannt').replace(/</g, '&lt;') + '</p></div>';
+          if (targetTicker) {
+            return window.App.Data.getStock(targetTicker).then(function (res) {
+              return { data: res, weight: h.weight || 0 };
+            }).catch(function () { return null; });
+          }
+          return Promise.resolve(null);
         });
-      }
 
-      window.addEventListener('DOMContentLoaded', function () {
-        window.App.Theme.init();
-        window.App.PWA.init();
-        window.App.CommandPalette.init();
-        var cmdkBtn = document.getElementById('btn-cmdk-open');
-        if (cmdkBtn) cmdkBtn.onclick = function () { window.App.CommandPalette.open(); };
-        var themeBtn = document.getElementById('btn-theme-toggle');
-        if (themeBtn) themeBtn.onclick = function () { window.App.Theme.toggle(); };
+        Promise.all(promises).then(function (results) {
+          var validHoldings = results.filter(function (r) { return r && r.data; });
 
-        syncStockNavTarget(window.App.Data.getLastTicker());
-        window.App.Router.init();
+          if (validHoldings.length === 0) {
+            resolve(Object.assign({ isAggregated: false }, calculateHolisticScore(stock, period)));
+            return;
+          }
 
-        if (window.App.Alerts) window.App.Alerts.checkAndNotify();
-        if (window.App.Transactions) window.App.Transactions.migrateOldPortfolio();
-        
-        // Screener-Alerts beim Start prüfen
-        if (window.App.Screener && window.App.Screener.checkScreenerAlerts) {
-          window.App.Screener.checkScreenerAlerts();
-        }
+          var totalWeight = validHoldings.reduce(function (sum, r) { return sum + r.weight; }, 0);
+          var aggTotalScore = 0;
+          var catScores = [0, 0, 0, 0];
+
+          validHoldings.forEach(function (r) {
+            var normWeight = totalWeight > 0 ? (r.weight / totalWeight) : (1 / validHoldings.length);
+            var hs = calculateHolisticScore(r.data, period);
+            aggTotalScore += hs.totalScore * normWeight;
+            hs.categories.forEach(function (cat, idx) {
+              catScores[idx] += cat.score * normWeight;
+            });
+          });
+
+          var finalCategories = [
+            { category: 'Fundamentaldaten', score: Math.round(catScores[0]*10)/10, weight: '40%', metrics: [] },
+            { category: 'Technisches Bild', score: Math.round(catScores[1]*10)/10, weight: '25%', metrics: [] },
+            { category: 'Analysten-Konsens', score: Math.round(catScores[2]*10)/10, weight: '20%', metrics: [] },
+            { category: 'Smart Money & News', score: Math.round(catScores[3]*10)/10, weight: '15%', metrics: [] }
+          ];
+
+          resolve({
+            totalScore: Math.round(aggTotalScore * 10) / 10,
+            score100: Math.round(aggTotalScore * 20),
+            categories: finalCategories,
+            isAggregated: true
+          });
+        });
+      }).catch(function () {
+        resolve(Object.assign({ isAggregated: false }, calculateHolisticScore(stock, period)));
       });
-    })();
-  </script>
-</body>
-</html>
+    });
+  }
+
+  function getPeriod() { return 'year'; }
+  function setPeriod(p) {}
+  
+  function renderSegmentBarHtml(score) {
+    var numFilled = Math.min(5, Math.max(0, Math.round(score)));
+    var colorClass = numFilled >= 4 ? 'filled-green' : (numFilled >= 2 ? 'filled-yellow' : 'filled-red');
+    var html = '<div class="score-segments">';
+    for (var i = 1; i <= 5; i++) {
+      html += '<div class="score-segment-block ' + (i <= numFilled ? colorClass : '') + '"></div>';
+    }
+    return html + '</div>';
+  }
+
+  return {
+    calculateTotalScore: calculateHolisticScore,
+    calculateBaseTotalScore: calculateHolisticScore,
+    calculateTotalScoreAsync: calculateTotalScoreAsync,
+    getPeriod: getPeriod,
+    setPeriod: setPeriod,
+    renderSegmentBarHtml: renderSegmentBarHtml
+  };
+})();
