@@ -1710,11 +1710,11 @@
   },
   "analysts": {
     "targets": {
-      "current": 53.1516,
-      "low": 49.8742,
-      "median": 55.6631,
-      "mean": 56.1084,
-      "high": 66.7957,
+      "current": 53.338,
+      "low": 50.7808,
+      "median": 56.675,
+      "mean": 57.1284,
+      "high": 68.01,
       "currency": "EUR",
       "analystCount": 12
     },
@@ -1722,9 +1722,9 @@
       "score": 2.5385,
       "key": "hold",
       "breakdown": {
-        "strongBuy": 2,
+        "strongBuy": 3,
         "buy": 2,
-        "hold": 8,
+        "hold": 7,
         "sell": 0,
         "strongSell": 1
       },
@@ -1747,6 +1747,14 @@
         },
         {
           "period": "-2m",
+          "strongBuy": 3,
+          "buy": 2,
+          "hold": 7,
+          "sell": 0,
+          "strongSell": 1
+        },
+        {
+          "period": "-3m",
           "strongBuy": 2,
           "buy": 2,
           "hold": 8,
@@ -1757,25 +1765,25 @@
     },
     "epsEstimates": [
       {
-        "quarter": "None",
+        "quarter": "2026-06-30",
         "estimate": 0.9867,
         "actual": 0.99,
         "surprisePercent": 0.0034
       },
       {
-        "quarter": "None",
+        "quarter": "2026-03-31",
         "estimate": 0.7796,
         "actual": 0.87,
         "surprisePercent": 0.116
       },
       {
-        "quarter": "None",
+        "quarter": "2025-12-31",
         "estimate": 0.941,
         "actual": 0.97,
         "surprisePercent": 0.0308
       },
       {
-        "quarter": "None",
+        "quarter": "2025-09-30",
         "estimate": 0.8347,
         "actual": 1.15,
         "surprisePercent": 0.3777
@@ -1789,6 +1797,7 @@
       "high": 1.1297,
       "analysts": 8
     },
+    "checkedAt": "2026-11-14T08:54:31.749258+00:00",
     "upgradesDowngrades": [
       {
         "date": "2026-10-07",
@@ -6220,7 +6229,7 @@
       "close": 53.338
     }
   ],
-  "updatedAt": "2026-11-13T23:10:38.220479+00:00",
+  "updatedAt": "2026-11-14T08:54:31.916250+00:00",
   "holdings": [],
   "dividends": {
     "history": [

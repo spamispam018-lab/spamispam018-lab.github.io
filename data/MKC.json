@@ -1854,11 +1854,11 @@
   },
   "analysts": {
     "targets": {
-      "current": 43.1055,
-      "low": 41.8587,
-      "median": 48.9835,
-      "mean": 48.4982,
-      "high": 57.8896,
+      "current": 42.5833,
+      "low": 42.6196,
+      "median": 48.0604,
+      "mean": 49.056,
+      "high": 58.942,
       "currency": "EUR",
       "analystCount": 14
     },
@@ -1867,8 +1867,8 @@
       "key": "buy",
       "breakdown": {
         "strongBuy": 3,
-        "buy": 5,
-        "hold": 7,
+        "buy": 4,
+        "hold": 8,
         "sell": 0,
         "strongSell": 0
       },
@@ -1892,6 +1892,14 @@
         {
           "period": "-2m",
           "strongBuy": 3,
+          "buy": 4,
+          "hold": 8,
+          "sell": 0,
+          "strongSell": 0
+        },
+        {
+          "period": "-3m",
+          "strongBuy": 3,
           "buy": 5,
           "hold": 7,
           "sell": 0,
@@ -1901,25 +1909,25 @@
     },
     "epsEstimates": [
       {
-        "quarter": "None",
+        "quarter": "2026-08-31",
         "estimate": 0.7559,
         "actual": 0.86,
         "surprisePercent": 0.1378
       },
       {
-        "quarter": "None",
+        "quarter": "2026-05-31",
         "estimate": 0.6969,
         "actual": 0.8,
         "surprisePercent": 0.148
       },
       {
-        "quarter": "None",
+        "quarter": "2026-02-28",
         "estimate": 0.5964,
         "actual": 0.66,
         "surprisePercent": 0.1066
       },
       {
-        "quarter": "None",
+        "quarter": "2025-11-30",
         "estimate": 0.8761,
         "actual": 0.86,
         "surprisePercent": -0.0183
@@ -1933,6 +1941,7 @@
       "high": 0.86,
       "analysts": 10
     },
+    "checkedAt": "2026-11-14T08:50:54.408073+00:00",
     "upgradesDowngrades": [
       {
         "date": "2026-10-02",
@@ -6148,7 +6157,7 @@
       "close": 42.5833
     }
   ],
-  "updatedAt": "2026-11-13T23:10:38.220479+00:00",
+  "updatedAt": "2026-11-14T08:50:54.579240+00:00",
   "holdings": [],
   "dividends": {
     "history": [

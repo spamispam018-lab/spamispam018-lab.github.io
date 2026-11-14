@@ -1502,11 +1502,11 @@
   },
   "analysts": {
     "targets": {
-      "current": 139.9861,
-      "low": 143.3882,
-      "median": 162.091,
-      "mean": 164.9248,
-      "high": 191.4811,
+      "current": 145.759,
+      "low": 145.9948,
+      "median": 165.0376,
+      "mean": 167.9229,
+      "high": 194.962,
       "currency": "EUR",
       "analystCount": 11
     },
@@ -1514,9 +1514,9 @@
       "score": 2.0,
       "key": "buy",
       "breakdown": {
-        "strongBuy": 4,
+        "strongBuy": 3,
         "buy": 4,
-        "hold": 3,
+        "hold": 4,
         "sell": 0,
         "strongSell": 0
       },
@@ -1531,6 +1531,14 @@
         },
         {
           "period": "-1m",
+          "strongBuy": 3,
+          "buy": 4,
+          "hold": 4,
+          "sell": 0,
+          "strongSell": 0
+        },
+        {
+          "period": "-2m",
           "strongBuy": 4,
           "buy": 4,
           "hold": 3,
@@ -1541,25 +1549,25 @@
     },
     "epsEstimates": [
       {
-        "quarter": "None",
+        "quarter": "2026-09-30",
         "estimate": 4.8937,
         "actual": 4.84,
         "surprisePercent": -0.011
       },
       {
-        "quarter": "None",
+        "quarter": "2026-06-30",
         "estimate": 3.6821,
         "actual": 3.61,
         "surprisePercent": -0.0196
       },
       {
-        "quarter": "None",
+        "quarter": "2026-03-31",
         "estimate": 3.477,
         "actual": 3.43,
         "surprisePercent": -0.0135
       },
       {
-        "quarter": "None",
+        "quarter": "2025-12-31",
         "estimate": 3.4355,
         "actual": 3.39,
         "surprisePercent": -0.0132
@@ -1573,6 +1581,7 @@
       "high": 3.66,
       "analysts": 10
     },
+    "checkedAt": "2026-11-14T08:48:52.255546+00:00",
     "upgradesDowngrades": [
       {
         "date": "2026-10-26",
@@ -6004,7 +6013,7 @@
       "close": 145.759
     }
   ],
-  "updatedAt": "2026-11-13T23:10:38.220479+00:00",
+  "updatedAt": "2026-11-14T08:48:52.433522+00:00",
   "holdings": [],
   "dividends": {
     "history": [

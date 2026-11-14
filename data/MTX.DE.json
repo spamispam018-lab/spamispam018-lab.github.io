@@ -1233,7 +1233,7 @@
   },
   "analysts": {
     "targets": {
-      "current": 354.1,
+      "current": 351.6,
       "low": 320.0,
       "median": 415.0,
       "mean": 407.6,
@@ -1245,35 +1245,68 @@
       "score": 2.45,
       "key": "buy",
       "breakdown": {
-        "strongBuy": 0,
-        "buy": 0,
-        "hold": 0,
-        "sell": 0,
-        "strongSell": 0
+        "strongBuy": 4,
+        "buy": 6,
+        "hold": 7,
+        "sell": 2,
+        "strongSell": 1
       },
-      "history": []
+      "history": [
+        {
+          "period": "0m",
+          "strongBuy": 4,
+          "buy": 6,
+          "hold": 7,
+          "sell": 2,
+          "strongSell": 1
+        },
+        {
+          "period": "-1m",
+          "strongBuy": 4,
+          "buy": 7,
+          "hold": 6,
+          "sell": 2,
+          "strongSell": 1
+        },
+        {
+          "period": "-2m",
+          "strongBuy": 4,
+          "buy": 7,
+          "hold": 6,
+          "sell": 2,
+          "strongSell": 1
+        },
+        {
+          "period": "-3m",
+          "strongBuy": 4,
+          "buy": 6,
+          "hold": 6,
+          "sell": 3,
+          "strongSell": 1
+        }
+      ]
     },
     "epsEstimates": [
       {
-        "quarter": "None",
+        "quarter": "2026-09-30",
         "estimate": 4.618,
         "actual": 4.57,
         "surprisePercent": -0.0104
       },
       {
-        "quarter": "None",
+        "quarter": "2026-06-30",
         "estimate": 4.745,
         "actual": 4.86,
         "surprisePercent": 0.0242
       },
       {
-        "quarter": "None",
+        "quarter": "2026-03-31",
         "estimate": 4.1165,
         "actual": 4.14,
         "surprisePercent": 0.0057
       },
       {
-        "quarter": "None",
+        "quarter": "2025-12-31",
         "estimate": 4.98,
         "actual": 4.58,
         "surprisePercent": -0.0803
@@ -1287,6 +1320,7 @@
       "high": 5.57,
       "analysts": 4.0
     },
+    "checkedAt": "2026-11-14T08:39:14.638102+00:00",
     "upgradesDowngrades": []
   },
   "insider": {
@@ -3940,5 +3974,5 @@
     "yield": 1.01
   },
   "exDividendDate": "2026-05-08",
-  "updatedAt": "2026-11-13T23:10:38.220479+00:00"
+  "updatedAt": "2026-11-14T08:39:14.984968+00:00"
 }

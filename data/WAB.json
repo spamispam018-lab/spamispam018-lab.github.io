@@ -2154,17 +2154,17 @@
   },
   "analysts": {
     "targets": {
-      "current": 252.5681,
-      "low": 260.0581,
-      "median": 300.1356,
-      "mean": 295.7567,
-      "high": 316.1665,
+      "current": 270.1901,
+      "low": 282.0148,
+      "median": 305.5916,
+      "mean": 303.2491,
+      "high": 321.914,
       "currency": "EUR",
       "analystCount": 12
     },
     "recommendations": {
-      "score": null,
-      "key": "none",
+      "score": 1.4167,
+      "key": "strong_buy",
       "breakdown": {
         "strongBuy": 1,
         "buy": 9,
@@ -2196,30 +2196,38 @@
           "hold": 2,
           "sell": 0,
           "strongSell": 0
+        },
+        {
+          "period": "-3m",
+          "strongBuy": 1,
+          "buy": 9,
+          "hold": 2,
+          "sell": 0,
+          "strongSell": 0
         }
       ]
     },
     "epsEstimates": [
       {
-        "quarter": "None",
+        "quarter": "2026-09-30",
         "estimate": 2.7336,
         "actual": 2.83,
         "surprisePercent": 0.0353
       },
       {
-        "quarter": "None",
+        "quarter": "2026-06-30",
         "estimate": 2.6052,
         "actual": 2.76,
         "surprisePercent": 0.0594
       },
       {
-        "quarter": "None",
+        "quarter": "2026-03-31",
         "estimate": 2.5197,
         "actual": 2.71,
         "surprisePercent": 0.0755
       },
       {
-        "quarter": "None",
+        "quarter": "2025-12-31",
         "estimate": 2.0818,
         "actual": 2.1,
         "surprisePercent": 0.0088
@@ -2233,6 +2241,7 @@
       "high": 2.79,
       "analysts": 11
     },
+    "checkedAt": "2026-11-14T08:55:11.383723+00:00",
     "upgradesDowngrades": [
       {
         "date": "2026-10-22",
@@ -6664,7 +6673,7 @@
       "close": 270.1901
     }
   ],
-  "updatedAt": "2026-11-13T23:10:38.220479+00:00",
+  "updatedAt": "2026-11-14T08:55:11.557637+00:00",
   "holdings": [],
   "dividends": {
     "history": [

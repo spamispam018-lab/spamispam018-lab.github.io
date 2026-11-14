@@ -2192,11 +2192,11 @@
   },
   "analysts": {
     "targets": {
-      "current": 227.6666,
-      "low": 209.2933,
-      "median": 231.5586,
-      "mean": 229.1243,
-      "high": 248.4802,
+      "current": 235.4053,
+      "low": 213.098,
+      "median": 235.768,
+      "mean": 233.2894,
+      "high": 252.9972,
       "currency": "EUR",
       "analystCount": 15
     },
@@ -2206,9 +2206,9 @@
       "breakdown": {
         "strongBuy": 2,
         "buy": 7,
-        "hold": 7,
+        "hold": 8,
         "sell": 0,
-        "strongSell": 1
+        "strongSell": 0
       },
       "history": [
         {
@@ -2223,12 +2223,20 @@
           "period": "-1m",
           "strongBuy": 2,
           "buy": 7,
+          "hold": 8,
+          "sell": 0,
+          "strongSell": 0
+        },
+        {
+          "period": "-2m",
+          "strongBuy": 2,
+          "buy": 7,
           "hold": 7,
           "sell": 0,
           "strongSell": 1
         },
         {
-          "period": "-2m",
+          "period": "-3m",
           "strongBuy": 2,
           "buy": 7,
           "hold": 7,
@@ -2239,25 +2247,25 @@
     },
     "epsEstimates": [
       {
-        "quarter": "None",
+        "quarter": "2026-09-30",
         "estimate": 2.8745,
         "actual": 3.0,
         "surprisePercent": 0.0436
       },
       {
-        "quarter": "None",
+        "quarter": "2026-06-30",
         "estimate": 2.8232,
         "actual": 3.12,
         "surprisePercent": 0.1051
       },
       {
-        "quarter": "None",
+        "quarter": "2026-03-31",
         "estimate": 2.3671,
         "actual": 2.5,
         "surprisePercent": 0.0561
       },
       {
-        "quarter": "None",
+        "quarter": "2025-12-31",
         "estimate": 2.358,
         "actual": 2.42,
         "surprisePercent": 0.0263
@@ -2271,6 +2279,7 @@
       "high": 2.74,
       "analysts": 13
     },
+    "checkedAt": "2026-11-14T08:52:43.139392+00:00",
     "upgradesDowngrades": [
       {
         "date": "2026-10-07",
@@ -6702,7 +6711,7 @@
       "close": 235.4053
     }
   ],
-  "updatedAt": "2026-11-13T23:10:38.220479+00:00",
+  "updatedAt": "2026-11-14T08:52:43.313077+00:00",
   "holdings": [],
   "dividends": {
     "history": [

@@ -1952,11 +1952,11 @@
   },
   "analysts": {
     "targets": {
-      "current": 76.735,
-      "low": 66.7957,
-      "median": 89.061,
-      "mean": 90.0291,
-      "high": 117.5605,
+      "current": 77.9848,
+      "low": 68.01,
+      "median": 90.68,
+      "mean": 91.7445,
+      "high": 119.6976,
       "currency": "EUR",
       "analystCount": 23
     },
@@ -1965,9 +1965,9 @@
       "key": "buy",
       "breakdown": {
         "strongBuy": 7,
-        "buy": 15,
+        "buy": 13,
         "hold": 4,
-        "sell": 1,
+        "sell": 0,
         "strongSell": 0
       },
       "history": [
@@ -1990,6 +1990,14 @@
         {
           "period": "-2m",
           "strongBuy": 7,
+          "buy": 13,
+          "hold": 4,
+          "sell": 0,
+          "strongSell": 0
+        },
+        {
+          "period": "-3m",
+          "strongBuy": 7,
           "buy": 15,
           "hold": 4,
           "sell": 1,
@@ -1999,25 +2007,25 @@
     },
     "epsEstimates": [
       {
-        "quarter": "None",
+        "quarter": "2026-09-30",
         "estimate": 3.6314,
         "actual": 3.7,
         "surprisePercent": 0.0189
       },
       {
-        "quarter": "None",
+        "quarter": "2026-06-30",
         "estimate": 3.1875,
         "actual": 3.57,
         "surprisePercent": 0.12
       },
       {
-        "quarter": "None",
+        "quarter": "2026-03-31",
         "estimate": 2.6393,
         "actual": 3.7,
         "surprisePercent": 0.4019
       },
       {
-        "quarter": "None",
+        "quarter": "2025-12-31",
         "estimate": 2.2684,
         "actual": 2.51,
         "surprisePercent": 0.1065
@@ -2031,6 +2039,7 @@
       "high": 2.73,
       "analysts": 15
     },
+    "checkedAt": "2026-11-14T08:48:45.309281+00:00",
     "upgradesDowngrades": [
       {
         "date": "2026-10-28",
@@ -6462,7 +6471,7 @@
       "close": 77.9848
     }
   ],
-  "updatedAt": "2026-11-13T23:10:38.220479+00:00",
+  "updatedAt": "2026-11-14T08:48:45.473257+00:00",
   "holdings": [],
   "dividends": {
     "history": [

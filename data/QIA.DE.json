@@ -2479,7 +2479,7 @@
   },
   "analysts": {
     "targets": {
-      "current": 45.28,
+      "current": 45.3,
       "low": 34.0,
       "median": 46.5,
       "mean": 43.1,
@@ -2491,29 +2491,62 @@
       "score": 2.8,
       "key": "hold",
       "breakdown": {
-        "strongBuy": 0,
+        "strongBuy": 1,
         "buy": 0,
-        "hold": 0,
+        "hold": 4,
         "sell": 0,
         "strongSell": 0
       },
-      "history": []
+      "history": [
+        {
+          "period": "0m",
+          "strongBuy": 1,
+          "buy": 0,
+          "hold": 4,
+          "sell": 0,
+          "strongSell": 0
+        },
+        {
+          "period": "-1m",
+          "strongBuy": 1,
+          "buy": 0,
+          "hold": 4,
+          "sell": 0,
+          "strongSell": 0
+        },
+        {
+          "period": "-2m",
+          "strongBuy": 3,
+          "buy": 1,
+          "hold": 3,
+          "sell": 0,
+          "strongSell": 0
+        },
+        {
+          "period": "-3m",
+          "strongBuy": 3,
+          "buy": 1,
+          "hold": 4,
+          "sell": 0,
+          "strongSell": 0
+        }
+      ]
     },
     "epsEstimates": [
       {
-        "quarter": "None",
+        "quarter": "2026-09-30",
         "estimate": 0.537,
         "actual": 0.5792,
         "surprisePercent": 0.0785
       },
       {
-        "quarter": "None",
+        "quarter": "2026-06-30",
         "estimate": 0.5127,
         "actual": 0.537,
         "surprisePercent": 0.0473
       },
       {
-        "quarter": "None",
+        "quarter": "2025-12-31",
         "estimate": 0.5291,
         "actual": 0.5257,
         "surprisePercent": -0.0064
@@ -2527,6 +2560,7 @@
       "high": 0.588,
       "analysts": 1.0
     },
+    "checkedAt": "2026-11-14T08:39:20.276359+00:00",
     "upgradesDowngrades": [
       {
         "date": "2026-10-28",
@@ -5249,5 +5283,5 @@
     "yield": 0.68
   },
   "exDividendDate": "2026-07-07",
-  "updatedAt": "2026-11-13T23:10:38.220479+00:00"
+  "updatedAt": "2026-11-14T08:39:20.442757+00:00"
 }

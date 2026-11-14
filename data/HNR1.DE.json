@@ -1432,7 +1432,7 @@
   },
   "analysts": {
     "targets": {
-      "current": 300.2,
+      "current": 299.6,
       "low": 251.0,
       "median": 280.0,
       "mean": 285.4667,
@@ -1444,29 +1444,62 @@
       "score": 2.5333,
       "key": "hold",
       "breakdown": {
-        "strongBuy": 0,
-        "buy": 0,
-        "hold": 0,
-        "sell": 0,
-        "strongSell": 0
+        "strongBuy": 1,
+        "buy": 6,
+        "hold": 3,
+        "sell": 1,
+        "strongSell": 4
       },
-      "history": []
+      "history": [
+        {
+          "period": "0m",
+          "strongBuy": 1,
+          "buy": 6,
+          "hold": 3,
+          "sell": 1,
+          "strongSell": 4
+        },
+        {
+          "period": "-1m",
+          "strongBuy": 1,
+          "buy": 6,
+          "hold": 8,
+          "sell": 0,
+          "strongSell": 1
+        },
+        {
+          "period": "-2m",
+          "strongBuy": 1,
+          "buy": 6,
+          "hold": 7,
+          "sell": 0,
+          "strongSell": 1
+        },
+        {
+          "period": "-3m",
+          "strongBuy": 1,
+          "buy": 5,
+          "hold": 8,
+          "sell": 0,
+          "strongSell": 1
+        }
+      ]
     },
     "epsEstimates": [
       {
-        "quarter": "None",
+        "quarter": "2026-09-30",
         "estimate": 5.354,
         "actual": 5.76,
         "surprisePercent": 0.0758
       },
       {
-        "quarter": "None",
+        "quarter": "2026-03-31",
         "estimate": 5.9781,
         "actual": 5.89,
         "surprisePercent": -0.0147
       },
       {
-        "quarter": "None",
+        "quarter": "2025-09-30",
         "estimate": 5.3315,
         "actual": 5.4,
         "surprisePercent": 0.0128
@@ -1480,6 +1513,7 @@
       "high": 5.617,
       "analysts": 5
     },
+    "checkedAt": "2026-11-14T08:39:06.982000+00:00",
     "upgradesDowngrades": []
   },
   "insider": {
@@ -4139,5 +4173,5 @@
     "yield": 4.24
   },
   "exDividendDate": "2026-05-07",
-  "updatedAt": "2026-11-13T23:10:38.220479+00:00"
+  "updatedAt": "2026-11-14T08:39:07.317190+00:00"
 }

@@ -1218,11 +1218,11 @@
   },
   "analysts": {
     "targets": {
-      "current": 75.714,
-      "low": 74.2307,
-      "median": 92.3892,
-      "mean": 92.0147,
-      "high": 105.5297,
+      "current": 75.4672,
+      "low": 74.4111,
+      "median": 92.6137,
+      "mean": 92.1491,
+      "high": 105.7861,
       "currency": "EUR",
       "analystCount": 20
     },
@@ -1230,13 +1230,46 @@
       "score": 2.2857,
       "key": "buy",
       "breakdown": {
-        "strongBuy": 0,
-        "buy": 0,
-        "hold": 0,
-        "sell": 0,
+        "strongBuy": 1,
+        "buy": 8,
+        "hold": 11,
+        "sell": 1,
         "strongSell": 0
       },
-      "history": []
+      "history": [
+        {
+          "period": "0m",
+          "strongBuy": 1,
+          "buy": 8,
+          "hold": 11,
+          "sell": 1,
+          "strongSell": 0
+        },
+        {
+          "period": "-1m",
+          "strongBuy": 1,
+          "buy": 8,
+          "hold": 11,
+          "sell": 1,
+          "strongSell": 0
+        },
+        {
+          "period": "-2m",
+          "strongBuy": 1,
+          "buy": 7,
+          "hold": 11,
+          "sell": 1,
+          "strongSell": 1
+        },
+        {
+          "period": "-3m",
+          "strongBuy": 1,
+          "buy": 6,
+          "hold": 12,
+          "sell": 1,
+          "strongSell": 1
+        }
+      ]
     },
     "epsEstimates": [],
     "nextEarningsDate": null,
@@ -1247,6 +1280,7 @@
       "high": null,
       "analysts": null
     },
+    "checkedAt": "2026-11-14T08:40:47.999005+00:00",
     "upgradesDowngrades": []
   },
   "insider": {
@@ -4240,5 +4274,5 @@
     "yield": 5.46
   },
   "exDividendDate": "2026-08-13",
-  "updatedAt": "2026-11-14T05:07:41.423703+00:00"
+  "updatedAt": "2026-11-14T08:40:48.400186+00:00"
 }
