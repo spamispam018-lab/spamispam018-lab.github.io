@@ -3,19 +3,9 @@
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 NEU:
-- FIX: numpy.int64/float64 Konvertierung in clean_val (behebt JSON-Serialisierungsfehler).
-- Option --only: Gezieltes Abrufen einzelner Sektionen (z.B. --only analysts,insider).
-- Japanische Ticker entfernt.
-- Extrem robuster Abruf der Financials (get_*-API + Property-Fallback + Retries).
-- Leere Financials in bestehenden Dateien werden im Delta-Lauf nachgeholt.
-- Upgrades & Downgrades (funktioniert).
-- EPS-Estimates Datum wird korrekt ausgelesen.
-- FIX: Analysten-Breakdown (Buy/Sell/Hold) und 4-Monats-Historie werden nun korrekt geladen.
-- FIX: Analysten werden im Delta-Lauf nachgeholt, wenn Breakdown/Historie leer sind (begrenzt pro Lauf).
-- FIX: Leere/Rate-Limit-Antworten (info leer) überschreiben keine vorhandenen Analystendaten mehr.
-- FIX: EPS-Quartale ohne Datum werden als Q-1..Q-4 gelabelt statt 'None'.
-- NEU: Fallback-Breakdown aus Upgrades/Downgrades, falls Yahoo recommendationTrend leer liefert.
-- NEU: Pause zwischen Tickern im --only-Modus, ETFs werden bei 'analysts' übersprungen.
+- Berechnet RS-Rating (Relative Stärke) am Ende des Durchlaufs.
+- Extrahiert ROE, Payout Ratio und Debt/EBITDA für die Strategien.
+- Option --only: Gezieltes Abrufen einzelner Sektionen.
 """
 
 import os
@@ -121,7 +111,6 @@ RATES_TO_EUR = {
     "EUR": 1.0, "USD": 0.92, "GBP": 1.17, "GBp": 0.0117, "CHF": 1.04, "DKK": 0.134
 }
 
-# NEU: Alle erlaubten Sektionen für das --only Flag
 ALLOWED_SECTIONS = ["quote", "profile", "financials", "analysts", "insider", "institutional", "options", "dividends", "holdings", "history"]
 
 
@@ -138,7 +127,7 @@ def load_live_forex():
     pairs = {"USD": "EURUSD=X", "GBP": "EURGBP=X", "CHF": "EURCHF=X", "DKK": "EURDKK=X"}
     try:
         tickers_str = " ".join(pairs.values())
-        fx_data = yf.download(tickers_str, period="1d", interval="1m", progress=False)
+        fx_data = yf.download(tickers_str, period="1d", interval="1m", progress=False, threads=False)
         close_df = fx_data["Close"] if "Close" in fx_data else fx_data
         for cur, pair in pairs.items():
             try:
@@ -150,7 +139,7 @@ def load_live_forex():
                 pass
         RATES_TO_EUR["GBp"] = RATES_TO_EUR.get("GBP", 1.17) / 100.0
     except Exception as e:
-        print(f"Forex-Abruf fehlgeschlagen: {e}")
+        print(f"Forex-Abruf fehlgeschlagen (nutze Fallback-Kurse): {e}")
 
 
 def to_eur(value, cur):
@@ -160,14 +149,9 @@ def to_eur(value, cur):
 
 def clean_val(val, default=None):
     if val is None: return default
-    
-    # NEU: Konvertiert numpy.int64 / numpy.float64 in native Python Typen
     if hasattr(val, "item") and not isinstance(val, (str, list, dict)):
-        try:
-            val = val.item()
-        except Exception:
-            pass
-            
+        try: val = val.item()
+        except Exception: pass
     if isinstance(val, float):
         if math.isnan(val) or math.isinf(val): return default
         return round(val, 4)
@@ -287,68 +271,6 @@ def process_insider_data(ticker_obj, cur):
     return {"summary": summary, "trades": trades}
 
 
-def analysts_empty(a):
-    if not a:
-        return True
-    r = a.get("recommendations") or {}
-    b = r.get("breakdown") or {}
-    return sum(b.values()) == 0 or not r.get("history")
-
-
-def analysts_recently_checked(a):
-    try:
-        ts = datetime.fromisoformat((a or {}).get("checkedAt", ""))
-        return (datetime.now(timezone.utc) - ts).days < ANALYST_RECHECK_DAYS
-    except Exception:
-        return False
-
-
-def _grade_bucket(grade):
-    g = str(grade or "").strip().lower()
-    if not g:
-        return None
-    if "strong buy" in g or "conviction" in g:
-        return "strongBuy"
-    if "strong sell" in g:
-        return "strongSell"
-    if any(k in g for k in ("underperform", "underweight", "reduce", "sell", "negative")):
-        return "sell"
-    if any(k in g for k in ("outperform", "overweight", "buy", "accumulate", "add", "positive", "top pick")):
-        return "buy"
-    if any(k in g for k in ("hold", "neutral", "market perform", "equal", "sector perform", "in-line", "inline", "peer perform", "mixed")):
-        return "hold"
-    return None
-
-
-def breakdown_from_upgrades(ticker_obj, days=90):
-    try:
-        df = ticker_obj.upgrades_downgrades
-        if df is None or df.empty:
-            return None
-        df = df.reset_index()
-        date_cols = [c for c in df.columns if 'date' in str(c).lower()]
-        if not date_cols:
-            return None
-        dc = date_cols[0]
-        df[dc] = pd.to_datetime(df[dc], errors="coerce", utc=True)
-        df = df.dropna(subset=[dc]).sort_values(by=dc, ascending=False)
-        cutoff = pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=days)
-        df = df[df[dc] >= cutoff]
-        seen = set()
-        out = {"strongBuy": 0, "buy": 0, "hold": 0, "sell": 0, "strongSell": 0}
-        for _, row in df.iterrows():
-            firm = str(row.get("Firm", ""))
-            if firm in seen:
-                continue
-            seen.add(firm)
-            bucket = _grade_bucket(row.get("ToGrade"))
-            if bucket:
-                out[bucket] += 1
-        return out if sum(out.values()) > 0 else None
-    except Exception:
-        return None
-
-
 def process_analyst_data(info, ticker_obj, cur):
     targets = {
         "current": clean_val(to_eur(clean_val(info.get("currentPrice")), cur)),
@@ -386,16 +308,8 @@ def process_analyst_data(info, ticker_obj, cur):
                 "sell": safe_int(latest.get("sell", 0)),
                 "strongSell": safe_int(latest.get("strongSell", latest.get("strong_sell", 0)))
             }
-        else:
-            print(f"{info.get('symbol', '')}: recommendations_summary leer (Yahoo/yfinance-Version prüfen)")
     except Exception as e:
-        print(f"Fehler bei Recommendations Summary für {info.get('symbol', '')}: {e}")
-
-    if sum(recommendations["breakdown"].values()) == 0:
-        approx = breakdown_from_upgrades(ticker_obj)
-        if approx:
-            recommendations["breakdown"] = approx
-            recommendations["breakdownSource"] = "upgrades-approx"
+        pass
 
     try:
         rec_hist = ticker_obj.recommendations
@@ -409,10 +323,8 @@ def process_analyst_data(info, ticker_obj, cur):
                     "sell": safe_int(row.get("sell", 0)),
                     "strongSell": safe_int(row.get("strongSell", row.get("strong_sell", 0)))
                 })
-        else:
-            print(f"{info.get('symbol', '')}: recommendations (History) leer")
     except Exception as e:
-        print(f"Fehler bei Recommendations History für {info.get('symbol', '')}: {e}")
+        pass
 
     eps_estimates = []
     try:
@@ -438,7 +350,7 @@ def process_analyst_data(info, ticker_obj, cur):
                     "surprisePercent": clean_val(row.get("surprisePercent"))
                 })
     except Exception as e:
-        print(f"Fehler bei EPS-History für {info.get('symbol', '')}: {e}")
+        pass
 
     eps_forecast = None
     try:
@@ -729,10 +641,19 @@ def fetch_full_stock(ticker_sym):
              "fiftyTwoWeekLow": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekLow")), cur)),
              "fiftyTwoWeekHigh": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekHigh")), cur)),
              "volume": clean_val(info.get("regularMarketVolume")), "currency": "EUR"}
+    
+    raw_ebitda = clean_val(info.get("ebitda"), 0)
+    raw_total_debt = clean_val(info.get("totalDebt"), 0)
+    net_debt_ebitda = (raw_total_debt / raw_ebitda) if raw_ebitda > 0 else None
+
     ratios = {"peTrailing": clean_val(info.get("trailingPE")),
               "peForward": clean_val(info.get("forwardPE")),
               "dividendYield": clean_val(info.get("dividendYield")),
-              "profitMargins": clean_val(info.get("profitMargins"))}
+              "profitMargins": clean_val(info.get("profitMargins")),
+              "returnOnEquity": clean_val(info.get("returnOnEquity")), 
+              "payoutRatio": clean_val(info.get("payoutRatio")),       
+              "debtToEbitda": clean_val(net_debt_ebitda)               
+              }
 
     chart_history = []
     try:
@@ -860,10 +781,19 @@ def fetch_partial_stock(ticker_sym, sections, existing_data):
                            "fiftyTwoWeekLow": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekLow")), cur)),
                            "fiftyTwoWeekHigh": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekHigh")), cur)),
                            "volume": clean_val(info.get("regularMarketVolume")), "currency": "EUR"}
+                           
+        raw_ebitda = clean_val(info.get("ebitda"), 0)
+        raw_total_debt = clean_val(info.get("totalDebt"), 0)
+        net_debt_ebitda = (raw_total_debt / raw_ebitda) if raw_ebitda > 0 else None
+
         result["ratios"] = {"peTrailing": clean_val(info.get("trailingPE")),
                   "peForward": clean_val(info.get("forwardPE")),
                   "dividendYield": clean_val(info.get("dividendYield")),
-                  "profitMargins": clean_val(info.get("profitMargins"))}
+                  "profitMargins": clean_val(info.get("profitMargins")),
+                  "returnOnEquity": clean_val(info.get("returnOnEquity")), 
+                  "payoutRatio": clean_val(info.get("payoutRatio")),       
+                  "debtToEbitda": clean_val(net_debt_ebitda)               
+                  }
 
     if "financials" in sections:
         result["financials"] = fetch_financials_robust(t, cur)
@@ -1006,6 +936,10 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
                     u_item["price"] = stock_data.get("quote", {}).get("price")
                     u_item["changePercent"] = stock_data.get("quote", {}).get("changePercent")
                     u_item["marketCap"] = stock_data.get("quote", {}).get("marketCap")
+                    u_item["volume"] = stock_data.get("quote", {}).get("volume")
+                    u_item["returnOnEquity"] = stock_data.get("ratios", {}).get("returnOnEquity")
+                    u_item["payoutRatio"] = stock_data.get("ratios", {}).get("payoutRatio")
+                    u_item["debtToEbitda"] = stock_data.get("ratios", {}).get("debtToEbitda")
                     u_item["dividendYield"] = stock_data.get("ratios", {}).get("dividendYield")
                     u_item["exDividendDate"] = stock_data.get("exDividendDate")
                     u_item["updatedAt"] = stock_data.get("updatedAt")
@@ -1163,9 +1097,22 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
         u_item["price"] = stock_data.get("quote", {}).get("price")
         u_item["changePercent"] = stock_data.get("quote", {}).get("changePercent")
         u_item["marketCap"] = stock_data.get("quote", {}).get("marketCap")
+        u_item["volume"] = stock_data.get("quote", {}).get("volume")
+        u_item["returnOnEquity"] = stock_data.get("ratios", {}).get("returnOnEquity")
+        u_item["payoutRatio"] = stock_data.get("ratios", {}).get("payoutRatio")
+        u_item["debtToEbitda"] = stock_data.get("ratios", {}).get("debtToEbitda")
         u_item["dividendYield"] = stock_data.get("ratios", {}).get("dividendYield")
         u_item["exDividendDate"] = stock_data.get("exDividendDate")
         u_item["updatedAt"] = stock_data.get("updatedAt", now_iso)
+
+        # Berechne perf3m für das RS-Rating
+        hist = stock_data.get("chartHistory") or []
+        if len(hist) > 63:
+            c_now = hist[-1]["close"]
+            c_3m = hist[-64]["close"]
+            u_item["perf3m"] = ((c_now / c_3m) - 1) * 100 if c_3m else None
+        else:
+            u_item["perf3m"] = None
 
         try:
             patterns = compute_chart_patterns(stock_data.get("chartHistory") or [], sym)
@@ -1179,6 +1126,20 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
             pass
 
         universe_map[sym] = u_item
+
+    # NEU: Relative Stärke (RS-Rating 0-100) berechnen
+    print("Berechne Relative Stärke (RS-Rating)...")
+    perf_list = []
+    for item in universe_map.values():
+        if "perf3m" in item and item["perf3m"] is not None:
+            perf_list.append(item)
+    
+    perf_list.sort(key=lambda x: x["perf3m"])
+    total_stocks = len(perf_list)
+    
+    for i, item in enumerate(perf_list):
+        rating = int((i / total_stocks) * 100) if total_stocks > 0 else 50
+        universe_map[item["ticker"]]["rsRating"] = rating
 
     with open(universe_file, "w", encoding="utf-8") as f:
         json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
