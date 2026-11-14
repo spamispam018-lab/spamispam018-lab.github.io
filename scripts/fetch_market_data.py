@@ -3,8 +3,8 @@
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 NEU:
+- FIX: numpy.int64/float64 Konvertierung in clean_val (behebt JSON-Serialisierungsfehler).
 - Option --only: Gezieltes Abrufen einzelner Sektionen (z.B. --only analysts,insider).
-  Spart enorm viel Zeit, da nicht mehr alles auf einmal geladen wird.
 - Japanische Ticker entfernt.
 - Extrem robuster Abruf der Financials (get_*-API + Property-Fallback + Retries).
 - Leere Financials in bestehenden Dateien werden im Delta-Lauf nachgeholt.
@@ -160,9 +160,19 @@ def to_eur(value, cur):
 
 def clean_val(val, default=None):
     if val is None: return default
-    if isinstance(val, (float, int)):
+    
+    # NEU: Konvertiert numpy.int64 / numpy.float64 in native Python Typen
+    if hasattr(val, "item") and not isinstance(val, (str, list, dict)):
+        try:
+            val = val.item()
+        except Exception:
+            pass
+            
+    if isinstance(val, float):
         if math.isnan(val) or math.isinf(val): return default
-        return round(val, 4) if isinstance(val, float) else val
+        return round(val, 4)
+    if isinstance(val, int):
+        return val
     return val
 
 
@@ -278,7 +288,6 @@ def process_insider_data(ticker_obj, cur):
 
 
 def analysts_empty(a):
-    """True, wenn Breakdown oder Historie fehlen (Kursziele allein reichen nicht)."""
     if not a:
         return True
     r = a.get("recommendations") or {}
@@ -312,7 +321,6 @@ def _grade_bucket(grade):
 
 
 def breakdown_from_upgrades(ticker_obj, days=90):
-    """Näherung: letzte Bewertung je Firma der letzten `days` Tage. Nur Fallback."""
     try:
         df = ticker_obj.upgrades_downgrades
         if df is None or df.empty:
@@ -362,6 +370,7 @@ def process_analyst_data(info, ticker_obj, cur):
     def safe_int(val):
         try:
             if pd.isna(val): return 0
+            if hasattr(val, "item"): val = val.item()
             return int(val)
         except Exception:
             return 0
@@ -800,12 +809,10 @@ def fetch_full_stock(ticker_sym):
     return result
 
 
-# NEU: Partieller Fetch nur für bestimmte Sektionen
 def fetch_partial_stock(ticker_sym, sections, existing_data):
     t = yf.Ticker(ticker_sym)
     existing_data = existing_data or {}
     
-    # Info immer laden (wird von fast allen Sektionen gebraucht)
     info = t.info or {}
     if not info and "analysts" in sections:
         raise RuntimeError("info leer (Rate-Limit?) - Analysten nicht überschrieben")
@@ -959,7 +966,6 @@ def extract_close_series(batch_df, sym):
 def run_delta_sync(tickers, is_manual=False, sections=None):
     load_live_forex()
 
-    # Wenn gezielt Sektionen geladen werden sollen
     if sections:
         print(f"Lade gezielt Sektionen: {', '.join(sections)} für {len(tickers)} Ticker...")
         universe_file = os.path.join(DATA_DIR, "universe.json")
@@ -979,7 +985,6 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
                         stock_data = json.load(f)
                 except Exception: pass
             
-            # Wenn Datei nicht existiert, holen wir das Nötigste (Profil + Quote) mit, damit sie valide ist
             current_sections = list(sections)
             if not stock_data:
                 print(f"  Datei für {sym} fehlt, hole Basis-Daten mit...")
@@ -992,7 +997,6 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
                 with open(stock_file, "w", encoding="utf-8") as f:
                     json.dump(stock_data, f, ensure_ascii=False, indent=2)
                 
-                # Universe Eintrag aktualisieren, falls Quote neu geladen wurde
                 if "quote" in current_sections or "profile" in current_sections:
                     u_item = universe_map.get(sym, {"ticker": sym})
                     u_item["name"] = stock_data.get("profile", {}).get("name", sym)
@@ -1017,7 +1021,6 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
                 json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
         return
 
-    # Normales Delta / Full Update
     if is_manual and len(tickers) == 1:
         sym = tickers[0]
         stock_file = os.path.join(DATA_DIR, f"{sym}.json")
@@ -1185,7 +1188,6 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["delta", "full"], default="delta")
     parser.add_argument("--ticker", type=str, default="")
-    # NEU: Option zum gezielten Laden einzelner Sektionen
     parser.add_argument("--only", type=str, default="", help="Kommagetrennte Liste von Sektionen: quote, profile, financials, analysts, insider, institutional, options, dividends, holdings, history")
     args = parser.parse_args()
     
