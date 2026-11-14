@@ -3,10 +3,10 @@
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 NEU:
-- Berechnet RS-Rating (Relative Stärke) am Ende des Durchlaufs.
-- Extrahiert ROE, Payout Ratio und Debt/EBITDA für die Strategien.
+- FIX: Entfernt automatisch Anführungszeichen um den --only Parameter.
+- Eigene Sektion 'ratios' für gezieltes Update der Kennzahlen (ROE, Payout, Debt/EBITDA).
+- FIX: numpy.int64/float64 Konvertierung in clean_val.
 - Option --only: Gezieltes Abrufen einzelner Sektionen.
-- FIX: Fehlende Funktionen analysts_empty und analysts_recently_checked wieder eingefügt.
 """
 
 import os
@@ -106,13 +106,13 @@ DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 MAX_FIN_BACKFILL_PER_RUN = 50
 MAX_ANALYST_BACKFILL_PER_RUN = 50
 ANALYST_RECHECK_DAYS = 7
-ONLY_MODE_SLEEP_SEC = 1.0
+ONLY_MODE_SLEEP_SEC = 0.5
 
 RATES_TO_EUR = {
     "EUR": 1.0, "USD": 0.92, "GBP": 1.17, "GBp": 0.0117, "CHF": 1.04, "DKK": 0.134
 }
 
-ALLOWED_SECTIONS = ["quote", "profile", "financials", "analysts", "insider", "institutional", "options", "dividends", "holdings", "history"]
+ALLOWED_SECTIONS = ["quote", "profile", "financials", "analysts", "insider", "institutional", "options", "dividends", "holdings", "history", "ratios"]
 
 
 def detect_native_currency(ticker):
@@ -273,7 +273,6 @@ def process_insider_data(ticker_obj, cur):
 
 
 def analysts_empty(a):
-    """True, wenn Breakdown oder Historie fehlen (Kursziele allein reichen nicht)."""
     if not a:
         return True
     r = a.get("recommendations") or {}
@@ -753,8 +752,8 @@ def fetch_partial_stock(ticker_sym, sections, existing_data):
     existing_data = existing_data or {}
     
     info = t.info or {}
-    if not info and "analysts" in sections:
-        raise RuntimeError("info leer (Rate-Limit?) - Analysten nicht überschrieben")
+    if not info and ("analysts" in sections or "ratios" in sections):
+        raise RuntimeError("info leer (Rate-Limit?) - Daten nicht überschrieben")
     cur = existing_data.get("profile", {}).get("nativeCurrency") or info.get("currency") or detect_native_currency(ticker_sym)
     
     result = dict(existing_data)
@@ -799,7 +798,8 @@ def fetch_partial_stock(ticker_sym, sections, existing_data):
                            "fiftyTwoWeekLow": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekLow")), cur)),
                            "fiftyTwoWeekHigh": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekHigh")), cur)),
                            "volume": clean_val(info.get("regularMarketVolume")), "currency": "EUR"}
-                           
+
+    if "ratios" in sections:
         raw_ebitda = clean_val(info.get("ebitda"), 0)
         raw_total_debt = clean_val(info.get("totalDebt"), 0)
         net_debt_ebitda = (raw_total_debt / raw_ebitda) if raw_ebitda > 0 else None
@@ -945,7 +945,7 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
                 with open(stock_file, "w", encoding="utf-8") as f:
                     json.dump(stock_data, f, ensure_ascii=False, indent=2)
                 
-                if "quote" in current_sections or "profile" in current_sections:
+                if "quote" in current_sections or "profile" in current_sections or "ratios" in current_sections:
                     u_item = universe_map.get(sym, {"ticker": sym})
                     u_item["name"] = stock_data.get("profile", {}).get("name", sym)
                     u_item["sector"] = stock_data.get("profile", {}).get("sector", "Sonstige")
@@ -968,7 +968,7 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
                 print(f"  Fehler bei {sym}: {e}")
             time.sleep(ONLY_MODE_SLEEP_SEC)
 
-        if any(s in sections for s in ["quote", "profile"]):
+        if any(s in sections for s in ["quote", "profile", "ratios"]):
             with open(universe_file, "w", encoding="utf-8") as f:
                 json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
         return
@@ -988,6 +988,9 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
             u_item = universe_map.get(sym, {"ticker": sym})
             u_item["price"] = stock_data["quote"]["price"]
             u_item["changePercent"] = stock_data["quote"]["changePercent"]
+            u_item["returnOnEquity"] = stock_data["ratios"].get("returnOnEquity")
+            u_item["payoutRatio"] = stock_data["ratios"].get("payoutRatio")
+            u_item["debtToEbitda"] = stock_data["ratios"].get("debtToEbitda")
             u_item["updatedAt"] = stock_data["updatedAt"]
             universe_map[sym] = u_item
             with open(universe_file, "w", encoding="utf-8") as f:
@@ -1123,7 +1126,6 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
         u_item["exDividendDate"] = stock_data.get("exDividendDate")
         u_item["updatedAt"] = stock_data.get("updatedAt", now_iso)
 
-        # Berechne perf3m für das RS-Rating
         hist = stock_data.get("chartHistory") or []
         if len(hist) > 63:
             c_now = hist[-1]["close"]
@@ -1145,7 +1147,6 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
 
         universe_map[sym] = u_item
 
-    # NEU: Relative Stärke (RS-Rating 0-100) berechnen
     print("Berechne Relative Stärke (RS-Rating)...")
     perf_list = []
     for item in universe_map.values():
@@ -1167,7 +1168,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["delta", "full"], default="delta")
     parser.add_argument("--ticker", type=str, default="")
-    parser.add_argument("--only", type=str, default="", help="Kommagetrennte Liste von Sektionen: quote, profile, financials, analysts, insider, institutional, options, dividends, holdings, history")
+    parser.add_argument("--only", type=str, default="", help="Kommagetrennte Liste: quote, profile, ratios, financials, analysts, insider, institutional, options, dividends, holdings, history")
     args = parser.parse_args()
     
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -1175,7 +1176,10 @@ def main():
 
     sections = None
     if args.only:
-        sections = [s.strip().lower() for s in args.only.split(",")]
+        # NEU: Entfernt Anführungszeichen am Anfang und Ende, falls vorhanden
+        raw_only = args.only.strip().strip('"').strip("'")
+        
+        sections = [s.strip().strip('"').strip("'").lower() for s in raw_only.split(",") if s.strip()]
         invalid = [s for s in sections if s not in ALLOWED_SECTIONS]
         if invalid:
             print(f"FEHLER: Ungültige Sektion(en): {', '.join(invalid)}")
@@ -1183,7 +1187,7 @@ def main():
             sys.exit(1)
 
     if args.ticker:
-        target_tickers = [args.ticker.strip().upper()]
+        target_tickers = [args.ticker.strip().strip('"').strip("'").upper()]
         run_delta_sync(target_tickers, is_manual=True, sections=sections)
     else:
         run_delta_sync(ALL_TICKERS, is_manual=False, sections=sections)
