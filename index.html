@@ -98,7 +98,6 @@
   <script src="js/watchlist.js"></script>
   <script src="js/news.js"></script>
   <script src="js/stock-overview.js"></script>
-  <script src="js/premarket.js"></script>
   <script src="js/chart-analyse.js"></script>
   <script src="js/stock-chart.js"></script>
   <script src="js/stock-forecast.js"></script>
@@ -116,6 +115,7 @@
   <script src="js/journal.js"></script>
   <script src="js/alerts.js"></script>
   <script src="js/earnings.js"></script>
+  <script src="js/premarket.js"></script>
 
   <script>
     (function () {
@@ -215,8 +215,6 @@
             var chgCls = window.App.Format.changeClass(quote.changePercent);
             var sign = (quote.changePercent || 0) >= 0 ? '+' : '';
 
-            // WICHTIG: Die IDs "stock-header-price" und "stock-header-change" wurden hinzugefügt,
-            // damit der Live-Button die Werte aktualisieren kann.
             var html = '' +
               '<div class="view-container">' +
                 '<div class="search-bar-wrapper" style="margin-bottom: 10px;">' +
@@ -309,6 +307,8 @@
       }
 
       function renderSubTabContent(stock, activeTab) {
+        if (window.App.PreMarket) window.App.PreMarket.stopAutoRefresh();
+        
         var subArea = document.getElementById('stock-active-subtab-area');
         if (!subArea) return;
         switch (activeTab) {
@@ -327,40 +327,46 @@
       }
 
       function renderScoreView(container, stock) {
-        var period = window.App.Score.getPeriod();
         container.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Berechne Score...</p></div>';
-        window.App.Score.calculateTotalScoreAsync(stock, period).then(function (scoreData) {
-          var html = '<div class="horizontal-scroll-row" style="margin-bottom: 8px;">' +
-              '<button class="chip-btn ' + (period === 'quarter' ? 'active' : '') + '" data-score-period="quarter">Quartal</button>' +
-              '<button class="chip-btn ' + (period === 'year' ? 'active' : '') + '" data-score-period="year">Jahr</button>' +
-            '</div>' +
+        
+        window.App.Score.calculateTotalScoreAsync(stock).then(function (scoreData) {
+          var html = 
             (scoreData.isAggregated ? '<div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 12px; padding: 8px 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);"><b>Hinweis (ETF):</b> Score ist gewichteter Durchschnitt der Top-5-Holdings.</div>' : '') +
-            '<p style="font-size: 0.7rem; color: var(--text-dim); margin: 0 4px 12px; line-height: 1.4;">' +
-              (period === 'quarter' ? 'Basis: letztes Quartal.' : 'Basis: letztes Geschäftsjahr.') + '</p>' +
             '<div class="card" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px;">' +
-              '<div><div style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Gesamt-Score</div>' +
-                '<div style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">' + (scoreData.totalScore >= 3.5 ? 'Solides Profil' : 'Gemischtes Profil') + '</div></div>' +
-              '<div class="score-badge-large">' + scoreData.totalScore.toFixed(1) + '</div></div>';
+              '<div><div style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; font-weight: 600;">Gesamt-Score (0-100)</div>' +
+                '<div style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">' + (scoreData.score100 >= 65 ? 'Starkes Profil' : scoreData.score100 >= 45 ? 'Gemischtes Profil' : 'Schwaches Profil') + '</div></div>' +
+              '<div class="score-badge-large">' + scoreData.score100 + '</div></div>';
 
           scoreData.categories.forEach(function (cat) {
-            html += '<div class="card"><div class="card-header-dotted"><span class="card-title">' + cat.category + '</span>' +
-              '<span style="font-weight: 800; font-size: 0.95rem; color: var(--accent-purple-light);">' + cat.score.toFixed(1) + ' / 5.0</span></div>' +
+            html += '<div class="card">' +
+              '<div class="card-header-dotted">' +
+                '<div style="display:flex; flex-direction:column;">' +
+                  '<span class="card-title">' + cat.category + '</span>' +
+                  '<span style="font-size:0.65rem; color:var(--text-dim);">Gewichtung: ' + cat.weight + '</span>' +
+                '</div>' +
+                '<span style="font-weight: 800; font-size: 0.95rem; color: var(--accent-purple-light);">' + cat.score.toFixed(1) + ' / 5.0</span>' +
+              '</div>' +
+              
               window.App.Score.renderSegmentBarHtml(cat.score) +
-              '<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px; font-size: 0.8rem;">';
+              
+              // NEU: Die Begründung
+              '<div style="margin-top: 12px; padding: 10px; background: var(--bg-tertiary); border-radius: var(--radius-sm); font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">' +
+                '<strong style="color: var(--text-main);">Begründung:</strong> ' + cat.reason +
+              '</div>' +
+
+              // NEU: Die Detail-Daten
+              '<div style="display: flex; flex-direction: column; gap: 6px; margin-top: 12px; font-size: 0.8rem;">';
+            
             cat.metrics.forEach(function (m) {
               html += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--border-subtle);">' +
-                '<span style="color: var(--text-muted);">' + m.name + '</span>' +
-                '<strong style="font-variant-numeric: tabular-nums;">' + m.value + '</strong></div>';
+                '<span style="color: var(--text-dim);">' + m.name + '</span>' +
+                '<strong style="font-variant-numeric: tabular-nums; color: var(--text-main);">' + m.value + '</strong></div>';
             });
+            
             html += '</div></div>';
           });
+          
           container.innerHTML = html;
-          container.querySelectorAll('[data-score-period]').forEach(function (btn) {
-            btn.onclick = function () {
-              window.App.Score.setPeriod(btn.getAttribute('data-score-period'));
-              renderScoreView(container, stock);
-            };
-          });
         }).catch(function (err) {
           container.innerHTML = '<div class="state-box"><p>Score fehlgeschlagen: ' + String((err && err.message) || 'Unbekannt').replace(/</g, '&lt;') + '</p></div>';
         });
@@ -381,7 +387,7 @@
         if (window.App.Alerts) window.App.Alerts.checkAndNotify();
         if (window.App.Transactions) window.App.Transactions.migrateOldPortfolio();
         
-        // NEU: Screener-Alerts beim Start prüfen
+        // Screener-Alerts beim Start prüfen
         if (window.App.Screener && window.App.Screener.checkScreenerAlerts) {
           window.App.Screener.checkScreenerAlerts();
         }
