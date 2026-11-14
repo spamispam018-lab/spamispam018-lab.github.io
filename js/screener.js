@@ -1,7 +1,7 @@
 /**
  * js/screener.js
  * Verwaltet den Aktien-Screener.
- * NEU: Button zur neuen "Strategie-Suche" hinzugefügt.
+ * NEU: Strategie-Button neben "Filter speichern" platziert.
  */
 window.App = window.App || {};
 
@@ -1037,16 +1037,28 @@ window.App.Screener = (function () {
     if (!row) return;
     var saved = loadSavedFilters();
     var sig = currentFilterSignature();
-    var html = '<button class="chip-btn" id="screener-save-btn">＋ Filter speichern</button>';
+    
+    // NEU: Strategie-Button hier eingefügt (ganz am Anfang der Zeile)
+    var html = '<button class="chip-btn" id="screener-strategy-btn" style="background:var(--accent-purple-glow); border-color:var(--accent-purple); color:var(--text-main); font-weight:700; flex-shrink:0;">🎯 Strategie</button>';
+    html += '<button class="chip-btn" id="screener-save-btn" style="flex-shrink:0;">＋ Filter speichern</button>';
+    
     saved.forEach(function (f) {
       var on = savedSignature(f) === sig && (activePresets.length > 0 || slidersActive());
-      html += '<button class="chip-btn' + (on ? ' active' : '') + '" data-saved-id="' + esc(f.id) + '">' +
+      html += '<button class="chip-btn' + (on ? ' active' : '') + '" data-saved-id="' + esc(f.id) + '" style="flex-shrink:0;">' +
         '★ ' + esc(f.name) +
         '<span data-saved-del="' + esc(f.id) + '" style="margin-left: 8px; opacity: 0.65;" title="Löschen">✕</span>' +
       '</button>';
     });
     row.innerHTML = html;
     row.style.display = '';
+
+    // Event für den neuen Strategie-Button binden
+    var stratBtn = document.getElementById('screener-strategy-btn');
+    if (stratBtn) {
+      stratBtn.onclick = function () {
+        window.App.Router.navigate('/strategies');
+      };
+    }
 
     var saveBtn = document.getElementById('screener-save-btn');
     if (saveBtn) saveBtn.onclick = saveCurrentFilter;
@@ -1308,13 +1320,6 @@ window.App.Screener = (function () {
 
     return '' +
       '<div class="view-container">' +
-        // NEU: Strategie-Button
-        '<div style="display:flex; justify-content:flex-end; margin-bottom: 10px;">' +
-          '<button class="chip-btn active" onclick="window.App.Router.navigate(\'/strategies\')" style="background:var(--bg-secondary); color:var(--text-main); border-color:var(--border-color); box-shadow:0 2px 8px var(--shadow-medium);">' +
-            '🎯 Nach Strategie suchen' +
-          '</button>' +
-        '</div>' +
-
         '<div class="hero-banner">' +
           '<div class="hero-tag">Marktübersicht (Aktienuniversum)</div>' +
           '<div class="hero-count" id="screener-hero-count">Lade Titel...</div>' +
@@ -1334,7 +1339,10 @@ window.App.Screener = (function () {
         '</div>' +
 
         '<div class="horizontal-scroll-row">' + chips + '</div>' +
+        
+        // HIER WURDE DER BUTTON ENTFERNT
         '<div class="horizontal-scroll-row" id="screener-saved-row"></div>' +
+        
         '<div id="screener-active-summary"></div>' +
 
         '<div class="sub-header-bar">' +
