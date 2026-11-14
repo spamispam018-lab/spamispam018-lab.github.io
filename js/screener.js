@@ -1,74 +1,48 @@
 /**
  * js/screener.js
- * Verwaltet den Aktien-Screener:
- * - Marktübersicht Hero-Banner mit Kennzahlen und Datenstand
- * - Volltextsuche über Name, Ticker und Branche
- * - Robuste Sortierung (fehlende Werte immer zuletzt, 0 % ist ein gültiger Wert)
- * - Filter-Chips mit Mehrfachauswahl (UND-Verknüpfung), Trefferzahl und Erklärung
- * - Feinfilter per Slider (Header-Filter-Icon): max. KGV, min. Dividende, min. 52W-Performance
- * - Branchenvergleich beim KGV (Value / Unterbewertet)
- * - "Neu im Filter"-Markierung und Watchlist-Hinweis
- * - Merken der Auswahl (localStorage)
- * - KI-Screening via Gemini für jede Filterauswahl
- *
- * NEU (Batch 1):
- * - Screener-Alerts: Filter als "Sag mir, wenn neue Treffer"-Regel speichern.
- *   Beim App-Start werden alle gespeicherten Alerts gegen das aktuelle Universum
- *   geprüft und neue Treffer als Banner eingeblendet.
- *
- * NEU (Batch 2):
- * - Technische Chart-Muster-Filter (bullisch, bärisch, Doppel-Top, Doppel-Boden,
- *   Bollinger-Squeeze) basierend auf Feldern, die die Pipeline in universe.json
- *   vorberechnet (hasBullishPattern, hasBearishPattern, chartPatterns[], bollingerSqueeze).
+ * Verwaltet den Aktien-Screener.
+ * NEU: Button zur neuen "Strategie-Suche" hinzugefügt.
  */
-
 window.App = window.App || {};
 
 window.App.Screener = (function () {
   'use strict';
 
-  // ---------------------------------------------------------------------------
-  // Schwellenwerte (hier anpassen)
-  // ---------------------------------------------------------------------------
-  var PROGNOSE_STEIGEND_MIN = 10;   // Kursziel mindestens 10 % über Kurs
-  var PROGNOSE_FALLEND_MAX = 0;     // Kursziel unter aktuellem Kurs
-  var MIN_ANALYSTS = 5;             // Kursziel-Filter nur ab so vielen Analysten
-  var CROSS_RECENT_DAYS = 60;       // "Kürzlich" = SMA-50/200-Kreuz in den letzten 60 Handelstagen
-  var QUALITY_MIN_MARGIN = 0.10;    // Nettomarge mind. 10 %
-  var QUALITY_MAX_DEBT_EQUITY = 100; // Verschuldung (Debt/Equity in %) höchstens 100
-  var EARNINGS_GROWTH_MIN = 0.15;   // Forward-KGV mind. 15 % unter aktuellem KGV
-  var RECOVERY_MAX_RANGEPOS = 33;   // Kurs im unteren Drittel der 52-Wochen-Spanne
-  var OVERSOLD_RSI_MAX = 30;        // RSI(14) höchstens 30
-  var EARNINGS_SOON_DAYS = 14;      // "Bericht bald": nächster Bericht innerhalb X Tage
-  var CONSENSUS_BUY_MIN = 70;       // "Kaufkonsens": mindestens X % Buy/StrongBuy
-  var VALUE_DISCOUNT = 0.15;        // KGV mind. 15 % unter dem Branchen-Median
-  var VALUE_FALLBACK_PE = 18;       // feste KGV-Grenze, wenn die Branche zu klein ist
-  var MIN_SECTOR_SIZE = 5;          // Mindestanzahl Aktien für einen Branchen-Median
-  var RR_MIN_CRV = 2;               // "Kleines Risiko": Chance-Risiko-Verhältnis mindestens 2:1
-  var RR_MAX_STOP_PCT = 5;          // "Kleines Risiko": Stop höchstens 5 % unter dem Kurs
-  var STALE_AFTER_HOURS = 84;       // Daten älter als 3,5 Tage gelten als veraltet (Wochenende eingerechnet)
+  var PROGNOSE_STEIGEND_MIN = 10;   
+  var PROGNOSE_FALLEND_MAX = 0;     
+  var MIN_ANALYSTS = 5;             
+  var CROSS_RECENT_DAYS = 60;       
+  var QUALITY_MIN_MARGIN = 0.10;    
+  var QUALITY_MAX_DEBT_EQUITY = 100; 
+  var EARNINGS_GROWTH_MIN = 0.15;   
+  var RECOVERY_MAX_RANGEPOS = 33;   
+  var OVERSOLD_RSI_MAX = 30;        
+  var EARNINGS_SOON_DAYS = 14;      
+  var CONSENSUS_BUY_MIN = 70;       
+  var VALUE_DISCOUNT = 0.15;        
+  var VALUE_FALLBACK_PE = 18;       
+  var MIN_SECTOR_SIZE = 5;          
+  var RR_MIN_CRV = 2;               
+  var RR_MAX_STOP_PCT = 5;          
+  var STALE_AFTER_HOURS = 84;       
 
   var STORAGE_KEY = 'screener_state_v1';
   var SNAPSHOT_KEY = 'screener_snapshot_v1';
-  // NEU (Batch 1): Storage-Key für Screener-Alerts
   var SCREENER_ALERTS_KEY = 'screener_alerts_v1';
 
-  // ---------------------------------------------------------------------------
-  // Zustand
-  // ---------------------------------------------------------------------------
   var allStocks = [];
   var filteredStocks = [];
 
   var currentSearchQuery = '';
   var currentSort = 'marketCap_desc';
-  var activePresets = [];   // leer = "Alle"; mehrere aktive Filter = alle müssen zutreffen (UND)
-  var autoSorted = false;   // true, wenn die Sortierung automatisch durch einen Filter gesetzt wurde
+  var activePresets = [];   
+  var autoSorted = false;   
   var sliderFilters = { maxPe: null, minYield: 0, minPerf: null, minCrv: null, maxStop: null };
 
-  var sectorPe = {};        // Branche -> Median-KGV
-  var dataStamp = null;     // Date des letzten Daten-Updates
-  var newSets = {};         // Preset -> { ticker: true } (neu seit dem letzten Daten-Update)
-  var presetCounts = {};    // Preset -> Trefferzahl im gesamten Universum
+  var sectorPe = {};        
+  var dataStamp = null;     
+  var newSets = {};         
+  var presetCounts = {};    
 
   var SORT_OPTIONS = [
     { v: 'marketCap_desc', label: 'Marktkapitalisierung (Höchste)' },
@@ -85,90 +59,48 @@ window.App.Screener = (function () {
     { v: 'stop_asc', label: 'Stop-Abstand (Kleinster)' }
   ];
 
-  // Filter, die sich gegenseitig ausschließen (Antippen des einen schaltet den anderen ab)
   var PRESET_EXCLUSIVE = {
     forecast_up: 'forecast_down', forecast_down: 'forecast_up',
     death_cross: 'golden_cross', golden_cross: 'death_cross',
-    // NEU (Batch 2): Bullisch/Bärisch schließen sich aus
     tech_bullish: 'tech_bearish', tech_bearish: 'tech_bullish'
   };
 
-  // Passende Standard-Sortierung, wenn genau ein Filter aktiv ist
   var PRESET_SORTS = { forecast_up: 'upside_desc', forecast_down: 'upside_asc', oversold: 'rsi_asc', low_risk: 'crv_desc' };
 
-  // ---------------------------------------------------------------------------
-  // Kleine Helfer
-  // ---------------------------------------------------------------------------
-  function hasNum(v) {
-    return typeof v === 'number' && isFinite(v);
-  }
-
-  function hasUpside(s) {
-    return hasNum(s.upside);
-  }
-
+  function hasNum(v) { return typeof v === 'number' && isFinite(v); }
+  function hasUpside(s) { return hasNum(s.upside); }
+  
   function esc(v) {
     return String(v === null || v === undefined ? '' : v)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  function fmtNum(v, d) {
-    return window.App.Format.number(v, d);
-  }
-
-  function isActive(p) {
-    return activePresets.indexOf(p) !== -1;
-  }
+  function fmtNum(v, d) { return window.App.Format.number(v, d); }
+  function isActive(p) { return activePresets.indexOf(p) !== -1; }
 
   function loadJson(key) {
-    try {
-      var raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : null;
-    } catch (e) {
-      return null;
-    }
+    try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
   }
-
   function saveJson(key, obj) {
-    try { localStorage.setItem(key, JSON.stringify(obj)); } catch (e) { /* voll oder gesperrt: ignorieren */ }
+    try { localStorage.setItem(key, JSON.stringify(obj)); } catch (e) {}
   }
 
   function cmpNum(x, y, dir) {
-    // Fehlende Werte stehen immer am Ende; 0 ist ein gültiger Wert.
-    var hx = hasNum(x);
-    var hy = hasNum(y);
+    var hx = hasNum(x), hy = hasNum(y);
     if (!hx && !hy) return 0;
     if (!hx) return 1;
     if (!hy) return -1;
     return dir === 'asc' ? x - y : y - x;
   }
 
-  // ---------------------------------------------------------------------------
-  // Filter-Logik
-  // ---------------------------------------------------------------------------
   function isLoss(s) {
     if (hasNum(s.pe)) return s.pe < 0;
     return hasNum(s.profitMargins) && s.profitMargins < 0;
   }
+  function analystOk(s) { return !hasNum(s.analystCount) || s.analystCount >= MIN_ANALYSTS; }
+  function peLimit(s) { var median = sectorPe[s.sector]; return median ? median * (1 - VALUE_DISCOUNT) : VALUE_FALLBACK_PE; }
+  function isCheap(s) { return s.pe > 0 && s.pe <= peLimit(s); }
 
-  function analystOk(s) {
-    // Unbekannte Anzahl (Daten noch ohne Feld) schließt nicht aus; bekannte Anzahl muss reichen.
-    return !hasNum(s.analystCount) || s.analystCount >= MIN_ANALYSTS;
-  }
-
-  /** KGV-Obergrenze für "günstig": Branchen-Median minus Abschlag, sonst fester Wert. */
-  function peLimit(s) {
-    var median = sectorPe[s.sector];
-    return median ? median * (1 - VALUE_DISCOUNT) : VALUE_FALLBACK_PE;
-  }
-
-  function isCheap(s) {
-    return s.pe > 0 && s.pe <= peLimit(s);
-  }
-
-  /**
-   * "Unterbewertet": günstiges KGV (relativ zur Branche) bei solider Qualität und Kurs in der unteren Hälfte der 52W-Spanne.
-   */
   function isUndervalued(s) {
     if (!isCheap(s)) return false;
     if (hasNum(s.peg) && !(s.peg > 0 && s.peg <= 1.5)) return false;
@@ -179,9 +111,6 @@ window.App.Screener = (function () {
     return true;
   }
 
-  /**
-   * "Turnaround": aktuell Verlust (negatives/fehlendes KGV), aber niedriges Forward-KGV.
-   */
   function isTurnaround(s) {
     if (!isLoss(s)) return false;
     if (!(s.forwardPe > 0 && s.forwardPe <= 12)) return false;
@@ -190,7 +119,6 @@ window.App.Screener = (function () {
     return true;
   }
 
-  /** "Qualität": solide Marge, wachsender Umsatz, moderate Verschuldung. */
   function isQuality(s) {
     if (!hasNum(s.profitMargins) || s.profitMargins < QUALITY_MIN_MARGIN) return false;
     if (!hasNum(s.revGrowth) || s.revGrowth < 0) return false;
@@ -198,24 +126,18 @@ window.App.Screener = (function () {
     return true;
   }
 
-  /** "Gewinnwachstum erwartet": Forward-KGV deutlich unter dem aktuellen KGV. */
   function isEarningsGrowth(s) {
     if (!(s.pe > 0) || !(s.forwardPe > 0)) return false;
     return s.forwardPe <= s.pe * (1 - EARNINGS_GROWTH_MIN);
   }
 
-  /** "Erholung": Kurs im unteren Drittel der 52W-Spanne, aber Kursziel deutlich darüber. */
   function isRecovery(s) {
     if (!hasNum(s.rangePos) || s.rangePos > RECOVERY_MAX_RANGEPOS) return false;
     return hasUpside(s) && s.upside >= PROGNOSE_STEIGEND_MIN && analystOk(s);
   }
 
-  /** "Überverkauft": RSI(14) <= 30. */
-  function isOversold(s) {
-    return hasNum(s.rsi) && s.rsi <= OVERSOLD_RSI_MAX;
-  }
+  function isOversold(s) { return hasNum(s.rsi) && s.rsi <= OVERSOLD_RSI_MAX; }
 
-  /** Tage bis zu einem ISO-Datum (YYYY-MM-DD), null wenn ungültig/fehlend. */
   function daysTo(dateStr) {
     if (!dateStr) return null;
     var d = new Date(dateStr + 'T00:00:00');
@@ -223,18 +145,13 @@ window.App.Screener = (function () {
     return Math.round((d.getTime() - Date.now()) / 86400000);
   }
 
-  /** "Bericht bald": nächster Quartalsbericht innerhalb der nächsten X Tage. */
   function isEarningsSoon(s) {
     var d = daysTo(s.nextEarningsDate);
     return d !== null && d >= 0 && d <= EARNINGS_SOON_DAYS;
   }
 
-  /** "Kaufkonsens": mindestens X % der Analysten mit Buy/StrongBuy. */
-  function isConsensusBuy(s) {
-    return hasNum(s.buyPct) && s.buyPct >= CONSENSUS_BUY_MIN && analystOk(s);
-  }
+  function isConsensusBuy(s) { return hasNum(s.buyPct) && s.buyPct >= CONSENSUS_BUY_MIN && analystOk(s); }
 
-  // News-Stimmung (aus data/news/_index.json, FinBERT): mind. 3 Meldungen, Hälfte+ positiv bzw. negativ
   var NEWS_MIN_ITEMS = 3, NEWS_SHARE_MIN = 0.5, NEWS_SCORE_MIN = 0.2;
   function newsOf(s) {
     var idx = window.App.News && window.App.News.cache.index;
@@ -249,30 +166,10 @@ window.App.Screener = (function () {
     return !!x && x.n >= NEWS_MIN_ITEMS && x.neg / x.n >= NEWS_SHARE_MIN && x.score <= -NEWS_SCORE_MIN;
   }
 
-  function isConsensusSell(s) {
-    return hasNum(s.buyPct) && s.buyPct <= 20 && analystOk(s);
-  }
-
-  // Risk/Reward (Long) aus dem Rechner der Detailansicht: Stop an der Unterstützung, Ziel Widerstand/Analystenziel
-  function isLowRisk(s) {
-    return hasNum(s.rrCrv) && hasNum(s.rrStopPct) && s.rrCrv >= RR_MIN_CRV && s.rrStopPct <= RR_MAX_STOP_PCT;
-  }
-
-  function hasRecentCross(s, type) {
-    return s.cross === type && hasNum(s.crossDaysAgo) && s.crossDaysAgo <= CROSS_RECENT_DAYS;
-  }
-
-  /**
-   * NEU (Batch 2): technische Filter.
-   * Die Pipeline schreibt in universe.json:
-   *  - chartPatterns: ['golden_cross','double_top','squeeze', ...]
-   *  - hasBullishPattern / hasBearishPattern: boolean
-   *  - bollingerSqueeze: boolean
-   *  - cross / crossDaysAgo (bereits vorhanden)
-   */
-  function hasTechPattern(s, id) {
-    return Array.isArray(s.chartPatterns) && s.chartPatterns.indexOf(id) !== -1;
-  }
+  function isConsensusSell(s) { return hasNum(s.buyPct) && s.buyPct <= 20 && analystOk(s); }
+  function isLowRisk(s) { return hasNum(s.rrCrv) && hasNum(s.rrStopPct) && s.rrCrv >= RR_MIN_CRV && s.rrStopPct <= RR_MAX_STOP_PCT; }
+  function hasRecentCross(s, type) { return s.cross === type && hasNum(s.crossDaysAgo) && s.crossDaysAgo <= CROSS_RECENT_DAYS; }
+  function hasTechPattern(s, id) { return Array.isArray(s.chartPatterns) && s.chartPatterns.indexOf(id) !== -1; }
 
   var PRESET_FILTERS = {
     high_dividend: function (s) { return (s.dividendYield || 0) >= 3; },
@@ -297,7 +194,6 @@ window.App.Screener = (function () {
     low_risk: function (s) { return isLowRisk(s); },
     news_positive: function (s) { return isNewsPositive(s); },
     news_negative: function (s) { return isNewsNegative(s); },
-    // NEU (Batch 2): Technische Chart-Muster-Filter
     tech_bullish: function (s) { return !!s.hasBullishPattern; },
     tech_bearish: function (s) { return !!s.hasBearishPattern; },
     tech_double_top: function (s) { return hasTechPattern(s, 'double_top'); },
@@ -305,69 +201,38 @@ window.App.Screener = (function () {
     tech_squeeze: function (s) { return s.bollingerSqueeze === true || hasTechPattern(s, 'squeeze'); }
   };
 
-  // Chip-Beschriftung (HTML), Klartext-Name (für den Gemini-Prompt) und Erklärung
   var PRESETS = [
-    { id: 'high_dividend', chip: '💰 Hohe Dividende', name: 'Hohe Dividende',
-      info: function () { return 'Dividendenrendite mindestens 3 %.'; } },
-    { id: 'value', chip: '💎 Value (KGV &lt; Branche)', name: 'Value',
-      info: function () { return 'KGV positiv und mindestens ' + Math.round(VALUE_DISCOUNT * 100) + ' % unter dem Median der eigenen Branche. Ist die Branche zu klein, gilt KGV ≤ ' + VALUE_FALLBACK_PE + '.'; } },
-    { id: 'undervalued', chip: '🔎 Unterbewertet', name: 'Unterbewertet',
-      info: function () { return 'Günstiges KGV (wie Value), PEG ≤ 1,5, positive Marge, Verschuldung ≤ 150, Umsatzwachstum ≥ 0 und Kurs in der unteren Hälfte der 52W-Spanne.'; } },
-    { id: 'turnaround', chip: '🔄 Turnaround', name: 'Turnaround',
-      info: function () { return 'Aktuell Verlust, aber Forward-KGV ≤ 12, Verschuldung ≤ 150 und Kurs in der unteren Hälfte der 52W-Spanne. Hohes Risiko.'; } },
-    { id: 'growth', chip: '🚀 Growth', name: 'Growth',
-      info: function () { return 'Umsatzwachstum mindestens 10 %.'; } },
-    { id: 'top_performer', chip: '📈 Top Performer (1J)', name: 'Top Performer (1J)',
-      info: function () { return '52-Wochen-Performance mindestens 15 %.'; } },
-    { id: 'forecast_up', chip: '🔼 Prognose steigend', name: 'Prognose steigend',
-      info: function () { return 'Mittleres Analysten-Kursziel mindestens ' + PROGNOSE_STEIGEND_MIN + ' % über dem Kurs, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
-    { id: 'forecast_down', chip: '🔽 Prognose fallend', name: 'Prognose fallend',
-      info: function () { return 'Mittleres Analysten-Kursziel unter dem aktuellen Kurs, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
-    { id: 'death_cross', chip: '☠️ Death Cross', name: 'Death Cross',
-      info: function () { return 'SMA 50 hat SMA 200 in den letzten ' + CROSS_RECENT_DAYS + ' Handelstagen von oben nach unten gekreuzt (Abwärtssignal).'; } },
-    { id: 'golden_cross', chip: '✨ Golden Cross', name: 'Golden Cross',
-      info: function () { return 'SMA 50 hat SMA 200 in den letzten ' + CROSS_RECENT_DAYS + ' Handelstagen von unten nach oben gekreuzt (Aufwärtssignal).'; } },
-    { id: 'quality', chip: '🏆 Qualität', name: 'Qualität',
-      info: function () { return 'Nettomarge ≥ ' + Math.round(QUALITY_MIN_MARGIN * 100) + ' %, Umsatzwachstum ≥ 0 % und Verschuldung (Debt/Equity) ≤ ' + QUALITY_MAX_DEBT_EQUITY + '.'; } },
-    { id: 'earnings_growth', chip: '📈 Gewinnwachstum erwartet', name: 'Gewinnwachstum erwartet',
-      info: function () { return 'KGV positiv und Forward-KGV mindestens ' + Math.round(EARNINGS_GROWTH_MIN * 100) + ' % unter dem aktuellen KGV (Analysten erwarten steigende Gewinne).'; } },
-    { id: 'recovery', chip: '🌱 Erholung', name: 'Erholung',
-      info: function () { return 'Kurs im unteren Drittel der 52W-Spanne (≤ ' + RECOVERY_MAX_RANGEPOS + ' %), Kursziel mindestens ' + PROGNOSE_STEIGEND_MIN + ' % darüber, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
-    { id: 'oversold', chip: '📉 Überverkauft', name: 'Überverkauft',
-      info: function () { return 'RSI(14) höchstens ' + OVERSOLD_RSI_MAX + ' (stark gefallen, mögliche Gegenbewegung).'; } },
-    { id: 'earnings_soon', chip: '📅 Bericht ≤ 14 Tage', name: 'Bericht in den nächsten 14 Tagen',
-      info: function () { return 'Nächster Quartalsbericht innerhalb der nächsten ' + EARNINGS_SOON_DAYS + ' Tage (laut Datenpipeline).'; } },
-    { id: 'consensus_buy', chip: '👍 Kaufkonsens', name: 'Kaufkonsens',
-      info: function () { return 'Mindestens ' + CONSENSUS_BUY_MIN + ' % der Analysten mit Buy/StrongBuy, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
-    { id: 'consensus_sell', chip: '👎 Verkaufskonsens', name: 'Verkaufskonsens',
-      info: function () { return 'Höchstens 20 % der Analysten mit Buy/StrongBuy, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
-    { id: 'bottom_base', chip: '🌅 Bodenbildung', name: 'Bodenbildung',
-      info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch und mindestens 4 von 6 Stabilisierungs-Signalen. Möglicher Boden, keine Garantie.'; } },
-    { id: 'bottom_knife', chip: '🔪 Fallendes Messer', name: 'Fallendes Messer',
-      info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch, höchstens 2 von 6 Stabilisierungs-Signalen und frisches Tief. Abwärtstrend noch intakt.'; } },
-    { id: 'low_risk', chip: '🛡️ Kleines Risiko', name: 'Kleines Risiko',
-      info: function () { return 'Long-Setup mit begrenztem Risiko: Stop knapp unter der nächsten Unterstützung höchstens ' + RR_MAX_STOP_PCT + ' % unter dem Kurs und Chance-Risiko-Verhältnis (CRV) mindestens ' + RR_MIN_CRV + ':1.'; } },
-    { id: 'news_positive', chip: '📰 Positive News', name: 'Positive Nachrichten',
-      info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % positiv (automatische FinBERT-Einschätzung).'; } },
-    { id: 'news_negative', chip: '⚠️ Negative News', name: 'Negative Nachrichten',
-      info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % negativ (automatische FinBERT-Einschätzung).'; } },
-    // NEU (Batch 2): Technische Chart-Muster
-    { id: 'tech_bullish', chip: '📊 Bullisches Chartmuster', name: 'Bullisches Chartmuster',
-      info: function () { return 'In der Daten-Pipeline wurde mindestens ein bullisches Chartmuster erkannt (Doppel-Boden, Golden Cross, aufsteigendes Dreieck). Vergangene Kursdaten, keine Prognose.'; } },
-    { id: 'tech_bearish', chip: '📉 Bärisches Chartmuster', name: 'Bärisches Chartmuster',
-      info: function () { return 'In der Daten-Pipeline wurde mindestens ein bärisches Chartmuster erkannt (Doppel-Top, Death Cross, Schulter-Kopf-Schulter). Vergangene Kursdaten, keine Prognose.'; } },
-    { id: 'tech_double_top', chip: '⛰️ Doppel-Top', name: 'Doppel-Top',
-      info: function () { return 'Chartmuster mit zwei etwa gleich hohen Hochpunkten – gilt als bärisches Umkehrsignal.'; } },
-    { id: 'tech_double_bottom', chip: '🏔️ Doppel-Boden', name: 'Doppel-Boden',
-      info: function () { return 'Chartmuster mit zwei etwa gleich tiefen Tiefpunkten – gilt als bullisches Umkehrsignal.'; } },
-    { id: 'tech_squeeze', chip: '🎯 Bollinger-Squeeze', name: 'Bollinger-Squeeze',
-      info: function () { return 'Bollinger-Bänder sehr eng – oft Vorläufer einer stärkeren Bewegung (Richtung offen).'; } }
+    { id: 'high_dividend', chip: '💰 Hohe Dividende', name: 'Hohe Dividende', info: function () { return 'Dividendenrendite mindestens 3 %.'; } },
+    { id: 'value', chip: '💎 Value (KGV &lt; Branche)', name: 'Value', info: function () { return 'KGV positiv und mindestens ' + Math.round(VALUE_DISCOUNT * 100) + ' % unter dem Median der eigenen Branche.'; } },
+    { id: 'undervalued', chip: '🔎 Unterbewertet', name: 'Unterbewertet', info: function () { return 'Günstiges KGV (wie Value), PEG ≤ 1,5, positive Marge, Verschuldung ≤ 150, Umsatzwachstum ≥ 0 und Kurs in der unteren Hälfte der 52W-Spanne.'; } },
+    { id: 'turnaround', chip: '🔄 Turnaround', name: 'Turnaround', info: function () { return 'Aktuell Verlust, aber Forward-KGV ≤ 12, Verschuldung ≤ 150 und Kurs in der unteren Hälfte der 52W-Spanne. Hohes Risiko.'; } },
+    { id: 'growth', chip: '🚀 Growth', name: 'Growth', info: function () { return 'Umsatzwachstum mindestens 10 %.'; } },
+    { id: 'top_performer', chip: '📈 Top Performer (1J)', name: 'Top Performer (1J)', info: function () { return '52-Wochen-Performance mindestens 15 %.'; } },
+    { id: 'forecast_up', chip: '🔼 Prognose steigend', name: 'Prognose steigend', info: function () { return 'Mittleres Analysten-Kursziel mindestens ' + PROGNOSE_STEIGEND_MIN + ' % über dem Kurs, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
+    { id: 'forecast_down', chip: '🔽 Prognose fallend', name: 'Prognose fallend', info: function () { return 'Mittleres Analysten-Kursziel unter dem aktuellen Kurs, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
+    { id: 'death_cross', chip: '☠️ Death Cross', name: 'Death Cross', info: function () { return 'SMA 50 hat SMA 200 in den letzten ' + CROSS_RECENT_DAYS + ' Handelstagen von oben nach unten gekreuzt (Abwärtssignal).'; } },
+    { id: 'golden_cross', chip: '✨ Golden Cross', name: 'Golden Cross', info: function () { return 'SMA 50 hat SMA 200 in den letzten ' + CROSS_RECENT_DAYS + ' Handelstagen von unten nach oben gekreuzt (Aufwärtssignal).'; } },
+    { id: 'quality', chip: '🏆 Qualität', name: 'Qualität', info: function () { return 'Nettomarge ≥ ' + Math.round(QUALITY_MIN_MARGIN * 100) + ' %, Umsatzwachstum ≥ 0 % und Verschuldung (Debt/Equity) ≤ ' + QUALITY_MAX_DEBT_EQUITY + '.'; } },
+    { id: 'earnings_growth', chip: '📈 Gewinnwachstum erwartet', name: 'Gewinnwachstum erwartet', info: function () { return 'KGV positiv und Forward-KGV mindestens ' + Math.round(EARNINGS_GROWTH_MIN * 100) + ' % unter dem aktuellen KGV (Analysten erwarten steigende Gewinne).'; } },
+    { id: 'recovery', chip: '🌱 Erholung', name: 'Erholung', info: function () { return 'Kurs im unteren Drittel der 52W-Spanne (≤ ' + RECOVERY_MAX_RANGEPOS + ' %), Kursziel mindestens ' + PROGNOSE_STEIGEND_MIN + ' % darüber, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
+    { id: 'oversold', chip: '📉 Überverkauft', name: 'Überverkauft', info: function () { return 'RSI(14) höchstens ' + OVERSOLD_RSI_MAX + ' (stark gefallen, mögliche Gegenbewegung).'; } },
+    { id: 'earnings_soon', chip: '📅 Bericht ≤ 14 Tage', name: 'Bericht in den nächsten 14 Tagen', info: function () { return 'Nächster Quartalsbericht innerhalb der nächsten ' + EARNINGS_SOON_DAYS + ' Tage (laut Datenpipeline).'; } },
+    { id: 'consensus_buy', chip: '👍 Kaufkonsens', name: 'Kaufkonsens', info: function () { return 'Mindestens ' + CONSENSUS_BUY_MIN + ' % der Analysten mit Buy/StrongBuy, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
+    { id: 'consensus_sell', chip: '👎 Verkaufskonsens', name: 'Verkaufskonsens', info: function () { return 'Höchstens 20 % der Analysten mit Buy/StrongBuy, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
+    { id: 'bottom_base', chip: '🌅 Bodenbildung', name: 'Bodenbildung', info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch und mindestens 4 von 6 Stabilisierungs-Signalen. Möglicher Boden, keine Garantie.'; } },
+    { id: 'bottom_knife', chip: '🔪 Fallendes Messer', name: 'Fallendes Messer', info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch, höchstens 2 von 6 Stabilisierungs-Signalen und frisches Tief. Abwärtstrend noch intakt.'; } },
+    { id: 'low_risk', chip: '🛡️ Kleines Risiko', name: 'Kleines Risiko', info: function () { return 'Long-Setup mit begrenztem Risiko: Stop knapp unter der nächsten Unterstützung höchstens ' + RR_MAX_STOP_PCT + ' % unter dem Kurs und Chance-Risiko-Verhältnis (CRV) mindestens ' + RR_MIN_CRV + ':1.'; } },
+    { id: 'news_positive', chip: '📰 Positive News', name: 'Positive Nachrichten', info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % positiv (automatische FinBERT-Einschätzung).'; } },
+    { id: 'news_negative', chip: '⚠️ Negative News', name: 'Negative Nachrichten', info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % negativ (automatische FinBERT-Einschätzung).'; } },
+    { id: 'tech_bullish', chip: '📊 Bullisches Chartmuster', name: 'Bullisches Chartmuster', info: function () { return 'In der Daten-Pipeline wurde mindestens ein bullisches Chartmuster erkannt (Doppel-Boden, Golden Cross, aufsteigendes Dreieck). Vergangene Kursdaten, keine Prognose.'; } },
+    { id: 'tech_bearish', chip: '📉 Bärisches Chartmuster', name: 'Bärisches Chartmuster', info: function () { return 'In der Daten-Pipeline wurde mindestens ein bärisches Chartmuster erkannt (Doppel-Top, Death Cross, Schulter-Kopf-Schulter). Vergangene Kursdaten, keine Prognose.'; } },
+    { id: 'tech_double_top', chip: '⛰️ Doppel-Top', name: 'Doppel-Top', info: function () { return 'Chartmuster mit zwei etwa gleich hohen Hochpunkten – gilt als bärisches Umkehrsignal.'; } },
+    { id: 'tech_double_bottom', chip: '🏔️ Doppel-Boden', name: 'Doppel-Boden', info: function () { return 'Chartmuster mit zwei etwa gleich tiefen Tiefpunkten – gilt als bullisches Umkehrsignal.'; } },
+    { id: 'tech_squeeze', chip: '🎯 Bollinger-Squeeze', name: 'Bollinger-Squeeze', info: function () { return 'Bollinger-Bänder sehr eng – oft Vorläufer einer stärkeren Bewegung (Richtung offen).'; } }
   ];
 
   function presetName(id) {
-    for (var i = 0; i < PRESETS.length; i++) {
-      if (PRESETS[i].id === id) return PRESETS[i].name;
-    }
+    for (var i = 0; i < PRESETS.length; i++) if (PRESETS[i].id === id) return PRESETS[i].name;
     return id;
   }
 
@@ -391,8 +256,6 @@ window.App.Screener = (function () {
     return true;
   }
 
-  // NEU (Batch 1): Slider-Filter mit explizit übergebenen Slider-Werten prüfen
-  // (wird für Screener-Alerts verwendet, ohne die globalen sliderFilters zu verändern)
   function passesSlidersWith(s, sl) {
     if (sl.maxPe !== null && !(s.pe > 0 && s.pe <= sl.maxPe)) return false;
     if (sl.minYield > 0 && !((s.dividendYield || 0) >= sl.minYield)) return false;
@@ -408,7 +271,6 @@ window.App.Screener = (function () {
   }
 
   function peRank(s) {
-    // Verlust (negatives KGV) zuerst, dann positives KGV aufsteigend, unbekannt zuletzt
     if (isLoss(s)) {
       var depth = hasNum(s.pe) && s.pe < 0 ? s.pe : (s.profitMargins || 0);
       return -1e6 + depth;
@@ -417,9 +279,6 @@ window.App.Screener = (function () {
     return 1e9;
   }
 
-  // ---------------------------------------------------------------------------
-  // Abgeleitete Daten: Branchen-Median, Datenstand, Trefferzahlen, "neu im Filter"
-  // ---------------------------------------------------------------------------
   function computeSectorMedians(stocks) {
     var groups = {};
     stocks.forEach(function (s) {
@@ -450,9 +309,7 @@ window.App.Screener = (function () {
 
   function computePresetCounts(stocks) {
     var counts = {};
-    Object.keys(PRESET_FILTERS).forEach(function (p) {
-      counts[p] = stocks.filter(PRESET_FILTERS[p]).length;
-    });
+    Object.keys(PRESET_FILTERS).forEach(function (p) { counts[p] = stocks.filter(PRESET_FILTERS[p]).length; });
     return counts;
   }
 
@@ -462,10 +319,6 @@ window.App.Screener = (function () {
     return m;
   }
 
-  /**
-   * Vergleicht die Filter-Treffer mit dem Stand des letzten Daten-Updates (pro Gerät im localStorage).
-   * Neue Treffer bleiben bis zum nächsten Daten-Update als "NEU" markiert.
-   */
   function computeNewSets(stocks) {
     newSets = {};
     if (!dataStamp) return;
@@ -482,7 +335,6 @@ window.App.Screener = (function () {
     Object.keys(PRESET_FILTERS).forEach(function (p) {
       sets[p] = stocks.filter(PRESET_FILTERS[p]).map(function (s) { return s.ticker; });
       var prev = snap && snap.sets ? snap.sets[p] : null;
-      // Ohne Vorgänger-Stand (oder bei leerem Vorgänger) keine Markierung, sonst wäre alles "neu"
       if (prev && prev.length > 0) {
         var prevMap = toMap(prev);
         fresh[p] = sets[p].filter(function (t) { return !prevMap[t]; });
@@ -502,9 +354,6 @@ window.App.Screener = (function () {
     return false;
   }
 
-  // ---------------------------------------------------------------------------
-  // Zustand merken
-  // ---------------------------------------------------------------------------
   function saveState() {
     saveJson(STORAGE_KEY, {
       presets: activePresets,
@@ -529,9 +378,6 @@ window.App.Screener = (function () {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Initialisierung
-  // ---------------------------------------------------------------------------
   function initView() {
     var container = document.getElementById('app-view-content');
     if (!container) return;
@@ -591,25 +437,18 @@ window.App.Screener = (function () {
     }
 
     var peValues = stocks.filter(function (s) { return s.pe && s.pe > 0 && s.pe < 150; });
-    var avgPe = peValues.length > 0
-      ? peValues.reduce(function (sum, s) { return sum + s.pe; }, 0) / peValues.length
-      : 0;
+    var avgPe = peValues.length > 0 ? peValues.reduce(function (sum, s) { return sum + s.pe; }, 0) / peValues.length : 0;
     if (peEl) peEl.textContent = avgPe > 0 ? fmtNum(avgPe, 1) : '—';
 
     var divValues = stocks.filter(function (s) { return s.dividendYield && s.dividendYield > 0 && s.dividendYield < 25; });
-    var avgYield = divValues.length > 0
-      ? (divValues.reduce(function (sum, s) { return sum + s.dividendYield; }, 0) / divValues.length)
-      : 0;
+    var avgYield = divValues.length > 0 ? (divValues.reduce(function (sum, s) { return sum + s.dividendYield; }, 0) / divValues.length) : 0;
     if (yieldEl) yieldEl.textContent = avgYield > 0 ? fmtNum(avgYield, 1) + ' %' : '—';
   }
 
   function renderDataStamp() {
     var el = document.getElementById('screener-data-stamp');
     if (!el) return;
-    if (!dataStamp) {
-      el.innerHTML = '';
-      return;
-    }
+    if (!dataStamp) { el.innerHTML = ''; return; }
     var txt;
     try {
       txt = dataStamp.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -632,13 +471,9 @@ window.App.Screener = (function () {
     });
   }
 
-  // ---------------------------------------------------------------------------
-  // Filtern, Sortieren, Rendern
-  // ---------------------------------------------------------------------------
   function applyFiltersAndRender() {
     var list = allStocks.slice();
 
-    // 1. Volltextsuche: Ticker, Name und Branche
     if (currentSearchQuery) {
       var q = currentSearchQuery.toLowerCase().trim();
       list = list.filter(function (item) {
@@ -649,16 +484,13 @@ window.App.Screener = (function () {
       });
     }
 
-    // 2. Preset-Filter (mehrere aktiv = alle müssen zutreffen)
     activePresets.forEach(function (p) {
       var fn = PRESET_FILTERS[p];
       if (fn) list = list.filter(fn);
     });
 
-    // 3. Feinfilter (Slider)
     list = list.filter(passesSliders);
 
-    // 4. Sortierung (fehlende Werte immer zuletzt)
     list.sort(function (a, b) {
       switch (currentSort) {
         case 'change_desc': return cmpNum(a.changePercent, b.changePercent, 'desc');
@@ -679,9 +511,7 @@ window.App.Screener = (function () {
     filteredStocks = list;
 
     var resultCountEl = document.getElementById('screener-result-count');
-    if (resultCountEl) {
-      resultCountEl.textContent = filteredStocks.length + ' Ergebnisse';
-    }
+    if (resultCountEl) resultCountEl.textContent = filteredStocks.length + ' Ergebnisse';
 
     renderSummary();
     renderSavedRow();
@@ -700,23 +530,18 @@ window.App.Screener = (function () {
     return parts;
   }
 
-  /** Zeile unter den Chips: aktive Filter, Watchlist-Treffer und neue Treffer. */
   function renderSummary() {
     var el = document.getElementById('screener-active-summary');
     if (!el) return;
 
     var lines = [];
     if (activePresets.length > 0) {
-      lines.push('<b>' + activePresets.map(function (p) { return esc(presetName(p)); }).join(' + ') + '</b>' +
-        (activePresets.length > 1 ? ' – alle Filter müssen zutreffen' : ''));
+      lines.push('<b>' + activePresets.map(function (p) { return esc(presetName(p)); }).join(' + ') + '</b>' + (activePresets.length > 1 ? ' – alle Filter müssen zutreffen' : ''));
     }
     var sl = sliderSummaryParts();
     if (sl.length > 0) lines.push('Feinfilter: ' + esc(sl.join(' · ')));
 
-    if (lines.length === 0) {
-      el.innerHTML = '';
-      return;
-    }
+    if (lines.length === 0) { el.innerHTML = ''; return; }
 
     if (activePresets.length > 0) {
       var wl = window.App.Data.getWatchlist() || [];
@@ -728,24 +553,17 @@ window.App.Screener = (function () {
       if (extra.length > 0) lines.push(extra.join(' · '));
     }
 
-    el.innerHTML = '<div style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px;">' +
-      lines.join('<br>') + '</div>';
+    el.innerHTML = '<div style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px;">' + lines.join('<br>') + '</div>';
   }
 
-  // ---------------------------------------------------------------------------
-  // Karten-Tags
-  // ---------------------------------------------------------------------------
   function crossTag(s) {
     if (!s.cross || !hasNum(s.crossDaysAgo) || s.crossDaysAgo > CROSS_RECENT_DAYS) return '';
     var isDeath = s.cross === 'death';
     var when = s.crossDaysAgo === 0 ? 'heute' : 'vor ' + s.crossDaysAgo + ' Tg.';
-    return '<span class="sector-label" style="color: var(' + (isDeath ? '--bearish' : '--bullish') + '); font-weight: 700;">• ' +
-      (isDeath ? 'Death Cross ' : 'Golden Cross ') + when + '</span>';
+    return '<span class="sector-label" style="color: var(' + (isDeath ? '--bearish' : '--bullish') + '); font-weight: 700;">• ' + (isDeath ? 'Death Cross ' : 'Golden Cross ') + when + '</span>';
   }
 
-  function greenTag(txt) {
-    return '<span class="sector-label" style="color: var(--bullish); font-weight: 700;">• ' + esc(txt) + '</span>';
-  }
+  function greenTag(txt) { return '<span class="sector-label" style="color: var(--bullish); font-weight: 700;">• ' + esc(txt) + '</span>'; }
 
   function extraTags(s) {
     var tags = [];
@@ -758,12 +576,8 @@ window.App.Screener = (function () {
       var med = sectorPe[s.sector];
       tags.push('KGV ' + fmtNum(s.pe, 0) + (med ? ' (Branche Ø ' + fmtNum(med, 0) + ')' : ''));
     }
-    // NEU (Batch 2): Tag für aktive Chart-Muster-Filter
     if ((isActive('tech_bullish') || isActive('tech_bearish')) && Array.isArray(s.chartPatterns) && s.chartPatterns.length > 0) {
-      var prettyMap = {
-        golden_cross: 'Golden Cross', death_cross: 'Death Cross',
-        double_top: 'Doppel-Top', double_bottom: 'Doppel-Boden', squeeze: 'Squeeze'
-      };
+      var prettyMap = { golden_cross: 'Golden Cross', death_cross: 'Death Cross', double_top: 'Doppel-Top', double_bottom: 'Doppel-Boden', squeeze: 'Squeeze' };
       var pretty = s.chartPatterns.slice(0, 2).map(function (id) { return prettyMap[id] || id; }).join(', ');
       tags.push('Muster: ' + pretty);
     }
@@ -771,13 +585,11 @@ window.App.Screener = (function () {
   }
 
   function targetTag(s) {
-    var wanted = isActive('undervalued') || isActive('turnaround') || isActive('forecast_up') ||
-      isActive('forecast_down') || isActive('recovery');
+    var wanted = isActive('undervalued') || isActive('turnaround') || isActive('forecast_up') || isActive('forecast_down') || isActive('recovery');
     if (!wanted || !hasUpside(s)) return '';
     var color = s.upside >= 0 ? '--bullish' : '--bearish';
     var analysts = hasNum(s.analystCount) && s.analystCount > 0 ? ' (' + s.analystCount + ' Analysten)' : '';
-    return '<span class="sector-label" style="color: var(' + color + '); font-weight: 700;">• Ziel ' +
-      (s.upside >= 0 ? '+' : '') + fmtNum(s.upside, 0) + ' %' + esc(analysts) + '</span>';
+    return '<span class="sector-label" style="color: var(' + color + '); font-weight: 700;">• Ziel ' + (s.upside >= 0 ? '+' : '') + fmtNum(s.upside, 0) + ' %' + esc(analysts) + '</span>';
   }
 
   function renderStockCards(list) {
@@ -796,8 +608,7 @@ window.App.Screener = (function () {
       var isStarred = watchlist.indexOf(stock.ticker) !== -1;
       var chgCls = window.App.Format.changeClass(stock.changePercent);
       var sign = (stock.changePercent || 0) >= 0 ? '+' : '';
-      var newBadge = activePresets.length > 0 && isNewInActiveFilter(stock)
-        ? '<span class="sector-label" style="color: var(--accent-purple-light); font-weight: 700;">• NEU</span>' : '';
+      var newBadge = activePresets.length > 0 && isNewInActiveFilter(stock) ? '<span class="sector-label" style="color: var(--accent-purple-light); font-weight: 700;">• NEU</span>' : '';
 
       html += '' +
         '<div class="stock-card" data-ticker="' + esc(stock.ticker) + '">' +
@@ -856,9 +667,6 @@ window.App.Screener = (function () {
     });
   }
 
-  // ---------------------------------------------------------------------------
-  // KI-Screening (Gemini)
-  // ---------------------------------------------------------------------------
   function renderAiBanner(list, presets) {
     var container = document.getElementById('screener-ai-banner-container');
     if (!container) return;
@@ -894,7 +702,6 @@ window.App.Screener = (function () {
         "Bitte analysiere diese Liste basierend auf den mitgelieferten Kennzahlen und der aktuellen Marktlage. " +
         "Empfiehl mir danach die 5 besten Kandidaten für einen Einstieg und begründe deine Wahl kurz.\n\n";
 
-      // Alle Treffer in den Prompt aufnehmen (ohne Limit)
       list.forEach(function (s) {
         var parts = [];
         parts.push((s.name || s.ticker) + " (" + s.ticker + ")");
@@ -913,17 +720,13 @@ window.App.Screener = (function () {
         if (hasUpside(s)) parts.push("Upside-Ziel: " + fmtNum(s.upside, 1) + " %" + (hasNum(s.analystCount) ? " (" + s.analystCount + " Analysten)" : ""));
         if (hasRecentCross(s, 'death')) parts.push("Death Cross vor " + s.crossDaysAgo + " Tg.");
         if (hasRecentCross(s, 'golden')) parts.push("Golden Cross vor " + s.crossDaysAgo + " Tg.");
-        // NEU (Batch 2): Chart-Muster an Gemini übergeben
-        if (Array.isArray(s.chartPatterns) && s.chartPatterns.length > 0) {
-          parts.push("Chart-Muster: " + s.chartPatterns.join(', '));
-        }
+        if (Array.isArray(s.chartPatterns) && s.chartPatterns.length > 0) parts.push("Chart-Muster: " + s.chartPatterns.join(', '));
         if (s.bottom) parts.push("Boden-Check: " + ({ base: 'Bodenbildung', knife: 'fallendes Messer', wait: 'unklar' })[s.bottom]);
         var nl = window.App.News && window.App.News.indexLine(s.ticker, true);
         if (nl) parts.push(nl);
         promptText += "- " + parts.join(" | ") + "\n";
       });
 
-      // Bei langem Text würde die URL zu groß: voller Text in die Zwischenablage, URL bekommt nur einen kurzen Start-Satz.
       var safeUrlText = promptText;
       var needsClipboardPaste = false;
 
@@ -949,9 +752,6 @@ window.App.Screener = (function () {
     };
   }
 
-  // ---------------------------------------------------------------------------
-  // Feinfilter-Sheet (Header-Filter-Icon)
-  // ---------------------------------------------------------------------------
   function peLabel(v) { return v >= 80 ? 'Beliebig' : '≤ ' + v; }
   function yieldLabel(v) { return v > 0 ? '≥ ' + v + ' %' : 'Beliebig'; }
   function perfLabel(v) { return v <= -50 ? 'Beliebig' : '≥ ' + v + ' %'; }
@@ -1120,9 +920,6 @@ window.App.Screener = (function () {
     applyFiltersAndRender();
   }
 
-  // ---------------------------------------------------------------------------
-  // Filter an-/abschalten (Chips und Filter-Fenster nutzen dieselbe Logik)
-  // ---------------------------------------------------------------------------
   function syncPresetStates() {
     function mark(nodes, attr) {
       nodes.forEach(function (b) {
@@ -1162,9 +959,6 @@ window.App.Screener = (function () {
     applyFiltersAndRender();
   }
 
-  // ---------------------------------------------------------------------------
-  // Events
-  // ---------------------------------------------------------------------------
   function bindEvents() {
     var searchInput = document.getElementById('screener-search-input');
     if (searchInput) {
@@ -1205,15 +999,11 @@ window.App.Screener = (function () {
     bindSheetSwipe();
     bindSavedAndExport();
 
-    // NEU (Batch 1): Screener-Alert-Button binden und gespeicherte Alerts rendern
     var saveAlertBtn = document.getElementById('screener-save-alert-btn');
     if (saveAlertBtn) saveAlertBtn.onclick = createScreenerAlert;
     renderScreenerAlerts();
   }
 
-  // ---------------------------------------------------------------------------
-  // Gespeicherte Filter & CSV-Export
-  // ---------------------------------------------------------------------------
   var SAVED_KEY = 'screener_saved_filters_v1';
   var MAX_SAVED = 12;
 
@@ -1336,9 +1126,6 @@ window.App.Screener = (function () {
     }
   }
 
-  // ===========================================================================
-  // NEU (Batch 1): Screener-Alerts – "Sag mir, wenn eine neue Aktie den Filter erfüllt"
-  // ===========================================================================
   function loadScreenerAlerts() {
     var list = loadJson(SCREENER_ALERTS_KEY);
     return Array.isArray(list) ? list : [];
@@ -1422,15 +1209,6 @@ window.App.Screener = (function () {
     });
   }
 
-  /**
-   * Prüft alle gespeicherten Alerts gegen das aktuelle Universum.
-   * Wird beim App-Start (nach Datenladen) aufgerufen.
-   * Neue Treffer werden als Banner eingeblendet.
-   *
-   * Wichtig: sectorPe wird temporär neu berechnet, damit Value/Undervalued-Filter
-   * auch dann korrekt arbeiten, wenn initView() noch nicht lief (z. B. Start auf
-   * einer anderen Route).
-   */
   function checkScreenerAlerts() {
     var alerts = loadScreenerAlerts();
     if (!alerts.length) return Promise.resolve([]);
@@ -1439,7 +1217,6 @@ window.App.Screener = (function () {
       var stocks = universe || [];
       var newly = [];
 
-      // sectorPe temporär setzen für korrekte Filter
       var oldSectorPe = sectorPe;
       sectorPe = computeSectorMedians(stocks);
 
@@ -1474,10 +1251,6 @@ window.App.Screener = (function () {
     }).catch(function () { return []; });
   }
 
-  /**
-   * Zeigt Banner für neue Screener-Treffer im gemeinsamen Container.
-   * Falls der Alerts-Banner-Container (aus alerts.js) noch nicht existiert, wird er hier erzeugt.
-   */
   function showScreenerAlertBanners(newly) {
     var container = document.getElementById('alerts-banner-container');
     if (!container) {
@@ -1508,9 +1281,6 @@ window.App.Screener = (function () {
     });
   }
 
-  // ---------------------------------------------------------------------------
-  // Template
-  // ---------------------------------------------------------------------------
   function getTemplateHtml() {
     var chips = '<button class="chip-btn' + (activePresets.length === 0 ? ' active' : '') + '" data-preset="all">Alle</button>';
     PRESETS.forEach(function (p) {
@@ -1538,6 +1308,13 @@ window.App.Screener = (function () {
 
     return '' +
       '<div class="view-container">' +
+        // NEU: Strategie-Button
+        '<div style="display:flex; justify-content:flex-end; margin-bottom: 10px;">' +
+          '<button class="chip-btn active" onclick="window.App.Router.navigate(\'/strategies\')" style="background:var(--bg-secondary); color:var(--text-main); border-color:var(--border-color); box-shadow:0 2px 8px var(--shadow-medium);">' +
+            '🎯 Nach Strategie suchen' +
+          '</button>' +
+        '</div>' +
+
         '<div class="hero-banner">' +
           '<div class="hero-tag">Marktübersicht (Aktienuniversum)</div>' +
           '<div class="hero-count" id="screener-hero-count">Lade Titel...</div>' +
@@ -1568,7 +1345,6 @@ window.App.Screener = (function () {
 
         '<div id="screener-ai-banner-container"></div>' +
 
-        /* NEU (Batch 1): Container für gespeicherte Alerts + Save-Button */
         '<div id="screener-alerts-container"></div>' +
         '<div style="display: flex; gap: 8px; margin-bottom: 12px;">' +
           '<button class="chip-btn" id="screener-save-alert-btn" style="flex: 1; justify-content: center;">🔔 Filter als Alert speichern</button>' +
@@ -1617,17 +1393,14 @@ window.App.Screener = (function () {
       '</div>';
   }
 
-  // Gemerkte Auswahl laden (muss nach Definition aller Tabellen passieren)
   restoreState();
 
-  // Beim Seitenwechsel ein offenes Filter-Fenster schließen, damit das Scrollen nicht gesperrt bleibt
   if (typeof window.addEventListener === 'function') {
     window.addEventListener('hashchange', closeSheet);
   }
 
   return {
     initView: initView,
-    // NEU (Batch 1): wird beim App-Start aufgerufen, um gespeicherte Alerts zu prüfen
     checkScreenerAlerts: checkScreenerAlerts
   };
 })();
