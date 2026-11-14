@@ -1,7 +1,7 @@
 /**
  * js/stock-chart.js
  * Chart-Analyse-Tab.
- * NEU: Bessere Fehlermeldung bei der KGV-Historie (z.B. wenn das Unternehmen Verluste schreibt).
+ * NEU: Automatischer Wechsel auf KUV (Kurs-Umsatz-Verhältnis), wenn das Unternehmen Verluste schreibt.
  */
 window.App = window.App || {};
 
@@ -369,14 +369,14 @@ window.App.StockChart = (function () {
         '<div class="legend-row">' + legendItem(COLORS.price, 'Kurs') + legendItem(COLORS.sma50, 'SMA 50') + legendItem(COLORS.sma200, 'SMA 200') + '</div>' +
       '</div>' +
 
-      // KGV-Band-Chart
+      // KGV-Band-Chart (mit dynamischen IDs für den Wechsel auf KUV)
       '<div class="card">' +
-        '<div class="card-header-dotted"><span class="card-title">KGV-Historie (5 Jahre)</span>' +
+        '<div class="card-header-dotted"><span class="card-title" id="pe-band-title">KGV-Historie (5 Jahre)</span>' +
           '<span class="period-tag" id="pe-current-label">—</span></div>' +
         '<div style="height: 200px; width: 100%; position: relative; margin-top: 8px;">' +
           '<canvas id="chart-tab-pe-band" style="width: 100%; height: 200px; display: block;"></canvas>' +
         '</div>' +
-        '<div class="chart-note">KGV aus Kurs × ausstehende Aktien ÷ TTM-Gewinn (rollierend über 4 Quartale). Bänder zeigen Perzentile der letzten 5 Jahre.</div>' +
+        '<div class="chart-note" id="pe-band-note">KGV aus Kurs × ausstehende Aktien ÷ TTM-Gewinn (rollierend über 4 Quartale). Bänder zeigen Perzentile der letzten 5 Jahre.</div>' +
       '</div>' +
 
       '<div id="chart-analyse-slot"></div>' +
@@ -481,28 +481,28 @@ window.App.StockChart = (function () {
     drawPEBand(container, stock, cur);
   }
 
-  // NEU: Verbesserte Fehlermeldung bei der KGV-Historie
+  // NEU: Intelligenter Wechsel zwischen KGV und KUV (bei Verlusten)
   function drawPEBand(container, stock, cur) {
     var canvas = container.querySelector('#chart-tab-pe-band');
     if (!canvas) return;
 
+    var titleEl = container.querySelector('#pe-band-title');
+    var noteEl = container.querySelector('#pe-band-note');
+    var labelEl = container.querySelector('#pe-current-label');
+
     var hist = (stock.chartHistory || []).filter(function (p) { return p && p.close > 0; });
     var incQ = (((stock.financials || {}).incomeStatement || {}).quarterly) || [];
     
-    // Prüfen, ob genug Daten vorhanden sind
     if (hist.length < 200 || incQ.length < 4) {
-      canvas.parentElement.innerHTML = '<div class="state-box" style="padding:20px;"><p style="font-size:0.78rem;color:var(--text-dim);">Zu wenige Daten für KGV-Historie (mind. 200 Kurstage und 4 Quartalsberichte).</p></div>';
+      canvas.parentElement.innerHTML = '<div class="state-box" style="padding:20px;"><p style="font-size:0.78rem;color:var(--text-dim);">Zu wenige Daten für Historie (mind. 200 Kurstage und 4 Quartalsberichte).</p></div>';
       return;
     }
 
     var quarters = incQ
-      .filter(function (q) { return q && q.date && q.Net_Income !== null && q.Net_Income !== undefined; })
+      .filter(function (q) { return q && q.date; })
       .sort(function (a, b) { return a.date < b.date ? -1 : 1; });
 
-    if (quarters.length < 4) {
-      canvas.parentElement.innerHTML = '<div class="state-box" style="padding:20px;"><p style="font-size:0.78rem;color:var(--text-dim);">Zu wenige Quartalsdaten für KGV-Historie.</p></div>';
-      return;
-    }
+    if (quarters.length < 4) return;
 
     var shares = (stock.quote.marketCap && stock.quote.price) ? stock.quote.marketCap / stock.quote.price : null;
     if (!shares) {
@@ -510,7 +510,17 @@ window.App.StockChart = (function () {
       return;
     }
 
-    function ttmEarningsAt(dateStr) {
+    function getQ(q, keys) {
+        for (var k of keys) {
+            if (q[k] !== undefined && q[k] !== null) return Number(q[k]);
+        }
+        return null;
+    }
+
+    var earningsKeys = ['NetIncome', 'Net_Income'];
+    var revenueKeys = ['TotalRevenue', 'Total_Revenue', 'OperatingRevenue', 'Operating_Revenue'];
+
+    function ttmValueAt(dateStr, keys) {
       var cutoff = dateStr;
       var known = quarters.filter(function (q) {
         var qd = new Date(q.date + 'T00:00:00Z');
@@ -519,55 +529,62 @@ window.App.StockChart = (function () {
       });
       if (known.length < 4) return null;
       var last4 = known.slice(-4);
-      var sum = last4.reduce(function (a, q) { return a + Number(q.Net_Income || 0); }, 0);
-      
-      // FIX: Wenn der Gewinn negativ ist, geben wir null zurück (KGV nicht berechenbar)
-      if (!(sum > 0)) return null; 
-      return sum;
+      var sum = 0;
+      var hasValid = false;
+      last4.forEach(function(q) {
+          var v = getQ(q, keys);
+          if (v !== null) {
+              sum += v;
+              hasValid = true;
+          }
+      });
+      return hasValid ? sum : null;
     }
 
     var lastDate = hist[hist.length - 1].date;
+    
+    // Entscheiden, ob KGV oder KUV
+    var currentTTMEarnings = ttmValueAt(lastDate, earningsKeys);
+    var usePS = (currentTTMEarnings === null || currentTTMEarnings <= 0);
+
     var cutoff5y = (parseInt(lastDate.slice(0, 4), 10) - 5) + lastDate.slice(4);
     var relevant = hist.filter(function (p) { return p.date >= cutoff5y; });
 
-    var pePoints = [];
+    var points = [];
     var labels = [];
     var step = Math.max(1, Math.floor(relevant.length / 100));
-    var hasNegativeEarnings = false;
 
     for (var i = 0; i < relevant.length; i += step) {
       var p = relevant[i];
-      var ttm = ttmEarningsAt(p.date);
+      var mcap = p.close * shares;
       
-      // Prüfen ob es negative Gewinne gibt (für die Fehlermeldung)
-      if (ttm === null) {
-         // Grobe Schätzung, ob wir in einem Verlustjahr sind
-         hasNegativeEarnings = true;
-      }
-      
-      if (ttm && shares && p.close > 0) {
-        var mcap = p.close * shares;
-        var pe = mcap / ttm;
-        if (pe > 0 && pe < 200) {
-          pePoints.push(pe);
-          labels.push(p.date.slice(5, 7) + '/' + p.date.slice(0, 4));
-        }
+      if (usePS) {
+          var ttmRev = ttmValueAt(p.date, revenueKeys);
+          if (ttmRev && ttmRev > 0) {
+              var ps = mcap / ttmRev;
+              if (ps > 0 && ps < 100) {
+                  points.push(ps);
+                  labels.push(p.date.slice(5, 7) + '/' + p.date.slice(0, 4));
+              }
+          }
+      } else {
+          var ttmEarn = ttmValueAt(p.date, earningsKeys);
+          if (ttmEarn && ttmEarn > 0) {
+              var pe = mcap / ttmEarn;
+              if (pe > 0 && pe < 200) {
+                  points.push(pe);
+                  labels.push(p.date.slice(5, 7) + '/' + p.date.slice(0, 4));
+              }
+          }
       }
     }
 
-    // NEU: Spezifische Fehlermeldung, wenn das Unternehmen Verluste schreibt
-    if (pePoints.length < 5) {
-      var errorText = hasNegativeEarnings 
-        ? "Das KGV kann nicht berechnet werden, da das Unternehmen in den letzten Jahren Verluste geschrieben hat (negativer Gewinn)."
-        : "KGV-Historie konnte nicht berechnet werden (zu wenige positive Gewinndaten).";
-      
-      canvas.parentElement.innerHTML = '<div class="state-box" style="padding:20px; text-align:center;">' +
-        '<div style="font-size:1.5rem; margin-bottom:8px;">⚠️</div>' +
-        '<p style="font-size:0.78rem;color:var(--text-dim); line-height:1.4;">' + errorText + '</p></div>';
+    if (points.length < 5) {
+      canvas.parentElement.innerHTML = '<div class="state-box" style="padding:20px; text-align:center;"><div style="font-size:1.5rem; margin-bottom:8px;">⚠️</div><p style="font-size:0.78rem;color:var(--text-dim); line-height:1.4;">Historie konnte nicht berechnet werden (zu wenige gültige Datenpunkte).</p></div>';
       return;
     }
 
-    var sortedPE = pePoints.slice().sort(function (a, b) { return a - b; });
+    var sortedVals = points.slice().sort(function (a, b) { return a - b; });
     function percentile(arr, p) {
       var idx = (arr.length - 1) * p;
       var lo = Math.floor(idx), hi = Math.ceil(idx);
@@ -575,20 +592,27 @@ window.App.StockChart = (function () {
       return arr[lo] + (arr[hi] - arr[lo]) * (idx - lo);
     }
 
-    var p25 = percentile(sortedPE, 0.25);
-    var p50 = percentile(sortedPE, 0.50);
-    var p75 = percentile(sortedPE, 0.75);
-    var currentPE = pePoints[pePoints.length - 1];
+    var p25 = percentile(sortedVals, 0.25);
+    var p50 = percentile(sortedVals, 0.50);
+    var p75 = percentile(sortedVals, 0.75);
+    var currentVal = points[points.length - 1];
 
-    var labelEl = container.querySelector('#pe-current-label');
+    var metricName = usePS ? 'KUV' : 'KGV';
+    if (titleEl) titleEl.textContent = metricName + '-Historie (5 Jahre)';
+    if (noteEl) {
+        noteEl.innerHTML = usePS 
+            ? '<b>Hinweis:</b> Da das Unternehmen aktuell Verluste schreibt, wird hier das Kurs-Umsatz-Verhältnis (KUV) angezeigt.<br>KUV aus Kurs × ausstehende Aktien ÷ TTM-Umsatz. Bänder zeigen Perzentile der letzten 5 Jahre.'
+            : 'KGV aus Kurs × ausstehende Aktien ÷ TTM-Gewinn (rollierend über 4 Quartale). Bänder zeigen Perzentile der letzten 5 Jahre.';
+    }
+
     if (labelEl) {
-      var position = currentPE <= p25 ? 'unteres Quartil' : currentPE <= p50 ? 'unteres Mittelfeld' : currentPE <= p75 ? 'oberes Mittelfeld' : 'oberes Quartil';
-      labelEl.textContent = 'Aktuell: ' + window.App.Format.number(currentPE, 1) + ' (' + position + ')';
+      var position = currentVal <= p25 ? 'unteres Quartil' : currentVal <= p50 ? 'unteres Mittelfeld' : currentVal <= p75 ? 'oberes Mittelfeld' : 'oberes Quartil';
+      labelEl.textContent = 'Aktuell: ' + window.App.Format.number(currentVal, 1) + ' (' + position + ')';
     }
 
     window.App.Charts.renderBandChart(canvas, {
       labels: labels,
-      peValues: pePoints,
+      peValues: points, 
       bands: [
         { value: p25, color: 'rgba(16,185,129,0.6)', label: '25%: ' + window.App.Format.number(p25, 1) },
         { value: p50, color: 'rgba(245,158,11,0.6)', label: 'Median: ' + window.App.Format.number(p50, 1) },
