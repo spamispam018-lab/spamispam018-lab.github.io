@@ -15,15 +15,24 @@ on:
           - delta
           - full
       ticker:
-        description: 'Optional: Einzelner Ticker (z.B. AAPL) für schnelles Update'
+        description: 'Optional: Einzelner Ticker (z.B. AAPL)'
         required: false
         type: string
         default: ''
       only:
-        description: 'Optional: Nur Sektionen (z.B. analysts oder quote,analysts)'
+        description: 'Optional: Nur bestimmte Daten laden'
         required: false
-        type: string
-        default: ''
+        default: 'alle'
+        type: choice
+        options:
+          - alle
+          - quote
+          - analysts
+          - insider
+          - financials
+          - history
+          - "analysts,insider"
+          - "quote,history"
 
 jobs:
   update-market-data:
@@ -51,7 +60,7 @@ jobs:
         run: |
           MODE="${{ github.event.inputs.sync_mode || 'delta' }}"
           TICKER="${{ github.event.inputs.ticker || '' }}"
-          ONLY="${{ github.event.inputs.only || '' }}"
+          ONLY_CHOICE="${{ github.event.inputs.only || 'alle' }}"
           
           echo "Starte Modus: $MODE"
           
@@ -62,9 +71,10 @@ jobs:
             ARGS="$ARGS --ticker $TICKER"
           fi
           
-          if [ -n "$ONLY" ]; then
-            echo "Beschränke auf Sektionen: $ONLY"
-            ARGS="$ARGS --only $ONLY"
+          # Wenn nicht "alle" ausgewählt wurde, Parameter anhängen
+          if [ "$ONLY_CHOICE" != "alle" ]; then
+            echo "Beschränke auf Sektionen: $ONLY_CHOICE"
+            ARGS="$ARGS --only \"$ONLY_CHOICE\""
           fi
           
           python scripts/fetch_market_data.py $ARGS
