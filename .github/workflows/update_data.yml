@@ -19,6 +19,11 @@ on:
         required: false
         type: string
         default: ''
+      only:
+        description: 'Optional: Nur Sektionen (z.B. analysts oder quote,analysts)'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   update-market-data:
@@ -46,13 +51,23 @@ jobs:
         run: |
           MODE="${{ github.event.inputs.sync_mode || 'delta' }}"
           TICKER="${{ github.event.inputs.ticker || '' }}"
+          ONLY="${{ github.event.inputs.only || '' }}"
+          
           echo "Starte Modus: $MODE"
+          
+          ARGS="--mode $MODE"
+          
           if [ -n "$TICKER" ]; then
             echo "Aktualisiere einzelnen Ticker: $TICKER"
-            python scripts/fetch_market_data.py --mode "$MODE" --ticker "$TICKER"
-          else
-            python scripts/fetch_market_data.py --mode "$MODE"
+            ARGS="$ARGS --ticker $TICKER"
           fi
+          
+          if [ -n "$ONLY" ]; then
+            echo "Beschränke auf Sektionen: $ONLY"
+            ARGS="$ARGS --only $ONLY"
+          fi
+          
+          python scripts/fetch_market_data.py $ARGS
 
       - name: Änderungen committen und pushen
         run: |
