@@ -1,8 +1,7 @@
 /**
  * js/premarket.js
  * US-Vorbörsenhandel-Indikator für deutsche Anleger.
- * Features: Futures (NASDAQ & S&P 500), Volumen-Check, VWAP, 15-Min-RSI,
- * Momentum-Warnung kurz vor US-Open, Trade Republic Timer & Xetra-Status.
+ * NEU: Klickbare Info-Popups für Futures, Volumen, VWAP, RSI und Momentum.
  */
 window.App = window.App || {};
 
@@ -11,6 +10,34 @@ window.App.PreMarket = (function () {
 
   var PROXY_URL = 'https://yahoo-proxy.spamispam018.workers.dev';
   var state = { ticker: null };
+
+  // Erklärtexte für die Info-Popups
+  var INFO_TEXTS = {
+    nq: { 
+      title: 'NASDAQ 100 Future', 
+      text: 'Der NASDAQ-Future ist ein Terminkontrakt auf die 100 größten Technologie-Unternehmen der USA. Er läuft fast 24 Stunden am Tag und zeigt dir, wohin der Tech-Markt (und damit oft auch Aktien wie Apple, Google oder Netflix) tendiert, noch bevor die US-Börse öffnet.' 
+    },
+    es: { 
+      title: 'S&P 500 Future', 
+      text: 'Der S&P 500 Future bildet den breiten US-Markt ab (die 500 größten Unternehmen). Wenn dieser Future stark fällt, ist die allgemeine Marktstimmung schlecht (Panik). Steigt er, herrscht Zuversicht im gesamten Markt.' 
+    },
+    vol: { 
+      title: 'Handelsvolumen', 
+      text: 'Die Anzahl der gehandelten Aktien. Ist das Volumen im Vorbörsenhandel sehr niedrig, können einzelne große Orders den Kurs stark verzerren (Fakeout). Hohes Volumen bestätigt, dass die aktuelle Bewegung von vielen Marktteilnehmern getragen wird.' 
+    },
+    vwap: { 
+      title: 'VWAP (Volume Weighted Average Price)', 
+      text: 'Der volumengewichtete Durchschnittspreis. Das ist der Preis, den institutionelle Anleger (die "Großen") im Durchschnitt bezahlt haben. Liegt der aktuelle Kurs über dem VWAP, haben die Käufer die Kontrolle. Liegt er darunter, dominieren die Verkäufer.' 
+    },
+    rsi: { 
+      title: 'RSI (Relative Strength Index)', 
+      text: 'Misst die Stärke der letzten Kursbewegungen (hier auf 15-Minuten-Basis). Über 70 bedeutet "überkauft" (eine Pause oder Korrektur ist wahrscheinlich). Unter 30 bedeutet "überverkauft" (eine Erholung ist wahrscheinlich).' 
+    },
+    momentum: { 
+      title: 'Kurzfrist-Momentum (15 Min)', 
+      text: 'Zeigt dir, wie stark sich der Kurs in den letzten 15 Minuten verändert hat. So erkennst du plötzliche Trendumkehrungen, z.B. wenn der Kurs kurz vor der US-Eröffnung anfängt, stark zu fallen, obwohl er davor noch im Plus war.' 
+    }
+  };
 
   function isUsTicker(t) {
     return t && !/\.(DE|PA|AS|L|SW|MI|MC|T|TO|AX|CO)$/i.test(t);
@@ -202,14 +229,16 @@ window.App.PreMarket = (function () {
           '<span id="pm-session-badge" class="period-tag">—</span>' +
         '</div>' +
         
+        // Futures mit Klick-Event (data-pm-info)
         '<div id="pm-futures" style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:600; background:var(--bg-tertiary); padding:6px 10px; border-radius:var(--radius-sm); margin-bottom:10px;">' +
-          '<span id="fut-nq">NASDAQ: —</span>' +
-          '<span id="fut-es">S&P 500: —</span>' +
+          '<span id="fut-nq" data-pm-info="nq" style="cursor:pointer;" title="Info anzeigen">NASDAQ: —</span>' +
+          '<span id="fut-es" data-pm-info="es" style="cursor:pointer;" title="Info anzeigen">S&P 500: —</span>' +
         '</div>' +
 
         '<div id="pm-status" style="font-size:0.78rem;color:var(--text-dim);">Lade Daten…</div>' +
         '<div id="pm-signal" style="margin:10px 0;"></div>' +
         
+        // Indikatoren Grid
         '<div id="pm-indicators" style="display:none; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;"></div>' +
 
         '<div id="pm-momentum"></div>' +
@@ -221,6 +250,16 @@ window.App.PreMarket = (function () {
           '<button class="chip-btn active" id="pm-refresh" style="flex:1;justify-content:center;height:38px;">🔄 Jetzt aktualisieren</button>' +
         '</div>' +
         '<div id="pm-info" style="font-size:0.68rem;color:var(--text-dim);margin-top:10px;line-height:1.5;"></div>' +
+      '</div>' +
+      
+      // NEU: Das Info-Modal (unsichtbar am Anfang)
+      '<div id="pm-info-modal-backdrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998;" onclick="this.style.display=\'none\'; document.getElementById(\'pm-info-modal\').style.display=\'none\';"></div>' +
+      '<div id="pm-info-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:9999; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:20px; width:90%; max-width:400px; box-shadow:0 10px 30px rgba(0,0,0,0.5);">' +
+        '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">' +
+          '<h3 id="pm-info-title" style="font-size:1.1rem; font-weight:700; color:var(--text-main); margin:0;">Titel</h3>' +
+          '<button id="pm-info-close" style="background:none; border:none; color:var(--text-dim); font-size:1.5rem; cursor:pointer; padding:0 5px;">&times;</button>' +
+        '</div>' +
+        '<div id="pm-info-text" style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">Text</div>' +
       '</div>';
   }
 
@@ -237,6 +276,34 @@ window.App.PreMarket = (function () {
         btn.disabled = false;
       });
     };
+
+    // Modal Logik
+    function openModal(key) {
+      var data = INFO_TEXTS[key];
+      if (!data) return;
+      document.getElementById('pm-info-title').textContent = data.title;
+      document.getElementById('pm-info-text').textContent = data.text;
+      document.getElementById('pm-info-modal-backdrop').style.display = 'block';
+      document.getElementById('pm-info-modal').style.display = 'block';
+    }
+
+    // Click-Event für alle Elemente mit data-pm-info (Delegation)
+    container.addEventListener('click', function(e) {
+      var target = e.target.closest('[data-pm-info]');
+      if (target) {
+        e.stopPropagation();
+        openModal(target.getAttribute('data-pm-info'));
+      }
+    });
+
+    // Schließen-Button
+    var closeBtn = container.querySelector('#pm-info-close');
+    if (closeBtn) {
+      closeBtn.onclick = function() {
+        container.querySelector('#pm-info-modal-backdrop').style.display = 'none';
+        container.querySelector('#pm-info-modal').style.display = 'none';
+      };
+    }
   }
 
   function refresh(container, ticker, stock) {
@@ -321,16 +388,18 @@ window.App.PreMarket = (function () {
       var rsiColor = rsi15 >= 70 ? 'var(--bearish)' : rsi15 <= 30 ? 'var(--bullish)' : 'var(--text-main)';
       
       indEl.style.display = 'grid';
+      
+      // NEU: data-pm-info für Klick-Erklärungen
       indEl.innerHTML = 
-        '<div style="background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
+        '<div data-pm-info="vol" style="cursor:pointer; background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
           '<div style="font-size:0.6rem; color:var(--text-dim);">Volumen</div>' +
           '<div style="font-weight:700; font-size:0.8rem; color:' + volColor + ';">' + volStr + '</div>' +
         '</div>' +
-        '<div style="background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
+        '<div data-pm-info="vwap" style="cursor:pointer; background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
           '<div style="font-size:0.6rem; color:var(--text-dim);">VWAP</div>' +
           '<div style="font-weight:700; font-size:0.8rem; color:#3b82f6;">' + (vwap ? window.App.Format.currency(vwap, 'EUR', 2) : '—') + '</div>' +
         '</div>' +
-        '<div style="background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
+        '<div data-pm-info="rsi" style="cursor:pointer; background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
           '<div style="font-size:0.6rem; color:var(--text-dim);">RSI (15m)</div>' +
           '<div style="font-weight:700; font-size:0.8rem; color:' + rsiColor + ';">' + (rsi15 ? fmt(rsi15, 0) : '—') + '</div>' +
         '</div>';
@@ -383,13 +452,13 @@ window.App.PreMarket = (function () {
             ? 'Der Preis fällt (' + fmt(mom.delta) + '% in 15 Min). Wenn du verkaufen willst, solltest du das jetzt tun.'
             : 'Der Kurs verliert an Momentum (' + fmt(mom.delta) + '% in 15 Min).';
 
-          momEl.innerHTML = '<div style="padding:10px; background:' + alertBg + '; border-left:3px solid ' + alertColor + '; border-radius:4px; margin-top:8px;">' +
+          momEl.innerHTML = '<div data-pm-info="momentum" style="cursor:pointer; padding:10px; background:' + alertBg + '; border-left:3px solid ' + alertColor + '; border-radius:4px; margin-top:8px;">' +
             '<div style="font-weight:700; color:' + alertColor + '; font-size:0.8rem;">' + alertTitle + '</div>' +
             '<div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px; line-height:1.4;">' + alertText + '</div></div>';
         } else if (mom.dir === 'up') {
-          momEl.innerHTML = '<div style="font-size:0.72rem; color:var(--bullish); text-align:center; margin-top:6px; font-weight:600;">📈 Momentum: +' + fmt(mom.delta) + '% (letzte 15 Min)</div>';
+          momEl.innerHTML = '<div data-pm-info="momentum" style="cursor:pointer; font-size:0.72rem; color:var(--bullish); text-align:center; margin-top:6px; font-weight:600;">📈 Momentum: +' + fmt(mom.delta) + '% (letzte 15 Min)</div>';
         } else {
-          momEl.innerHTML = '<div style="font-size:0.72rem; color:var(--text-muted); text-align:center; margin-top:6px;">➡️ Momentum: seitwärts (letzte 15 Min)</div>';
+          momEl.innerHTML = '<div data-pm-info="momentum" style="cursor:pointer; font-size:0.72rem; color:var(--text-muted); text-align:center; margin-top:6px;">➡️ Momentum: seitwärts (letzte 15 Min)</div>';
         }
       } else {
         momEl.innerHTML = '';
