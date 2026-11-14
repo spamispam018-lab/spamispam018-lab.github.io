@@ -1,9 +1,8 @@
 /**
  * js/premarket.js
  * US-Vorbörsenhandel-Indikator für deutsche Anleger.
- * Features: Futures (NASDAQ & S&P 500), Volumen-Check, VWAP, 15-Min-RSI,
- * Momentum-Warnung kurz vor US-Open, Trade Republic Timer & Xetra-Status.
- * NEU: Klickbare Info-Popups für alle Indikatoren & Anzeige auch in der Nachbörse.
+ * Features: Futures, Volumen-Check, VWAP, 15-Min-RSI, Momentum-Warnung, Timer, Info-Popups.
+ * NEU: Zeitfenster-Buttons (1T, 6h, 3h, 2h, 1h) für den Chart.
  */
 window.App = window.App || {};
 
@@ -11,9 +10,9 @@ window.App.PreMarket = (function () {
   'use strict';
 
   var PROXY_URL = 'https://yahoo-proxy.spamispam018.workers.dev';
-  var state = { ticker: null };
+  // NEU: chartRange speichert den aktuell gewählten Zeitraum
+  var state = { ticker: null, chartRange: '1d', lastPrePoints: [], lastHLines: [] };
 
-  // Erklärtexte für die Info-Popups
   var INFO_TEXTS = {
     nq: { 
       title: 'NASDAQ 100 Future', 
@@ -212,9 +211,15 @@ window.App.PreMarket = (function () {
     if (!container || !stock) return;
     var ticker = (stock.ticker || '').toUpperCase();
     state.ticker = ticker;
+    state.chartRange = '1d'; // Bei jedem neuen Aufruf auf 1T zurücksetzen
 
     if (!isUsTicker(ticker)) {
-      container.innerHTML = '';
+      container.innerHTML = '' +
+        '<div class="card" style="padding: 16px; text-align: center; background: var(--bg-secondary);">' +
+          '<div style="font-size: 1.1rem; margin-bottom: 6px;">🇪🇺</div>' +
+          '<div style="font-size: 0.85rem; font-weight: 600; color: var(--text-dim); margin-bottom: 4px;">Europäische Aktie</div>' +
+          '<div style="font-size: 0.75rem; color: var(--text-muted);">Für <b>' + ticker + '</b> gibt es keinen US-Vorbörsenhandel. Die Karte ist nur für US-Ticker (z.B. NVDA, AAPL) verfügbar.</div>' +
+        '</div>';
       return;
     }
 
@@ -245,6 +250,16 @@ window.App.PreMarket = (function () {
         '<div style="height:140px;position:relative;margin-top:6px;">' +
           '<canvas id="pm-canvas" style="width:100%;height:100%;"></canvas>' +
         '</div>' +
+        
+        // NEU: Die Zeitfenster-Buttons unter dem Chart
+        '<div class="pill-group" id="pm-range-pills" style="margin-top: 10px; justify-content: center; display: flex;">' +
+          '<button class="pill-btn active" data-pm-range="1d">1T</button>' +
+          '<button class="pill-btn" data-pm-range="6h">6h</button>' +
+          '<button class="pill-btn" data-pm-range="3h">3h</button>' +
+          '<button class="pill-btn" data-pm-range="2h">2h</button>' +
+          '<button class="pill-btn" data-pm-range="1h">1h</button>' +
+        '</div>' +
+
         '<div id="pm-times" style="margin-top:10px;font-size:0.72rem;color:var(--text-dim);line-height:1.6;"></div>' +
         '<div style="margin-top:12px;display:flex;gap:8px;">' +
           '<button class="chip-btn active" id="pm-refresh" style="flex:1;justify-content:center;height:38px;">🔄 Jetzt aktualisieren</button>' +
@@ -371,7 +386,6 @@ window.App.PreMarket = (function () {
       }
     }
 
-    // Indikatoren (Volumen, VWAP, RSI) - Jetzt auch in der Nachbörse sichtbar
     var indEl = container.querySelector('#pm-indicators');
     if (indEl && (session === 'pre' || session === 'regular' || session === 'post')) {
       var totalVol = prePoints.reduce(function(sum, p) { return sum + p.volume; }, 0);
@@ -384,7 +398,6 @@ window.App.PreMarket = (function () {
       var rsiColor = rsi15 >= 70 ? 'var(--bearish)' : rsi15 <= 30 ? 'var(--bullish)' : 'var(--text-main)';
       
       indEl.style.display = 'grid';
-      
       indEl.innerHTML = 
         '<div data-pm-info="vol" style="cursor:pointer; background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
           '<div style="font-size:0.6rem; color:var(--text-dim);">Volumen</div>' +
@@ -487,7 +500,6 @@ window.App.PreMarket = (function () {
         'Der Pfeil zeigt, in welche Richtung der deutsche Kurs tendiert.';
     }
 
-    // VWAP-Linie zeichnen (auch in der Nachbörse)
     var hLines = [{
       value: germanNow,
       color: '#f59e0b',
@@ -509,14 +521,40 @@ window.App.PreMarket = (function () {
       }
     }
 
-    drawChart(container, prePoints, hLines);
+    // NEU: Daten und Linien im State speichern für den Intervall-Wechsel
+    state.lastPrePoints = prePoints;
+    state.lastHLines = hLines;
+
+    // Events für die Zeit-Buttons binden
+    var pills = container.querySelectorAll('[data-pm-range]');
+    pills.forEach(function(pill) {
+      pill.classList.toggle('active', pill.getAttribute('data-pm-range') === state.chartRange);
+      pill.onclick = function() {
+        state.chartRange = pill.getAttribute('data-pm-range');
+        pills.forEach(function(p) { p.classList.remove('active'); });
+        pill.classList.add('active');
+        drawChart(container, state.lastPrePoints, state.lastHLines);
+      };
+    });
+
+    drawChart(container, state.lastPrePoints, state.lastHLines);
   }
 
   function drawChart(container, points, hLines) {
     var canvas = container.querySelector('#pm-canvas');
     if (!canvas) return;
 
-    var filtered = points.filter(function (p) {
+    // NEU: Filtern nach dem ausgewählten Zeitfenster (relativ zum LETZTEN Datenpunkt!)
+    var lastTimestamp = points.length > 0 ? points[points.length - 1].t : Date.now();
+    var cutoff = 0;
+    if (state.chartRange === '6h') cutoff = lastTimestamp - 6 * 60 * 60 * 1000;
+    else if (state.chartRange === '3h') cutoff = lastTimestamp - 3 * 60 * 60 * 1000;
+    else if (state.chartRange === '2h') cutoff = lastTimestamp - 2 * 60 * 60 * 1000;
+    else if (state.chartRange === '1h') cutoff = lastTimestamp - 1 * 60 * 60 * 1000;
+
+    var timeFiltered = points.filter(function(p) { return p.t >= cutoff; });
+
+    var filtered = timeFiltered.filter(function (p) {
       var s = classifySession(p.t);
       return s === 'pre' || s === 'post' || s === 'regular';
     });
@@ -528,7 +566,7 @@ window.App.PreMarket = (function () {
       g.fillStyle = '#64748b';
       g.font = '12px sans-serif';
       g.textAlign = 'center';
-      g.fillText('Noch keine Handels-Bewegung heute.', W / 2, 70);
+      g.fillText('Zu wenige Daten für diesen Zeitraum.', W / 2, 70);
       return;
     }
 
