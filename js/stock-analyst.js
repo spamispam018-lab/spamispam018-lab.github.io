@@ -1,7 +1,7 @@
 /**
  * js/stock-analyst.js
  * Verwaltet den Analyst-Tab der Aktiendetailseite.
- * NEU: Link zu Yahoo Finance wiederhergestellt.
+ * NEU: Klickbare Info-Popups für Kursziele, Forward Valuation und EPS.
  */
 
 window.App = window.App || {};
@@ -10,6 +10,26 @@ window.App.StockAnalyst = (function () {
   'use strict';
 
   var nameToTickerMap = {};
+
+  // Erklärtexte für die Info-Popups
+  var INFO_TEXTS = {
+    targets: {
+      title: 'Kursziele der Analysten',
+      text: 'Analysten bewerten die Aktie regelmäßig und geben ein Kursziel für die nächsten 12 Monate ab. Das "Potenzial" zeigt, wie viel Prozent Luft nach oben (oder unten) zum durchschnittlichen Ziel besteht. Eine hohe Anzahl an Meinungen (z.B. 14) macht das Ziel verlässlicher.'
+    },
+    valuation: {
+      title: 'Forward Valuation',
+      text: 'KGV (Trailing) = Aktienkurs geteilt durch den Gewinn der letzten 12 Monate. KGV (Forward) = Aktienkurs geteilt durch den geschätzten Gewinn der nächsten 12 Monate. Ein niedrigeres Forward-KGV deutet auf erwartetes Gewinnwachstum hin. Die PEG Ratio setzt das KGV ins Verhältnis zum erwarteten Wachstum (Werte unter 1 gelten als günstig).'
+    },
+    eps: {
+      title: 'Gewinn je Aktie (EPS)',
+      text: 'Der Gewinn pro Aktie (Earnings Per Share). Hier siehst du, ob das Unternehmen die Schätzungen der Analysten in den letzten Quartalen übertroffen (Beat/grün) oder verfehlt (Miss/rot) hat. Das hilft dir einzuschätzen, wie verlässlich die Prognosen für dieses Unternehmen generell sind.'
+    },
+    recs: {
+      title: 'Analysten-Empfehlungen',
+      text: 'Die aggregierte Meinung aller Analysten, die die Aktie abdecken. Der Score reicht meist von 1 (Strong Buy) bis 5 (Strong Sell). Der Donut zeigt die genaue Verteilung der Meinungen (Kaufen, Halten, Verkaufen).'
+    }
+  };
 
   function buildNameLookup(universe) {
     nameToTickerMap = {};
@@ -162,13 +182,14 @@ window.App.StockAnalyst = (function () {
           '<b>Hinweis (ETF):</b> Kursziele und Empfehlungen wurden aus den Analysten-Bewertungen der größten enthaltenen Aktien (Top Holdings) gewichtet berechnet.</div>' 
         : '';
 
+      // NEU: Klickbare Titel (data-pm-info) für die Erklärungen
       var html = '' +
         aggNote +
         '<!-- Kursziele & Upside Karte -->' +
         '<div class="card">' +
           '<div class="card-header-dotted">' +
-            '<div class="card-title">' +
-              '<span>Kursziele der Analysten</span>' +
+            '<div class="card-title" data-pm-info="targets" style="cursor:pointer;" title="Info anzeigen">' +
+              '<span>Kursziele der Analysten <span style="font-size: 0.7em; opacity: 0.6;">ⓘ</span></span>' +
               '<span class="period-tag">' + (targets.analystCount || 0) + ' Meinungen</span>' +
             '</div>' +
             '<span class="badge-pill ' + upsideCls + '">' + upsideSign + window.App.Format.number(upsidePct, 1) + ' % Potenzial</span>' +
@@ -190,8 +211,8 @@ window.App.StockAnalyst = (function () {
         '<!-- Forward Valuation Kennzahlen -->' +
         '<div class="card">' +
           '<div class="card-header-dotted">' +
-            '<div class="card-title">' +
-              '<span>Forward Valuation</span>' +
+            '<div class="card-title" data-pm-info="valuation" style="cursor:pointer;" title="Info anzeigen">' +
+              '<span>Forward Valuation <span style="font-size: 0.7em; opacity: 0.6;">ⓘ</span></span>' +
               '<span class="period-tag">Multiples</span>' +
             '</div>' +
           '</div>' +
@@ -215,8 +236,8 @@ window.App.StockAnalyst = (function () {
         '<!-- EPS Surprise Timeline -->' +
         '<div class="card">' +
           '<div class="card-header-dotted">' +
-            '<div class="card-title">' +
-              '<span>Gewinn je Aktie (EPS)</span>' +
+            '<div class="card-title" data-pm-info="eps" style="cursor:pointer;" title="Info anzeigen">' +
+              '<span>Gewinn je Aktie (EPS) <span style="font-size: 0.7em; opacity: 0.6;">ⓘ</span></span>' +
               '<span class="period-tag">Beat / Miss</span>' +
             '</div>' +
           '</div>' +
@@ -226,8 +247,8 @@ window.App.StockAnalyst = (function () {
         '<!-- Recommendations Donut & Historie -->' +
         '<div class="card">' +
           '<div class="card-header-dotted">' +
-            '<div class="card-title">' +
-              '<span>Analysten-Empfehlungen</span>' +
+            '<div class="card-title" data-pm-info="recs" style="cursor:pointer;" title="Info anzeigen">' +
+              '<span>Analysten-Empfehlungen <span style="font-size: 0.7em; opacity: 0.6;">ⓘ</span></span>' +
               '<span class="period-tag">' + recText + '</span>' +
             '</div>' +
           '</div>' +
@@ -282,13 +303,52 @@ window.App.StockAnalyst = (function () {
           ) +
         '</div>' : '') +
 
-        // NEU: Link zu Yahoo Finance wiederhergestellt
+        // Link zu Yahoo Finance
         '<div style="margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--border-subtle); text-align: center; font-size: 0.75rem;">' +
           '<span style="color: var(--text-dim);">Quelle: ' + (isAgg ? 'Gewichtete Aggregation aus Holdings.' : 'Aggregierter Konsens via Yahoo Finance.') + '</span><br>' +
           '<a href="https://de.finance.yahoo.com/quote/' + stock.ticker + '/analysis" target="_blank" rel="noopener" style="color: var(--accent-purple-light); text-decoration: none; font-weight: 600; display: inline-block; margin-top: 4px;">Detaillierte Analystenberichte auf Yahoo Finance ansehen &rarr;</a>' +
+        '</div>' +
+        
+        // Das Info-Modal (unsichtbar am Anfang)
+        '<div id="pm-info-modal-backdrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998;" onclick="this.style.display=\'none\'; document.getElementById(\'pm-info-modal\').style.display=\'none\';"></div>' +
+        '<div id="pm-info-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:9999; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:20px; width:90%; max-width:400px; box-shadow:0 10px 30px rgba(0,0,0,0.5);">' +
+          '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">' +
+            '<h3 id="pm-info-title" style="font-size:1.1rem; font-weight:700; color:var(--text-main); margin:0;">Titel</h3>' +
+            '<button id="pm-info-close" style="background:none; border:none; color:var(--text-dim); font-size:1.5rem; cursor:pointer; padding:0 5px;">&times;</button>' +
+          '</div>' +
+          '<div id="pm-info-text" style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">Text</div>' +
         '</div>';
 
       container.innerHTML = html;
+
+      // Modal-Logik binden
+      var closeBtn = container.querySelector('#pm-info-close');
+      if (closeBtn) {
+        closeBtn.onclick = function() {
+          container.querySelector('#pm-info-modal-backdrop').style.display = 'none';
+          container.querySelector('#pm-info-modal').style.display = 'none';
+        };
+      }
+
+      // Klick-Event für die Erklärungen
+      container.addEventListener('click', function(e) {
+        var target = e.target.closest('[data-pm-info]');
+        if (target) {
+          e.stopPropagation();
+          var key = target.getAttribute('data-pm-info');
+          var data = INFO_TEXTS[key];
+          if (!data) return;
+          
+          var titleEl = container.querySelector('#pm-info-title');
+          var textEl = container.querySelector('#pm-info-text');
+          if (titleEl && textEl) {
+            titleEl.textContent = data.title;
+            textEl.textContent = data.text;
+            container.querySelector('#pm-info-modal-backdrop').style.display = 'block';
+            container.querySelector('#pm-info-modal').style.display = 'block';
+          }
+        }
+      });
 
       // Charts & Listen initialisieren
       if (!isAgg) {
