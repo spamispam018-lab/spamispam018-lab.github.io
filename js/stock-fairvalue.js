@@ -4,12 +4,8 @@
  *  1. Graham-Zahl:      √(22,5 × Gewinn je Aktie × Buchwert je Aktie)
  *  2. KGV-Vergleich:    Gewinn je Aktie × Median-KGV der Branche (bzw. des Sektors)
  *  3. DCF (vereinfacht): abgezinste freie Cashflows über 5 Jahre + Restwert, abzüglich Nettoschulden
- *
- * Alle Werte stammen aus den Abschlüssen der letzten vier Quartale (TTM) bzw. dem letzten Geschäftsjahr.
- * Reine Modellrechnung – keine Anlageberatung.
  * 
- * *NEU:* Bei ETFs werden die Fair Values aus den Einzelbewertungen der Top 5 Holdings gewichtet aggregiert, 
- * wobei für die restlichen (unbekannten) Holdings eine faire Bewertung (0% Upside) angenommen wird!
+ * FIX: Robuster Datenzugriff (camelCase und snake_case), da yfinance die API geändert hat.
  */
 
 window.App = window.App || {};
@@ -74,27 +70,37 @@ window.App.StockFairValue = (function () {
     return (v !== null && v !== undefined && v !== '' && !isNaN(v)) ? Number(v) : null;
   }
 
+  // FIX: Robuster Zugriff auf beide Schreibweisen
+  function getNum(obj, keys) {
+    if (!obj) return null;
+    for (var i = 0; i < keys.length; i++) {
+      var v = num(obj[keys[i]]);
+      if (v !== null) return v;
+    }
+    return null;
+  }
+
   function sorted(list) {
     return (list || []).filter(function (r) { return r && r.date; })
       .sort(function (a, b) { return a.date < b.date ? -1 : 1; });
   }
 
-  function ttm(rows, field) {
+  function ttm(rows, keys) {
     var last4 = sorted(rows).slice(-4);
     if (last4.length < 4) return null;
     var sum = 0;
     for (var i = 0; i < 4; i++) {
-      var v = num(last4[i][field]);
+      var v = getNum(last4[i], keys);
       if (v === null) return null;
       sum += v;
     }
     return sum;
   }
 
-  function lastValue(rows, field) {
+  function lastValue(rows, keys) {
     var s = sorted(rows);
     for (var i = s.length - 1; i >= 0; i--) {
-      var v = num(s[i][field]);
+      var v = getNum(s[i], keys);
       if (v !== null) return v;
     }
     return null;
@@ -127,22 +133,23 @@ window.App.StockFairValue = (function () {
 
     var shares = (price && mcap) ? mcap / price : null;
 
-    var ni = ttm(inc.quarterly, 'Net_Income');
+    // FIX: Arrays mit beiden Schreibweisen übergeben
+    var ni = ttm(inc.quarterly, ['Net_Income', 'NetIncome']);
     var niSource = 'TTM';
-    if (ni === null) { ni = lastValue(inc.annual, 'Net_Income'); niSource = 'Geschäftsjahr'; }
+    if (ni === null) { ni = lastValue(inc.annual, ['Net_Income', 'NetIncome']); niSource = 'Geschäftsjahr'; }
 
-    var fcf = ttm(cf.quarterly, 'Free_Cash_Flow');
+    var fcf = ttm(cf.quarterly, ['Free_Cash_Flow', 'FreeCashFlow']);
     var fcfSource = 'TTM';
-    if (fcf === null) { fcf = lastValue(cf.annual, 'Free_Cash_Flow'); fcfSource = 'Geschäftsjahr'; }
+    if (fcf === null) { fcf = lastValue(cf.annual, ['Free_Cash_Flow', 'FreeCashFlow']); fcfSource = 'Geschäftsjahr'; }
 
-    var equity = lastValue(bs.quarterly, 'Stockholders_Equity');
-    if (equity === null) equity = lastValue(bs.annual, 'Stockholders_Equity');
+    var equity = lastValue(bs.quarterly, ['Stockholders_Equity', 'StockholdersEquity']);
+    if (equity === null) equity = lastValue(bs.annual, ['Stockholders_Equity', 'StockholdersEquity']);
 
-    var debt = lastValue(bs.quarterly, 'Total_Debt');
-    var cash = lastValue(bs.quarterly, 'Cash_And_Cash_Equivalents');
-    if (debt === null) debt = lastValue(bs.annual, 'Total_Debt');
-    if (cash === null) cash = lastValue(bs.annual, 'Cash_And_Cash_Equivalents');
-    var netDebt = (debt !== null) ? debt - (cash || 0) : (lastValue(bs.quarterly, 'Net_Debt'));
+    var debt = lastValue(bs.quarterly, ['Total_Debt', 'TotalDebt']);
+    var cash = lastValue(bs.quarterly, ['Cash_And_Cash_Equivalents', 'CashAndCashEquivalents']);
+    if (debt === null) debt = lastValue(bs.annual, ['Total_Debt', 'TotalDebt']);
+    if (cash === null) cash = lastValue(bs.annual, ['Cash_And_Cash_Equivalents', 'CashAndCashEquivalents']);
+    var netDebt = (debt !== null) ? debt - (cash || 0) : lastValue(bs.quarterly, ['Net_Debt', 'NetDebt']);
 
     var revG = num((stock.ratios || {}).revenueGrowth);
 
@@ -240,9 +247,9 @@ window.App.StockFairValue = (function () {
     return Math.round(g);
   }
 
-  function yearlyLine(rows, field, scaleFn) {
-    return sorted(rows).filter(function (r) { return num(r[field]) !== null; }).slice(-5).map(function (r) {
-      return r.date.slice(0, 4) + ': ' + scaleFn(Number(r[field]));
+  function yearlyLine(rows, keys, scaleFn) {
+    return sorted(rows).filter(function (r) { return getNum(r, keys) !== null; }).slice(-5).map(function (r) {
+      return r.date.slice(0, 4) + ': ' + scaleFn(getNum(r, keys));
     }).join(', ');
   }
 
@@ -280,7 +287,7 @@ window.App.StockFairValue = (function () {
       lines.push('- Sektor: ' + (p.sector || 'N/A'));
       if (b.price) lines.push('- Kurs: ' + F.currency(b.price, cur));
       if (b.fcf !== null) lines.push('- Freier Cashflow (' + b.fcfSource + '): ' + money(b.fcf));
-      var fcfHist = yearlyLine((fin.cashFlow || {}).annual, 'Free_Cash_Flow', money);
+      var fcfHist = yearlyLine((fin.cashFlow || {}).annual, ['Free_Cash_Flow', 'FreeCashFlow'], money);
       if (fcfHist) lines.push('- Freier Cashflow historisch: ' + fcfHist);
     }
 
@@ -436,7 +443,6 @@ window.App.StockFairValue = (function () {
             }
          });
 
-         // Konservativer Ansatz: Der unbekannte Rest des ETFs wird mit 0% Upside (fair bewertet) angenommen
          graham = (gWeight > 0 && etfPrice > 0) ? { ok: true, value: etfPrice * (1 + (gUpside / 100)), note: 'Gewichteter Durchschnitt der Graham-Bewertungen aus den Top-Holdings (Rest wird als fair bewertet angenommen).' } : { ok: false, reason: 'Gewinne oder Buchwerte der Holdings nicht berechenbar.' };
          peer = (pWeight > 0 && etfPrice > 0) ? { ok: true, value: etfPrice * (1 + (pUpside / 100)), note: 'Gewichteter Durchschnitt der KGV-Bewertungen aus den Top-Holdings (Rest wird als fair bewertet angenommen).' } : { ok: false, reason: 'Nicht genügend Branchen-Peers für die Holdings gefunden.' };
          dcf = (dWeight > 0 && etfPrice > 0) ? { ok: true, value: etfPrice * (1 + (dUpside / 100)), note: 'Gewichteter Durchschnitt der DCF-Werte aus den Top-Holdings (Annahmen gelten übergreifend, Rest wird als fair bewertet angenommen).' } : { ok: false, reason: 'Freie Cashflows der Holdings negativ oder nicht berechenbar.' };
