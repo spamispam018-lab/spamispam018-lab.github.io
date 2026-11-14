@@ -7,7 +7,6 @@ NEU:
 - Leere Financials in bestehenden Dateien werden im Delta-Lauf nachgeholt (max. pro Lauf begrenzt).
 - Upgrades & Downgrades (funktioniert).
 - EPS-Estimates Datum wird korrekt ausgelesen.
-- FIX: Analysten-Breakdown (Buy/Sell/Hold) und 4-Monats-Historie werden nun korrekt geladen.
 """
 
 import os
@@ -288,33 +287,6 @@ def process_analyst_data(info, ticker_obj, cur):
         "breakdown": {"strongBuy": 0, "buy": 0, "hold": 0, "sell": 0, "strongSell": 0},
         "history": []
     }
-
-    # FIX: Echte Breakdown-Daten (Donut) und Historie (4 Monate) abrufen
-    try:
-        rec_summary = ticker_obj.recommendations_summary
-        if rec_summary is not None and not rec_summary.empty:
-            latest = rec_summary.iloc[0]
-            recommendations["breakdown"] = {
-                "strongBuy": int(latest.get("strongBuy", 0) or 0),
-                "buy": int(latest.get("buy", 0) or 0),
-                "hold": int(latest.get("hold", 0) or 0),
-                "sell": int(latest.get("sell", 0) or 0),
-                "strongSell": int(latest.get("strongSell", 0) or 0)
-            }
-            
-        rec_hist = ticker_obj.recommendations
-        if rec_hist is not None and not rec_hist.empty:
-            for _, row in rec_hist.head(4).iterrows():
-                recommendations["history"].append({
-                    "period": str(row.get("period", "")),
-                    "strongBuy": int(row.get("strongBuy", 0) or 0),
-                    "buy": int(row.get("buy", 0) or 0),
-                    "hold": int(row.get("hold", 0) or 0),
-                    "sell": int(row.get("sell", 0) or 0),
-                    "strongSell": int(row.get("strongSell", 0) or 0)
-                })
-    except Exception as e:
-        print(f"Fehler bei Recommendations für {info.get('symbol', '')}: {e}")
 
     eps_estimates = []
     try:
