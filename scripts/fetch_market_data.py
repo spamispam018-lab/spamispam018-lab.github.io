@@ -3,12 +3,19 @@
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 NEU:
+- Option --only: Gezieltes Abrufen einzelner Sektionen (z.B. --only analysts,insider).
+  Spart enorm viel Zeit, da nicht mehr alles auf einmal geladen wird.
 - Japanische Ticker entfernt.
 - Extrem robuster Abruf der Financials (get_*-API + Property-Fallback + Retries).
-- Leere Financials in bestehenden Dateien werden im Delta-Lauf nachgeholt (max. pro Lauf begrenzt).
+- Leere Financials in bestehenden Dateien werden im Delta-Lauf nachgeholt.
 - Upgrades & Downgrades (funktioniert).
 - EPS-Estimates Datum wird korrekt ausgelesen.
-- FIX: Analysten-Breakdown (Buy/Sell/Hold) und 4-Monats-Historie werden nun korrekt und fehlertolerant geladen.
+- FIX: Analysten-Breakdown (Buy/Sell/Hold) und 4-Monats-Historie werden nun korrekt geladen.
+- FIX: Analysten werden im Delta-Lauf nachgeholt, wenn Breakdown/Historie leer sind (begrenzt pro Lauf).
+- FIX: Leere/Rate-Limit-Antworten (info leer) überschreiben keine vorhandenen Analystendaten mehr.
+- FIX: EPS-Quartale ohne Datum werden als Q-1..Q-4 gelabelt statt 'None'.
+- NEU: Fallback-Breakdown aus Upgrades/Downgrades, falls Yahoo recommendationTrend leer liefert.
+- NEU: Pause zwischen Tickern im --only-Modus, ETFs werden bei 'analysts' übersprungen.
 """
 
 import os
@@ -102,21 +109,23 @@ KNOWN_ETF_HOLDINGS = {
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from index_lists import SP500, DAX, MDAX, dedupe  # noqa: E402
 
-# TICKERS_JAPAN wurde hier entfernt
 ALL_TICKERS = dedupe(TICKERS_USA, TICKERS_EUROPE, TICKERS_ETFS, TICKERS_SECTORS, DAX, MDAX, SP500)
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
-# Max. Anzahl Ticker pro Lauf, bei denen leere Financials nachgeholt werden (Rate-Limit-Schutz)
 MAX_FIN_BACKFILL_PER_RUN = 50
+MAX_ANALYST_BACKFILL_PER_RUN = 50
+ANALYST_RECHECK_DAYS = 7
+ONLY_MODE_SLEEP_SEC = 1.0
 
-# JPY wurde entfernt
 RATES_TO_EUR = {
     "EUR": 1.0, "USD": 0.92, "GBP": 1.17, "GBp": 0.0117, "CHF": 1.04, "DKK": 0.134
 }
 
+# NEU: Alle erlaubten Sektionen für das --only Flag
+ALLOWED_SECTIONS = ["quote", "profile", "financials", "analysts", "insider", "institutional", "options", "dividends", "holdings", "history"]
+
 
 def detect_native_currency(ticker):
-    # .T (Japan) wurde entfernt
     if ticker.endswith((".DE", ".PA", ".AS", ".MI", ".MC")): return "EUR"
     if ticker.endswith(".L"): return "GBP"
     if ticker.endswith(".SW"): return "CHF"
@@ -126,7 +135,6 @@ def detect_native_currency(ticker):
 
 def load_live_forex():
     global RATES_TO_EUR
-    # JPY-Paar wurde entfernt
     pairs = {"USD": "EURUSD=X", "GBP": "EURGBP=X", "CHF": "EURCHF=X", "DKK": "EURDKK=X"}
     try:
         tickers_str = " ".join(pairs.values())
@@ -269,6 +277,70 @@ def process_insider_data(ticker_obj, cur):
     return {"summary": summary, "trades": trades}
 
 
+def analysts_empty(a):
+    """True, wenn Breakdown oder Historie fehlen (Kursziele allein reichen nicht)."""
+    if not a:
+        return True
+    r = a.get("recommendations") or {}
+    b = r.get("breakdown") or {}
+    return sum(b.values()) == 0 or not r.get("history")
+
+
+def analysts_recently_checked(a):
+    try:
+        ts = datetime.fromisoformat((a or {}).get("checkedAt", ""))
+        return (datetime.now(timezone.utc) - ts).days < ANALYST_RECHECK_DAYS
+    except Exception:
+        return False
+
+
+def _grade_bucket(grade):
+    g = str(grade or "").strip().lower()
+    if not g:
+        return None
+    if "strong buy" in g or "conviction" in g:
+        return "strongBuy"
+    if "strong sell" in g:
+        return "strongSell"
+    if any(k in g for k in ("underperform", "underweight", "reduce", "sell", "negative")):
+        return "sell"
+    if any(k in g for k in ("outperform", "overweight", "buy", "accumulate", "add", "positive", "top pick")):
+        return "buy"
+    if any(k in g for k in ("hold", "neutral", "market perform", "equal", "sector perform", "in-line", "inline", "peer perform", "mixed")):
+        return "hold"
+    return None
+
+
+def breakdown_from_upgrades(ticker_obj, days=90):
+    """Näherung: letzte Bewertung je Firma der letzten `days` Tage. Nur Fallback."""
+    try:
+        df = ticker_obj.upgrades_downgrades
+        if df is None or df.empty:
+            return None
+        df = df.reset_index()
+        date_cols = [c for c in df.columns if 'date' in str(c).lower()]
+        if not date_cols:
+            return None
+        dc = date_cols[0]
+        df[dc] = pd.to_datetime(df[dc], errors="coerce", utc=True)
+        df = df.dropna(subset=[dc]).sort_values(by=dc, ascending=False)
+        cutoff = pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=days)
+        df = df[df[dc] >= cutoff]
+        seen = set()
+        out = {"strongBuy": 0, "buy": 0, "hold": 0, "sell": 0, "strongSell": 0}
+        for _, row in df.iterrows():
+            firm = str(row.get("Firm", ""))
+            if firm in seen:
+                continue
+            seen.add(firm)
+            bucket = _grade_bucket(row.get("ToGrade"))
+            if bucket:
+                out[bucket] += 1
+        return out if sum(out.values()) > 0 else None
+    except Exception:
+        return None
+
+
 def process_analyst_data(info, ticker_obj, cur):
     targets = {
         "current": clean_val(to_eur(clean_val(info.get("currentPrice")), cur)),
@@ -287,15 +359,13 @@ def process_analyst_data(info, ticker_obj, cur):
         "history": []
     }
 
-    # Hilfsfunktion für sichere Int-Konvertierung
     def safe_int(val):
         try:
             if pd.isna(val): return 0
             return int(val)
-        except:
+        except Exception:
             return 0
 
-    # 1. Breakdown (Donut) abrufen
     try:
         rec_summary = ticker_obj.recommendations_summary
         if rec_summary is not None and not rec_summary.empty:
@@ -307,10 +377,17 @@ def process_analyst_data(info, ticker_obj, cur):
                 "sell": safe_int(latest.get("sell", 0)),
                 "strongSell": safe_int(latest.get("strongSell", latest.get("strong_sell", 0)))
             }
+        else:
+            print(f"{info.get('symbol', '')}: recommendations_summary leer (Yahoo/yfinance-Version prüfen)")
     except Exception as e:
         print(f"Fehler bei Recommendations Summary für {info.get('symbol', '')}: {e}")
 
-    # 2. Historie (Balkendiagramm) abrufen
+    if sum(recommendations["breakdown"].values()) == 0:
+        approx = breakdown_from_upgrades(ticker_obj)
+        if approx:
+            recommendations["breakdown"] = approx
+            recommendations["breakdownSource"] = "upgrades-approx"
+
     try:
         rec_hist = ticker_obj.recommendations
         if rec_hist is not None and not rec_hist.empty:
@@ -323,6 +400,8 @@ def process_analyst_data(info, ticker_obj, cur):
                     "sell": safe_int(row.get("sell", 0)),
                     "strongSell": safe_int(row.get("strongSell", row.get("strong_sell", 0)))
                 })
+        else:
+            print(f"{info.get('symbol', '')}: recommendations (History) leer")
     except Exception as e:
         print(f"Fehler bei Recommendations History für {info.get('symbol', '')}: {e}")
 
@@ -334,10 +413,12 @@ def process_analyst_data(info, ticker_obj, cur):
             date_col = next((c for c in eh.columns if 'date' in str(c).lower() or 'quarter' in str(c).lower()), eh.columns[0])
             eh = eh.sort_values(by=date_col, ascending=False).head(4)
 
-            for _, row in eh.iterrows():
+            for i, (_, row) in enumerate(eh.iterrows()):
                 q_date = row.get(date_col)
-                if isinstance(q_date, pd.Timestamp):
+                if isinstance(q_date, pd.Timestamp) and not pd.isna(q_date):
                     q_str = q_date.strftime("%Y-%m-%d")
+                elif q_date is None or str(q_date) in ("None", "NaT", "nan", ""):
+                    q_str = f"Q-{i+1}"
                 else:
                     q_str = str(q_date)[:10]
 
@@ -365,7 +446,8 @@ def process_analyst_data(info, ticker_obj, cur):
         pass
 
     return {"targets": targets, "recommendations": recommendations,
-            "epsEstimates": eps_estimates, "nextEarningsDate": None, "epsForecast": eps_forecast}
+            "epsEstimates": eps_estimates, "nextEarningsDate": None, "epsForecast": eps_forecast,
+            "checkedAt": datetime.now(timezone.utc).isoformat()}
 
 
 def process_institutional_holders(ticker_obj, cur):
@@ -528,7 +610,6 @@ def compute_chart_patterns(chart_history, symbol=""):
 
 
 def _try_df(fn, retries=2):
-    """Ruft fn() auf und gibt einen nicht-leeren DataFrame zurück (mit Retries), sonst None."""
     for i in range(retries + 1):
         try:
             df = fn()
@@ -541,7 +622,6 @@ def _try_df(fn, retries=2):
 
 
 def fetch_financials_robust(t, cur):
-    """Holt Finanzdaten: erst get_*-API (freq), dann Property-Fallback, jeweils mit Retries."""
     def get(getter_name, attr_name, freq):
         getter = getattr(t, getter_name, None)
         df = _try_df(lambda: getter(freq=freq)) if getter else None
@@ -573,7 +653,6 @@ def fetch_financials_robust(t, cur):
 
 
 def financials_empty(fin):
-    """True, wenn keine einzige Finanz-Liste Daten enthält."""
     if not fin:
         return True
     for section in ("incomeStatement", "balanceSheet", "cashFlow"):
@@ -587,6 +666,8 @@ def fetch_full_stock(ticker_sym):
     print(f"Führe vollständigen Fetch (inkl. Intraday) für {ticker_sym} durch...")
     t = yf.Ticker(ticker_sym)
     info = t.info or {}
+    if not info:
+        raise RuntimeError(f"info für {ticker_sym} leer (Rate-Limit?) - wird nicht gespeichert")
     cur = info.get("currency") or detect_native_currency(ticker_sym)
     country = info.get("country", "")
     if not country:
@@ -654,7 +735,6 @@ def fetch_full_stock(ticker_sym):
     except Exception:
         pass
 
-    # Robuster Finanzdaten-Abruf
     fin_data = fetch_financials_robust(t, cur)
     print(f"Financials für {ticker_sym}: GuV {len(fin_data['incomeStatement']['quarterly'])}Q/{len(fin_data['incomeStatement']['annual'])}Y, Bilanz {len(fin_data['balanceSheet']['quarterly'])}Q/{len(fin_data['balanceSheet']['annual'])}Y, CF {len(fin_data['cashFlow']['quarterly'])}Q/{len(fin_data['cashFlow']['annual'])}Y")
     if financials_empty(fin_data):
@@ -720,6 +800,141 @@ def fetch_full_stock(ticker_sym):
     return result
 
 
+# NEU: Partieller Fetch nur für bestimmte Sektionen
+def fetch_partial_stock(ticker_sym, sections, existing_data):
+    t = yf.Ticker(ticker_sym)
+    existing_data = existing_data or {}
+    
+    # Info immer laden (wird von fast allen Sektionen gebraucht)
+    info = t.info or {}
+    if not info and "analysts" in sections:
+        raise RuntimeError("info leer (Rate-Limit?) - Analysten nicht überschrieben")
+    cur = existing_data.get("profile", {}).get("nativeCurrency") or info.get("currency") or detect_native_currency(ticker_sym)
+    
+    result = dict(existing_data)
+    
+    if "profile" in sections or "profile" not in result:
+        country = info.get("country", "")
+        if not country:
+            if ticker_sym.endswith(".DE"): country = "Deutschland"
+            else: country = "USA"
+            
+        result["profile"] = {"ticker": ticker_sym,
+                   "name": info.get("shortName") or info.get("longName") or ticker_sym,
+                   "sector": info.get("sector", "Sonstige"),
+                   "industry": info.get("industry", "N/A"),
+                   "country": country, "currency": "EUR",
+                   "nativeCurrency": cur, "exchange": info.get("exchange", "N/A")}
+
+    if "quote" in sections:
+        raw_curr = 0.0
+        raw_prev = 0.0
+        try:
+            intraday = t.history(period="1d", interval="1m")
+            if not intraday.empty: raw_curr = float(intraday["Close"].iloc[-1])
+        except Exception: pass
+        try:
+            daily = t.history(period="5d", interval="1d")
+            if not daily.empty:
+                if not raw_curr: raw_curr = float(daily["Close"].iloc[-1])
+                if len(daily) > 1: raw_prev = float(daily["Close"].iloc[-2])
+        except Exception: pass
+
+        if not raw_curr: raw_curr = clean_val(info.get("currentPrice") or info.get("regularMarketPrice") or info.get("navPrice"), 0.0)
+        if not raw_prev: raw_prev = clean_val(info.get("previousClose") or info.get("regularMarketPreviousClose"), raw_curr)
+        if not raw_prev: raw_prev = raw_curr
+
+        curr_p = clean_val(to_eur(raw_curr, cur), 0.0)
+        prev_p = clean_val(to_eur(raw_prev, cur), curr_p)
+        
+        result["quote"] = {"price": curr_p, "change": round(curr_p - prev_p, 4) if curr_p and prev_p else 0.0, 
+                           "changePercent": round(((raw_curr - raw_prev) / raw_prev) * 100, 2) if raw_prev else 0.0,
+                           "marketCap": clean_val(to_eur(clean_val(info.get("marketCap") or info.get("totalAssets"), 0), cur), 0),
+                           "fiftyTwoWeekLow": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekLow")), cur)),
+                           "fiftyTwoWeekHigh": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekHigh")), cur)),
+                           "volume": clean_val(info.get("regularMarketVolume")), "currency": "EUR"}
+        result["ratios"] = {"peTrailing": clean_val(info.get("trailingPE")),
+                  "peForward": clean_val(info.get("forwardPE")),
+                  "dividendYield": clean_val(info.get("dividendYield")),
+                  "profitMargins": clean_val(info.get("profitMargins"))}
+
+    if "financials" in sections:
+        result["financials"] = fetch_financials_robust(t, cur)
+        
+    if "analysts" in sections and info.get("quoteType") not in (None, "EQUITY"):
+        print(f"  {ticker_sym}: kein Equity (quoteType={info.get('quoteType')}) - Analysten übersprungen")
+        if isinstance(result.get("analysts"), dict):
+            result["analysts"]["checkedAt"] = datetime.now(timezone.utc).isoformat()
+    elif "analysts" in sections:
+        analysts_data = process_analyst_data(info, t, cur)
+        old_an = existing_data.get("analysts") or {}
+        old_rec = old_an.get("recommendations") or {}
+        new_rec = analysts_data["recommendations"]
+        if sum(new_rec["breakdown"].values()) == 0 and sum((old_rec.get("breakdown") or {}).values()) > 0:
+            new_rec["breakdown"] = old_rec["breakdown"]
+            if old_rec.get("breakdownSource"):
+                new_rec["breakdownSource"] = old_rec["breakdownSource"]
+        if not new_rec["history"] and old_rec.get("history"):
+            new_rec["history"] = old_rec["history"]
+        upgrades_list = []
+        try:
+            ud_df = t.upgrades_downgrades
+            if ud_df is not None and not ud_df.empty:
+                ud_df = ud_df.reset_index()
+                date_cols = [c for c in ud_df.columns if 'date' in str(c).lower()]
+                if date_cols:
+                    date_col = date_cols[0]
+                    ud_df = ud_df.sort_values(by=date_col, ascending=False)
+                    for _, row in ud_df.head(10).iterrows():
+                        g_date = row.get(date_col)
+                        date_str = g_date.strftime("%Y-%m-%d") if isinstance(g_date, pd.Timestamp) else str(g_date)[:10]
+                        upgrades_list.append({"date": date_str, "firm": str(row.get("Firm", "Unbekannt")),
+                            "toGrade": str(row.get("ToGrade", "N/A")), "fromGrade": str(row.get("FromGrade", "N/A")),
+                            "action": str(row.get("Action", ""))})
+        except Exception: pass
+        
+        next_earnings = None
+        try:
+            cal = t.calendar
+            if cal and 'Earnings Date' in cal and cal['Earnings Date']:
+                next_earnings = cal['Earnings Date'][0].strftime("%Y-%m-%d")
+        except Exception: pass
+        
+        analysts_data["upgradesDowngrades"] = upgrades_list
+        analysts_data["nextEarningsDate"] = next_earnings
+        result["analysts"] = analysts_data
+        
+    if "insider" in sections:
+        result["insider"] = process_insider_data(t, cur)
+        
+    if "institutional" in sections:
+        result["institutional"] = process_institutional_holders(t, cur)
+        
+    if "options" in sections:
+        result["options"] = process_options(t, info)
+        
+    if "dividends" in sections:
+        result["dividends"] = process_dividends(t, info, cur, existing_data.get("dividends"))
+        result["exDividendDate"] = result["dividends"].get("exDate")
+        
+    if "holdings" in sections:
+        result["holdings"] = process_fund_data(t, ticker_sym)
+        
+    if "history" in sections:
+        chart_history = []
+        try:
+            hist = t.history(period="2y", interval="1d")
+            for dt, row in hist.iterrows():
+                chart_history.append({"date": dt.strftime("%Y-%m-%d"),
+                                      "close": clean_val(to_eur(clean_val(row["Close"]), cur)),
+                                      "volume": clean_val(row["Volume"])})
+        except Exception: pass
+        result["chartHistory"] = chart_history
+
+    result["updatedAt"] = datetime.now(timezone.utc).isoformat()
+    return result
+
+
 def extract_close_series(batch_df, sym):
     try:
         if batch_df is None or batch_df.empty:
@@ -741,9 +956,68 @@ def extract_close_series(batch_df, sym):
     return None
 
 
-def run_delta_sync(tickers, is_manual=False):
+def run_delta_sync(tickers, is_manual=False, sections=None):
     load_live_forex()
 
+    # Wenn gezielt Sektionen geladen werden sollen
+    if sections:
+        print(f"Lade gezielt Sektionen: {', '.join(sections)} für {len(tickers)} Ticker...")
+        universe_file = os.path.join(DATA_DIR, "universe.json")
+        universe_map = {}
+        if os.path.exists(universe_file):
+            try:
+                with open(universe_file, "r", encoding="utf-8") as f:
+                    for item in json.load(f): universe_map[item["ticker"]] = item
+            except Exception: pass
+
+        for sym in tickers:
+            stock_file = os.path.join(DATA_DIR, f"{sym}.json")
+            stock_data = None
+            if os.path.exists(stock_file):
+                try:
+                    with open(stock_file, "r", encoding="utf-8") as f:
+                        stock_data = json.load(f)
+                except Exception: pass
+            
+            # Wenn Datei nicht existiert, holen wir das Nötigste (Profil + Quote) mit, damit sie valide ist
+            current_sections = list(sections)
+            if not stock_data:
+                print(f"  Datei für {sym} fehlt, hole Basis-Daten mit...")
+                stock_data = {}
+                if "profile" not in current_sections: current_sections.append("profile")
+                if "quote" not in current_sections: current_sections.append("quote")
+
+            try:
+                stock_data = fetch_partial_stock(sym, current_sections, stock_data)
+                with open(stock_file, "w", encoding="utf-8") as f:
+                    json.dump(stock_data, f, ensure_ascii=False, indent=2)
+                
+                # Universe Eintrag aktualisieren, falls Quote neu geladen wurde
+                if "quote" in current_sections or "profile" in current_sections:
+                    u_item = universe_map.get(sym, {"ticker": sym})
+                    u_item["name"] = stock_data.get("profile", {}).get("name", sym)
+                    u_item["sector"] = stock_data.get("profile", {}).get("sector", "Sonstige")
+                    u_item["country"] = stock_data.get("profile", {}).get("country", "")
+                    u_item["currency"] = "EUR"
+                    u_item["price"] = stock_data.get("quote", {}).get("price")
+                    u_item["changePercent"] = stock_data.get("quote", {}).get("changePercent")
+                    u_item["marketCap"] = stock_data.get("quote", {}).get("marketCap")
+                    u_item["dividendYield"] = stock_data.get("ratios", {}).get("dividendYield")
+                    u_item["exDividendDate"] = stock_data.get("exDividendDate")
+                    u_item["updatedAt"] = stock_data.get("updatedAt")
+                    universe_map[sym] = u_item
+                
+                print(f"  {sym} erfolgreich aktualisiert ({', '.join(current_sections)}).")
+            except Exception as e:
+                print(f"  Fehler bei {sym}: {e}")
+            time.sleep(ONLY_MODE_SLEEP_SEC)
+
+        if any(s in sections for s in ["quote", "profile"]):
+            with open(universe_file, "w", encoding="utf-8") as f:
+                json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
+        return
+
+    # Normales Delta / Full Update
     if is_manual and len(tickers) == 1:
         sym = tickers[0]
         stock_file = os.path.join(DATA_DIR, f"{sym}.json")
@@ -782,6 +1056,7 @@ def run_delta_sync(tickers, is_manual=False):
 
     now_iso = datetime.now(timezone.utc).isoformat()
     fin_backfilled = 0
+    analyst_backfilled = 0
 
     for sym in tickers:
         stock_file = os.path.join(DATA_DIR, f"{sym}.json")
@@ -800,7 +1075,6 @@ def run_delta_sync(tickers, is_manual=False):
                 print(f"Erst-Fetch fehlgeschlagen für {sym}: {e}")
                 continue
         else:
-            # Leere Financials nachholen (begrenzt pro Lauf, um Rate-Limits zu vermeiden)
             if financials_empty(stock_data.get("financials")) and fin_backfilled < MAX_FIN_BACKFILL_PER_RUN:
                 fin_backfilled += 1
                 try:
@@ -814,6 +1088,21 @@ def run_delta_sync(tickers, is_manual=False):
                         print(f"Financials für {sym} weiterhin leer.")
                 except Exception as e:
                     print(f"Financials-Nachholen für {sym} fehlgeschlagen: {e}")
+
+            if (analysts_empty(stock_data.get("analysts"))
+                    and not analysts_recently_checked(stock_data.get("analysts"))
+                    and analyst_backfilled < MAX_ANALYST_BACKFILL_PER_RUN
+                    and stock_data.get("profile", {}).get("sector") not in (None, "")):
+                analyst_backfilled += 1
+                try:
+                    stock_data = fetch_partial_stock(sym, ["analysts"], stock_data)
+                    if analysts_empty(stock_data.get("analysts")):
+                        print(f"Analysten für {sym} weiterhin unvollständig.")
+                    else:
+                        print(f"Analysten für {sym} nachgeholt.")
+                except Exception as e:
+                    print(f"Analysten-Nachholen für {sym} fehlgeschlagen: {e}")
+                time.sleep(0.5)
 
             closes = extract_close_series(batch_df, sym)
             if closes is not None and not closes.empty:
@@ -896,15 +1185,27 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["delta", "full"], default="delta")
     parser.add_argument("--ticker", type=str, default="")
+    # NEU: Option zum gezielten Laden einzelner Sektionen
+    parser.add_argument("--only", type=str, default="", help="Kommagetrennte Liste von Sektionen: quote, profile, financials, analysts, insider, institutional, options, dividends, holdings, history")
     args = parser.parse_args()
+    
     os.makedirs(DATA_DIR, exist_ok=True)
     load_live_forex()
 
+    sections = None
+    if args.only:
+        sections = [s.strip().lower() for s in args.only.split(",")]
+        invalid = [s for s in sections if s not in ALLOWED_SECTIONS]
+        if invalid:
+            print(f"FEHLER: Ungültige Sektion(en): {', '.join(invalid)}")
+            print(f"Erlaubt sind: {', '.join(ALLOWED_SECTIONS)}")
+            sys.exit(1)
+
     if args.ticker:
         target_tickers = [args.ticker.strip().upper()]
-        run_delta_sync(target_tickers, is_manual=True)
+        run_delta_sync(target_tickers, is_manual=True, sections=sections)
     else:
-        run_delta_sync(ALL_TICKERS, is_manual=False)
+        run_delta_sync(ALL_TICKERS, is_manual=False, sections=sections)
 
 
 if __name__ == "__main__":
