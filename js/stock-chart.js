@@ -1,6 +1,7 @@
 /**
  * js/stock-chart.js
- * Chart-Analyse-Tab. NEU: KGV-Band-Historie (5 Jahre) aus Quartalsgewinnen und Kursverlauf.
+ * Chart-Analyse-Tab.
+ * NEU: Bessere Fehlermeldung bei der KGV-Historie (z.B. wenn das Unternehmen Verluste schreibt).
  */
 window.App = window.App || {};
 
@@ -368,7 +369,7 @@ window.App.StockChart = (function () {
         '<div class="legend-row">' + legendItem(COLORS.price, 'Kurs') + legendItem(COLORS.sma50, 'SMA 50') + legendItem(COLORS.sma200, 'SMA 200') + '</div>' +
       '</div>' +
 
-      // NEU: KGV-Band-Chart
+      // KGV-Band-Chart
       '<div class="card">' +
         '<div class="card-header-dotted"><span class="card-title">KGV-Historie (5 Jahre)</span>' +
           '<span class="period-tag" id="pe-current-label">—</span></div>' +
@@ -477,39 +478,41 @@ window.App.StockChart = (function () {
       formatY: function (v) { return fmt(v, Math.abs(v) < 10 ? 1 : 0); }
     });
 
-    // NEU: KGV-Band rendern
     drawPEBand(container, stock, cur);
   }
 
-  // NEU: KGV-Band-Historie
+  // NEU: Verbesserte Fehlermeldung bei der KGV-Historie
   function drawPEBand(container, stock, cur) {
     var canvas = container.querySelector('#chart-tab-pe-band');
     if (!canvas) return;
 
     var hist = (stock.chartHistory || []).filter(function (p) { return p && p.close > 0; });
     var incQ = (((stock.financials || {}).incomeStatement || {}).quarterly) || [];
+    
+    // Prüfen, ob genug Daten vorhanden sind
     if (hist.length < 200 || incQ.length < 4) {
       canvas.parentElement.innerHTML = '<div class="state-box" style="padding:20px;"><p style="font-size:0.78rem;color:var(--text-dim);">Zu wenige Daten für KGV-Historie (mind. 200 Kurstage und 4 Quartalsberichte).</p></div>';
       return;
     }
 
-    // Quartale mit Net_Income sortieren
     var quarters = incQ
       .filter(function (q) { return q && q.date && q.Net_Income !== null && q.Net_Income !== undefined; })
       .sort(function (a, b) { return a.date < b.date ? -1 : 1; });
 
-    if (quarters.length < 4) { return; }
+    if (quarters.length < 4) {
+      canvas.parentElement.innerHTML = '<div class="state-box" style="padding:20px;"><p style="font-size:0.78rem;color:var(--text-dim);">Zu wenige Quartalsdaten für KGV-Historie.</p></div>';
+      return;
+    }
 
-    // Shares = MarktCap / aktueller Kurs
     var shares = (stock.quote.marketCap && stock.quote.price) ? stock.quote.marketCap / stock.quote.price : null;
-    if (!shares) { return; }
+    if (!shares) {
+      canvas.parentElement.innerHTML = '<div class="state-box" style="padding:20px;"><p style="font-size:0.78rem;color:var(--text-dim);">Marktkapitalisierung fehlt zur Berechnung.</p></div>';
+      return;
+    }
 
-    // Für jeden Tag: TTM-Gewinn aus den 4 Quartalen, die zum Zeitpunkt bekannt waren
-    // (angenommen: jeder Quartalsbericht wird ca. 45 Tage nach Quartalsende veröffentlicht)
     function ttmEarningsAt(dateStr) {
       var cutoff = dateStr;
       var known = quarters.filter(function (q) {
-        // Berichtsdatum ~45 Tage nach Quartalsende
         var qd = new Date(q.date + 'T00:00:00Z');
         qd.setUTCDate(qd.getUTCDate() + 45);
         return qd.toISOString().slice(0, 10) <= cutoff;
@@ -517,21 +520,31 @@ window.App.StockChart = (function () {
       if (known.length < 4) return null;
       var last4 = known.slice(-4);
       var sum = last4.reduce(function (a, q) { return a + Number(q.Net_Income || 0); }, 0);
-      if (!(sum > 0)) return null;
+      
+      // FIX: Wenn der Gewinn negativ ist, geben wir null zurück (KGV nicht berechenbar)
+      if (!(sum > 0)) return null; 
       return sum;
     }
 
-    // 5 Jahre
     var lastDate = hist[hist.length - 1].date;
     var cutoff5y = (parseInt(lastDate.slice(0, 4), 10) - 5) + lastDate.slice(4);
     var relevant = hist.filter(function (p) { return p.date >= cutoff5y; });
 
     var pePoints = [];
     var labels = [];
-    var step = Math.max(1, Math.floor(relevant.length / 100)); // max 100 Punkte
+    var step = Math.max(1, Math.floor(relevant.length / 100));
+    var hasNegativeEarnings = false;
+
     for (var i = 0; i < relevant.length; i += step) {
       var p = relevant[i];
       var ttm = ttmEarningsAt(p.date);
+      
+      // Prüfen ob es negative Gewinne gibt (für die Fehlermeldung)
+      if (ttm === null) {
+         // Grobe Schätzung, ob wir in einem Verlustjahr sind
+         hasNegativeEarnings = true;
+      }
+      
       if (ttm && shares && p.close > 0) {
         var mcap = p.close * shares;
         var pe = mcap / ttm;
@@ -542,12 +555,18 @@ window.App.StockChart = (function () {
       }
     }
 
+    // NEU: Spezifische Fehlermeldung, wenn das Unternehmen Verluste schreibt
     if (pePoints.length < 5) {
-      canvas.parentElement.innerHTML = '<div class="state-box" style="padding:20px;"><p style="font-size:0.78rem;color:var(--text-dim);">KGV-Historie konnte nicht berechnet werden.</p></div>';
+      var errorText = hasNegativeEarnings 
+        ? "Das KGV kann nicht berechnet werden, da das Unternehmen in den letzten Jahren Verluste geschrieben hat (negativer Gewinn)."
+        : "KGV-Historie konnte nicht berechnet werden (zu wenige positive Gewinndaten).";
+      
+      canvas.parentElement.innerHTML = '<div class="state-box" style="padding:20px; text-align:center;">' +
+        '<div style="font-size:1.5rem; margin-bottom:8px;">⚠️</div>' +
+        '<p style="font-size:0.78rem;color:var(--text-dim); line-height:1.4;">' + errorText + '</p></div>';
       return;
     }
 
-    // Perzentile berechnen
     var sortedPE = pePoints.slice().sort(function (a, b) { return a - b; });
     function percentile(arr, p) {
       var idx = (arr.length - 1) * p;
@@ -561,7 +580,6 @@ window.App.StockChart = (function () {
     var p75 = percentile(sortedPE, 0.75);
     var currentPE = pePoints[pePoints.length - 1];
 
-    // Label oben
     var labelEl = container.querySelector('#pe-current-label');
     if (labelEl) {
       var position = currentPE <= p25 ? 'unteres Quartil' : currentPE <= p50 ? 'unteres Mittelfeld' : currentPE <= p75 ? 'oberes Mittelfeld' : 'oberes Quartil';
