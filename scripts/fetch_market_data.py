@@ -6,6 +6,7 @@ NEU:
 - Berechnet RS-Rating (Relative Stärke) am Ende des Durchlaufs.
 - Extrahiert ROE, Payout Ratio und Debt/EBITDA für die Strategien.
 - Option --only: Gezieltes Abrufen einzelner Sektionen.
+- FIX: Fehlende Funktionen analysts_empty und analysts_recently_checked wieder eingefügt.
 """
 
 import os
@@ -269,6 +270,23 @@ def process_insider_data(ticker_obj, cur):
     except Exception:
         pass
     return {"summary": summary, "trades": trades}
+
+
+def analysts_empty(a):
+    """True, wenn Breakdown oder Historie fehlen (Kursziele allein reichen nicht)."""
+    if not a:
+        return True
+    r = a.get("recommendations") or {}
+    b = r.get("breakdown") or {}
+    return sum(b.values()) == 0 or not r.get("history")
+
+
+def analysts_recently_checked(a):
+    try:
+        ts = datetime.fromisoformat((a or {}).get("checkedAt", ""))
+        return (datetime.now(timezone.utc) - ts).days < ANALYST_RECHECK_DAYS
+    except Exception:
+        return False
 
 
 def process_analyst_data(info, ticker_obj, cur):
