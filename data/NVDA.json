@@ -11,9 +11,9 @@
     "exchange": "NMS"
   },
   "quote": {
-    "price": 147.6724,
-    "change": -3.0287,
-    "changePercent": -2.01,
+    "price": 147.6453,
+    "change": -3.0558,
+    "changePercent": -2.03,
     "marketCap": 3565844955811.1406,
     "fiftyTwoWeekLow": 134.9318,
     "fiftyTwoWeekHigh": 220.6879,
@@ -23,8 +23,11 @@
   "ratios": {
     "peTrailing": 20.5879,
     "peForward": 10.2721,
-    "dividendYield": 0.6,
-    "profitMargins": 0.6366
+    "dividendYield": 0.61,
+    "profitMargins": 0.6366,
+    "returnOnEquity": 1.1721,
+    "payoutRatio": 0.0354,
+    "debtToEbitda": 0.1931
   },
   "financials": {
     "incomeStatement": {
@@ -1001,7 +1004,6 @@
           "CapitalStock": null,
           "CommonStock": null,
           "PreferredStock": null,
-          "TotalLiabilitiesNetMinorityInterest": null,
           "TotalNonCurrentLiabilitiesNetMinorityInterest": null,
           "OtherNonCurrentLiabilities": null,
           "TradeandOtherPayablesNonCurrent": null,
@@ -1084,7 +1086,6 @@
           "CapitalStock": 1813599.9544,
           "CommonStock": 1813599.9544,
           "PreferredStock": 0.0,
-          "TotalLiabilitiesNetMinorityInterest": 17302650365.1962,
           "TotalNonCurrentLiabilitiesNetMinorityInterest": 11351322114.749,
           "OtherNonCurrentLiabilities": 57128398.5644,
           "TradeandOtherPayablesNonCurrent": 1255917968.4396,
@@ -1167,7 +1168,6 @@
           "CapitalStock": 22669999.4303,
           "CommonStock": 22669999.4303,
           "PreferredStock": 0.0,
-          "TotalLiabilitiesNetMinorityInterest": 20629699481.5897,
           "TotalNonCurrentLiabilitiesNetMinorityInterest": 10989508923.8411,
           "OtherNonCurrentLiabilities": 58941998.5188,
           "TradeandOtherPayablesNonCurrent": 1306698767.1636,
@@ -1250,7 +1250,6 @@
           "CapitalStock": 21763199.4531,
           "CommonStock": 21763199.4531,
           "PreferredStock": 0.0,
-          "TotalLiabilitiesNetMinorityInterest": 29266062464.5638,
           "TotalNonCurrentLiabilitiesNetMinorityInterest": 12901043275.8056,
           "OtherNonCurrentLiabilities": 176825995.5565,
           "TradeandOtherPayablesNonCurrent": 1984078350.1415,
@@ -1333,7 +1332,6 @@
           "CapitalStock": 21763199.4531,
           "CommonStock": 21763199.4531,
           "PreferredStock": 0.0,
-          "TotalLiabilitiesNetMinorityInterest": 44895666871.8025,
           "TotalNonCurrentLiabilitiesNetMinorityInterest": 15730259204.7093,
           "OtherNonCurrentLiabilities": 345490791.3181,
           "TradeandOtherPayablesNonCurrent": 3589114309.808,
@@ -1960,20 +1958,20 @@
   "analysts": {
     "targets": {
       "current": 147.6724,
-      "low": 157.7832,
+      "low": 154.156,
       "median": 249.37,
-      "mean": 256.9033,
+      "mean": 252.3693,
       "high": 467.002,
       "currency": "EUR",
       "analystCount": 53
     },
     "recommendations": {
-      "score": 1.5902,
+      "score": 1.6229,
       "key": "buy",
       "breakdown": {
         "strongBuy": 10,
-        "buy": 38,
-        "hold": 13,
+        "buy": 37,
+        "hold": 14,
         "sell": 0,
         "strongSell": 0
       },
@@ -1981,8 +1979,8 @@
         {
           "period": "0m",
           "strongBuy": 10,
-          "buy": 38,
-          "hold": 13,
+          "buy": 37,
+          "hold": 14,
           "sell": 0,
           "strongSell": 0
         },
@@ -2046,7 +2044,7 @@
       "high": 2.7,
       "analysts": 43
     },
-    "checkedAt": "2026-11-14T08:36:51.498964+00:00",
+    "checkedAt": "2026-11-14T19:47:18.546406+00:00",
     "upgradesDowngrades": [
       {
         "date": "2026-11-12",
@@ -2219,7 +2217,7 @@
       },
       {
         "date": "2026-06-25",
-        "insider": "NEAL STEPHEN C.",
+        "insider": "SEAWELL A BROOKE",
         "position": "Director",
         "type": "Other",
         "shares": 1211,
@@ -2227,7 +2225,7 @@
       },
       {
         "date": "2026-06-25",
-        "insider": "DABIRI JOHN O",
+        "insider": "COXE TENCH C",
         "position": "Director",
         "type": "Other",
         "shares": 1211,
@@ -2235,15 +2233,7 @@
       },
       {
         "date": "2026-06-25",
-        "insider": "SHAH AARTI S",
-        "position": "Director",
-        "type": "Other",
-        "shares": 1211,
-        "value": 0.0
-      },
-      {
-        "date": "2026-06-25",
-        "insider": "HUDSON BEACH DAWN E",
+        "insider": "LORA MELISSA",
         "position": "Director",
         "type": "Other",
         "shares": 1211,
@@ -2267,7 +2257,7 @@
       },
       {
         "date": "2026-06-25",
-        "insider": "SEAWELL A BROOKE",
+        "insider": "HUDSON BEACH DAWN E",
         "position": "Director",
         "type": "Other",
         "shares": 1211,
@@ -2275,7 +2265,7 @@
       },
       {
         "date": "2026-06-25",
-        "insider": "COXE TENCH C",
+        "insider": "SHAH AARTI S",
         "position": "Director",
         "type": "Other",
         "shares": 1211,
@@ -2283,7 +2273,15 @@
       },
       {
         "date": "2026-06-25",
-        "insider": "LORA MELISSA",
+        "insider": "NEAL STEPHEN C.",
+        "position": "Director",
+        "type": "Other",
+        "shares": 1211,
+        "value": 0.0
+      },
+      {
+        "date": "2026-06-25",
+        "insider": "DABIRI JOHN O",
         "position": "Director",
         "type": "Other",
         "shares": 1211,
@@ -2347,6 +2345,14 @@
       },
       {
         "date": "2026-03-20",
+        "insider": "STEVENS MARK A",
+        "position": "Director",
+        "type": "Sell",
+        "shares": 221682,
+        "value": 34914087.8858
+      },
+      {
+        "date": "2026-03-20",
         "insider": "KRESS COLETTE M.",
         "position": "Chief Financial Officer",
         "type": "Sell",
@@ -2360,14 +2366,6 @@
         "type": "Sell",
         "shares": 5396,
         "value": 855061.5977
-      },
-      {
-        "date": "2026-03-20",
-        "insider": "STEVENS MARK A",
-        "position": "Director",
-        "type": "Sell",
-        "shares": 221682,
-        "value": 34914087.8858
       },
       {
         "date": "2026-03-19",
@@ -2419,14 +2417,6 @@
       },
       {
         "date": "2026-03-09",
-        "insider": "PURI AJAY K",
-        "position": "Officer",
-        "type": "Other",
-        "shares": 47048,
-        "value": 0.0
-      },
-      {
-        "date": "2026-03-09",
         "insider": "KRESS COLETTE M.",
         "position": "Chief Financial Officer",
         "type": "Other",
@@ -2444,6 +2434,14 @@
       {
         "date": "2026-03-09",
         "insider": "SHOQUIST DEBORA C",
+        "position": "Officer",
+        "type": "Other",
+        "shares": 47048,
+        "value": 0.0
+      },
+      {
+        "date": "2026-03-09",
+        "insider": "PURI AJAY K",
         "position": "Officer",
         "type": "Other",
         "shares": 47048,
@@ -2516,7 +2514,7 @@
       }
     ],
     "summary": {
-      "institutionalPercent": 0.7125,
+      "institutionalPercent": 0.7117,
       "institutionalCount": null
     }
   },
@@ -2543,7 +2541,7 @@
   "chartHistory": [
     {
       "date": "2024-11-14",
-      "close": 132.7258,
+      "close": 132.7259,
       "volume": 194463300.0
     },
     {
@@ -2593,7 +2591,7 @@
     },
     {
       "date": "2024-11-29",
-      "close": 125.0296,
+      "close": 125.0297,
       "volume": 141863200.0
     },
     {
@@ -2663,7 +2661,7 @@
     },
     {
       "date": "2024-12-19",
-      "close": 118.1917,
+      "close": 118.1916,
       "volume": 209719200.0
     },
     {
@@ -2683,7 +2681,7 @@
     },
     {
       "date": "2024-12-26",
-      "close": 126.5577,
+      "close": 126.5576,
       "volume": 116205600.0
     },
     {
@@ -2738,7 +2736,7 @@
     },
     {
       "date": "2025-01-14",
-      "close": 119.1685,
+      "close": 119.1684,
       "volume": 195590500.0
     },
     {
@@ -2748,7 +2746,7 @@
     },
     {
       "date": "2025-01-16",
-      "close": 120.8054,
+      "close": 120.8055,
       "volume": 209235600.0
     },
     {
@@ -2763,7 +2761,7 @@
     },
     {
       "date": "2025-01-22",
-      "close": 133.0154,
+      "close": 133.0153,
       "volume": 237651400.0
     },
     {
@@ -2828,12 +2826,12 @@
     },
     {
       "date": "2025-02-10",
-      "close": 120.8054,
+      "close": 120.8055,
       "volume": 216989100.0
     },
     {
       "date": "2025-02-11",
-      "close": 120.109,
+      "close": 120.1091,
       "volume": 178902400.0
     },
     {
@@ -2958,7 +2956,7 @@
     },
     {
       "date": "2025-03-19",
-      "close": 106.2991,
+      "close": 106.299,
       "volume": 273426200.0
     },
     {
@@ -3028,7 +3026,7 @@
     },
     {
       "date": "2025-04-08",
-      "close": 87.1052,
+      "close": 87.1051,
       "volume": 476243400.0
     },
     {
@@ -3043,7 +3041,7 @@
     },
     {
       "date": "2025-04-11",
-      "close": 100.3383,
+      "close": 100.3382,
       "volume": 313417300.0
     },
     {
@@ -3133,7 +3131,7 @@
     },
     {
       "date": "2025-05-08",
-      "close": 106.1633,
+      "close": 106.1634,
       "volume": 198428100.0
     },
     {
@@ -3168,17 +3166,17 @@
     },
     {
       "date": "2025-05-19",
-      "close": 122.6257,
+      "close": 122.6256,
       "volume": 193154600.0
     },
     {
       "date": "2025-05-20",
-      "close": 121.5492,
+      "close": 121.5493,
       "volume": 161514200.0
     },
     {
       "date": "2025-05-21",
-      "close": 119.2156,
+      "close": 119.2155,
       "volume": 270608700.0
     },
     {
@@ -3203,7 +3201,7 @@
     },
     {
       "date": "2025-05-29",
-      "close": 125.8999,
+      "close": 125.9,
       "volume": 369241900.0
     },
     {
@@ -3373,7 +3371,7 @@
     },
     {
       "date": "2025-07-18",
-      "close": 155.9589,
+      "close": 155.959,
       "volume": 146456400.0
     },
     {
@@ -3408,7 +3406,7 @@
     },
     {
       "date": "2025-07-29",
-      "close": 158.7631,
+      "close": 158.7632,
       "volume": 154077500.0
     },
     {
@@ -3473,7 +3471,7 @@
     },
     {
       "date": "2025-08-15",
-      "close": 163.2317,
+      "close": 163.2318,
       "volume": 156602200.0
     },
     {
@@ -3553,7 +3551,7 @@
     },
     {
       "date": "2025-09-09",
-      "close": 154.4664,
+      "close": 154.4663,
       "volume": 157548400.0
     },
     {
@@ -3573,7 +3571,7 @@
     },
     {
       "date": "2025-09-15",
-      "close": 160.7985,
+      "close": 160.7984,
       "volume": 147061600.0
     },
     {
@@ -3628,7 +3626,7 @@
     },
     {
       "date": "2025-09-30",
-      "close": 168.7864,
+      "close": 168.7863,
       "volume": 236981000.0
     },
     {
@@ -3638,7 +3636,7 @@
     },
     {
       "date": "2025-10-02",
-      "close": 170.8761,
+      "close": 170.876,
       "volume": 136805800.0
     },
     {
@@ -3688,7 +3686,7 @@
     },
     {
       "date": "2025-10-16",
-      "close": 164.4712,
+      "close": 164.4713,
       "volume": 179723300.0
     },
     {
@@ -3758,7 +3756,7 @@
     },
     {
       "date": "2025-11-05",
-      "close": 176.5934,
+      "close": 176.5933,
       "volume": 171350300.0
     },
     {
@@ -4188,7 +4186,7 @@
     },
     {
       "date": "2026-03-12",
-      "close": 165.6926,
+      "close": 165.6927,
       "volume": 155762700.0
     },
     {
@@ -4218,7 +4216,7 @@
     },
     {
       "date": "2026-03-20",
-      "close": 156.2473,
+      "close": 156.2472,
       "volume": 241323500.0
     },
     {
@@ -5132,8 +5130,8 @@
     ],
     "exDate": "2026-09-10",
     "rate": 0.9068,
-    "yield": 0.6
+    "yield": 0.61
   },
   "exDividendDate": "2026-09-10",
-  "updatedAt": "2026-11-14T18:55:55.217601+00:00"
+  "updatedAt": "2026-11-14T19:47:18.591701+00:00"
 }
