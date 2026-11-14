@@ -1,7 +1,9 @@
 /**
  * js/premarket.js
  * US-Vorbörsenhandel-Indikator für deutsche Anleger.
- * NEU: Klickbare Info-Popups für Futures, Volumen, VWAP, RSI und Momentum.
+ * Features: Futures (NASDAQ & S&P 500), Volumen-Check, VWAP, 15-Min-RSI,
+ * Momentum-Warnung kurz vor US-Open, Trade Republic Timer & Xetra-Status.
+ * NEU: Klickbare Info-Popups für alle Indikatoren & Anzeige auch in der Nachbörse.
  */
 window.App = window.App || {};
 
@@ -229,7 +231,6 @@ window.App.PreMarket = (function () {
           '<span id="pm-session-badge" class="period-tag">—</span>' +
         '</div>' +
         
-        // Futures mit Klick-Event (data-pm-info)
         '<div id="pm-futures" style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:600; background:var(--bg-tertiary); padding:6px 10px; border-radius:var(--radius-sm); margin-bottom:10px;">' +
           '<span id="fut-nq" data-pm-info="nq" style="cursor:pointer;" title="Info anzeigen">NASDAQ: —</span>' +
           '<span id="fut-es" data-pm-info="es" style="cursor:pointer;" title="Info anzeigen">S&P 500: —</span>' +
@@ -238,7 +239,6 @@ window.App.PreMarket = (function () {
         '<div id="pm-status" style="font-size:0.78rem;color:var(--text-dim);">Lade Daten…</div>' +
         '<div id="pm-signal" style="margin:10px 0;"></div>' +
         
-        // Indikatoren Grid
         '<div id="pm-indicators" style="display:none; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;"></div>' +
 
         '<div id="pm-momentum"></div>' +
@@ -252,7 +252,6 @@ window.App.PreMarket = (function () {
         '<div id="pm-info" style="font-size:0.68rem;color:var(--text-dim);margin-top:10px;line-height:1.5;"></div>' +
       '</div>' +
       
-      // NEU: Das Info-Modal (unsichtbar am Anfang)
       '<div id="pm-info-modal-backdrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998;" onclick="this.style.display=\'none\'; document.getElementById(\'pm-info-modal\').style.display=\'none\';"></div>' +
       '<div id="pm-info-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:9999; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:20px; width:90%; max-width:400px; box-shadow:0 10px 30px rgba(0,0,0,0.5);">' +
         '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">' +
@@ -277,7 +276,6 @@ window.App.PreMarket = (function () {
       });
     };
 
-    // Modal Logik
     function openModal(key) {
       var data = INFO_TEXTS[key];
       if (!data) return;
@@ -287,7 +285,6 @@ window.App.PreMarket = (function () {
       document.getElementById('pm-info-modal').style.display = 'block';
     }
 
-    // Click-Event für alle Elemente mit data-pm-info (Delegation)
     container.addEventListener('click', function(e) {
       var target = e.target.closest('[data-pm-info]');
       if (target) {
@@ -296,7 +293,6 @@ window.App.PreMarket = (function () {
       }
     });
 
-    // Schließen-Button
     var closeBtn = container.querySelector('#pm-info-close');
     if (closeBtn) {
       closeBtn.onclick = function() {
@@ -375,9 +371,9 @@ window.App.PreMarket = (function () {
       }
     }
 
-    // Indikatoren (Volumen, VWAP, RSI)
+    // Indikatoren (Volumen, VWAP, RSI) - Jetzt auch in der Nachbörse sichtbar
     var indEl = container.querySelector('#pm-indicators');
-    if (indEl && (session === 'pre' || session === 'regular')) {
+    if (indEl && (session === 'pre' || session === 'regular' || session === 'post')) {
       var totalVol = prePoints.reduce(function(sum, p) { return sum + p.volume; }, 0);
       var vwap = computeVwap(prePoints);
       var rsi15 = computeRsi15m(prePoints);
@@ -389,7 +385,6 @@ window.App.PreMarket = (function () {
       
       indEl.style.display = 'grid';
       
-      // NEU: data-pm-info für Klick-Erklärungen
       indEl.innerHTML = 
         '<div data-pm-info="vol" style="cursor:pointer; background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
           '<div style="font-size:0.6rem; color:var(--text-dim);">Volumen</div>' +
@@ -441,7 +436,7 @@ window.App.PreMarket = (function () {
     var momEl = container.querySelector('#pm-momentum');
     if (momEl) {
       var mom = computeMomentum(prePoints);
-      if (mom && (session === 'pre' || session === 'regular')) {
+      if (mom && (session === 'pre' || session === 'regular' || session === 'post')) {
         var isDangerZone = (cetHour() >= 15.0 && cetHour() <= 15.5); 
         
         if (mom.dir === 'down') {
@@ -492,7 +487,7 @@ window.App.PreMarket = (function () {
         'Der Pfeil zeigt, in welche Richtung der deutsche Kurs tendiert.';
     }
 
-    // VWAP als zweite horizontale Linie
+    // VWAP-Linie zeichnen (auch in der Nachbörse)
     var hLines = [{
       value: germanNow,
       color: '#f59e0b',
@@ -501,7 +496,7 @@ window.App.PreMarket = (function () {
       dashed: true
     }];
     
-    if (session === 'pre' || session === 'regular') {
+    if (session === 'pre' || session === 'regular' || session === 'post') {
       var vwapVal = computeVwap(prePoints);
       if (vwapVal) {
         hLines.push({
