@@ -3,10 +3,12 @@
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 NEU:
+- Japanische Ticker entfernt.
 - Extrem robuster Abruf der Financials (get_*-API + Property-Fallback + Retries).
 - Leere Financials in bestehenden Dateien werden im Delta-Lauf nachgeholt (max. pro Lauf begrenzt).
 - Upgrades & Downgrades (funktioniert).
 - EPS-Estimates Datum wird korrekt ausgelesen.
+- FIX: Analysten-Breakdown (Buy/Sell/Hold) und 4-Monats-Historie werden nun korrekt und fehlertolerant geladen.
 """
 
 import os
@@ -40,12 +42,6 @@ TICKERS_EUROPE = [
     "NESN.SW", "ROG.SW", "NOVN.SW", "UBSG.SW", "ABBN.SW", "ZURN.SW", "CFR.SW",
     "AZN.L", "SHEL.L", "HSBA.L", "ULVR.L", "BP.L", "GSK.L", "RIO.L", "REL.L",
     "STLAM.MI", "NOVO-B.CO", "ITX.MC", "SAN.MC", "IBE.MC", "ENEL.MI", "ISP.MI", "RACE.MI"
-]
-
-TICKERS_JAPAN = [
-    "7203.T", "6758.T", "6861.T", "9983.T", "9984.T", "8306.T", "8058.T", "8035.T",
-    "6501.T", "7974.T", "4063.T", "6098.T", "4502.T", "6902.T", "7267.T", "8001.T",
-    "9432.T", "6954.T", "7741.T", "6367.T", "4568.T", "6981.T", "8766.T", "7751.T", "6503.T"
 ]
 
 TICKERS_ETFS = [
@@ -106,19 +102,21 @@ KNOWN_ETF_HOLDINGS = {
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from index_lists import SP500, DAX, MDAX, dedupe  # noqa: E402
 
-ALL_TICKERS = dedupe(TICKERS_USA, TICKERS_EUROPE, TICKERS_JAPAN, TICKERS_ETFS, TICKERS_SECTORS, DAX, MDAX, SP500)
+# TICKERS_JAPAN wurde hier entfernt
+ALL_TICKERS = dedupe(TICKERS_USA, TICKERS_EUROPE, TICKERS_ETFS, TICKERS_SECTORS, DAX, MDAX, SP500)
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
 # Max. Anzahl Ticker pro Lauf, bei denen leere Financials nachgeholt werden (Rate-Limit-Schutz)
 MAX_FIN_BACKFILL_PER_RUN = 50
 
+# JPY wurde entfernt
 RATES_TO_EUR = {
-    "EUR": 1.0, "USD": 0.92, "JPY": 0.0061, "GBP": 1.17, "GBp": 0.0117, "CHF": 1.04, "DKK": 0.134
+    "EUR": 1.0, "USD": 0.92, "GBP": 1.17, "GBp": 0.0117, "CHF": 1.04, "DKK": 0.134
 }
 
 
 def detect_native_currency(ticker):
-    if ticker.endswith(".T"): return "JPY"
+    # .T (Japan) wurde entfernt
     if ticker.endswith((".DE", ".PA", ".AS", ".MI", ".MC")): return "EUR"
     if ticker.endswith(".L"): return "GBP"
     if ticker.endswith(".SW"): return "CHF"
@@ -128,7 +126,8 @@ def detect_native_currency(ticker):
 
 def load_live_forex():
     global RATES_TO_EUR
-    pairs = {"USD": "EURUSD=X", "JPY": "EURJPY=X", "GBP": "EURGBP=X", "CHF": "EURCHF=X", "DKK": "EURDKK=X"}
+    # JPY-Paar wurde entfernt
+    pairs = {"USD": "EURUSD=X", "GBP": "EURGBP=X", "CHF": "EURCHF=X", "DKK": "EURDKK=X"}
     try:
         tickers_str = " ".join(pairs.values())
         fx_data = yf.download(tickers_str, period="1d", interval="1m", progress=False)
@@ -287,6 +286,45 @@ def process_analyst_data(info, ticker_obj, cur):
         "breakdown": {"strongBuy": 0, "buy": 0, "hold": 0, "sell": 0, "strongSell": 0},
         "history": []
     }
+
+    # Hilfsfunktion für sichere Int-Konvertierung
+    def safe_int(val):
+        try:
+            if pd.isna(val): return 0
+            return int(val)
+        except:
+            return 0
+
+    # 1. Breakdown (Donut) abrufen
+    try:
+        rec_summary = ticker_obj.recommendations_summary
+        if rec_summary is not None and not rec_summary.empty:
+            latest = rec_summary.iloc[0]
+            recommendations["breakdown"] = {
+                "strongBuy": safe_int(latest.get("strongBuy", latest.get("strong_buy", 0))),
+                "buy": safe_int(latest.get("buy", 0)),
+                "hold": safe_int(latest.get("hold", 0)),
+                "sell": safe_int(latest.get("sell", 0)),
+                "strongSell": safe_int(latest.get("strongSell", latest.get("strong_sell", 0)))
+            }
+    except Exception as e:
+        print(f"Fehler bei Recommendations Summary für {info.get('symbol', '')}: {e}")
+
+    # 2. Historie (Balkendiagramm) abrufen
+    try:
+        rec_hist = ticker_obj.recommendations
+        if rec_hist is not None and not rec_hist.empty:
+            for _, row in rec_hist.head(4).iterrows():
+                recommendations["history"].append({
+                    "period": str(row.get("period", "")),
+                    "strongBuy": safe_int(row.get("strongBuy", row.get("strong_buy", 0))),
+                    "buy": safe_int(row.get("buy", 0)),
+                    "hold": safe_int(row.get("hold", 0)),
+                    "sell": safe_int(row.get("sell", 0)),
+                    "strongSell": safe_int(row.get("strongSell", row.get("strong_sell", 0)))
+                })
+    except Exception as e:
+        print(f"Fehler bei Recommendations History für {info.get('symbol', '')}: {e}")
 
     eps_estimates = []
     try:
@@ -552,8 +590,7 @@ def fetch_full_stock(ticker_sym):
     cur = info.get("currency") or detect_native_currency(ticker_sym)
     country = info.get("country", "")
     if not country:
-        if ticker_sym.endswith(".T"): country = "Japan"
-        elif ticker_sym.endswith(".DE"): country = "Deutschland"
+        if ticker_sym.endswith(".DE"): country = "Deutschland"
         else: country = "USA"
 
     profile = {"ticker": ticker_sym,
