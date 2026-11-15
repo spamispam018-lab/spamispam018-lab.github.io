@@ -1,7 +1,7 @@
 /**
  * js/strategies.js
  * Vordefinierte Anlagestrategien (Value, Growth, Dividende).
- * NEU: Nutzt exakte Filter aus den Screenshots (ROE, Payout, Debt/EBITDA, RS-Rating).
+ * NEU: Dynamische Slider für jede Strategie, um Kriterien live anzupassen.
  */
 window.App = window.App || {};
 
@@ -10,6 +10,13 @@ window.App.Strategies = (function () {
 
   var currentStrategy = 'value';
   var allStocks = [];
+
+  // Standardwerte für die Slider (entsprechen den strengen Kriterien)
+  var sliderState = {
+    value: { maxPe: 20, minRoe: 15, maxDebt: 2.5 },
+    growth: { minRs: 80, minRevGrowth: 20, minVol: 100000 },
+    dividend: { minYield: 2.5, maxPayout: 60 }
+  };
 
   function esc(s) {
     return String(s === null || s === undefined ? '' : s).replace(/[&<>"]/g, function (c) {
@@ -46,7 +53,17 @@ window.App.Strategies = (function () {
         '<button class="main-tab-btn ' + (currentStrategy === 'dividend' ? 'active' : '') + '" data-strat="dividend">💰 Dividende</button>' +
       '</div>' +
 
-      '<div id="strategy-info" class="card" style="padding: 12px; margin-bottom: 14px; background: var(--bg-secondary); font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;"></div>' +
+      '<div id="strategy-info" class="card" style="padding: 14px; margin-bottom: 14px; background: var(--bg-secondary); font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;"></div>' +
+      
+      // Sliders Container
+      '<div id="strategy-sliders" class="card" style="padding: 14px; margin-bottom: 14px;">' +
+        '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">' +
+          '<span style="font-size:0.85rem; font-weight:700; color:var(--text-main);">Filter anpassen</span>' +
+          '<button class="chip-btn" id="btn-reset-strategy" style="padding: 2px 8px; font-size: 0.7rem;">Zurücksetzen</button>' +
+        '</div>' +
+        '<div id="strategy-slider-inputs" style="display: flex; flex-direction: column; gap: 12px;"></div>' +
+      '</div>' +
+
       '<div id="strategy-results"></div>' +
     '</div>';
 
@@ -59,54 +76,146 @@ window.App.Strategies = (function () {
       };
     });
 
+    renderSliders(container);
     applyStrategy(container);
   }
 
-  function applyStrategy(container) {
+  function renderSliders(container) {
+    var sliderHost = container.querySelector('#strategy-slider-inputs');
     var infoEl = container.querySelector('#strategy-info');
+    var resetBtn = container.querySelector('#btn-reset-strategy');
+    
+    // Reset Button Logik
+    resetBtn.onclick = function() {
+      if (currentStrategy === 'value') sliderState.value = { maxPe: 20, minRoe: 15, maxDebt: 2.5 };
+      if (currentStrategy === 'growth') sliderState.growth = { minRs: 80, minRevGrowth: 20, minVol: 100000 };
+      if (currentStrategy === 'dividend') sliderState.dividend = { minYield: 2.5, maxPayout: 60 };
+      renderSliders(container);
+      applyStrategy(container);
+    };
+
+    var html = '';
+
+    if (currentStrategy === 'value') {
+      infoEl.innerHTML = '<b>A. Value &amp; Qualität (Warren Buffett / Susan Levermann):</b><br><br><b>Kriterien:</b> Marktkap. > 1 Mrd. €, KGV <span id="val-pe">' + sliderState.value.maxPe + '</span>, Eigenkapitalrendite (ROE) > <span id="val-roe">' + sliderState.value.minRoe + '</span> %, Verschuldung (Net Debt / EBITDA) < <span id="val-debt">' + sliderState.value.maxDebt + '</span>, positive Nettomarge.';
+      
+      html += sliderRow('value-maxPe', 'Maximales KGV', 5, 50, 1, sliderState.value.maxPe, '');
+      html += sliderRow('value-minRoe', 'Min. Eigenkapitalrendite (ROE) %', 0, 50, 1, sliderState.value.minRoe, '');
+      html += sliderRow('value-maxDebt', 'Max. Verschuldung (Debt/EBITDA)', 0, 10, 0.5, sliderState.value.maxDebt, '');
+    } 
+    else if (currentStrategy === 'growth') {
+      infoEl.innerHTML = '<b>B. Growth &amp; Momentum (Mark Minervini / IBD 50):</b><br><br><b>Kriterien:</b> Trendstärke (Golden Cross), Relative Stärke (RS-Rating ≥ <span id="val-rs">' + sliderState.growth.minRs + '</span>), Umsatzwachstum > <span id="val-rev">' + sliderState.growth.minRevGrowth + '</span> %, Mindestvolumen > <span id="val-vol">' + sliderState.growth.minVol.toLocaleString('de-DE') + '</span>.';
+      
+      html += sliderRow('growth-minRs', 'Min. Relative Stärke (RS-Rating)', 0, 100, 1, sliderState.growth.minRs, '');
+      html += sliderRow('growth-minRevGrowth', 'Min. Umsatzwachstum %', 0, 50, 1, sliderState.growth.minRevGrowth, '');
+      html += sliderRow('growth-minVol', 'Min. Tagesvolumen', 0, 1000000, 50000, sliderState.growth.minVol, ' (Stk.)');
+    } 
+    else if (currentStrategy === 'dividend') {
+      infoEl.innerHTML = '<b>C. Dividenden-Strategie:</b><br><br><b>Kriterien:</b> Dividendenrendite > <span id="val-yield">' + sliderState.dividend.minYield + '</span> %, Payout Ratio (Ausschüttungsquote) < <span id="val-payout">' + sliderState.dividend.maxPayout + '</span> %, positive Nettomarge.';
+      
+      html += sliderRow('div-minYield', 'Min. Dividendenrendite %', 0, 10, 0.5, sliderState.dividend.minYield, '');
+      html += sliderRow('div-maxPayout', 'Max. Payout Ratio %', 10, 100, 5, sliderState.dividend.maxPayout, '');
+    }
+
+    sliderHost.innerHTML = html;
+
+    // Event Listener für die Slider
+    sliderHost.querySelectorAll('input[type="range"]').forEach(function(input) {
+      input.oninput = function() {
+        var val = parseFloat(input.value);
+        var id = input.id;
+
+        // Werte im State aktualisieren
+        if (id === 'value-maxPe') sliderState.value.maxPe = val;
+        if (id === 'value-minRoe') sliderState.value.minRoe = val;
+        if (id === 'value-maxDebt') sliderState.value.maxDebt = val;
+        
+        if (id === 'growth-minRs') sliderState.growth.minRs = val;
+        if (id === 'growth-minRevGrowth') sliderState.growth.minRevGrowth = val;
+        if (id === 'growth-minVol') sliderState.growth.minVol = val;
+        
+        if (id === 'div-minYield') sliderState.dividend.minYield = val;
+        if (id === 'div-maxPayout') sliderState.dividend.maxPayout = val;
+
+        // Label aktualisieren
+        var valLabel = input.previousElementSibling.querySelector('.slider-val');
+        if (valLabel) {
+            var suffix = input.getAttribute('data-suffix') || '';
+            valLabel.textContent = val.toLocaleString('de-DE') + suffix;
+        }
+        
+        // Info-Text aktualisieren
+        if (id === 'value-maxPe') container.querySelector('#val-pe').textContent = val;
+        if (id === 'value-minRoe') container.querySelector('#val-roe').textContent = val;
+        if (id === 'value-maxDebt') container.querySelector('#val-debt').textContent = val;
+        if (id === 'growth-minRs') container.querySelector('#val-rs').textContent = val;
+        if (id === 'growth-minRevGrowth') container.querySelector('#val-rev').textContent = val;
+        if (id === 'growth-minVol') container.querySelector('#val-vol').textContent = val.toLocaleString('de-DE');
+        if (id === 'div-minYield') container.querySelector('#val-yield').textContent = val;
+        if (id === 'div-maxPayout') container.querySelector('#val-payout').textContent = val;
+
+        // Ergebnisse live neu berechnen
+        applyStrategy(container);
+      };
+    });
+  }
+
+  function sliderRow(id, label, min, max, step, currentValue, suffix) {
+    return '<div>' +
+      '<div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim); margin-bottom:4px;">' +
+        '<span>' + label + '</span>' +
+        '<span class="slider-val" style="font-weight:700; color:var(--accent-purple-light);">' + currentValue.toLocaleString('de-DE') + suffix + '</span>' +
+      '</div>' +
+      '<input type="range" class="range-slider" id="' + id + '" min="' + min + '" max="' + max + '" step="' + step + '" value="' + currentValue + '" data-suffix="' + suffix + '">' +
+    '</div>';
+  }
+
+  function applyStrategy(container) {
     var listEl = container.querySelector('#strategy-results');
     var filtered = [];
 
     if (currentStrategy === 'value') {
-      infoEl.innerHTML = '<b>A. Value &amp; Qualität (Warren Buffett / Susan Levermann):</b><br><br><b>Kriterien:</b> Marktkap. > 1 Mrd. €, KGV < 20, Eigenkapitalrendite (ROE) > 15 %, Verschuldung (Net Debt / EBITDA) < 2,5, positive Nettomarge.';
-      
-      filtered = allStocks.filter(function (s) {
-        return Number(s.marketCap) > 1e9 && 
-               Number(s.pe) > 0 && Number(s.pe) < 20 && 
-               Number(s.returnOnEquity) > 0.15 && 
-               (!s.debtToEbitda || Number(s.debtToEbitda) < 2.5) &&
-               Number(s.profitMargins) > 0;
+      var s = sliderState.value;
+      filtered = allStocks.filter(function (stock) {
+        var roeOk = (stock.returnOnEquity === undefined || stock.returnOnEquity === null) ? true : (Number(stock.returnOnEquity) * 100) >= s.minRoe;
+        var debtOk = (stock.debtToEbitda === undefined || stock.debtToEbitda === null) ? true : Number(stock.debtToEbitda) <= s.maxDebt;
+        return Number(stock.marketCap) > 1e9 && 
+               Number(stock.pe) > 0 && Number(stock.pe) <= s.maxPe && 
+               roeOk && 
+               debtOk &&
+               Number(stock.profitMargins) > 0;
       });
     } 
     else if (currentStrategy === 'growth') {
-      infoEl.innerHTML = '<b>B. Growth &amp; Momentum (Mark Minervini / IBD 50):</b><br><br><b>Kriterien:</b> Trendstärke (Golden Cross, SMA50 > SMA200), Relative Stärke (Top 20 % des Marktes, RS-Rating ≥ 80), Umsatzwachstum > 20 %, Mindestliquidität (Volumen > 100.000).';
-      
-      filtered = allStocks.filter(function (s) {
-        return s.cross === 'golden' && 
-               Number(s.rsRating) >= 80 && 
-               Number(s.revGrowth) >= 0.20 &&
-               Number(s.volume) > 100000;
+      var s = sliderState.growth;
+      filtered = allStocks.filter(function (stock) {
+        var rsOk = (stock.rsRating === undefined || stock.rsRating === null) ? true : Number(stock.rsRating) >= s.minRs;
+        var volOk = (stock.volume === undefined || stock.volume === null) ? true : Number(stock.volume) >= s.minVol;
+        var growthOk = (stock.revGrowth === undefined || stock.revGrowth === null) ? true : (Number(stock.revGrowth) * 100) >= s.minRevGrowth;
+        
+        return stock.cross === 'golden' && 
+               rsOk && 
+               growthOk &&
+               volOk;
       });
     } 
     else if (currentStrategy === 'dividend') {
-      infoEl.innerHTML = '<b>C. Dividenden-Strategie:</b><br><br><b>Kriterien:</b> Dividendenrendite zwischen 2,5 % und 6 %, Payout Ratio (Ausschüttungsquote) < 60 %, positive Nettomarge.';
-      
-      filtered = allStocks.filter(function (s) {
-        var dy = Number(s.dividendYield);
-        var payout = Number(s.payoutRatio);
-        return dy >= 2.5 && dy <= 6 && 
-               (!payout || payout < 0.60) &&
-               Number(s.profitMargins) > 0;
+      var s = sliderState.dividend;
+      filtered = allStocks.filter(function (stock) {
+        var dy = Number(stock.dividendYield);
+        var payoutOk = (stock.payoutRatio === undefined || stock.payoutRatio === null) ? true : (Number(stock.payoutRatio) * 100) <= s.maxPayout;
+        return dy >= s.minYield && 
+               payoutOk &&
+               Number(stock.profitMargins) > 0;
       });
     }
 
-    // Sortieren nach Marktkapitalisierung (absteigend)
     filtered.sort(function(a, b) {
       return (Number(b.marketCap) || 0) - (Number(a.marketCap) || 0);
     });
 
     if (filtered.length === 0) {
-      listEl.innerHTML = '<div class="state-box"><p>Keine Aktien gefunden, die alle Kriterien dieser Strategie erfüllen.</p></div>';
+      listEl.innerHTML = '<div class="state-box"><p>Keine Aktien gefunden. Versuche die Slider weiter nach links/rechts zu ziehen, um die Kriterien zu lockern.</p></div>';
       return;
     }
 
@@ -140,7 +249,6 @@ window.App.Strategies = (function () {
 
     listEl.innerHTML = html;
 
-    // Klick-Events für die Aktien-Karten
     listEl.querySelectorAll('.stock-card').forEach(function (card) {
       card.onclick = function () {
         var ticker = card.getAttribute('data-ticker');
