@@ -3,6 +3,7 @@
  * US-Vorbörsenhandel-Indikator für deutsche Anleger.
  * Features: Futures, Volumen-Check, VWAP, 15-Min-RSI, Momentum-Warnung, Timer, Info-Popups.
  * NEU: Zeitfenster-Buttons (1T, 6h, 3h, 2h, 1h) für den Chart.
+ * FIX: Vergleichswert (App-Kurs statt deutschem Kurs), Countdown (Wochenende), Sitzungs-Badge (aktuelle Zeit), RSI-Berechnung (echte Time-Buckets & Null-Bug), DST-Warnfenster.
  */
 window.App = window.App || {};
 
@@ -10,7 +11,6 @@ window.App.PreMarket = (function () {
   'use strict';
 
   var PROXY_URL = 'https://yahoo-proxy.spamispam018.workers.dev';
-  // NEU: chartRange speichert den aktuell gewählten Zeitraum
   var state = { ticker: null, chartRange: '1d', lastPrePoints: [], lastHLines: [] };
 
   var INFO_TEXTS = {
@@ -118,17 +118,52 @@ window.App.PreMarket = (function () {
     return 'closed';
   }
 
+  // FIX: Sitzung anhand der AKTUELLEN Uhrzeit (US-Ostküste) bestimmen
+  function getCurrentSession() {
+    var day = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'short' });
+    if (day === 'Sat' || day === 'Sun') return 'closed';
+    var h = etHour();
+    if (h >= 4 && h < 9.5) return 'pre';
+    if (h >= 9.5 && h < 16) return 'regular';
+    if (h >= 16 && h < 20) return 'post';
+    return 'closed';
+  }
+
+  // FIX: Countdown berechnet jetzt Wochenenden und korrekte Tage
   function getTimeInfo(targetHour, currentHour) {
-    var isTomorrow = targetHour < currentHour;
-    var diff = isTomorrow ? (targetHour + 24) - currentHour : targetHour - currentHour;
+    var now = new Date();
+    var diff = targetHour - currentHour;
+    var daysAhead = 0;
+    
+    if (diff <= 0) { 
+      diff += 24;
+      daysAhead = 1;
+    }
+    
+    var currentDay = now.getDay(); // 0=Sun, 1=Mon, ... 5=Fri, 6=Sat
+    var targetDay = (currentDay + daysAhead) % 7;
+    
+    // Wenn das Target auf ein Wochenende fällt, auf Montag verschieben
+    if (targetDay === 6) { // Samstag -> Montag
+      diff += 48; 
+      targetDay = 1;
+    } else if (targetDay === 0) { // Sonntag -> Montag
+      diff += 24; 
+      targetDay = 1;
+    }
+    
     var hh = Math.floor(diff);
     var mm = Math.round((diff - hh) * 60);
     var timeStr = hh + 'h ' + (mm < 10 ? '0' : '') + mm + 'min';
-    var dayStr = isTomorrow ? ' (morgen)' : ' (heute)';
-    var day = new Date().toLocaleString('en-US', { timeZone: 'Europe/Berlin', weekday: 'short' });
-    if (day === 'Fri' && isTomorrow) dayStr = ' (Montag)';
-    if (day === 'Sat') dayStr = ' (Montag)';
-    if (day === 'Sun' && isTomorrow) dayStr = ' (Montag)';
+    
+    var dayStr = '';
+    if (targetDay === currentDay) dayStr = ' (heute)';
+    else if ((currentDay + 1) % 7 === targetDay) dayStr = ' (morgen)';
+    else {
+      var dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+      dayStr = ' (' + dayNames[targetDay] + ')';
+    }
+    
     return timeStr + dayStr;
   }
 
@@ -170,32 +205,45 @@ window.App.PreMarket = (function () {
     return vol > 0 ? (pv / vol) : null;
   }
 
+  // FIX: Echte 15-Minuten-Blöcke nach Zeitstempel & unfertige Blöcke ignorieren
   function computeRsi15m(points) {
     if (!points || points.length < 30) return null;
     
-    var bars15 = [];
-    var currentBar = [];
-    for (var i = 0; i < points.length; i++) {
-      currentBar.push(points[i]);
-      if (currentBar.length === 15) {
-        bars15.push(currentBar[currentBar.length - 1].price);
-        currentBar = [];
+    var bucketMs = 15 * 60 * 1000;
+    var buckets = {};
+    
+    points.forEach(function(p) {
+      var b = Math.floor(p.t / bucketMs) * bucketMs;
+      if (!buckets[b]) {
+        buckets[b] = { close: p.price, count: 0 };
+      }
+      buckets[b].close = p.price;
+      buckets[b].count++;
+    });
+    
+    var keys = Object.keys(buckets).sort(function(a, b) { return a - b; });
+    
+    // Den letzten (unfertigen) Block entfernen
+    if (keys.length > 0) {
+      var lastKey = Number(keys[keys.length - 1]);
+      if (Date.now() - lastKey < bucketMs) {
+        keys.pop(); 
       }
     }
-    if (currentBar.length > 0) bars15.push(currentBar[currentBar.length - 1].price);
+    
+    var bars15 = keys.map(function(k) { return buckets[k].close; });
     if (bars15.length < 15) return null; 
 
     var gains = 0, losses = 0;
     for (var i = 1; i <= 14; i++) {
-      var diff = bars15[i] - bars15[i-1];
-      if (diff >= 0) gains += diff;
-      else losses -= diff;
+      var diff = bars15[i] - bars15[i - 1];
+      if (diff >= 0) gains += diff; else losses -= diff;
     }
     var avgGain = gains / 14;
     var avgLoss = losses / 14;
 
     for (var i = 15; i < bars15.length; i++) {
-      var diff = bars15[i] - bars15[i-1];
+      var diff = bars15[i] - bars15[i - 1];
       var g = diff > 0 ? diff : 0;
       var l = diff < 0 ? -diff : 0;
       avgGain = (avgGain * 13 + g) / 14;
@@ -211,7 +259,7 @@ window.App.PreMarket = (function () {
     if (!container || !stock) return;
     var ticker = (stock.ticker || '').toUpperCase();
     state.ticker = ticker;
-    state.chartRange = '1d'; // Bei jedem neuen Aufruf auf 1T zurücksetzen
+    state.chartRange = '1d'; 
 
     if (!isUsTicker(ticker)) {
       container.innerHTML = '' +
@@ -251,7 +299,6 @@ window.App.PreMarket = (function () {
           '<canvas id="pm-canvas" style="width:100%;height:100%;"></canvas>' +
         '</div>' +
         
-        // NEU: Die Zeitfenster-Buttons unter dem Chart
         '<div class="pill-group" id="pm-range-pills" style="margin-top: 10px; justify-content: center; display: flex;">' +
           '<button class="pill-btn active" data-pm-range="1d">1T</button>' +
           '<button class="pill-btn" data-pm-range="6h">6h</button>' +
@@ -346,7 +393,10 @@ window.App.PreMarket = (function () {
     var prePoints = preSeries.points || [];
     var lastPre = prePoints.length ? prePoints[prePoints.length - 1] : null;
 
-    var germanNow = currentPriceEur;
+    // FIX: Referenz-Kurs ist der App-Kurs (letzter US-Schluss umgerechnet)
+    var refPrice = currentPriceEur;
+    var refLabel = 'App-Kurs';
+
     var xetraOpen = isXetraOpen();
 
     // Futures rendern
@@ -361,23 +411,27 @@ window.App.PreMarket = (function () {
       futEsEl.innerHTML = 'S&P 500: <span style="color:' + (es.pct >= 0 ? 'var(--bullish)' : 'var(--bearish)') + ';">' + (es.pct >= 0 ? '+' : '') + fmt(es.pct) + '%</span>';
     }
 
-    var session = lastPre ? classifySession(lastPre.t) : 'closed';
+    // FIX: Sitzungs-Badge basiert auf der aktuellen Uhrzeit, nicht dem letzten Trade
+    var currentSession = getCurrentSession();
+    var lastPreSession = lastPre ? classifySession(lastPre.t) : 'closed';
+    
     var sessionBadge = container.querySelector('#pm-session-badge');
     if (sessionBadge) {
-      sessionBadge.textContent = session === 'pre' ? 'Vorbörse läuft' :
-                                 session === 'regular' ? 'US-Handel läuft' :
-                                 session === 'post' ? 'Nachbörse' : 'geschlossen';
-      sessionBadge.style.background = session === 'pre' ? 'var(--tag-yellow-bg)' :
-                                       session === 'regular' ? 'var(--bullish-bg)' :
-                                       session === 'post' ? 'var(--bg-tertiary)' : 'var(--bg-tertiary)';
-      sessionBadge.style.color = session === 'pre' ? 'var(--tag-yellow)' :
-                                  session === 'regular' ? 'var(--bullish)' : 'var(--text-dim)';
+      sessionBadge.textContent = currentSession === 'pre' ? 'Vorbörse läuft' :
+                                 currentSession === 'regular' ? 'US-Handel läuft' :
+                                 currentSession === 'post' ? 'Nachbörse' : 'geschlossen';
+      sessionBadge.style.background = currentSession === 'pre' ? 'var(--tag-yellow-bg)' :
+                                       currentSession === 'regular' ? 'var(--bullish-bg)' :
+                                       currentSession === 'post' ? 'var(--bg-tertiary)' : 'var(--bg-tertiary)';
+      sessionBadge.style.color = currentSession === 'pre' ? 'var(--tag-yellow)' :
+                                  currentSession === 'regular' ? 'var(--bullish)' : 'var(--text-dim)';
     }
 
     var statusEl = container.querySelector('#pm-status');
     if (statusEl) {
       if (lastPre) {
-        var labelText = session === 'pre' ? 'Letzter Vorbörsenkurs' : (session === 'regular' ? 'Letzter US-Kurs' : 'Letzter Nachbörsenkurs');
+        var labelText = lastPreSession === 'pre' ? 'Letzter Vorbörsenkurs' : 
+                        (lastPreSession === 'regular' ? 'Letzter US-Kurs' : 'Letzter Nachbörsenkurs');
         statusEl.innerHTML = labelText + ': <strong>' +
           window.App.Format.currency(lastPre.price, 'EUR') + '</strong>' +
           ' um ' + new Date(lastPre.t).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
@@ -387,37 +441,43 @@ window.App.PreMarket = (function () {
     }
 
     var indEl = container.querySelector('#pm-indicators');
-    if (indEl && (session === 'pre' || session === 'regular' || session === 'post')) {
-      var totalVol = prePoints.reduce(function(sum, p) { return sum + p.volume; }, 0);
-      var vwap = computeVwap(prePoints);
-      var rsi15 = computeRsi15m(prePoints);
+    if (indEl) {
+      // FIX: Indikatoren nur anzeigen, wenn auch aktuell gehandelt wird
+      if (currentSession !== 'closed') {
+        var totalVol = prePoints.reduce(function(sum, p) { return sum + p.volume; }, 0);
+        var vwap = computeVwap(prePoints);
+        var rsi15 = computeRsi15m(prePoints);
 
-      var isHighVol = totalVol > 500000; 
-      var volStr = totalVol > 1000000 ? (totalVol/1000000).toFixed(2)+'M' : (totalVol/1000).toFixed(0)+'k';
-      var volColor = isHighVol ? 'var(--tag-yellow)' : 'var(--text-main)';
-      var rsiColor = rsi15 >= 70 ? 'var(--bearish)' : rsi15 <= 30 ? 'var(--bullish)' : 'var(--text-main)';
-      
-      indEl.style.display = 'grid';
-      indEl.innerHTML = 
-        '<div data-pm-info="vol" style="cursor:pointer; background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
-          '<div style="font-size:0.6rem; color:var(--text-dim);">Volumen</div>' +
-          '<div style="font-weight:700; font-size:0.8rem; color:' + volColor + ';">' + volStr + '</div>' +
-        '</div>' +
-        '<div data-pm-info="vwap" style="cursor:pointer; background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
-          '<div style="font-size:0.6rem; color:var(--text-dim);">VWAP</div>' +
-          '<div style="font-weight:700; font-size:0.8rem; color:#3b82f6;">' + (vwap ? window.App.Format.currency(vwap, 'EUR', 2) : '—') + '</div>' +
-        '</div>' +
-        '<div data-pm-info="rsi" style="cursor:pointer; background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
-          '<div style="font-size:0.6rem; color:var(--text-dim);">RSI (15m)</div>' +
-          '<div style="font-weight:700; font-size:0.8rem; color:' + rsiColor + ';">' + (rsi15 ? fmt(rsi15, 0) : '—') + '</div>' +
-        '</div>';
-    } else if (indEl) {
-      indEl.style.display = 'none';
+        var isHighVol = totalVol > 500000; 
+        var volStr = totalVol > 1000000 ? (totalVol/1000000).toFixed(2)+'M' : (totalVol/1000).toFixed(0)+'k';
+        var volColor = isHighVol ? 'var(--tag-yellow)' : 'var(--text-main)';
+        
+        // FIX: Null-Check für RSI-Farbe (null <= 30 ist in JS true)
+        var rsiColor = (rsi15 !== null && rsi15 !== undefined && rsi15 >= 70) ? 'var(--bearish)' : 
+                       (rsi15 !== null && rsi15 !== undefined && rsi15 <= 30) ? 'var(--bullish)' : 'var(--text-main)';
+        
+        indEl.style.display = 'grid';
+        indEl.innerHTML = 
+          '<div data-pm-info="vol" style="cursor:pointer; background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
+            '<div style="font-size:0.6rem; color:var(--text-dim);">Volumen</div>' +
+            '<div style="font-weight:700; font-size:0.8rem; color:' + volColor + ';">' + volStr + '</div>' +
+          '</div>' +
+          '<div data-pm-info="vwap" style="cursor:pointer; background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
+            '<div style="font-size:0.6rem; color:var(--text-dim);">VWAP</div>' +
+            '<div style="font-weight:700; font-size:0.8rem; color:#3b82f6;">' + (vwap ? window.App.Format.currency(vwap, 'EUR', 2) : '—') + '</div>' +
+          '</div>' +
+          '<div data-pm-info="rsi" style="cursor:pointer; background:var(--bg-secondary); padding:6px; border-radius:4px; text-align:center;">' +
+            '<div style="font-size:0.6rem; color:var(--text-dim);">RSI (15m)</div>' +
+            '<div style="font-weight:700; font-size:0.8rem; color:' + rsiColor + ';">' + (rsi15 ? fmt(rsi15, 0) : '—') + '</div>' +
+          '</div>';
+      } else {
+        indEl.style.display = 'none';
+      }
     }
 
     var signalEl = container.querySelector('#pm-signal');
     if (signalEl) {
-      var signal = computeSignal(lastPre ? lastPre.price : null, germanNow);
+      var signal = computeSignal(lastPre ? lastPre.price : null, refPrice);
       if (!signal) {
         signalEl.innerHTML = '<div style="font-size:0.78rem;color:var(--text-dim);">Kein Signal berechenbar.</div>';
       } else {
@@ -426,12 +486,14 @@ window.App.PreMarket = (function () {
         var color = isFlat ? 'var(--tag-yellow)' : (isUp ? 'var(--bullish)' : 'var(--bearish)');
         var arrow = isFlat ? '→' : (isUp ? '▲' : '▼');
         
-        var sessionName = session === 'pre' ? 'Vorbörse' : 'US-Handel';
+        var sessionName = lastPreSession === 'pre' ? 'Vorbörse' : 'US-Handel';
+        
+        // FIX: Text präzisiert (App-Kurs statt deutschem Kurs)
         var text = isFlat
-          ? 'Seitwärts – kein klarer Vorsprung'
+          ? 'Seitwärts – kein klarer Vorsprung zum ' + refLabel
           : (isUp
-              ? sessionName + ' ' + signal.strength + ' über deutschem Kurs – deutscher Kurs könnte steigen'
-              : sessionName + ' ' + signal.strength + ' unter deutschem Kurs – deutscher Kurs könnte fallen');
+              ? sessionName + ' ' + signal.strength + ' über ' + refLabel + ' – Kurs könnte steigen'
+              : sessionName + ' ' + signal.strength + ' unter ' + refLabel + ' – Kurs könnte fallen');
 
         signalEl.innerHTML = '' +
           '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg-secondary);border-radius:var(--radius-sm);border-left:3px solid ' + color + ';">' +
@@ -449,8 +511,10 @@ window.App.PreMarket = (function () {
     var momEl = container.querySelector('#pm-momentum');
     if (momEl) {
       var mom = computeMomentum(prePoints);
-      if (mom && (session === 'pre' || session === 'regular' || session === 'post')) {
-        var isDangerZone = (cetHour() >= 15.0 && cetHour() <= 15.5); 
+      if (mom && (currentSession === 'pre' || currentSession === 'regular' || currentSession === 'post')) {
+        // FIX: DST-sicheres Warnfenster (30 Min vor US-Open = 9:00 bis 9:30 NY-Zeit)
+        var etH = etHour();
+        var isDangerZone = (etH >= 9.0 && etH <= 9.5); 
         
         if (mom.dir === 'down') {
           var alertColor = isDangerZone ? 'var(--bearish)' : 'var(--tag-yellow)';
@@ -495,20 +559,21 @@ window.App.PreMarket = (function () {
         ? '<strong style="color:var(--bullish);">Xetra ist geöffnet</strong>' 
         : '<strong style="color:var(--text-dim);">Xetra ist geschlossen</strong>';
 
-      infoEl.innerHTML = 'Vergleich: ' + (session === 'pre' ? 'US-Vorbörse' : 'US-Handel') + ' in EUR vs. letzter Kurs in der App (' +
-        window.App.Format.currency(germanNow, 'EUR') + '). ' + xetraLabel + '. ' +
-        'Der Pfeil zeigt, in welche Richtung der deutsche Kurs tendiert.';
+      // FIX: Klarstellung, was der App-Kurs eigentlich ist (US-Schluss umgerechnet)
+      infoEl.innerHTML = 'Vergleich: ' + (lastPreSession === 'pre' ? 'US-Vorbörse' : 'US-Handel') + ' in EUR vs. App-Kurs (US-Schluss umgerechnet: ' +
+        window.App.Format.currency(refPrice, 'EUR') + '). ' + xetraLabel + '. ' +
+        'Der Pfeil zeigt, in welche Richtung der Kurs tendiert.';
     }
 
     var hLines = [{
-      value: germanNow,
+      value: refPrice,
       color: '#f59e0b',
       width: 2,
-      label: 'App-Kurs ' + window.App.Format.currency(germanNow, 'EUR', 2),
+      label: 'App-Kurs ' + window.App.Format.currency(refPrice, 'EUR', 2),
       dashed: true
     }];
     
-    if (session === 'pre' || session === 'regular' || session === 'post') {
+    if (currentSession !== 'closed') {
       var vwapVal = computeVwap(prePoints);
       if (vwapVal) {
         hLines.push({
@@ -521,11 +586,9 @@ window.App.PreMarket = (function () {
       }
     }
 
-    // NEU: Daten und Linien im State speichern für den Intervall-Wechsel
     state.lastPrePoints = prePoints;
     state.lastHLines = hLines;
 
-    // Events für die Zeit-Buttons binden
     var pills = container.querySelectorAll('[data-pm-range]');
     pills.forEach(function(pill) {
       pill.classList.toggle('active', pill.getAttribute('data-pm-range') === state.chartRange);
@@ -544,7 +607,6 @@ window.App.PreMarket = (function () {
     var canvas = container.querySelector('#pm-canvas');
     if (!canvas) return;
 
-    // NEU: Filtern nach dem ausgewählten Zeitfenster (relativ zum LETZTEN Datenpunkt!)
     var lastTimestamp = points.length > 0 ? points[points.length - 1].t : Date.now();
     var cutoff = 0;
     if (state.chartRange === '6h') cutoff = lastTimestamp - 6 * 60 * 60 * 1000;
