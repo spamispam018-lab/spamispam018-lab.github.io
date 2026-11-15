@@ -4,7 +4,7 @@ scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 FIX: analysts_empty und analysts_recently_checked wieder eingefügt.
 FIX: build_universe_item berechnet alle abgeleiteten Felder (RSI, RR, Upside, RangePos, Perf).
-NEU: industry/roa im Universe, returnOnAssets/grossMargins/operatingMargins in ratios, RS-Rating in allen Modi.
+NEU: industry/roa im Universe, returnOnAssets/grossMargins/operatingMargins in ratios, RS-Rating in allen Modi, Boden-Check (bottom) fuer die Filter Bodenbildung/Fallendes Messer.
 FIX: Fehlende Ticker (delisted) werden übersprungen, ohne den Lauf abzubrechen.
 """
 
@@ -925,6 +925,99 @@ def extract_close_series(batch_df, sym):
     return None
 
 
+def _ema_series(values, n):
+    """EMA wie in js/stock-chart.js: Start mit SMA der ersten n Werte, None-Werte werden uebersprungen."""
+    out, k, prev, buf = [], 2.0 / (n + 1), None, []
+    for v in values:
+        if v is None:
+            out.append(None)
+            continue
+        if prev is None:
+            buf.append(v)
+            if len(buf) == n:
+                prev = sum(buf) / n
+                out.append(prev)
+            else:
+                out.append(None)
+        else:
+            prev = v * k + prev * (1 - k)
+            out.append(prev)
+    return out
+
+
+def _rsi_series(values, n=14):
+    """RSI (Wilder) identisch zu js/stock-chart.js."""
+    out, avg_gain, avg_loss = [], 0.0, 0.0
+    for i in range(len(values)):
+        if i == 0:
+            out.append(None)
+            continue
+        diff = values[i] - values[i - 1]
+        gain = diff if diff > 0 else 0.0
+        loss = -diff if diff < 0 else 0.0
+        if i <= n:
+            avg_gain += gain / n
+            avg_loss += loss / n
+            if i < n:
+                out.append(None)
+                continue
+        else:
+            avg_gain = (avg_gain * (n - 1) + gain) / n
+            avg_loss = (avg_loss * (n - 1) + loss) / n
+        out.append(100.0 if avg_loss == 0 else 100 - 100 / (1 + avg_gain / avg_loss))
+    return out
+
+
+def compute_bottom_check(closes):
+    """
+    Boden-Check (1:1 Port von bottomCheck() in js/stock-chart.js).
+    Liefert 'base' (Bodenbildung), 'knife' (Fallendes Messer), 'wait' oder None
+    (None = weniger als 20 % unter dem 52W-Hoch bzw. zu wenig Daten).
+    """
+    c = [x for x in closes if x is not None and x > 0]
+    n = len(c)
+    if n < 120:
+        return None
+    px = c[-1]
+    hi = max(c[-252:])
+    if px / hi - 1 > -0.20:
+        return None
+
+    def avg(a):
+        return sum(a) / len(a)
+
+    w = c[-60:]
+    mn = min(w)
+    idx = max(i for i, v in enumerate(w) if v <= mn)
+    since_low = len(w) - 1 - idx
+    s20 = avg(c[-20:])
+    s20b = avg(c[-25:-5])
+
+    e12, e26 = _ema_series(c, 12), _ema_series(c, 26)
+    line = [(a - b) if (a is not None and b is not None) else None for a, b in zip(e12, e26)]
+    signal = _ema_series(line, 9)
+    ml, ms = line[-1], signal[-1]
+    r = _rsi_series(c, 14)
+    r0, r5 = r[-1], r[-6]
+    r_ok = r0 is not None and r5 is not None and r0 >= 40 and r0 > r5
+
+    sig = [
+        since_low >= 15,
+        min(c[-20:]) > min(c[-60:-20]),
+        px > s20,
+        s20 >= s20b,
+        ml is not None and ms is not None and ml > ms,
+        r_ok,
+    ]
+    score = sum(1 for x in sig if x)
+    perf1m = px / c[-22] - 1
+    if score >= 4 and (sig[0] or sig[1]):
+        return "base"
+    if score <= 2 and (since_low <= 10 or perf1m <= -0.10):
+        return "knife"
+    return "wait"
+
+
 def build_universe_item(stock_data, existing_item=None):
     """Erstellt den Eintrag für die universe.json inkl. aller abgeleiteten Kennzahlen."""
     u_item = existing_item or {}
@@ -1040,6 +1133,13 @@ def build_universe_item(stock_data, existing_item=None):
         # Patterns
         pats = compute_chart_patterns(hist)
         u_item.update(pats)
+
+        # Boden-Check (Filter "Bodenbildung" / "Fallendes Messer")
+        bottom = compute_bottom_check([p.get("close") for p in hist])
+        if bottom:
+            u_item["bottom"] = bottom
+        else:
+            u_item.pop("bottom", None)
 
     if "updatedAt" in stock_data:
         u_item["updatedAt"] = stock_data["updatedAt"]
