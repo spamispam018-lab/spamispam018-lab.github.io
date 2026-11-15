@@ -4,7 +4,7 @@ scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 FIX: analysts_empty und analysts_recently_checked wieder eingefügt.
 FIX: build_universe_item berechnet alle abgeleiteten Felder (RSI, RR, Upside, RangePos, Perf).
-NEU: industry/roa im Universe, returnOnAssets/grossMargins/operatingMargins in ratios, RS-Rating in allen Modi, Boden-Check (bottom) fuer die Filter Bodenbildung/Fallendes Messer.
+NEU: industry/roa im Universe, returnOnAssets/grossMargins/operatingMargins in ratios, RS-Rating in allen Modi, Boden-Check (bottom), Volumen/52W/MarketCap im Delta-Lauf, MarketCap GBp-Fix fuer die Filter Bodenbildung/Fallendes Messer.
 FIX: Fehlende Ticker (delisted) werden übersprungen, ohne den Lauf abzubrechen.
 """
 
@@ -145,6 +145,11 @@ def load_live_forex():
 def to_eur(value, cur):
     if value is None: return None
     return round(value * RATES_TO_EUR.get(cur, 1.0), 4)
+
+
+def mcap_currency(cur):
+    """Marktkapitalisierung kommt von Yahoo in GBP, auch wenn der Kurs in Pence (GBp) notiert."""
+    return "GBP" if cur == "GBp" else cur
 
 
 def clean_val(val, default=None):
@@ -653,7 +658,7 @@ def fetch_full_stock(ticker_sym):
     chg_abs = round(curr_p - prev_p, 4) if curr_p and prev_p else 0.0
     chg_pct = round(((raw_curr - raw_prev) / raw_prev) * 100, 2) if raw_prev else 0.0
     raw_mcap = clean_val(info.get("marketCap") or info.get("totalAssets"), 0)
-    market_cap_eur = clean_val(to_eur(raw_mcap, cur), 0)
+    market_cap_eur = clean_val(to_eur(raw_mcap, mcap_currency(cur)), 0)
 
     quote = {"price": curr_p, "change": chg_abs, "changePercent": chg_pct,
              "marketCap": market_cap_eur,
@@ -802,7 +807,7 @@ def fetch_partial_stock(ticker_sym, sections, existing_data):
         
         result["quote"] = {"price": curr_p, "change": round(curr_p - prev_p, 4) if curr_p and prev_p else 0.0, 
                            "changePercent": round(((raw_curr - raw_prev) / raw_prev) * 100, 2) if raw_prev else 0.0,
-                           "marketCap": clean_val(to_eur(clean_val(info.get("marketCap") or info.get("totalAssets"), 0), cur), 0),
+                           "marketCap": clean_val(to_eur(clean_val(info.get("marketCap") or info.get("totalAssets"), 0), mcap_currency(cur)), 0),
                            "fiftyTwoWeekLow": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekLow")), cur)),
                            "fiftyTwoWeekHigh": clean_val(to_eur(clean_val(info.get("fiftyTwoWeekHigh")), cur)),
                            "volume": clean_val(info.get("regularMarketVolume")), "currency": "EUR"}
@@ -1016,6 +1021,28 @@ def compute_bottom_check(closes):
     if score <= 2 and (since_low <= 10 or perf1m <= -0.10):
         return "knife"
     return "wait"
+
+
+def extract_field_series(batch_df, sym, field):
+    """Wie extract_close_series, aber fuer beliebige Spalten (z.B. Volume)."""
+    try:
+        if batch_df is None or batch_df.empty:
+            return None
+        if hasattr(batch_df.columns, "levels") and len(batch_df.columns.levels) >= 2:
+            top = batch_df.columns.get_level_values(0)
+            if sym in top:
+                sub = batch_df[sym]
+                if field in sub.columns:
+                    return sub[field].dropna()
+            if field in top:
+                sub = batch_df[field]
+                if sym in sub.columns:
+                    return sub[sym].dropna()
+        if field in batch_df.columns:
+            return batch_df[field].dropna()
+    except Exception:
+        pass
+    return None
 
 
 def build_universe_item(stock_data, existing_item=None):
@@ -1308,6 +1335,20 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
                         stock_data["quote"]["change"] = chg
                         stock_data["quote"]["changePercent"] = chg_pct
                         stock_data["quote"]["currency"] = "EUR"
+
+                        q_ = stock_data["quote"]
+                        vol_s = extract_field_series(batch_df, sym, "Volume")
+                        if vol_s is not None and not vol_s.empty:
+                            lv = clean_val(float(vol_s.iloc[-1]))
+                            if lv and lv > 0:
+                                q_["volume"] = int(lv)
+                        hi_, lo_ = q_.get("fiftyTwoWeekHigh"), q_.get("fiftyTwoWeekLow")
+                        if hi_ is not None and new_price > hi_:
+                            q_["fiftyTwoWeekHigh"] = new_price
+                        if lo_ is not None and new_price < lo_:
+                            q_["fiftyTwoWeekLow"] = new_price
+                        if old_price and old_price > 0 and q_.get("marketCap"):
+                            q_["marketCap"] = round(q_["marketCap"] * new_price / old_price)
 
                         history = stock_data.setdefault("chartHistory", [])
                         existing_dates = {p.get("date") for p in history}
