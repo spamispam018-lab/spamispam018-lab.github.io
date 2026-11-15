@@ -2,11 +2,7 @@
 """
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
-NEU:
-- Neuer --only Filter 'perf' zur blitzschnellen Berechnung der Performance (1W, 1M, 3M, YTD, 52W) aus lokalen Daten.
-- Berechnet alle Performance-Werte (1W, 1M, 3M, YTD, 52W) für das Universum.
-- FIX: Entfernt automatisch Anführungszeichen um den --only Parameter.
-- Eigene Sektion 'ratios' für gezieltes Update der Kennzahlen.
+FIX: Schreibt KGV, Margen und Umsatzwachstum wieder in die universe.json.
 """
 
 import os
@@ -112,7 +108,6 @@ RATES_TO_EUR = {
     "EUR": 1.0, "USD": 0.92, "GBP": 1.17, "GBp": 0.0117, "CHF": 1.04, "DKK": 0.134
 }
 
-# NEU: 'perf' als eigene Sektion hinzugefügt
 ALLOWED_SECTIONS = ["quote", "profile", "financials", "analysts", "insider", "institutional", "options", "dividends", "holdings", "history", "ratios", "perf"]
 
 
@@ -670,7 +665,8 @@ def fetch_full_stock(ticker_sym):
               "profitMargins": clean_val(info.get("profitMargins")),
               "returnOnEquity": clean_val(info.get("returnOnEquity")), 
               "payoutRatio": clean_val(info.get("payoutRatio")),       
-              "debtToEbitda": clean_val(net_debt_ebitda)               
+              "debtToEbitda": clean_val(net_debt_ebitda),
+              "revenueGrowth": clean_val(info.get("revenueGrowth"))
               }
 
     chart_history = []
@@ -811,7 +807,8 @@ def fetch_partial_stock(ticker_sym, sections, existing_data):
                   "profitMargins": clean_val(info.get("profitMargins")),
                   "returnOnEquity": clean_val(info.get("returnOnEquity")), 
                   "payoutRatio": clean_val(info.get("payoutRatio")),       
-                  "debtToEbitda": clean_val(net_debt_ebitda)               
+                  "debtToEbitda": clean_val(net_debt_ebitda),
+                  "revenueGrowth": clean_val(info.get("revenueGrowth"))
                   }
 
     if "financials" in sections:
@@ -946,7 +943,6 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
                 with open(stock_file, "w", encoding="utf-8") as f:
                     json.dump(stock_data, f, ensure_ascii=False, indent=2)
                 
-                # Update universe Eintrag
                 if any(s in current_sections for s in ["quote", "profile", "ratios", "history", "perf"]):
                     u_item = universe_map.get(sym, {"ticker": sym})
                     
@@ -962,6 +958,10 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
                         u_item["exDividendDate"] = stock_data.get("exDividendDate")
                         
                     if "ratios" in current_sections:
+                        u_item["pe"] = stock_data.get("ratios", {}).get("peTrailing")
+                        u_item["forwardPe"] = stock_data.get("ratios", {}).get("peForward")
+                        u_item["profitMargins"] = stock_data.get("ratios", {}).get("profitMargins")
+                        u_item["revGrowth"] = stock_data.get("ratios", {}).get("revenueGrowth")
                         u_item["returnOnEquity"] = stock_data.get("ratios", {}).get("returnOnEquity")
                         u_item["payoutRatio"] = stock_data.get("ratios", {}).get("payoutRatio")
                         u_item["debtToEbitda"] = stock_data.get("ratios", {}).get("debtToEbitda")
@@ -976,7 +976,6 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
             time.sleep(ONLY_MODE_SLEEP_SEC)
 
         if any(s in sections for s in ["quote", "profile", "ratios", "history", "perf"]):
-            # Performance neu berechnen für alle
             for sym, u_item in universe_map.items():
                 stock_file = os.path.join(DATA_DIR, f"{sym}.json")
                 if os.path.exists(stock_file):
@@ -1017,6 +1016,10 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
             u_item = universe_map.get(sym, {"ticker": sym})
             u_item["price"] = stock_data["quote"]["price"]
             u_item["changePercent"] = stock_data["quote"]["changePercent"]
+            u_item["pe"] = stock_data["ratios"].get("peTrailing")
+            u_item["forwardPe"] = stock_data["ratios"].get("peForward")
+            u_item["profitMargins"] = stock_data["ratios"].get("profitMargins")
+            u_item["revGrowth"] = stock_data["ratios"].get("revenueGrowth")
             u_item["returnOnEquity"] = stock_data["ratios"].get("returnOnEquity")
             u_item["payoutRatio"] = stock_data["ratios"].get("payoutRatio")
             u_item["debtToEbitda"] = stock_data["ratios"].get("debtToEbitda")
@@ -1148,6 +1151,10 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
         u_item["changePercent"] = stock_data.get("quote", {}).get("changePercent")
         u_item["marketCap"] = stock_data.get("quote", {}).get("marketCap")
         u_item["volume"] = stock_data.get("quote", {}).get("volume")
+        u_item["pe"] = stock_data.get("ratios", {}).get("peTrailing")
+        u_item["forwardPe"] = stock_data.get("ratios", {}).get("peForward")
+        u_item["profitMargins"] = stock_data.get("ratios", {}).get("profitMargins")
+        u_item["revGrowth"] = stock_data.get("ratios", {}).get("revenueGrowth")
         u_item["returnOnEquity"] = stock_data.get("ratios", {}).get("returnOnEquity")
         u_item["payoutRatio"] = stock_data.get("ratios", {}).get("payoutRatio")
         u_item["debtToEbitda"] = stock_data.get("ratios", {}).get("debtToEbitda")
