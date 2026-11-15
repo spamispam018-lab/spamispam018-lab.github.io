@@ -1,6 +1,6 @@
 /**
  * js/strategies.js
- * Vordefinierte Anlagestrategien (Value, Growth, Dividende).
+ * Vordefinierte Anlagestrategien (Value, Growth, Dividende, Momentum, Buy the Dip).
  * NEU: Dynamische Slider für jede Strategie, um Kriterien live anzupassen.
  * FIX: Robusteres Handling von fehlenden Daten.
  */
@@ -15,7 +15,9 @@ window.App.Strategies = (function () {
   var sliderState = {
     value: { maxPe: 20, minRoe: 15, maxDebt: 2.5 },
     growth: { minRs: 80, minRevGrowth: 20, minVol: 100000 },
-    dividend: { minYield: 2.5, maxPayout: 60 }
+    dividend: { minYield: 2.5, maxPayout: 60 },
+    momentum: { minRs: 80, minChange: 2 },
+    buythedip: { maxDip: -5, minRoe: 15, maxPe: 25 }
   };
 
   function esc(s) {
@@ -46,10 +48,12 @@ window.App.Strategies = (function () {
         '<div style="font-size: 0.78rem; color: var(--text-dim);">Finde Aktien basierend auf bewährten Investment-Strategien.</div>' +
       '</div>' +
 
-      '<div class="main-tabs-row" style="margin-bottom: 16px;">' +
+      '<div class="main-tabs-row" style="margin-bottom: 16px; overflow-x: auto; white-space: nowrap;">' +
         '<button class="main-tab-btn ' + (currentStrategy === 'value' ? 'active' : '') + '" data-strat="value">💎 Value &amp; Qualität</button>' +
         '<button class="main-tab-btn ' + (currentStrategy === 'growth' ? 'active' : '') + '" data-strat="growth">🚀 Growth &amp; Momentum</button>' +
         '<button class="main-tab-btn ' + (currentStrategy === 'dividend' ? 'active' : '') + '" data-strat="dividend">💰 Dividende</button>' +
+        '<button class="main-tab-btn ' + (currentStrategy === 'momentum' ? 'active' : '') + '" data-strat="momentum">📈 Momentum</button>' +
+        '<button class="main-tab-btn ' + (currentStrategy === 'buythedip' ? 'active' : '') + '" data-strat="buythedip">🎯 Buy the Dip</button>' +
       '</div>' +
 
       '<div id="strategy-info" class="card" style="padding: 14px; margin-bottom: 14px; background: var(--bg-secondary); font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;"></div>' +
@@ -87,6 +91,8 @@ window.App.Strategies = (function () {
       if (currentStrategy === 'value') sliderState.value = { maxPe: 20, minRoe: 15, maxDebt: 2.5 };
       if (currentStrategy === 'growth') sliderState.growth = { minRs: 80, minRevGrowth: 20, minVol: 100000 };
       if (currentStrategy === 'dividend') sliderState.dividend = { minYield: 2.5, maxPayout: 60 };
+      if (currentStrategy === 'momentum') sliderState.momentum = { minRs: 80, minChange: 2 };
+      if (currentStrategy === 'buythedip') sliderState.buythedip = { maxDip: -5, minRoe: 15, maxPe: 25 };
       renderSliders(container);
       applyStrategy(container);
     };
@@ -113,6 +119,19 @@ window.App.Strategies = (function () {
       html += sliderRow('div-minYield', 'Min. Dividendenrendite %', 0, 10, 0.5, sliderState.dividend.minYield, '');
       html += sliderRow('div-maxPayout', 'Max. Payout Ratio %', 10, 100, 5, sliderState.dividend.maxPayout, '');
     }
+    else if (currentStrategy === 'momentum') {
+      infoEl.innerHTML = '<b>D. Momentum- / Trendfolge-Strategie:</b><br><br><b>Kriterien:</b> Du kaufst Aktien, deren Kurse bereits stark steigen, in der Annahme, dass der Trend sich kurz- bis mittelfristig fortsetzt.<br><br>Relative Stärke (RS-Rating) ≥ <span id="val-mom-rs">' + sliderState.momentum.minRs + '</span>, Tagesanstieg ≥ <span id="val-mom-change">' + sliderState.momentum.minChange + '</span> %.';
+      
+      html += sliderRow('mom-minRs', 'Min. Relative Stärke (RS-Rating)', 0, 100, 1, sliderState.momentum.minRs, '');
+      html += sliderRow('mom-minChange', 'Min. Kursanstieg (Tag) %', 0, 20, 0.5, sliderState.momentum.minChange, ' %');
+    }
+    else if (currentStrategy === 'buythedip') {
+      infoEl.innerHTML = '<b>E. Buy the Dip:</b><br><br><b>Kriterien:</b> Du kaufst gezielt in Kursrücksetzer ein, um stark gefallene, aber grundsätzlich gesunde Qualitätswerte günstiger einzusammeln.<br><br>Kursrückgang ≤ <span id="val-dip-change">' + sliderState.buythedip.maxDip + '</span> %, ROE ≥ <span id="val-dip-roe">' + sliderState.buythedip.minRoe + '</span> %, KGV ≤ <span id="val-dip-pe">' + sliderState.buythedip.maxPe + '</span>, Marktkap. > 1 Mrd. €.';
+      
+      html += sliderRow('dip-maxDip', 'Kursrückgang (Tag) %', -20, 0, 1, sliderState.buythedip.maxDip, ' %');
+      html += sliderRow('dip-minRoe', 'Min. Eigenkapitalrendite (ROE) %', 0, 50, 1, sliderState.buythedip.minRoe, ' %');
+      html += sliderRow('dip-maxPe', 'Maximales KGV', 5, 50, 1, sliderState.buythedip.maxPe, '');
+    }
 
     sliderHost.innerHTML = html;
 
@@ -132,6 +151,13 @@ window.App.Strategies = (function () {
         if (id === 'div-minYield') sliderState.dividend.minYield = val;
         if (id === 'div-maxPayout') sliderState.dividend.maxPayout = val;
 
+        if (id === 'mom-minRs') sliderState.momentum.minRs = val;
+        if (id === 'mom-minChange') sliderState.momentum.minChange = val;
+
+        if (id === 'dip-maxDip') sliderState.buythedip.maxDip = val;
+        if (id === 'dip-minRoe') sliderState.buythedip.minRoe = val;
+        if (id === 'dip-maxPe') sliderState.buythedip.maxPe = val;
+
         var valLabel = input.previousElementSibling.querySelector('.slider-val');
         if (valLabel) {
             var suffix = input.getAttribute('data-suffix') || '';
@@ -146,6 +172,13 @@ window.App.Strategies = (function () {
         if (id === 'growth-minVol') container.querySelector('#val-vol').textContent = val.toLocaleString('de-DE');
         if (id === 'div-minYield') container.querySelector('#val-yield').textContent = val;
         if (id === 'div-maxPayout') container.querySelector('#val-payout').textContent = val;
+        
+        if (id === 'mom-minRs') container.querySelector('#val-mom-rs').textContent = val;
+        if (id === 'mom-minChange') container.querySelector('#val-mom-change').textContent = val;
+
+        if (id === 'dip-maxDip') container.querySelector('#val-dip-change').textContent = val;
+        if (id === 'dip-minRoe') container.querySelector('#val-dip-roe').textContent = val;
+        if (id === 'dip-maxPe') container.querySelector('#val-dip-pe').textContent = val;
 
         applyStrategy(container);
       };
@@ -207,6 +240,32 @@ window.App.Strategies = (function () {
         return dy >= s.minYield && 
                payoutOk &&
                !isNaN(marginVal) && marginVal > 0;
+      });
+    }
+    else if (currentStrategy === 'momentum') {
+      var s = sliderState.momentum;
+      filtered = allStocks.filter(function (stock) {
+        var rsVal = Number(stock.rsRating) || 0;
+        var chgVal = Number(stock.changePercent) || 0;
+        
+        return rsVal >= s.minRs && 
+               chgVal >= s.minChange;
+      });
+    }
+    else if (currentStrategy === 'buythedip') {
+      var s = sliderState.buythedip;
+      filtered = allStocks.filter(function (stock) {
+        var chgVal = Number(stock.changePercent) || 0;
+        var peVal = Number(stock.pe);
+        var roeVal = Number(stock.returnOnEquity);
+        
+        var roeOk = isNaN(roeVal) ? true : (roeVal * 100) >= s.minRoe;
+        var peOk = isNaN(peVal) ? true : (peVal > 0 && peVal <= s.maxPe);
+
+        return chgVal <= s.maxDip && 
+               roeOk && 
+               peOk && 
+               Number(stock.marketCap) > 1e9;
       });
     }
 
