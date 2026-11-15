@@ -416,7 +416,7 @@ window.App.Compare = (function () {
   function buildGeminiPrompt(stocks) {
     var today = new Date().toLocaleDateString('de-DE');
     var head =
-      'Du bist ein nüchterner Aktienanalyst. Datum: ' + today + '. Alle Preise in EUR.\n\n' +
+      'Du bist ein erfahrener Aktienanalyst. Datum: ' + today + '. Alle Preise in EUR.\n\n' +
       'AUFGABE: Vergleiche die folgenden ' + stocks.length + ' Aktien. Sage mir, welche aktuell am besten für einen Einstieg geeignet ist ' +
       'und wie sich das langfristige Potenzial der Unternehmen entwickeln könnte.\n\n' +
       'REGELN:\n' +
