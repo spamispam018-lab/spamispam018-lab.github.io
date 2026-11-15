@@ -2,7 +2,7 @@
  * js/strategies.js
  * Vordefinierte Anlagestrategien (Value, Growth, Dividende, Momentum, Buy the Dip).
  * NEU: Dynamische Slider für jede Strategie, um Kriterien live anzupassen.
- * NEU: KI-Abfrage (Gemini) für die Top-Ergebnisse der aktuellen Strategie.
+ * NEU: KI-Abfrage (Gemini) für die Top-Ergebnisse inkl. Kontext der aktuellen Strategie & Slider-Werte.
  * FIX: Robusteres Handling von fehlenden Daten.
  */
 window.App = window.App || {};
@@ -352,7 +352,10 @@ window.App.Strategies = (function () {
             buythedip: 'Buy the Dip'
           };
           
-          openGemini(geminiBtn, results, stratNames[currentStrategy]);
+          // Aktuelle Slider-Werte übergeben
+          var activeSliders = sliderState[currentStrategy];
+          
+          openGemini(geminiBtn, results, stratNames[currentStrategy], activeSliders);
         });
       };
     }
@@ -497,13 +500,37 @@ window.App.Strategies = (function () {
     return L.join('\n');
   }
 
-  function buildGeminiPrompt(stocks, strategyName) {
+  // NEU: Sliders in den Prompt einbauen
+  function buildStrategyContext(strategyName, sliders) {
+    if (!strategyName || !sliders) return '';
+    var text = 'KONTEXT DER STRATEGIE: Die folgenden Aktien wurden mit dem "' + strategyName + '" Screener gefunden. ';
+    text += 'Die spezifischen Filterkriterien für diese Auswahl waren: ';
+    
+    if (strategyName === 'Value & Qualität') {
+      text += 'Maximales KGV ' + sliders.maxPe + ', Min. Eigenkapitalrendite (ROE) ' + sliders.minRoe + '%, Max. Verschuldung (Debt/EBITDA) ' + sliders.maxDebt + '.';
+    } else if (strategyName === 'Growth & Momentum') {
+      text += 'Min. RS-Rating ' + sliders.minRs + ', Min. Umsatzwachstum ' + sliders.minRevGrowth + '%, Min. Tagesvolumen ' + sliders.minVol + '.';
+    } else if (strategyName === 'Dividende') {
+      text += 'Min. Dividendenrendite ' + sliders.minYield + '%, Max. Payout Ratio ' + sliders.maxPayout + '%.';
+    } else if (strategyName === 'Momentum') {
+      text += 'Min. RS-Rating ' + sliders.minRs + ', Min. Tagesanstieg ' + sliders.minChange + '%.';
+    } else if (strategyName === 'Buy the Dip') {
+      text += 'Kursrückgang (Tag) maximal ' + sliders.maxDip + '%, Min. ROE ' + sliders.minRoe + '%, Max. KGV ' + sliders.maxPe + '.';
+    }
+    
+    text += '\nBitte bewerte die Aktien im Kontext dieser Strategie (z.B. ist der Dip bei "Buy the Dip" gesund oder ein fallendes Messer?).\n\n';
+    return text;
+  }
+
+  function buildGeminiPrompt(stocks, strategyName, sliders) {
     var today = new Date().toLocaleDateString('de-DE');
-    var stratContext = strategyName ? ' für die Strategie "' + strategyName + '"' : '';
+    var stratContext = buildStrategyContext(strategyName, sliders);
+    
     var head =
       'Du bist ein nüchterner Aktienanalyst. Datum: ' + today + '. Alle Preise in EUR.\n\n' +
-      'AUFGABE: Vergleiche die folgenden ' + stocks.length + ' Aktien' + stratContext + '. Sage mir, welche aktuell am besten für einen Einstieg geeignet ist ' +
+      'AUFGABE: Vergleiche die folgenden ' + stocks.length + ' Aktien. Sage mir, welche aktuell am besten für einen Einstieg geeignet ist ' +
       'und wie sich das langfristige Potenzial der Unternehmen entwickeln könnte.\n\n' +
+      stratContext +
       'REGELN:\n' +
       '- Prüfe zuerst kurz die Plausibilität der Daten (Ausreißer, widersprüchliche Werte).\n' +
       '- Nutze für Kennzahlen ausschließlich die Zahlen unten. Steht dort "unbekannt", sage das ausdrücklich und rate nicht. ' +
@@ -546,8 +573,8 @@ window.App.Strategies = (function () {
 
   var MAX_ENCODED_URL_PROMPT = 6000;
 
-  function openGemini(btn, stocks, strategyName) {
-    var promptText = buildGeminiPrompt(stocks, strategyName);
+  function openGemini(btn, stocks, strategyName, sliders) {
+    var promptText = buildGeminiPrompt(stocks, strategyName, sliders);
     var enc = encodeURIComponent(promptText);
     var viaUrl = enc.length <= MAX_ENCODED_URL_PROMPT;
     var base = 'https://gemini.google.com/app';
