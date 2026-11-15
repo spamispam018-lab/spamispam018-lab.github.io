@@ -2,6 +2,7 @@
  * js/strategies.js
  * Vordefinierte Anlagestrategien (Value, Growth, Dividende, Momentum, Buy the Dip).
  * NEU: Dynamische Slider für jede Strategie, um Kriterien live anzupassen.
+ * NEU: KI-Abfrage (Gemini) für die Top-Ergebnisse der aktuellen Strategie.
  * FIX: Robusteres Handling von fehlenden Daten.
  */
 window.App = window.App || {};
@@ -37,6 +38,7 @@ window.App.Strategies = (function () {
 
     window.App.Data.getUniverse().then(function (stocks) {
       allStocks = stocks || [];
+      universeCache = allStocks; // Für KI-Prompt cachen
       render(container);
     });
   }
@@ -278,7 +280,13 @@ window.App.Strategies = (function () {
       return;
     }
 
-    var html = '<div style="font-size: 0.78rem; color: var(--text-dim); margin-bottom: 8px;">' + filtered.length + ' Aktien entsprechen dieser Strategie:</div>';
+    var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">' +
+      '<div style="font-size: 0.78rem; color: var(--text-dim);">' + filtered.length + ' Aktien entsprechen dieser Strategie:</div>' +
+      '<button id="btn-strategy-gemini" class="chip-btn active" style="background: var(--accent-purple); border-color: var(--accent-purple); font-size: 0.7rem; padding: 2px 8px; box-shadow: 0 4px 14px var(--accent-purple-glow); display: flex; align-items: center; gap: 4px;">' +
+         '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>' +
+         'KI-Analyse (Top 10)' +
+      '</button>' +
+    '</div>';
 
     filtered.slice(0, 50).forEach(function (stock) {
       var chgCls = window.App.Format.changeClass(stock.changePercent);
@@ -314,6 +322,245 @@ window.App.Strategies = (function () {
         window.App.Data.setLastTicker(ticker);
         window.App.Router.navigate('/stock/' + ticker + '/overview');
       };
+    });
+
+    // KI-Button Event Listener
+    var geminiBtn = listEl.querySelector('#btn-strategy-gemini');
+    if (geminiBtn) {
+      geminiBtn.onclick = function () {
+        var topStocks = filtered.slice(0, 10); // Nur die Top 10 für die KI
+        var originalBtnHtml = geminiBtn.innerHTML;
+        geminiBtn.innerHTML = '<div class="spinner" style="width:12px; height:12px; border-width:2px; margin-right:4px;"></div> Lade...';
+        geminiBtn.disabled = true;
+        geminiBtn.style.opacity = '0.7';
+
+        // Detaildaten für die Top 10 nachladen
+        var promises = topStocks.map(function (st) {
+          return window.App.Data.getStock(st.ticker).catch(function () { return st; });
+        });
+
+        Promise.all(promises).then(function (results) {
+          geminiBtn.innerHTML = originalBtnHtml;
+          geminiBtn.disabled = false;
+          geminiBtn.style.opacity = '1';
+          
+          var stratNames = {
+            value: 'Value & Qualität',
+            growth: 'Growth & Momentum',
+            dividend: 'Dividende',
+            momentum: 'Momentum',
+            buythedip: 'Buy the Dip'
+          };
+          
+          openGemini(geminiBtn, results, stratNames[currentStrategy]);
+        });
+      };
+    }
+  }
+
+  // =====================================================================
+  // KI-Prompt (Gemini) Logik (kopiert aus compare.js)
+  // =====================================================================
+  var universeCache = [];
+  var NA = 'unbekannt';
+  var PATTERN_NAMES = {
+    double_top: 'Doppel-Top', double_bottom: 'Doppel-Boden', squeeze: 'Bollinger-Squeeze'
+  };
+
+  function nn(v) {
+    return v !== null && v !== undefined && v !== '' && !(typeof v === 'number' && !isFinite(v));
+  }
+  function fnum(v, d) {
+    return Number(v).toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+  function N(v, d, suffix) { return nn(v) ? fnum(v, d) + (suffix || '') : NA; }
+  function P(v, d) { return nn(v) ? fnum(v, d === undefined ? 1 : d) + ' %' : NA; }
+  function F(v, d) { return nn(v) ? fnum(v * 100, d === undefined ? 1 : d) + ' %' : NA; }
+  function E(v, d) { return nn(v) ? fnum(v, d === undefined ? 2 : d) + ' €' : NA; }
+  function MC(v) {
+    if (!nn(v) || v <= 0) return NA;
+    return v >= 1e9 ? fnum(v / 1e9, 1) + ' Mrd. €' : fnum(v / 1e6, 0) + ' Mio. €';
+  }
+  function dateDe(str) {
+    var d = new Date(str);
+    return isNaN(d.getTime()) ? String(str) : d.toLocaleDateString('de-DE');
+  }
+  function medianOf(arr) {
+    var a = arr.slice().sort(function (x, y) { return x - y; });
+    var n = a.length;
+    if (!n) return null;
+    return n % 2 ? a[(n - 1) / 2] : (a[n / 2 - 1] + a[n / 2]) / 2;
+  }
+  function findUniverse(ticker) {
+    for (var i = 0; i < universeCache.length; i++) {
+      if (universeCache[i].ticker === ticker) return universeCache[i];
+    }
+    return null;
+  }
+  function sectorMedianPe(sector) {
+    if (!sector) return null;
+    var arr = universeCache.filter(function (x) { return x.sector === sector && x.pe > 0 && x.pe < 500; })
+                           .map(function (x) { return x.pe; });
+    return arr.length >= 5 ? { v: medianOf(arr), n: arr.length } : null;
+  }
+
+  function techLine(s) {
+    if (!(s.chartHistory && s.chartHistory.length > 60 && window.App.StockChart)) return '';
+    var hist = s.chartHistory.filter(function (p) { return p && p.close > 0; });
+    var closes = hist.map(function (p) { return p.close; });
+    var n = closes.length, cPrice = closes[n - 1];
+    var s50 = window.App.StockChart._sma(closes, 50);
+    var s200 = window.App.StockChart._sma(closes, 200);
+    var rsiArr = window.App.StockChart._rsi(closes, 14);
+    var m = window.App.StockChart._macd(closes);
+    function lastValid(arr) {
+      for (var i = arr.length - 1; i >= 0; i--) if (arr[i] !== null && arr[i] !== undefined && isFinite(arr[i])) return arr[i];
+      return null;
+    }
+    var s50Last = lastValid(s50), s200Last = lastValid(s200), rsiLast = lastValid(rsiArr);
+    var macdLast = lastValid(m.line), sigLast = lastValid(m.signal);
+    var mom3m = n > 63 ? (cPrice / closes[n - 1 - 63] - 1) * 100 : null;
+    var t = '';
+    if (s200Last !== null) t += 'Abstand 200-Tage-Linie ' + P((cPrice / s200Last - 1) * 100) + '. ';
+    if (s50Last !== null) t += 'Abstand 50-Tage-Linie ' + P((cPrice / s50Last - 1) * 100) + '. ';
+    if (rsiLast !== null) t += 'RSI (14) bei ' + fnum(rsiLast, 0) + '. ';
+    if (macdLast !== null && sigLast !== null) t += 'MACD ' + (macdLast > sigLast ? 'über' : 'unter') + ' Signallinie. ';
+    if (mom3m !== null) t += 'Momentum 3M ' + P(mom3m) + '.';
+    return t.trim();
+  }
+
+  function stockBlock(s) {
+    var u = findUniverse(s.ticker);
+    var hasU = !!u;
+    u = u || {};
+    var prof = s.profile || {}, q = s.quote || {}, r = s.ratios || {}, an = s.analysts || {};
+    var tg = an.targets || {};
+    var rec = (an.recommendations && an.recommendations.breakdown) || {};
+    var price = q.price;
+    var sector = prof.sector || u.sector;
+    var sm = sectorMedianPe(sector);
+
+    var pe = nn(r.peTrailing) ? r.peTrailing : u.pe;
+    var upside = nn(u.upside) ? u.upside : ((nn(tg.mean) && price > 0) ? (tg.mean / price - 1) * 100 : null);
+    var recTotal = 0;
+    Object.keys(rec).forEach(function (k) { recTotal += Number(rec[k]) || 0; });
+    var buyPct = nn(u.buyPct) ? u.buyPct : (recTotal > 0 ? (((rec.strongBuy || 0) + (rec.buy || 0)) / recTotal) * 100 : null);
+    var cnt = nn(tg.analystCount) ? tg.analystCount : u.analystCount;
+    var earn = an.nextEarningsDate || u.nextEarningsDate;
+    var lo = q.fiftyTwoWeekLow, hi = q.fiftyTwoWeekHigh;
+    var rangePos = nn(u.rangePos) ? u.rangePos : ((nn(lo) && nn(hi) && hi > lo && price > 0) ? ((price - lo) / (hi - lo)) * 100 : null);
+    var upd = u.updatedAt || s.updatedAt;
+
+    var L = [];
+    L.push('### ' + (prof.name || s.ticker) + ' (' + s.ticker + ') ###');
+    L.push('- Einordnung: Sektor ' + (sector || NA) + ', Branche ' + (prof.industry && prof.industry !== 'N/A' ? prof.industry : (u.industry || NA)) +
+           ', Land ' + (prof.country || u.country || NA) + ', Marktkapitalisierung ' + MC(q.marketCap) +
+           (upd ? ', Datenstand ' + dateDe(upd) : ''));
+    L.push('- Kurs: ' + E(price) + ' (Änderung heute: ' + P(q.changePercent, 2) + ')');
+    L.push('- Bewertung: KGV (Trailing) ' + N(pe, 1) + ', Forward-KGV ' + N(r.peForward, 1) + ', PEG ' + N(r.pegRatio, 2) +
+           (sm ? ', Sektor-Median-KGV ' + N(sm.v, 1) + ' (' + sm.n + ' Aktien im Sektor)' : ''));
+    L.push('- Wachstum & Qualität: Umsatzwachstum (YoY) ' + F(r.revenueGrowth) + ', Nettomarge ' + F(r.profitMargins) +
+           ', operative Marge ' + F(r.operatingMargins) + ', Bruttomarge ' + F(r.grossMargins) +
+           ', Eigenkapitalrendite (ROE) ' + F(r.returnOnEquity) + ', Gesamtkapitalrendite (ROA) ' + F(nn(r.returnOnAssets) ? r.returnOnAssets : u.roa));
+    L.push('- Bilanz: Schulden/EBITDA ' + N(r.debtToEbitda, 1) + ', Verschuldung/Eigenkapital ' + N(r.debtToEquity, 0, ' %'));
+    L.push('- Dividende: Rendite ' + P(r.dividendYield, 2) + ', Ausschüttungsquote ' + F(r.payoutRatio, 0));
+    L.push('- Analysten: mittleres Kursziel ' + E(tg.mean) + ' (Spanne ' + E(tg.low) + ' bis ' + E(tg.high) + '), Potenzial ' + P(upside) +
+           ', ' + (nn(cnt) ? fnum(cnt, 0) + ' Analysten' : 'Analystenzahl ' + NA) + ', Kaufempfehlung ' + (nn(buyPct) ? 'bei ' + P(buyPct, 0) + ' der Analysten' : NA) + ', nächste Zahlen am ' + (earn ? dateDe(earn) : NA));
+    L.push('- Kursverlauf: Lage in der 52-Wochen-Spanne ' + N(rangePos, 0, ' %') + ' (Tief ' + E(lo) + ', Hoch ' + E(hi) + '), Performance 1W ' + P(u.perf1w) +
+           ', 1M ' + P(u.perf1m) + ', 3M ' + P(u.perf3m) + ', YTD ' + P(u.perfYtd) + ', 1J ' + P(u.perf52w) +
+           ', RS-Rating ' + N(u.rsRating, 0, ' von 99'));
+
+    var tech = techLine(s);
+    if (tech) L.push('- Technisches Bild: ' + tech);
+
+    var sig = [];
+    if (u.cross && nn(u.crossDaysAgo)) sig.push((u.cross === 'golden' ? 'Golden Cross' : 'Death Cross') + ' (SMA50/200) vor ' + u.crossDaysAgo + ' Handelstagen');
+    if (Array.isArray(u.chartPatterns)) {
+      var pats = u.chartPatterns.filter(function (x) { return x !== 'golden_cross' && x !== 'death_cross'; })
+                                .map(function (x) { return PATTERN_NAMES[x] || x; });
+      if (pats.length) sig.push('Chartmuster: ' + pats.join(', '));
+    }
+    if (hasU) {
+      var bt = u.bottom === 'base' ? 'Bodenbildung möglich'
+             : u.bottom === 'knife' ? 'Fallendes Messer (Abwärtstrend noch intakt)'
+             : u.bottom === 'wait' ? 'unklar, abwarten'
+             : 'kein Signal';
+      sig.push('Boden-Check: ' + bt);
+    }
+    if (nn(u.rrCrv)) {
+      sig.push('Chance/Risiko (CRV) ' + N(u.rrCrv, 1) + ', Stop-Abstand ' + P(u.rrStopPct) + ' (Stop knapp unter dem 60-Tage-Tief), Ziel-Abstand ' + P(u.rrTgtPct));
+    }
+    if (sig.length) L.push('- Signale: ' + sig.join('. ') + '.');
+
+    var nl = window.App.News && window.App.News.indexLine(s.ticker);
+    if (nl) L.push('- ' + nl);
+    return L.join('\n');
+  }
+
+  function buildGeminiPrompt(stocks, strategyName) {
+    var today = new Date().toLocaleDateString('de-DE');
+    var stratContext = strategyName ? ' für die Strategie "' + strategyName + '"' : '';
+    var head =
+      'Du bist ein nüchterner Aktienanalyst. Datum: ' + today + '. Alle Preise in EUR.\n\n' +
+      'AUFGABE: Vergleiche die folgenden ' + stocks.length + ' Aktien' + stratContext + '. Sage mir, welche aktuell am besten für einen Einstieg geeignet ist ' +
+      'und wie sich das langfristige Potenzial der Unternehmen entwickeln könnte.\n\n' +
+      'REGELN:\n' +
+      '- Prüfe zuerst kurz die Plausibilität der Daten (Ausreißer, widersprüchliche Werte).\n' +
+      '- Nutze für Kennzahlen ausschließlich die Zahlen unten. Steht dort "unbekannt", sage das ausdrücklich und rate nicht. ' +
+      'Eigenes Wissen nur zur qualitativen Einordnung des Geschäftsmodells, ohne neue Kennzahlen zu nennen.\n' +
+      '- Bewerte KGV, Margen und Verschuldung relativ zum Sektor. Aktien aus verschiedenen Sektoren nicht allein über das KGV vergleichen.\n\n' +
+      'LEGENDE: Lage in der 52-Wochen-Spanne: 0 % = Jahrestief, 100 % = Jahreshoch. RS-Rating: Perzentil der 3-Monats-Performance im gesamten ' +
+      'Aktienuniversum der App (99 = stärkste). CRV = Chance/Risiko-Verhältnis. Boden-Check: "Bodenbildung" = mindestens 20 % unter dem 52W-Hoch und ' +
+      'mindestens 4 von 6 Stabilisierungssignalen; "Fallendes Messer" = mindestens 20 % unter dem Hoch, höchstens 2 von 6 Signalen. ' +
+      'News-Stimmung: Skala der App, positiv bis negativ.\n\n' +
+      'AUSGABE: 1) Kurze Datenprüfung. 2) Tabelle mit Rangfolge (Bewertung, Qualität, Technik, Risiko). 3) Je Aktie Pro und Contra in 2 bis 3 Stichpunkten. ' +
+      '4) Einstiegsidee mit Risiko (Stop-Abstand aus den Daten). 5) Langfristiges Potenzial und die wichtigsten Risiken. ' +
+      '6) Hinweis, dass dies keine Anlageberatung ist.\n\n' +
+      'DATEN:\n\n';
+    return head + stocks.map(stockBlock).join('\n\n') + '\n';
+  }
+
+  function legacyCopy(text) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text)
+        .then(function () { return true; })
+        .catch(function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+
+  var MAX_ENCODED_URL_PROMPT = 6000;
+
+  function openGemini(btn, stocks, strategyName) {
+    var promptText = buildGeminiPrompt(stocks, strategyName);
+    var enc = encodeURIComponent(promptText);
+    var viaUrl = enc.length <= MAX_ENCODED_URL_PROMPT;
+    var base = 'https://gemini.google.com/app';
+
+    copyText(promptText).then(function (ok) {
+      var url = base;
+      if (viaUrl || !ok) url += '?q=' + enc;
+      window.open(url, '_blank');
+      if (!viaUrl && ok) {
+        var old = btn.textContent;
+        btn.textContent = 'Kopiert – in Gemini einfügen';
+        setTimeout(function () { btn.textContent = old; }, 5000);
+      }
     });
   }
 
