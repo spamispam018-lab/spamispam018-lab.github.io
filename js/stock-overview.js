@@ -3,6 +3,9 @@
  * Verwaltet den Tab "Overview".
  * NEU: Pre-Market-Karte (US-Vorbörse vs. Xetra) zwischen Kennzahlen und Chart.
  * FIX: drawFinancialsChart filtert zukünftige Daten und unterstützt camelCase.
+ * NEU: Gemini-Prompt an compare.js angeglichen (strukturierter Datenblock,
+ *      Copy-Fallback, URL-Längenprüfung, Button-Feedback).
+ * NEU: News.promptBlock (FinBERT) + ChartAnalyse.promptText wieder integriert.
  */
 
 window.App = window.App || {};
@@ -156,79 +159,13 @@ window.App.StockOverview = (function () {
     // Gemini Event Listener
     var geminiBtn = container.querySelector('#btn-ask-gemini');
     if (geminiBtn && !isDataMissing) {
-      geminiBtn.onclick = function() {
-        var sName = currentStock.profile.name || currentStock.ticker;
-        var sTicker = currentStock.ticker;
-        var sPrice = window.App.Format.currency(currentStock.quote.price, currentStock.quote.currency);
-        var sChange = window.App.Format.number(currentStock.quote.changePercent, 2) + ' %';
-        var sPe = (currentStock.ratios && currentStock.ratios.peTrailing) ? window.App.Format.number(currentStock.ratios.peTrailing, 1) : 'unbekannt';
-
-        var promptText = "Hallo Gemini! Bitte prüfe zuerst meine Daten. Kannst du mir danach bitte erklären, warum sich der Aktienkurs von " + sName + " (" + sTicker + ") aktuell so verhält? " +
-                         "Der Kurs liegt bei " + sPrice + " mit einer heutigen Änderung von " + sChange + ". Das KGV beträgt " + sPe + ". ";
-
-        if (currentStock.chartHistory && currentStock.chartHistory.length > 60 && window.App.StockChart) {
-            var hist = currentStock.chartHistory.filter(function (p) { return p && p.close > 0; });
-            var closes = hist.map(function (p) { return p.close; });
-            var n = closes.length;
-            var cPrice = closes[n - 1];
-
-            var s50 = window.App.StockChart._sma(closes, 50);
-            var s200 = window.App.StockChart._sma(closes, 200);
-            var rsiArr = window.App.StockChart._rsi(closes, 14);
-            var m = window.App.StockChart._macd(closes);
-
-            function lastValid(arr) {
-                for (var i = arr.length - 1; i >= 0; i--) {
-                    if (arr[i] !== null && arr[i] !== undefined && isFinite(arr[i])) return arr[i];
-                }
-                return null;
-            }
-
-            var s50Last = lastValid(s50);
-            var s200Last = lastValid(s200);
-            var rsiLast = lastValid(rsiArr);
-            var macdLast = lastValid(m.line);
-            var sigLast = lastValid(m.signal);
-            var mom3m = n > 63 ? (cPrice / closes[n - 1 - 63] - 1) * 100 : null;
-
-            var techText = "Hier ist das aktuelle technische Bild: ";
-            if (s200Last !== null) techText += "Der Abstand zur 200-Tage-Linie beträgt " + window.App.Format.number((cPrice / s200Last - 1) * 100, 1) + " %. ";
-            if (s50Last !== null) techText += "Der Abstand zur 50-Tage-Linie beträgt " + window.App.Format.number((cPrice / s50Last - 1) * 100, 1) + " %. ";
-            if (rsiLast !== null) techText += "Der RSI (14) liegt bei " + window.App.Format.number(rsiLast, 0) + ". ";
-            if (macdLast !== null && sigLast !== null) {
-                techText += "Der MACD liegt " + (macdLast > sigLast ? "über" : "unter") + " der Signallinie. ";
-            }
-            if (mom3m !== null) techText += "Das Momentum auf 3 Monate liegt bei " + window.App.Format.number(mom3m, 1) + " %. ";
-
-            var bc = window.App.StockChart._bottom(closes);
-            if (bc && bc.state) techText += "Boden-Check: " + ({ base: 'Bodenbildung möglich', knife: 'fallendes Messer', wait: 'unklar' })[bc.state] + " (" + bc.score + " von 6 Stabilisierungs-Signalen, " + window.App.Format.number(Math.abs(bc.dd) * 100, 0) + " % unter dem 52W-Hoch). ";
-            if (window.App.ChartAnalyse) techText += window.App.ChartAnalyse.promptText(currentStock);
-            promptText += techText;
-        }
-
-        var nws = window.App.News && window.App.News.promptBlock(sTicker, 5);
-        if (nws) promptText += "\n\nAktuelle Nachrichten (englisch, mit automatischer FinBERT-Stimmungseinschätzung):\n" + nws + "\nBitte beziehe diese Nachrichten in deine Erklärung und Bewertung ein. ";
-        promptText += "Bitte gib mir eine Bewertung der Aktie anhand dieser fundamentalen und technischen Daten und der aktuellen Marktlage.";
-
-        var urlText = promptText.length > 1800 ? "Hallo Gemini! Mein Prompt mit Kursdaten und aktuellen Nachrichten liegt in der Zwischenablage – bitte einfügen und absenden." : promptText;
-        var geminiUrl = "https://gemini.google.com/app?q=" + encodeURIComponent(urlText);
-
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(promptText).then(function() {
-                window.open(geminiUrl, '_blank');
-            }).catch(function() {
-                window.open(geminiUrl, '_blank');
-            });
-        } else {
-            window.open(geminiUrl, '_blank');
-        }
-      };
+      geminiBtn.onclick = function () { openGemini(geminiBtn, currentStock); };
     }
 
     // Live-Kurs über Cloudflare Proxy abrufen
     var refreshBtn = container.querySelector('#btn-refresh-stock');
     if (refreshBtn) {
-      refreshBtn.onclick = function() {
+      refreshBtn.onclick = function () {
         var originalHtml = refreshBtn.innerHTML;
         refreshBtn.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 6px;"></div> Lade...';
         refreshBtn.disabled = true;
@@ -354,6 +291,245 @@ window.App.StockOverview = (function () {
         });
     }
   }
+
+  // =====================================================================
+  // KI-Prompt (Gemini) — an compare.js angeglichen
+  // + wieder integriert: News.promptBlock (FinBERT) & ChartAnalyse.promptText
+  // =====================================================================
+  var NA = 'unbekannt';
+  var PATTERN_NAMES = {
+    double_top: 'Doppel-Top', double_bottom: 'Doppel-Boden', squeeze: 'Bollinger-Squeeze'
+  };
+
+  function nn(v) {
+    return v !== null && v !== undefined && v !== '' && !(typeof v === 'number' && !isFinite(v));
+  }
+  function fnum(v, d) {
+    return Number(v).toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+  function N(v, d, suffix) { return nn(v) ? fnum(v, d) + (suffix || '') : NA; }
+  function P(v, d) { return nn(v) ? fnum(v, d === undefined ? 1 : d) + ' %' : NA; }
+  function F(v, d) { return nn(v) ? fnum(v * 100, d === undefined ? 1 : d) + ' %' : NA; }
+  function E(v, d) { return nn(v) ? fnum(v, d === undefined ? 2 : d) + ' €' : NA; }
+  function MC(v) {
+    if (!nn(v) || v <= 0) return NA;
+    return v >= 1e9 ? fnum(v / 1e9, 1) + ' Mrd. €' : fnum(v / 1e6, 0) + ' Mio. €';
+  }
+  function dateDe(str) {
+    var d = new Date(str);
+    return isNaN(d.getTime()) ? String(str) : d.toLocaleDateString('de-DE');
+  }
+  function medianOf(arr) {
+    var a = arr.slice().sort(function (x, y) { return x - y; });
+    var n = a.length;
+    if (!n) return null;
+    return n % 2 ? a[(n - 1) / 2] : (a[n / 2 - 1] + a[n / 2]) / 2;
+  }
+  function findUniverseItem(ticker, universe) {
+    if (!Array.isArray(universe)) return null;
+    for (var i = 0; i < universe.length; i++) {
+      if (universe[i].ticker === ticker) return universe[i];
+    }
+    return null;
+  }
+  function sectorMedianPeFor(sector, universe) {
+    if (!sector || !Array.isArray(universe)) return null;
+    var arr = universe.filter(function (x) { return x.sector === sector && x.pe > 0 && x.pe < 500; })
+                     .map(function (x) { return x.pe; });
+    return arr.length >= 5 ? { v: medianOf(arr), n: arr.length } : null;
+  }
+
+  function techLineFor(s) {
+    if (!(s.chartHistory && s.chartHistory.length > 60 && window.App.StockChart)) return '';
+    var hist = s.chartHistory.filter(function (p) { return p && p.close > 0; });
+    var closes = hist.map(function (p) { return p.close; });
+    var n = closes.length, cPrice = closes[n - 1];
+    var s50 = window.App.StockChart._sma(closes, 50);
+    var s200 = window.App.StockChart._sma(closes, 200);
+    var rsiArr = window.App.StockChart._rsi(closes, 14);
+    var m = window.App.StockChart._macd(closes);
+    function lastValid(arr) {
+      for (var i = arr.length - 1; i >= 0; i--) if (arr[i] !== null && arr[i] !== undefined && isFinite(arr[i])) return arr[i];
+      return null;
+    }
+    var s50Last = lastValid(s50), s200Last = lastValid(s200), rsiLast = lastValid(rsiArr);
+    var macdLast = lastValid(m.line), sigLast = lastValid(m.signal);
+    var mom3m = n > 63 ? (cPrice / closes[n - 1 - 63] - 1) * 100 : null;
+    var t = '';
+    if (s200Last !== null) t += 'Abstand 200-Tage-Linie ' + P((cPrice / s200Last - 1) * 100) + '. ';
+    if (s50Last !== null) t += 'Abstand 50-Tage-Linie ' + P((cPrice / s50Last - 1) * 100) + '. ';
+    if (rsiLast !== null) t += 'RSI (14) bei ' + fnum(rsiLast, 0) + '. ';
+    if (macdLast !== null && sigLast !== null) t += 'MACD ' + (macdLast > sigLast ? 'über' : 'unter') + ' Signallinie. ';
+    if (mom3m !== null) t += 'Momentum 3M ' + P(mom3m) + '.';
+    return t.trim();
+  }
+
+  function stockBlock(s, universe) {
+    var u = findUniverseItem(s.ticker, universe);
+    var hasU = !!u;
+    u = u || {};
+    var prof = s.profile || {}, q = s.quote || {}, r = s.ratios || {}, an = s.analysts || {};
+    var tg = an.targets || {};
+    var rec = (an.recommendations && an.recommendations.breakdown) || {};
+    var price = q.price;
+    var sector = prof.sector || u.sector;
+    var sm = sectorMedianPeFor(sector, universe);
+
+    var pe = nn(r.peTrailing) ? r.peTrailing : u.pe;
+    var upside = nn(u.upside) ? u.upside : ((nn(tg.mean) && price > 0) ? (tg.mean / price - 1) * 100 : null);
+    var recTotal = 0;
+    Object.keys(rec).forEach(function (k) { recTotal += Number(rec[k]) || 0; });
+    var buyPct = nn(u.buyPct) ? u.buyPct : (recTotal > 0 ? (((rec.strongBuy || 0) + (rec.buy || 0)) / recTotal) * 100 : null);
+    var cnt = nn(tg.analystCount) ? tg.analystCount : u.analystCount;
+    var earn = an.nextEarningsDate || u.nextEarningsDate;
+    var lo = q.fiftyTwoWeekLow, hi = q.fiftyTwoWeekHigh;
+    var rangePos = nn(u.rangePos) ? u.rangePos : ((nn(lo) && nn(hi) && hi > lo && price > 0) ? ((price - lo) / (hi - lo)) * 100 : null);
+    var upd = u.updatedAt || s.updatedAt;
+
+    var L = [];
+    L.push('### ' + (prof.name || s.ticker) + ' (' + s.ticker + ') ###');
+    L.push('- Einordnung: Sektor ' + (sector || NA) + ', Branche ' + (prof.industry && prof.industry !== 'N/A' ? prof.industry : (u.industry || NA)) +
+           ', Land ' + (prof.country || u.country || NA) + ', Marktkapitalisierung ' + MC(q.marketCap) +
+           (upd ? ', Datenstand ' + dateDe(upd) : ''));
+    L.push('- Kurs: ' + E(price) + ' (Änderung heute: ' + P(q.changePercent, 2) + ')');
+    L.push('- Bewertung: KGV (Trailing) ' + N(pe, 1) + ', Forward-KGV ' + N(r.peForward, 1) + ', PEG ' + N(r.pegRatio, 2) +
+           (sm ? ', Sektor-Median-KGV ' + N(sm.v, 1) + ' (' + sm.n + ' Aktien im Sektor)' : ''));
+    L.push('- Wachstum & Qualität: Umsatzwachstum (YoY) ' + F(r.revenueGrowth) + ', Nettomarge ' + F(r.profitMargins) +
+           ', operative Marge ' + F(r.operatingMargins) + ', Bruttomarge ' + F(r.grossMargins) +
+           ', Eigenkapitalrendite (ROE) ' + F(r.returnOnEquity) + ', Gesamtkapitalrendite (ROA) ' + F(nn(r.returnOnAssets) ? r.returnOnAssets : u.roa));
+    L.push('- Bilanz: Schulden/EBITDA ' + N(r.debtToEbitda, 1) + ', Verschuldung/Eigenkapital ' + N(r.debtToEquity, 0, ' %'));
+    L.push('- Dividende: Rendite ' + P(r.dividendYield, 2) + ', Ausschüttungsquote ' + F(r.payoutRatio, 0));
+    L.push('- Analysten: mittleres Kursziel ' + E(tg.mean) + ' (Spanne ' + E(tg.low) + ' bis ' + E(tg.high) + '), Potenzial ' + P(upside) +
+           ', ' + (nn(cnt) ? fnum(cnt, 0) + ' Analysten' : 'Analystenzahl ' + NA) + ', Kaufempfehlung ' + (nn(buyPct) ? 'bei ' + P(buyPct, 0) + ' der Analysten' : NA) + ', nächste Zahlen am ' + (earn ? dateDe(earn) : NA));
+    L.push('- Kursverlauf: Lage in der 52-Wochen-Spanne ' + N(rangePos, 0, ' %') + ' (Tief ' + E(lo) + ', Hoch ' + E(hi) + '), Performance 1W ' + P(u.perf1w) +
+           ', 1M ' + P(u.perf1m) + ', 3M ' + P(u.perf3m) + ', YTD ' + P(u.perfYtd) + ', 1J ' + P(u.perf52w) +
+           ', RS-Rating ' + N(u.rsRating, 0, ' von 99'));
+
+    var tech = techLineFor(s);
+    if (tech) L.push('- Technisches Bild: ' + tech);
+
+    var sig = [];
+    if (u.cross && nn(u.crossDaysAgo)) sig.push((u.cross === 'golden' ? 'Golden Cross' : 'Death Cross') + ' (SMA50/200) vor ' + u.crossDaysAgo + ' Handelstagen');
+    if (Array.isArray(u.chartPatterns)) {
+      var pats = u.chartPatterns.filter(function (x) { return x !== 'golden_cross' && x !== 'death_cross'; })
+                                .map(function (x) { return PATTERN_NAMES[x] || x; });
+      if (pats.length) sig.push('Chartmuster: ' + pats.join(', '));
+    }
+    if (hasU) {
+      var bt = u.bottom === 'base' ? 'Bodenbildung möglich'
+             : u.bottom === 'knife' ? 'Fallendes Messer (Abwärtstrend noch intakt)'
+             : u.bottom === 'wait' ? 'unklar, abwarten'
+             : 'kein Signal';
+      sig.push('Boden-Check: ' + bt);
+    }
+    if (nn(u.rrCrv)) {
+      sig.push('Chance/Risiko (CRV) ' + N(u.rrCrv, 1) + ', Stop-Abstand ' + P(u.rrStopPct) + ' (Stop knapp unter dem 60-Tage-Tief), Ziel-Abstand ' + P(u.rrTgtPct));
+    }
+    if (sig.length) L.push('- Signale: ' + sig.join('. ') + '.');
+
+    // WICHTIG: Ausführlicher News-Block mit FinBERT-Stimmung (wie im Original)
+    var nws = (window.App.News && window.App.News.promptBlock)
+      ? window.App.News.promptBlock(s.ticker, 5)
+      : '';
+    if (nws) {
+      L.push('- Aktuelle Nachrichten (englisch, mit automatischer FinBERT-Stimmungseinschätzung):');
+      String(nws).split('\n').forEach(function (line) {
+        if (line.trim()) L.push('  ' + line);
+      });
+    }
+
+    return L.join('\n');
+  }
+
+  function buildGeminiPrompt(stock, universe) {
+    var today = new Date().toLocaleDateString('de-DE');
+    var head =
+      'Du bist ein nüchterner Aktienanalyst. Datum: ' + today + '. Alle Preise in EUR.\n\n' +
+      'AUFGABE: Erkläre die aktuelle Kursentwicklung der folgenden Aktie und bewerte sie. ' +
+      'Sage mir, ob die Aktie aktuell für einen Einstieg geeignet ist und wie sich das langfristige Potenzial des Unternehmens entwickeln könnte. ' +
+      'Beziehe die aktuellen Nachrichten in deine Erklärung und Bewertung ein.\n\n' +
+      'REGELN:\n' +
+      '- Prüfe zuerst kurz die Plausibilität der Daten (Ausreißer, widersprüchliche Werte).\n' +
+      '- Nutze für Kennzahlen ausschließlich die Zahlen unten. Steht dort "unbekannt", sage das ausdrücklich und rate nicht. ' +
+      'Eigenes Wissen nur zur qualitativen Einordnung des Geschäftsmodells, ohne neue Kennzahlen zu nennen.\n' +
+      '- Bewerte KGV, Margen und Verschuldung relativ zum Sektor.\n\n' +
+      'LEGENDE: Lage in der 52-Wochen-Spanne: 0 % = Jahrestief, 100 % = Jahreshoch. RS-Rating: Perzentil der 3-Monats-Performance im gesamten ' +
+      'Aktienuniversum der App (99 = stärkste). CRV = Chance/Risiko-Verhältnis. Boden-Check: "Bodenbildung" = mindestens 20 % unter dem 52W-Hoch und ' +
+      'mindestens 4 von 6 Stabilisierungssignalen; "Fallendes Messer" = mindestens 20 % unter dem Hoch, höchstens 2 von 6 Signalen. ' +
+      'News-Stimmung: Skala der App, positiv bis negativ.\n\n' +
+      'AUSGABE: 1) Kurze Datenprüfung. 2) Erklärung der aktuellen Kursbewegung. 3) Bewertung (Bewertung, Qualität, Technik, Risiko). ' +
+      '4) Pro und Contra in 2 bis 3 Stichpunkten. 5) Einstiegsidee mit Risiko (Stop-Abstand aus den Daten). 6) Langfristiges Potenzial und die wichtigsten Risiken. ' +
+      '7) Hinweis, dass dies keine Anlageberatung ist.\n\n' +
+      'DATEN:\n\n';
+
+    var body = stockBlock(stock, universe || []);
+
+    // WICHTIG: Chartmuster-Analyse aus ChartAnalyse (wie im Original)
+    var chartText = '';
+    if (window.App.ChartAnalyse && typeof window.App.ChartAnalyse.promptText === 'function') {
+      try {
+        var ca = window.App.ChartAnalyse.promptText(stock);
+        if (ca) chartText = '\nChartmuster-Analyse:\n' + ca + '\n';
+      } catch (e) { /* defensiv ignorieren */ }
+    }
+
+    return head + body + chartText + '\n';
+  }
+
+  function legacyCopy(text) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text)
+        .then(function () { return true; })
+        .catch(function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+
+  // Kurze Prompts gehen direkt per URL an Gemini. Lange Prompts (URL-Limit) werden kopiert.
+  var MAX_ENCODED_URL_PROMPT = 6000;
+
+  function openGemini(btn, stock) {
+    var universePromise = (window.App.Data && window.App.Data.getUniverse)
+      ? window.App.Data.getUniverse().catch(function () { return []; })
+      : Promise.resolve([]);
+
+    universePromise.then(function (universe) {
+      var promptText = buildGeminiPrompt(stock, universe || []);
+      var enc = encodeURIComponent(promptText);
+      var viaUrl = enc.length <= MAX_ENCODED_URL_PROMPT;
+      var base = 'https://gemini.google.com/app';
+
+      copyText(promptText).then(function (ok) {
+        var url = base;
+        if (viaUrl || !ok) url += '?q=' + enc;   // Fallback: Kopieren ging nicht -> lieber per URL
+        window.open(url, '_blank');
+        if (!viaUrl && ok) {
+          var old = btn.textContent;
+          btn.textContent = 'Kopiert – in Gemini einfügen';
+          setTimeout(function () { btn.textContent = old; }, 5000);
+        }
+      });
+    });
+  }
+
+  // =====================================================================
+  // HTML-Renderer (unverändert)
+  // =====================================================================
 
   function renderMetricsHtml(quote, ratios, peTrailingDisplay, forwardPeDisplay, divYieldDisplay, isDataMissing) {
     return '<div class="card">' +
@@ -538,26 +714,26 @@ window.App.StockOverview = (function () {
     return history.slice(start);
   }
 
-  // FIX: Finanz-Chart filtert jetzt zukünftige Daten & unterstützt camelCase
+  // Finanz-Chart filtert zukünftige Daten & unterstützt camelCase
   function drawFinancialsChart(financials) {
     var canvas = document.getElementById('overview-financials-canvas');
     if (!canvas) return;
 
     var incQuarterly = (financials.incomeStatement && financials.incomeStatement.quarterly) ? financials.incomeStatement.quarterly : [];
-    
+
     // 1. Zukünftige Daten herausfiltern und chronologisch sortieren
     var nowStr = new Date().toISOString().slice(0, 10);
     var validData = incQuarterly
-      .filter(function(item) { 
+      .filter(function(item) {
           return item && item.date && item.date <= nowStr; // Keine Prognosen aus der Zukunft
       })
-      .sort(function(a, b) { 
-          return a.date < b.date ? -1 : 1; 
+      .sort(function(a, b) {
+          return a.date < b.date ? -1 : 1;
       });
-      
+
     // 2. Die letzten 6 Quartale nehmen
     var recent = validData.slice(-6);
-    
+
     if (recent.length === 0) {
       var ctx = canvas.getContext('2d');
       ctx.fillStyle = '#64748b';
@@ -567,15 +743,15 @@ window.App.StockOverview = (function () {
       return;
     }
 
-    var labels = recent.map(function (item) { 
+    var labels = recent.map(function (item) {
         var d = String(item.date || '');
-        return d.length >= 7 ? d.slice(2, 4) + '-' + d.slice(5, 7) : d; 
+        return d.length >= 7 ? d.slice(2, 4) + '-' + d.slice(5, 7) : d;
     });
-    
+
     // 3. Robuster Zugriff (camelCase & snake_case)
-    var revenues = recent.map(function (item) { 
-        var rev = item.TotalRevenue !== undefined ? item.TotalRevenue 
-                : item.Total_Revenue !== undefined ? item.Total_Revenue 
+    var revenues = recent.map(function (item) {
+        var rev = item.TotalRevenue !== undefined ? item.TotalRevenue
+                : item.Total_Revenue !== undefined ? item.Total_Revenue
                 : item.OperatingRevenue !== undefined ? item.OperatingRevenue
                 : item.Operating_Revenue !== undefined ? item.Operating_Revenue
                 : 0;
@@ -609,6 +785,7 @@ window.App.StockOverview = (function () {
   }
 
   return {
-    render: render
+    render: render,
+    _buildGeminiPrompt: buildGeminiPrompt   // für Tests/Debug
   };
 })();
