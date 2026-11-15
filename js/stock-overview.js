@@ -444,7 +444,7 @@ window.App.StockOverview = (function () {
   function buildGeminiPrompt(stock, universe) {
     var today = new Date().toLocaleDateString('de-DE');
     var head =
-      'Du bist ein nüchterner Aktienanalyst. Datum: ' + today + '. Alle Preise in EUR.\n\n' +
+      'Du bist ein erfahrener Aktienanalyst. Datum: ' + today + '. Alle Preise in EUR.\n\n' +
       'AUFGABE: Erkläre die aktuelle Kursentwicklung der folgenden Aktie und bewerte sie. ' +
       'Sage mir, ob die Aktie aktuell für einen Einstieg geeignet ist und wie sich das langfristige Potenzial des Unternehmens entwickeln könnte. ' +
       'Beziehe die aktuellen Nachrichten in deine Erklärung und Bewertung ein.\n\n' +
