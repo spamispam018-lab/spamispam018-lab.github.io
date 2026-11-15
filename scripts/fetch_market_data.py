@@ -3,6 +3,7 @@
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 NEU:
+- Berechnet alle Performance-Werte (1W, 1M, 3M, YTD, 52W) für das Universum.
 - FIX: Entfernt automatisch Anführungszeichen um den --only Parameter.
 - Eigene Sektion 'ratios' für gezieltes Update der Kennzahlen (ROE, Payout, Debt/EBITDA).
 - FIX: numpy.int64/float64 Konvertierung in clean_val.
@@ -1126,13 +1127,31 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
         u_item["exDividendDate"] = stock_data.get("exDividendDate")
         u_item["updatedAt"] = stock_data.get("updatedAt", now_iso)
 
+        # NEU: Berechnung ALLER Performance-Werte für die Markt-Ansicht
         hist = stock_data.get("chartHistory") or []
-        if len(hist) > 63:
+        u_item["perf1w"] = None
+        u_item["perf1m"] = None
+        u_item["perf3m"] = None
+        u_item["perfYtd"] = None
+        u_item["perf52w"] = None
+
+        if len(hist) > 0:
             c_now = hist[-1]["close"]
-            c_3m = hist[-64]["close"]
-            u_item["perf3m"] = ((c_now / c_3m) - 1) * 100 if c_3m else None
-        else:
-            u_item["perf3m"] = None
+            if len(hist) > 5:
+                u_item["perf1w"] = ((c_now / hist[-6]["close"]) - 1) * 100
+            if len(hist) > 21:
+                u_item["perf1m"] = ((c_now / hist[-22]["close"]) - 1) * 100
+            if len(hist) > 63:
+                u_item["perf3m"] = ((c_now / hist[-64]["close"]) - 1) * 100
+            if len(hist) > 252:
+                u_item["perf52w"] = ((c_now / hist[-253]["close"]) - 1) * 100
+            
+            # YTD (Year-to-Date)
+            current_year = hist[-1]["date"][:4]
+            for p in hist:
+                if p["date"][:4] == current_year:
+                    u_item["perfYtd"] = ((c_now / p["close"]) - 1) * 100
+                    break
 
         try:
             patterns = compute_chart_patterns(stock_data.get("chartHistory") or [], sym)
@@ -1176,9 +1195,7 @@ def main():
 
     sections = None
     if args.only:
-        # NEU: Entfernt Anführungszeichen am Anfang und Ende, falls vorhanden
         raw_only = args.only.strip().strip('"').strip("'")
-        
         sections = [s.strip().strip('"').strip("'").lower() for s in raw_only.split(",") if s.strip()]
         invalid = [s for s in sections if s not in ALLOWED_SECTIONS]
         if invalid:
