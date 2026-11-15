@@ -3,11 +3,10 @@
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 NEU:
+- Neuer --only Filter 'perf' zur blitzschnellen Berechnung der Performance (1W, 1M, 3M, YTD, 52W) aus lokalen Daten.
 - Berechnet alle Performance-Werte (1W, 1M, 3M, YTD, 52W) für das Universum.
 - FIX: Entfernt automatisch Anführungszeichen um den --only Parameter.
-- Eigene Sektion 'ratios' für gezieltes Update der Kennzahlen (ROE, Payout, Debt/EBITDA).
-- FIX: numpy.int64/float64 Konvertierung in clean_val.
-- Option --only: Gezieltes Abrufen einzelner Sektionen.
+- Eigene Sektion 'ratios' für gezieltes Update der Kennzahlen.
 """
 
 import os
@@ -113,7 +112,8 @@ RATES_TO_EUR = {
     "EUR": 1.0, "USD": 0.92, "GBP": 1.17, "GBp": 0.0117, "CHF": 1.04, "DKK": 0.134
 }
 
-ALLOWED_SECTIONS = ["quote", "profile", "financials", "analysts", "insider", "institutional", "options", "dividends", "holdings", "history", "ratios"]
+# NEU: 'perf' als eigene Sektion hinzugefügt
+ALLOWED_SECTIONS = ["quote", "profile", "financials", "analysts", "insider", "institutional", "options", "dividends", "holdings", "history", "ratios", "perf"]
 
 
 def detect_native_currency(ticker):
@@ -946,22 +946,28 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
                 with open(stock_file, "w", encoding="utf-8") as f:
                     json.dump(stock_data, f, ensure_ascii=False, indent=2)
                 
-                if "quote" in current_sections or "profile" in current_sections or "ratios" in current_sections:
+                # Update universe Eintrag
+                if any(s in current_sections for s in ["quote", "profile", "ratios", "history", "perf"]):
                     u_item = universe_map.get(sym, {"ticker": sym})
-                    u_item["name"] = stock_data.get("profile", {}).get("name", sym)
-                    u_item["sector"] = stock_data.get("profile", {}).get("sector", "Sonstige")
-                    u_item["country"] = stock_data.get("profile", {}).get("country", "")
-                    u_item["currency"] = "EUR"
-                    u_item["price"] = stock_data.get("quote", {}).get("price")
-                    u_item["changePercent"] = stock_data.get("quote", {}).get("changePercent")
-                    u_item["marketCap"] = stock_data.get("quote", {}).get("marketCap")
-                    u_item["volume"] = stock_data.get("quote", {}).get("volume")
-                    u_item["returnOnEquity"] = stock_data.get("ratios", {}).get("returnOnEquity")
-                    u_item["payoutRatio"] = stock_data.get("ratios", {}).get("payoutRatio")
-                    u_item["debtToEbitda"] = stock_data.get("ratios", {}).get("debtToEbitda")
-                    u_item["dividendYield"] = stock_data.get("ratios", {}).get("dividendYield")
-                    u_item["exDividendDate"] = stock_data.get("exDividendDate")
-                    u_item["updatedAt"] = stock_data.get("updatedAt")
+                    
+                    if "profile" in current_sections or "quote" in current_sections:
+                        u_item["name"] = stock_data.get("profile", {}).get("name", sym)
+                        u_item["sector"] = stock_data.get("profile", {}).get("sector", "Sonstige")
+                        u_item["country"] = stock_data.get("profile", {}).get("country", "")
+                        u_item["currency"] = "EUR"
+                        u_item["price"] = stock_data.get("quote", {}).get("price")
+                        u_item["changePercent"] = stock_data.get("quote", {}).get("changePercent")
+                        u_item["marketCap"] = stock_data.get("quote", {}).get("marketCap")
+                        u_item["volume"] = stock_data.get("quote", {}).get("volume")
+                        u_item["exDividendDate"] = stock_data.get("exDividendDate")
+                        
+                    if "ratios" in current_sections:
+                        u_item["returnOnEquity"] = stock_data.get("ratios", {}).get("returnOnEquity")
+                        u_item["payoutRatio"] = stock_data.get("ratios", {}).get("payoutRatio")
+                        u_item["debtToEbitda"] = stock_data.get("ratios", {}).get("debtToEbitda")
+                        u_item["dividendYield"] = stock_data.get("ratios", {}).get("dividendYield")
+
+                    u_item["updatedAt"] = stock_data.get("updatedAt", datetime.now(timezone.utc).isoformat())
                     universe_map[sym] = u_item
                 
                 print(f"  {sym} erfolgreich aktualisiert ({', '.join(current_sections)}).")
@@ -969,7 +975,29 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
                 print(f"  Fehler bei {sym}: {e}")
             time.sleep(ONLY_MODE_SLEEP_SEC)
 
-        if any(s in sections for s in ["quote", "profile", "ratios"]):
+        if any(s in sections for s in ["quote", "profile", "ratios", "history", "perf"]):
+            # Performance neu berechnen für alle
+            for sym, u_item in universe_map.items():
+                stock_file = os.path.join(DATA_DIR, f"{sym}.json")
+                if os.path.exists(stock_file):
+                    try:
+                        with open(stock_file, "r", encoding="utf-8") as f:
+                            s_data = json.load(f)
+                            hist = s_data.get("chartHistory") or []
+                            if len(hist) > 0:
+                                c_now = hist[-1]["close"]
+                                u_item["perf1w"] = ((c_now / hist[-6]["close"]) - 1) * 100 if len(hist) > 5 else None
+                                u_item["perf1m"] = ((c_now / hist[-22]["close"]) - 1) * 100 if len(hist) > 21 else None
+                                u_item["perf3m"] = ((c_now / hist[-64]["close"]) - 1) * 100 if len(hist) > 63 else None
+                                u_item["perf52w"] = ((c_now / hist[-253]["close"]) - 1) * 100 if len(hist) > 252 else None
+                                
+                                current_year = hist[-1]["date"][:4]
+                                for p in hist:
+                                    if p["date"][:4] == current_year:
+                                        u_item["perfYtd"] = ((c_now / p["close"]) - 1) * 100
+                                        break
+                    except Exception: pass
+
             with open(universe_file, "w", encoding="utf-8") as f:
                 json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
         return
@@ -1127,7 +1155,6 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
         u_item["exDividendDate"] = stock_data.get("exDividendDate")
         u_item["updatedAt"] = stock_data.get("updatedAt", now_iso)
 
-        # NEU: Berechnung ALLER Performance-Werte für die Markt-Ansicht
         hist = stock_data.get("chartHistory") or []
         u_item["perf1w"] = None
         u_item["perf1m"] = None
@@ -1137,16 +1164,11 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
 
         if len(hist) > 0:
             c_now = hist[-1]["close"]
-            if len(hist) > 5:
-                u_item["perf1w"] = ((c_now / hist[-6]["close"]) - 1) * 100
-            if len(hist) > 21:
-                u_item["perf1m"] = ((c_now / hist[-22]["close"]) - 1) * 100
-            if len(hist) > 63:
-                u_item["perf3m"] = ((c_now / hist[-64]["close"]) - 1) * 100
-            if len(hist) > 252:
-                u_item["perf52w"] = ((c_now / hist[-253]["close"]) - 1) * 100
+            if len(hist) > 5: u_item["perf1w"] = ((c_now / hist[-6]["close"]) - 1) * 100
+            if len(hist) > 21: u_item["perf1m"] = ((c_now / hist[-22]["close"]) - 1) * 100
+            if len(hist) > 63: u_item["perf3m"] = ((c_now / hist[-64]["close"]) - 1) * 100
+            if len(hist) > 252: u_item["perf52w"] = ((c_now / hist[-253]["close"]) - 1) * 100
             
-            # YTD (Year-to-Date)
             current_year = hist[-1]["date"][:4]
             for p in hist:
                 if p["date"][:4] == current_year:
@@ -1187,7 +1209,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["delta", "full"], default="delta")
     parser.add_argument("--ticker", type=str, default="")
-    parser.add_argument("--only", type=str, default="", help="Kommagetrennte Liste: quote, profile, ratios, financials, analysts, insider, institutional, options, dividends, holdings, history")
+    parser.add_argument("--only", type=str, default="", help="Kommagetrennte Liste: quote, profile, ratios, financials, analysts, insider, institutional, options, dividends, holdings, history, perf")
     args = parser.parse_args()
     
     os.makedirs(DATA_DIR, exist_ok=True)
