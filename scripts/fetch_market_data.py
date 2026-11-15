@@ -4,6 +4,7 @@ scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
 FIX: analysts_empty und analysts_recently_checked wieder eingefügt.
 FIX: build_universe_item berechnet alle abgeleiteten Felder (RSI, RR, Upside, RangePos, Perf).
+NEU: industry/roa im Universe, returnOnAssets/grossMargins/operatingMargins in ratios, RS-Rating in allen Modi.
 FIX: Fehlende Ticker (delisted) werden übersprungen, ohne den Lauf abzubrechen.
 """
 
@@ -673,7 +674,10 @@ def fetch_full_stock(ticker_sym):
               "debtToEbitda": clean_val(net_debt_ebitda),
               "revenueGrowth": clean_val(info.get("revenueGrowth")),
               "debtToEquity": clean_val(info.get("debtToEquity")),
-              "pegRatio": clean_val(info.get("pegRatio"))
+              "pegRatio": clean_val(info.get("pegRatio")),
+              "returnOnAssets": clean_val(info.get("returnOnAssets")),
+              "grossMargins": clean_val(info.get("grossMargins")),
+              "operatingMargins": clean_val(info.get("operatingMargins"))
               }
 
     chart_history = []
@@ -817,7 +821,10 @@ def fetch_partial_stock(ticker_sym, sections, existing_data):
                   "debtToEbitda": clean_val(net_debt_ebitda),
                   "revenueGrowth": clean_val(info.get("revenueGrowth")),
                   "debtToEquity": clean_val(info.get("debtToEquity")),
-                  "pegRatio": clean_val(info.get("pegRatio"))
+                  "pegRatio": clean_val(info.get("pegRatio")),
+              "returnOnAssets": clean_val(info.get("returnOnAssets")),
+              "grossMargins": clean_val(info.get("grossMargins")),
+              "operatingMargins": clean_val(info.get("operatingMargins"))
                   }
 
     if "financials" in sections:
@@ -929,6 +936,7 @@ def build_universe_item(stock_data, existing_item=None):
     if prof:
         u_item["name"] = prof.get("name", u_item.get("name"))
         u_item["sector"] = prof.get("sector", u_item.get("sector"))
+        u_item["industry"] = prof.get("industry", u_item.get("industry"))
         u_item["country"] = prof.get("country", u_item.get("country"))
         u_item["currency"] = "EUR"
     
@@ -951,6 +959,7 @@ def build_universe_item(stock_data, existing_item=None):
         u_item["dividendYield"] = r.get("dividendYield", u_item.get("dividendYield"))
         u_item["debtToEquity"] = r.get("debtToEquity", u_item.get("debtToEquity"))
         u_item["peg"] = r.get("pegRatio", u_item.get("peg"))
+        u_item["roa"] = r.get("returnOnAssets", u_item.get("roa"))
     
     if "exDividendDate" in stock_data:
         u_item["exDividendDate"] = stock_data.get("exDividendDate")
@@ -1038,6 +1047,16 @@ def build_universe_item(stock_data, existing_item=None):
     return u_item
 
 
+def compute_rs_ratings(universe_map):
+    """RS-Rating (0-99) = Perzentil der 3-Monats-Performance im gesamten Universum."""
+    print("Berechne Relative Stärke (RS-Rating)...")
+    perf_list = [it for it in universe_map.values() if it.get("perf3m") is not None]
+    perf_list.sort(key=lambda x: x["perf3m"])
+    total = len(perf_list)
+    for i, item in enumerate(perf_list):
+        item["rsRating"] = int((i / total) * 100) if total > 0 else 50
+
+
 def run_delta_sync(tickers, is_manual=False, sections=None):
     load_live_forex()
 
@@ -1081,6 +1100,7 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
             time.sleep(ONLY_MODE_SLEEP_SEC)
 
         if any(s in sections for s in ["quote", "profile", "ratios", "history", "perf"]):
+            compute_rs_ratings(universe_map)
             with open(universe_file, "w", encoding="utf-8") as f:
                 json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
         return
@@ -1099,6 +1119,7 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
                     for item in json.load(f): universe_map[item["ticker"]] = item
             
             universe_map[sym] = build_universe_item(stock_data, universe_map.get(sym))
+            compute_rs_ratings(universe_map)
             
             with open(universe_file, "w", encoding="utf-8") as f:
                 json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
@@ -1217,18 +1238,7 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
 
         universe_map[sym] = build_universe_item(stock_data, universe_map.get(sym))
 
-    print("Berechne Relative Stärke (RS-Rating)...")
-    perf_list = []
-    for item in universe_map.values():
-        if "perf3m" in item and item["perf3m"] is not None:
-            perf_list.append(item)
-    
-    perf_list.sort(key=lambda x: x["perf3m"])
-    total_stocks = len(perf_list)
-    
-    for i, item in enumerate(perf_list):
-        rating = int((i / total_stocks) * 100) if total_stocks > 0 else 50
-        universe_map[item["ticker"]]["rsRating"] = rating
+    compute_rs_ratings(universe_map)
 
     with open(universe_file, "w", encoding="utf-8") as f:
         json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
