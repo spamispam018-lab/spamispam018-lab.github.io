@@ -2,7 +2,9 @@
 """
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
-FIX: Zentralisierte build_universe_item() berechnet ALLE benötigten Felder (RSI, RR, Upside, RangePos, Perf).
+FIX: analysts_empty und analysts_recently_checked wieder eingefügt.
+FIX: build_universe_item berechnet alle abgeleiteten Felder (RSI, RR, Upside, RangePos, Perf).
+FIX: Fehlende Ticker (delisted) werden übersprungen, ohne den Lauf abzubrechen.
 """
 
 import os
@@ -578,6 +580,25 @@ def financials_empty(fin):
             if fin.get(section, {}).get(period):
                 return False
     return True
+
+
+# ------------------ HILFSFUNKTIONEN FÜR ANALYSTEN ------------------
+def analysts_empty(a):
+    """True, wenn Breakdown oder Historie fehlen (Kursziele allein reichen nicht)."""
+    if not a:
+        return True
+    r = a.get("recommendations") or {}
+    b = r.get("breakdown") or {}
+    return sum(b.values()) == 0 or not r.get("history")
+
+
+def analysts_recently_checked(a):
+    """Prüft, ob die Analysten in den letzten X Tagen schon aktualisiert wurden."""
+    try:
+        ts = datetime.fromisoformat((a or {}).get("checkedAt", ""))
+        return (datetime.now(timezone.utc) - ts).days < ANALYST_RECHECK_DAYS
+    except Exception:
+        return False
 
 
 def fetch_full_stock(ticker_sym):
@@ -1194,7 +1215,6 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
         with open(stock_file, "w", encoding="utf-8") as f:
             json.dump(stock_data, f, ensure_ascii=False, indent=2)
 
-        # Nutze build_universe_item für den universe Eintrag
         universe_map[sym] = build_universe_item(stock_data, universe_map.get(sym))
 
     print("Berechne Relative Stärke (RS-Rating)...")
