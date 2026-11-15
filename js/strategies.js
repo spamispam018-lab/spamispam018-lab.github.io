@@ -2,6 +2,7 @@
  * js/strategies.js
  * Vordefinierte Anlagestrategien (Value, Growth, Dividende).
  * NEU: Dynamische Slider für jede Strategie, um Kriterien live anzupassen.
+ * FIX: Robusteres Handling von fehlenden Daten.
  */
 window.App = window.App || {};
 
@@ -11,7 +12,6 @@ window.App.Strategies = (function () {
   var currentStrategy = 'value';
   var allStocks = [];
 
-  // Standardwerte für die Slider (entsprechen den strengen Kriterien)
   var sliderState = {
     value: { maxPe: 20, minRoe: 15, maxDebt: 2.5 },
     growth: { minRs: 80, minRevGrowth: 20, minVol: 100000 },
@@ -46,7 +46,6 @@ window.App.Strategies = (function () {
         '<div style="font-size: 0.78rem; color: var(--text-dim);">Finde Aktien basierend auf bewährten Investment-Strategien.</div>' +
       '</div>' +
 
-      // Tabs
       '<div class="main-tabs-row" style="margin-bottom: 16px;">' +
         '<button class="main-tab-btn ' + (currentStrategy === 'value' ? 'active' : '') + '" data-strat="value">💎 Value &amp; Qualität</button>' +
         '<button class="main-tab-btn ' + (currentStrategy === 'growth' ? 'active' : '') + '" data-strat="growth">🚀 Growth &amp; Momentum</button>' +
@@ -55,7 +54,6 @@ window.App.Strategies = (function () {
 
       '<div id="strategy-info" class="card" style="padding: 14px; margin-bottom: 14px; background: var(--bg-secondary); font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;"></div>' +
       
-      // Sliders Container
       '<div id="strategy-sliders" class="card" style="padding: 14px; margin-bottom: 14px;">' +
         '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">' +
           '<span style="font-size:0.85rem; font-weight:700; color:var(--text-main);">Filter anpassen</span>' +
@@ -85,7 +83,6 @@ window.App.Strategies = (function () {
     var infoEl = container.querySelector('#strategy-info');
     var resetBtn = container.querySelector('#btn-reset-strategy');
     
-    // Reset Button Logik
     resetBtn.onclick = function() {
       if (currentStrategy === 'value') sliderState.value = { maxPe: 20, minRoe: 15, maxDebt: 2.5 };
       if (currentStrategy === 'growth') sliderState.growth = { minRs: 80, minRevGrowth: 20, minVol: 100000 };
@@ -119,13 +116,11 @@ window.App.Strategies = (function () {
 
     sliderHost.innerHTML = html;
 
-    // Event Listener für die Slider
     sliderHost.querySelectorAll('input[type="range"]').forEach(function(input) {
       input.oninput = function() {
         var val = parseFloat(input.value);
         var id = input.id;
 
-        // Werte im State aktualisieren
         if (id === 'value-maxPe') sliderState.value.maxPe = val;
         if (id === 'value-minRoe') sliderState.value.minRoe = val;
         if (id === 'value-maxDebt') sliderState.value.maxDebt = val;
@@ -137,14 +132,12 @@ window.App.Strategies = (function () {
         if (id === 'div-minYield') sliderState.dividend.minYield = val;
         if (id === 'div-maxPayout') sliderState.dividend.maxPayout = val;
 
-        // Label aktualisieren
         var valLabel = input.previousElementSibling.querySelector('.slider-val');
         if (valLabel) {
             var suffix = input.getAttribute('data-suffix') || '';
             valLabel.textContent = val.toLocaleString('de-DE') + suffix;
         }
         
-        // Info-Text aktualisieren
         if (id === 'value-maxPe') container.querySelector('#val-pe').textContent = val;
         if (id === 'value-minRoe') container.querySelector('#val-roe').textContent = val;
         if (id === 'value-maxDebt') container.querySelector('#val-debt').textContent = val;
@@ -154,7 +147,6 @@ window.App.Strategies = (function () {
         if (id === 'div-minYield') container.querySelector('#val-yield').textContent = val;
         if (id === 'div-maxPayout') container.querySelector('#val-payout').textContent = val;
 
-        // Ergebnisse live neu berechnen
         applyStrategy(container);
       };
     });
@@ -177,13 +169,17 @@ window.App.Strategies = (function () {
     if (currentStrategy === 'value') {
       var s = sliderState.value;
       filtered = allStocks.filter(function (stock) {
+        var peVal = Number(stock.pe);
+        var marginVal = Number(stock.profitMargins);
+        
         var roeOk = (stock.returnOnEquity === undefined || stock.returnOnEquity === null) ? true : (Number(stock.returnOnEquity) * 100) >= s.minRoe;
         var debtOk = (stock.debtToEbitda === undefined || stock.debtToEbitda === null) ? true : Number(stock.debtToEbitda) <= s.maxDebt;
+        
         return Number(stock.marketCap) > 1e9 && 
-               Number(stock.pe) > 0 && Number(stock.pe) <= s.maxPe && 
+               !isNaN(peVal) && peVal > 0 && peVal <= s.maxPe && 
                roeOk && 
                debtOk &&
-               Number(stock.profitMargins) > 0;
+               !isNaN(marginVal) && marginVal > 0;
       });
     } 
     else if (currentStrategy === 'growth') {
@@ -191,7 +187,8 @@ window.App.Strategies = (function () {
       filtered = allStocks.filter(function (stock) {
         var rsOk = (stock.rsRating === undefined || stock.rsRating === null) ? true : Number(stock.rsRating) >= s.minRs;
         var volOk = (stock.volume === undefined || stock.volume === null) ? true : Number(stock.volume) >= s.minVol;
-        var growthOk = (stock.revGrowth === undefined || stock.revGrowth === null) ? true : (Number(stock.revGrowth) * 100) >= s.minRevGrowth;
+        var growthVal = Number(stock.revGrowth);
+        var growthOk = isNaN(growthVal) ? true : (growthVal * 100) >= s.minRevGrowth;
         
         return stock.cross === 'golden' && 
                rsOk && 
@@ -203,10 +200,13 @@ window.App.Strategies = (function () {
       var s = sliderState.dividend;
       filtered = allStocks.filter(function (stock) {
         var dy = Number(stock.dividendYield);
-        var payoutOk = (stock.payoutRatio === undefined || stock.payoutRatio === null) ? true : (Number(stock.payoutRatio) * 100) <= s.maxPayout;
+        var payoutVal = Number(stock.payoutRatio);
+        var payoutOk = isNaN(payoutVal) ? true : (payoutVal * 100) <= s.maxPayout;
+        var marginVal = Number(stock.profitMargins);
+        
         return dy >= s.minYield && 
                payoutOk &&
-               Number(stock.profitMargins) > 0;
+               !isNaN(marginVal) && marginVal > 0;
       });
     }
 
