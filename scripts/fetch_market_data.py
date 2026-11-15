@@ -2,7 +2,7 @@
 """
 scripts/fetch_market_data.py
 Delta-Marktdaten-Update.
-FIX: Schreibt KGV, Margen und Umsatzwachstum wieder in die universe.json.
+FIX: Zentralisierte build_universe_item() berechnet ALLE benötigten Felder (RSI, RR, Upside, RangePos, Perf).
 """
 
 import os
@@ -266,22 +266,6 @@ def process_insider_data(ticker_obj, cur):
     except Exception:
         pass
     return {"summary": summary, "trades": trades}
-
-
-def analysts_empty(a):
-    if not a:
-        return True
-    r = a.get("recommendations") or {}
-    b = r.get("breakdown") or {}
-    return sum(b.values()) == 0 or not r.get("history")
-
-
-def analysts_recently_checked(a):
-    try:
-        ts = datetime.fromisoformat((a or {}).get("checkedAt", ""))
-        return (datetime.now(timezone.utc) - ts).days < ANALYST_RECHECK_DAYS
-    except Exception:
-        return False
 
 
 def process_analyst_data(info, ticker_obj, cur):
@@ -666,7 +650,9 @@ def fetch_full_stock(ticker_sym):
               "returnOnEquity": clean_val(info.get("returnOnEquity")), 
               "payoutRatio": clean_val(info.get("payoutRatio")),       
               "debtToEbitda": clean_val(net_debt_ebitda),
-              "revenueGrowth": clean_val(info.get("revenueGrowth"))
+              "revenueGrowth": clean_val(info.get("revenueGrowth")),
+              "debtToEquity": clean_val(info.get("debtToEquity")),
+              "pegRatio": clean_val(info.get("pegRatio"))
               }
 
     chart_history = []
@@ -808,7 +794,9 @@ def fetch_partial_stock(ticker_sym, sections, existing_data):
                   "returnOnEquity": clean_val(info.get("returnOnEquity")), 
                   "payoutRatio": clean_val(info.get("payoutRatio")),       
                   "debtToEbitda": clean_val(net_debt_ebitda),
-                  "revenueGrowth": clean_val(info.get("revenueGrowth"))
+                  "revenueGrowth": clean_val(info.get("revenueGrowth")),
+                  "debtToEquity": clean_val(info.get("debtToEquity")),
+                  "pegRatio": clean_val(info.get("pegRatio"))
                   }
 
     if "financials" in sections:
@@ -909,6 +897,126 @@ def extract_close_series(batch_df, sym):
     return None
 
 
+def build_universe_item(stock_data, existing_item=None):
+    """Erstellt den Eintrag für die universe.json inkl. aller abgeleiteten Kennzahlen."""
+    u_item = existing_item or {}
+    if not stock_data:
+        return u_item
+    
+    # Basis
+    prof = stock_data.get("profile", {})
+    if prof:
+        u_item["name"] = prof.get("name", u_item.get("name"))
+        u_item["sector"] = prof.get("sector", u_item.get("sector"))
+        u_item["country"] = prof.get("country", u_item.get("country"))
+        u_item["currency"] = "EUR"
+    
+    q = stock_data.get("quote", {})
+    if q:
+        u_item["price"] = q.get("price", u_item.get("price"))
+        u_item["changePercent"] = q.get("changePercent", u_item.get("changePercent"))
+        u_item["marketCap"] = q.get("marketCap", u_item.get("marketCap"))
+        u_item["volume"] = q.get("volume", u_item.get("volume"))
+    
+    r = stock_data.get("ratios", {})
+    if r:
+        u_item["pe"] = r.get("peTrailing", u_item.get("pe"))
+        u_item["forwardPe"] = r.get("peForward", u_item.get("forwardPe"))
+        u_item["profitMargins"] = r.get("profitMargins", u_item.get("profitMargins"))
+        u_item["revGrowth"] = r.get("revenueGrowth", u_item.get("revGrowth"))
+        u_item["returnOnEquity"] = r.get("returnOnEquity", u_item.get("returnOnEquity"))
+        u_item["payoutRatio"] = r.get("payoutRatio", u_item.get("payoutRatio"))
+        u_item["debtToEbitda"] = r.get("debtToEbitda", u_item.get("debtToEbitda"))
+        u_item["dividendYield"] = r.get("dividendYield", u_item.get("dividendYield"))
+        u_item["debtToEquity"] = r.get("debtToEquity", u_item.get("debtToEquity"))
+        u_item["peg"] = r.get("pegRatio", u_item.get("peg"))
+    
+    if "exDividendDate" in stock_data:
+        u_item["exDividendDate"] = stock_data.get("exDividendDate")
+
+    # abhängige Werte
+    price = u_item.get("price")
+    if price:
+        low = q.get("fiftyTwoWeekLow")
+        high = q.get("fiftyTwoWeekHigh")
+        if low and high and high > low:
+            u_item["rangePos"] = ((price - low) / (high - low)) * 100
+        
+        an = stock_data.get("analysts", {})
+        targets = an.get("targets", {})
+        recs = an.get("recommendations", {})
+        bd = recs.get("breakdown", {})
+        
+        mean_target = targets.get("mean")
+        if mean_target:
+            u_item["upside"] = ((mean_target - price) / price) * 100
+        
+        u_item["analystCount"] = targets.get("analystCount")
+        
+        total_recs = sum(bd.values())
+        if total_recs > 0:
+            u_item["buyPct"] = ((bd.get("strongBuy", 0) + bd.get("buy", 0)) / total_recs) * 100
+            
+        u_item["nextEarningsDate"] = an.get("nextEarningsDate")
+
+    # Chart History stuff
+    hist = stock_data.get("chartHistory", [])
+    if hist:
+        c_now = hist[-1]["close"]
+        u_item["perf1w"] = ((c_now / hist[-6]["close"]) - 1) * 100 if len(hist) > 5 else None
+        u_item["perf1m"] = ((c_now / hist[-22]["close"]) - 1) * 100 if len(hist) > 21 else None
+        u_item["perf3m"] = ((c_now / hist[-64]["close"]) - 1) * 100 if len(hist) > 63 else None
+        u_item["perf52w"] = ((c_now / hist[-253]["close"]) - 1) * 100 if len(hist) > 252 else None
+        
+        current_year = hist[-1]["date"][:4]
+        for p in hist:
+            if p["date"][:4] == current_year:
+                u_item["perfYtd"] = ((c_now / p["close"]) - 1) * 100
+                break
+                
+        # RSI (14)
+        if len(hist) > 15:
+            closes = [p["close"] for p in hist[-15:]]
+            gains = 0
+            losses = 0
+            for i in range(1, 15):
+                diff = closes[i] - closes[i-1]
+                if diff >= 0: gains += diff
+                else: losses -= diff
+            avg_gain = gains / 14
+            avg_loss = losses / 14
+            if avg_loss == 0: u_item["rsi"] = 100
+            else:
+                rs = avg_gain / avg_loss
+                u_item["rsi"] = 100 - (100 / (1 + rs))
+        
+        # Support/Resistance & Risk/Reward
+        if len(hist) >= 60 and price:
+            closes_60 = [p["close"] for p in hist[-60:]]
+            sup = min(closes_60)
+            res = max(closes_60)
+            stop = sup * 0.985
+            tgt = res
+            if u_item.get("upside") and u_item["upside"] > 0:
+                tgt = price * (1 + u_item["upside"] / 100)
+            
+            risk = price - stop
+            reward = tgt - price
+            if risk > 0:
+                u_item["rrCrv"] = reward / risk
+                u_item["rrStopPct"] = (risk / price) * 100
+                u_item["rrTgtPct"] = (reward / price) * 100
+        
+        # Patterns
+        pats = compute_chart_patterns(hist)
+        u_item.update(pats)
+
+    if "updatedAt" in stock_data:
+        u_item["updatedAt"] = stock_data["updatedAt"]
+
+    return u_item
+
+
 def run_delta_sync(tickers, is_manual=False, sections=None):
     load_live_forex()
 
@@ -944,31 +1052,7 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
                     json.dump(stock_data, f, ensure_ascii=False, indent=2)
                 
                 if any(s in current_sections for s in ["quote", "profile", "ratios", "history", "perf"]):
-                    u_item = universe_map.get(sym, {"ticker": sym})
-                    
-                    if "profile" in current_sections or "quote" in current_sections:
-                        u_item["name"] = stock_data.get("profile", {}).get("name", sym)
-                        u_item["sector"] = stock_data.get("profile", {}).get("sector", "Sonstige")
-                        u_item["country"] = stock_data.get("profile", {}).get("country", "")
-                        u_item["currency"] = "EUR"
-                        u_item["price"] = stock_data.get("quote", {}).get("price")
-                        u_item["changePercent"] = stock_data.get("quote", {}).get("changePercent")
-                        u_item["marketCap"] = stock_data.get("quote", {}).get("marketCap")
-                        u_item["volume"] = stock_data.get("quote", {}).get("volume")
-                        u_item["exDividendDate"] = stock_data.get("exDividendDate")
-                        
-                    if "ratios" in current_sections:
-                        u_item["pe"] = stock_data.get("ratios", {}).get("peTrailing")
-                        u_item["forwardPe"] = stock_data.get("ratios", {}).get("peForward")
-                        u_item["profitMargins"] = stock_data.get("ratios", {}).get("profitMargins")
-                        u_item["revGrowth"] = stock_data.get("ratios", {}).get("revenueGrowth")
-                        u_item["returnOnEquity"] = stock_data.get("ratios", {}).get("returnOnEquity")
-                        u_item["payoutRatio"] = stock_data.get("ratios", {}).get("payoutRatio")
-                        u_item["debtToEbitda"] = stock_data.get("ratios", {}).get("debtToEbitda")
-                        u_item["dividendYield"] = stock_data.get("ratios", {}).get("dividendYield")
-
-                    u_item["updatedAt"] = stock_data.get("updatedAt", datetime.now(timezone.utc).isoformat())
-                    universe_map[sym] = u_item
+                    universe_map[sym] = build_universe_item(stock_data, universe_map.get(sym))
                 
                 print(f"  {sym} erfolgreich aktualisiert ({', '.join(current_sections)}).")
             except Exception as e:
@@ -976,27 +1060,6 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
             time.sleep(ONLY_MODE_SLEEP_SEC)
 
         if any(s in sections for s in ["quote", "profile", "ratios", "history", "perf"]):
-            for sym, u_item in universe_map.items():
-                stock_file = os.path.join(DATA_DIR, f"{sym}.json")
-                if os.path.exists(stock_file):
-                    try:
-                        with open(stock_file, "r", encoding="utf-8") as f:
-                            s_data = json.load(f)
-                            hist = s_data.get("chartHistory") or []
-                            if len(hist) > 0:
-                                c_now = hist[-1]["close"]
-                                u_item["perf1w"] = ((c_now / hist[-6]["close"]) - 1) * 100 if len(hist) > 5 else None
-                                u_item["perf1m"] = ((c_now / hist[-22]["close"]) - 1) * 100 if len(hist) > 21 else None
-                                u_item["perf3m"] = ((c_now / hist[-64]["close"]) - 1) * 100 if len(hist) > 63 else None
-                                u_item["perf52w"] = ((c_now / hist[-253]["close"]) - 1) * 100 if len(hist) > 252 else None
-                                
-                                current_year = hist[-1]["date"][:4]
-                                for p in hist:
-                                    if p["date"][:4] == current_year:
-                                        u_item["perfYtd"] = ((c_now / p["close"]) - 1) * 100
-                                        break
-                    except Exception: pass
-
             with open(universe_file, "w", encoding="utf-8") as f:
                 json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
         return
@@ -1013,18 +1076,9 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
             if os.path.exists(universe_file):
                 with open(universe_file, "r", encoding="utf-8") as f:
                     for item in json.load(f): universe_map[item["ticker"]] = item
-            u_item = universe_map.get(sym, {"ticker": sym})
-            u_item["price"] = stock_data["quote"]["price"]
-            u_item["changePercent"] = stock_data["quote"]["changePercent"]
-            u_item["pe"] = stock_data["ratios"].get("peTrailing")
-            u_item["forwardPe"] = stock_data["ratios"].get("peForward")
-            u_item["profitMargins"] = stock_data["ratios"].get("profitMargins")
-            u_item["revGrowth"] = stock_data["ratios"].get("revenueGrowth")
-            u_item["returnOnEquity"] = stock_data["ratios"].get("returnOnEquity")
-            u_item["payoutRatio"] = stock_data["ratios"].get("payoutRatio")
-            u_item["debtToEbitda"] = stock_data["ratios"].get("debtToEbitda")
-            u_item["updatedAt"] = stock_data["updatedAt"]
-            universe_map[sym] = u_item
+            
+            universe_map[sym] = build_universe_item(stock_data, universe_map.get(sym))
+            
             with open(universe_file, "w", encoding="utf-8") as f:
                 json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
             return
@@ -1140,60 +1194,8 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
         with open(stock_file, "w", encoding="utf-8") as f:
             json.dump(stock_data, f, ensure_ascii=False, indent=2)
 
-        u_item = universe_map.get(sym, {
-            "ticker": sym,
-            "name": stock_data.get("profile", {}).get("name", sym),
-            "sector": stock_data.get("profile", {}).get("sector", "Sonstige"),
-            "country": stock_data.get("profile", {}).get("country", "")
-        })
-        u_item["currency"] = "EUR"
-        u_item["price"] = stock_data.get("quote", {}).get("price")
-        u_item["changePercent"] = stock_data.get("quote", {}).get("changePercent")
-        u_item["marketCap"] = stock_data.get("quote", {}).get("marketCap")
-        u_item["volume"] = stock_data.get("quote", {}).get("volume")
-        u_item["pe"] = stock_data.get("ratios", {}).get("peTrailing")
-        u_item["forwardPe"] = stock_data.get("ratios", {}).get("peForward")
-        u_item["profitMargins"] = stock_data.get("ratios", {}).get("profitMargins")
-        u_item["revGrowth"] = stock_data.get("ratios", {}).get("revenueGrowth")
-        u_item["returnOnEquity"] = stock_data.get("ratios", {}).get("returnOnEquity")
-        u_item["payoutRatio"] = stock_data.get("ratios", {}).get("payoutRatio")
-        u_item["debtToEbitda"] = stock_data.get("ratios", {}).get("debtToEbitda")
-        u_item["dividendYield"] = stock_data.get("ratios", {}).get("dividendYield")
-        u_item["exDividendDate"] = stock_data.get("exDividendDate")
-        u_item["updatedAt"] = stock_data.get("updatedAt", now_iso)
-
-        hist = stock_data.get("chartHistory") or []
-        u_item["perf1w"] = None
-        u_item["perf1m"] = None
-        u_item["perf3m"] = None
-        u_item["perfYtd"] = None
-        u_item["perf52w"] = None
-
-        if len(hist) > 0:
-            c_now = hist[-1]["close"]
-            if len(hist) > 5: u_item["perf1w"] = ((c_now / hist[-6]["close"]) - 1) * 100
-            if len(hist) > 21: u_item["perf1m"] = ((c_now / hist[-22]["close"]) - 1) * 100
-            if len(hist) > 63: u_item["perf3m"] = ((c_now / hist[-64]["close"]) - 1) * 100
-            if len(hist) > 252: u_item["perf52w"] = ((c_now / hist[-253]["close"]) - 1) * 100
-            
-            current_year = hist[-1]["date"][:4]
-            for p in hist:
-                if p["date"][:4] == current_year:
-                    u_item["perfYtd"] = ((c_now / p["close"]) - 1) * 100
-                    break
-
-        try:
-            patterns = compute_chart_patterns(stock_data.get("chartHistory") or [], sym)
-            u_item["chartPatterns"] = patterns["chartPatterns"]
-            u_item["hasBullishPattern"] = patterns["hasBullishPattern"]
-            u_item["hasBearishPattern"] = patterns["hasBearishPattern"]
-            u_item["bollingerSqueeze"] = patterns["bollingerSqueeze"]
-            u_item["cross"] = patterns["cross"]
-            u_item["crossDaysAgo"] = patterns["crossDaysAgo"]
-        except Exception:
-            pass
-
-        universe_map[sym] = u_item
+        # Nutze build_universe_item für den universe Eintrag
+        universe_map[sym] = build_universe_item(stock_data, universe_map.get(sym))
 
     print("Berechne Relative Stärke (RS-Rating)...")
     perf_list = []
