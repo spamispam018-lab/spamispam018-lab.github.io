@@ -1,6 +1,8 @@
 /**
  * js/compare.js
- * Aktienvergleich 2-4 Titel + Radar-Chart (NEU).
+ * Aktienvergleich 2-4 Titel + Radar-Chart.
+ * FIX: Entfernt den Aufruf von getPeriod() und nutzt die neuen Score-Kategorien.
+ * FIX: Robusteres Rendering, falls Daten (chartHistory, quote) fehlen.
  */
 window.App = window.App || {};
 
@@ -206,7 +208,7 @@ window.App.Compare = (function () {
         '</div>' +
       '</div>' +
 
-      // NEU: Radar-Chart
+      // Radar-Chart
       '<div class="card">' +
         '<div class="card-header-dotted">' +
           '<div class="card-title">Kennzahlen-Radar</div>' +
@@ -265,8 +267,8 @@ window.App.Compare = (function () {
 
         stocks.forEach(function (s) {
           var sName = s.profile ? (s.profile.name || s.ticker) : s.ticker;
-          var sPrice = window.App.Format.currency(s.quote.price, s.quote.currency);
-          var sChange = window.App.Format.number(s.quote.changePercent, 2) + " %";
+          var sPrice = s.quote ? window.App.Format.currency(s.quote.price, s.quote.currency) : '—';
+          var sChange = s.quote ? window.App.Format.number(s.quote.changePercent, 2) + " %" : '—';
           var sPe = (s.ratios && s.ratios.peTrailing) ? window.App.Format.number(s.ratios.peTrailing, 1) : "unbekannt";
           promptText += "### " + sName + " (" + s.ticker + ") ###\n" +
                         "- Kurs: " + sPrice + " (Änderung heute: " + sChange + ")\n" +
@@ -328,16 +330,16 @@ window.App.Compare = (function () {
 
   function renderMatrixTable(stocks) {
     var rows = [
-      { label: 'Aktueller Kurs', fn: function (s) { return window.App.Format.currency(s.quote.price, s.quote.currency); } },
-      { label: 'Marktkapitalisierung', fn: function (s) { return window.App.Format.compactNumber(s.quote.marketCap, s.quote.currency); } },
-      { label: 'KGV (Trailing)', fn: function (s) { return window.App.Format.number(s.ratios.peTrailing, 1); } },
-      { label: 'Forward KGV', fn: function (s) { return window.App.Format.number(s.ratios.peForward, 1); } },
-      { label: 'PEG Ratio', fn: function (s) { return window.App.Format.number(s.ratios.pegRatio, 2); } },
-      { label: 'Dividendenrendite', fn: function (s) { return window.App.Format.percent((s.ratios.dividendYield || 0), false, 2); } },
-      { label: 'Umsatzwachstum YoY', fn: function (s) { return window.App.Format.percent((s.ratios.revenueGrowth || 0) * 100, true, 1); } },
-      { label: 'Nettomarge', fn: function (s) { return window.App.Format.percent((s.ratios.profitMargins || 0) * 100, false, 1); } },
-      { label: 'Eigenkapitalrendite (ROE)', fn: function (s) { return window.App.Format.percent((s.ratios.returnOnEquity || 0) * 100, false, 1); } },
-      { label: 'Debt to Equity', fn: function (s) { return window.App.Format.number(s.ratios.debtToEquity, 1) + ' %'; } }
+      { label: 'Aktueller Kurs', fn: function (s) { return window.App.Format.currency(s.quote ? s.quote.price : 0, s.quote ? s.quote.currency : 'EUR'); } },
+      { label: 'Marktkapitalisierung', fn: function (s) { return window.App.Format.compactNumber(s.quote ? s.quote.marketCap : 0, s.quote ? s.quote.currency : 'EUR'); } },
+      { label: 'KGV (Trailing)', fn: function (s) { return window.App.Format.number(s.ratios ? s.ratios.peTrailing : null, 1); } },
+      { label: 'Forward KGV', fn: function (s) { return window.App.Format.number(s.ratios ? s.ratios.peForward : null, 1); } },
+      { label: 'PEG Ratio', fn: function (s) { return window.App.Format.number(s.ratios ? s.ratios.pegRatio : null, 2); } },
+      { label: 'Dividendenrendite', fn: function (s) { return window.App.Format.percent(s.ratios ? (s.ratios.dividendYield || 0) : 0, false, 2); } },
+      { label: 'Umsatzwachstum YoY', fn: function (s) { return window.App.Format.percent(s.ratios ? ((s.ratios.revenueGrowth || 0) * 100) : 0, true, 1); } },
+      { label: 'Nettomarge', fn: function (s) { return window.App.Format.percent(s.ratios ? ((s.ratios.profitMargins || 0) * 100) : 0, false, 1); } },
+      { label: 'Eigenkapitalrendite (ROE)', fn: function (s) { return window.App.Format.percent(s.ratios ? ((s.ratios.returnOnEquity || 0) * 100) : 0, false, 1); } },
+      { label: 'Debt to Equity', fn: function (s) { return window.App.Format.number(s.ratios ? s.ratios.debtToEquity : null, 1) + ' %'; } }
     ];
 
     var html = '<table class="data-table"><thead><tr><th>Kennzahl</th>';
@@ -357,37 +359,35 @@ window.App.Compare = (function () {
     return html;
   }
 
-  // NEU: Radar-Chart rendern
   function initRadarChart(stocks) {
     var canvas = document.getElementById('compare-radar-canvas');
     var legend = document.getElementById('compare-radar-legend');
     if (!canvas) return;
 
-    var period = window.App.Score.getPeriod();
-    var axes = ['Bewertung', 'Profitabilität', 'Wachstum', 'Gesundheit', 'Momentum', 'Qualität'];
+    // FIX: Neue Kategorien und kein getPeriod() mehr
+    var axes = ['Fundament', 'Technik', 'Analysten', 'SmartMoney', 'Score'];
     var series = [];
 
     stocks.forEach(function (s, idx) {
       var color = COLOR_PALETTE[idx % COLOR_PALETTE.length];
-      var scoreData = window.App.Score.calculateBaseTotalScore(s, period);
+      var scoreData = window.App.Score.calculateBaseTotalScore(s);
       var cats = scoreData.categories || [];
-      // Kategorien: Profitabilität, Bewertung, Wachstum, Finanzielle Gesundheit
-      var prof = (cats.find(function (c) { return c.category === 'Profitabilität'; }) || {}).score || 0;
-      var val = (cats.find(function (c) { return c.category === 'Bewertung'; }) || {}).score || 0;
-      var gro = (cats.find(function (c) { return c.category === 'Wachstum'; }) || {}).score || 0;
-      var hea = (cats.find(function (c) { return c.category === 'Finanzielle Gesundheit'; }) || {}).score || 0;
-
-      // Momentum aus RSI (0-5 skaliert)
-      var rsi = s.rsi;
-      var momentum = (rsi === null || rsi === undefined) ? 2.5 : Math.max(0, Math.min(5, rsi / 20));
-
-      // Qualität = Durchschnitt aus Profitabilität und Gesundheit
-      var quality = (prof + hea) / 2;
+      
+      function getScore(catName) {
+          var cat = cats.find(function (c) { return c.category === catName; });
+          return cat ? cat.score : 0;
+      }
 
       series.push({
         name: s.ticker,
         color: color,
-        values: [val, prof, gro, hea, momentum, quality]
+        values: [
+            getScore('Fundamentaldaten'),
+            getScore('Technisches Bild'),
+            getScore('Analysten-Konsens'),
+            getScore('Smart Money & News'),
+            scoreData.totalScore
+        ]
       });
     });
 
@@ -419,7 +419,11 @@ window.App.Compare = (function () {
       var hist = s.chartHistory || [];
       if (hist.length > 0 && hist.length < minLen) minLen = hist.length;
     });
-    if (minLen === 0) return;
+    
+    if (minLen === 0) {
+      canvas.parentElement.innerHTML = '<div class="state-box" style="padding:20px;"><p style="font-size:0.78rem;color:var(--text-dim);">Keine Kursdaten für diese Aktien verfügbar. Bitte die Daten-Pipeline aktualisieren.</p></div>';
+      return;
+    }
 
     var labels = [];
     var baseDateList = (stocks[0].chartHistory || []).slice(-minLen);
