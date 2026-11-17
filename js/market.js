@@ -218,6 +218,86 @@ window.App.Market = (function () {
     });
   }
 
+  // ---------------------------------------------------------------------------
+  // NEU: Alle Kurse aktualisieren
+  // ---------------------------------------------------------------------------
+  function liveStatusText() {
+    var L = window.App.Live;
+    if (!L) return 'Modul js/live-prices.js nicht geladen.';
+    var pr = L.getProgress();
+    if (pr.running) {
+      return 'Aktualisiere… ' + pr.done + ' / ' + pr.total + (pr.fail ? ' · ' + pr.fail + ' Fehler' : '');
+    }
+    var m = L.getMeta();
+    if (!m) return 'Noch nicht aktualisiert – es gelten die Kurse aus den GitHub-Daten.';
+    var d = new Date(m.ts);
+    return 'Stand: ' + d.toLocaleDateString('de-DE') + ', ' +
+      d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr · ' +
+      m.ok + ' von ' + m.total + ' Kursen aktualisiert' + (m.fail ? ' (' + m.fail + ' Fehler)' : '');
+  }
+
+  function liveCardHtml() {
+    var L = window.App.Live;
+    var running = L && L.getProgress().running;
+    return '' +
+      '<div class="card" id="mk-live-card">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">' +
+          '<div style="min-width:0;">' +
+            '<div class="card-title">Kurse</div>' +
+            '<div id="mk-live-status" style="font-size:.72rem;color:var(--text-dim);margin-top:3px;line-height:1.4;">' + esc(liveStatusText()) + '</div>' +
+          '</div>' +
+          '<button class="chip-btn active" id="mk-refresh-all" style="flex-shrink:0;height:38px;">' +
+            (running ? '✕ Abbrechen' : '🔄 Alle Kurse aktualisieren') + '</button>' +
+        '</div>' +
+        '<div id="mk-live-bar" style="height:4px;background:var(--bg-tertiary);border-radius:2px;margin-top:10px;overflow:hidden;' + (running ? '' : 'display:none;') + '">' +
+          '<div id="mk-live-bar-fill" style="height:100%;width:0%;background:var(--accent-purple-light, #818cf8);transition:width .2s;"></div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function updateLiveUi(pr) {
+    var st = document.getElementById('mk-live-status');
+    var bar = document.getElementById('mk-live-bar');
+    var fill = document.getElementById('mk-live-bar-fill');
+    var btn = document.getElementById('mk-refresh-all');
+    if (!st) return;   // Ansicht wurde verlassen
+    st.textContent = liveStatusText();
+    if (bar) bar.style.display = pr.running ? 'block' : 'none';
+    if (fill) fill.style.width = (pr.total ? Math.round(pr.done / pr.total * 100) : 0) + '%';
+    if (btn) btn.innerHTML = pr.running ? '✕ Abbrechen' : '🔄 Alle Kurse aktualisieren';
+  }
+
+  function bindLive(container) {
+    var L = window.App.Live;
+    var btn = container.querySelector('#mk-refresh-all');
+    if (!L || !btn) return;
+
+    var pr0 = L.getProgress();
+    if (pr0.running) {
+      // Lauf wurde in einer früheren Ansicht gestartet – Anzeige wieder anbinden
+      L.onProgress(function (pr) { onLiveProgress(container, pr); });
+      updateLiveUi(pr0);
+    }
+
+    btn.onclick = function () {
+      if (L.getProgress().running) { L.cancel(); return; }
+      var tickers = universe.map(function (s) { return s.ticker; });
+      if (!tickers.length) return;
+      L.onProgress(function (pr) { onLiveProgress(container, pr); });
+      L.refreshAll(tickers, { concurrency: 6 });
+    };
+  }
+
+  function onLiveProgress(container, pr) {
+    updateLiveUi(pr);
+    if (pr.running) return;
+    // Fertig: Daten mit den neuen Kursen neu laden und Ansicht zeichnen (nur wenn noch auf Markt-Seite)
+    window.App.Data.getUniverse().then(function (u) {
+      universe = u || [];
+      if (document.getElementById('mk-live-card')) draw(container);
+    });
+  }
+
   function barRow(label, sub, value, maxAbs, attr, id) {
     var width = isNum(value) ? Math.max(1, Math.round(Math.abs(Number(value)) / maxAbs * 50)) : 0;
     return '' +
@@ -262,6 +342,9 @@ window.App.Market = (function () {
     var viewTitle = state.industry ? state.industry : (state.sector ? state.sector : 'Gesamtmarkt');
 
     var html = '';
+
+    // NEU: Kurse aller Aktien aktualisieren (Live-Kurs + US-Handel), dauerhaft gespeichert
+    html += liveCardHtml();
 
     // Zeitraum
     html += '<div class="horizontal-scroll-row" style="margin-bottom:12px;">';
@@ -426,6 +509,7 @@ window.App.Market = (function () {
   }
 
   function bind(container) {
+    bindLive(container);
     container.querySelectorAll('[data-mk-period]').forEach(function (b) {
       b.onclick = function () { state.period = b.getAttribute('data-mk-period'); draw(container); window.scrollTo(0, 0); };
     });
