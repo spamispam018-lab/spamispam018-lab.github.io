@@ -1091,6 +1091,8 @@ def build_universe_item(stock_data, existing_item=None):
         high = q.get("fiftyTwoWeekHigh")
         if low and high and high > low:
             u_item["rangePos"] = ((price - low) / (high - low)) * 100
+            u_item["low52"] = low
+            u_item["high52"] = high
         
         an = stock_data.get("analysts", {})
         targets = an.get("targets", {})
