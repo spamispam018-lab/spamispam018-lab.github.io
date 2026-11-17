@@ -29,13 +29,16 @@ window.App.StockOverview = (function () {
     currentStock = stock;
 
     try {
-      var cachedLive = JSON.parse(localStorage.getItem('live_price_' + stock.ticker));
-      if (cachedLive && cachedLive.timestamp > new Date(stock.updatedAt).getTime()) {
+      // Gespeicherte Kurse (Detail-Button oder Markt-Button) – gemeinsamer Speicher
+      var cachedLive = window.App.Live && window.App.Live.getEntry(stock.ticker);
+      if (cachedLive && cachedLive.price > 0 && cachedLive.ts > new Date(stock.updatedAt).getTime()) {
         stock.quote.price = cachedLive.price;
         stock.quote.changePercent = cachedLive.changePercent;
-        stock.quote.currency = cachedLive.currency;
-        stock.updatedAt = new Date(cachedLive.timestamp).toISOString();
+        stock.quote.currency = 'EUR';
+        stock.updatedAt = new Date(cachedLive.ts).toISOString();
         currentStock.livePrice = cachedLive.price;
+      } else if (cachedLive && cachedLive.price > 0 && stock.livePrice) {
+        currentStock.livePrice = stock.livePrice;
       }
     } catch (e) {}
 
@@ -227,12 +230,7 @@ window.App.StockOverview = (function () {
             currentStock.livePrice = finalData.price;
 
             try {
-              localStorage.setItem('live_price_' + currentStock.ticker, JSON.stringify({
-                price: finalData.price,
-                changePercent: finalData.pct,
-                currency: 'EUR',
-                timestamp: now.getTime()
-              }));
+              if (window.App.Live) window.App.Live.storeLive(currentStock.ticker, finalData.price, finalData.pct);
             } catch (e) {}
 
             var priceEl = document.getElementById('stock-header-price');
