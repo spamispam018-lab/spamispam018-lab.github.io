@@ -58,12 +58,23 @@ window.App.Data = (function () {
       });
   }
 
+  // Gespeicherte Live-Kurse (js/live-prices.js) über die Daten legen
+  function withLiveUniverse(list) {
+    try { if (window.App.Live) window.App.Live.applyUniverse(list); } catch (e) {}
+    return list;
+  }
+
+  function withLiveStock(stock) {
+    try { if (window.App.Live) window.App.Live.applyStock(stock); } catch (e) {}
+    return stock;
+  }
+
   function getUniverse() {
     return fetchJsonWithFallback('universe.json')
       .then(function (data) {
         if (Array.isArray(data) && data.length > 0) {
           try { safeSet(STORAGE_KEYS.UNIVERSE, JSON.stringify(data)); } catch (e) {}
-          return data;
+          return withLiveUniverse(data);
         }
         throw new Error('Ungültiges Format für Universum');
       })
@@ -72,10 +83,10 @@ window.App.Data = (function () {
           var cached = localStorage.getItem(STORAGE_KEYS.UNIVERSE);
           if (cached) {
             var parsed = JSON.parse(cached);
-            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            if (Array.isArray(parsed) && parsed.length > 0) return withLiveUniverse(parsed);
           }
         } catch (e) {}
-        if (window.UNIVERSE_DATA && Array.isArray(window.UNIVERSE_DATA)) return window.UNIVERSE_DATA;
+        if (window.UNIVERSE_DATA && Array.isArray(window.UNIVERSE_DATA)) return withLiveUniverse(window.UNIVERSE_DATA);
         return [];
       });
   }
@@ -89,7 +100,7 @@ window.App.Data = (function () {
       .then(function (data) {
         if (data && (data.ticker || data.profile)) {
           try { safeSet(storageKey, JSON.stringify(data)); } catch (e) {}
-          return data;
+          return withLiveStock(data);
         }
         throw new Error('Ungültige Daten für ' + cleanTicker);
       })
@@ -98,10 +109,10 @@ window.App.Data = (function () {
           var cached = localStorage.getItem(storageKey);
           if (cached) {
             var parsed = JSON.parse(cached);
-            if (parsed && (parsed.ticker || parsed.profile)) return parsed;
+            if (parsed && (parsed.ticker || parsed.profile)) return withLiveStock(parsed);
           }
         } catch (e) {}
-        if (window.STOCK_DATA && window.STOCK_DATA[cleanTicker]) return window.STOCK_DATA[cleanTicker];
+        if (window.STOCK_DATA && window.STOCK_DATA[cleanTicker]) return withLiveStock(window.STOCK_DATA[cleanTicker]);
         throw new Error('Keine Daten für "' + cleanTicker + '" verfügbar (' + err.message + ').');
       });
   }
