@@ -227,20 +227,37 @@ window.App.Live = (function () {
       }
     }
 
+    var reasons = [];
     return Promise.all(venues.map(function (v) {
       return proxyJson('ticker=' + encodeURIComponent(sym + v.sfx) + '&interval=1m&range=1d')
-        .then(function (d) { return parseGermanChart(d, v); })
-        .catch(function () { return null; });
+        .then(function (d) {
+          var q = parseGermanChart(d, v);
+          if (!q) reasons.push(sym + v.sfx + ': keine EUR-Daten');
+          return q;
+        })
+        .catch(function (err) {
+          reasons.push(sym + v.sfx + ': ' + (err && err.message ? err.message : 'Fehler'));
+          return { err: true };
+        });
     })).then(function (list) {
+      var hadError = list.some(function (q) { return q && q.err; });
       var valid = list.filter(function (q) {
-        if (!q) return false;
-        if (refEur > 0 && Math.abs(q.price / refEur - 1) > 0.25) return false;
+        if (!q || q.err) return false;
+        if (refEur > 0 && Math.abs(q.price / refEur - 1) > 0.25) {
+          reasons.push(sym + q.symbol.replace(sym, '') + ': Kurs weicht >25 % vom US-Kurs ab');
+          return false;
+        }
         return true;
       });
-      map[sym] = { sfx: DE_VENUES.filter(function (v, i) {
-        return valid.some(function (q) { return q.venue === v.name; });
-      }).map(function (v) { return v.sfx; }), t: Date.now() };
-      saveDeMap(map);
+      api.debugDe = api.debugDe || {};
+      api.debugDe[sym] = reasons;
+      // Nur speichern, wenn die Abfragen technisch funktioniert haben (Netzwerk-/HTTP-Fehler nicht als „nicht vorhanden" merken)
+      if (!hadError) {
+        map[sym] = { sfx: DE_VENUES.filter(function (v) {
+          return valid.some(function (q) { return q.venue === v.name; });
+        }).map(function (v) { return v.sfx; }), t: Date.now() };
+        saveDeMap(map);
+      }
       if (!valid.length) return null;
       var best = valid[0];
       valid.forEach(function (q) { if (q.t > best.t) best = q; });   // Gleichstand: Reihenfolge Xetra > Frankfurt > …
@@ -462,7 +479,7 @@ window.App.Live = (function () {
     return stock;
   }
 
-  return {
+  var api = {
     refreshAll: refreshAll,
     refreshTicker: refreshTicker,
     fetchLive: fetchLive,
@@ -479,4 +496,5 @@ window.App.Live = (function () {
     applyUniverse: applyUniverse,
     applyStock: applyStock
   };
+  return api;
 })();
