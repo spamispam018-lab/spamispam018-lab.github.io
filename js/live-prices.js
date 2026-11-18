@@ -378,6 +378,42 @@ window.App.Live = (function () {
         }
       }
     }
+    // Exakte Neuberechnung aus den gespeicherten Schlusskursen (Live-Kurs ersetzt/ergänzt den letzten Punkt)
+    if (Array.isArray(item.closes) && item.closes.length > 15) {
+      var cl = item.closes.slice();
+      var day = new Date(e.ts).toISOString().slice(0, 10);
+      if (item.closesEnd && day > item.closesEnd) cl.push(p1); else cl[cl.length - 1] = p1;
+      var n = cl.length;
+
+      // Performance (gleiche Fensterlängen wie im Python-Skript)
+      if (n > 5)  item.perf1w = (p1 / cl[n - 6] - 1) * 100;
+      if (n > 21) item.perf1m = (p1 / cl[n - 22] - 1) * 100;
+      if (n > 63) item.perf3m = (p1 / cl[n - 64] - 1) * 100;
+
+      // RSI (14), einfacher Durchschnitt wie im Skript
+      var tail = cl.slice(-15), gains = 0, losses = 0;
+      for (var j = 1; j < 15; j++) {
+        var diff = tail[j] - tail[j - 1];
+        if (diff >= 0) gains += diff; else losses -= diff;
+      }
+      item.rsi = losses === 0 ? 100 : 100 - 100 / (1 + (gains / 14) / (losses / 14));
+
+      // Support/Resistance und Chance-Risiko über die letzten 60 Schlusskurse
+      if (n >= 60) {
+        var w = cl.slice(-60);
+        var stop2 = Math.min.apply(null, w) * 0.985;
+        var tgt3 = Math.max.apply(null, w);
+        if (isNum(item.upside) && Number(item.upside) > 0) tgt3 = p1 * (1 + Number(item.upside) / 100);
+        var risk2 = p1 - stop2, reward2 = tgt3 - p1;
+        if (risk2 > 0) {
+          item.rrCrv = reward2 / risk2;
+          item.rrStopPct = (risk2 / p1) * 100;
+          item.rrTgtPct = (reward2 / p1) * 100;
+        } else {
+          item.rrCrv = null; item.rrStopPct = null; item.rrTgtPct = null;
+        }
+      }
+    }
     if (isNum(item.low52) && isNum(item.high52)) {
       var lo = Math.min(Number(item.low52), p1), hi = Math.max(Number(item.high52), p1);
       if (hi > lo) item.rangePos = ((p1 - lo) / (hi - lo)) * 100;
