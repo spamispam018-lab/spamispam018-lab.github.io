@@ -11,7 +11,7 @@ window.App.PreMarket = (function () {
 
   var PROXY_URL = 'https://yahoo-proxy.spamispam018.workers.dev';
   // NEU: chartRange speichert den aktuell gewählten Zeitraum
-  var state = { ticker: null, chartRange: '1d', lastPrePoints: [], lastHLines: [] };
+  var state = { ticker: null, chartRange: '2d', lastPrePoints: [], lastHLines: [] };
 
   var INFO_TEXTS = {
     nq: { 
@@ -69,9 +69,9 @@ window.App.PreMarket = (function () {
     return h >= 9 && h < 17.5;
   }
 
-  function fetchChart(ticker, withPrePost) {
+  function fetchChart(ticker, withPrePost, range) {
     var url = PROXY_URL + '/?ticker=' + encodeURIComponent(ticker) +
-              '&interval=1m&range=1d' +
+              '&interval=1m&range=' + (range || '1d') +
               (withPrePost ? '&includePrePost=true' : '') +
               '&t=' + Date.now();
     return fetch(url).then(function (r) {
@@ -104,6 +104,11 @@ window.App.PreMarket = (function () {
       var prev = meta.chartPreviousClose || meta.previousClose || current;
       return { price: current, pct: ((current - prev) / prev) * 100 };
     } catch (e) { return { price: null, pct: null }; }
+  }
+
+  // US-Handelstag (Datum in New York) eines Zeitstempels
+  function etDate(ms) {
+    return new Date(ms).toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
   }
 
   function classifySession(ms) {
@@ -211,7 +216,7 @@ window.App.PreMarket = (function () {
     if (!container || !stock) return;
     var ticker = (stock.ticker || '').toUpperCase();
     state.ticker = ticker;
-    state.chartRange = '1d'; // Bei jedem neuen Aufruf auf 1T zurücksetzen
+    state.chartRange = '2d'; // Bei jedem neuen Aufruf auf 2T zurücksetzen
 
     if (!isUsTicker(ticker)) {
       container.innerHTML = '' +
@@ -254,7 +259,8 @@ window.App.PreMarket = (function () {
         
         // NEU: Die Zeitfenster-Buttons unter dem Chart
         '<div class="pill-group" id="pm-range-pills" style="margin-top: 10px; justify-content: center; display: flex;">' +
-          '<button class="pill-btn active" data-pm-range="1d">1T</button>' +
+          '<button class="pill-btn active" data-pm-range="2d">2T</button>' +
+          '<button class="pill-btn" data-pm-range="5d">5T</button>' +
           '<button class="pill-btn" data-pm-range="6h">6h</button>' +
           '<button class="pill-btn" data-pm-range="3h">3h</button>' +
           '<button class="pill-btn" data-pm-range="2h">2h</button>' +
@@ -323,7 +329,7 @@ window.App.PreMarket = (function () {
     if (statusEl) statusEl.textContent = 'Rufe Daten ab…';
 
     return Promise.all([
-      fetchChart(ticker, true),
+      fetchChart(ticker, true, '5d'),
       fetchChart('EURUSD=X', false),
       fetchChart('NQ=F', false),
       fetchChart('ES=F', false)
@@ -357,7 +363,10 @@ window.App.PreMarket = (function () {
     var preSeries = extractSeries(preData, usdToEur);
     var currentPriceEur = (stock.quote && stock.quote.price) || 0;
 
-    var prePoints = preSeries.points || [];
+    var allPoints = preSeries.points || [];
+    var lastDay = allPoints.length ? etDate(allPoints[allPoints.length - 1].t) : null;
+    // Kennzahlen (Volumen, VWAP, RSI, Momentum) nur vom aktuellen Handelstag, der Chart zeigt mehrere Tage
+    var prePoints = allPoints.filter(function (p) { return etDate(p.t) === lastDay; });
     var lastPre = prePoints.length ? prePoints[prePoints.length - 1] : null;
 
     // Vergleichsbasis: echter deutscher Kurs; Fallback = letzter Kurs der App
@@ -552,7 +561,7 @@ window.App.PreMarket = (function () {
     }
 
     // NEU: Daten und Linien im State speichern für den Intervall-Wechsel
-    state.lastPrePoints = prePoints;
+    state.lastPrePoints = allPoints;
     state.lastHLines = hLines;
 
     bindPills(container);
@@ -582,7 +591,16 @@ window.App.PreMarket = (function () {
     // NEU: Filtern nach dem ausgewählten Zeitfenster (relativ zum LETZTEN Datenpunkt!)
     var lastTimestamp = points.length > 0 ? points[points.length - 1].t : Date.now();
     var cutoff = 0;
-    if (state.chartRange === '6h') cutoff = lastTimestamp - 6 * 60 * 60 * 1000;
+    if (state.chartRange === '2d') {
+      // letzter Handelstag komplett + aktueller Handelstag
+      var days = [];
+      points.forEach(function (p) { var d = etDate(p.t); if (days.indexOf(d) === -1) days.push(d); });
+      if (days.length > 2) {
+        var startDay = days[days.length - 2];
+        for (var k = 0; k < points.length; k++) { if (etDate(points[k].t) === startDay) { cutoff = points[k].t; break; } }
+      }
+    }
+    else if (state.chartRange === '6h') cutoff = lastTimestamp - 6 * 60 * 60 * 1000;
     else if (state.chartRange === '3h') cutoff = lastTimestamp - 3 * 60 * 60 * 1000;
     else if (state.chartRange === '2h') cutoff = lastTimestamp - 2 * 60 * 60 * 1000;
     else if (state.chartRange === '1h') cutoff = lastTimestamp - 1 * 60 * 60 * 1000;
@@ -605,9 +623,11 @@ window.App.PreMarket = (function () {
       return;
     }
 
+    var multiDay = etDate(filtered[0].t) !== etDate(filtered[filtered.length - 1].t);
     var labels = filtered.map(function (p) {
       var d = new Date(p.t);
-      return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+      var hm = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+      return multiDay ? d.toLocaleDateString('de-DE', { weekday: 'short' }) + ' ' + hm : hm;
     });
     var values = filtered.map(function (p) { return p.price; });
 
