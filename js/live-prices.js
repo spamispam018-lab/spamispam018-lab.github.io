@@ -412,6 +412,17 @@ window.App.Live = (function () {
     stock.quote.currency = 'EUR';
     stock.updatedAt = new Date(e.ts).toISOString();
     stock.livePrice = e.price;
+
+    // Chart-Tab und Chart-Analyse rechnen aus chartHistory: aktuellen Kurs als letzten Punkt einsetzen
+    if (Array.isArray(stock.chartHistory) && stock.chartHistory.length) {
+      var day = new Date(e.ts).toISOString().slice(0, 10);
+      var last = stock.chartHistory[stock.chartHistory.length - 1];
+      if (last && last.date < day) {
+        stock.chartHistory.push({ date: day, close: e.price, volume: null });
+      } else if (last) {
+        last.close = e.price;
+      }
+    }
     return stock;
   }
 
