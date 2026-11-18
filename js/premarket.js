@@ -516,8 +516,10 @@ window.App.PreMarket = (function () {
         window.App.Format.currency(germanNow, 'EUR') + '). ' + xetraLabel + '. ' +
         (deQuote ? '' : 'Für diese Aktie wurde kein deutscher Handelsplatz gefunden' +
           (function () {
-            var d = window.App.Live && window.App.Live.debugDe && window.App.Live.debugDe[String(ticker).toUpperCase()];
-            return d && d.length ? ' (' + d.slice(0, 2).join('; ') + ')' : '';
+            if (!window.App.Live) return ' (js/live-prices.js ist nicht geladen)';
+            if (!window.App.Live.fetchGermanQuote) return ' (live-prices.js ist veraltet)';
+            var d = window.App.Live.debugDe && window.App.Live.debugDe[String(ticker).toUpperCase()];
+            return d && d.length ? ' (' + d.slice(0, 5).join('; ') + ')' : ' (keine Abfrage erfolgt)';
           })() + '. ') +
         (deStale ? '<span style="color:var(--tag-yellow);">Der deutsche Kurs ist älter als 3 Stunden – dort wird gerade kaum gehandelt.</span> ' : '') +
         'Der Pfeil zeigt, in welche Richtung der deutsche Kurs tendiert.';
