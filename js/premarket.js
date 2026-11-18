@@ -225,6 +225,7 @@ window.App.PreMarket = (function () {
 
     container.innerHTML = buildShell(ticker);
     bindEvents(container, ticker, stock);
+    bindPills(container);
     refresh(container, ticker, stock);
   }
 
@@ -333,7 +334,10 @@ window.App.PreMarket = (function () {
       var us = extractSeries(res[0], fx > 0 ? 1 / fx : 0.92).points;
       var refEur = us.length ? us[us.length - 1].price : null;
       var dePromise = (window.App.Live && window.App.Live.fetchGermanQuote)
-        ? window.App.Live.fetchGermanQuote(ticker, refEur).catch(function () { return null; })
+        ? Promise.race([
+            window.App.Live.fetchGermanQuote(ticker, refEur).catch(function () { return null; }),
+            new Promise(function (resolve) { setTimeout(function () { resolve(null); }, 4000); })
+          ])
         : Promise.resolve(null);
       return dePromise.then(function (de) {
         renderData(container, ticker, stock, res[0], res[1], res[2], res[3], de);
@@ -551,19 +555,24 @@ window.App.PreMarket = (function () {
     state.lastPrePoints = prePoints;
     state.lastHLines = hLines;
 
-    // Events für die Zeit-Buttons binden
+    bindPills(container);
+    drawChart(container, state.lastPrePoints, state.lastHLines);
+  }
+
+  // Zeitfenster-Buttons (1T, 6h, 3h, 2h, 1h): auch vor dem Laden der Daten klickbar
+  function bindPills(container) {
     var pills = container.querySelectorAll('[data-pm-range]');
-    pills.forEach(function(pill) {
+    pills.forEach(function (pill) {
       pill.classList.toggle('active', pill.getAttribute('data-pm-range') === state.chartRange);
-      pill.onclick = function() {
+      pill.onclick = function () {
         state.chartRange = pill.getAttribute('data-pm-range');
-        pills.forEach(function(p) { p.classList.remove('active'); });
+        pills.forEach(function (p) { p.classList.remove('active'); });
         pill.classList.add('active');
-        drawChart(container, state.lastPrePoints, state.lastHLines);
+        if (state.lastPrePoints && state.lastPrePoints.length) {
+          drawChart(container, state.lastPrePoints, state.lastHLines);
+        }
       };
     });
-
-    drawChart(container, state.lastPrePoints, state.lastHLines);
   }
 
   function drawChart(container, points, hLines) {
