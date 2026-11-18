@@ -170,7 +170,7 @@ window.App.Live = (function () {
   // ---------------------------------------------------------------- Deutscher Kurs für US-Aktien
   // Yahoo führt viele US-Aktien an deutschen Börsen unter <US-Ticker>.<Suffix>.
   // Es werden mehrere Handelsplätze parallel abgefragt, der mit dem neuesten Kurs gewinnt.
-  var DE_KEY = 'app_de_map_v1';
+  var DE_KEY = 'app_de_map_v2';
   var DE_VENUES = [
     { sfx: '.DE', name: 'Xetra' },
     { sfx: '.F',  name: 'Frankfurt' },
@@ -221,13 +221,12 @@ window.App.Live = (function () {
     var c = map[sym];
     var venues = DE_VENUES;
     if (c && Array.isArray(c.sfx)) {
-      if (c.sfx.length === 0 && Date.now() - c.t < DE_NONE_TTL) return Promise.resolve(null);
       if (c.sfx.length > 0 && Date.now() - c.t < DE_OK_TTL) {
         venues = DE_VENUES.filter(function (v) { return c.sfx.indexOf(v.sfx) !== -1; });
       }
     }
 
-    var reasons = [];
+    var reasons = ['v2'];
     return Promise.all(venues.map(function (v) {
       return proxyJson('ticker=' + encodeURIComponent(sym + v.sfx) + '&interval=1m&range=1d')
         .then(function (d) {
@@ -252,7 +251,7 @@ window.App.Live = (function () {
       api.debugDe = api.debugDe || {};
       api.debugDe[sym] = reasons;
       // Nur speichern, wenn die Abfragen technisch funktioniert haben (Netzwerk-/HTTP-Fehler nicht als „nicht vorhanden" merken)
-      if (!hadError) {
+      if (!hadError && valid.length) {
         map[sym] = { sfx: DE_VENUES.filter(function (v) {
           return valid.some(function (q) { return q.venue === v.name; });
         }).map(function (v) { return v.sfx; }), t: Date.now() };
