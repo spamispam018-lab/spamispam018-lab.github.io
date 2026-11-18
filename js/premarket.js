@@ -327,7 +327,17 @@ window.App.PreMarket = (function () {
       fetchChart('NQ=F', false),
       fetchChart('ES=F', false)
     ]).then(function (res) {
-      renderData(container, ticker, stock, res[0], res[1], res[2], res[3]);
+      // Deutscher Live-Kurs (Xetra/Frankfurt/Stuttgart/Berlin) als Vergleichsbasis
+      var fx = 1.09;
+      try { fx = res[1].chart.result[0].meta.regularMarketPrice; } catch (e) {}
+      var us = extractSeries(res[0], fx > 0 ? 1 / fx : 0.92).points;
+      var refEur = us.length ? us[us.length - 1].price : null;
+      var dePromise = (window.App.Live && window.App.Live.fetchGermanQuote)
+        ? window.App.Live.fetchGermanQuote(ticker, refEur).catch(function () { return null; })
+        : Promise.resolve(null);
+      return dePromise.then(function (de) {
+        renderData(container, ticker, stock, res[0], res[1], res[2], res[3], de);
+      });
     }).catch(function (err) {
       if (statusEl) statusEl.innerHTML =
         '<span style="color:var(--bearish);">Fehler: ' + (err.message || err) + '</span>' +
@@ -335,7 +345,7 @@ window.App.PreMarket = (function () {
     });
   }
 
-  function renderData(container, ticker, stock, preData, fxData, nqData, esData) {
+  function renderData(container, ticker, stock, preData, fxData, nqData, esData, deQuote) {
     var fx = 1.09;
     try { fx = fxData.chart.result[0].meta.regularMarketPrice; } catch(e){}
     var usdToEur = fx > 0 ? 1 / fx : 0.92;
@@ -346,7 +356,12 @@ window.App.PreMarket = (function () {
     var prePoints = preSeries.points || [];
     var lastPre = prePoints.length ? prePoints[prePoints.length - 1] : null;
 
-    var germanNow = currentPriceEur;
+    // Vergleichsbasis: echter deutscher Kurs; Fallback = letzter Kurs der App
+    var germanNow = (deQuote && deQuote.price > 0) ? deQuote.price : currentPriceEur;
+    var deLabel = deQuote
+      ? 'Deutscher Kurs (' + deQuote.venue + ', ' + new Date(deQuote.t).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ')'
+      : 'letzter Kurs in der App';
+    var deStale = deQuote && (Date.now() - deQuote.t > 3 * 3600 * 1000);
     var xetraOpen = isXetraOpen();
 
     // Futures rendern
@@ -497,8 +512,10 @@ window.App.PreMarket = (function () {
         ? '<strong style="color:var(--bullish);">Xetra ist geöffnet</strong>' 
         : '<strong style="color:var(--text-dim);">Xetra ist geschlossen</strong>';
 
-      infoEl.innerHTML = 'Vergleich: ' + (session === 'pre' ? 'US-Vorbörse' : 'US-Handel') + ' in EUR vs. letzter Kurs in der App (' +
+      infoEl.innerHTML = 'Vergleich: ' + (session === 'pre' ? 'US-Vorbörse' : 'US-Handel') + ' in EUR vs. ' + deLabel + ' (' +
         window.App.Format.currency(germanNow, 'EUR') + '). ' + xetraLabel + '. ' +
+        (deQuote ? '' : 'Für diese Aktie wurde kein deutscher Handelsplatz gefunden. ') +
+        (deStale ? '<span style="color:var(--tag-yellow);">Der deutsche Kurs ist älter als 3 Stunden – dort wird gerade kaum gehandelt.</span> ' : '') +
         'Der Pfeil zeigt, in welche Richtung der deutsche Kurs tendiert.';
     }
 
@@ -506,7 +523,7 @@ window.App.PreMarket = (function () {
       value: germanNow,
       color: '#f59e0b',
       width: 2,
-      label: 'App-Kurs ' + window.App.Format.currency(germanNow, 'EUR', 2),
+      label: (deQuote ? 'DE-Kurs ' : 'App-Kurs ') + window.App.Format.currency(germanNow, 'EUR', 2),
       dashed: true
     }];
     
