@@ -1112,7 +1112,8 @@ def build_universe_item(stock_data, existing_item=None):
         u_item["nextEarningsDate"] = an.get("nextEarningsDate")
 
     # Chart History stuff
-    hist = stock_data.get("chartHistory", [])
+    # Tage ohne Schlusskurs (None, z. B. Feiertage/Datenlücken) ignorieren, sonst crasht die Berechnung
+    hist = [p for p in (stock_data.get("chartHistory") or []) if p.get("close") is not None]
     if hist:
         c_now = hist[-1]["close"]
         u_item["perf1w"] = ((c_now / hist[-6]["close"]) - 1) * 100 if len(hist) > 5 else None
