@@ -11,7 +11,7 @@ window.App.PreMarket = (function () {
 
   var PROXY_URL = 'https://yahoo-proxy.spamispam018.workers.dev';
   // NEU: chartRange speichert den aktuell gewählten Zeitraum
-  var state = { ticker: null, chartRange: '2d', lastPrePoints: [], lastHLines: [] };
+  var state = { ticker: null, chartRange: '1d', lastPrePoints: [], lastHLines: [] };
 
   var INFO_TEXTS = {
     nq: { 
@@ -216,7 +216,7 @@ window.App.PreMarket = (function () {
     if (!container || !stock) return;
     var ticker = (stock.ticker || '').toUpperCase();
     state.ticker = ticker;
-    state.chartRange = '2d'; // Bei jedem neuen Aufruf auf 2T zurücksetzen
+    state.chartRange = '1d'; // Bei jedem neuen Aufruf auf 1T zurücksetzen
 
     if (!isUsTicker(ticker)) {
       container.innerHTML = '' +
@@ -259,8 +259,7 @@ window.App.PreMarket = (function () {
         
         // NEU: Die Zeitfenster-Buttons unter dem Chart
         '<div class="pill-group" id="pm-range-pills" style="margin-top: 10px; justify-content: center; display: flex;">' +
-          '<button class="pill-btn active" data-pm-range="2d">2T</button>' +
-          '<button class="pill-btn" data-pm-range="5d">5T</button>' +
+          '<button class="pill-btn active" data-pm-range="1d">1T</button>' +
           '<button class="pill-btn" data-pm-range="6h">6h</button>' +
           '<button class="pill-btn" data-pm-range="3h">3h</button>' +
           '<button class="pill-btn" data-pm-range="2h">2h</button>' +
@@ -591,14 +590,9 @@ window.App.PreMarket = (function () {
     // NEU: Filtern nach dem ausgewählten Zeitfenster (relativ zum LETZTEN Datenpunkt!)
     var lastTimestamp = points.length > 0 ? points[points.length - 1].t : Date.now();
     var cutoff = 0;
-    if (state.chartRange === '2d') {
-      // letzter Handelstag komplett + aktueller Handelstag
-      var days = [];
-      points.forEach(function (p) { var d = etDate(p.t); if (days.indexOf(d) === -1) days.push(d); });
-      if (days.length > 2) {
-        var startDay = days[days.length - 2];
-        for (var k = 0; k < points.length; k++) { if (etDate(points[k].t) === startDay) { cutoff = points[k].t; break; } }
-      }
+    if (state.chartRange === '1d') {
+      // 1 Handelstag = 16 Stunden (04:00-20:00 ET) = 960 Minuten-Punkte: bei früher Vorbörse reicht das in den Vortag zurück
+      if (points.length > 960) cutoff = points[points.length - 960].t;
     }
     else if (state.chartRange === '6h') cutoff = lastTimestamp - 6 * 60 * 60 * 1000;
     else if (state.chartRange === '3h') cutoff = lastTimestamp - 3 * 60 * 60 * 1000;
