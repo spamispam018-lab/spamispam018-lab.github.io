@@ -167,6 +167,87 @@ window.App.Live = (function () {
       });
   }
 
+  // ---------------------------------------------------------------- Deutscher Kurs für US-Aktien
+  // Yahoo führt viele US-Aktien an deutschen Börsen unter <US-Ticker>.<Suffix>.
+  // Es werden mehrere Handelsplätze parallel abgefragt, der mit dem neuesten Kurs gewinnt.
+  var DE_KEY = 'app_de_map_v1';
+  var DE_VENUES = [
+    { sfx: '.DE', name: 'Xetra' },
+    { sfx: '.F',  name: 'Frankfurt' },
+    { sfx: '.SG', name: 'Stuttgart' },
+    { sfx: '.BE', name: 'Berlin' }
+  ];
+  var DE_OK_TTL = 7 * 24 * 3600 * 1000;
+  var DE_NONE_TTL = 24 * 3600 * 1000;
+
+  function loadDeMap() {
+    try { return JSON.parse(localStorage.getItem(DE_KEY)) || {}; } catch (e) { return {}; }
+  }
+  function saveDeMap(m) {
+    try { localStorage.setItem(DE_KEY, JSON.stringify(m)); } catch (e) {}
+  }
+
+  function parseGermanChart(data, venue) {
+    var result = data.chart.result[0];
+    var meta = result.meta || {};
+    if (meta.currency && meta.currency !== 'EUR') return null;
+    var ts = result.timestamp || [];
+    var closes = (result.indicators.quote[0].close) || [];
+    var price = null, t = null;
+    for (var i = ts.length - 1; i >= 0; i--) {
+      if (closes[i] !== null && closes[i] !== undefined) { price = closes[i]; t = ts[i] * 1000; break; }
+    }
+    if (price === null && meta.regularMarketPrice) {
+      price = meta.regularMarketPrice;
+      t = (meta.regularMarketTime || 0) * 1000;
+    }
+    if (!(price > 0)) return null;
+    var prev = meta.chartPreviousClose || meta.previousClose || price;
+    return {
+      price: price, t: t, venue: venue.name, symbol: meta.symbol || '',
+      pct: ((price - prev) / prev) * 100
+    };
+  }
+
+  /**
+   * Letzter deutscher Kurs (EUR) einer US-Aktie oder null, wenn kein Handelsplatz gefunden wird.
+   * refEur (optional): US-Kurs in EUR zur Plausibilitätsprüfung (Abweichung > 25 % = anderes Papier).
+   */
+  function fetchGermanQuote(ticker, refEur) {
+    var sym = String(ticker || '').toUpperCase().trim();
+    if (!sym || !isUsTicker(sym)) return Promise.resolve(null);
+
+    var map = loadDeMap();
+    var c = map[sym];
+    var venues = DE_VENUES;
+    if (c && Array.isArray(c.sfx)) {
+      if (c.sfx.length === 0 && Date.now() - c.t < DE_NONE_TTL) return Promise.resolve(null);
+      if (c.sfx.length > 0 && Date.now() - c.t < DE_OK_TTL) {
+        venues = DE_VENUES.filter(function (v) { return c.sfx.indexOf(v.sfx) !== -1; });
+      }
+    }
+
+    return Promise.all(venues.map(function (v) {
+      return proxyJson('ticker=' + encodeURIComponent(sym + v.sfx) + '&interval=1m&range=1d')
+        .then(function (d) { return parseGermanChart(d, v); })
+        .catch(function () { return null; });
+    })).then(function (list) {
+      var valid = list.filter(function (q) {
+        if (!q) return false;
+        if (refEur > 0 && Math.abs(q.price / refEur - 1) > 0.25) return false;
+        return true;
+      });
+      map[sym] = { sfx: DE_VENUES.filter(function (v, i) {
+        return valid.some(function (q) { return q.venue === v.name; });
+      }).map(function (v) { return v.sfx; }), t: Date.now() };
+      saveDeMap(map);
+      if (!valid.length) return null;
+      var best = valid[0];
+      valid.forEach(function (q) { if (q.t > best.t) best = q; });   // Gleichstand: Reihenfolge Xetra > Frankfurt > …
+      return best;
+    });
+  }
+
   // ---------------------------------------------------------------- Einzelner Ticker (beide Funktionen)
   function refreshTicker(ticker, noPersist) {
     var sym = String(ticker).toUpperCase().trim();
@@ -339,6 +420,7 @@ window.App.Live = (function () {
     refreshTicker: refreshTicker,
     fetchLive: fetchLive,
     fetchUsSession: fetchUsSession,
+    fetchGermanQuote: fetchGermanQuote,
     storeLive: storeLive,
     cancel: cancel,
     getProgress: getProgress,
