@@ -1127,6 +1127,10 @@ def build_universe_item(stock_data, existing_item=None):
                 u_item["perfYtd"] = ((c_now / p["close"]) - 1) * 100
                 break
                 
+        # Letzte 65 Schlusskurse: der Browser rechnet damit RSI, Performance und CRV mit dem Live-Kurs neu
+        u_item["closes"] = [round(p["close"], 4) for p in hist[-65:]]
+        u_item["closesEnd"] = hist[-1]["date"]
+
         # RSI (14)
         if len(hist) > 15:
             closes = [p["close"] for p in hist[-15:]]
