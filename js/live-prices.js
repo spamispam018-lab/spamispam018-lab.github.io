@@ -218,7 +218,31 @@ window.App.Live = (function () {
     };
   }
 
-  function deCandidates(sym) {
+  // data/de_symbols.json (vom Workflow „Deutsche Ticker ermitteln" erzeugt): US-Ticker → Liste deutscher Yahoo-Symbole
+  var deFilePromise = null;
+  function loadDeFile() {
+    if (deFilePromise) return deFilePromise;
+    var day = new Date().toISOString().slice(0, 10);
+    deFilePromise = fetch('data/de_symbols.json?d=' + day)
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (j) { return (j && j.symbols) || {}; })
+      .catch(function () { return {}; });
+    return deFilePromise;
+  }
+
+  function venueOf(symbol) {
+    for (var i = 0; i < DE_VENUES.length; i++) {
+      var sfx = DE_VENUES[i].sfx;
+      if (symbol.slice(-sfx.length) === sfx) return DE_VENUES[i];
+    }
+    var m = symbol.match(/\.(\w+)$/);
+    return { sfx: m ? '.' + m[1] : '', name: m ? 'Börse ' + m[1] : 'Börse' };
+  }
+
+  function deCandidates(sym, fileSyms) {
+    if (fileSyms && Array.isArray(fileSyms[sym]) && fileSyms[sym].length) {
+      return fileSyms[sym].slice(0, 5).map(function (s) { return { symbol: s, venue: venueOf(s) }; });
+    }
     var bases = [];
     if (DE_SYMBOLS[sym]) bases.push(DE_SYMBOLS[sym]);
     if (bases.indexOf(sym) === -1) bases.push(sym);
@@ -237,15 +261,21 @@ window.App.Live = (function () {
     var sym = String(ticker || '').toUpperCase().trim();
     if (!sym || !isUsTicker(sym)) return Promise.resolve(null);
 
+    return loadDeFile().then(function (fileSyms) {
+      return fetchGermanQuoteWith(sym, refEur, fileSyms);
+    });
+  }
+
+  function fetchGermanQuoteWith(sym, refEur, fileSyms) {
     var map = loadDeMap();
     var c = map[sym];
-    var cands = deCandidates(sym);
+    var cands = deCandidates(sym, fileSyms);
     if (c && Array.isArray(c.syms) && c.syms.length && Date.now() - c.t < DE_OK_TTL) {
       var known = cands.filter(function (x) { return c.syms.indexOf(x.symbol) !== -1; });
       if (known.length) cands = known;
     }
 
-    var reasons = ['v3'];
+    var reasons = ['v4'];
     return Promise.all(cands.map(function (cd) {
       return proxyJson('ticker=' + encodeURIComponent(cd.symbol) + '&interval=1m&range=1d')
         .then(function (d) {
