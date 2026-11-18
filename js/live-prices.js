@@ -168,9 +168,19 @@ window.App.Live = (function () {
   }
 
   // ---------------------------------------------------------------- Deutscher Kurs für US-Aktien
-  // Yahoo führt viele US-Aktien an deutschen Börsen unter <US-Ticker>.<Suffix>.
-  // Es werden mehrere Handelsplätze parallel abgefragt, der mit dem neuesten Kurs gewinnt.
-  var DE_KEY = 'app_de_map_v2';
+  // Deutsche Börsen führen US-Aktien meist unter EIGENEN Kürzeln (Nvidia = NVD.DE, Apple = APC.DE),
+  // nicht unter dem US-Ticker. Deshalb: Tabelle bekannter Kürzel + der US-Ticker als zweiter Versuch.
+  // Falsche Treffer fängt die Plausibilitätsprüfung ab (Abweichung > 25 % vom US-Kurs).
+  // Weitere Aktien einfach in DE_SYMBOLS ergänzen: US-Ticker → deutsches Kürzel (ohne Endung).
+  var DE_SYMBOLS = {
+    NVDA: 'NVD', AAPL: 'APC', MSFT: 'MSF', AMZN: 'AMZ', GOOGL: 'ABEA', GOOG: 'ABEC',
+    META: 'FB2A', TSLA: 'TL0', INTC: 'INL', AMD: 'AMD', NFLX: 'NFC', ORCL: 'ORC',
+    CSCO: 'CIS', QCOM: 'QCI', TXN: 'TII', MU: 'MTE', ADBE: 'ADB', CRM: 'FOO',
+    AVGO: '1YD', IBM: 'IBM', UBER: 'UB1', PYPL: '2PP', DIS: 'WDP', KO: 'CCC3',
+    V: '3V64', MA: 'M4I', JPM: 'CMC', BAC: 'NCB', MCD: 'MCD', NKE: 'NKE',
+    PEP: 'PEP', WMT: 'WMT', JNJ: 'JNJ', PFE: 'PFE', PLTR: 'PTX'
+  };
+  var DE_KEY = 'app_de_map_v3';
   var DE_VENUES = [
     { sfx: '.DE', name: 'Xetra' },
     { sfx: '.F',  name: 'Frankfurt' },
@@ -178,7 +188,6 @@ window.App.Live = (function () {
     { sfx: '.BE', name: 'Berlin' }
   ];
   var DE_OK_TTL = 7 * 24 * 3600 * 1000;
-  var DE_NONE_TTL = 24 * 3600 * 1000;
 
   function loadDeMap() {
     try { return JSON.parse(localStorage.getItem(DE_KEY)) || {}; } catch (e) { return {}; }
@@ -187,7 +196,7 @@ window.App.Live = (function () {
     try { localStorage.setItem(DE_KEY, JSON.stringify(m)); } catch (e) {}
   }
 
-  function parseGermanChart(data, venue) {
+  function parseGermanChart(data, venue, symbol) {
     var result = data.chart.result[0];
     var meta = result.meta || {};
     if (meta.currency && meta.currency !== 'EUR') return null;
@@ -204,14 +213,25 @@ window.App.Live = (function () {
     if (!(price > 0)) return null;
     var prev = meta.chartPreviousClose || meta.previousClose || price;
     return {
-      price: price, t: t, venue: venue.name, symbol: meta.symbol || '',
+      price: price, t: t, venue: venue.name, symbol: meta.symbol || symbol,
       pct: ((price - prev) / prev) * 100
     };
   }
 
+  function deCandidates(sym) {
+    var bases = [];
+    if (DE_SYMBOLS[sym]) bases.push(DE_SYMBOLS[sym]);
+    if (bases.indexOf(sym) === -1) bases.push(sym);
+    var list = [];
+    bases.forEach(function (b) {
+      DE_VENUES.forEach(function (v) { list.push({ symbol: b + v.sfx, venue: v }); });
+    });
+    return list;
+  }
+
   /**
    * Letzter deutscher Kurs (EUR) einer US-Aktie oder null, wenn kein Handelsplatz gefunden wird.
-   * refEur (optional): US-Kurs in EUR zur Plausibilitätsprüfung (Abweichung > 25 % = anderes Papier).
+   * refEur (optional): US-Kurs in EUR zur Plausibilitätsprüfung.
    */
   function fetchGermanQuote(ticker, refEur) {
     var sym = String(ticker || '').toUpperCase().trim();
@@ -219,45 +239,38 @@ window.App.Live = (function () {
 
     var map = loadDeMap();
     var c = map[sym];
-    var venues = DE_VENUES;
-    if (c && Array.isArray(c.sfx)) {
-      if (c.sfx.length > 0 && Date.now() - c.t < DE_OK_TTL) {
-        venues = DE_VENUES.filter(function (v) { return c.sfx.indexOf(v.sfx) !== -1; });
-      }
+    var cands = deCandidates(sym);
+    if (c && Array.isArray(c.syms) && c.syms.length && Date.now() - c.t < DE_OK_TTL) {
+      var known = cands.filter(function (x) { return c.syms.indexOf(x.symbol) !== -1; });
+      if (known.length) cands = known;
     }
 
-    var reasons = ['v2'];
-    return Promise.all(venues.map(function (v) {
-      return proxyJson('ticker=' + encodeURIComponent(sym + v.sfx) + '&interval=1m&range=1d')
+    var reasons = ['v3'];
+    return Promise.all(cands.map(function (cd) {
+      return proxyJson('ticker=' + encodeURIComponent(cd.symbol) + '&interval=1m&range=1d')
         .then(function (d) {
-          var q = parseGermanChart(d, v);
-          if (!q) reasons.push(sym + v.sfx + ': keine EUR-Daten');
+          var q = parseGermanChart(d, cd.venue, cd.symbol);
+          if (!q) reasons.push(cd.symbol + ': keine EUR-Daten');
           return q;
         })
         .catch(function (err) {
-          reasons.push(sym + v.sfx + ': ' + (err && err.message ? err.message : 'Fehler'));
-          return { err: true };
+          reasons.push(cd.symbol + ': ' + (err && err.message ? err.message : 'Fehler'));
+          return null;
         });
     })).then(function (list) {
-      var hadError = list.some(function (q) { return q && q.err; });
       var valid = list.filter(function (q) {
-        if (!q || q.err) return false;
+        if (!q) return false;
         if (refEur > 0 && Math.abs(q.price / refEur - 1) > 0.25) {
-          reasons.push(sym + q.symbol.replace(sym, '') + ': Kurs weicht >25 % vom US-Kurs ab');
+          reasons.push(q.symbol + ': Kurs weicht >25 % vom US-Kurs ab');
           return false;
         }
         return true;
       });
       api.debugDe = api.debugDe || {};
       api.debugDe[sym] = reasons;
-      // Nur speichern, wenn die Abfragen technisch funktioniert haben (Netzwerk-/HTTP-Fehler nicht als „nicht vorhanden" merken)
-      if (!hadError && valid.length) {
-        map[sym] = { sfx: DE_VENUES.filter(function (v) {
-          return valid.some(function (q) { return q.venue === v.name; });
-        }).map(function (v) { return v.sfx; }), t: Date.now() };
-        saveDeMap(map);
-      }
       if (!valid.length) return null;
+      map[sym] = { syms: valid.map(function (q) { return q.symbol; }), t: Date.now() };
+      saveDeMap(map);
       var best = valid[0];
       valid.forEach(function (q) { if (q.t > best.t) best = q; });   // Gleichstand: Reihenfolge Xetra > Frankfurt > …
       return best;
