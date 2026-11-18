@@ -514,7 +514,11 @@ window.App.PreMarket = (function () {
 
       infoEl.innerHTML = 'Vergleich: ' + (session === 'pre' ? 'US-Vorbörse' : 'US-Handel') + ' in EUR vs. ' + deLabel + ' (' +
         window.App.Format.currency(germanNow, 'EUR') + '). ' + xetraLabel + '. ' +
-        (deQuote ? '' : 'Für diese Aktie wurde kein deutscher Handelsplatz gefunden. ') +
+        (deQuote ? '' : 'Für diese Aktie wurde kein deutscher Handelsplatz gefunden' +
+          (function () {
+            var d = window.App.Live && window.App.Live.debugDe && window.App.Live.debugDe[String(ticker).toUpperCase()];
+            return d && d.length ? ' (' + d.slice(0, 2).join('; ') + ')' : '';
+          })() + '. ') +
         (deStale ? '<span style="color:var(--tag-yellow);">Der deutsche Kurs ist älter als 3 Stunden – dort wird gerade kaum gehandelt.</span> ' : '') +
         'Der Pfeil zeigt, in welche Richtung der deutsche Kurs tendiert.';
     }
