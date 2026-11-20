@@ -243,6 +243,7 @@ window.App.Data = (function () {
 
   return {
     getUniverse: getUniverse,
+    getJsonFile: fetchJsonWithFallback,
     getStock: getStock,
     getLongHistory: getLongHistory,
     getWatchlist: getWatchlist,
