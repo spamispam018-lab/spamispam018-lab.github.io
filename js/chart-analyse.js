@@ -2,7 +2,8 @@
  * js/chart-analyse.js – erweiterte Chart-Analyse (eigenständiges Modul)
  * Chartmuster (mehrere gleichzeitig), Kerzenmuster, Divergenz, Squeeze, ADX/ATR/OBV,
  * Ausbruch mit Volumen, Support/Widerstand, Risk/Reward (Stop an Unterstützung oder ATR), Chart-Score.
- * NEU: Marktzyklus-Phase mit dynamischer Mean-Linie (SMA200), RSI-Glättung, ADX-Kontext und farbigem Marker.
+ * Marktzyklus-Phase (überarbeitet): Phase aus Abstand zum SMA200, SMA200-Steigung, RSI (5 Tage geglättet),
+ * Rückgang vom 52-Wochen-Hoch und ADX; jede Phase liegt exakt auf der Beschriftung der Kurve.
  */
 window.App = window.App || {};
 window.App.ChartAnalyse = (function () {
@@ -32,7 +33,7 @@ window.App.ChartAnalyse = (function () {
     Chartmuster: { name: 'Chartmuster', text: 'Automatische Erkennung klassischer Formationen (Doppel-Tops, SKS, Dreiecke, Flaggen). Ausbrüche werden stärker gewichtet, wenn sie mit hohem Volumen einhergehen.' },
     Kerzenmuster: { name: 'Kerzenmuster', text: 'Erkennung von kurzfristigen Umkehrsignalen (1-3 Tage) wie Hammer oder Engulfing auf Basis der Kerzenkörper.' },
     ZigZag: { name: 'Wendepunkte (ZigZag)', text: 'Verbindet markante Hoch- und Tiefpunkte im Chart und filtert kleinere Schwankungen (Rauschen) heraus, um den Haupttrend sichtbar zu machen.' },
-    Zyklus: { name: 'Marktzyklus (Psychologie)', text: 'Der Markt durchläuft emotionale Phasen. Von "Smart Money" (unbemerktes Akkumulieren), über Mania und Blow-off (Übertreibung nach oben) bis hin zu Despair und Kapitulation (Panikverkäufe). Wir schätzen die aktuelle Phase anhand von Trendstärke, Momentum (RSI) und Volatilität ein.' }
+    Zyklus: { name: 'Marktzyklus (Psychologie)', text: 'Schematisches Modell der Marktpsychologie: von Stealth und Take off über Enthusiasmus, Mania und Blow off bis zu Denial, Bull Trap, Fear und Despair. Die Phase wird aus dem Abstand zum SMA200, der Steigung des SMA200, dem RSI, dem Rückgang vom 52-Wochen-Hoch und der Trendstärke (ADX) abgeleitet. Die Y-Achse der Grafik ist nur eine Illustration, keine Bewertung. Keine Prognose.' }
   };
 
   var TERM_RULES = [
@@ -448,6 +449,14 @@ window.App.ChartAnalyse = (function () {
     var macdBull = line[n - 1] !== null && sigl[n - 1] !== null && line[n - 1] > sigl[n - 1];
     var s50 = n >= 50 ? avg(T.c.slice(-50)) : null, s200 = n >= 200 ? avg(T.c.slice(-200)) : null;
     var adx = adxLast(T.h, T.l, T.c, 14);
+    // Zusatzdaten für den Marktzyklus: SMA200 vor 20 Tagen, 52-Wochen-Spanne, Volumenspitze
+    var s200p = n >= 220 ? avg(T.c.slice(-220, -20)) : null;
+    var yr = T.c.slice(-252), hi252 = maxOf(yr), lo252 = minOf(yr);
+    var volSpike = false;
+    if (hasVol && n > 55) {
+      var v5 = avg(T.v.slice(-5)), v50 = avg(T.v.slice(-55, -5));
+      volSpike = v50 > 0 && v5 / v50 >= 1.5;
+    }
 
     var obv = [0], i;
     for (i = 1; i < n; i++) obv.push(obv[i - 1] + (T.c[i] > T.c[i - 1] ? T.v[i] : T.c[i] < T.c[i - 1] ? -T.v[i] : 0));
@@ -506,7 +515,7 @@ window.App.ChartAnalyse = (function () {
     ];
     var total = parts.reduce(function (a, p) { return a + p[1]; }, 0), score = Math.round(clamp(50 + total / 2, 0, 100));
 
-    return { T: T, n: n, N: N, off: off, from: from, w: w, px: px, c: c, h: h, l: l, atr: atrV, th: th, pivots: P, pats: pats, rsi: r0, rsiSeries: rsi, macdBull: macdBull, s50: s50, s200: s200,
+    return { T: T, n: n, N: N, off: off, from: from, w: w, px: px, c: c, h: h, l: l, atr: atrV, th: th, pivots: P, pats: pats, rsi: r0, rsiSeries: rsi, macdBull: macdBull, s50: s50, s200: s200, s200p: s200p, hi: hi252, lo: lo252, volSpike: volSpike,
       adx: adx, hasVol: hasVol, obvTrend: obvTrend, pTrend: pTrend, bw: bwLast, bb: bb, squeeze: rank <= 0.2, pctB: pb, div: div, brk: brk, lv: lv, parts: parts, score: score,
       label: score >= 65 ? 'bull' : score <= 35 ? 'bear' : 'neutral' };
   }
@@ -514,66 +523,97 @@ window.App.ChartAnalyse = (function () {
   // ---------------------------------------------------------------------------
   // Marktzyklus Phase & Rendering
   // ---------------------------------------------------------------------------
+  var CYCLE_CURVE = [
+    { x: 0.0, y: 0.15 }, { x: 0.15, y: 0.22 }, { x: 0.25, y: 0.28 }, { x: 0.45, y: 0.42 },
+    { x: 0.55, y: 0.55 }, { x: 0.65, y: 0.75 }, { x: 0.68, y: 0.95 }, { x: 0.75, y: 0.75 },
+    { x: 0.78, y: 0.85 }, { x: 0.85, y: 0.45 }, { x: 0.95, y: 0.15 }, { x: 1.0, y: 0.40 }
+  ];
+  var TONE_COLOR = { ok: '#10b981', warn: '#f59e0b', risk: '#ef4444', chance: '#38bdf8' };
+  var TONE_TXT = { ok: 'Trend intakt', warn: 'Vorsicht', risk: 'erhöhtes Risiko', chance: 'Chance mit hohem Risiko' };
+
+  // Jede Phase liegt auf einem Eckpunkt der Kurve (x) und passt zur Beschriftung dort.
+  var PHASES = {
+    stealth:    { name: 'Stealth / Bodenbildung', x: 0.15, tone: 'ok',
+      desc: 'Der Kurs pendelt ruhig um den SMA200, die Trendstärke ist gering und das Hoch liegt weit zurück. Oft die Phase, in der leise aufgebaut wird.' },
+    takeoff:    { name: 'Take off / Aufwärtstrend', x: 0.25, tone: 'ok',
+      desc: 'Der Kurs liegt über dem SMA200 und der Trend etabliert sich ohne Übertreibung.' },
+    firstsell:  { name: 'First Sell off / Rücksetzer', x: 0.45, tone: 'warn',
+      desc: 'Rücksetzer im Aufwärtstrend. Entscheidend ist, ob der SMA200 als Unterstützung hält.' },
+    enthusiasm: { name: 'Enthusiasmus', x: 0.55, tone: 'ok',
+      desc: 'Der Kurs liegt deutlich über dem SMA200 bei gutem Momentum. Der Trend ist stark, die Gier nimmt zu.' },
+    mania:      { name: 'Mania', x: 0.65, tone: 'warn',
+      desc: 'Der Kurs ist weit über den SMA200 gelaufen und der RSI ist hoch. Rücksetzer werden wahrscheinlicher.' },
+    blowoff:    { name: 'Blow off / Erschöpfung', x: 0.68, tone: 'risk',
+      desc: 'Stark überdehnt, die Trendstärke lässt nach oder es gibt eine bärische Divergenz. Hohes Korrekturrisiko.' },
+    denial:     { name: 'Denial / Erholung', x: 0.75, tone: 'warn',
+      desc: 'Der Kurs liegt unter dem SMA200 und erholt sich leicht. Der SMA200 wirkt oft als Widerstand.' },
+    trap:       { name: 'Bull Trap Gefahr', x: 0.78, tone: 'warn',
+      desc: 'Kräftige Erholung, aber der SMA200 fällt noch oder der Kurs liegt darunter. Die Bewährungsprobe steht aus.' },
+    fear:       { name: 'Fear / Abwärtstrend', x: 0.85, tone: 'risk',
+      desc: 'Der Kurs liegt unter dem SMA200 bei schwachem Momentum. Der Abwärtstrend ist intakt.' },
+    despair:    { name: 'Despair / Kapitulation', x: 0.95, tone: 'chance',
+      desc: 'Starker Kursverfall bei überverkauftem Momentum. Oft Kapitulation und historisch eine Chance, aber mit hohem Risiko.' }
+  };
+
+  function cycleMetrics(A) {
+    if (!A || !A.s200) return null;     // ohne 200 Handelstage keine verlässliche Einschätzung
+    var rs = (A.rsiSeries || []).slice(-5).filter(function (v) { return v !== null && v !== undefined; });
+    var slope = A.s200p ? (A.s200 / A.s200p - 1) * 100 : null;   // SMA200-Veränderung über 20 Tage in %
+    return {
+      dev: (A.px / A.s200 - 1) * 100,
+      slope: slope,
+      flat: slope !== null && Math.abs(slope) <= 1,
+      slopeUp: slope !== null ? slope > 0.3 : (A.s50 ? A.s50 > A.s200 : false),
+      slopeDown: slope !== null ? slope < -0.3 : (A.s50 ? A.s50 < A.s200 : false),
+      dd: A.hi ? (A.px / A.hi - 1) * 100 : 0,     // Abstand zum 52-Wochen-Hoch (negativ)
+      up: A.lo ? (A.px / A.lo - 1) * 100 : 0,     // Abstand zum 52-Wochen-Tief (positiv)
+      rsi: rs.length ? avg(rs) : (A.rsi !== null && A.rsi !== undefined ? A.rsi : 50),
+      adx: A.adx ? A.adx.adx : 0
+    };
+  }
+
   function getCyclePhase(A) {
-    var px = A.px, s200 = A.s200, adx = A.adx ? A.adx.adx : 0;
-    var rsi = A.rsiSeries ? avg(A.rsiSeries.slice(-5)) : A.rsi; // RSI 5-Tage Glättung
-    var isSqueeze = A.squeeze;
-    var x = 0.5, phase = 'Neutral', desc = '';
-    
-    if (px > s200) {
-      if (rsi > 70 && adx < 25) { 
-        x = 0.78; phase = 'Blow off / Erschöpfung'; 
-        desc = 'Kurs hoch, aber Trendstärke (ADX) bricht ein. Hohes Korrekturrisiko.'; 
-      }
-      else if (rsi > 65 && adx > 30) { 
-        x = 0.68; phase = 'Starker Trend / Mania'; 
-        desc = 'Trend ist intakt und stark. Vorsicht vor Gier, aber Trend folgt.'; 
-      }
-      else if (rsi > 50) { 
-        x = 0.45; phase = 'Awareness / Aufwärtstrend'; 
-        desc = 'Institutioneller Aufbau. Der Trend etabliert sich gesund.'; 
-      }
-      else { 
-        x = isSqueeze ? 0.15 : 0.25; 
-        phase = isSqueeze ? 'Stealth / Squeeze' : 'Stealth Phase'; 
-        desc = isSqueeze ? 'Volatilität ist extrem niedrig. Ein Ausbruch steht oft bevor.' : 'Smart Money akkumuliert leise bei niedriger Aufmerksamkeit.'; 
-      }
+    var m = cycleMetrics(A);
+    if (!m) return null;
+    var bearDiv = !!(A.div && A.div.type === 'bear'), key;
+
+    if (m.dd <= -30 && m.rsi < 32) key = 'despair';
+    else if (Math.abs(m.dev) <= 6 && m.flat && m.adx < 22 && m.dd <= -10 && m.dd > -35) key = 'stealth';
+    else if (m.dev <= 0 && m.dev > -6 && m.slopeUp && m.dd > -20) key = 'firstsell';
+    else if (m.dev < 0) {
+      if (m.rsi < 45) key = 'fear';
+      else if (m.rsi >= 52 && m.up >= 10) key = 'trap';
+      else key = 'denial';
     } else {
-      if (rsi < 25 && adx > 35) { 
-        x = 0.95; phase = 'Despair / Kapitulation'; 
-        desc = 'Panikverkäufe bei hoher Trendstärke. Historisch oft eine gute Einstiegschance.'; 
-      }
-      else if (rsi < 40) { 
-        x = 0.85; phase = 'Fear / Abwärtstrend'; 
-        desc = 'Abwärtstrend intakt. Anleger fürchten weitere Verluste.'; 
-      }
-      else if (rsi < 50) { 
-        x = 0.75; phase = 'Erholung / Retest'; 
-        desc = 'Der Kurs erholt sich leicht. Testet oft den abwärts gerichteten Trend.'; 
-      }
-      else { 
-        x = 0.65; phase = 'Hoffnung / Bull Trap Gefahr'; 
-        desc = 'Kurs über SMA200, aber langfristiger Kontext noch schwach. Bewährungsprobe.'; 
-      }
+      if (m.dev >= 25 && m.rsi >= 70 && (bearDiv || m.adx < 25)) key = 'blowoff';
+      else if (m.dev >= 20 && m.rsi >= 65) key = 'mania';
+      else if (m.slopeDown && m.dev <= 6) key = 'trap';
+      else if (m.dd <= -10 && m.dd > -30 && m.rsi < 50) key = 'firstsell';
+      else if (m.dev >= 10 && m.rsi >= 55 && m.adx >= 20) key = 'enthusiasm';
+      else key = 'takeoff';
     }
-    
-    // Y-Wert (Valuation) anhand der X-Position auf der Kurve schätzen
-    var curve = [
-      {x: 0.0, y: 0.15}, {x: 0.15, y: 0.22}, {x: 0.25, y: 0.28}, {x: 0.45, y: 0.42},
-      {x: 0.55, y: 0.55}, {x: 0.65, y: 0.75}, {x: 0.68, y: 0.95}, {x: 0.75, y: 0.75},
-      {x: 0.78, y: 0.85}, {x: 0.85, y: 0.45}, {x: 0.95, y: 0.15}, {x: 1.0, y: 0.40}
-    ];
-    
+
+    var ph = PHASES[key], desc = ph.desc;
+    if (key === 'despair' && A.volSpike) desc += ' Erhöhtes Volumen stützt die Kapitulations-These.';
+    if (key === 'blowoff' && bearDiv) desc += ' Zusätzlich liegt eine bärische RSI-Divergenz vor.';
+
+    // Y-Wert nur zur Platzierung auf der Kurve (keine Bewertung)
     var y = 0.4;
-    for (var i = 0; i < curve.length - 1; i++) {
-      if (x >= curve[i].x && x <= curve[i+1].x) {
-        var t = (x - curve[i].x) / (curve[i+1].x - curve[i].x);
-        y = curve[i].y + t * (curve[i+1].y - curve[i].y);
+    for (var i = 0; i < CYCLE_CURVE.length - 1; i++) {
+      if (ph.x >= CYCLE_CURVE[i].x && ph.x <= CYCLE_CURVE[i + 1].x) {
+        var t = (ph.x - CYCLE_CURVE[i].x) / (CYCLE_CURVE[i + 1].x - CYCLE_CURVE[i].x);
+        y = CYCLE_CURVE[i].y + t * (CYCLE_CURVE[i + 1].y - CYCLE_CURVE[i].y);
         break;
       }
     }
-    
-    return { x: x, y: y, phase: phase, desc: desc };
+
+    var f1 = function (v) { return (v >= 0 ? '+' : '') + v.toFixed(1).replace('.', ',') + ' %'; };
+    var facts = 'Abstand zum SMA200 ' + f1(m.dev) +
+      (m.slope !== null ? ', SMA200 ' + (m.slopeUp ? 'steigend' : m.slopeDown ? 'fallend' : 'seitwärts') : '') +
+      ', RSI (5T) ' + Math.round(m.rsi) + ', ADX ' + Math.round(m.adx) +
+      ', zum 52W-Hoch ' + f1(m.dd);
+
+    return { key: key, x: ph.x, y: y, phase: ph.name, desc: desc, tone: ph.tone, color: TONE_COLOR[ph.tone], facts: facts, metrics: m };
   }
 
   function renderCycleChart(canvas, phaseData, A) {
@@ -603,11 +643,7 @@ window.App.ChartAnalyse = (function () {
     ctx.fillText('Mean (SMA 200)', px(1) - 5, py(meanEndY) - 5);
 
     // Die Kurve zeichnen
-    var pts = [
-      {x: 0.0, y: 0.15}, {x: 0.15, y: 0.22}, {x: 0.25, y: 0.28}, {x: 0.45, y: 0.42},
-      {x: 0.55, y: 0.55}, {x: 0.65, y: 0.75}, {x: 0.68, y: 0.95}, {x: 0.75, y: 0.75},
-      {x: 0.78, y: 0.85}, {x: 0.85, y: 0.45}, {x: 0.95, y: 0.15}, {x: 1.0, y: 0.40}
-    ];
+    var pts = CYCLE_CURVE;
     
     ctx.strokeStyle = '#818cf8'; ctx.lineWidth = 2.5;
     ctx.beginPath();
@@ -625,7 +661,7 @@ window.App.ChartAnalyse = (function () {
     var labels = [
       {x: 0.08, y: 0.22, text: 'Stealth', align: 'left'},
       {x: 0.25, y: 0.35, text: 'Take off', align: 'center'},
-      {x: 0.40, y: 0.50, text: 'First Sell off', align: 'center'},
+      {x: 0.45, y: 0.50, text: 'First Sell off', align: 'center'},
       {x: 0.55, y: 0.60, text: 'Enthusiasmus', align: 'center'},
       {x: 0.65, y: 0.82, text: 'Mania', align: 'center'},
       {x: 0.68, y: 1.02, text: 'Blow off', align: 'center'},
@@ -641,14 +677,9 @@ window.App.ChartAnalyse = (function () {
     });
 
     // Aktueller Punkt (Marker) mit dynamischer Farbe
-    var dotColor = '#10b981'; // Standard Grün
-    if (phaseData.phase.includes('Blow off') || phaseData.phase.includes('Despair') || phaseData.phase.includes('Fear')) {
-      dotColor = '#ef4444'; // Rot
-    } else if (phaseData.phase.includes('Mania') || phaseData.phase.includes('Hoffnung') || phaseData.phase.includes('Bull Trap')) {
-      dotColor = '#f59e0b'; // Orange
-    }
+    var dotColor = phaseData.color || '#10b981';
 
-    var cx = px(phaseData.x), cy = py(phaseData.y);
+        var cx = px(phaseData.x), cy = py(phaseData.y);
     
     // Pulsierender Kreis
     ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI * 2);
@@ -666,11 +697,17 @@ window.App.ChartAnalyse = (function () {
 
   function cycleCard(A) {
     var phaseData = getCyclePhase(A);
+    if (!phaseData) {
+      return card(termLink('Marktzyklus') + '-Phase', '<span class="period-tag">n/a</span>',
+        '<div class="chart-signal-list">' + row('var(--text-dim)', '<b>Zu wenig Historie</b>', 'Für die Einschätzung werden mindestens 200 Handelstage Kursdaten benötigt (SMA200).') + '</div>' + NOTE);
+    }
     return card(termLink('Marktzyklus') + '-Phase', '<span class="period-tag">' + phaseData.phase + '</span>',
       '<div style="position:relative;width:100%;height:180px;margin-bottom:8px;"><canvas id="ca-cycle-canvas" style="width:100%;height:100%;"></canvas></div>' +
-      '<div class="chart-signal-list">' + 
-        row('var(--bullish)', '<b>' + phaseData.phase + '</b>', phaseData.desc) + 
-      '</div>' + NOTE);
+      '<div class="chart-signal-list">' +
+        row(phaseData.color, '<b>' + phaseData.phase + '</b> · ' + TONE_TXT[phaseData.tone], phaseData.desc) +
+        row('var(--text-dim)', 'Grundlage', phaseData.facts) +
+      '</div>' +
+      '<div class="chart-note">Schematische Darstellung der Marktpsychologie. Die Höhe in der Grafik ist keine Bewertung. Regelbasierte Einschätzung, keine Prognose und keine Anlageberatung.</div>');
   }
 
   // ---------------------------------------------------------------------------
@@ -1053,7 +1090,8 @@ window.App.ChartAnalyse = (function () {
     
     bindTerms(slot);
     draw(slot.querySelector('#ca-canvas'), A);
-    renderCycleChart(slot.querySelector('#ca-cycle-canvas'), getCyclePhase(A), A);
+    var cycCanvas = slot.querySelector('#ca-cycle-canvas'), cycData = getCyclePhase(A);
+    if (cycCanvas && cycData) renderCycleChart(cycCanvas, cycData, A);
     
     [].forEach.call(slot.querySelectorAll('.ca-btn'), function (b) {
       b.onclick = function (e) {
@@ -1100,7 +1138,7 @@ window.App.ChartAnalyse = (function () {
     var cur = (stock.quote && stock.quote.currency) || 'EUR', s = 'Chart-Analyse: Score ' + A.score + '/100 (' + BIAS_TXT[A.label] + ')';
     
     var cp = getCyclePhase(A);
-    s += '; Marktzyklus-Phase: ' + cp.phase + ' (' + cp.desc + ')';
+    if (cp) s += '; Marktzyklus-Phase: ' + cp.phase + ' (' + cp.facts + ')';
     
     var names = A.pats.filter(function (p) { return p.kind === 'chart'; }).map(function (p) { return p.name + ' (' + BIAS_TXT[p.bias] + ', ' + p.status + ')'; });
     var cand = A.pats.filter(function (p) { return p.kind === 'candle'; }).map(function (p) { return p.name + ' am ' + deDate(p.date); });
