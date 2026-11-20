@@ -104,13 +104,16 @@ window.App.Forecast = (function () {
     for (i = 1; i < full.length; i++) rets.push(Math.log(full[i] / full[i - 1]));
     var mu = rets.reduce(function (a, b) { return a + b; }, 0) / rets.length;
     var sigma = Math.sqrt(rets.reduce(function (a, b) { return a + (b - mu) * (b - mu); }, 0) / (rets.length - 1));
-    var m = { c: c, n: n, F: F, px: px, sigma: sigma, period: PL[period] ? period : '1Y', hasTrend: n >= 20 };
+    var m = { c: c, n: n, F: F, px: px, sigma: sigma, period: PL[period] ? period : '1Y', hasTrend: closes.length >= 20 };
     if (m.hasTrend) {
-      var ly = c.map(Math.log), mx = (n - 1) / 2, my = ly.reduce(function (a, b) { return a + b; }, 0) / n, sxy = 0, sxx = 0, res = 0;
-      for (i = 0; i < n; i++) { sxy += (i - mx) * (ly[i] - my); sxx += (i - mx) * (i - mx); }
+      // Kurze Zeiträume (1 Woche): Kanal über mindestens 20 Handelstage berechnen, nur der sichtbare Teil wird gezeichnet
+      var fitN = Math.min(closes.length, Math.max(n, 20)), cf = closes.slice(-fitN);
+      m.off = fitN - n;
+      var ly = cf.map(Math.log), mx = (fitN - 1) / 2, my = ly.reduce(function (a, b) { return a + b; }, 0) / fitN, sxy = 0, sxx = 0, res = 0;
+      for (i = 0; i < fitN; i++) { sxy += (i - mx) * (ly[i] - my); sxx += (i - mx) * (i - mx); }
       m.b = sxy / sxx; m.a = my - m.b * mx;
-      for (i = 0; i < n; i++) res += Math.pow(ly[i] - (m.a + m.b * i), 2);
-      m.s = Math.sqrt(res / (n - 2));
+      for (i = 0; i < fitN; i++) res += Math.pow(ly[i] - (m.a + m.b * i), 2);
+      m.s = Math.sqrt(res / (fitN - 2));
     }
     var low = Math.min.apply(null, full);
     m.support = [low, low * 1.05];
@@ -233,7 +236,7 @@ window.App.Forecast = (function () {
       [[0, '#8b5cf6'], [1.5, 'rgba(139,92,246,.6)'], [-1.5, 'rgba(139,92,246,.6)']].forEach(function (d) {
         g.strokeStyle = d[1]; g.lineWidth = 1; g.setLineDash(d[0] === 0 ? [2, 3] : []); g.beginPath();
         var step = Math.max(1, Math.round((n - 1 + tf) / 60));
-        for (var k = 0; k <= n - 1 + tf; k += step) { var px_ = x(k), py_ = y(Math.exp(m.a + m.b * k + d[0] * m.s)); if (k === 0) g.moveTo(px_, py_); else g.lineTo(px_, py_); }
+        for (var k = 0; k <= n - 1 + tf; k += step) { var px_ = x(k), py_ = y(Math.exp(m.a + m.b * (k + m.off) + d[0] * m.s)); if (k === 0) g.moveTo(px_, py_); else g.lineTo(px_, py_); }
         g.stroke(); g.setLineDash([]);
       });
     }
