@@ -345,6 +345,7 @@ window.App.Market = (function () {
 
     // NEU: Kurse aller Aktien aktualisieren (Live-Kurs + US-Handel), dauerhaft gespeichert
     html += liveCardHtml();
+    html += (window.App.Macro ? window.App.Macro.html() : '');
 
     // Zeitraum
     html += '<div class="horizontal-scroll-row" style="margin-bottom:12px;">';
@@ -510,6 +511,7 @@ window.App.Market = (function () {
 
   function bind(container) {
     bindLive(container);
+    if (window.App.Macro) window.App.Macro.bind();
     container.querySelectorAll('[data-mk-period]').forEach(function (b) {
       b.onclick = function () { state.period = b.getAttribute('data-mk-period'); draw(container); window.scrollTo(0, 0); };
     });
