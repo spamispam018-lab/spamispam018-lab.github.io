@@ -5,11 +5,9 @@ Holt Makro-Daten (Zinsen, Inflation, VIX, EUR/USD, Arbeitsmarkt, Kreditaufschlä
 und schreibt sie nach data/macro.json. Wird vom Workflow update_macro.yml ausgeführt.
 
 Quellen:
-  - FRED (Federal Reserve Bank of St. Louis), öffentlicher CSV-Download ohne API-Schlüssel
+  - FRED (Federal Reserve Bank of St. Louis) über verschiedene Fallback-Endpunkte ohne API-Schlüssel
   - Yahoo Finance (über yfinance) für VIX und EUR/USD
 Fällt eine Reihe aus, wird sie übersprungen; die übrigen werden trotzdem gespeichert.
-Hinweis: Echte Einkaufsmanagerindizes (PMI/ISM) sind nicht kostenlos verfügbar. Stattdessen werden
-Arbeitsmarkt-Indikatoren (Sahm-Regel, Erstanträge, Arbeitslosenquote) verwendet.
 """
 import csv
 import io
@@ -109,28 +107,71 @@ def _http_get(url, timeout=40, tries=3):
 
 
 def fetch_fred(series_id):
-    """Mit FRED_API_KEY über die offizielle API, sonst über den CSV-Download."""
+    """Holt FRED-Daten mit mehreren Fallbacks, falls GitHub blockiert."""
     out = []
+    
+    # 1. Offizielle API (falls FRED_API_KEY gesetzt ist)
     if FRED_KEY:
-        text = _http_get(FRED_API.format(id=series_id, key=urllib.parse.quote(FRED_KEY)))
-        for o in json.loads(text).get("observations", []):
-            if o.get("value") in (".", "", None):
+        try:
+            text = _http_get(FRED_API.format(id=series_id, key=urllib.parse.quote(FRED_KEY)))
+            for o in json.loads(text).get("observations", []):
+                if o.get("value") in (".", "", None):
+                    continue
+                try:
+                    out.append((o["date"], float(o["value"])))
+                except (ValueError, KeyError):
+                    continue
+            if out: return out
+        except Exception:
+            pass
+
+    # 2. Direkter FRED CSV-Download
+    try:
+        text = _http_get(FRED_URL.format(id=series_id))
+        rows = list(csv.reader(io.StringIO(text)))[1:]
+        for row in rows:
+            if len(row) < 2 or row[1] in (".", ""):
                 continue
             try:
-                out.append((o["date"], float(o["value"])))
-            except (ValueError, KeyError):
+                out.append((row[0], float(row[1])))
+            except ValueError:
                 continue
-        return out
-    text = _http_get(FRED_URL.format(id=series_id))
-    rows = list(csv.reader(io.StringIO(text)))[1:]
-    for row in rows:
-        if len(row) < 2 or row[1] in (".", ""):
-            continue
-        try:
-            out.append((row[0], float(row[1])))
-        except ValueError:
-            continue
-    return out
+        if out: return out
+    except Exception:
+        pass
+
+    # 3. Ivo Welch CSV-Gateway (sehr zuverlässig bei GitHub Actions)
+    try:
+        text = _http_get(f"https://www.ivo-welch.org/cgi-bin/fredwrap?symbol={series_id}")
+        rows = list(csv.reader(io.StringIO(text)))[1:]
+        for row in rows:
+            if len(row) < 2 or row[1] in (".", ""):
+                continue
+            try:
+                out.append((row[0], float(row[1])))
+            except ValueError:
+                continue
+        if out: return out
+    except Exception:
+        pass
+
+    # 4. DBnomics API (Open-Source Makro-Datenbank, JSON basiert)
+    try:
+        url = f"https://api.db.nomics.world/v22/series/FRED/{series_id}?observations=1"
+        text = _http_get(url)
+        data = json.loads(text)
+        docs = data.get("series", {}).get("docs", [])
+        if docs:
+            dates = docs[0].get("period", [])
+            values = docs[0].get("value", [])
+            for d, v in zip(dates, values):
+                if v is not None and v != "NA":
+                    out.append((d, float(v)))
+        if out: return out
+    except Exception:
+        pass
+
+    raise ValueError(f"Konnte {series_id} über keine Quelle laden.")
 
 
 def fetch_yahoo(symbol):
