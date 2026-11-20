@@ -3,12 +3,8 @@
 scripts/fetch_macro.py
 Holt Makro-Daten (Zinsen, Inflation, VIX, EUR/USD, Arbeitsmarkt, Kreditaufschläge, Kreditausfälle)
 und schreibt sie nach data/macro.json. Wird vom Workflow update_macro.yml ausgeführt.
-
-Quellen:
-  - FRED (Federal Reserve Bank of St. Louis) über verschiedene Fallback-Endpunkte ohne API-Schlüssel
-  - Yahoo Finance (über yfinance) für VIX und EUR/USD
-Fällt eine Reihe aus, wird sie übersprungen; die übrigen werden trotzdem gespeichert.
 """
+
 import csv
 import io
 import json
@@ -85,8 +81,8 @@ YAHOO_SERIES = [
 ]
 
 
-def _http_get(url, timeout=40, tries=3):
-    """GET mit Wiederholungen; gibt Text zurück oder wirft den letzten Fehler."""
+def _http_get(url, timeout=15, tries=1):
+    """GET mit stark reduzierten Retries und Timeouts, um den Workflow zu beschleunigen."""
     last = None
     for i in range(tries):
         try:
@@ -102,12 +98,14 @@ def _http_get(url, timeout=40, tries=3):
                 break
         except Exception as e:  # noqa: BLE001
             last = e
-        time.sleep(2 * (i + 1))
+        # Sehr kurze Pause (0.5 Sekunden) falls doch mal wiederholt wird
+        if i < tries - 1:
+            time.sleep(0.5)
     raise last
 
 
 def fetch_fred(series_id):
-    """Holt FRED-Daten mit mehreren Fallbacks, falls GitHub blockiert."""
+    """Holt FRED-Daten mit schnellen Fallbacks, falls GitHub blockiert."""
     out = []
     
     # 1. Offizielle API (falls FRED_API_KEY gesetzt ist)
