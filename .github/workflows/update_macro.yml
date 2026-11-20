@@ -1,0 +1,45 @@
+name: Makro-Daten aktualisieren
+
+on:
+  schedule:
+    # Werktags 06:30 UTC
+    - cron: '30 6 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  macro:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Python 3.11 einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Abhängigkeiten installieren
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade yfinance pandas
+
+      - name: Makro-Daten abrufen
+        run: python scripts/fetch_macro.py
+
+      - name: Änderungen committen und pushen
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/macro.json
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen."
+          else
+            git commit -m "Makro-Daten aktualisiert: $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git pull --rebase origin main
+            git push origin main
+          fi
