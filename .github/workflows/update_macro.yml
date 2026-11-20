@@ -29,6 +29,8 @@ jobs:
           pip install --upgrade yfinance pandas
 
       - name: Makro-Daten abrufen
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/fetch_macro.py
 
       - name: Änderungen committen und pushen
