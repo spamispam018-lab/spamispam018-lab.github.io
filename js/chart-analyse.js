@@ -634,7 +634,7 @@ window.App.ChartAnalyse = (function () {
     var ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
     var css = getComputedStyle(canvas), txt = css.getPropertyValue('--text-main').trim() || '#e5e7eb', dim = css.getPropertyValue('--text-dim').trim() || '#94a3b8';
 
-    var padL = 14, padR = 14, padT = 30, padB = 14;
+    var padL = 14, padR = 14, padT = 16, padB = 14;
     var pw = W - padL - padR, ph = H - padT - padB;
     function px(x) { return padL + x * pw; }
     function py(y) { return padT + (1 - y) * ph; }
@@ -671,17 +671,6 @@ window.App.ChartAnalyse = (function () {
       ctx.fillText(String(idx + 1), px(def.x), py(cy0) + 0.5);
     });
 
-    // „Aktuell"-Beschriftung über dem aktiven Marker, innerhalb des Zeichenbereichs
-    var cx = px(phaseData.x), cy = py(phaseData.y);
-    ctx.font = 'bold 10px sans-serif';
-    var label = 'Aktuell: ' + phaseData.short, tw = ctx.measureText(label).width + 12;
-    var lx = clamp(cx - tw / 2, 2, W - tw - 2), ly = Math.max(2, cy - 34);
-    ctx.fillStyle = 'rgba(15,23,42,.92)'; ctx.strokeStyle = phaseData.color; ctx.lineWidth = 1;
-    ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(lx, ly, tw, 18, 9); else ctx.rect(lx, ly, tw, 18);
-    ctx.fill(); ctx.stroke();
-    ctx.fillStyle = phaseData.color; ctx.textAlign = 'center';
-    ctx.fillText(label, lx + tw / 2, ly + 9.5);
   }
 
   function cycleLegend(active) {
@@ -694,7 +683,7 @@ window.App.ChartAnalyse = (function () {
         PHASE_SHORT[key] + '</div>';
     });
     return h + '</div>' +
-      '<div style="font-size:.68rem;color:var(--text-dim);margin:-4px 0 10px;">Gestrichelte Linie = SMA200 (Mean). Der Kreis mit „Aktuell" zeigt die berechnete Phase.</div>';
+      '<div style="font-size:.68rem;color:var(--text-dim);margin:-4px 0 10px;">Gestrichelte Linie = SMA200 (Mean). Der farbige Kreis zeigt die berechnete Phase.</div>';
   }
 
   function cycleStats(stats) {
