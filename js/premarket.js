@@ -11,7 +11,7 @@ window.App.PreMarket = (function () {
 
   var PROXY_URL = 'https://yahoo-proxy.spamispam018.workers.dev';
   // NEU: chartRange speichert den aktuell gewählten Zeitraum
-  var state = { ticker: null, chartRange: '1d', lastPrePoints: [], lastHLines: [] };
+  var state = { ticker: null, chartRange: '1d', lastPrePoints: [], lastHLines: [], channel: false };
 
   var INFO_TEXTS = {
     nq: { 
@@ -265,6 +265,10 @@ window.App.PreMarket = (function () {
           '<button class="pill-btn" data-pm-range="2h">2h</button>' +
           '<button class="pill-btn" data-pm-range="1h">1h</button>' +
         '</div>' +
+        '<div style="display:flex;justify-content:center;margin-top:8px;">' +
+          '<button class="pill-btn" id="pm-channel-btn">📐 Trendkanal</button>' +
+        '</div>' +
+        '<div id="pm-channel-info" style="display:none;font-size:0.72rem;color:var(--text-dim);margin-top:8px;line-height:1.5;text-align:center;"></div>' +
 
         '<div id="pm-times" style="margin-top:10px;font-size:0.72rem;color:var(--text-dim);line-height:1.6;"></div>' +
         '<div style="margin-top:12px;display:flex;gap:8px;">' +
@@ -569,6 +573,17 @@ window.App.PreMarket = (function () {
 
   // Zeitfenster-Buttons (1T, 6h, 3h, 2h, 1h): auch vor dem Laden der Daten klickbar
   function bindPills(container) {
+    var chBtn = container.querySelector('#pm-channel-btn');
+    if (chBtn) {
+      chBtn.classList.toggle('active', !!state.channel);
+      chBtn.onclick = function () {
+        state.channel = !state.channel;
+        chBtn.classList.toggle('active', state.channel);
+        if (state.lastPrePoints && state.lastPrePoints.length) {
+          drawChart(container, state.lastPrePoints, state.lastHLines);
+        }
+      };
+    }
     var pills = container.querySelectorAll('[data-pm-range]');
     pills.forEach(function (pill) {
       pill.classList.toggle('active', pill.getAttribute('data-pm-range') === state.chartRange);
@@ -625,11 +640,46 @@ window.App.PreMarket = (function () {
     });
     var values = filtered.map(function (p) { return p.price; });
 
+    // Trendkanal: lineare Regression über das sichtbare Fenster, Band = ±2 Standardabweichungen der Abweichungen
+    var overlays = [];
+    var chInfo = container.querySelector('#pm-channel-info');
+    if (state.channel && values.length >= 10) {
+      var nV = values.length, mxI = (nV - 1) / 2, myV = 0, i2;
+      for (i2 = 0; i2 < nV; i2++) myV += values[i2];
+      myV /= nV;
+      var sxy = 0, sxx = 0;
+      for (i2 = 0; i2 < nV; i2++) { sxy += (i2 - mxI) * (values[i2] - myV); sxx += (i2 - mxI) * (i2 - mxI); }
+      var slope = sxy / sxx, icpt = myV - slope * mxI, sq = 0;
+      for (i2 = 0; i2 < nV; i2++) sq += Math.pow(values[i2] - (icpt + slope * i2), 2);
+      var sd = Math.sqrt(sq / Math.max(1, nV - 2));
+      var mid = [], up = [], lo = [];
+      for (i2 = 0; i2 < nV; i2++) { var base = icpt + slope * i2; mid.push(base); up.push(base + 2 * sd); lo.push(base - 2 * sd); }
+      overlays = [
+        { values: up,  color: 'rgba(250,204,21,.85)', dashed: false, width: 1.2 },
+        { values: lo,  color: 'rgba(250,204,21,.85)', dashed: false, width: 1.2 },
+        { values: mid, color: 'rgba(250,204,21,.6)',  dashed: true,  width: 1 }
+      ];
+      if (chInfo) {
+        var lastV = values[nV - 1], width = up[nV - 1] - lo[nV - 1];
+        var pos = width > 0 ? Math.max(0, Math.min(100, ((lastV - lo[nV - 1]) / width) * 100)) : 50;
+        var minutes = Math.max(1, Math.round((filtered[nV - 1].t - filtered[0].t) / 60000));
+        var perH = (slope * 60 / (nV > 1 ? (minutes / (nV - 1)) : 1)) / mid[0] * 100;
+        var zone = pos >= 80 ? 'oberer Rand' : pos <= 20 ? 'unterer Rand' : 'Mitte';
+        chInfo.style.display = 'block';
+        chInfo.textContent = 'Trendkanal (Regression, ±2σ): Trend ' + (perH >= 0 ? '+' : '') + perH.toFixed(2).replace('.', ',') +
+          ' % pro Stunde · Kurs im Kanal: ' + zone + ' (' + Math.round(pos) + ' %)';
+      }
+    } else if (chInfo) {
+      chInfo.style.display = state.channel ? 'block' : 'none';
+      chInfo.textContent = state.channel ? 'Zu wenig Datenpunkte für einen Trendkanal.' : '';
+    }
+
     window.App.Charts.renderLineChart(canvas, {
       labels: labels,
       values: values,
       formatY: function (v) { return window.App.Format.currency(v, 'EUR', 2); },
-      horizontalLines: hLines
+      horizontalLines: hLines,
+      overlays: overlays
     });
   }
 
