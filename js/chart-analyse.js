@@ -555,6 +555,10 @@ window.App.ChartAnalyse = (function () {
       desc: 'Starker Kursverfall bei überverkauftem Momentum. Oft Kapitulation und historisch eine Chance, aber mit hohem Risiko.' }
   };
 
+  var PHASE_ORDER = ['stealth', 'takeoff', 'firstsell', 'enthusiasm', 'mania', 'blowoff', 'denial', 'trap', 'fear', 'despair'];
+  var PHASE_SHORT = { stealth: 'Stealth', takeoff: 'Take off', firstsell: 'First Sell off', enthusiasm: 'Enthusiasmus', mania: 'Mania',
+    blowoff: 'Blow off', denial: 'Denial', trap: 'Bull Trap', fear: 'Fear', despair: 'Despair' };
+
   function cycleMetrics(A) {
     if (!A || !A.s200) return null;     // ohne 200 Handelstage keine verlässliche Einschätzung
     var rs = (A.rsiSeries || []).slice(-5).filter(function (v) { return v !== null && v !== undefined; });
@@ -613,101 +617,111 @@ window.App.ChartAnalyse = (function () {
       ', RSI (5T) ' + Math.round(m.rsi) + ', ADX ' + Math.round(m.adx) +
       ', zum 52W-Hoch ' + f1(m.dd);
 
-    return { key: key, x: ph.x, y: y, phase: ph.name, desc: desc, tone: ph.tone, color: TONE_COLOR[ph.tone], facts: facts, metrics: m };
+    var stats = [
+      { l: 'Abstand zum SMA200', v: f1(m.dev), s: m.slope === null ? '' : 'SMA200 ' + (m.slopeUp ? 'steigend' : m.slopeDown ? 'fallend' : 'seitwärts') },
+      { l: 'Zum 52W-Hoch', v: f1(m.dd), s: '' },
+      { l: 'RSI (5 Tage)', v: String(Math.round(m.rsi)), s: m.rsi >= 70 ? 'überkauft' : m.rsi <= 30 ? 'überverkauft' : '' },
+      { l: 'Trendstärke (ADX)', v: String(Math.round(m.adx)), s: m.adx >= 25 ? 'starker Trend' : m.adx < 20 ? 'kaum Trend' : '' }
+    ];
+
+    return { key: key, x: ph.x, y: y, phase: ph.name, short: PHASE_SHORT[key], num: PHASE_ORDER.indexOf(key) + 1,
+      desc: desc, tone: ph.tone, color: TONE_COLOR[ph.tone], facts: facts, stats: stats, metrics: m };
   }
 
   function renderCycleChart(canvas, phaseData, A) {
-    var dpr = window.devicePixelRatio || 1, W = canvas.clientWidth || 300, H = canvas.clientHeight || 180;
+    var dpr = window.devicePixelRatio || 1, W = canvas.clientWidth || 300, H = canvas.clientHeight || 170;
     canvas.width = W * dpr; canvas.height = H * dpr;
     var ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
     var css = getComputedStyle(canvas), txt = css.getPropertyValue('--text-main').trim() || '#e5e7eb', dim = css.getPropertyValue('--text-dim').trim() || '#94a3b8';
-    
-    var padL = 10, padR = 10, padT = 25, padB = 30;
+
+    var padL = 14, padR = 14, padT = 30, padB = 14;
     var pw = W - padL - padR, ph = H - padT - padB;
     function px(x) { return padL + x * pw; }
     function py(y) { return padT + (1 - y) * ph; }
 
-    // DYNAMISCHE MEAN-LINIE:
-    // Wenn der Kurs stark über dem SMA200 liegt, sinkt die Mean-Linie (visuelle Überbewertung)
-    // Wenn der Kurs stark darunter liegt, steigt sie relativ an.
-    var dev = A.s200 ? (A.px / A.s200 - 1) : 0; 
-    var meanOffset = clamp(dev * 0.5, -0.15, 0.15); 
-    
-    var meanStartY = 0.15 - meanOffset;
-    var meanEndY = 0.40 - meanOffset;
-
-    ctx.strokeStyle = 'rgba(148,163,184,.3)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
-    ctx.beginPath(); ctx.moveTo(px(0), py(meanStartY)); ctx.lineTo(px(1), py(meanEndY)); ctx.stroke();
+    // Mean-Linie (SMA200), nur gestrichelt, ohne Text (die Legende erklärt sie)
+    var dev = A.s200 ? (A.px / A.s200 - 1) : 0;
+    var meanOffset = clamp(dev * 0.5, -0.15, 0.15);
+    ctx.strokeStyle = 'rgba(148,163,184,.35)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(px(0), py(0.15 - meanOffset)); ctx.lineTo(px(1), py(0.40 - meanOffset)); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = dim; ctx.font = '9px sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-    ctx.fillText('Mean (SMA 200)', px(1) - 5, py(meanEndY) - 5);
 
-    // Die Kurve zeichnen
+    // Kurve
     var pts = CYCLE_CURVE;
-    
-    ctx.strokeStyle = '#818cf8'; ctx.lineWidth = 2.5;
+    ctx.strokeStyle = '#818cf8'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
     ctx.beginPath();
     ctx.moveTo(px(pts[0].x), py(pts[0].y));
     for (var i = 1; i < pts.length; i++) {
-      var p0 = pts[i-1], p1 = pts[i];
-      var cp1x = px(p0.x + (p1.x - p0.x) / 3), cp1y = py(p0.y);
-      var cp2x = px(p0.x + 2 * (p1.x - p0.x) / 3), cp2y = py(p1.y);
-      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, px(p1.x), py(p1.y));
+      var p0 = pts[i - 1], p1 = pts[i];
+      ctx.bezierCurveTo(px(p0.x + (p1.x - p0.x) / 3), py(p0.y), px(p0.x + 2 * (p1.x - p0.x) / 3), py(p1.y), px(p1.x), py(p1.y));
     }
     ctx.stroke();
 
-    // Text-Labels an der Kurve (Sauber nach oben versetzt)
-    ctx.fillStyle = dim; ctx.font = '9px sans-serif'; ctx.textBaseline = 'bottom';
-    var labels = [
-      {x: 0.08, y: 0.22, text: 'Stealth', align: 'left'},
-      {x: 0.25, y: 0.35, text: 'Take off', align: 'center'},
-      {x: 0.45, y: 0.50, text: 'First Sell off', align: 'center'},
-      {x: 0.55, y: 0.60, text: 'Enthusiasmus', align: 'center'},
-      {x: 0.65, y: 0.82, text: 'Mania', align: 'center'},
-      {x: 0.68, y: 1.02, text: 'Blow off', align: 'center'},
-      {x: 0.75, y: 0.82, text: 'Denial', align: 'center'},
-      {x: 0.78, y: 0.92, text: 'Bull trap', align: 'center'},
-      {x: 0.85, y: 0.52, text: 'Fear', align: 'right'},
-      {x: 0.95, y: 0.22, text: 'Despair', align: 'center'},
-      {x: 0.98, y: 0.45, text: 'Return to mean', align: 'right'}
-    ];
-    labels.forEach(function(l) { 
-      ctx.textAlign = l.align;
-      ctx.fillText(l.text, px(l.x), py(l.y) - 4); 
+    // Nummerierte Marker für alle Phasen (Legende unter der Grafik)
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    PHASE_ORDER.forEach(function (key, idx) {
+      var def = PHASES[key], cy0 = null;
+      for (var j = 0; j < pts.length; j++) if (pts[j].x === def.x) cy0 = pts[j].y;
+      if (cy0 === null) return;
+      var active = key === phaseData.key, r = active ? 9 : 6.5;
+      ctx.beginPath(); ctx.arc(px(def.x), py(cy0), r, 0, Math.PI * 2);
+      ctx.fillStyle = active ? phaseData.color : 'rgba(15,23,42,.92)'; ctx.fill();
+      ctx.lineWidth = active ? 2 : 1; ctx.strokeStyle = active ? '#fff' : 'rgba(148,163,184,.6)'; ctx.stroke();
+      ctx.fillStyle = active ? '#0b1020' : dim; ctx.font = (active ? 'bold 10px' : '8px') + ' sans-serif';
+      ctx.fillText(String(idx + 1), px(def.x), py(cy0) + 0.5);
     });
 
-    // Aktueller Punkt (Marker) mit dynamischer Farbe
-    var dotColor = phaseData.color || '#10b981';
+    // „Aktuell"-Beschriftung über dem aktiven Marker, innerhalb des Zeichenbereichs
+    var cx = px(phaseData.x), cy = py(phaseData.y);
+    ctx.font = 'bold 10px sans-serif';
+    var label = 'Aktuell: ' + phaseData.short, tw = ctx.measureText(label).width + 12;
+    var lx = clamp(cx - tw / 2, 2, W - tw - 2), ly = Math.max(2, cy - 34);
+    ctx.fillStyle = 'rgba(15,23,42,.92)'; ctx.strokeStyle = phaseData.color; ctx.lineWidth = 1;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(lx, ly, tw, 18, 9); else ctx.rect(lx, ly, tw, 18);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = phaseData.color; ctx.textAlign = 'center';
+    ctx.fillText(label, lx + tw / 2, ly + 9.5);
+  }
 
-        var cx = px(phaseData.x), cy = py(phaseData.y);
-    
-    // Pulsierender Kreis
-    ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-    ctx.fillStyle = dotColor + '4D'; // 30% Transparenz
-    ctx.fill();
-    ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2);
-    ctx.fillStyle = dotColor;
-    ctx.fill();
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
-    
-    // Label für den aktuellen Punkt
-    ctx.fillStyle = dotColor; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText('Aktuell', cx + 10, cy);
+  function cycleLegend(active) {
+    var h = '<div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,auto);grid-auto-flow:column;gap:5px 12px;margin:4px 0 12px;">';
+    PHASE_ORDER.forEach(function (key, i) {
+      var on = key === active.key;
+      h += '<div style="display:flex;align-items:center;gap:7px;font-size:.74rem;line-height:1.2;' + (on ? 'color:' + active.color + ';font-weight:700;' : 'color:var(--text-dim);') + '">' +
+        '<span style="flex-shrink:0;width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;' +
+        (on ? 'background:' + active.color + ';color:#0b1020;' : 'border:1px solid rgba(148,163,184,.5);') + '">' + (i + 1) + '</span>' +
+        PHASE_SHORT[key] + '</div>';
+    });
+    return h + '</div>' +
+      '<div style="font-size:.68rem;color:var(--text-dim);margin:-4px 0 10px;">Gestrichelte Linie = SMA200 (Mean). Der Kreis mit „Aktuell" zeigt die berechnete Phase.</div>';
+  }
+
+  function cycleStats(stats) {
+    return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:2px 0 12px;">' + stats.map(function (st) {
+      return '<div style="padding:8px 10px;border-radius:var(--radius-sm,8px);background:var(--bg-secondary);border:1px solid var(--border-subtle);">' +
+        '<div style="font-size:.66rem;color:var(--text-dim);">' + st.l + '</div>' +
+        '<div style="font-size:.95rem;font-weight:700;color:var(--text-main);">' + st.v + '</div>' +
+        (st.s ? '<div style="font-size:.64rem;color:var(--text-dim);">' + st.s + '</div>' : '') + '</div>';
+    }).join('') + '</div>';
   }
 
   function cycleCard(A) {
     var phaseData = getCyclePhase(A);
+    var title = termLink('Marktzyklus-Phase');
     if (!phaseData) {
-      return card(termLink('Marktzyklus') + '-Phase', '<span class="period-tag">n/a</span>',
+      return card(title, '',
         '<div class="chart-signal-list">' + row('var(--text-dim)', '<b>Zu wenig Historie</b>', 'Für die Einschätzung werden mindestens 200 Handelstage Kursdaten benötigt (SMA200).') + '</div>' + NOTE);
     }
-    return card(termLink('Marktzyklus') + '-Phase', '<span class="period-tag">' + phaseData.phase + '</span>',
-      '<div style="position:relative;width:100%;height:180px;margin-bottom:8px;"><canvas id="ca-cycle-canvas" style="width:100%;height:100%;"></canvas></div>' +
+    var tag = '<span class="period-tag" style="color:' + phaseData.color + ';">' + phaseData.num + ' · ' + phaseData.short + '</span>';
+    return card(title, tag,
+      '<div style="position:relative;width:100%;height:170px;margin-bottom:10px;"><canvas id="ca-cycle-canvas" style="width:100%;height:100%;"></canvas></div>' +
+      cycleLegend(phaseData) +
       '<div class="chart-signal-list">' +
-        row(phaseData.color, '<b>' + phaseData.phase + '</b> · ' + TONE_TXT[phaseData.tone], phaseData.desc) +
-        row('var(--text-dim)', 'Grundlage', phaseData.facts) +
+        row(phaseData.color, '<b>' + phaseData.phase + '</b>', TONE_TXT[phaseData.tone] + ' · ' + phaseData.desc) +
       '</div>' +
-      '<div class="chart-note">Schematische Darstellung der Marktpsychologie. Die Höhe in der Grafik ist keine Bewertung. Regelbasierte Einschätzung, keine Prognose und keine Anlageberatung.</div>');
+      cycleStats(phaseData.stats) +
+      '<div class="chart-note">Schematische Darstellung der Marktpsychologie, die Höhe in der Grafik ist keine Bewertung. Regelbasierte Einschätzung, keine Prognose und keine Anlageberatung.</div>');
   }
 
   // ---------------------------------------------------------------------------
