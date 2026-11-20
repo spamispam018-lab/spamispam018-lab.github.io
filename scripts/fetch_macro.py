@@ -15,12 +15,17 @@ import csv
 import io
 import json
 import os
+import time
+import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 OUT_FILE = os.path.join(DATA_DIR, "macro.json")
 FRED_URL = "https://fred.stlouisfed.org/graph/fredgraph.csv?id={id}"
+FRED_API = "https://api.stlouisfed.org/fred/series/observations?series_id={id}&api_key={key}&file_type=json"
+FRED_KEY = os.environ.get("FRED_API_KEY", "").strip()
 KEEP = 60  # Punkte für die Mini-Grafik
 
 
@@ -82,12 +87,42 @@ YAHOO_SERIES = [
 ]
 
 
+def _http_get(url, timeout=40, tries=3):
+    """GET mit Wiederholungen; gibt Text zurück oder wirft den letzten Fehler."""
+    last = None
+    for i in range(tries):
+        try:
+            req = urllib.request.Request(url, headers={
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+                "Accept": "text/csv,application/json,*/*",
+            })
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read().decode("utf-8")
+        except urllib.error.HTTPError as e:
+            last = e
+            if e.code in (400, 401, 403, 404):  # Wiederholen bringt nichts
+                break
+        except Exception as e:  # noqa: BLE001
+            last = e
+        time.sleep(2 * (i + 1))
+    raise last
+
+
 def fetch_fred(series_id):
-    req = urllib.request.Request(FRED_URL.format(id=series_id), headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        text = r.read().decode("utf-8")
-    rows = list(csv.reader(io.StringIO(text)))[1:]
+    """Mit FRED_API_KEY über die offizielle API, sonst über den CSV-Download."""
     out = []
+    if FRED_KEY:
+        text = _http_get(FRED_API.format(id=series_id, key=urllib.parse.quote(FRED_KEY)))
+        for o in json.loads(text).get("observations", []):
+            if o.get("value") in (".", "", None):
+                continue
+            try:
+                out.append((o["date"], float(o["value"])))
+            except (ValueError, KeyError):
+                continue
+        return out
+    text = _http_get(FRED_URL.format(id=series_id))
+    rows = list(csv.reader(io.StringIO(text)))[1:]
     for row in rows:
         if len(row) < 2 or row[1] in (".", ""):
             continue
@@ -179,6 +214,15 @@ def main():
                     break
             except Exception as e:  # noqa: BLE001
                 errors.append(f"{sid}: {e}")
+                print(f"FEHLER {sid}: {type(e).__name__}: {e}")
+        if not item and ids[0] == "DGS10":
+            try:  # Ersatz: 10-jährige US-Rendite von Yahoo
+                item = build_item(("^TNX",) + spec[1:], fetch_yahoo("^TNX"))
+                if item:
+                    item["id"] = "DGS10"
+                    item["title"] = "US-Rendite 10 Jahre (Yahoo)"
+            except Exception as e:  # noqa: BLE001
+                print(f"FEHLER ^TNX: {e}")
         if item:
             items.append(item)
             print(f"OK   {item['id']}: {item['value']} ({item['date']})")
@@ -218,6 +262,8 @@ def main():
         json.dump({"updated": datetime.now(timezone.utc).isoformat(), "items": items, "errors": errors},
                   f, ensure_ascii=False, indent=1)
     print(f"{len(items)} Indikatoren gespeichert, {len(errors)} Fehler.")
+    if errors and not FRED_KEY:
+        print("HINWEIS: FRED blockiert Server oft. Lege den kostenlosen API-Schlüssel als GitHub-Secret FRED_API_KEY an.")
 
 
 if __name__ == "__main__":
