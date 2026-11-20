@@ -108,6 +108,17 @@ window.App.Charts = (function () {
     var buffer = (maxVal - minVal) * 0.1 || (maxVal * 0.05) || 1;
     minVal -= buffer; maxVal += buffer;
 
+    // NEU: Overlay-Linien (z. B. Trendkanal) in die Y-Skalierung einbeziehen
+    if (opts.overlays && opts.overlays.length) {
+      opts.overlays.forEach(function (ov) {
+        (ov.values || []).forEach(function (v) {
+          if (v == null || !isFinite(v)) return;
+          if (v < minVal) minVal = v - buffer * 0.25;
+          if (v > maxVal) maxVal = v + buffer * 0.25;
+        });
+      });
+    }
+
     // NEU: horizontale Linien in die Y-Skalierung einbeziehen
     if (opts.horizontalLines && opts.horizontalLines.length) {
       opts.horizontalLines.forEach(function (hl) {
@@ -149,6 +160,27 @@ window.App.Charts = (function () {
     ctx.lineWidth = 2.5;
     ctx.setLineDash([]);
     ctx.stroke();
+
+    // NEU: Overlay-Linien (Trendkanal): values[i] gehört zu Punkt i
+    if (opts.overlays && opts.overlays.length) {
+      opts.overlays.forEach(function (ov) {
+        var vs = ov.values || [];
+        ctx.save();
+        ctx.strokeStyle = ov.color || THEME.yellow;
+        ctx.lineWidth = ov.width || 1.2;
+        ctx.setLineDash(ov.dashed ? [5, 4] : []);
+        ctx.beginPath();
+        var started = false;
+        for (var q = 0; q < vs.length && q < points.length; q++) {
+          if (vs[q] == null || !isFinite(vs[q])) continue;
+          var oy = padding.top + chartH - ((vs[q] - minVal) / (maxVal - minVal)) * chartH;
+          oy = Math.max(padding.top, Math.min(h - padding.bottom, oy));
+          if (!started) { ctx.moveTo(points[q].x, oy); started = true; } else ctx.lineTo(points[q].x, oy);
+        }
+        ctx.stroke();
+        ctx.restore();
+      });
+    }
 
     // NEU: horizontale Referenzlinien (z. B. Xetra-Kurs)
     if (opts.horizontalLines && opts.horizontalLines.length) {
