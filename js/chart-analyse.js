@@ -2,6 +2,7 @@
  * js/chart-analyse.js – erweiterte Chart-Analyse (eigenständiges Modul)
  * Chartmuster (mehrere gleichzeitig), Kerzenmuster, Divergenz, Squeeze, ADX/ATR/OBV,
  * Ausbruch mit Volumen, Support/Widerstand, Risk/Reward (Stop an Unterstützung oder ATR), Chart-Score.
+ * NEU: Marktzyklus-Phase (Smart Money, Mania, Blow off, Despair etc.)
  * Alles wird im Browser aus stock.chartHistory berechnet. Keine Anlageberatung.
  *
  * Einbindung:  window.App.ChartAnalyse.mount(slotElement, stock, period)
@@ -16,7 +17,7 @@ window.App.ChartAnalyse = (function () {
   var BIAS_TXT = { bull: 'bullisch', bear: 'bärisch', neutral: 'neutral' };
   
   // UI-Status um tradeDir erweitert
-  var ui = { chart: true, candle: true, sr: false, zigzag: false, bollinger: false, capital: 10000, risk: 1, stop: 'support', target: 'resistance', tradeDir: 'long' };
+  var ui = { chart: true, candle: true, sr: false, zigzag: false, bollinger: false, capital: 10000, risk: 1, stop: 'support', target: 'resistance', tradeDir: 'long', cycle: true };
   var lastClickedToolTerm = null; 
 
   try { var sv = JSON.parse(localStorage.getItem('ca_ui') || 'null'); if (sv) for (var k0 in sv) ui[k0] = sv[k0]; } catch (e) { /* ignorieren */ }
@@ -35,14 +36,15 @@ window.App.ChartAnalyse = (function () {
     Score: { name: 'Chart-Score', text: 'Ein Gesamtwert von 0 bis 100 (50 = neutral), der fünf verschiedene technische Bereiche (Trend, Momentum, Muster, Signale und S/R-Lage) bündelt.' },
     Chartmuster: { name: 'Chartmuster', text: 'Automatische Erkennung klassischer Formationen (Doppel-Tops, SKS, Dreiecke, Flaggen). Ausbrüche werden stärker gewichtet, wenn sie mit hohem Volumen einhergehen.' },
     Kerzenmuster: { name: 'Kerzenmuster', text: 'Erkennung von kurzfristigen Umkehrsignalen (1-3 Tage) wie Hammer oder Engulfing auf Basis der Kerzenkörper.' },
-    ZigZag: { name: 'Wendepunkte (ZigZag)', text: 'Verbindet markante Hoch- und Tiefpunkte im Chart und filtert kleinere Schwankungen (Rauschen) heraus, um den Haupttrend sichtbar zu machen.' }
+    ZigZag: { name: 'Wendepunkte (ZigZag)', text: 'Verbindet markante Hoch- und Tiefpunkte im Chart und filtert kleinere Schwankungen (Rauschen) heraus, um den Haupttrend sichtbar zu machen.' },
+    Zyklus: { name: 'Marktzyklus (Psychologie)', text: 'Der Markt durchläuft emotionale Phasen. Von "Smart Money" (unbemerktes Akkumulieren), über Mania und Blow-off (Übertreibung nach oben) bis hin zu Despair und Kapitulation (Panikverkäufe). Wir schätzen die aktuelle Phase anhand von Trendstärke und Momentum (RSI) ein.' }
   };
 
   var TERM_RULES = [
     [/^ADX/, 'ADX'], [/^ATR/, 'ATR'], [/^OBV/, 'OBV'], [/Bollinger/, 'Bollinger'],
     [/Unterstützung|Widerstand/, 'Support'], [/Chance-Risiko-Verhältnis|CRV/, 'CRV'],
     [/Chart-Score/, 'Score'], [/Chartmuster/, 'Chartmuster'], [/Kerzenmuster/, 'Kerzenmuster'],
-    [/Wendepunkte|ZigZag/, 'ZigZag']
+    [/Wendepunkte|ZigZag/, 'ZigZag'], [/Marktzyklus/, 'Zyklus']
   ];
 
   function termKeyFor(label) {
@@ -515,6 +517,116 @@ window.App.ChartAnalyse = (function () {
   }
 
   // ---------------------------------------------------------------------------
+  // Marktzyklus Phase & Rendering
+  // ---------------------------------------------------------------------------
+  function getCyclePhase(A) {
+    var px = A.px, s200 = A.s200, rsi = A.rsi, adx = A.adx ? A.adx.adx : 0;
+    var x = 0.5, phase = 'Neutral', desc = '';
+    
+    // Heuristik zur Bestimmung der Position auf der X-Achse (0 = Stealth, 1 = Despair)
+    if (px > s200) {
+      if (rsi > 75) { x = 0.78; phase = 'Blow off / "New Paradigm"'; desc = 'Extreme Übertreibung, Gier regiert. Hohes Risiko für eine scharfe Korrektur.'; }
+      else if (rsi > 65) { x = 0.68; phase = 'Mania / Greed'; desc = 'Die breite Masse (Public) steigt ein. Der Trend ist stark, aber überhitzt.'; }
+      else if (rsi > 55) { x = 0.45; phase = 'Awareness / Enthusiasmus'; desc = 'Institutionelle Investoren bauen Positionen auf. Der Trend etabliert sich.'; }
+      else { x = 0.2; phase = 'Stealth Phase / Take off'; desc = 'Smart Money akkumuliert leise. Die Volatilität ist oft noch niedrig.'; }
+    } else {
+      if (rsi < 25) { x = 0.95; phase = 'Despair / Kapitulation'; desc = 'Panikverkäufe. Die Masse gibt auf. Historisch oft eine gute Langfrist-Chance.'; }
+      else if (rsi < 40) { x = 0.88; phase = 'Fear / Capitulation'; desc = 'Abwärtstrend intakt. Anleger fürchten weitere Verluste.'; }
+      else if (rsi < 50) { x = 0.82; phase = 'Denial / Return to mean'; desc = 'Der Kurs erholt sich leicht. Oft ein "Bull Trap" (Bärenfalle für Optimisten).'; }
+      else { x = 0.72; phase = 'Bull Trap / Hope'; desc = 'Ein gescheiterter Ausbruchsversuch. Der Markt sucht einen neuen Boden.'; }
+    }
+    
+    // Y-Wert (Valuation) anhand der X-Position auf der Kurve schätzen
+    var curve = [
+      {x: 0.0, y: 0.15}, {x: 0.15, y: 0.20}, {x: 0.35, y: 0.30}, {x: 0.45, y: 0.40},
+      {x: 0.55, y: 0.50}, {x: 0.68, y: 0.70}, {x: 0.78, y: 0.90}, {x: 0.82, y: 0.75},
+      {x: 0.88, y: 0.50}, {x: 0.95, y: 0.20}, {x: 1.0, y: 0.40}
+    ];
+    
+    var y = 0.4;
+    for (var i = 0; i < curve.length - 1; i++) {
+      if (x >= curve[i].x && x <= curve[i+1].x) {
+        var t = (x - curve[i].x) / (curve[i+1].x - curve[i].x);
+        // Einfache lineare Interpolation für den Y-Wert
+        y = curve[i].y + t * (curve[i+1].y - curve[i].y);
+        break;
+      }
+    }
+    
+    return { x: x, y: y, phase: phase, desc: desc };
+  }
+
+  function renderCycleChart(canvas, phaseData) {
+    var dpr = window.devicePixelRatio || 1, W = canvas.clientWidth || 300, H = canvas.clientHeight || 180;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    var ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+    var css = getComputedStyle(canvas), txt = css.getPropertyValue('--text-main').trim() || '#e5e7eb', dim = css.getPropertyValue('--text-dim').trim() || '#94a3b8';
+    
+    var padL = 10, padR = 10, padT = 20, padB = 30;
+    var pw = W - padL - padR, ph = H - padT - padB;
+    function px(x) { return padL + x * pw; }
+    function py(y) { return padT + (1 - y) * ph; }
+
+    // Mean-Linie (gestrichelt)
+    ctx.strokeStyle = 'rgba(148,163,184,.3)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(px(0), py(0.15)); ctx.lineTo(px(1), py(0.45)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = dim; ctx.font = '9px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText('Mean (Durchschnitt)', px(0.95), py(0.45) - 5);
+
+    // Die Kurve zeichnen (mit Bezier-Kurven für den flüssigen Look)
+    var pts = [
+      {x: 0.0, y: 0.15}, {x: 0.15, y: 0.20}, {x: 0.35, y: 0.30}, {x: 0.45, y: 0.40},
+      {x: 0.55, y: 0.50}, {x: 0.68, y: 0.70}, {x: 0.78, y: 0.90}, {x: 0.82, y: 0.75},
+      {x: 0.88, y: 0.50}, {x: 0.95, y: 0.20}, {x: 1.0, y: 0.40}
+    ];
+    
+    ctx.strokeStyle = '#818cf8'; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(px(pts[0].x), py(pts[0].y));
+    for (var i = 1; i < pts.length; i++) {
+      var p0 = pts[i-1], p1 = pts[i];
+      var cp1x = px(p0.x + (p1.x - p0.x) / 3), cp1y = py(p0.y);
+      var cp2x = px(p0.x + 2 * (p1.x - p0.x) / 3), cp2y = py(p1.y);
+      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, px(p1.x), py(p1.y));
+    }
+    ctx.stroke();
+
+    // Text-Labels an der Kurve
+    ctx.fillStyle = dim; ctx.font = '8px sans-serif'; ctx.textAlign = 'center';
+    var labels = [
+      {x: 0.1, y: 0.10, text: 'Stealth'}, {x: 0.25, y: 0.25, text: 'Take off'},
+      {x: 0.45, y: 0.35, text: 'Enthusiasmus'}, {x: 0.65, y: 0.60, text: 'Mania'},
+      {x: 0.78, y: 0.95, text: 'Blow off'}, {x: 0.88, y: 0.45, text: 'Fear'},
+      {x: 0.95, y: 0.10, text: 'Despair'}
+    ];
+    labels.forEach(function(l) { ctx.fillText(l.text, px(l.x), py(l.y)); });
+
+    // Aktueller Punkt (Marker)
+    var cx = px(phaseData.x), cy = py(phaseData.y);
+    
+    // Pulsierender Kreis
+    ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.3)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#10b981'; ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
+    
+    // Label für den aktuellen Punkt
+    ctx.fillStyle = '#10b981'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('Aktuell', cx + 8, cy + 3);
+  }
+
+  function cycleCard(A) {
+    var phaseData = getCyclePhase(A);
+    return card(termLink('Marktzyklus') + '-Phase', '<span class="period-tag">' + phaseData.phase + '</span>',
+      '<div style="position:relative;width:100%;height:180px;margin-bottom:8px;"><canvas id="ca-cycle-canvas" style="width:100%;height:100%;"></canvas></div>' +
+      '<div class="chart-signal-list">' + 
+        row('var(--bullish)', '<b>' + phaseData.phase + '</b>', phaseData.desc) + 
+      '</div>' + NOTE);
+  }
+
+  // ---------------------------------------------------------------------------
   // Darstellung
   // ---------------------------------------------------------------------------
   function F() { return window.App.Format; }
@@ -734,7 +846,7 @@ window.App.ChartAnalyse = (function () {
       '<div style="font-weight:700;color:var(--accent-purple-light);">Empfehlung für diese Aktie</div>' + html + '</div>';
   }
 
-  // --- NEU: Optimierte Risk/Reward Karte mit Visual Bar ---
+  // --- Risk/Reward Karte mit Visual Bar ---
   function rrCard(A, stock, cur) {
     var R = rrCalc(A, stock);
     var col = R.crv >= 2 ? 'var(--bullish)' : R.crv >= 1 ? '#f59e0b' : 'var(--bearish)';
@@ -900,13 +1012,14 @@ window.App.ChartAnalyse = (function () {
     var savedScroll = oldToolbar ? oldToolbar.scrollLeft : 0;
     
     var cur = (stock.quote && stock.quote.currency) || 'EUR';
-    slot.innerHTML = scoreCard(A) + patternsCard(A, cur) + signalsCard(A, cur) + rrCard(A, stock, cur);
+    slot.innerHTML = scoreCard(A) + cycleCard(A) + patternsCard(A, cur) + signalsCard(A, cur) + rrCard(A, stock, cur);
     
     var newToolbar = slot.querySelector('#ca-tools-toolbar');
     if (newToolbar && savedScroll > 0) newToolbar.scrollLeft = savedScroll;
     
     bindTerms(slot);
     draw(slot.querySelector('#ca-canvas'), A);
+    renderCycleChart(slot.querySelector('#ca-cycle-canvas'), getCyclePhase(A));
     
     [].forEach.call(slot.querySelectorAll('.ca-btn'), function (b) {
       b.onclick = function (e) {
@@ -951,6 +1064,11 @@ window.App.ChartAnalyse = (function () {
     try { A = analyse(stock, '6M'); } catch (e) { return ''; }
     if (!A) return '';
     var cur = (stock.quote && stock.quote.currency) || 'EUR', s = 'Chart-Analyse: Score ' + A.score + '/100 (' + BIAS_TXT[A.label] + ')';
+    
+    // NEU: Zyklusphase in den Prompt aufnehmen
+    var cp = getCyclePhase(A);
+    s += '; Marktzyklus-Phase: ' + cp.phase + ' (' + cp.desc + ')';
+    
     var names = A.pats.filter(function (p) { return p.kind === 'chart'; }).map(function (p) { return p.name + ' (' + BIAS_TXT[p.bias] + ', ' + p.status + ')'; });
     var cand = A.pats.filter(function (p) { return p.kind === 'candle'; }).map(function (p) { return p.name + ' am ' + deDate(p.date); });
     if (names.length) s += '; Chartmuster: ' + names.join(', ');
