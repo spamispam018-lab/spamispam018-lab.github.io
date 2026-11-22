@@ -211,7 +211,7 @@ window.App.Market = (function () {
 
     container.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Lade Marktdaten...</p></div>';
 
-    // NEU: Universe und Reddit-Daten parallel laden
+    // Universe und Reddit-Daten parallel laden
     Promise.all([
       window.App.Data.getUniverse(),
       window.App.News ? window.App.News.loadRedditIndex() : Promise.resolve({})
@@ -313,7 +313,7 @@ window.App.Market = (function () {
   }
 
   function stockRow(s, key) {
-    // NEU: Badge für Reddit-Aktivität
+    // Badge für Reddit-Aktivität
     var r = redditData[s.ticker];
     var redditBadge = '';
     if (r && r.mentions > 0) {
@@ -331,7 +331,7 @@ window.App.Market = (function () {
       '</div>';
   }
 
-  // NEU: Reddit-Trends Karte
+  // Reddit-Trends Karte (identisches Layout wie in der Detailansicht)
   function redditTrendsCardHtml() {
     var validReddit = Object.keys(redditData)
         .map(function(t) { return Object.assign({ ticker: t }, redditData[t]); })
@@ -350,21 +350,35 @@ window.App.Market = (function () {
         var sColor = isBull ? 'var(--bullish)' : (isBear ? 'var(--bearish)' : 'var(--text-dim)');
         var sText = r.sentiment ? (isBull ? 'Bullish' : (isBear ? 'Bearish' : 'Neutral')) : 'N/A';
         
+        var scoreStr = (r.sentiment_score !== undefined && r.sentiment_score !== null) 
+                       ? (r.sentiment_score > 0 ? '+' : '') + r.sentiment_score 
+                       : '';
+
         var pctColor = r.change_pct > 0 ? 'var(--bullish)' : (r.change_pct < 0 ? 'var(--bearish)' : 'var(--text-dim)');
         var pctStr = (r.change_pct > 0 ? '+' : '') + r.change_pct + '%';
+        
+        // Suchlinks generieren
+        var redditSearchUrl = 'https://www.reddit.com/search/?q=' + encodeURIComponent(r.ticker) + '&sort=new';
+        var wsbSearchUrl = 'https://www.reddit.com/r/wallstreetbets/search/?q=' + encodeURIComponent(r.ticker) + '&restrict_sr=1&sort=new';
 
         html += '' +
-          '<div class="mk-row" data-mk-ticker="' + esc(r.ticker) + '">' +
-            '<div class="mk-left" style="flex-direction:column;align-items:flex-start;gap:2px;">' +
+          '<div class="mk-row" data-mk-ticker="' + esc(r.ticker) + '" style="align-items: center; padding: 10px 2px; flex-wrap: wrap; gap: 8px;">' +
+            '<div class="mk-left" style="flex-direction:column;align-items:flex-start;gap:4px; flex: 1;">' +
               '<div style="display:flex;align-items:center;gap:6px;">' +
                 '<span class="ticker-badge">' + esc(r.ticker) + '</span>' +
-                '<span style="font-size:.75rem;font-weight:600;color:' + sColor + ';">' + sText + '</span>' +
+                // Mentions klickbar machen (Link zur allgemeinen Suche)
+                '<a href="' + redditSearchUrl + '" target="_blank" rel="noopener" style="font-size:.65rem;color:var(--text-dim);text-decoration:none;">' + 
+                  r.mentions + ' Mentions · <span style="color:' + pctColor + '">' + pctStr + ' ↗</span></a>' +
               '</div>' +
-              '<div style="font-size:.65rem;color:var(--text-dim);">' +
-                r.mentions + ' Mentions · <span style="color:' + pctColor + '">' + pctStr + ' vs. gestern</span>' +
+              '<div style="font-size:.72rem;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">' +
+                '<span style="color:' + sColor + ';font-weight:600;">WSB-Sentiment: ' + sText + '</span>' +
+                (scoreStr ? '<span style="color:var(--text-dim);">Score: ' + scoreStr + '</span>' : '') +
+                // Kommentare klickbar machen (Link zum r/wallstreetbets)
+                (r.wsb_comments ? '<a href="' + wsbSearchUrl + '" target="_blank" rel="noopener" style="color:var(--text-dim);text-decoration:none;">' + 
+                  r.wsb_comments + ' Kommentare ↗</a>' : '') +
               '</div>' +
             '</div>' +
-            '<div style="text-align:right;">' +
+            '<div style="text-align:right; flex-shrink: 0;">' +
               '<div style="font-size:.8rem;font-weight:700;">Rang #' + (r.rank || '-') + '</div>' +
               '<div style="font-size:.65rem;color:var(--text-dim);">' + (r.upvotes || 0) + ' Upvotes</div>' +
             '</div>' +
@@ -415,7 +429,7 @@ window.App.Market = (function () {
           (breadth === null ? '—' : window.App.Format.number(breadth, 0) + ' %') + '</div></div>' +
       '</div></div>';
 
-    // NEU: Reddit-Trends nur auf Gesamtmarkt-Ebene anzeigen
+    // Reddit-Trends nur auf Gesamtmarkt-Ebene anzeigen
     if (!state.sector && !state.industry) {
         html += redditTrendsCardHtml();
     }
