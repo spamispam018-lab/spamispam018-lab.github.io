@@ -1,13 +1,13 @@
 /**
  * js/news.js – Nachrichten + FinBERT-Bewertung (Daten: data/news/*.json, erzeugt von scripts/fetch_news.py)
- * + Reddit-Aufmerksamkeit (Daten: data/news/reddit_*.json, erzeugt von scripts/fetch_reddit.py via ApeWisdom)
+ * + Reddit-Aufmerksamkeit (ApeWisdom) + WSB-Sentiment (Tradestie)
  * Aktien-Karte, Sektor-Karte, Reddit-Buzz-Karte und Textbausteine für die Gemini-Prompts.
  */
 window.App = window.App || {};
 window.App.News = (function () {
   'use strict';
   var RAW = 'https://raw.githubusercontent.com/spamispam018-lab/spamispam018-lab.github.io/main/data/news/';
-  var cache = { index: null, sectors: null, tickers: {}, reddit: {} };
+  var cache = { index: null, sectors: null, tickers: {}, reddit: {}, redditIndex: null };
   var COL = { positive: '#22c55e', neutral: '#94a3b8', negative: '#ef4444' };
   var TXT = { positive: 'positiv', neutral: 'neutral', negative: 'negativ' };
 
@@ -26,6 +26,7 @@ window.App.News = (function () {
   function loadSectors() { return load('sectors', '_sectors.json'); }
   function loadTicker(t) { return load('tickers', encodeURIComponent(t) + '.json', t); }
   function loadReddit(t) { return load('reddit', 'reddit_' + encodeURIComponent(t) + '.json', t); }
+  function loadRedditIndex() { return load('redditIndex', '_reddit_index.json'); }
 
   function dateStr(iso) {
     var d = new Date(iso);
@@ -54,30 +55,51 @@ window.App.News = (function () {
     return '<div class="card"><div class="card-header-dotted"><span class="card-title">' + esc(title) + '</span></div>' + body + '</div>';
   }
 
-  // ---------- Reddit (ApeWisdom) ----------
+  // ---------- Reddit (ApeWisdom + Tradestie) ----------
   function redditBuzzBar(data) {
-    if (!data || !data.mentions) return '';
-    var pct = (data.change_pct > 0 ? '+' : '') + data.change_pct;
-    var color = data.change_pct > 0 ? COL.positive : data.change_pct < 0 ? COL.negative : COL.neutral;
-    return '<div style="display:flex;gap:12px;font-size:.72rem;margin-bottom:8px;align-items:center;flex-wrap:wrap;">' +
-      '<span style="color:' + color + ';font-weight:600;">' + pct + '% Mentions (24h)</span>' +
-      '<span style="color:var(--text-dim);">' + data.mentions + ' Erwähnungen</span>' +
-      '<span style="color:var(--text-dim);">' + data.upvotes + ' Upvotes</span>' +
-      (data.rank ? '<span style="color:var(--text-dim);">Rang #' + data.rank + '</span>' : '') +
-      '</div>';
+    if (!data) return '';
+    var html = '';
+
+    // 1. ApeWisdom Zeile (Momentum / Buzz)
+    if (data.mentions) {
+      var pct = (data.change_pct > 0 ? '+' : '') + data.change_pct;
+      var color = data.change_pct > 0 ? COL.positive : data.change_pct < 0 ? COL.negative : COL.neutral;
+      html += '<div style="display:flex;gap:12px;font-size:.72rem;margin-bottom:6px;align-items:center;flex-wrap:wrap;">' +
+        '<span style="color:' + color + ';font-weight:600;">' + pct + '% Mentions (24h)</span>' +
+        '<span style="color:var(--text-dim);">' + data.mentions + ' Erwähnungen</span>' +
+        (data.upvotes ? '<span style="color:var(--text-dim);">' + data.upvotes + ' Upvotes</span>' : '') +
+        (data.rank ? '<span style="color:var(--text-dim);">Rang #' + data.rank + '</span>' : '') +
+        '</div>';
+    }
+
+    // 2. Tradestie Zeile (Sentiment)
+    if (data.sentiment) {
+      var isBull = data.sentiment.toLowerCase() === 'bullish';
+      var sColor = isBull ? COL.positive : COL.negative;
+      var scoreStr = data.sentiment_score !== undefined && data.sentiment_score !== null 
+                     ? (data.sentiment_score > 0 ? '+' : '') + data.sentiment_score : '';
+      html += '<div style="display:flex;gap:12px;font-size:.72rem;margin-bottom:8px;align-items:center;flex-wrap:wrap;">' +
+        '<span style="color:' + sColor + ';font-weight:600;">WSB-Sentiment: ' + (isBull ? 'Bullish' : 'Bearish') + '</span>' +
+        (scoreStr ? '<span style="color:var(--text-dim);">Score: ' + scoreStr + '</span>' : '') +
+        (data.wsb_comments ? '<span style="color:var(--text-dim);">' + data.wsb_comments + ' Kommentare</span>' : '') +
+        '</div>';
+    }
+
+    return html;
   }
+
   function redditCardHtml(ticker, slotEl) {
     loadReddit(ticker).then(function (d) {
       if (!slotEl) return;
-      if (!d || !d.mentions) {
+      if (!d || (!d.mentions && !d.sentiment)) {
         slotEl.innerHTML = '<div class="card"><div class="card-header-dotted"><span class="card-title">Reddit-Aufmerksamkeit</span></div>' +
           '<div style="font-size:.75rem;color:var(--text-dim);">Keine Reddit-Daten für diesen Ticker gefunden.</div></div>';
         return;
       }
       slotEl.innerHTML = '<div class="card">' +
-        '<div class="card-header-dotted"><span class="card-title">Reddit-Aufmerksamkeit (ApeWisdom)</span></div>' +
+        '<div class="card-header-dotted"><span class="card-title">Reddit-Analyse</span></div>' +
         redditBuzzBar(d) +
-        '<div style="font-size:.62rem;color:var(--text-dim);margin-top:6px;">Mentions/Upvotes von Reddit, keine Anlageberatung.</div>' +
+        '<div style="font-size:.62rem;color:var(--text-dim);margin-top:6px;">Quellen: ApeWisdom & Tradestie, keine Anlageberatung.</div>' +
         '</div>';
     });
   }
@@ -94,7 +116,7 @@ window.App.News = (function () {
     return '<div id="news-sector-slot"></div>';
   }
 
-  // Prompt-Bausteine (synchron, nutzen den Cache)
+  // Prompt-Bausteine
   function promptBlock(ticker, n) {
     var d = cache.tickers[ticker];
     if (!d || !d.items || !d.items.length) return '';
@@ -111,14 +133,19 @@ window.App.News = (function () {
   }
   function redditLine(ticker) {
     var d = cache.reddit && cache.reddit[ticker];
-    if (!d || !d.mentions) return '';
-    return 'Reddit-Buzz: ' + d.mentions + ' Mentions (24h), ' +
-      (d.change_pct > 0 ? '+' : '') + d.change_pct + '% vs. Vortag, ' +
-      d.upvotes + ' Upvotes' + (d.rank ? ', Rang #' + d.rank : '');
+    if (!d) return '';
+    var parts = [];
+    if (d.mentions) {
+      parts.push('ApeWisdom: ' + d.mentions + ' Mentions (24h), ' + (d.change_pct > 0 ? '+' : '') + d.change_pct + '% vs. Vortag');
+    }
+    if (d.sentiment) {
+      parts.push('Tradestie (WSB): ' + d.sentiment + (d.sentiment_score !== undefined ? ' (Score: ' + d.sentiment_score + ')' : ''));
+    }
+    return parts.length ? 'Reddit-Aktivität: ' + parts.join(' | ') : '';
   }
 
   loadIndex(); loadSectors();
-  return { cache: cache, loadIndex: loadIndex, loadSectors: loadSectors, loadTicker: loadTicker, loadReddit: loadReddit,
+  return { cache: cache, loadIndex: loadIndex, loadSectors: loadSectors, loadTicker: loadTicker, loadReddit: loadReddit, loadRedditIndex: loadRedditIndex,
            fillTicker: fillTicker, sectorCardHtml: sectorCardHtml, redditCardHtml: redditCardHtml,
            promptBlock: promptBlock, indexLine: indexLine, redditLine: redditLine };
 })();
