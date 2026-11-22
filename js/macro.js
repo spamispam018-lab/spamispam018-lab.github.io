@@ -58,27 +58,61 @@ window.App.Macro = (function () {
       '" stroke-width="1.5" stroke-linejoin="round" points="' + pts + '"/></svg>';
   }
 
+  function parseFlexibleDate(val) {
+    if (!val) return null;
+    if (val instanceof Date) return isFinite(val) ? val : null;
+    var s = String(val).trim();
+    var m8 = /^(\d{4})(\d{2})(\d{2})$/.exec(s);
+    if (m8) {
+      var d8 = new Date(Date.UTC(Number(m8[1]), Number(m8[2]) - 1, Number(m8[3])));
+      return isFinite(d8) ? d8 : null;
+    }
+    var mIso = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+    if (mIso) {
+      var dIso = new Date(Date.UTC(Number(mIso[1]), Number(mIso[2]) - 1, Number(mIso[3])));
+      return isFinite(dIso) ? dIso : null;
+    }
+    var d = new Date(s);
+    return isFinite(d) ? d : null;
+  }
+
   function dateDe(iso) {
-    var d = new Date(iso);
-    return isFinite(d) ? d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) : iso;
+    var d = parseFlexibleDate(iso);
+    return d ? d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', timeZone: 'UTC' }) : String(iso || '');
   }
 
   function resolveSeriesDates(it, count) {
     if (Array.isArray(it.seriesDates) && it.seriesDates.length === count) {
       return it.seriesDates;
     }
-    var endMs = it.date ? Date.parse(it.date) : NaN;
-    if (!isFinite(endMs) || count < 2) return null;
+    var endDate = parseFlexibleDate(it.date);
+    if (!endDate || count < 2) return null;
 
     var stepsBack = count - 1;
+    var out = [];
+
+    if (it.freq === 'm' || it.freq === 'q') {
+      var monthsPerStep = it.freq === 'q' ? 3 : 1;
+      var baseY = endDate.getUTCFullYear();
+      var baseM = endDate.getUTCMonth();
+      var baseD = endDate.getUTCDate();
+      for (var i = 0; i < count; i++) {
+        var totalMonths = baseM - (stepsBack - i) * monthsPerStep;
+        var y = baseY + Math.floor(totalMonths / 12);
+        var m = ((totalMonths % 12) + 12) % 12;
+        var maxDay = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+        var day = Math.min(baseD, maxDay);
+        out.push(new Date(Date.UTC(y, m, day)).toISOString().slice(0, 10));
+      }
+      return out;
+    }
+
     var daysPerStep = 1.4; // ca. 5 Handelstage pro 7 Kalendertage
     if (it.freq === 'w') daysPerStep = 7;
-    else if (it.freq === 'm') daysPerStep = 30.4375;
-    else if (it.freq === 'q') daysPerStep = 91.25;
 
-    var out = [];
-    for (var i = 0; i < count; i++) {
-      var offsetDays = (stepsBack - i) * daysPerStep;
+    var endMs = endDate.getTime();
+    for (var j = 0; j < count; j++) {
+      var offsetDays = (stepsBack - j) * daysPerStep;
       out.push(new Date(endMs - offsetDays * 86400000).toISOString().slice(0, 10));
     }
     return out;
@@ -252,9 +286,9 @@ window.App.Macro = (function () {
         (open ? list.map(rowHtml).join('') : '') +
       '</div>';
     });
-    var upd = res.data.updated ? new Date(res.data.updated) : null;
+    var upd = res.data.updated ? parseFlexibleDate(res.data.updated) : null;
     h += '<div style="font-size:.64rem;color:var(--text-dim);margin-top:8px;line-height:1.5;">Quellen: FRED (US-Notenbank St. Louis) und Yahoo Finance' +
-      (upd && isFinite(upd) ? ', Abruf ' + upd.toLocaleDateString('de-DE') + ' ' + upd.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr' : '') +
+      (upd ? ', Abruf ' + upd.toLocaleDateString('de-DE') + ' ' + upd.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr' : '') +
       '. Ampel nach Faustregeln, keine Prognose. Einkaufsmanagerindizes sind nicht kostenlos verfügbar, daher stehen Arbeitsmarktdaten (Sahm-Regel, Erstanträge) als Konjunktur-Frühindikatoren da. Keine Anlageberatung.</div>';
     return h;
   }
