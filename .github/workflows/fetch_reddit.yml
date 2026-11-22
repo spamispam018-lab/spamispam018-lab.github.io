@@ -3,7 +3,10 @@ name: Fetch Reddit Buzz (ApeWisdom)
 on:
   schedule:
     - cron: '0 */6 * * *'   # alle 6 Stunden (UTC)
-  workflow_dispatch:         # erlaubt manuellen Start über den Actions-Tab
+  workflow_dispatch:         # manueller Start über den Actions-Tab
+
+permissions:
+  contents: write            # erlaubt dem GITHUB_TOKEN, Commits zu pushen
 
 jobs:
   fetch-reddit:
