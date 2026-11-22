@@ -5,10 +5,21 @@ import requests
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
-OUT  = os.path.join(DATA, "news")  # oder eigener Ordner data/reddit/
+OUT  = os.path.join(DATA, "news")
 
 BASE = "https://apewisdom.io/api/v1.0/filter"
-FILTERS = ["all-stocks", "wallstreetbets"]  # je nach Wunsch
+FILTERS = ["all-stocks", "wallstreetbets"]
+
+
+def safe_int(v, default=0):
+    """Robuste Umwandlung: None, '', 'None', nicht-numerische Strings -> default."""
+    if v is None:
+        return default
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return default
+
 
 def fetch_filter(filter_name):
     all_results = []
@@ -22,15 +33,18 @@ def fetch_filter(filter_name):
         if page >= data.get("pages", 1):
             break
         page += 1
-        time.sleep(0.2)  # höflich bleiben
+        time.sleep(0.2)
     return all_results
+
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    combined = {}  # ticker -> aggregierte Daten
+    combined = {}
     for f in FILTERS:
         for item in fetch_filter(f):
-            t = item["ticker"].upper()
+            t = (item.get("ticker") or "").upper()
+            if not t:
+                continue
             if t not in combined:
                 combined[t] = {
                     "ticker": t,
@@ -39,38 +53,33 @@ def main():
                     "mentions_24h_ago": 0,
                     "rank": None,
                 }
-            # Mentions summieren (falls Ticker in mehreren Filtern auftaucht)
-            combined[t]["mentions"] += int(item.get("mentions", 0))
-            combined[t]["upvotes"]  += int(item.get("upvotes", 0))
-            combined[t]["mentions_24h_ago"] += int(item.get("mentions_24h_ago", 0))
-            # den besten (niedrigsten) Rang behalten
-            r = item.get("rank")
+            combined[t]["mentions"]         += safe_int(item.get("mentions"))
+            combined[t]["upvotes"]          += safe_int(item.get("upvotes"))
+            combined[t]["mentions_24h_ago"] += safe_int(item.get("mentions_24h_ago"))
+            r = safe_int(item.get("rank"), default=None) if item.get("rank") is not None else None
             if r and (combined[t]["rank"] is None or r < combined[t]["rank"]):
                 combined[t]["rank"] = r
 
-    # Ausgabe: eine JSON pro Ticker (nur die, die im Universum vorkommen)
     universe = json.load(open(os.path.join(DATA, "universe.json"), encoding="utf-8"))
     tickers = {u["ticker"].upper() for u in universe}
 
     updated = datetime.now(timezone.utc).isoformat()
-    for t, d in combined.items():
-        if t not in tickers:
-            continue
-        # change_pct berechnen
-        old = d["mentions_24h_ago"] or 1
-        d["change_pct"] = round((d["mentions"] - old) / old * 100, 1) if old else 0
-        # einfaches Buzz-Barometer: normalisierter Mentions-Wert (0–1)
-        # (max. Mentions aus dem aktuellen Datensatz als Referenz)
-        max_mentions = max(x["mentions"] for x in combined.values()) or 1
+    # Referenzwert für Buzz-Normalisierung (nur Ticker im Universum berücksichtigen)
+    relevant = {t: d for t, d in combined.items() if t in tickers}
+    max_mentions = max((d["mentions"] for d in relevant.values()), default=0) or 1
+
+    for t, d in relevant.items():
+        old = d["mentions_24h_ago"]
+        d["change_pct"] = round((d["mentions"] - old) / old * 100, 1) if old else 0.0
         d["buzz"] = round(d["mentions"] / max_mentions, 3)
         dump_path = os.path.join(OUT, f"reddit_{t}.json")
-        with open(dump_path, "w", encoding="utf-8") as f:
-            json.dump({"ticker": t, "updatedAt": updated, **d}, f, ensure_ascii=False, indent=2)
+        with open(dump_path, "w", encoding="utf-8") as fh:
+            json.dump({"ticker": t, "updatedAt": updated, **d}, fh, ensure_ascii=False, indent=2)
         print("geschrieben:", dump_path)
 
-    # optionale Index-Datei für schnellen Zugriff
-    with open(os.path.join(OUT, "_reddit_index.json"), "w", encoding="utf-8") as f:
-        json.dump({t: combined[t] for t in combined if t in tickers}, f, ensure_ascii=False, indent=2)
+    with open(os.path.join(OUT, "_reddit_index.json"), "w", encoding="utf-8") as fh:
+        json.dump(relevant, fh, ensure_ascii=False, indent=2)
+
 
 if __name__ == "__main__":
     main()
