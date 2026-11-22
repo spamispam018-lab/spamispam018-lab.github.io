@@ -365,6 +365,17 @@ window.App.StockOverview = (function () {
     if (s200Last !== null) t += 'Abstand 200-Tage-Linie ' + P((cPrice / s200Last - 1) * 100) + '. ';
     if (s50Last !== null) t += 'Abstand 50-Tage-Linie ' + P((cPrice / s50Last - 1) * 100) + '. ';
     if (rsiLast !== null) t += 'RSI (14) bei ' + fnum(rsiLast, 0) + '. ';
+    // VWAP (volumengewichtet) – unabhängig von der Chart-Auswahl für 20/50/200 Tage
+    if (window.App.StockChart._vwap) {
+      [20, 50, 200].forEach(function (w) {
+        if (n < w) return;
+        var vArr = window.App.StockChart._vwap(hist, w);
+        var vLast = lastValid(vArr);
+        if (vLast !== null && vLast > 0) {
+          t += 'Abstand VWAP ' + w + 'T ' + P((cPrice / vLast - 1) * 100) + '. ';
+        }
+      });
+    }
     if (macdLast !== null && sigLast !== null) t += 'MACD ' + (macdLast > sigLast ? 'über' : 'unter') + ' Signallinie. ';
     if (mom3m !== null) t += 'Momentum 3M ' + P(mom3m) + '.';
     return t.trim();
