@@ -1,12 +1,13 @@
 /**
  * js/news.js – Nachrichten + FinBERT-Bewertung (Daten: data/news/*.json, erzeugt von scripts/fetch_news.py)
- * Aktien-Karte, Sektor-Karte und Textbausteine für die Gemini-Prompts.
+ * + Reddit-Aufmerksamkeit (Daten: data/news/reddit_*.json, erzeugt von scripts/fetch_reddit.py via ApeWisdom)
+ * Aktien-Karte, Sektor-Karte, Reddit-Buzz-Karte und Textbausteine für die Gemini-Prompts.
  */
 window.App = window.App || {};
 window.App.News = (function () {
   'use strict';
   var RAW = 'https://raw.githubusercontent.com/spamispam018-lab/spamispam018-lab.github.io/main/data/news/';
-  var cache = { index: null, sectors: null, tickers: {} };
+  var cache = { index: null, sectors: null, tickers: {}, reddit: {} };
   var COL = { positive: '#22c55e', neutral: '#94a3b8', negative: '#ef4444' };
   var TXT = { positive: 'positiv', neutral: 'neutral', negative: 'negativ' };
 
@@ -24,6 +25,7 @@ window.App.News = (function () {
   function loadIndex() { return load('index', '_index.json'); }
   function loadSectors() { return load('sectors', '_sectors.json'); }
   function loadTicker(t) { return load('tickers', encodeURIComponent(t) + '.json', t); }
+  function loadReddit(t) { return load('reddit', 'reddit_' + encodeURIComponent(t) + '.json', t); }
 
   function dateStr(iso) {
     var d = new Date(iso);
@@ -52,8 +54,37 @@ window.App.News = (function () {
     return '<div class="card"><div class="card-header-dotted"><span class="card-title">' + esc(title) + '</span></div>' + body + '</div>';
   }
 
-  function fillTicker(ticker, slotEl) {
+  // ---------- Reddit (ApeWisdom) ----------
+  function redditBuzzBar(data) {
+    if (!data || !data.mentions) return '';
+    var pct = (data.change_pct > 0 ? '+' : '') + data.change_pct;
+    var color = data.change_pct > 0 ? COL.positive : data.change_pct < 0 ? COL.negative : COL.neutral;
+    return '<div style="display:flex;gap:12px;font-size:.72rem;margin-bottom:8px;align-items:center;flex-wrap:wrap;">' +
+      '<span style="color:' + color + ';font-weight:600;">' + pct + '% Mentions (24h)</span>' +
+      '<span style="color:var(--text-dim);">' + data.mentions + ' Erwähnungen</span>' +
+      '<span style="color:var(--text-dim);">' + data.upvotes + ' Upvotes</span>' +
+      (data.rank ? '<span style="color:var(--text-dim);">Rang #' + data.rank + '</span>' : '') +
+      '</div>';
+  }
+  function redditCardHtml(ticker, slotEl) {
+    loadReddit(ticker).then(function (d) {
+      if (!slotEl) return;
+      if (!d || !d.mentions) {
+        slotEl.innerHTML = '<div class="card"><div class="card-header-dotted"><span class="card-title">Reddit-Aufmerksamkeit</span></div>' +
+          '<div style="font-size:.75rem;color:var(--text-dim);">Keine Reddit-Daten für diesen Ticker gefunden.</div></div>';
+        return;
+      }
+      slotEl.innerHTML = '<div class="card">' +
+        '<div class="card-header-dotted"><span class="card-title">Reddit-Aufmerksamkeit (ApeWisdom)</span></div>' +
+        redditBuzzBar(d) +
+        '<div style="font-size:.62rem;color:var(--text-dim);margin-top:6px;">Mentions/Upvotes von Reddit, keine Anlageberatung.</div>' +
+        '</div>';
+    });
+  }
+
+  function fillTicker(ticker, slotEl, redditSlotEl) {
     loadTicker(ticker).then(function (d) { if (slotEl) slotEl.innerHTML = card('Nachrichten', d, false); });
+    if (redditSlotEl) redditCardHtml(ticker, redditSlotEl);
   }
   function sectorCardHtml(sector) {
     loadSectors().then(function (all) {
@@ -78,9 +109,16 @@ window.App.News = (function () {
     if (s.top) t += ', Top-Schlagzeile (' + s.top.l + '): ' + (short ? s.top.t.slice(0, 80) : s.top.t);
     return t;
   }
+  function redditLine(ticker) {
+    var d = cache.reddit && cache.reddit[ticker];
+    if (!d || !d.mentions) return '';
+    return 'Reddit-Buzz: ' + d.mentions + ' Mentions (24h), ' +
+      (d.change_pct > 0 ? '+' : '') + d.change_pct + '% vs. Vortag, ' +
+      d.upvotes + ' Upvotes' + (d.rank ? ', Rang #' + d.rank : '');
+  }
 
   loadIndex(); loadSectors();
-  return { cache: cache, loadIndex: loadIndex, loadSectors: loadSectors, loadTicker: loadTicker, fillTicker: fillTicker,
-           sectorCardHtml: sectorCardHtml, promptBlock: promptBlock, indexLine: indexLine };
+  return { cache: cache, loadIndex: loadIndex, loadSectors: loadSectors, loadTicker: loadTicker, loadReddit: loadReddit,
+           fillTicker: fillTicker, sectorCardHtml: sectorCardHtml, redditCardHtml: redditCardHtml,
+           promptBlock: promptBlock, indexLine: indexLine, redditLine: redditLine };
 })();
-
