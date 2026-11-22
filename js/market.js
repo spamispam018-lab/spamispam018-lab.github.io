@@ -5,7 +5,7 @@
  * - Drilldown in einen Sektor: Heatmap der Einzelwerte + Branchen-Ranking + Passende Sektor-ETFs
  * - Drilldown in eine Branche (NEU): Klick auf eine Branche zeigt nur die Aktien dieser Branche.
  * - Top-/Flop-Listen für den gewählten Zeitraum
- * - Reddit-Trends & Badges (NEU)
+ * - Reddit-Trends & Badges (NEU), inkl. "Mehr anzeigen"-Funktion
  * Datenquelle: data/universe.json (changePercent, perf1w, perf1m, perf3m, perfYtd, perf52w, marketCap).
  */
 
@@ -39,7 +39,8 @@ window.App.Market = (function () {
 
   var state = { period: 'perf1m', sector: null, industry: null, largeOnly: true };
   var universe = [];
-  var redditData = {}; // NEU: Cache für Reddit-Daten
+  var redditData = {}; 
+  var showAllReddit = false; // NEU: Merkt sich, ob alle Reddit-Trends angezeigt werden sollen
   var styleInjected = false;
 
   function injectStyles() {
@@ -331,20 +332,22 @@ window.App.Market = (function () {
       '</div>';
   }
 
-  // Reddit-Trends Karte (identisches Layout wie in der Detailansicht)
+  // Reddit-Trends Karte mit "Mehr anzeigen"-Button
   function redditTrendsCardHtml() {
-    var validReddit = Object.keys(redditData)
+    var allValidReddit = Object.keys(redditData)
         .map(function(t) { return Object.assign({ ticker: t }, redditData[t]); })
         .filter(function(r) { return r.mentions > 0; })
-        .sort(function(a, b) { return b.mentions - a.mentions; }) // Sortieren nach Mentions
-        .slice(0, 5); // Top 5 anzeigen
+        .sort(function(a, b) { return b.mentions - a.mentions; });
 
-    if (validReddit.length === 0) return '';
+    if (allValidReddit.length === 0) return '';
 
-    var html = '<div class="card"><div class="card-header-dotted"><span class="card-title">Reddit-Trends (Top 5)</span>' +
+    // Standardmäßig die Top 8 anzeigen, außer der User hat auf "Alle anzeigen" geklickt
+    var displayList = showAllReddit ? allValidReddit : allValidReddit.slice(0, 8);
+
+    var html = '<div class="card"><div class="card-header-dotted"><span class="card-title">Reddit-Trends</span>' +
                '<span class="sector-label">ApeWisdom & WSB</span></div>';
 
-    validReddit.forEach(function(r) {
+    displayList.forEach(function(r) {
         var isBull = r.sentiment === 'Bullish';
         var isBear = r.sentiment === 'Bearish';
         var sColor = isBull ? 'var(--bullish)' : (isBear ? 'var(--bearish)' : 'var(--text-dim)');
@@ -384,6 +387,16 @@ window.App.Market = (function () {
             '</div>' +
           '</div>';
     });
+
+    // Button zum Auf-/Zuklappen anzeigen, wenn es mehr als 8 Einträge gibt
+    if (allValidReddit.length > 8) {
+        html += '<div style="text-align:center; margin-top:12px; padding-top:12px; border-top:1px dashed var(--border-subtle);">' +
+                  '<button class="chip-btn" id="mk-reddit-toggle" style="font-size:.72rem; padding:4px 14px;">' +
+                  (showAllReddit ? 'Weniger anzeigen' : 'Alle ' + allValidReddit.length + ' anzeigen') +
+                  '</button>' +
+                '</div>';
+    }
+
     html += '</div>';
     return html;
   }
@@ -609,6 +622,15 @@ window.App.Market = (function () {
     
     var large = container.querySelector('#mk-large');
     if (large) large.onclick = function () { state.largeOnly = !state.largeOnly; draw(container); };
+
+    // NEU: Toggle-Button für die Reddit-Trends
+    var redditToggle = container.querySelector('#mk-reddit-toggle');
+    if (redditToggle) {
+        redditToggle.onclick = function () {
+            showAllReddit = !showAllReddit;
+            draw(container);
+        };
+    }
   }
 
   return { initView: initView };
