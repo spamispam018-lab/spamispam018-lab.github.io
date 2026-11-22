@@ -1,0 +1,32 @@
+name: Fetch Reddit Buzz (ApeWisdom)
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # alle 6 Stunden (UTC)
+  workflow_dispatch:         # erlaubt manuellen Start über den Actions-Tab
+
+jobs:
+  fetch-reddit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run fetch_reddit.py
+        run: python scripts/fetch_reddit.py
+
+      - name: Commit & push updated JSON files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/news/reddit_*.json data/news/_reddit_index.json
+          git diff --cached --quiet || git commit -m "Update Reddit buzz data"
+          git push
