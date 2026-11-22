@@ -2,6 +2,7 @@
  * js/stock-chart.js
  * Chart-Analyse-Tab.
  * NEU: Automatischer Wechsel auf KUV (Kurs-Umsatz-Verhältnis), wenn das Unternehmen Verluste schreibt.
+ * NEU: Rolling VWAP mit wählbarer Spanne (Aus, 20T, 50T, 200T).
  */
 window.App = window.App || {};
 
@@ -10,11 +11,13 @@ window.App.StockChart = (function () {
 
   var currentPeriod = '1Y';
   var candleWeeks = 52;
+  var vwapWindow = 20; // 0 = Aus, sonst Anzahl Handelstage (z. B. 20, 50, 200)
 
   var COLORS = {
     price: '#818cf8',
     sma50: '#f59e0b',
     sma200: '#ec4899',
+    vwap: '#06b6d4',
     rsi: '#818cf8',
     macd: '#818cf8',
     signal: '#f59e0b',
@@ -29,6 +32,41 @@ window.App.StockChart = (function () {
       sum += values[i];
       if (i >= n) sum -= values[i - n];
       out.push(i >= n - 1 ? sum / n : null);
+    }
+    return out;
+  }
+
+  function rollingVwap(hist, n) {
+    if (!n || n <= 0) return hist.map(function () { return null; });
+    var out = [];
+    var sumPV = 0;
+    var sumV = 0;
+    var pvArr = [];
+    var vArr = [];
+
+    for (var i = 0; i < hist.length; i++) {
+      var p = hist[i];
+      var typicalPrice = (p.high && p.low && p.close)
+        ? (p.high + p.low + p.close) / 3
+        : p.close;
+      var vol = (p.volume && p.volume > 0) ? p.volume : 0;
+      var pv = typicalPrice * vol;
+
+      pvArr.push(pv);
+      vArr.push(vol);
+      sumPV += pv;
+      sumV += vol;
+
+      if (i >= n) {
+        sumPV -= pvArr[i - n];
+        sumV -= vArr[i - n];
+      }
+
+      if (i >= n - 1 && sumV > 0) {
+        out.push(sumPV / sumV);
+      } else {
+        out.push(null);
+      }
     }
     return out;
   }
@@ -242,6 +280,7 @@ window.App.StockChart = (function () {
     var n = closes.length, price = closes[n - 1];
 
     var s50 = sma(closes, 50), s200 = sma(closes, 200);
+    var vwapArr = rollingVwap(hist, vwapWindow);
     var rsiArr = rsi(closes, 14), m = macd(closes);
 
     var tail = n;
@@ -256,7 +295,7 @@ window.App.StockChart = (function () {
     }
 
     var slicedCloses = closes.slice(-tail), slicedDates = dates.slice(-tail);
-    var s50Last = lastValid(s50), s200Last = lastValid(s200);
+    var s50Last = lastValid(s50), s200Last = lastValid(s200), vwapLast = lastValid(vwapArr);
     var rsiLast = lastValid(rsiArr), macdLast = lastValid(m.line), sigLast = lastValid(m.signal);
     var cross = findLastCross(s50, s200, dates);
 
@@ -276,6 +315,14 @@ window.App.StockChart = (function () {
     if (s50Last !== null) {
       var d50 = (price / s50Last - 1) * 100;
       signals.push({ label: 'Kurs vs. 50-Tage-Linie', text: pct(d50) + (d50 >= 0 ? ' darüber' : ' darunter'), state: d50 >= 0 ? 'bull' : 'bear' });
+    }
+    if (vwapWindow > 0 && vwapLast !== null) {
+      var dVwap = (price / vwapLast - 1) * 100;
+      signals.push({
+        label: 'Kurs vs. VWAP (' + vwapWindow + 'T)',
+        text: pct(dVwap) + (dVwap >= 0 ? ' darüber' : ' darunter') + ' (' + window.App.Format.currency(vwapLast, currency, 2) + ')',
+        state: dVwap >= 0 ? 'bull' : 'bear'
+      });
     }
     if (s50Last !== null && s200Last !== null) {
       var golden = s50Last > s200Last;
@@ -331,6 +378,8 @@ window.App.StockChart = (function () {
     var volAvg20 = avg(vols.slice(-20)), volAvg60 = avg(vols.slice(-60));
     var volTrend = volAvg60 > 0 ? (volAvg20 / volAvg60 - 1) * 100 : null;
 
+    var hasVolumeData = vols.some(function (v) { return v > 0; });
+
     var html = '' +
       '<div class="card" style="padding: 10px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">' +
         '<span style="font-size: 0.78rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em;">Analyse-Zeitraum</span>' +
@@ -363,10 +412,25 @@ window.App.StockChart = (function () {
 
       '<div class="card">' +
         '<div class="card-header-dotted"><span class="card-title">Kurs &amp; Trendlinien</span><span class="period-tag">' + pLabel + '</span></div>' +
+        '<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; gap: 8px; flex-wrap: wrap;">' +
+          '<span style="font-size: 0.72rem; color: var(--text-dim); font-weight: 600;">' + termLink('Rolling VWAP') + '</span>' +
+          '<div class="pill-group" id="vwap-range-pills">' +
+            '<button class="pill-btn ' + (vwapWindow === 0 ? 'active' : '') + '" data-vwap="0">Aus</button>' +
+            '<button class="pill-btn ' + (vwapWindow === 20 ? 'active' : '') + '" data-vwap="20">20T</button>' +
+            '<button class="pill-btn ' + (vwapWindow === 50 ? 'active' : '') + '" data-vwap="50">50T</button>' +
+            '<button class="pill-btn ' + (vwapWindow === 200 ? 'active' : '') + '" data-vwap="200">200T</button>' +
+          '</div>' +
+        '</div>' +
         '<div style="height: 220px; width: 100%; position: relative; margin-top: 8px;">' +
           '<canvas id="chart-tab-price" style="width: 100%; height: 220px; display: block;"></canvas>' +
         '</div>' +
-        '<div class="legend-row">' + legendItem(COLORS.price, 'Kurs') + legendItem(COLORS.sma50, 'SMA 50') + legendItem(COLORS.sma200, 'SMA 200') + '</div>' +
+        '<div class="legend-row">' +
+          legendItem(COLORS.price, 'Kurs') +
+          legendItem(COLORS.sma50, 'SMA 50') +
+          legendItem(COLORS.sma200, 'SMA 200') +
+          (vwapWindow > 0 ? legendItem(COLORS.vwap, 'VWAP (' + vwapWindow + 'T)') : '') +
+        '</div>' +
+        (vwapWindow > 0 && !hasVolumeData ? '<div class="chart-note" style="color: var(--bearish);">Hinweis: Für diesen Titel liegen keine Volumendaten vor – VWAP kann nicht berechnet werden.</div>' : '') +
       '</div>' +
 
       // KGV-Band-Chart (mit dynamischen IDs für den Wechsel auf KUV)
@@ -431,18 +495,30 @@ window.App.StockChart = (function () {
 
     bindTerms(container);
     bindPeriodPills(container, stock, hist);
+    bindVwapPills(container, stock, hist);
 
     var labels = slicedDates.map(shortLabel);
     var Charts = window.App.Charts;
     var cur = currency;
 
+    var priceSeries = [
+      { name: 'Kurs', color: COLORS.price, values: slicedCloses, width: 2 },
+      { name: 'SMA 50', color: COLORS.sma50, values: s50.slice(-tail), width: 1.5 },
+      { name: 'SMA 200', color: COLORS.sma200, values: s200.slice(-tail), width: 1.5 }
+    ];
+    if (vwapWindow > 0) {
+      priceSeries.push({
+        name: 'VWAP (' + vwapWindow + 'T)',
+        color: COLORS.vwap,
+        values: vwapArr.slice(-tail),
+        width: 1.7,
+        dash: [5, 3]
+      });
+    }
+
     Charts.renderMultiLineChart(document.getElementById('chart-tab-price'), {
       labels: labels,
-      series: [
-        { name: 'Kurs', color: COLORS.price, values: slicedCloses, width: 2 },
-        { name: 'SMA 50', color: COLORS.sma50, values: s50.slice(-tail), width: 1.5 },
-        { name: 'SMA 200', color: COLORS.sma200, values: s200.slice(-tail), width: 1.5 }
-      ],
+      series: priceSeries,
       formatY: function (v) { return window.App.Format.currency(v, cur, 0); }
     });
 
@@ -632,6 +708,16 @@ window.App.StockChart = (function () {
     });
   }
 
+  function bindVwapPills(container, stock, hist) {
+    var pills = container.querySelectorAll('#vwap-range-pills .pill-btn');
+    pills.forEach(function (pill) {
+      pill.onclick = function () {
+        vwapWindow = parseInt(pill.getAttribute('data-vwap'), 10) || 0;
+        buildView(container, stock, hist);
+      };
+    });
+  }
+
   function has(x) { return x !== null && x !== undefined && isFinite(x); }
 
   function auffaelligkeiten(stock) {
@@ -667,6 +753,7 @@ window.App.StockChart = (function () {
     Verlust: { name: 'Verlust', text: 'Das Unternehmen hat mehr ausgegeben als eingenommen.' },
     Spanne: { name: '52-Wochen-Spanne', text: 'Spanne zwischen 52W-Tief und 52W-Hoch.' },
     SMA: { name: 'SMA', text: 'Gleitender Durchschnitt der letzten 50 bzw. 200 Handelstage.' },
+    VWAP: { name: 'Rolling VWAP', text: 'Volumengewichteter Durchschnittspreis über die gewählte Anzahl an Handelstagen. Zeigt den durchschnittlichen Einstandskurs gewichtet nach Handelsvolumen.' },
     Cross: { name: 'Golden/Death Cross', text: 'Golden Cross: SMA 50 kreuzt SMA 200 von unten. Death Cross: umgekehrt.' },
     RSI: { name: 'RSI (14)', text: 'Skala 0-100. Über 70 = überkauft, unter 30 = überverkauft.' },
     MACD: { name: 'MACD', text: 'Differenz zweier gleitender Durchschnitte.' },
@@ -680,7 +767,7 @@ window.App.StockChart = (function () {
   var TERM_RULES = [
     [/^KGV/, 'KGV'], [/PEG/, 'PEG'], [/Gewinnmarge/, 'Gewinnmarge'], [/Verschuldung/, 'Verschuldung'],
     [/Umsatz/, 'Umsatzwachstum'], [/Verlust/, 'Verlust'], [/Jahrestief|Spanne/, 'Spanne'],
-    [/RSI/, 'RSI'], [/MACD/, 'MACD'], [/Kreuz|Golden|Death|SMA 50 vs/, 'Cross'], [/SMA|Tage-Linie/, 'SMA'],
+    [/RSI/, 'RSI'], [/MACD/, 'MACD'], [/Kreuz|Golden|Death|SMA 50 vs/, 'Cross'], [/VWAP/, 'VWAP'], [/SMA|Tage-Linie/, 'SMA'],
     [/Momentum/, 'Momentum'], [/Volatilität/, 'Volatilität'], [/Drawdown/, 'Drawdown'], [/Volumen/, 'Volumen'],
     [/Unterstützung|Widerstand/, 'Support']
   ];
@@ -742,6 +829,6 @@ window.App.StockChart = (function () {
 
   return {
     render: render,
-    _sma: sma, _ema: ema, _rsi: rsi, _macd: macd, _bottom: bottomCheck
+    _sma: sma, _ema: ema, _rsi: rsi, _macd: macd, _bottom: bottomCheck, _vwap: rollingVwap
   };
 })();
