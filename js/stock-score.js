@@ -1,6 +1,11 @@
 /**
  * js/stock-score.js
  * Ganzheitliche Scoring-Engine (0 bis 100) auf Basis ALLER verfügbaren Daten.
+ *
+ * NEU: - Kategorie "Reddit & Stimmung" (ApeWisdom + WSB). Sie zählt nur, wenn genug Reddit-Daten vorliegen;
+ *        sonst bleiben die Gewichte 40/25/20/15 und die Scores unverändert.
+ *      - Kategorie "Warnsignale": Abzüge für Hype, Widerspruch Reddit/News, Fallendes Messer, schwaches CRV.
+ *      - Universe-Score (calculateUniverseScore / attachUniverseScores) für Filter und Sortierung im Screener.
  */
 window.App = window.App || {};
 
@@ -8,6 +13,29 @@ window.App.Score = (function () {
   'use strict';
 
   var nameToTickerMap = {};
+
+  // Schalter und Schwellen (hier anpassen)
+  var CONFIG = {
+    useReddit: true,          // Reddit-Kategorie berücksichtigen
+    useFlags: true,           // Warnsignale als Abzug berücksichtigen
+    redditWeight: 0.08,       // Anteil der Reddit-Kategorie, wenn Daten vorliegen
+    redditMinMentions: 10,    // darunter ist die Stichprobe zu klein
+    redditMinComments: 10,    // WSB-Kommentare für die Stimmung
+    trendPct: 50, trendMinMentions: 20,
+    hypePerf1m: 30, hypeRsi: 70, hypeRangePos: 90,
+    maxPenalty: 15            // maximaler Abzug in Punkten (0 bis 100)
+  };
+  var BANDS = [
+    { min: 75, label: 'Sehr stark', color: '#10b981' },
+    { min: 60, label: 'Gut', color: '#84cc16' },
+    { min: 45, label: 'Neutral', color: '#f59e0b' },
+    { min: 30, label: 'Schwach', color: '#f97316' },
+    { min: 0,  label: 'Kritisch', color: '#ef4444' }
+  ];
+  function scoreBand(score100) {
+    for (var i = 0; i < BANDS.length; i++) if (score100 >= BANDS[i].min) return BANDS[i];
+    return BANDS[BANDS.length - 1];
+  }
 
   function num(v) {
     return (v !== null && v !== undefined && v !== '' && !isNaN(v)) ? Number(v) : null;
@@ -219,25 +247,185 @@ window.App.Score = (function () {
     return { category: 'Smart Money & News', score: score, metrics: metrics, reason: reason };
   }
 
+  // ---------------------------------------------------------------------------
+  // Hilfen für News / Reddit
+  // ---------------------------------------------------------------------------
+  function newsOf(ticker) {
+    var N = window.App.News;
+    return (N && N.cache && N.cache.index) ? N.cache.index[ticker] || null : null;
+  }
+  function redditOf(ticker) {
+    var N = window.App.News;
+    if (!N || !N.cache) return null;
+    return (N.cache.reddit && N.cache.reddit[ticker]) || (N.cache.redditIndex && N.cache.redditIndex[ticker]) || null;
+  }
+  function isNewsNegative(n) { return !!n && n.n >= 3 && num(n.score) !== null && n.score <= -0.2; }
+  function isRedditTrend(r) { return !!r && num(r.mentions) >= CONFIG.trendMinMentions && num(r.change_pct) !== null && r.change_pct >= CONFIG.trendPct; }
+  function isWsbBull(r) { return !!r && String(r.sentiment || '').toLowerCase() === 'bullish' && (num(r.wsb_comments) || 0) >= CONFIG.redditMinComments; }
+
+  // ---------------------------------------------------------------------------
+  // NEU: Reddit & Stimmung (nur bei ausreichend Daten, sonst null = Kategorie entfällt)
+  // ---------------------------------------------------------------------------
+  function evalReddit(stock) {
+    var r = redditOf(stock.ticker);
+    if (!r) return null;
+    var parts = [], metrics = [], pros = [], cons = [];
+    var ment = num(r.mentions), ch = num(r.change_pct);
+
+    if (ment !== null && ment >= CONFIG.redditMinMentions && ch !== null) {
+      var sM = ch >= CONFIG.trendPct ? 4.0 : ch >= 15 ? 3.5 : ch <= -40 ? 1.8 : ch <= -15 ? 2.2 : 3.0;
+      parts.push([sM, 0.5]);
+      metrics.push({ name: 'Reddit-Erwähnungen (24h)', value: ment + ' (' + (ch > 0 ? '+' : '') + Math.round(ch) + ' %)' });
+      if (ch >= CONFIG.trendPct) pros.push('stark steigende Aufmerksamkeit');
+      if (ch <= -40) cons.push('Aufmerksamkeit bricht ein');
+      if (num(r.rank) !== null) metrics.push({ name: 'Reddit-Rang', value: '#' + r.rank });
+    }
+    var comments = num(r.wsb_comments) || 0;
+    if (r.sentiment && comments >= CONFIG.redditMinComments) {
+      var bull = String(r.sentiment).toLowerCase() === 'bullish';
+      parts.push([bull ? 4.0 : 1.5, 0.5]);
+      var sc = num(r.sentiment_score);
+      metrics.push({ name: 'WSB-Stimmung', value: (bull ? 'Bullish' : 'Bearish') + (sc !== null ? ' (Score ' + (sc > 0 ? '+' : '') + sc + ')' : '') + ', ' + comments + ' Kommentare' });
+      (bull ? pros : cons).push(bull ? 'WSB bullisch' : 'WSB bärisch');
+    }
+    if (!parts.length) return null;
+
+    var score = Math.round(weightedAvg(parts) * 10) / 10;
+    var reason = 'Reddit-Aufmerksamkeit und WSB-Stimmung. ' + (pros.length ? 'Positiv: ' + pros.join(', ') + '. ' : '') + (cons.length ? 'Negativ: ' + cons.join(', ') + '. ' : '') +
+      'Hohe Aufmerksamkeit ist kein Kaufsignal, oft ist der Kurs schon gelaufen.';
+    return { category: 'Reddit & Stimmung', score: score, metrics: metrics, reason: reason };
+  }
+
+  // ---------------------------------------------------------------------------
+  // NEU: Warnsignale (nur Dinge, die in den Kategorien oben nicht schon stecken)
+  // ---------------------------------------------------------------------------
+  function daysUntil(dateStr) {
+    if (!dateStr) return null;
+    var d = new Date(dateStr);
+    if (isNaN(d)) return null;
+    return Math.round((d.getTime() - Date.now()) / 86400000);
+  }
+
+  function evalFlags(stock) {
+    var flags = [], info = [];
+    var r = redditOf(stock.ticker), n = newsOf(stock.ticker);
+    var rsi = num(stock.rsi), rangePos = num(stock.rangePos), p1m = num(stock.perf1m);
+
+    var hot = (rsi !== null && rsi >= CONFIG.hypeRsi) || (rangePos !== null && rangePos >= CONFIG.hypeRangePos) || (p1m !== null && p1m >= CONFIG.hypePerf1m);
+    if (isRedditTrend(r) && hot) flags.push({ text: 'Hype-Warnung: Reddit-Trend bei bereits gelaufenem Kurs', pts: -5 });
+    if (isWsbBull(r) && isNewsNegative(n)) flags.push({ text: 'Widerspruch: WSB bullisch, aber negative News', pts: -4 });
+    if (stock.bottom === 'knife') flags.push({ text: 'Fallendes Messer: Abwärtstrend noch intakt', pts: -6 });
+    if (num(stock.rrCrv) !== null && stock.rrCrv < 1) flags.push({ text: 'Schwaches Chance-Risiko-Verhältnis (CRV unter 1)', pts: -3 });
+
+    var ed = daysUntil(stock.analysts && stock.analysts.nextEarningsDate ? stock.analysts.nextEarningsDate : stock.nextEarningsDate);
+    if (ed !== null && ed >= 0 && ed <= 14) info.push('Quartalsbericht in ' + ed + ' Tagen (höhere Schwankung möglich)');
+
+    var penalty = flags.reduce(function (a, f) { return a + f.pts; }, 0);
+    penalty = Math.max(-CONFIG.maxPenalty, penalty);
+    return { flags: flags, info: info, penalty: penalty };
+  }
+
+  function flagsCategory(f) {
+    var metrics = f.flags.map(function (x) { return { name: x.text, value: x.pts + ' Pkt' }; })
+      .concat(f.info.map(function (t) { return { name: 'Hinweis', value: t }; }));
+    var score = Math.max(0, Math.round((5 + f.penalty / 3) * 10) / 10);
+    return {
+      category: 'Warnsignale', score: score, weight: 'Abzug', metrics: metrics.length ? metrics : [{ name: 'Status', value: 'Keine' }],
+      reason: f.flags.length ? 'Abzug von ' + Math.abs(f.penalty) + ' Punkten auf den Gesamtscore.' : 'Keine Warnsignale erkannt.' + (f.info.length ? ' ' + f.info.join('. ') + '.' : '')
+    };
+  }
+
   function calculateHolisticScore(stock) {
     var catFund = evalFundamentals(stock);
     var catTech = evalTechnicals(stock);
     var catAnalyst = evalAnalysts(stock);
     var catSmart = evalSmartMoney(stock);
+    var catReddit = CONFIG.useReddit ? evalReddit(stock) : null;
 
-    var totalPoints = (catFund.score * 0.40) + (catTech.score * 0.25) + (catAnalyst.score * 0.20) + (catSmart.score * 0.15);
-    var finalScore100 = Math.round(totalPoints * 20);
+    // Gewichte: ohne Reddit-Daten exakt 40/25/20/15 wie bisher
+    var base = [0.40, 0.25, 0.20, 0.15], rw = catReddit ? CONFIG.redditWeight : 0;
+    var w = base.map(function (x) { return x * (1 - rw); });
+    var cats = [catFund, catTech, catAnalyst, catSmart];
+    var totalPoints = 0;
+    cats.forEach(function (c, i) { totalPoints += c.score * w[i]; c.weight = Math.round(w[i] * 100) + '%'; });
+    if (catReddit) { totalPoints += catReddit.score * rw; catReddit.weight = Math.round(rw * 100) + '%'; cats.push(catReddit); }
 
-    catFund.weight = '40%'; catTech.weight = '25%'; catAnalyst.weight = '20%'; catSmart.weight = '15%';
+    var f = CONFIG.useFlags ? evalFlags(stock) : { flags: [], info: [], penalty: 0 };
+    var adjPoints = Math.max(0, Math.min(5, totalPoints + f.penalty / 20));
+    if (CONFIG.useFlags) cats.push(flagsCategory(f));
 
     return {
-      totalScore: Math.round(totalPoints * 10) / 10,
-      score100: finalScore100,
-      categories: [catFund, catTech, catAnalyst, catSmart]
+      totalScore: Math.round(adjPoints * 10) / 10,
+      score100: Math.round(adjPoints * 20),
+      baseScore100: Math.round(totalPoints * 20),
+      penalty: f.penalty,
+      flags: f.flags.map(function (x) { return x.text; }),
+      notes: f.info,
+      band: scoreBand(Math.round(adjPoints * 20)),
+      categories: cats
     };
   }
 
+  // ---------------------------------------------------------------------------
+  // NEU: Score für Universe-Einträge (Screener-Filter und Sortierung)
+  // ---------------------------------------------------------------------------
+  function hasN(v) { return v !== null && v !== undefined && v !== '' && !isNaN(v); }
+
+  function stockFromUniverse(u) {
+    var price = hasN(u.price) ? Number(u.price) : null;
+    var enough = hasN(u.analystCount) && u.analystCount >= 5;
+    var pseudo = {
+      ticker: u.ticker, sector: u.sector, name: u.name,
+      ratios: { peTrailing: u.pe, peForward: u.forwardPe, profitMargins: u.profitMargins, revenueGrowth: u.revGrowth,
+                debtToEquity: u.debtToEquity, dividendYield: u.dividendYield },
+      rsi: u.rsi, cross: u.cross, rangePos: u.rangePos, perf1m: u.perf1m, bottom: u.bottom, rrCrv: u.rrCrv,
+      nextEarningsDate: u.nextEarningsDate,
+      quote: { price: price },
+      analysts: { targets: {}, recommendations: {} },
+      insider: {}
+    };
+    if (price > 0 && hasN(u.upside) && enough) pseudo.analysts.targets.mean = price * (1 + Number(u.upside) / 100);
+    if (hasN(u.buyPct) && enough) pseudo.analysts.recommendations.score = 5 - 4 * (Number(u.buyPct) / 100);
+    return pseudo;
+  }
+
+  var uniCache = {};
+  function calculateUniverseScore(u) {
+    if (!u || !u.ticker) return null;
+    var N = window.App.News;
+    var sig = [u.price, u.liveTs || u.updatedAt || '', N && N.cache && N.cache.index ? 1 : 0, N && N.cache && N.cache.redditIndex ? 1 : 0].join('|');
+    var hit = uniCache[u.ticker];
+    if (hit && hit.sig === sig) return hit.val;
+    var val = calculateHolisticScore(stockFromUniverse(u));
+    uniCache[u.ticker] = { sig: sig, val: val };
+    return val;
+  }
+
+  /** Setzt u.score100, u.scoreBand und u.scoreFlags an jeden Eintrag (für Filter, Sortierung und Chips). */
+  function attachUniverseScores(list) {
+    (list || []).forEach(function (u) {
+      var r = calculateUniverseScore(u);
+      if (!r) return;
+      u.score100 = r.score100; u.scoreBand = r.band.label; u.scoreFlags = r.flags; u.scorePenalty = r.penalty;
+    });
+    return list;
+  }
+
+  /** Lädt News- und Reddit-Index, damit der Score vollständig ist. */
+  function prepare() {
+    var N = window.App.News;
+    if (!N) return Promise.resolve();
+    return Promise.all([
+      N.loadIndex ? N.loadIndex() : null,
+      N.loadRedditIndex ? N.loadRedditIndex() : null
+    ]).catch(function () { return null; }).then(function () { return null; });
+  }
+
   function calculateTotalScoreAsync(stock) {
+    return prepare().then(function () { return calculateTotalScoreAsyncInner(stock); });
+  }
+
+  function calculateTotalScoreAsyncInner(stock) {
     return new Promise(function (resolve) {
       var isEtf = (stock.sector === 'Sonstige' || stock.sector === 'ETF' || !stock.sector);
       var holdings = stock.holdings || [];
@@ -323,6 +511,13 @@ window.App.Score = (function () {
     calculateTotalScore: calculateHolisticScore,
     calculateBaseTotalScore: calculateHolisticScore,
     calculateTotalScoreAsync: calculateTotalScoreAsync,
-    renderSegmentBarHtml: renderSegmentBarHtml
+    renderSegmentBarHtml: renderSegmentBarHtml,
+    // NEU
+    calculateUniverseScore: calculateUniverseScore,
+    attachUniverseScores: attachUniverseScores,
+    prepare: prepare,
+    scoreBand: scoreBand,
+    bands: BANDS,
+    config: CONFIG
   };
 })();
