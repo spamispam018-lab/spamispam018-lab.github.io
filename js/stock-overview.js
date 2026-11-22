@@ -6,6 +6,7 @@
  * NEU: Gemini-Prompt an compare.js angeglichen (strukturierter Datenblock,
  *      Copy-Fallback, URL-Längenprüfung, Button-Feedback).
  * NEU: News.promptBlock (FinBERT) + ChartAnalyse.promptText wieder integriert.
+ * NEU: Reddit-Karte & Reddit-Prompt (ApeWisdom & Tradestie) integriert.
  */
 
 window.App = window.App || {};
@@ -101,7 +102,7 @@ window.App.StockOverview = (function () {
       '</div>' : '') +
 
       '<div id="news-card"></div>' +
-      '<div id="reddit-card"></div>' +
+      '<div id="reddit-card" style="margin-bottom: 14px;"></div>' +
       renderEtfHoldingsHtml(holdings) +
       renderMetricsHtml(quote, ratios, peTrailingDisplay, forwardPeDisplay, divYieldDisplay, isDataMissing) +
 
@@ -152,7 +153,13 @@ window.App.StockOverview = (function () {
 
     container.innerHTML = html;
 
-    if (window.App.News) window.App.News.fillTicker(stock.ticker, container.querySelector('#news-card'), container.querySelector('#reddit-card'));
+    if (window.App.News) {
+      window.App.News.fillTicker(
+        stock.ticker, 
+        container.querySelector('#news-card'),
+        container.querySelector('#reddit-card')
+      );
+    }
 
     // NEU: Pre-Market-Karte rendern (nur bei US-Tickern und wenn Daten vorhanden)
     if (window.App.PreMarket && !isDataMissing) {
@@ -437,9 +444,13 @@ window.App.StockOverview = (function () {
       });
     }
 
-    // Reddit-Aufmerksamkeit (ApeWisdom), falls schon geladen
-    var rl = (window.App.News && window.App.News.redditLine) ? window.App.News.redditLine(s.ticker) : '';
-    if (rl) L.push('- ' + rl);
+    // NEU: Reddit-Stimmung aus ApeWisdom & Tradestie hinzufügen
+    var redditInfo = (window.App.News && window.App.News.redditLine)
+      ? window.App.News.redditLine(s.ticker)
+      : '';
+    if (redditInfo) {
+      L.push('- ' + redditInfo);
+    }
 
     return L.join('\n');
   }
