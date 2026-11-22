@@ -376,6 +376,37 @@ window.App.StockOverview = (function () {
         }
       });
     }
+    // Drawdown: Rückgang vom höchsten Schlusskurs der letzten 60 Handelstage
+    if (n >= 20) {
+      var ddFrom = Math.max(0, n - 60), ddHigh = 0;
+      for (var di = ddFrom; di < n; di++) if (closes[di] > ddHigh) ddHigh = closes[di];
+      if (ddHigh > 0) t += 'Abstand zum 60-Tage-Hoch ' + P((cPrice / ddHigh - 1) * 100) + '. ';
+    }
+    // Volatilität: ATR (14) in % vom Kurs
+    if (n > 15) {
+      var trSum = 0, trCnt = 0;
+      for (var ai = n - 14; ai < n; ai++) {
+        var pc = closes[ai - 1], hh = hist[ai].high, ll = hist[ai].low;
+        var tr = (hh > 0 && ll > 0) ? Math.max(hh - ll, Math.abs(hh - pc), Math.abs(ll - pc)) : Math.abs(closes[ai] - pc);
+        trSum += tr; trCnt++;
+      }
+      if (trCnt > 0 && cPrice > 0) t += 'Volatilität (ATR 14) ' + P((trSum / trCnt) / cPrice * 100) + ' vom Kurs. ';
+    }
+    // Volumen: aktuell vs. 20-Tage-Schnitt und Volumenanteil der Abwärtstage (20T)
+    if (n > 21) {
+      var vols = hist.map(function (p) { return p.volume > 0 ? p.volume : 0; });
+      var vSum = 0, vCnt = 0;
+      for (var vi = n - 21; vi < n - 1; vi++) { if (vols[vi] > 0) { vSum += vols[vi]; vCnt++; } }
+      if (vCnt >= 10 && vols[n - 1] > 0) {
+        t += 'Volumen aktuell ' + P((vols[n - 1] / (vSum / vCnt) - 1) * 100, 0) + ' ggü. 20-Tage-Schnitt. ';
+      }
+      var upV = 0, downV = 0;
+      for (var ui = n - 20; ui < n; ui++) {
+        if (closes[ui] > closes[ui - 1]) upV += vols[ui];
+        else if (closes[ui] < closes[ui - 1]) downV += vols[ui];
+      }
+      if (upV + downV > 0) t += 'Anteil Abwärtstage am Volumen (20T) ' + P(downV / (upV + downV) * 100, 0) + '. ';
+    }
     if (macdLast !== null && sigLast !== null) t += 'MACD ' + (macdLast > sigLast ? 'über' : 'unter') + ' Signallinie. ';
     if (mom3m !== null) t += 'Momentum 3M ' + P(mom3m) + '.';
     return t.trim();
