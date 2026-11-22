@@ -5,9 +5,8 @@
  * - Drilldown in einen Sektor: Heatmap der Einzelwerte + Branchen-Ranking + Passende Sektor-ETFs
  * - Drilldown in eine Branche (NEU): Klick auf eine Branche zeigt nur die Aktien dieser Branche.
  * - Top-/Flop-Listen für den gewählten Zeitraum
+ * - Reddit-Trends & Badges (NEU)
  * Datenquelle: data/universe.json (changePercent, perf1w, perf1m, perf3m, perfYtd, perf52w, marketCap).
- * 
- * NEU: Sektor-ETF für Financials auf XDWF.DE umgestellt (statt WFIS.DE).
  */
 
 window.App = window.App || {};
@@ -38,9 +37,9 @@ window.App.Market = (function () {
     'Communication Services': ['IU5C.DE', 'XWTS.DE']
   };
 
-  // NEU: industry im State ergänzt
   var state = { period: 'perf1m', sector: null, industry: null, largeOnly: true };
   var universe = [];
+  var redditData = {}; // NEU: Cache für Reddit-Daten
   var styleInjected = false;
 
   function injectStyles() {
@@ -212,15 +211,17 @@ window.App.Market = (function () {
 
     container.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Lade Marktdaten...</p></div>';
 
-    window.App.Data.getUniverse().then(function (u) {
-      universe = u || [];
+    // NEU: Universe und Reddit-Daten parallel laden
+    Promise.all([
+      window.App.Data.getUniverse(),
+      window.App.News ? window.App.News.loadRedditIndex() : Promise.resolve({})
+    ]).then(function (results) {
+      universe = results[0] || [];
+      redditData = results[1] || {};
       draw(container);
     });
   }
 
-  // ---------------------------------------------------------------------------
-  // NEU: Alle Kurse aktualisieren
-  // ---------------------------------------------------------------------------
   function liveStatusText() {
     var L = window.App.Live;
     if (!L) return 'Modul js/live-prices.js nicht geladen.';
@@ -274,7 +275,6 @@ window.App.Market = (function () {
 
     var pr0 = L.getProgress();
     if (pr0.running) {
-      // Lauf wurde in einer früheren Ansicht gestartet – Anzeige wieder anbinden
       L.onProgress(function (pr) { onLiveProgress(container, pr); });
       updateLiveUi(pr0);
     }
@@ -291,7 +291,6 @@ window.App.Market = (function () {
   function onLiveProgress(container, pr) {
     updateLiveUi(pr);
     if (pr.running) return;
-    // Fertig: Daten mit den neuen Kursen neu laden und Ansicht zeichnen (nur wenn noch auf Markt-Seite)
     window.App.Data.getUniverse().then(function (u) {
       universe = u || [];
       if (document.getElementById('mk-live-card')) draw(container);
@@ -314,19 +313,71 @@ window.App.Market = (function () {
   }
 
   function stockRow(s, key) {
+    // NEU: Badge für Reddit-Aktivität
+    var r = redditData[s.ticker];
+    var redditBadge = '';
+    if (r && r.mentions > 0) {
+        var sentimentIcon = r.sentiment === 'Bullish' ? '🟢' : (r.sentiment === 'Bearish' ? '🔴' : '⚪');
+        redditBadge = '<span style="font-size:.65rem;background:var(--bg-tertiary);padding:2px 6px;border-radius:4px;margin-left:6px;" title="Reddit Mentions: ' + r.mentions + (r.sentiment ? ' | Sentiment: ' + r.sentiment : '') + '">' + 
+                      '🦍 ' + r.mentions + ' ' + sentimentIcon + '</span>';
+    }
+
     return '' +
       '<div class="mk-row" data-mk-ticker="' + esc(s.ticker) + '">' +
         '<div class="mk-left"><span class="ticker-badge">' + esc(s.ticker) + '</span>' +
+          redditBadge +
           '<span class="mk-name">' + esc(s.name || '') + '</span></div>' +
         '<span class="mk-val ' + cls(s[key]) + '">' + fmtPct(s[key], 2) + '</span>' +
       '</div>';
+  }
+
+  // NEU: Reddit-Trends Karte
+  function redditTrendsCardHtml() {
+    var validReddit = Object.keys(redditData)
+        .map(function(t) { return Object.assign({ ticker: t }, redditData[t]); })
+        .filter(function(r) { return r.mentions > 0; })
+        .sort(function(a, b) { return b.mentions - a.mentions; }) // Sortieren nach Mentions
+        .slice(0, 5); // Top 5 anzeigen
+
+    if (validReddit.length === 0) return '';
+
+    var html = '<div class="card"><div class="card-header-dotted"><span class="card-title">Reddit-Trends (Top 5)</span>' +
+               '<span class="sector-label">ApeWisdom & WSB</span></div>';
+
+    validReddit.forEach(function(r) {
+        var isBull = r.sentiment === 'Bullish';
+        var isBear = r.sentiment === 'Bearish';
+        var sColor = isBull ? 'var(--bullish)' : (isBear ? 'var(--bearish)' : 'var(--text-dim)');
+        var sText = r.sentiment ? (isBull ? 'Bullish' : (isBear ? 'Bearish' : 'Neutral')) : 'N/A';
+        
+        var pctColor = r.change_pct > 0 ? 'var(--bullish)' : (r.change_pct < 0 ? 'var(--bearish)' : 'var(--text-dim)');
+        var pctStr = (r.change_pct > 0 ? '+' : '') + r.change_pct + '%';
+
+        html += '' +
+          '<div class="mk-row" data-mk-ticker="' + esc(r.ticker) + '">' +
+            '<div class="mk-left" style="flex-direction:column;align-items:flex-start;gap:2px;">' +
+              '<div style="display:flex;align-items:center;gap:6px;">' +
+                '<span class="ticker-badge">' + esc(r.ticker) + '</span>' +
+                '<span style="font-size:.75rem;font-weight:600;color:' + sColor + ';">' + sText + '</span>' +
+              '</div>' +
+              '<div style="font-size:.65rem;color:var(--text-dim);">' +
+                r.mentions + ' Mentions · <span style="color:' + pctColor + '">' + pctStr + ' vs. gestern</span>' +
+              '</div>' +
+            '</div>' +
+            '<div style="text-align:right;">' +
+              '<div style="font-size:.8rem;font-weight:700;">Rang #' + (r.rank || '-') + '</div>' +
+              '<div style="font-size:.65rem;color:var(--text-dim);">' + (r.upvotes || 0) + ' Upvotes</div>' +
+            '</div>' +
+          '</div>';
+    });
+    html += '</div>';
+    return html;
   }
 
   function draw(container) {
     var p = periodInfo();
     var key = p.key;
     
-    // NEU: 3-Ebenen-Filterung (Gesamtmarkt -> Sektor -> Branche)
     var pool = state.industry
       ? universe.filter(function (s) { return s.industry === state.industry; })
       : (state.sector ? universe.filter(function (s) { return s.sector === state.sector; }) : universe);
@@ -343,7 +394,6 @@ window.App.Market = (function () {
 
     var html = '';
 
-    // NEU: Kurse aller Aktien aktualisieren (Live-Kurs + US-Handel), dauerhaft gespeichert
     html += liveCardHtml();
     html += (window.App.Macro ? window.App.Macro.html() : '');
 
@@ -365,13 +415,17 @@ window.App.Market = (function () {
           (breadth === null ? '—' : window.App.Format.number(breadth, 0) + ' %') + '</div></div>' +
       '</div></div>';
 
+    // NEU: Reddit-Trends nur auf Gesamtmarkt-Ebene anzeigen
+    if (!state.sector && !state.industry) {
+        html += redditTrendsCardHtml();
+    }
+
     // Heatmap
     var ratio = state.sector ? 1.05 : 0.95;
     var pendingMap = null;
     html += '<div class="card"><div class="card-header-dotted"><span class="card-title">' +
       (state.sector ? 'Heatmap ' + esc(viewTitle) : 'Sektor-Heatmap') + '</span>';
       
-    // NEU: Back-Buttons für die Ebenen
     if (state.industry) {
       html += '<button class="chip-btn" id="mk-back-industry" style="padding:3px 10px;font-size:.72rem;">← Zurück zu ' + esc(state.sector) + '</button>';
     } else if (state.sector) {
@@ -436,13 +490,10 @@ window.App.Market = (function () {
     // Ranking der Sektoren, Branchen oder Einzelaktien
     var rankGroups;
     if (state.industry) {
-      // Wenn wir in einer Branche sind, ranken wir die einzelnen Aktien
       rankGroups = groupBy(pool, function (s) { return s.ticker; });
     } else if (state.sector) {
-      // Wenn wir in einem Sektor sind, ranken wir die Branchen
       rankGroups = groupBy(pool, function (s) { return s.industry; });
     } else {
-      // Auf Gesamtmarkt-Ebene ranken wir die Sektoren
       rankGroups = groupBy(universe, function (s) { return s.sector; });
     }
 
@@ -458,13 +509,11 @@ window.App.Market = (function () {
       var title = state.industry ? 'Aktien im Vergleich' : (state.sector ? 'Branchen im Vergleich' : 'Sektoren im Vergleich');
       html += '<div class="card"><div class="card-header-dotted"><span class="card-title">' + title + '</span></div>';
       
-      // NEU: Klickbare Attribute je nach Ebene
       var clickAttr = '';
-      if (!state.sector) clickAttr = 'data-mk-sector'; // Klick auf Sektor
-      else if (!state.industry) clickAttr = 'data-mk-industry'; // Klick auf Branche
+      if (!state.sector) clickAttr = 'data-mk-sector'; 
+      else if (!state.industry) clickAttr = 'data-mk-industry'; 
       
       rank.forEach(function (r) {
-        // Falls wir in der Branchen-Ansicht sind, verlinken wir direkt auf die Aktie
         if (state.industry) {
            html += stockRow(rankGroups[r.name][0], key); 
         } else {
@@ -523,7 +572,6 @@ window.App.Market = (function () {
       };
     });
     
-    // NEU: Klick auf eine Branche
     container.querySelectorAll('[data-mk-industry]').forEach(function (b) {
       b.onclick = function () { 
         state.industry = b.getAttribute('data-mk-industry'); 
@@ -539,7 +587,6 @@ window.App.Market = (function () {
       };
     });
 
-    // NEU: Zurück-Buttons für beide Ebenen
     var backInd = container.querySelector('#mk-back-industry');
     if (backInd) backInd.onclick = function () { state.industry = null; draw(container); window.scrollTo(0, 0); };
 
