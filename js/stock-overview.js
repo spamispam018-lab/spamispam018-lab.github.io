@@ -101,6 +101,7 @@ window.App.StockOverview = (function () {
       '</div>' : '') +
 
       '<div id="news-card"></div>' +
+      '<div id="reddit-card"></div>' +
       renderEtfHoldingsHtml(holdings) +
       renderMetricsHtml(quote, ratios, peTrailingDisplay, forwardPeDisplay, divYieldDisplay, isDataMissing) +
 
@@ -151,7 +152,7 @@ window.App.StockOverview = (function () {
 
     container.innerHTML = html;
 
-    if (window.App.News) window.App.News.fillTicker(stock.ticker, container.querySelector('#news-card'));
+    if (window.App.News) window.App.News.fillTicker(stock.ticker, container.querySelector('#news-card'), container.querySelector('#reddit-card'));
 
     // NEU: Pre-Market-Karte rendern (nur bei US-Tickern und wenn Daten vorhanden)
     if (window.App.PreMarket && !isDataMissing) {
@@ -435,6 +436,10 @@ window.App.StockOverview = (function () {
         if (line.trim()) L.push('  ' + line);
       });
     }
+
+    // Reddit-Aufmerksamkeit (ApeWisdom), falls schon geladen
+    var rl = (window.App.News && window.App.News.redditLine) ? window.App.News.redditLine(s.ticker) : '';
+    if (rl) L.push('- ' + rl);
 
     return L.join('\n');
   }
