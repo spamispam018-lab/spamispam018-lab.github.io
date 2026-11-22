@@ -58,6 +58,32 @@ window.App.Macro = (function () {
       '" stroke-width="1.5" stroke-linejoin="round" points="' + pts + '"/></svg>';
   }
 
+  function dateDe(iso) {
+    var d = new Date(iso);
+    return isFinite(d) ? d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) : iso;
+  }
+
+  function resolveSeriesDates(it, count) {
+    if (Array.isArray(it.seriesDates) && it.seriesDates.length === count) {
+      return it.seriesDates;
+    }
+    var endMs = it.date ? Date.parse(it.date) : NaN;
+    if (!isFinite(endMs) || count < 2) return null;
+
+    var stepsBack = count - 1;
+    var daysPerStep = 1.4; // ca. 5 Handelstage pro 7 Kalendertage
+    if (it.freq === 'w') daysPerStep = 7;
+    else if (it.freq === 'm') daysPerStep = 30.4375;
+    else if (it.freq === 'q') daysPerStep = 91.25;
+
+    var out = [];
+    for (var i = 0; i < count; i++) {
+      var offsetDays = (stepsBack - i) * daysPerStep;
+      out.push(new Date(endMs - offsetDays * 86400000).toISOString().slice(0, 10));
+    }
+    return out;
+  }
+
   function detailChartHtml(it, col) {
     var series = it.series;
     if (!series || series.length < 2) {
@@ -65,7 +91,7 @@ window.App.Macro = (function () {
     }
 
     var isVix = it.id === '^VIX';
-    var dates = Array.isArray(it.seriesDates) && it.seriesDates.length === series.length ? it.seriesDates : null;
+    var dates = resolveSeriesDates(it, series.length);
 
     var rawMin = Math.min.apply(null, series);
     var rawMax = Math.max.apply(null, series);
@@ -164,11 +190,6 @@ window.App.Macro = (function () {
         '<span>Wischen/Tippen zum Prüfen</span>' +
       '</div>' +
     '</div>';
-  }
-
-  function dateDe(iso) {
-    var d = new Date(iso);
-    return isFinite(d) ? d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) : iso;
   }
 
   function rowHtml(it) {
