@@ -56,7 +56,7 @@ window.App.News = (function () {
   }
 
   // ---------- Reddit (ApeWisdom + Tradestie) ----------
-  function redditBuzzBar(data) {
+  function redditBuzzBar(data, ticker) {
     if (!data) return '';
     var html = '';
 
@@ -64,9 +64,14 @@ window.App.News = (function () {
     if (data.mentions) {
       var pct = (data.change_pct > 0 ? '+' : '') + data.change_pct;
       var color = data.change_pct > 0 ? COL.positive : data.change_pct < 0 ? COL.negative : COL.neutral;
+      
+      // Link zur allgemeinen Reddit-Suche
+      var redditSearchUrl = 'https://www.reddit.com/search/?q=' + encodeURIComponent(ticker) + '&sort=new';
+      
       html += '<div style="display:flex;gap:12px;font-size:.72rem;margin-bottom:6px;align-items:center;flex-wrap:wrap;">' +
         '<span style="color:' + color + ';font-weight:600;">' + pct + '% Mentions (24h)</span>' +
-        '<span style="color:var(--text-dim);">' + data.mentions + ' Erwähnungen</span>' +
+        '<a href="' + redditSearchUrl + '" target="_blank" rel="noopener" style="color:var(--text-dim);text-decoration:none;">' + 
+          data.mentions + ' Erwähnungen ↗</a>' +
         (data.upvotes ? '<span style="color:var(--text-dim);">' + data.upvotes + ' Upvotes</span>' : '') +
         (data.rank ? '<span style="color:var(--text-dim);">Rang #' + data.rank + '</span>' : '') +
         '</div>';
@@ -78,10 +83,15 @@ window.App.News = (function () {
       var sColor = isBull ? COL.positive : COL.negative;
       var scoreStr = data.sentiment_score !== undefined && data.sentiment_score !== null 
                      ? (data.sentiment_score > 0 ? '+' : '') + data.sentiment_score : '';
+      
+      // Link zur gezielten Wallstreetbets-Suche
+      var wsbSearchUrl = 'https://www.reddit.com/r/wallstreetbets/search/?q=' + encodeURIComponent(ticker) + '&restrict_sr=1&sort=new';
+
       html += '<div style="display:flex;gap:12px;font-size:.72rem;margin-bottom:8px;align-items:center;flex-wrap:wrap;">' +
         '<span style="color:' + sColor + ';font-weight:600;">WSB-Sentiment: ' + (isBull ? 'Bullish' : 'Bearish') + '</span>' +
         (scoreStr ? '<span style="color:var(--text-dim);">Score: ' + scoreStr + '</span>' : '') +
-        (data.wsb_comments ? '<span style="color:var(--text-dim);">' + data.wsb_comments + ' Kommentare</span>' : '') +
+        (data.wsb_comments ? '<a href="' + wsbSearchUrl + '" target="_blank" rel="noopener" style="color:var(--text-dim);text-decoration:none;">' + 
+          data.wsb_comments + ' Kommentare ↗</a>' : '') +
         '</div>';
     }
 
@@ -98,7 +108,7 @@ window.App.News = (function () {
       }
       slotEl.innerHTML = '<div class="card">' +
         '<div class="card-header-dotted"><span class="card-title">Reddit-Analyse</span></div>' +
-        redditBuzzBar(d) +
+        redditBuzzBar(d, ticker) +
         '<div style="font-size:.62rem;color:var(--text-dim);margin-top:6px;">Quellen: ApeWisdom & Tradestie, keine Anlageberatung.</div>' +
         '</div>';
     });
