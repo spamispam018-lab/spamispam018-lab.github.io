@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-20T14:57:18.388008+00:00",
+ "updated": "2026-11-22T14:42:28.223649+00:00",
  "items": [
   {
    "id": "DGS10",
@@ -8,15 +8,14 @@
    "unit": "%",
    "freq": "d",
    "decimals": 2,
-   "value": 5.07,
+   "value": 5.04,
    "delta": -0.08,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "20261118",
+   "date": "20261119",
    "signal": "bad",
    "hint": "Hohe Renditen belasten Wachstums- und Immobilienwerte.",
    "why": "Referenzzins für Bewertungen weltweit.",
    "series": [
-    4.7,
     4.64,
     4.66,
     4.67,
@@ -75,7 +74,8 @@
     5.15,
     5.12,
     5.1,
-    5.07
+    5.07,
+    5.04
    ]
   },
   {
@@ -85,15 +85,14 @@
    "unit": "Pp",
    "freq": "d",
    "decimals": 2,
-   "value": 0.28,
-   "delta": -0.05,
+   "value": 0.29,
+   "delta": -0.03,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "20261119",
+   "date": "20261120",
    "signal": "ok",
    "hint": "Negativ = invertierte Zinskurve, historisch ein Rezessions-Warnsignal.",
    "why": "Abstand zwischen langen und kurzen Zinsen.",
    "series": [
-    0.47,
     0.47,
     0.47,
     0.39,
@@ -152,7 +151,8 @@
     0.29,
     0.3,
     0.27,
-    0.28
+    0.28,
+    0.29
    ]
   },
   {
@@ -165,7 +165,7 @@
    "value": 3.88,
    "delta": 0.0,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "20261118",
+   "date": "20261119",
    "signal": "neutral",
    "hint": "",
    "why": "Zinsniveau der US-Notenbank.",
@@ -701,15 +701,14 @@
    "unit": "Pp",
    "freq": "d",
    "decimals": 2,
-   "value": 3.47,
-   "delta": 0.18,
+   "value": 3.52,
+   "delta": 0.19,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "20261118",
+   "date": "20261119",
    "signal": "ok",
    "hint": "Steigende Aufschläge zeigen Kreditstress, oft vor Kursverlusten.",
    "why": "Risikoaufschlag riskanter Unternehmensanleihen.",
    "series": [
-    2.63,
     2.6,
     2.63,
     2.65,
@@ -768,7 +767,8 @@
     3.23,
     3.34,
     3.43,
-    3.47
+    3.47,
+    3.52
    ]
   },
   {
@@ -1009,11 +1009,11 @@
    "unit": "",
    "freq": "d",
    "decimals": 1,
-   "value": 28.61,
-   "delta": 11.93,
+   "value": 35.89,
+   "delta": 19.21,
    "deltaLabel": "ggü. 1 Monat",
    "date": "2026-11-20",
-   "signal": "warn",
+   "signal": "bad",
    "hint": "Über 20 nervöser Markt, über 30 Stress.",
    "why": "Erwartete Schwankung des S&P 500.",
    "series": [
@@ -1076,7 +1076,7 @@
     25.46,
     24.56,
     28.44,
-    28.61
+    35.89
    ]
   },
   {
@@ -1086,8 +1086,8 @@
    "unit": "",
    "freq": "d",
    "decimals": 4,
-   "value": 1.0987,
-   "delta": -0.024,
+   "value": 1.097,
+   "delta": -0.0257,
    "deltaLabel": "ggü. 1 Monat",
    "date": "2026-11-20",
    "signal": "neutral",
@@ -1153,7 +1153,7 @@
     1.0998,
     1.0993,
     1.0972,
-    1.0987
+    1.097
    ]
   }
  ],
