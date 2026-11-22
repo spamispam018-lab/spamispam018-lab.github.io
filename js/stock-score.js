@@ -130,6 +130,36 @@ window.App.Score = (function () {
     return { category: 'Fundamentaldaten', score: score, metrics: metrics, reason: reason };
   }
 
+  // Trend-Kennzahlen: aus der Kurshistorie (Detail) oder aus Universe-Feldern (Screener)
+  function smaOf(c, n) {
+    if (!c || c.length < n) return null;
+    var t = 0;
+    for (var i = c.length - n; i < c.length; i++) t += c[i];
+    return t / n;
+  }
+  function trendInfo(stock) {
+    var out = { px: null, dd: null, p1m: null, p3m: null, sma50: null, sma200: null, below50: null, below200: null };
+    var hist = stock.chartHistory;
+    var c = Array.isArray(hist) ? hist.map(function (h) { return h && num(h.close); }).filter(function (v) { return v !== null && v > 0; }) : [];
+    var px = num(stock.quote ? stock.quote.price : null);
+    if (c.length >= 60) {
+      px = px || c[c.length - 1];
+      var hi = Math.max.apply(null, c.slice(-252));
+      out.dd = (px / hi - 1) * 100;
+      if (c.length > 21) out.p1m = (px / c[c.length - 22] - 1) * 100;
+      if (c.length > 63) out.p3m = (px / c[c.length - 64] - 1) * 100;
+      out.sma50 = smaOf(c, 50); out.sma200 = smaOf(c, 200);
+    } else {
+      if (px && num(stock.high52)) out.dd = (px / stock.high52 - 1) * 100;
+      out.p1m = num(stock.perf1m); out.p3m = num(stock.perf3m);
+    }
+    out.px = px;
+    if (px && out.sma50) out.below50 = px < out.sma50;
+    if (px && out.sma200) out.below200 = px < out.sma200;
+    return out;
+  }
+  function fmtPct(v) { return (v > 0 ? '+' : '') + v.toFixed(1) + ' %'; }
+
   function evalTechnicals(stock) {
     var rsi = num(stock.rsi);
     var cross = stock.cross; 
@@ -138,10 +168,13 @@ window.App.Score = (function () {
     var parts = [];
     var metrics = [];
     var pros = [], cons = [];
+    var tr = trendInfo(stock);
+    var downtrend = (tr.below200 === true && tr.p3m !== null && tr.p3m <= -15) || (tr.dd !== null && tr.dd <= -30 && tr.p3m !== null && tr.p3m <= -10);
     
     if (rsi !== null) {
       metrics.push({ name: 'RSI (14)', value: rsi.toFixed(0) });
-      if (rsi <= 30) { parts.push([4.5, 0.3]); pros.push('überverkauft (Kaufchance)'); }
+      if (rsi <= 30 && downtrend) { parts.push([2.5, 0.3]); cons.push('überverkauft, aber Abwärtstrend noch intakt'); }
+      else if (rsi <= 30) { parts.push([4.5, 0.3]); pros.push('überverkauft (Kaufchance)'); }
       else if (rsi >= 70) { parts.push([1.5, 0.3]); cons.push('überkauft (Rücksetzer-Risiko)'); }
       else parts.push([2.5, 0.3]);
     }
@@ -160,6 +193,26 @@ window.App.Score = (function () {
         if (rangePos > 80) { parts.push([4.0, 0.3]); pros.push('nahe am Jahreshoch'); }
         else if (rangePos < 20) { parts.push([2.0, 0.3]); cons.push('nahe am Jahrestief'); }
         else parts.push([3.0, 0.3]);
+    }
+
+    // NEU: Trendstruktur und Momentum (damit ein anhaltender Kursverfall nicht als neutral durchgeht)
+    if (tr.below200 !== null && tr.below50 !== null) {
+      var sT = tr.below200 && tr.below50 ? 1.0 : tr.below200 ? 2.2 : tr.below50 ? 3.0 : 4.5;
+      parts.push([sT, 0.35]);
+      metrics.push({ name: 'Trend (SMA 50/200)', value: tr.below200 && tr.below50 ? 'unter beiden' : tr.below200 ? 'unter SMA200' : tr.below50 ? 'unter SMA50' : 'über beiden' });
+      if (tr.below200 && tr.below50) cons.push('Kurs unter SMA50 und SMA200');
+      if (!tr.below200 && !tr.below50) pros.push('Kurs über SMA50 und SMA200');
+    }
+    if (tr.p3m !== null) {
+      var sMo = tr.p3m <= -25 ? 1.0 : tr.p3m <= -10 ? 2.0 : tr.p3m >= 25 ? 4.5 : tr.p3m >= 10 ? 4.0 : 3.0;
+      parts.push([sMo, 0.2]);
+      metrics.push({ name: 'Performance 3 Monate', value: fmtPct(tr.p3m) });
+      if (tr.p3m <= -25) cons.push('starker Kursverfall (3 Monate)');
+      if (tr.p3m >= 25) pros.push('starkes Momentum (3 Monate)');
+    }
+    if (tr.dd !== null) {
+      metrics.push({ name: 'Abstand zum 52W-Hoch', value: fmtPct(tr.dd) });
+      if (tr.dd <= -30) cons.push('deutlich unter dem 52W-Hoch');
     }
     
     var score = Math.round(weightedAvg(parts) * 10) / 10;
@@ -314,6 +367,13 @@ window.App.Score = (function () {
     var hot = (rsi !== null && rsi >= CONFIG.hypeRsi) || (rangePos !== null && rangePos >= CONFIG.hypeRangePos) || (p1m !== null && p1m >= CONFIG.hypePerf1m);
     if (isRedditTrend(r) && hot) flags.push({ text: 'Hype-Warnung: Reddit-Trend bei bereits gelaufenem Kurs', pts: -5 });
     if (isWsbBull(r) && isNewsNegative(n)) flags.push({ text: 'Widerspruch: WSB bullisch, aber negative News', pts: -4 });
+    var tr = trendInfo(stock);
+    if (tr.dd !== null && tr.dd <= -30 && ((tr.below200 === true) || (tr.p3m !== null && tr.p3m <= -10))) {
+      flags.push({ text: 'Starker Abwärtstrend: ' + Math.round(tr.dd) + ' % unter dem 52W-Hoch', pts: -6 });
+    } else if (tr.p3m !== null && tr.p3m <= -25) {
+      flags.push({ text: 'Kursverfall: ' + Math.round(tr.p3m) + ' % in 3 Monaten', pts: -4 });
+    }
+    if (rangePos !== null && rangePos <= 5) flags.push({ text: 'Nahe am 52-Wochen-Tief', pts: -3 });
     if (stock.bottom === 'knife') flags.push({ text: 'Fallendes Messer: Abwärtstrend noch intakt', pts: -6 });
     if (num(stock.rrCrv) !== null && stock.rrCrv < 1) flags.push({ text: 'Schwaches Chance-Risiko-Verhältnis (CRV unter 1)', pts: -3 });
 
@@ -331,7 +391,7 @@ window.App.Score = (function () {
     var score = Math.max(0, Math.round((5 + f.penalty / 3) * 10) / 10);
     return {
       category: 'Warnsignale', score: score, weight: 'Abzug', metrics: metrics.length ? metrics : [{ name: 'Status', value: 'Keine' }],
-      reason: f.flags.length ? 'Abzug von ' + Math.abs(f.penalty) + ' Punkten auf den Gesamtscore.' : 'Keine Warnsignale erkannt.' + (f.info.length ? ' ' + f.info.join('. ') + '.' : '')
+      reason: f.flags.length ? 'Abzug von ' + Math.abs(f.penalty) + ' Punkten auf den Gesamtscore.' : '5,0 von 5 heißt: keine Abzüge, nicht „besonders gut“. Keine Warnsignale erkannt.' + (f.info.length ? ' ' + f.info.join('. ') + '.' : '')
     };
   }
 
@@ -378,7 +438,7 @@ window.App.Score = (function () {
       ticker: u.ticker, sector: u.sector, name: u.name,
       ratios: { peTrailing: u.pe, peForward: u.forwardPe, profitMargins: u.profitMargins, revenueGrowth: u.revGrowth,
                 debtToEquity: u.debtToEquity, dividendYield: u.dividendYield },
-      rsi: u.rsi, cross: u.cross, rangePos: u.rangePos, perf1m: u.perf1m, bottom: u.bottom, rrCrv: u.rrCrv,
+      rsi: u.rsi, cross: u.cross, rangePos: u.rangePos, perf1m: u.perf1m, perf3m: u.perf3m, high52: u.high52, bottom: u.bottom, rrCrv: u.rrCrv,
       nextEarningsDate: u.nextEarningsDate,
       quote: { price: price },
       analysts: { targets: {}, recommendations: {} },
