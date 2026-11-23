@@ -390,6 +390,9 @@ window.App.Screener = (function () {
     }
 
     container.innerHTML = getTemplateHtml();
+    if (window.App.StrategyScanner) {
+      window.App.StrategyScanner.mount(document.getElementById('screener-scanner-slot'), { startCollapsed: true });
+    }
     var searchInput = document.getElementById('screener-search-input');
     if (searchInput) searchInput.value = currentSearchQuery;
     updateHeaderFilterIndicator();
@@ -1344,6 +1347,7 @@ window.App.Screener = (function () {
         '<div class="horizontal-scroll-row" id="screener-saved-row"></div>' +
         
         '<div id="screener-active-summary"></div>' +
+        '<div id="screener-scanner-slot"></div>' +
 
         '<div class="sub-header-bar">' +
           '<span><span id="screener-result-count">0 Ergebnisse</span>' +
