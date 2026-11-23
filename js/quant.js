@@ -681,7 +681,8 @@ window.App.Quant = (function () {
       var t = segStats(full.equity);
       rows.push({
         type: type, params: best.params, trainSharpe: best.sharpe,
-        test: t, full: full.stats, trades: full.stats.trades,
+        test: t, full: full.stats, trades: full.stats.trades, signalNow: full.pendingSignal,
+        tradesInTest: full.trades.filter(function (x) { return x.entryDate >= testDates[0] || (!x.open && x.exitDate >= testDates[0]); }).length,
         beatsTest: t.totalReturn > bhTest.totalReturn
       });
     });
@@ -765,6 +766,58 @@ window.App.Quant = (function () {
     return out;
   }
 
+
+  /**
+   * Beste Strategie für ein kurzes, aktuelles Zeitfenster (z. B. letzter Tag, Woche, Monat, 3/6 Monate, Jahr):
+   * Parameter und Strategie werden nur mit Daten VOR dem Fenster gewählt (Trainingsdaten = längste Serie bis zum Fensterstart),
+   * bewertet wird ausschließlich im Fenster. Bis 6 Monate wird auf Tageskursen bewertet (falls vorhanden), sonst auf der Hauptserie.
+   * `full` ist die Hauptserie aus loadHistory (ggf. mit full.daily).
+   */
+  function findBestRecent(full, fee, testDays) {
+    var daily = (full.daily && full.daily.length > 30) ? full.daily : null;
+    var evalH = (daily && testDays <= 183) ? daily : full;
+    var m = evalH.length, i;
+    if (m < 30) return { error: 'Zu wenig Kursdaten.' };
+    var evalPpy = periodsPerYear(evalH);
+    if (evalPpy < 200 && testDays < 7) return { error: 'Für einen Tag werden Tageskurse benötigt – für diesen Titel liegen nur Wochenkurse vor.' };
+    var lastDate = evalH[m - 1].date;
+    var cd = new Date(lastDate + 'T00:00:00Z'); cd.setUTCDate(cd.getUTCDate() - testDays);
+    var cut = cd.toISOString().slice(0, 10);
+    var split = -1;
+    for (i = 0; i < m; i++) { if (evalH[i].date <= cut) split = i; else break; }
+    if (split < 1 || m - split < 2) return { error: 'Zu wenig Kursdaten vor dem gewählten Zeitfenster.' };
+    var train = full.filter(function (p) { return p.date <= cut; });
+    if (spanYears(train) < 3 || train.length < 120) return { error: 'Zu wenig Trainingsdaten vor dem Zeitfenster: Für die Auswahl werden mindestens etwa 3 Jahre Kurse davor benötigt (die Langhistorie der Aktie fehlt oder ist zu kurz).' };
+
+    var dates = evalH.map(function (h) { return h.date; }), testDates = dates.slice(split);
+    function segStats(curve) { var seg = curve.slice(split); return perfStats(seg, testDates, returns(seg), evalPpy); }
+    var bhRes = backtest(evalH, 'buyhold', {}, fee);
+    if (bhRes.error) return { error: bhRes.error };
+    var bhTest = segStats(bhRes.buyHold);
+    var rows = [];
+    Object.keys(STRATEGIES).forEach(function (type) {
+      if (type === 'buyhold') return;
+      var sr = searchParams(train, type, fee);
+      var cands = sr.rows.filter(function (r) { return r.trades >= 3; });
+      if (!cands.length) cands = sr.rows;
+      if (!cands.length) return;
+      var best = cands.slice().sort(function (a, b) { return (b.sharpe == null ? -99 : b.sharpe) - (a.sharpe == null ? -99 : a.sharpe); })[0];
+      var res = backtest(evalH, type, best.params, fee);
+      if (res.error) return;
+      var t = segStats(res.equity);
+      rows.push({
+        type: type, params: best.params, trainSharpe: best.sharpe, test: t, full: res.stats, trades: res.stats.trades,
+        signalNow: res.pendingSignal,
+        tradesInTest: res.trades.filter(function (x) { return x.entryDate >= testDates[0] || (!x.open && x.exitDate >= testDates[0]); }).length,
+        beatsTest: t.totalReturn > bhTest.totalReturn
+      });
+    });
+    return {
+      rows: rows, bhTest: bhTest, split: split, ppy: evalPpy, window: testDays, usedDaily: evalH === daily,
+      trainEnd: train[train.length - 1].date, testStart: evalH[split].date, testEnd: lastDate, days: m - 1 - split
+    };
+  }
+
   /* ---------- Historie laden ---------- */
   /**
    * Lädt die längste verfügbare Historie: long/<TICKER>.json oder – falls kürzer – die chartHistory aus der Aktie.
@@ -802,7 +855,7 @@ window.App.Quant = (function () {
     alignedReturns: alignedReturns, betaCorr: betaCorr, histogram: histogram,
     sma: sma, ema: ema, rsi: rsi, validateParams: validateParams,
     STRATEGIES: STRATEGIES, defaultParams: defaultParams, computeSignals: computeSignals, backtest: backtest,
-    PARAM_GRIDS: PARAM_GRIDS, gridCombos: gridCombos, searchParams: searchParams, findBest: findBest, indicatorSeries: indicatorSeries,
+    PARAM_GRIDS: PARAM_GRIDS, gridCombos: gridCombos, searchParams: searchParams, findBest: findBest, findBestRecent: findBestRecent, indicatorSeries: indicatorSeries,
     loadHistory: loadHistory, loadHistoryFor: loadHistoryFor
   };
 })();
