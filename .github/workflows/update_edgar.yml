@@ -1,0 +1,55 @@
+name: SEC-EDGAR-Update
+
+on:
+  schedule:
+    # Wöchentlich sonntags 04:15 UTC (Jahresabschlüsse ändern sich selten)
+    - cron: '15 4 * * 0'
+  workflow_dispatch:
+    inputs:
+      ticker:
+        description: 'Optional: Einzelner Ticker (z.B. AAPL), leer = alle US-Ticker'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  update-edgar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Python 3.11 einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: EDGAR-Daten abrufen
+        env:
+          # Repository-Secret SEC_USER_AGENT, z. B. "Vorname Nachname mail@example.com"
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+          TICKER: ${{ github.event.inputs.ticker || '' }}
+        run: |
+          if [ -n "$TICKER" ]; then
+            python scripts/fetch_edgar.py --ticker "$TICKER"
+          else
+            python scripts/fetch_edgar.py
+          fi
+
+      - name: Änderungen committen und pushen
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/edgar/
+          if git diff --staged --quiet; then
+            echo "Keine neuen EDGAR-Daten vorhanden."
+          else
+            git commit -m "Auto-Update SEC-EDGAR: $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git pull --rebase origin main
+            git push origin main
+          fi
