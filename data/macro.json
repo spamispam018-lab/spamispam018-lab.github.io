@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-23T08:03:44.237997+00:00",
+ "updated": "2026-11-23T16:35:14.450308+00:00",
  "items": [
   {
    "id": "DGS10",
@@ -242,7 +242,7 @@
    "value": 2.5,
    "delta": 0.0,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "20261120",
+   "date": "20261123",
    "signal": "neutral",
    "hint": "",
    "why": "Leitzins der Europäischen Zentralbank.",
@@ -701,15 +701,14 @@
    "unit": "Pp",
    "freq": "d",
    "decimals": 2,
-   "value": 3.52,
-   "delta": 0.19,
+   "value": 3.76,
+   "delta": 0.49,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "20261119",
+   "date": "20261120",
    "signal": "ok",
    "hint": "Steigende Aufschläge zeigen Kreditstress, oft vor Kursverlusten.",
    "why": "Risikoaufschlag riskanter Unternehmensanleihen.",
    "series": [
-    2.6,
     2.63,
     2.65,
     2.66,
@@ -768,7 +767,8 @@
     3.34,
     3.43,
     3.47,
-    3.52
+    3.52,
+    3.76
    ]
   },
   {
@@ -778,15 +778,14 @@
    "unit": "Pp",
    "freq": "d",
    "decimals": 2,
-   "value": 0.94,
-   "delta": 0.07,
+   "value": 0.98,
+   "delta": 0.1,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "20261119",
+   "date": "20261120",
    "signal": "ok",
    "hint": "Aufschlag guter Unternehmensanleihen, steigt bei Stress.",
    "why": "Aufschlag guter Unternehmensanleihen.",
    "series": [
-    0.79,
     0.8,
     0.81,
     0.81,
@@ -845,7 +844,8 @@
     0.9,
     0.92,
     0.93,
-    0.94
+    0.94,
+    0.98
    ]
   },
   {
@@ -1009,20 +1009,19 @@
    "unit": "",
    "freq": "d",
    "decimals": 1,
-   "value": 35.89,
-   "delta": 19.21,
+   "value": 27.32,
+   "delta": 7.87,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "2026-11-20",
-   "signal": "bad",
+   "date": "2026-11-23",
+   "signal": "warn",
    "hint": "Über 20 nervöser Markt, über 30 Stress.",
    "why": "Erwartete Schwankung des S&P 500.",
    "series": [
-    14.43,
-    14.92,
     16.34,
     15.2,
     14.32,
     14.53,
+    15.3,
     15.72,
     16.46,
     17.84,
@@ -1076,7 +1075,8 @@
     25.46,
     24.56,
     28.44,
-    35.89
+    35.89,
+    27.32
    ]
   },
   {
@@ -1086,8 +1086,8 @@
    "unit": "",
    "freq": "d",
    "decimals": 4,
-   "value": 1.0997,
-   "delta": -0.0224,
+   "value": 1.0903,
+   "delta": -0.0319,
    "deltaLabel": "ggü. 1 Monat",
    "date": "2026-11-23",
    "signal": "neutral",
@@ -1153,7 +1153,7 @@
     1.0993,
     1.0972,
     1.097,
-    1.0997
+    1.0903
    ]
   }
  ],
