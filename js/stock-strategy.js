@@ -121,16 +121,12 @@ window.App.StockStrategy = (function () {
           '<button class="chip-btn" id="bt-best-btn" style="height:42px;justify-content:center;">Beste Strategie finden (mit Testzeitraum)</button>' +
         '</div>' +
       '</div>' +
-      '<div id="scan-slot"></div>' +
       '<div id="bt-best"></div>' +
       '<div id="bt-search"></div>' +
       '<div id="bt-single-results"></div>';
 
     container.innerHTML = html;
 
-    if (window.App.StrategyScanner) {   // zusätzliche Karte: Strategie bei vielen Aktien prüfen (startet eingeklappt)
-      window.App.StrategyScanner.mount(container.querySelector('#scan-slot'), { startCollapsed: true, type: state.type, params: currentParams() });
-    }
 
     function drawParams() {
       var def = q.STRATEGIES[state.type];
