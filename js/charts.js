@@ -240,6 +240,25 @@ window.App.Charts = (function () {
     });
   }
 
+  /** Hinterlegt Zeitabschnitte (shade[i] = true) dezent grün. Punkt i liegt bei padding.left + i * stepX. */
+  function drawShade(ctx, shade, n, padding, chartW, chartH) {
+    if (!shade || n < 2) return;
+    var stepX = chartW / (n - 1);
+    ctx.save();
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.10)';
+    var start = null;
+    for (var i = 0; i <= n; i++) {
+      var on = i < n && !!shade[i];
+      if (on && start === null) start = i;
+      if (!on && start !== null) {
+        var x0 = padding.left + Math.max(0, start - 0.5) * stepX, x1 = padding.left + Math.min(n - 1, i - 0.5) * stepX;
+        ctx.fillRect(x0, padding.top, Math.max(1, x1 - x0), chartH);
+        start = null;
+      }
+    }
+    ctx.restore();
+  }
+
   function renderMultiLineChart(canvas, opts) {
     var setup = setupCanvas(canvas);
     if (!setup) return;
@@ -264,6 +283,7 @@ window.App.Charts = (function () {
     var chartH = h - padding.top - padding.bottom;
     var n0 = Math.max.apply(null, series.map(function (sr) { return sr.values.length; }));
     var stepX0 = n0 > 1 ? chartW / (n0 - 1) : chartW;
+    drawShade(ctx, opts.shade, n0, padding, chartW, chartH);
 
     series.forEach(function (sr) {
       var n = sr.values.length;
@@ -282,6 +302,26 @@ window.App.Charts = (function () {
       ctx.setLineDash(sr.dash || []);
       ctx.stroke();
       ctx.setLineDash([]);
+    });
+
+    // Kauf-/Verkaufsmarken (Dreiecke) auf der ersten Reihe: opts.markers = [{ index, type: 'Buy' | 'Sell' }]
+    (opts.markers || []).forEach(function (m) {
+      var base = series[0], v = base.values[m.index - (n0 - base.values.length)];
+      if (v === null || v === undefined || !isFinite(v) || m.index < 0 || m.index >= n0) return;
+      var mx = padding.left + m.index * stepX0;
+      var my = padding.top + chartH - ((v - minVal) / (maxVal - minVal)) * chartH;
+      var buy = m.type === 'Buy';
+      ctx.save();
+      ctx.fillStyle = buy ? '#10b981' : '#ef4444';
+      ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      var sz = (opts.markers || []).length > 60 ? 3 : 4.5;   // bei vielen Trades kleiner zeichnen
+      if (buy) { ctx.moveTo(mx, my + 2); ctx.lineTo(mx - sz, my + 2 + sz * 1.7); ctx.lineTo(mx + sz, my + 2 + sz * 1.7); }
+      else { ctx.moveTo(mx, my - 2); ctx.lineTo(mx - sz, my - 2 - sz * 1.7); ctx.lineTo(mx + sz, my - 2 - sz * 1.7); }
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      ctx.restore();
     });
 
     ctx.font = '10px ' + THEME.fontFamily;
@@ -319,6 +359,7 @@ window.App.Charts = (function () {
     var chartH = h - padding.top - padding.bottom;
     var stepX = chartW / (n - 1);
     function yOf(v) { return padding.top + chartH - ((v - minVal) / (maxVal - minVal)) * chartH; }
+    drawShade(ctx, opts.shade, n, padding, chartW, chartH);
 
     (opts.refLines || []).forEach(function (rl) {
       ctx.save();
