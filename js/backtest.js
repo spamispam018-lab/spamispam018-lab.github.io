@@ -37,7 +37,6 @@ window.App.Backtest = (function () {
           '<h2 style="font-size:1.25rem;font-weight:700;margin-bottom:4px;">Backtesting</h2>' +
           '<div style="font-size:0.78rem;color:var(--text-dim);">Simulation vergangener Filter-Performance (monatlich, 12-Monats-Haltedauer).</div>' +
         '</div>' +
-        '<div id="scanner-slot"></div>' +
         '<div class="card"><div class="card-header-dotted"><span class="card-title">Konfiguration</span></div>' +
           '<div style="display:flex;flex-direction:column;gap:10px;">' +
             '<div><label style="font-size:0.72rem;color:var(--text-dim);">Preset-Filter</label>' +
@@ -69,7 +68,6 @@ window.App.Backtest = (function () {
         '<div id="bt-results"></div>' +
       '</div>';
 
-    if (window.App.StrategyScanner) window.App.StrategyScanner.mount(document.getElementById('scanner-slot'), { startCollapsed: false });
 
     var presetSel = document.getElementById('bt-preset');
     var presetDesc = document.getElementById('bt-preset-desc');
