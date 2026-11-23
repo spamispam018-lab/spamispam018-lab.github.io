@@ -21,7 +21,7 @@ window.App.StockStrategy = (function () {
     { key: 'MAX', label: 'Max.', years: null }
   ];
 
-  var state = { type: 'sma_cross', params: {}, period: 'MAX', fee: 0.1, helpOpen: false, bestWin: '30p' };
+  var state = { type: 'sma_cross', params: {}, period: 'MAX', fee: 0.1, helpOpen: false, bestWin: '30p', collapsed: { search: false, best: false } };
   var BEST_WINS = [['30p', 'Letzte 30 %'], ['1Y', '1 Jahr'], ['6M', '6 Monate'], ['3M', '3 Monate'], ['1M', '1 Monat'], ['1W', '1 Woche'], ['1D', '1 Tag']];
   var BEST_DAYS = { '1Y': 365, '6M': 182, '3M': 91, '1M': 30, '1W': 7, '1D': 1 };
 
@@ -178,6 +178,7 @@ window.App.StockStrategy = (function () {
       box.innerHTML = '<div class="state-box"><p>Buy &amp; Hold ist die Vergleichsbasis und hat keine Parameter. Wähle eine andere Strategie.</p></div>';
       return;
     }
+    state.collapsed.search = false;
     box.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Teste Parameter-Kombinationen…</p></div>';
 
     setTimeout(function () {
@@ -232,6 +233,7 @@ window.App.StockStrategy = (function () {
               'Ein Treffer ist kein Versprechen für die Zukunft.</div>' +
           '</div>';
         box.innerHTML = html;
+        makeCollapsible(box, 'search');
 
         box.querySelectorAll('[data-bt-sort]').forEach(function (b) {
           b.onclick = function () { sortKey = b.getAttribute('data-bt-sort'); draw(); };
@@ -254,10 +256,35 @@ window.App.StockStrategy = (function () {
     }, 30);
   }
 
+  /** Macht die Karte in `box` ein-/ausklappbar (Knopf in der Kopfzeile); der Zustand bleibt beim Neuzeichnen erhalten. */
+  function makeCollapsible(box, key) {
+    var card = box.querySelector('.card');
+    var head = card && card.querySelector('.card-header-dotted');
+    if (!head) return;
+    var body = document.createElement('div');
+    body.className = 'bt-collapse-body';
+    while (head.nextSibling) body.appendChild(head.nextSibling);
+    card.appendChild(body);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'chip-btn';
+    btn.style.cssText = 'height:28px;padding:0 10px;font-size:0.72rem;margin-left:8px;';
+    function apply() {
+      var c = !!state.collapsed[key];
+      body.style.display = c ? 'none' : '';
+      btn.textContent = c ? 'Aufklappen ▾' : 'Einklappen ▴';
+      btn.setAttribute('aria-expanded', c ? 'false' : 'true');
+    }
+    btn.onclick = function () { state.collapsed[key] = !state.collapsed[key]; apply(); };
+    head.appendChild(btn);
+    apply();
+  }
+
   /* ---------- Beste Strategie finden: Training / Testzeitraum ---------- */
   function findBest(container, ticker, full) {
     var q = Q(), f = F();
     var box = container.querySelector('#bt-best');
+    state.collapsed.best = false;
     box.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Teste alle Strategien…</p></div>';
 
     setTimeout(function () {
@@ -277,6 +304,7 @@ window.App.StockStrategy = (function () {
       if (res.error) {
         box.innerHTML = '<div class="card"><div class="card-header-dotted"><span class="card-title">Beste Strategie</span></div>' + winChips() +
           '<div style="font-size:0.82rem;color:var(--text-dim);line-height:1.5;">' + esc(res.error) + '</div></div>';
+        makeCollapsible(box, 'best');
         bindWins();
         return;
       }
@@ -337,6 +365,7 @@ window.App.StockStrategy = (function () {
               'Länger gültig sind Ergebnisse bei langen Zeiträumen (10 Jahre oder Max.) und vielen Trades. Keine Anlageberatung.</div>' +
           '</div>';
         box.innerHTML = html;
+        makeCollapsible(box, 'best');
 
         bindWins();
         box.querySelectorAll('[data-bt-bsort]').forEach(function (b) {
