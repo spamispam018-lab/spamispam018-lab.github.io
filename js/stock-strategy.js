@@ -113,8 +113,10 @@ window.App.StockStrategy = (function () {
           '<div><label for="bt-fee" style="font-size:0.72rem;color:var(--text-dim);">Kosten je Kauf/Verkauf (%)</label>' +
             '<input id="bt-fee" class="search-input" type="number" min="0" max="5" step="0.05" inputmode="decimal" value="' + state.fee + '" style="width:100%;margin-top:4px;padding-left:12px;"></div>' +
           '<button class="chip-btn active" id="bt-run" style="height:42px;justify-content:center;">Backtest starten</button>' +
+          '<button class="chip-btn" id="bt-search-btn" style="height:42px;justify-content:center;">Parameter suchen, die Buy &amp; Hold schlagen</button>' +
         '</div>' +
       '</div>' +
+      '<div id="bt-search"></div>' +
       '<div id="bt-single-results"></div>';
 
     container.innerHTML = html;
@@ -149,8 +151,99 @@ window.App.StockStrategy = (function () {
       state.fee = isFinite(v) && v >= 0 ? v : 0.1;
     };
     container.querySelector('#bt-run').onclick = function () { run(container, ticker, full); };
+    container.querySelector('#bt-search-btn').onclick = function () { search(container, ticker, full); };
 
     run(container, ticker, full);   // direkt ein erstes Ergebnis zeigen
+  }
+
+
+  /* ---------- Parameter-Suche: Kombinationen, die Buy & Hold schlagen ---------- */
+  function paramLabel(def, p) {
+    return def.params.map(function (d) { return p[d.key]; }).join(' / ');
+  }
+
+  function search(container, ticker, full) {
+    var q = Q(), f = F();
+    var box = container.querySelector('#bt-search');
+    var def = q.STRATEGIES[state.type];
+    if (state.type === 'buyhold') {
+      box.innerHTML = '<div class="state-box"><p>Buy &amp; Hold ist die Vergleichsbasis und hat keine Parameter. Wähle eine andere Strategie.</p></div>';
+      return;
+    }
+    box.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Teste Parameter-Kombinationen…</p></div>';
+
+    setTimeout(function () {
+      var per = PERIODS.filter(function (p) { return p.key === state.period; })[0];
+      var hist = q.sliceYears(full, per.years);
+      var res = q.searchParams(hist, state.type, state.fee / 100);
+      if (!res.rows.length) {
+        box.innerHTML = '<div class="state-box"><p>Für diesen Zeitraum erzeugt keine Parameter-Kombination ein Signal. Wähle einen längeren Zeitraum.</p></div>';
+        return;
+      }
+      var winners = res.rows.filter(function (r) { return r.beats; });
+      var robust = winners.filter(function (r) { return r.half1 && r.half2; });
+      var sortKey = 'total';
+      var shown = winners.length ? winners : res.rows;
+
+      function draw() {
+        var list = shown.slice().sort(function (a, b) {
+          if (sortKey === 'sharpe') return (b.sharpe == null ? -99 : b.sharpe) - (a.sharpe == null ? -99 : a.sharpe);
+          if (sortKey === 'dd') return b.maxDD - a.maxDD;           // weniger negativ zuerst
+          if (sortKey === 'robust') return (Number(b.half1 && b.half2) - Number(a.half1 && a.half2)) || (b.total - a.total);
+          return b.total - a.total;
+        }).slice(0, 15);
+
+        var chip = function (k, label) { return '<button class="chip-btn ' + (sortKey === k ? 'active' : '') + '" data-bt-sort="' + k + '">' + label + '</button>'; };
+        var mark = function (ok) { return '<span style="color:' + (ok ? 'var(--bullish)' : 'var(--bearish)') + ';font-weight:700;">' + (ok ? '✓' : '✗') + '</span>'; };
+
+        var html = '' +
+          '<div class="card">' +
+            '<div class="card-header-dotted"><span class="card-title">Parameter-Suche</span><span class="period-tag">' + esc(def.label) + ' · ' + esc(per.label) + '</span></div>' +
+            '<div style="padding:10px 12px;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:0.8rem;line-height:1.5;margin-bottom:12px;">' +
+              (winners.length
+                ? '<strong>' + winners.length + ' von ' + res.rows.length + '</strong> getesteten Kombinationen (' + f.number(winners.length / res.rows.length * 100, 0) + ' %) haben eine höhere Gesamtrendite als Buy &amp; Hold (' + pct(res.bh.totalReturn, 1, true) + '). ' +
+                  'In <strong>beiden Zeitraum-Hälften</strong> besser waren ' + robust.length + '.'
+                : '<strong>Keine</strong> der ' + res.rows.length + ' getesteten Kombinationen schlägt Buy &amp; Hold (' + pct(res.bh.totalReturn, 1, true) + ') in diesem Zeitraum. Unten stehen die besten Kombinationen zum Vergleich.') +
+              (res.skipped ? ' <span style="color:var(--text-dim);">' + res.skipped + ' Kombinationen ohne Trade wurden ausgelassen.</span>' : '') +
+            '</div>' +
+            '<div class="horizontal-scroll-row" style="margin-bottom:10px;"><span style="font-size:0.72rem;color:var(--text-dim);align-self:center;white-space:nowrap;">Sortieren:</span>' +
+              chip('total', 'Rendite') + chip('sharpe', 'Sharpe') + chip('dd', 'Kleinster Drawdown') + chip('robust', 'Robustheit') + '</div>' +
+            '<div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:6px;">Parameter: ' + def.params.map(function (d) { return esc(d.label); }).join(' / ') + ' · Zeile antippen, um sie zu übernehmen</div>' +
+            '<div class="table-responsive-wrapper"><table class="data-table compact"><thead><tr><th>Parameter</th><th style="text-align:right;">Rendite</th><th style="text-align:right;">Max. DD</th><th style="text-align:center;" title="Schlägt Buy &amp; Hold in der 1. / 2. Zeitraum-Hälfte">Hälften</th></tr></thead><tbody>' +
+            list.map(function (r, i) {
+              return '<tr data-bt-pick="' + i + '" style="cursor:pointer;">' +
+                '<td><strong>' + esc(paramLabel(def, r.params)) + '</strong><div style="font-size:0.68rem;color:var(--text-dim);">' + r.trades + ' Trades · ' + pct(r.exposure, 0) + ' investiert</div></td>' +
+                '<td style="text-align:right;font-weight:700;color:' + tone(r.total) + ';">' + pct(r.total, 1, true) +
+                  '<div style="font-size:0.68rem;font-weight:400;color:' + tone(r.excess) + ';">' + pct(r.excess, 1, true) + '-Pkt. vs. B&amp;H</div></td>' +
+                '<td style="text-align:right;">' + pct(r.maxDD, 1) + '<div style="font-size:0.68rem;color:var(--text-dim);">Sharpe ' + num(r.sharpe, 2) + '</div></td>' +
+                '<td style="text-align:center;white-space:nowrap;">' + mark(r.half1) + ' ' + mark(r.half2) + '</td></tr>';
+            }).join('') + '</tbody></table></div>' +
+            '<div style="font-size:0.72rem;color:var(--text-dim);line-height:1.5;margin-top:12px;">' +
+              '<strong style="color:var(--text-main);">Vorsicht bei Treffern:</strong> Wenn viele Varianten getestet werden, schlägt allein durch Zufall immer ein Teil Buy &amp; Hold – das ist <em>Überanpassung</em> an die Vergangenheit. ' +
+              'Glaubwürdiger sind Kombinationen, die in <strong>beiden Hälften</strong> (✓ ✓) gewinnen, deren Nachbarwerte ähnlich gut abschneiden und die nicht auf sehr wenigen Trades beruhen. ' +
+              'Ein Treffer ist kein Versprechen für die Zukunft.</div>' +
+          '</div>';
+        box.innerHTML = html;
+
+        box.querySelectorAll('[data-bt-sort]').forEach(function (b) {
+          b.onclick = function () { sortKey = b.getAttribute('data-bt-sort'); draw(); };
+        });
+        box.querySelectorAll('[data-bt-pick]').forEach(function (tr) {
+          tr.onclick = function () {
+            var r = list[Number(tr.getAttribute('data-bt-pick'))];
+            Object.keys(r.params).forEach(function (k) {
+              state.params[state.type + '.' + k] = r.params[k];
+              var inp = container.querySelector('#bt-p-' + k);
+              if (inp) inp.value = r.params[k];
+            });
+            run(container, ticker, full);
+            var target = container.querySelector('#bt-single-results');
+            if (target && target.scrollIntoView) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          };
+        });
+      }
+      draw();
+    }, 30);
   }
 
   function run(container, ticker, full) {
