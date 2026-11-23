@@ -379,6 +379,61 @@ window.App.Quant = (function () {
     };
   }
 
+
+  /* ---------- Parameter-Suche ---------- */
+  var PARAM_GRIDS = {
+    sma_cross: { fast: [10, 20, 30, 40, 50, 60, 80, 100], slow: [50, 80, 100, 120, 150, 200, 250, 300] },
+    price_sma: { n: [20, 30, 50, 75, 100, 125, 150, 200, 250, 300] },
+    rsi_revert: { n: [7, 14, 21], lo: [20, 25, 30, 35, 40], hi: [50, 55, 60, 65, 70, 75] },
+    breakout: { up: [20, 30, 40, 55, 80, 100, 150, 200], down: [10, 15, 20, 30, 40, 50, 75, 100] },
+    momentum: { n: [20, 40, 60, 90, 126, 180, 250] }
+  };
+
+  function gridCombos(type) {
+    var grid = PARAM_GRIDS[type];
+    if (!grid) return [];
+    var keys = Object.keys(grid), combos = [{}];
+    keys.forEach(function (k) {
+      var next = [];
+      combos.forEach(function (c) {
+        grid[k].forEach(function (v) { var o = {}; for (var kk in c) o[kk] = c[kk]; o[k] = v; next.push(o); });
+      });
+      combos = next;
+    });
+    return combos.filter(function (c) {
+      if (type === 'sma_cross') return c.fast < c.slow;
+      if (type === 'breakout') return c.down < c.up;
+      return true;
+    });
+  }
+
+  /**
+   * Testet alle Parameter-Kombinationen einer Strategie und vergleicht sie mit Buy & Hold.
+   * Zusätzlich je Kombination: Schlägt sie Buy & Hold auch in BEIDEN Zeitraum-Hälften (Plausibilitätscheck gegen Überanpassung)?
+   * Kombinationen ohne einen einzigen Trade werden ausgelassen (sie wären bei fallendem Kurs „Cash schlägt Verlust“).
+   */
+  function searchParams(hist, type, fee) {
+    var combos = gridCombos(type), rows = [], skipped = 0, bhStats = null, n = hist.length, mid = Math.floor(n / 2);
+    combos.forEach(function (p) {
+      var res = backtest(hist, type, p, fee);
+      if (res.error) return;
+      if (!bhStats) bhStats = res.bhStats;
+      if (res.stats.trades === 0) { skipped++; return; }
+      var eq = res.equity, bh = res.buyHold;
+      var s1 = eq[mid] / eq[0] - 1, s2 = eq[n - 1] / eq[mid] - 1;
+      var b1 = bh[mid] / bh[0] - 1, b2 = bh[n - 1] / bh[mid] - 1;
+      rows.push({
+        params: p,
+        total: res.stats.totalReturn, cagr: res.stats.cagr, maxDD: res.stats.maxDD, sharpe: res.stats.sharpe,
+        trades: res.stats.trades, exposure: res.stats.exposure,
+        excess: res.stats.totalReturn - res.bhStats.totalReturn,
+        beats: res.stats.totalReturn > res.bhStats.totalReturn,
+        half1: s1 > b1, half2: s2 > b2
+      });
+    });
+    return { rows: rows, tested: combos.length, skipped: skipped, bh: bhStats };
+  }
+
   /* ---------- Historie laden ---------- */
   /**
    * Lädt die längste verfügbare Historie: long/<TICKER>.json oder – falls kürzer – die chartHistory aus der Aktie.
@@ -412,6 +467,7 @@ window.App.Quant = (function () {
     alignedReturns: alignedReturns, betaCorr: betaCorr, histogram: histogram,
     sma: sma, rsi: rsi,
     STRATEGIES: STRATEGIES, defaultParams: defaultParams, computeSignals: computeSignals, backtest: backtest,
+    PARAM_GRIDS: PARAM_GRIDS, gridCombos: gridCombos, searchParams: searchParams,
     loadHistory: loadHistory, loadHistoryFor: loadHistoryFor
   };
 })();
