@@ -12,12 +12,15 @@ window.App.StockChart = (function () {
   var currentPeriod = '1Y';
   var candleWeeks = 52;
   var vwapWindow = 20; // 0 = Aus, sonst Anzahl Handelstage (z. B. 20, 50, 200)
+  var emaPair = '12-26'; // 'off' oder 'schnell-langsam' in Handelstagen
 
   var COLORS = {
     price: '#818cf8',
     sma50: '#f59e0b',
     sma200: '#ec4899',
     vwap: '#06b6d4',
+    emaFast: '#34d399',
+    emaSlow: '#60a5fa',
     rsi: '#818cf8',
     macd: '#818cf8',
     signal: '#f59e0b',
@@ -281,6 +284,8 @@ window.App.StockChart = (function () {
 
     var s50 = sma(closes, 50), s200 = sma(closes, 200);
     var vwapArr = rollingVwap(hist, vwapWindow);
+    var emaPeriods = emaPair === 'off' ? null : emaPair.split('-').map(Number);
+    var emaF = emaPeriods ? ema(closes, emaPeriods[0]) : null, emaS = emaPeriods ? ema(closes, emaPeriods[1]) : null;
     var rsiArr = rsi(closes, 14), m = macd(closes);
 
     var tail = n;
@@ -421,6 +426,15 @@ window.App.StockChart = (function () {
             '<button class="pill-btn ' + (vwapWindow === 200 ? 'active' : '') + '" data-vwap="200">200T</button>' +
           '</div>' +
         '</div>' +
+        '<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; gap: 8px; flex-wrap: wrap;">' +
+          '<span style="font-size: 0.72rem; color: var(--text-dim); font-weight: 600;">EMA schnell / langsam</span>' +
+          '<div class="pill-group" id="ema-pills">' +
+            '<button class="pill-btn ' + (emaPair === 'off' ? 'active' : '') + '" data-ema="off">Aus</button>' +
+            '<button class="pill-btn ' + (emaPair === '12-26' ? 'active' : '') + '" data-ema="12-26">12/26</button>' +
+            '<button class="pill-btn ' + (emaPair === '20-50' ? 'active' : '') + '" data-ema="20-50">20/50</button>' +
+            '<button class="pill-btn ' + (emaPair === '50-200' ? 'active' : '') + '" data-ema="50-200">50/200</button>' +
+          '</div>' +
+        '</div>' +
         '<div style="height: 220px; width: 100%; position: relative; margin-top: 8px;">' +
           '<canvas id="chart-tab-price" style="width: 100%; height: 220px; display: block;"></canvas>' +
         '</div>' +
@@ -428,6 +442,7 @@ window.App.StockChart = (function () {
           legendItem(COLORS.price, 'Kurs') +
           legendItem(COLORS.sma50, 'SMA 50') +
           legendItem(COLORS.sma200, 'SMA 200') +
+          (emaPeriods ? legendItem(COLORS.emaFast, 'EMA ' + emaPeriods[0]) + legendItem(COLORS.emaSlow, 'EMA ' + emaPeriods[1]) : '') +
           (vwapWindow > 0 ? legendItem(COLORS.vwap, 'VWAP (' + vwapWindow + 'T)') : '') +
         '</div>' +
         (vwapWindow > 0 && !hasVolumeData ? '<div class="chart-note" style="color: var(--bearish);">Hinweis: Für diesen Titel liegen keine Volumendaten vor – VWAP kann nicht berechnet werden.</div>' : '') +
@@ -496,6 +511,7 @@ window.App.StockChart = (function () {
     bindTerms(container);
     bindPeriodPills(container, stock, hist);
     bindVwapPills(container, stock, hist);
+    bindEmaPills(container, stock, hist);
 
     var labels = slicedDates.map(shortLabel);
     var Charts = window.App.Charts;
@@ -506,6 +522,10 @@ window.App.StockChart = (function () {
       { name: 'SMA 50', color: COLORS.sma50, values: s50.slice(-tail), width: 1.5 },
       { name: 'SMA 200', color: COLORS.sma200, values: s200.slice(-tail), width: 1.5 }
     ];
+    if (emaPeriods) {
+      priceSeries.push({ name: 'EMA ' + emaPeriods[0], color: COLORS.emaFast, values: emaF.slice(-tail), width: 1.3 });
+      priceSeries.push({ name: 'EMA ' + emaPeriods[1], color: COLORS.emaSlow, values: emaS.slice(-tail), width: 1.3 });
+    }
     if (vwapWindow > 0) {
       priceSeries.push({
         name: 'VWAP (' + vwapWindow + 'T)',
@@ -703,6 +723,15 @@ window.App.StockChart = (function () {
     pills.forEach(function (pill) {
       pill.onclick = function () {
         currentPeriod = pill.getAttribute('data-period');
+        buildView(container, stock, hist);
+      };
+    });
+  }
+
+  function bindEmaPills(container, stock, hist) {
+    container.querySelectorAll('#ema-pills .pill-btn').forEach(function (pill) {
+      pill.onclick = function () {
+        emaPair = pill.getAttribute('data-ema') || 'off';
         buildView(container, stock, hist);
       };
     });
