@@ -124,11 +124,13 @@ window.App.StockRisk = (function () {
     var dates = hist.map(function (h) { return h.date; });
     var rets = q.returns(closes);
     var years = q.spanYears(hist);
+    var ppy = q.periodsPerYear(hist);   // 252 = Tageskurse, 52 = Wochenkurse, 12 = Monatskurse
+    var U = ppy >= 200 ? { s: 'Tag', p: 'Tage', pl: 'Tagen', a: 'Tages', adj: 'Tag' } : (ppy >= 40 ? { s: 'Woche', p: 'Wochen', pl: 'Wochen', a: 'Wochen', adj: 'Woche' } : { s: 'Monat', p: 'Monate', pl: 'Monaten', a: 'Monats', adj: 'Monat' });
 
-    var vol = q.annualVol(rets) * 100;
+    var vol = q.annualVol(rets, ppy) * 100;
     var dd = q.drawdown(closes, dates);
     var v95 = q.varHist(rets, 0.95), v99 = q.varHist(rets, 0.99), cv95 = q.cvarHist(rets, 0.95);
-    var sh = q.sharpe(rets), so = q.sortino(rets);
+    var sh = q.sharpe(rets, ppy), so = q.sortino(rets, ppy);
     var cg = q.cagr(closes[0], closes[closes.length - 1], years);
     var calmar = (cg != null && dd.maxDD < 0) ? (cg * 100) / Math.abs(dd.maxDD) : null;
     var negDays = rets.filter(function (r) { return r < 0; }).length / (rets.length || 1) * 100;
@@ -156,7 +158,7 @@ window.App.StockRisk = (function () {
       summaryHtml = '<div style="padding:10px 12px;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:0.8rem;line-height:1.5;margin-bottom:14px;">' +
         'Die Aktie schwankte im Zeitraum mit ' + pct(vol, 1) + ' pro Jahr (Risikoprofil: ' + lbl.text + '). ' +
         'Der größte Rückgang vom Hoch zum Tief betrug ' + pct(dd.maxDD, 1) + (dd.maxDD < 0 ? (dd.recoveryDate ? ' und war am ' + f.date(dd.recoveryDate) + ' wieder aufgeholt' : ' und ist noch nicht aufgeholt') : '') + '. ' +
-        'An 1 von 20 Tagen lag der Tagesverlust über ' + pct(v95 * 100, 1) + '.' + betaTxt + '</div>';
+        'An 1 von 20 ' + U.pl + ' lag der ' + U.a + 'verlust über ' + pct(v95 * 100, 1) + '.' + betaTxt + '</div>';
     }
 
     var html = '' +
@@ -177,15 +179,15 @@ window.App.StockRisk = (function () {
         '<div class="metrics-grid-2col">' +
           cell('Max. Drawdown', pct(dd.maxDD, 1), f.date(dd.peakDate) + ' → ' + f.date(dd.troughDate) + (dd.recoveryDate ? ', erholt ' + f.date(dd.recoveryDate) : ', noch nicht erholt'), 'var(--bearish)') +
           cell('Aktueller Drawdown', pct(dd.current, 1), 'Abstand zum Hoch im Zeitraum', dd.current < -0.05 ? 'var(--bearish)' : '') +
-          cell('VaR 95 % (1 Tag)', pct(v95 == null ? null : v95 * 100, 2), 'An 1 von 20 Tagen war der Verlust größer') +
-          cell('VaR 99 % (1 Tag)', pct(v99 == null ? null : v99 * 100, 2), 'An 1 von 100 Tagen war der Verlust größer') +
-          cell('CVaR 95 %', pct(cv95 == null ? null : cv95 * 100, 2), 'Ø-Verlust an den schlechtesten 5 % der Tage') +
-          cell('Schlechtester / bester Tag', pct(worst, 1) + ' / ' + pct(best, 1, true), 'Tagesrendite im Zeitraum') +
+          cell('VaR 95 % (1 ' + U.s + ')', pct(v95 == null ? null : v95 * 100, 2), 'An 1 von 20 ' + U.pl + ' war der Verlust größer') +
+          cell('VaR 99 % (1 ' + U.s + ')', pct(v99 == null ? null : v99 * 100, 2), 'An 1 von 100 ' + U.pl + ' war der Verlust größer') +
+          cell('CVaR 95 %', pct(cv95 == null ? null : cv95 * 100, 2), 'Ø-Verlust in den schlechtesten 5 % der ' + U.p) +
+          cell('Schlechteste / beste ' + U.s, pct(worst, 1) + ' / ' + pct(best, 1, true), U.a + 'rendite im Zeitraum') +
           cell('Sharpe Ratio', num(sh, 2), 'Überrendite je Risikoeinheit (Rf ' + f.number(q.RF * 100, 0) + ' %)') +
           cell('Sortino Ratio', num(so, 2), 'Wie Sharpe, nur Abwärtsrisiko') +
           cell('Calmar Ratio', num(calmar, 2), 'Jahresrendite ÷ max. Drawdown') +
-          cell('Verlusttage', pct(negDays, 0), 'Anteil der Tage mit Minus') +
-          cell('Beta', num(bc.beta, 2), al ? 'zum Benchmark (' + al.n + ' gemeinsame Tage)' : 'Benchmark-Daten fehlen') +
+          cell('Verlust' + U.p.toLowerCase(), pct(negDays, 0), 'Anteil der ' + U.p + ' mit Minus') +
+          cell('Beta', num(bc.beta, 2), al ? 'zum Benchmark (' + al.n + ' gemeinsame Zeitpunkte)' : 'Benchmark-Daten fehlen') +
           cell('Korrelation', num(bc.corr, 2), 'zum Benchmark, −1 bis +1') +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:8px;margin-top:2px;">' +
@@ -197,7 +199,7 @@ window.App.StockRisk = (function () {
       '<div class="card"><div class="card-header-dotted"><span class="card-title">Drawdown</span><span class="period-tag">Abstand zum bisherigen Hoch</span></div>' +
         '<div style="height:190px;position:relative;"><canvas id="risk-dd-chart" class="chart-canvas" style="height:100%;"></canvas></div></div>' +
 
-      '<div class="card"><div class="card-header-dotted"><span class="card-title">Verteilung der Tagesrenditen</span><span class="period-tag">Häufigkeit je Klasse</span></div>' +
+      '<div class="card"><div class="card-header-dotted"><span class="card-title">Verteilung der ' + U.a + 'renditen</span><span class="period-tag">Häufigkeit je Klasse</span></div>' +
         '<div style="height:190px;position:relative;"><canvas id="risk-hist-chart" class="chart-canvas" style="height:100%;"></canvas></div>' +
         '<div style="font-size:0.7rem;color:var(--text-dim);margin-top:6px;">Klassen in Prozentpunkten; die äußeren Klassen enthalten alle stärkeren Ausschläge.</div></div>' +
 
@@ -229,7 +231,7 @@ window.App.StockRisk = (function () {
     }
     var histCanvas = container.querySelector('#risk-hist-chart');
     if (histCanvas) {
-      var hg = q.histogram(rets, 1, 7);
+      var hg = q.histogram(rets, ppy >= 200 ? 1 : (ppy >= 40 ? 2 : 4), 7);
       window.App.Charts.renderGroupedBarChart(histCanvas, {
         labels: hg.bins.map(function (b) { return String(b); }),
         series: [{ data: hg.counts, color: '#6366f1', negColor: '#6366f1' }],
@@ -245,9 +247,9 @@ window.App.StockRisk = (function () {
       if (!calc) return;
       if (!amt || v95 == null) { calc.innerHTML = '<div style="font-size:0.78rem;color:var(--text-dim);">Betrag eingeben.</div>'; return; }
       calc.innerHTML = '<div class="metrics-grid-2col" style="margin-bottom:0;">' +
-        cell('1-Tag-VaR 95 %', f.currency(amt * v95, curr, 0), 'Verlust, der an 1 von 20 Tagen überschritten wurde', 'var(--bearish)') +
-        cell('1-Tag-CVaR 95 %', f.currency(amt * (cv95 || 0), curr, 0), 'Ø-Verlust in den schlechtesten 5 % der Tage', 'var(--bearish)') +
-        cell('10-Tage-VaR 95 % (Näherung)', f.currency(amt * v95 * Math.sqrt(10), curr, 0), 'Skaliert mit √10, setzt unabhängige Tage voraus') +
+        cell('1-' + U.adj + '-VaR 95 %', f.currency(amt * v95, curr, 0), 'Verlust, der an 1 von 20 ' + U.pl + ' überschritten wurde', 'var(--bearish)') +
+        cell('1-' + U.adj + '-CVaR 95 %', f.currency(amt * (cv95 || 0), curr, 0), 'Ø-Verlust in den schlechtesten 5 % der ' + U.p, 'var(--bearish)') +
+        cell('10-' + U.p + '-VaR 95 % (Näherung)', f.currency(amt * v95 * Math.sqrt(10), curr, 0), 'Skaliert mit √10, setzt unabhängige Perioden voraus') +
         cell('Max. Drawdown angewendet', f.currency(amt * Math.abs(dd.maxDD) / 100, curr, 0), 'Verlust vom Hoch zum Tief im Zeitraum', 'var(--bearish)') +
       '</div>';
     }
