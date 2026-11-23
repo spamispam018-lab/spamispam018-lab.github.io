@@ -206,11 +206,13 @@ window.App.Quant = (function () {
   /* ---------- Strategien ---------- */
   var STRATEGIES = {
     buyhold: {
+      explain: "Du kaufst am Anfang und verkaufst nie. Das ist die Messlatte: Eine aktive Strategie ist nur dann interessant, wenn sie nach Kosten mehr Rendite bringt – oder bei ähnlicher Rendite deutlich kleinere Rückgänge (Drawdowns) hat.",
       label: 'Buy & Hold',
       desc: 'Einmal kaufen und halten – die Vergleichsbasis.',
       params: []
     },
     sma_cross: {
+      explain: "SMA = einfacher gleitender Durchschnitt der letzten N Schlusskurse. <strong>Kauf</strong>, wenn der schnelle Durchschnitt (z. B. 50 Tage) den langsamen (z. B. 200 Tage) von unten kreuzt („Golden Cross“); <strong>Verkauf</strong>, wenn er ihn von oben kreuzt („Death Cross“). Stärke: folgt langen Trends und hält Phasen mit starken Kursverlusten oft teilweise fern. Schwäche: reagiert spät und erzeugt in Seitwärtsphasen viele Fehlsignale.",
       label: 'SMA-Crossover',
       desc: 'Long, solange der schnelle Durchschnitt über dem langsamen liegt (Golden/Death Cross).',
       params: [
@@ -219,11 +221,13 @@ window.App.Quant = (function () {
       ]
     },
     price_sma: {
+      explain: "<strong>Kauf</strong>, sobald der Schlusskurs über seinem gleitenden Durchschnitt liegt, <strong>Verkauf</strong>, sobald er darunter fällt. Der 200-Tage-Durchschnitt ist die verbreitete Trendlinie. Reagiert schneller als der Crossover (nur eine Linie), wechselt dafür öfter – das kostet Gebühren und bringt mehr Fehlsignale.",
       label: 'Kurs über SMA',
       desc: 'Long, solange der Schlusskurs über seinem gleitenden Durchschnitt liegt.',
       params: [{ key: 'n', label: 'SMA (Tage)', def: 200, min: 5, max: 600 }]
     },
     rsi_revert: {
+      explain: "Der RSI (0–100) misst, wie stark die Kurse zuletzt gestiegen oder gefallen sind; unter 30 gilt eine Aktie als „überverkauft“. <strong>Kauf</strong>, wenn der RSI unter die Kauf-Schwelle fällt, <strong>Verkauf</strong>, wenn er über die Verkaufs-Schwelle steigt. Das ist eine Gegenstrategie: Sie setzt auf die Rückkehr zum Mittelwert. Stärke: passt zu Seitwärtsmärkten. Schwäche: In anhaltenden Abwärtstrends kauft sie zu früh („fallendes Messer“), und oft ist sie lange gar nicht investiert.",
       label: 'RSI Mean-Reversion',
       desc: 'Kauft überverkaufte Phasen (RSI unter Kauf-Schwelle), verkauft bei Erholung (RSI über Verkaufs-Schwelle).',
       params: [
@@ -233,6 +237,7 @@ window.App.Quant = (function () {
       ]
     },
     breakout: {
+      explain: "Donchian-Kanal: <strong>Kauf</strong> bei einem neuen Schlusshoch der letzten N Tage (Ausbruch), <strong>Verkauf</strong> bei einem neuen Schlusstief der letzten M Tage. Klassische Trendfolge (nach diesem Muster handelten auch die „Turtle Traders“). Stärke: erwischt große Trends. Schwäche: viele kleine Verluste bei falschen Ausbrüchen, und der Einstieg erfolgt erst nach einem deutlichen Anstieg.",
       label: 'Breakout (Donchian)',
       desc: 'Kauft bei neuem N-Tage-Schlusshoch, verkauft bei neuem M-Tage-Schlusstief.',
       params: [
@@ -241,6 +246,7 @@ window.App.Quant = (function () {
       ]
     },
     momentum: {
+      explain: "Idee: Was zuletzt gestiegen ist, steigt tendenziell noch eine Weile weiter. Die Strategie ist <strong>investiert</strong>, solange die Rendite der letzten N Tage (126 Tage ≈ 6 Monate) positiv ist, sonst in Cash. Stärke: einfach und meidet längere Abwärtsphasen. Schwäche: reagiert mit Verzögerung auf Trendwenden und kann bei schnellen Umschwüngen zweimal verlieren.",
       label: 'Momentum',
       desc: 'Long, solange die Rendite der letzten N Tage positiv ist.',
       params: [{ key: 'n', label: 'Rückblick (Tage)', def: 126, min: 10, max: 400 }]
