@@ -69,7 +69,7 @@ window.App.Backtest = (function () {
         '<div id="bt-results"></div>' +
       '</div>';
 
-    if (window.App.StrategyScanner) window.App.StrategyScanner.mount(document.getElementById('scanner-slot'));
+    if (window.App.StrategyScanner) window.App.StrategyScanner.mount(document.getElementById('scanner-slot'), { startCollapsed: false });
 
     var presetSel = document.getElementById('bt-preset');
     var presetDesc = document.getElementById('bt-preset-desc');
