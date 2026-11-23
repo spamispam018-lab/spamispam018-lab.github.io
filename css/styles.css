@@ -653,6 +653,12 @@ input, button, select, textarea {
   color: var(--text-muted);
 }
 
+.data-table.compact th,
+.data-table.compact td {
+  padding: 9px 6px;
+  white-space: normal;
+}
+
 .data-table tr:hover td {
   background-color: var(--bg-card-hover);
 }
