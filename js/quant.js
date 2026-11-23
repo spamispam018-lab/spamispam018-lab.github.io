@@ -602,6 +602,50 @@ window.App.Quant = (function () {
     return { rows: rows, tested: combos.length, skipped: skipped, bh: bhStats };
   }
 
+
+  /**
+   * Findet die „beste“ Strategie mit Out-of-Sample-Test:
+   * Je Strategie werden die Parameter nur auf den ersten (1-testFrac) der Daten gesucht (beste Sharpe, mind. 3 Trades),
+   * danach wird genau diese Einstellung auf dem restlichen Testzeitraum bewertet, den die Suche nie gesehen hat.
+   * Verglichen wird mit Buy & Hold im selben Testzeitraum.
+   */
+  function findBest(hist, fee, testFrac) {
+    var n = hist.length;
+    if (n < 1000) return { error: 'Zu wenig Daten: Für einen aussagekräftigen Test werden mindestens etwa 4 Jahre Kurse benötigt. Wähle einen längeren Zeitraum.' };
+    var split = Math.floor(n * (1 - (testFrac || 0.3)));
+    var train = hist.slice(0, split + 1);
+    var dates = hist.map(function (h) { return h.date; });
+    var testDates = dates.slice(split);
+    function segStats(curve) {
+      var seg = curve.slice(split);
+      var st = perfStats(seg, testDates, returns(seg));
+      return st;
+    }
+    var rows = [], bhRes = backtest(hist, 'buyhold', {}, fee);
+    if (bhRes.error) return { error: bhRes.error };
+    var bhTest = segStats(bhRes.buyHold);
+    Object.keys(STRATEGIES).forEach(function (type) {
+      if (type === 'buyhold') return;
+      var sr = searchParams(train, type, fee);
+      var cands = sr.rows.filter(function (r) { return r.trades >= 3; });
+      if (!cands.length) cands = sr.rows;
+      if (!cands.length) return;
+      var best = cands.slice().sort(function (a, b) { return (b.sharpe == null ? -99 : b.sharpe) - (a.sharpe == null ? -99 : a.sharpe); })[0];
+      var full = backtest(hist, type, best.params, fee);
+      if (full.error) return;
+      var t = segStats(full.equity);
+      rows.push({
+        type: type, params: best.params, trainSharpe: best.sharpe,
+        test: t, full: full.stats, trades: full.stats.trades,
+        beatsTest: t.totalReturn > bhTest.totalReturn
+      });
+    });
+    return {
+      rows: rows, bhTest: bhTest, bhFull: bhRes.bhStats,
+      split: split, trainEnd: dates[split], testStart: dates[split], testEnd: dates[n - 1], days: n - split
+    };
+  }
+
   /* ---------- Historie laden ---------- */
   /**
    * Lädt die längste verfügbare Historie: long/<TICKER>.json oder – falls kürzer – die chartHistory aus der Aktie.
@@ -635,7 +679,7 @@ window.App.Quant = (function () {
     alignedReturns: alignedReturns, betaCorr: betaCorr, histogram: histogram,
     sma: sma, ema: ema, rsi: rsi, validateParams: validateParams,
     STRATEGIES: STRATEGIES, defaultParams: defaultParams, computeSignals: computeSignals, backtest: backtest,
-    PARAM_GRIDS: PARAM_GRIDS, gridCombos: gridCombos, searchParams: searchParams,
+    PARAM_GRIDS: PARAM_GRIDS, gridCombos: gridCombos, searchParams: searchParams, findBest: findBest,
     loadHistory: loadHistory, loadHistoryFor: loadHistoryFor
   };
 })();
