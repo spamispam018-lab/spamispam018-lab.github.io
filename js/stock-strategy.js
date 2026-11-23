@@ -564,5 +564,15 @@ window.App.StockStrategy = (function () {
     }
   }
 
-  return { render: render };
+  /** Vorauswahl von außen (z. B. Strategie-Scanner): Strategie, Parameter und Zeitraum setzen, bevor der Tab geöffnet wird. */
+  function prefill(type, params, period) {
+    var q = Q();
+    if (!q.STRATEGIES[type]) return;
+    state.type = type;
+    Object.keys(params || {}).forEach(function (k) { state.params[type + '.' + k] = params[k]; });
+    var ok = PERIODS.some(function (p) { return p.key === period; });
+    state.period = ok ? period : 'MAX';
+  }
+
+  return { render: render, prefill: prefill };
 })();
