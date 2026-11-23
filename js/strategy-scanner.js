@@ -53,9 +53,19 @@ window.App.StrategyScanner = (function () {
   ];
 
   /* ---------- Rendering ---------- */
-  function mount(slot) {
+  /**
+   * Hängt die Scanner-Karte in `slot`.
+   * opts.startCollapsed: Karte eingeklappt starten; opts.type / opts.params: Strategie und Parameter vorbelegen.
+   */
+  function mount(slot, opts) {
     if (!slot) return;
+    opts = opts || {};
     var q = Q();
+    if (opts.startCollapsed != null) state.collapsed = !!opts.startCollapsed;
+    if (opts.type && q.STRATEGIES[opts.type] && opts.type !== 'buyhold') {
+      state.type = opts.type;
+      Object.keys(opts.params || {}).forEach(function (k) { state.params[opts.type + '.' + k] = opts.params[k]; });
+    }
     var types = Object.keys(q.STRATEGIES).filter(function (k) { return k !== 'buyhold'; });
     var stratOpts = types.map(function (k) { return '<option value="' + k + '"' + (k === state.type ? ' selected' : '') + '>' + esc(q.STRATEGIES[k].label) + '</option>'; }).join('');
     var selOpts = SELECTIONS.map(function (s) { return '<option value="' + s.key + '"' + (s.key === state.selection ? ' selected' : '') + '>' + s.label + '</option>'; }).join('');
@@ -268,7 +278,9 @@ window.App.StrategyScanner = (function () {
       tr.onclick = function () {
         var t = tr.getAttribute('data-scan-pick');
         if (window.App.StockStrategy && window.App.StockStrategy.prefill) window.App.StockStrategy.prefill(meta.type, meta.params, meta.per.key === '10Y' ? 'MAX' : meta.per.key);
-        window.location.hash = '#/stock/' + encodeURIComponent(t) + '/strategy';
+        var target = '#/stock/' + encodeURIComponent(t) + '/strategy';
+        if (window.location.hash === target) window.dispatchEvent(new HashChangeEvent('hashchange'));   // gleiche Seite: neu zeichnen
+        else window.location.hash = target;
       };
     });
   }
