@@ -575,7 +575,7 @@ window.App.Quant = (function () {
 
     return {
       dates: dates, equity: eq, buyHold: bh, trades: trades,
-      stats: stats, bhStats: bhStats, ppy: ppy,
+      stats: stats, bhStats: bhStats, ppy: ppy, pos: pos,
       pendingSignal: sig[n - 1] === 1 ? 'long' : 'cash'
     };
   }
@@ -691,6 +691,80 @@ window.App.Quant = (function () {
     };
   }
 
+
+  /**
+   * Indikator-Reihen zur gewählten Strategie (für die Darstellung im Kurschart).
+   * Verwendet dieselben (bei Wochenkursen umgerechneten) Parameter wie computeSignals.
+   * overlays: Linien im Kurschart; panels: eigene Indikator-Charts darunter.
+   */
+  function indicatorSeries(hist, type, p) {
+    var closes = hist.map(function (h) { return h.close; }), n = closes.length, i, a;
+    var ppy = periodsPerYear(hist), sp = scaleParams(type, p, ppy);
+    var out = { overlays: [], panels: [], note: '', ppy: ppy };
+    var C1 = '#f59e0b', C2 = '#ec4899', C3 = '#06b6d4', GRN = 'rgba(16, 185, 129, 0.7)', RED = 'rgba(239, 68, 68, 0.7)';
+    function ov(name, color, values, dash) { out.overlays.push({ name: name, color: color, values: values, dash: dash || null, width: 1.5 }); }
+    function winExt(len, pick, skipCurrent) {
+      var arr = new Array(n);
+      for (var k = 0; k < n; k++) {
+        var from = skipCurrent ? k - len : k - len + 1, to = skipCurrent ? k - 1 : k;
+        if (from < 0) { arr[k] = null; continue; }
+        var ext = pick === 'max' ? -Infinity : Infinity;
+        for (var w = from; w <= to; w++) ext = pick === 'max' ? Math.max(ext, closes[w]) : Math.min(ext, closes[w]);
+        arr[k] = ext;
+      }
+      return arr;
+    }
+
+    if (type === 'sma_cross') {
+      ov('SMA ' + p.fast, C1, sma(closes, sp.fast)); ov('SMA ' + p.slow, C2, sma(closes, sp.slow));
+    } else if (type === 'price_sma') {
+      ov('SMA ' + p.n, C1, sma(closes, sp.n));
+    } else if (type === 'ema_cross') {
+      ov('EMA ' + p.fast, C1, ema(closes, sp.fast)); ov('EMA ' + p.slow, C2, ema(closes, sp.slow));
+    } else if (type === 'breakout') {
+      ov('Hoch ' + p.up + 'T (Einstieg)', GRN, winExt(sp.up, 'max', true), [4, 3]);
+      ov('Tief ' + p.down + 'T (Ausstieg)', RED, winExt(sp.down, 'min', true), [4, 3]);
+    } else if (type === 'bollinger') {
+      var bb = rollingMeanStd(closes, sp.n), up = [], lo = [];
+      for (i = 0; i < n; i++) { up.push(bb.mean[i] == null ? null : bb.mean[i] + p.k * bb.sd[i]); lo.push(bb.mean[i] == null ? null : bb.mean[i] - p.k * bb.sd[i]); }
+      ov('Oberes Band', C2, up, [4, 3]); ov('Mittellinie (SMA ' + p.n + ')', C1, bb.mean); ov('Unteres Band (Kauf)', C3, lo, [4, 3]);
+    } else if (type === 'sma_band') {
+      var sb = sma(closes, sp.n);
+      ov('SMA ' + p.n, C1, sb);
+      ov('Oberes Band (Kauf)', GRN, sb.map(function (v) { return v == null ? null : v * (1 + p.band / 100); }), [4, 3]);
+      ov('Unteres Band (Verkauf)', RED, sb.map(function (v) { return v == null ? null : v * (1 - p.band / 100); }), [4, 3]);
+    } else if (type === 'high52') {
+      var hi = winExt(sp.look, 'max', false);
+      ov('Hoch ' + p.look + 'T', C1, hi);
+      ov('Schwelle (−' + String(p.within).replace('.', ',') + ' %)', C3, hi.map(function (v) { return v == null ? null : v * (1 - p.within / 100); }), [4, 3]);
+    } else if (type === 'trailing') {
+      var st = sma(closes, sp.n), pt = 1, peak = closes[0], stop = new Array(n);
+      for (i = 0; i < n; i++) {
+        if (pt === 1) { if (closes[i] > peak) peak = closes[i]; if (closes[i] < peak * (1 - p.stop / 100)) pt = 0; }
+        else if (st[i] != null && closes[i] > st[i]) { pt = 1; peak = closes[i]; }
+        stop[i] = pt === 1 ? peak * (1 - p.stop / 100) : null;
+      }
+      ov('Stop-Linie (−' + String(p.stop).replace('.', ',') + ' % vom Hoch)', RED, stop); ov('SMA ' + p.n + ' (Wiedereinstieg)', C1, st, [4, 3]);
+    } else if (type === 'dip_trend') {
+      ov('Trend-SMA ' + p.trend, C2, sma(closes, sp.trend)); ov('Ausstiegs-SMA ' + p.exit, C1, sma(closes, sp.exit));
+      out.panels.push({ title: 'RSI (' + p.n + ') – Kauf unter ' + p.lo, lines: [{ name: 'RSI', color: C1, values: rsi(closes, sp.n) }], refLines: [{ value: p.lo, color: GRN }], min: 0, max: 100 });
+    } else if (type === 'rsi_revert') {
+      out.panels.push({ title: 'RSI (' + p.n + ') – Kauf unter ' + p.lo + ', Verkauf über ' + p.hi, lines: [{ name: 'RSI', color: C1, values: rsi(closes, sp.n) }], refLines: [{ value: p.lo, color: GRN }, { value: p.hi, color: RED }], min: 0, max: 100 });
+    } else if (type === 'momentum') {
+      var mom = closes.map(function (c, k) { return k >= sp.n ? (c / closes[k - sp.n] - 1) * 100 : null; });
+      out.panels.push({ title: 'Momentum (' + p.n + ' Tage, in %) – investiert über 0', lines: [{ name: 'Momentum', color: C1, values: mom }], refLines: [{ value: 0, color: 'rgba(148, 163, 184, 0.7)' }] });
+    } else if (type === 'macd') {
+      var mf = ema(closes, sp.fast), ms = ema(closes, sp.slow), line = [];
+      for (i = 0; i < n; i++) line.push(mf[i] != null && ms[i] != null ? mf[i] - ms[i] : null);
+      var sg = ema(line, sp.signal), hs = [];
+      for (i = 0; i < n; i++) hs.push(line[i] != null && sg[i] != null ? line[i] - sg[i] : null);
+      out.panels.push({ title: 'MACD (' + p.fast + '/' + p.slow + '/' + p.signal + ') – investiert, wenn MACD über Signal', lines: [{ name: 'MACD', color: C1, values: line }, { name: 'Signal', color: C2, values: sg }], bars: hs, refLines: [{ value: 0, color: 'rgba(148, 163, 184, 0.7)' }] });
+    } else if (type === 'season') {
+      out.note = 'Saison-Strategie: Sie hängt nur vom Kalender ab (Einstiegsmonat ' + p.start + ', Ausstiegsmonat ' + p.end + '). Die grün hinterlegten Phasen sind die Monate, in denen investiert war.';
+    }
+    return out;
+  }
+
   /* ---------- Historie laden ---------- */
   /**
    * Lädt die längste verfügbare Historie: long/<TICKER>.json oder – falls kürzer – die chartHistory aus der Aktie.
@@ -728,7 +802,7 @@ window.App.Quant = (function () {
     alignedReturns: alignedReturns, betaCorr: betaCorr, histogram: histogram,
     sma: sma, ema: ema, rsi: rsi, validateParams: validateParams,
     STRATEGIES: STRATEGIES, defaultParams: defaultParams, computeSignals: computeSignals, backtest: backtest,
-    PARAM_GRIDS: PARAM_GRIDS, gridCombos: gridCombos, searchParams: searchParams, findBest: findBest,
+    PARAM_GRIDS: PARAM_GRIDS, gridCombos: gridCombos, searchParams: searchParams, findBest: findBest, indicatorSeries: indicatorSeries,
     loadHistory: loadHistory, loadHistoryFor: loadHistoryFor
   };
 })();
