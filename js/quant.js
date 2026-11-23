@@ -15,6 +15,38 @@ window.App.Quant = (function () {
   var TD = 252;       // Handelstage pro Jahr
   var RF = 0.02;      // Risikofreier Zins für Sharpe/Sortino (wie im Screener-Backtest)
 
+  /* ---------- Datenfrequenz (Tages- oder Wochenkurse) ---------- */
+  // Zeit-Parameter der Strategien werden immer in Handelstagen angegeben und bei Wochen-/Monatskursen umgerechnet.
+  var DAY_KEYS = {
+    sma_cross: ['fast', 'slow'], price_sma: ['n'], rsi_revert: ['n'], breakout: ['up', 'down'], momentum: ['n'],
+    ema_cross: ['fast', 'slow'], macd: ['fast', 'slow', 'signal'], bollinger: ['n'], dip_trend: ['trend', 'n', 'exit'],
+    sma_band: ['n'], high52: ['look'], trailing: ['n']
+  };
+
+  /** Perioden pro Jahr aus dem Datumsabstand: 252 (täglich), 52 (wöchentlich), 12 (monatlich). */
+  function periodsPerYear(hist) {
+    if (!hist || hist.length < 3) return TD;
+    var gaps = [];
+    for (var i = 1; i < hist.length; i++) {
+      gaps.push((new Date(hist[i].date + 'T00:00:00') - new Date(hist[i - 1].date + 'T00:00:00')) / 86400000);
+    }
+    gaps.sort(function (a, b) { return a - b; });
+    var med = gaps[Math.floor(gaps.length / 2)];
+    return med <= 4 ? TD : (med <= 10 ? 52 : 12);
+  }
+
+  /** Rechnet Tage-Parameter in Balken der vorhandenen Frequenz um (Tageskurse: unverändert). */
+  function scaleParams(type, p, ppy) {
+    if (!ppy || ppy >= TD) return p;
+    var o = {}, k;
+    for (k in p) o[k] = p[k];
+    (DAY_KEYS[type] || []).forEach(function (key) {
+      if (o[key] != null) o[key] = Math.max(2, Math.round(o[key] * ppy / TD));
+    });
+    if (o.fast != null && o.slow != null && o.fast >= o.slow) o.slow = o.fast + 1;
+    return o;
+  }
+
   /* ---------- Grundlagen ---------- */
   function mean(a) {
     if (!a.length) return 0;
@@ -52,6 +84,8 @@ window.App.Quant = (function () {
   /** Schneidet die letzten `years` Jahre aus einer (bereinigten) Historie. null = alles. */
   function sliceYears(hist, years) {
     if (!years || !hist.length) return hist;
+    // Liegen zusätzlich Tageskurse vor, die den Zeitraum abdecken, sind sie genauer als die Wochenkurse der Langhistorie.
+    if (hist.daily && hist.daily.length > 1 && spanYears(hist.daily) >= years - 0.05) hist = hist.daily;
     var last = new Date(hist[hist.length - 1].date + 'T00:00:00');
     last.setDate(last.getDate() - Math.round(years * 365.25));
     var cut = last.toISOString().slice(0, 10);
@@ -78,22 +112,24 @@ window.App.Quant = (function () {
   }
 
   /* ---------- Risiko-Kennzahlen ---------- */
-  function annualVol(rets) { return std(rets) * Math.sqrt(TD); }
+  function annualVol(rets, ppy) { return std(rets) * Math.sqrt(ppy || TD); }
 
-  function sharpe(rets) {
+  function sharpe(rets, ppy) {
+    ppy = ppy || TD;
     var s = std(rets);
-    return s > 0 ? (mean(rets) * TD - RF) / (s * Math.sqrt(TD)) : null;
+    return s > 0 ? (mean(rets) * ppy - RF) / (s * Math.sqrt(ppy)) : null;
   }
 
-  function sortino(rets) {
+  function sortino(rets, ppy) {
     if (!rets.length) return null;
-    var dailyRf = RF / TD, ss = 0;
+    ppy = ppy || TD;
+    var dailyRf = RF / ppy, ss = 0;
     for (var i = 0; i < rets.length; i++) {
       var d = Math.min(0, rets[i] - dailyRf);
       ss += d * d;
     }
-    var dd = Math.sqrt(ss / rets.length) * Math.sqrt(TD);
-    return dd > 0 ? (mean(rets) * TD - RF) / dd : null;
+    var dd = Math.sqrt(ss / rets.length) * Math.sqrt(ppy);
+    return dd > 0 ? (mean(rets) * ppy - RF) / dd : null;
   }
 
   /** Historischer Value at Risk: Verlust (positiv, als Anteil), der an (1-conf) der Tage überschritten wurde. */
@@ -464,16 +500,16 @@ window.App.Quant = (function () {
     return sig;
   }
 
-  function perfStats(eq, dates, rets) {
+  function perfStats(eq, dates, rets, ppy) {
     var yrs = (new Date(dates[dates.length - 1] + 'T00:00:00') - new Date(dates[0] + 'T00:00:00')) / (365.25 * 86400000);
     var dd = drawdown(eq, dates);
     var c = cagr(eq[0], eq[eq.length - 1], yrs);
     return {
       totalReturn: (eq[eq.length - 1] / eq[0] - 1) * 100,
       cagr: c == null ? null : c * 100,
-      vol: annualVol(rets) * 100,
+      vol: annualVol(rets, ppy) * 100,
       maxDD: dd.maxDD,
-      sharpe: sharpe(rets),
+      sharpe: sharpe(rets, ppy),
       calmar: (c != null && dd.maxDD < 0) ? (c * 100) / Math.abs(dd.maxDD) : null
     };
   }
@@ -492,7 +528,8 @@ window.App.Quant = (function () {
     var closes = hist.map(function (h) { return h.close; });
     var dates = hist.map(function (h) { return h.date; });
 
-    var sig = computeSignals(closes, type, p, dates);
+    var ppy = periodsPerYear(hist);
+    var sig = computeSignals(closes, type, scaleParams(type, p, ppy), dates);
     var pos = new Array(n), i;
     for (i = 0; i < n; i++) pos[i] = i >= 2 ? sig[i - 2] : 0;     // 1 Tag Verzögerung bis zum Fill
 
@@ -519,10 +556,10 @@ window.App.Quant = (function () {
     function makeTrade(e, x, open) {
       var gross = closes[x] / closes[e];
       var net = gross * (1 - fee) * (open ? 1 : (1 - fee)) - 1;
-      return { entryDate: dates[e], exitDate: dates[x], entry: closes[e], exit: closes[x], ret: net * 100, days: x - e, open: open };
+      return { entryDate: dates[e], exitDate: dates[x], entry: closes[e], exit: closes[x], ret: net * 100, days: Math.round((x - e) * TD / ppy), open: open };
     }
 
-    var stats = perfStats(eq, dates, rets.slice(1));
+    var stats = perfStats(eq, dates, rets.slice(1), ppy);
     var held = 0;
     for (i = 0; i < n; i++) held += pos[i];
     stats.exposure = held / n * 100;
@@ -533,12 +570,12 @@ window.App.Quant = (function () {
     stats.bestTrade = trades.length ? Math.max.apply(null, trades.map(function (t) { return t.ret; })) : null;
     stats.worstTrade = trades.length ? Math.min.apply(null, trades.map(function (t) { return t.ret; })) : null;
 
-    var bhStats = perfStats(bh, dates, returns(bh));
+    var bhStats = perfStats(bh, dates, returns(bh), ppy);
     bhStats.exposure = 100;
 
     return {
       dates: dates, equity: eq, buyHold: bh, trades: trades,
-      stats: stats, bhStats: bhStats,
+      stats: stats, bhStats: bhStats, ppy: ppy,
       pendingSignal: sig[n - 1] === 1 ? 'long' : 'cash'
     };
   }
@@ -582,6 +619,13 @@ window.App.Quant = (function () {
    */
   function searchParams(hist, type, fee) {
     var combos = gridCombos(type), rows = [], skipped = 0, bhStats = null, n = hist.length, mid = Math.floor(n / 2);
+    var ppy = periodsPerYear(hist), seen = {};
+    combos = combos.filter(function (p) {   // bei Wochenkursen können verschiedene Tage-Werte dieselbe Wochenzahl ergeben
+      var key = JSON.stringify(scaleParams(type, p, ppy));
+      if (seen[key]) return false;
+      seen[key] = true;
+      return true;
+    });
     combos.forEach(function (p) {
       var res = backtest(hist, type, p, fee);
       if (res.error) return;
@@ -611,14 +655,15 @@ window.App.Quant = (function () {
    */
   function findBest(hist, fee, testFrac) {
     var n = hist.length;
-    if (n < 1000) return { error: 'Zu wenig Daten: Für einen aussagekräftigen Test werden mindestens etwa 4 Jahre Kurse benötigt. Wähle einen längeren Zeitraum.' };
+    if (spanYears(hist) < 4 || n < 150) return { error: 'Zu wenig Daten: Für einen aussagekräftigen Test werden mindestens etwa 4 Jahre Kurse benötigt. Wähle einen längeren Zeitraum (5 Jahre, 10 Jahre oder Max.).' };
+    var ppy = periodsPerYear(hist);
     var split = Math.floor(n * (1 - (testFrac || 0.3)));
     var train = hist.slice(0, split + 1);
     var dates = hist.map(function (h) { return h.date; });
     var testDates = dates.slice(split);
     function segStats(curve) {
       var seg = curve.slice(split);
-      var st = perfStats(seg, testDates, returns(seg));
+      var st = perfStats(seg, testDates, returns(seg), ppy);
       return st;
     }
     var rows = [], bhRes = backtest(hist, 'buyhold', {}, fee);
@@ -642,7 +687,7 @@ window.App.Quant = (function () {
     });
     return {
       rows: rows, bhTest: bhTest, bhFull: bhRes.bhStats,
-      split: split, trainEnd: dates[split], testStart: dates[split], testEnd: dates[n - 1], days: n - split
+      split: split, ppy: ppy, trainEnd: dates[split], testStart: dates[split], testEnd: dates[n - 1], days: n - split
     };
   }
 
@@ -657,7 +702,11 @@ window.App.Quant = (function () {
     if (!D || !D.getLongHistory) return Promise.resolve(fallback);
     return D.getLongHistory(ticker).then(function (long) {
       var l = cleanHistory(long);
-      return l.length > fallback.length ? l : fallback;
+      if (spanYears(l) > spanYears(fallback) + 0.25) {
+        l.daily = fallback;                 // genauere Tageskurse für kurze Zeiträume
+        return l;
+      }
+      return fallback;
     }).catch(function () { return fallback; });
   }
 
@@ -670,7 +719,7 @@ window.App.Quant = (function () {
   }
 
   return {
-    TD: TD, RF: RF,
+    TD: TD, RF: RF, periodsPerYear: periodsPerYear, scaleParams: scaleParams,
     mean: mean, std: std, quantile: quantile,
     cleanHistory: cleanHistory, sliceYears: sliceYears, spanYears: spanYears,
     returns: returns, cagr: cagr,
