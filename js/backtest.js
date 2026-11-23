@@ -12,6 +12,19 @@ window.App.Backtest = (function () {
     });
   }
 
+  var PRESET_HELP = {"": "Kein Filter: Es werden alle Aktien des Testuniversums gleichgewichtet gekauft. Das ist die Vergleichsbasis für alle anderen Filter.", "value": "Wählt Aktien mit einem KGV über 0 und unter 20, also vergleichsweise günstig bewertet gemessen am Gewinn.", "quality": "Wählt Aktien mit Nettomarge über 10 %, positivem Umsatzwachstum und höchstens 100 % Verschuldung (Debt/Equity) – profitabel, wachsend, nicht überschuldet.", "growth": "Wählt Aktien, deren Umsatz zuletzt um mindestens 10 % gewachsen ist.", "high_dividend": "Wählt Aktien mit einer Dividendenrendite von mindestens 3 %.", "consensus_buy": "Wählt Aktien, die mindestens 70 % der Analysten zum Kauf empfehlen.", "golden_cross": "Wählt Aktien, bei denen der 50-Tage-Durchschnitt den 200-Tage-Durchschnitt in den letzten 60 Tagen von unten gekreuzt hat (Trendwende nach oben).", "oversold": "Wählt überverkaufte Aktien mit einem RSI von höchstens 30 – Kandidaten für eine Erholung, aber auch „fallende Messer“.", "low_risk": "Wählt Aktien mit einem Chance-Risiko-Verhältnis (CRV) von mindestens 2 und einem Stop-Abstand von höchstens 5 %."};
+  var SIM_HELP = [["Was wird simuliert?", "Aus den 80 größten Aktien des Universums (nach Marktkapitalisierung, mit genug Kurshistorie) wird jeden Monat der gewählte Filter angewendet. Die Treffer werden gleichgewichtet gekauft und 12 Monate gehalten. Mehrere solche Monats-Käufe überlappen sich."], ["Wichtigste Einschränkung: heutige Kennzahlen", "Der Filter nutzt die <strong>aktuellen</strong> Kennzahlen (KGV, Wachstum, RSI, Analystenurteil …) und wendet sie auf die ganze Vergangenheit an. Aktien, die heute als „günstig“, „wachsend“ oder „Golden Cross“ gelten, sind oft genau die, die zuletzt gut gelaufen sind – das Ergebnis wirkt dadurch besser, als der Filter damals tatsächlich gewesen wäre (Blick in die Zukunft)."], ["Weitere Verzerrungen", "Das Universum besteht nur aus Aktien, die es heute noch gibt (Überlebensverzerrung). Es gibt keine Transaktionskosten, Spreads, Steuern oder Dividenden-Details; Kurse sind in Euro umgerechnet. Ein Filter-Backtest ist deshalb eher ein Plausibilitätscheck als ein Beleg."], ["Vergleichswert", "Starte zuerst ohne Filter und vergleiche dann: Nur wenn ein Filter sichtbar besser abschneidet als „alle Aktien“, hat er überhaupt etwas beigetragen."]];
+  var RESULT_HELP = [["CAGR", "Durchschnittliche Rendite pro Jahr (Zinseszins-Rate), damit Zeiträume vergleichbar sind."], ["Volatilität", "Wie stark die Ergebnisse schwanken, aufs Jahr hochgerechnet. Höher heißt unruhigerer Verlauf."], ["Max. Drawdown", "Der größte Rückgang vom Höchststand der Simulation bis zum folgenden Tief. Er zeigt, was man hätte aushalten müssen."], ["Sharpe", "Überrendite gegenüber 2 % Zins je Einheit Schwankung. Um 0,5 gilt als mäßig, ab 1 als gut; sehr hohe Werte sind meist ein Warnzeichen für Verzerrungen."], ["Trefferquote", "Anteil der einzelnen Käufe, die im Plus endeten. Eine hohe Quote sagt allein wenig: Entscheidend ist auch, wie groß Gewinne und Verluste sind."], ["Endwert", "Wert eines Startkapitals von 100 am Ende der Simulation."], ["Trades-Tabelle", "Einzelne simulierte Käufe mit Kauf- und Verkaufsdatum und Rendite (die ersten 30)."], ["Aussagekraft", "Nur wenige Aktien im Filter oder kurze Zeiträume machen das Ergebnis zufällig. Prüfe mehrere Zeiträume und achte darauf, ob der Filter in allen besser ist als „kein Filter“."]];
+
+  function helpCard(title, items, openByDefault) {
+    return '<details class="card"' + (openByDefault ? ' open' : '') + ' style="padding:14px 16px;">' +
+      '<summary style="font-weight:700;font-size:0.85rem;cursor:pointer;">' + title + '</summary>' +
+      '<div style="margin-top:12px;">' + items.map(function (it) {
+        return '<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:0.8rem;color:var(--text-main);">' + it[0] + '</div>' +
+          '<div style="font-size:0.76rem;color:var(--text-dim);line-height:1.55;margin-top:2px;">' + it[1] + '</div></div>';
+      }).join('') + '</div></details>';
+  }
+
   function initView() {
     var container = document.getElementById('app-view-content');
     if (!container) return;
@@ -37,7 +50,8 @@ window.App.Backtest = (function () {
                 '<option value="golden_cross">Golden Cross (letzte 60 Tage)</option>' +
                 '<option value="oversold">Überverkauft (RSI ≤ 30)</option>' +
                 '<option value="low_risk">Kleines Risiko (CRV ≥ 2, Stop ≤ 5 %)</option>' +
-              '</select></div>' +
+              '</select>' +
+              '<div id="bt-preset-desc" style="font-size:0.72rem;color:var(--text-dim);margin-top:6px;line-height:1.45;"></div></div>' +
             '<div><label style="font-size:0.72rem;color:var(--text-dim);">Simulations-Zeitraum</label>' +
               '<select id="bt-period" class="sort-select" style="width:100%;margin-top:4px;">' +
                 '<option value="1Y">1 Jahr</option>' +
@@ -50,8 +64,15 @@ window.App.Backtest = (function () {
             'Achtung: Vergangenheitsdaten. Überlebensverzerrung, keine Transaktionskosten, kein Slippage. Keine Prognose.' +
           '</div>' +
         '</div>' +
+        helpCard('So funktioniert die Simulation', SIM_HELP, false) +
         '<div id="bt-results"></div>' +
       '</div>';
+
+    var presetSel = document.getElementById('bt-preset');
+    var presetDesc = document.getElementById('bt-preset-desc');
+    function showPresetDesc() { presetDesc.textContent = PRESET_HELP[presetSel.value] || ''; }
+    presetSel.onchange = showPresetDesc;
+    showPresetDesc();
 
     document.getElementById('bt-run').onclick = runBacktest;
   }
@@ -221,6 +242,7 @@ window.App.Backtest = (function () {
     });
     html += '</tbody></table></div>';
     html += '</div>';
+    html += helpCard('Was bedeuten die Werte?', RESULT_HELP, false);
 
     container.innerHTML = html;
 
