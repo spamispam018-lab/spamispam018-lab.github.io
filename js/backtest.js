@@ -130,42 +130,44 @@ window.App.Backtest = (function () {
     var sortedDates = Object.keys(allDates).sort();
     if (sortedDates.length < endDays) return { trades: [], error: 'Zu wenige gemeinsame Handelstage' };
 
+    var lastIdx = sortedDates.length - 1;
     var startIdx = sortedDates.length - endDays;
-    var nav = 100; // Basis 100
+    var HOLD = 12;                       // Haltedauer je Kohorte in Monaten
+    var nav = 100;                       // Basis 100
     var navSeries = [];
     var allTrades = [];
     var monthlyReturns = [];
     var maxDD = 0;
     var peak = 100;
+    var cohorts = [];                    // je Kaufmonat: { start, tickers }
+
+    function idxOf(k) { return Math.min(startIdx + k * 21, lastIdx); }
 
     for (var m = 0; m < monthCount; m++) {
-      var buyIdx = startIdx + m * 21;
-      var sellIdx = Math.min(buyIdx + 21 * 12, sortedDates.length - 1);
-      if (buyIdx >= sortedDates.length) break;
+      var buyIdx = idxOf(m);
+      var nextIdx = idxOf(m + 1);
+      if (buyIdx >= lastIdx) break;
 
-      // Filter basierend auf Preset-Kriterien (nur die, die aus Universum-Feldern abrufbar sind)
-      var candidates = rows.filter(function (r) {
-        // Universum-Filter (Preisfilter für Low Risk etc. können wir hier nicht anwenden,
-        // da wir nur History haben – also nur presets, die aus Universum kommen)
+      // Neue Kohorte: Filter heute gültig (Look-ahead, siehe Hinweis), gleichgewichtet
+      var picked = rows.filter(function (r) {
         var s = sample.filter(function (x) { return x.ticker === r.ticker; })[0] || {};
-        return matchesPreset(s, preset);
+        return matchesPreset(s, preset) && (r.priceMap[sortedDates[buyIdx]] > 0);
       });
-      if (candidates.length === 0) continue;
+      if (picked.length) cohorts.push({ start: m, tickers: picked });
 
-      // Gleichgewichtet
-      var perTicker = 1 / candidates.length;
-      var portfolioReturn = 0;
-      candidates.forEach(function (r) {
-        var buyDate = sortedDates[buyIdx];
-        var sellDate = sortedDates[sellIdx];
-        var buyPrice = r.priceMap[buyDate] || 0;
-        var sellPrice = r.priceMap[sellDate] || 0;
-        if (buyPrice > 0 && sellPrice > 0) {
-          var ret = sellPrice / buyPrice - 1;
-          portfolioReturn += ret * perTicker;
-          allTrades.push({ ticker: r.ticker, buyDate: buyDate, sellDate: sellDate, ret: ret });
-        }
+      // Echte Monatsrendite: Mittel über alle aktiven Kohorten (je höchstens 12 Monate gehalten)
+      var cohortRets = [];
+      cohorts.forEach(function (c) {
+        if (m >= c.start + HOLD) return;
+        var sum = 0, cnt = 0;
+        c.tickers.forEach(function (r) {
+          var p0 = r.priceMap[sortedDates[buyIdx]], p1 = r.priceMap[sortedDates[nextIdx]];
+          if (p0 > 0 && p1 > 0) { sum += p1 / p0 - 1; cnt++; }
+        });
+        if (cnt) cohortRets.push(sum / cnt);
       });
+      if (!cohortRets.length) continue;
+      var portfolioReturn = cohortRets.reduce(function (a, x) { return a + x; }, 0) / cohortRets.length;
 
       monthlyReturns.push(portfolioReturn);
       nav = nav * (1 + portfolioReturn);
@@ -175,6 +177,16 @@ window.App.Backtest = (function () {
       navSeries.push({ month: m + 1, nav: nav });
     }
 
+    // Trades je Kohorte und Titel; unvollständige Haltedauer wird markiert und nicht in die Trefferquote gezählt
+    cohorts.forEach(function (c) {
+      var bi = idxOf(c.start), si = Math.min(bi + 21 * HOLD, lastIdx);
+      var complete = bi + 21 * HOLD <= lastIdx;
+      c.tickers.forEach(function (r) {
+        var p0 = r.priceMap[sortedDates[bi]], p1 = r.priceMap[sortedDates[si]];
+        if (p0 > 0 && p1 > 0) allTrades.push({ ticker: r.ticker, buyDate: sortedDates[bi], sellDate: sortedDates[si], ret: p1 / p0 - 1, open: !complete });
+      });
+    });
+
     if (!monthlyReturns.length) return { trades: [], error: 'Keine Trades generiert' };
 
     var avgReturn = monthlyReturns.reduce(function (a, b) { return a + b; }, 0) / monthlyReturns.length;
@@ -182,7 +194,8 @@ window.App.Backtest = (function () {
     var vol = Math.sqrt(variance) * Math.sqrt(12) * 100;
     var cagr = (nav / 100) ** (12 / monthlyReturns.length) - 1;
     var sharpe = vol > 0 ? (cagr * 100 - 2) / vol : 0;
-    var winRate = allTrades.length > 0 ? allTrades.filter(function (t) { return t.ret > 0; }).length / allTrades.length : 0;
+    var closedTrades = allTrades.filter(function (t) { return !t.open; });
+    var winRate = closedTrades.length > 0 ? closedTrades.filter(function (t) { return t.ret > 0; }).length / closedTrades.length : 0;
 
     return {
       navSeries: navSeries,
