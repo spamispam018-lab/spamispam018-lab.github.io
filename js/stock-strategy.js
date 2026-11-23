@@ -21,7 +21,10 @@ window.App.StockStrategy = (function () {
     { key: 'MAX', label: 'Max.', years: null }
   ];
 
-  var state = { type: 'sma_cross', params: {}, period: 'MAX', fee: 0.1 };
+  var state = { type: 'sma_cross', params: {}, period: 'MAX', fee: 0.1, helpOpen: false };
+
+  var BT_HELP = [["Gesamtrendite / CAGR", "Gesamtrendite ist der Gewinn über den ganzen Zeitraum; CAGR rechnet ihn auf ein Jahr um, damit sich verschieden lange Zeiträume vergleichen lassen."], ["Volatilität p. a.", "Wie stark der Wert der Strategie schwankt (Standardabweichung der Tagesrenditen, aufs Jahr hochgerechnet). Zeiten in Cash dämpfen sie."], ["Max. Drawdown", "Der größte Rückgang vom bisherigen Höchststand bis zum folgenden Tief. Er zeigt, wie viel Durchhaltevermögen die Strategie verlangt hätte. Ein Minus von 30 % braucht +43 %, um wieder auszugleichen."], ["Sharpe Ratio", "Überrendite gegenüber 2 % Zins je Einheit Schwankung. Unter 0: schlechter als Zinsen; um 0,5: mäßig; ab 1: gut. Nur historisch und bei kurzen Zeiträumen wenig belastbar."], ["Calmar Ratio", "Rendite p. a. geteilt durch den größten Rückgang. Je höher, desto mehr Ertrag pro ertragenem Verlust."], ["Zeit investiert", "Anteil der Handelstage mit Position. Eine Strategie, die nur halb so lange investiert war und ähnlich viel verdient hat, hat das mit weniger Marktrisiko geschafft."], ["Trefferquote und Ø Trade", "Anteil der Gewinn-Trades und ihre durchschnittliche Rendite. Eine hohe Trefferquote allein sagt wenig: Trendfolger gewinnen oft nur in 35–45 % der Trades, aber mit großen Gewinnen; Gegenstrategien gewinnen oft häufig, aber klein."], ["Signal heute", "Was die Regel am letzten Schlusskurs sagt. Ausgeführt würde sie – wie im Backtest – erst am nächsten Handelstag."], ["Regeln der Simulation", "Signal am Schlusskurs, Ausführung am nächsten Schlusskurs (kein Blick in die Zukunft). Nur Long, voll investiert oder Cash ohne Zinsen. Kosten fallen bei jedem Kauf und Verkauf an."], ["Typische Fallstricke", "<strong>Überanpassung:</strong> Wer Parameter so lange dreht, bis die Kurve schön aussieht, optimiert auf die Vergangenheit. Robust ist eine Einstellung, die auch bei Nachbarwerten (z. B. 40/180 statt 50/200) ähnlich funktioniert. <strong>Auswahlverzerrung:</strong> Du testest eine Aktie, die es heute noch gibt und die du kennst; gescheiterte Titel fehlen. <strong>Wenige Trades:</strong> Bei unter etwa 10 Trades ist das Ergebnis Zufall, nicht Beleg. <strong>Währung:</strong> Kurse sind in Euro umgerechnet, Wechselkurse fließen ins Ergebnis ein."]];
+
   var histCache = {};
 
   function esc(s) {
@@ -38,6 +41,21 @@ window.App.StockStrategy = (function () {
 
   function num(v, d) { return (v == null || !isFinite(v)) ? '—' : F().number(v, d == null ? 2 : d); }
   function tone(v) { return v == null || !isFinite(v) ? '' : v >= 0 ? 'var(--bullish)' : 'var(--bearish)'; }
+
+
+  function helpCard(items, key) {
+    return '<details class="card" data-help="' + key + '"' + (state.helpOpen ? ' open' : '') + ' style="padding:14px 16px;">' +
+      '<summary style="font-weight:700;font-size:0.85rem;cursor:pointer;">Was bedeuten die Werte?</summary>' +
+      '<div style="margin-top:12px;">' + items.map(function (it) {
+        return '<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:0.8rem;color:var(--text-main);">' + it[0] + '</div>' +
+          '<div style="font-size:0.76rem;color:var(--text-dim);line-height:1.55;margin-top:2px;">' + it[1] + '</div></div>';
+      }).join('') + '</div></details>';
+  }
+
+  function bindHelp(root) {
+    var d = root.querySelector('details[data-help]');
+    if (d) d.addEventListener('toggle', function () { state.helpOpen = d.open; });
+  }
 
   function currentParams() {
     var def = Q().defaultParams(state.type);
@@ -86,7 +104,9 @@ window.App.StockStrategy = (function () {
         '<div style="display:flex;flex-direction:column;gap:10px;">' +
           '<div><label for="bt-type" style="font-size:0.72rem;color:var(--text-dim);">Strategie</label>' +
             '<select id="bt-type" class="sort-select" style="width:100%;margin-top:4px;">' + stratOpts + '</select>' +
-            '<div id="bt-desc" style="font-size:0.72rem;color:var(--text-dim);margin-top:6px;line-height:1.4;"></div></div>' +
+            '<div id="bt-desc" style="font-size:0.72rem;color:var(--text-dim);margin-top:6px;line-height:1.4;"></div>' +
+            '<details id="bt-explain-wrap" style="margin-top:8px;"><summary style="font-size:0.75rem;color:var(--accent-purple-light);cursor:pointer;">Wie funktioniert diese Strategie?</summary>' +
+              '<div id="bt-explain" style="font-size:0.78rem;color:var(--text-dim);line-height:1.55;margin-top:8px;"></div></details></div>' +
           '<div id="bt-params" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;"></div>' +
           '<div><div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:4px;">Zeitraum</div>' +
             '<div class="horizontal-scroll-row" style="margin-bottom:0;padding-bottom:0;">' + chips + '</div></div>' +
@@ -102,6 +122,7 @@ window.App.StockStrategy = (function () {
     function drawParams() {
       var def = q.STRATEGIES[state.type];
       container.querySelector('#bt-desc').textContent = def.desc;
+      container.querySelector('#bt-explain').innerHTML = def.explain || '';
       var cur = currentParams();
       container.querySelector('#bt-params').innerHTML = def.params.map(function (p) {
         return '<div><label for="bt-p-' + p.key + '" style="font-size:0.72rem;color:var(--text-dim);">' + esc(p.label) + '</label>' +
@@ -149,6 +170,12 @@ window.App.StockStrategy = (function () {
 
     var s = res.stats, b = res.bhStats, f = F();
     var diff = s.totalReturn - b.totalReturn;
+    var insights = [];
+    if (state.type !== 'buyhold') {
+      insights.push('Die Strategie war ' + pct(s.exposure, 0) + ' der Zeit investiert.');
+      insights.push('Der größte Rückgang betrug ' + pct(s.maxDD, 1) + ' – bei Buy &amp; Hold waren es ' + pct(b.maxDD, 1) + (s.maxDD > b.maxDD ? ' (die Strategie war hier ruhiger).' : ' (die Strategie war hier nicht ruhiger).'));
+      if (s.trades < 10) insights.push('Mit nur ' + s.trades + ' Trades ist das Ergebnis statistisch dünn und kein Beleg für die Regel.');
+    }
     var paramTxt = def.params.map(function (p) { return esc(p.label) + ' ' + params[p.key]; }).join(' · ');
 
     function row(label, sv, bv, sc, bc) {
@@ -166,6 +193,7 @@ window.App.StockStrategy = (function () {
             ? 'Buy &amp; Hold ist die Vergleichsbasis (Einstieg am zweiten Handelstag, inkl. Kosten).'
             : 'Die Strategie lag im Zeitraum <strong style="color:' + tone(diff) + ';">' + pct(Math.abs(diff), 1) + '-Punkte ' + (diff >= 0 ? 'vor' : 'hinter') + '</strong> Buy &amp; Hold' +
               ' (' + pct(s.totalReturn, 1, true) + ' vs. ' + pct(b.totalReturn, 1, true) + ').') +
+        (insights.length ? '<ul style="margin:-4px 0 14px 18px;padding:0;font-size:0.76rem;color:var(--text-dim);line-height:1.5;">' + insights.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul>' : '') +
         '</div>' +
         '<div class="table-responsive-wrapper"><table class="data-table compact"><thead><tr><th>Kennzahl</th><th style="text-align:right;">Strategie</th><th style="text-align:right;">Buy &amp; Hold</th></tr></thead><tbody>' +
           row('Gesamtrendite', pct(s.totalReturn, 1, true), pct(b.totalReturn, 1, true), tone(s.totalReturn), tone(b.totalReturn)) +
@@ -203,12 +231,14 @@ window.App.StockStrategy = (function () {
       if (res.trades.length > 30) html += '<div style="font-size:0.7rem;color:var(--text-dim);margin-top:6px;">Die letzten 30 von ' + res.trades.length + ' Trades.</div>';
     }
     html += '</div>' +
+      helpCard(BT_HELP, 'bt') +
       '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.45;padding:2px 4px 12px;">' +
         'Simulation auf täglichen Schlusskursen (in Euro umgerechnet): Signal am Schlusskurs, Ausführung am nächsten Schlusskurs, nur Long, voll investiert oder Cash (ohne Zinsen). ' +
         'Keine Steuern, Spreads oder Teilausführungen. Wer Parameter so lange verändert, bis das Ergebnis gut aussieht, passt sie an die Vergangenheit an – das sagt nichts über die Zukunft.' +
       '</div>';
 
     out.innerHTML = html;
+    bindHelp(out);
 
     var canvas = out.querySelector('#bt-single-chart');
     if (canvas) {
