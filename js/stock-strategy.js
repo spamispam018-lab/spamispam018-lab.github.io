@@ -314,7 +314,7 @@ window.App.StockStrategy = (function () {
             }).join('') + '</tbody></table></div>' +
             '<div style="font-size:0.72rem;color:var(--text-dim);line-height:1.5;margin-top:12px;">' +
               '<strong style="color:var(--text-main);">So liest du das:</strong> Ein großer Abstand zwischen „Training“ und Test-Sharpe ist das typische Zeichen von Überanpassung. ' +
-              'Der Testzeitraum ist nur ein Ausschnitt (hier ' + res.days + ' Handelstage) und wurde nun mit ' + res.rows.length + ' Strategien verglichen – auch die Wahl des Siegers ist wieder eine Auswahl aus vielen. ' +
+              'Der Testzeitraum ist nur ein Ausschnitt (hier ' + res.days + (res.ppy >= 200 ? ' Handelstage' : (res.ppy >= 40 ? ' Wochen' : ' Monate')) + ') und wurde nun mit ' + res.rows.length + ' Strategien verglichen – auch die Wahl des Siegers ist wieder eine Auswahl aus vielen. ' +
               'Länger gültig sind Ergebnisse bei langen Zeiträumen (10 Jahre oder Max.) und vielen Trades. Keine Anlageberatung.</div>' +
           '</div>';
         box.innerHTML = html;
@@ -363,6 +363,9 @@ window.App.StockStrategy = (function () {
       insights.push('Der größte Rückgang betrug ' + pct(s.maxDD, 1) + ' – bei Buy &amp; Hold waren es ' + pct(b.maxDD, 1) + (s.maxDD > b.maxDD ? ' (die Strategie war hier ruhiger).' : ' (die Strategie war hier nicht ruhiger).'));
       if (s.trades < 10) insights.push('Mit nur ' + s.trades + ' Trades ist das Ergebnis statistisch dünn und kein Beleg für die Regel.');
     }
+    var freqNote = res.ppy < 200
+      ? 'Datenbasis: ' + (res.ppy >= 40 ? 'Wochenkurse' : 'Monatskurse') + '. Zeit-Parameter in Tagen werden umgerechnet (5 Handelstage ≈ 1 Woche); kurzfristige Indikatoren wie RSI, MACD oder Bollinger sind mit Tageskursen (Zeitraum 1–2 Jahre) aussagekräftiger.'
+      : '';
     var paramTxt = def.params.map(function (p) { return esc(p.label) + ' ' + String(params[p.key]).replace('.', ','); }).join(' · ');
 
     function row(label, sv, bv, sc, bc) {
@@ -375,6 +378,7 @@ window.App.StockStrategy = (function () {
       '<div class="card">' +
         '<div class="card-header-dotted"><span class="card-title">' + esc(def.label) + '</span><span class="period-tag">' + esc(per.label) + '</span></div>' +
         (paramTxt ? '<div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:10px;">' + paramTxt + ' · Kosten ' + f.number(state.fee, 2) + ' %</div>' : '') +
+        (freqNote ? '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.4;margin:-4px 0 10px;">' + freqNote + '</div>' : '') +
         '<div style="padding:10px 12px;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:0.82rem;margin-bottom:14px;line-height:1.4;">' +
           (state.type === 'buyhold'
             ? 'Buy &amp; Hold ist die Vergleichsbasis (Einstieg am zweiten Handelstag, inkl. Kosten).'
