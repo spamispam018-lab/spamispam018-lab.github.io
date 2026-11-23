@@ -250,8 +250,120 @@ window.App.Quant = (function () {
       label: 'Momentum',
       desc: 'Long, solange die Rendite der letzten N Tage positiv ist.',
       params: [{ key: 'n', label: 'Rückblick (Tage)', def: 126, min: 10, max: 400 }]
+    },
+    ema_cross: {
+      explain: "Der EMA (exponentieller gleitender Durchschnitt) gewichtet neuere Kurse stärker als ältere und reagiert dadurch schneller als der SMA. <strong>Kauf</strong>, wenn der schnelle EMA über den langsamen steigt, <strong>Verkauf</strong>, wenn er darunter fällt. Stärke: früherer Einstieg bei Trendwenden. Schwäche: Mehr Fehlsignale und mehr Trades als beim SMA, vor allem in Seitwärtsphasen.",
+      label: "EMA-Crossover",
+      desc: "Wie der SMA-Crossover, aber mit exponentiellen Durchschnitten, die neuere Kurse stärker gewichten.",
+      params: [
+        { key: "fast", label: "Schnell (Tage)", def: 12, min: 2, max: 300 },
+        { key: "slow", label: "Langsam (Tage)", def: 26, min: 3, max: 500 }
+      ]
+    },
+    macd: {
+      explain: "MACD = EMA(schnell) minus EMA(langsam), meist 12 und 26 Tage; die Signallinie ist ein EMA des MACD (meist 9 Tage). <strong>Long</strong>, solange der MACD über der Signallinie liegt, sonst Cash. Er misst Richtung und Stärke des Trends. Stärke: erkennt Trendwechsel relativ früh. Schwäche: viele Wechsel in Seitwärtsmärkten, Signale kommen oft nach dem Großteil der Bewegung.",
+      label: "MACD-Signal",
+      desc: "Long, solange die MACD-Linie über ihrer Signallinie liegt.",
+      params: [
+        { key: "fast", label: "Schnell (Tage)", def: 12, min: 2, max: 100 },
+        { key: "slow", label: "Langsam (Tage)", def: 26, min: 3, max: 200 },
+        { key: "signal", label: "Signal (Tage)", def: 9, min: 2, max: 50 }
+      ]
+    },
+    bollinger: {
+      explain: "Die Bollinger-Bänder liegen k Standardabweichungen über und unter dem N-Tage-Durchschnitt. <strong>Kauf</strong>, wenn der Schlusskurs unter das untere Band fällt (ungewöhnlich tief), <strong>Verkauf</strong>, sobald er den Durchschnitt (die Mitte) wieder erreicht. Gegenstrategie auf kurzfristige Übertreibungen. Stärke: passt zu Seitwärtsmärkten und schwankenden Titeln. Schwäche: In starken Abwärtstrends kauft sie zu früh und hält lange Verlierer.",
+      label: "Bollinger Mean-Reversion",
+      desc: "Kauft Kurse weit unter ihrem Durchschnitt, verkauft bei Rückkehr zur Mitte.",
+      params: [
+        { key: "n", label: "Fenster (Tage)", def: 20, min: 5, max: 100 },
+        { key: "k", label: "Abstand (Std.-Abw.)", def: 2, min: 0.5, max: 4, float: true, step: 0.5 }
+      ]
+    },
+    dip_trend: {
+      explain: "Kombination aus Trend und Gegenbewegung (angelehnt an die „RSI(2)“-Strategie von Larry Connors): Nur wenn der Kurs über seinem langen Durchschnitt liegt (Aufwärtstrend), wird bei einem sehr niedrigen kurzfristigen RSI gekauft. <strong>Verkauf</strong>, sobald der Kurs über einen kurzen Durchschnitt (z. B. 5 Tage) steigt oder der Trend bricht. Stärke: kurze Haltedauer, kaufen in den Trend hinein. Schwäche: viele kleine Gewinne, einzelne große Verluste, wenn der Rücksetzer der Beginn einer Abwärtsphase ist.",
+      label: "RSI-Rücksetzer im Aufwärtstrend",
+      desc: "Kauft kurze, tiefe Rücksetzer – aber nur, solange der langfristige Trend noch intakt ist.",
+      params: [
+        { key: "trend", label: "Trend-SMA (Tage)", def: 200, min: 20, max: 400 },
+        { key: "n", label: "RSI-Periode", def: 2, min: 2, max: 14 },
+        { key: "lo", label: "Kaufen unter RSI", def: 10, min: 2, max: 40 },
+        { key: "exit", label: "Verkauf über SMA (Tage)", def: 5, min: 2, max: 30 }
+      ]
+    },
+    sma_band: {
+      explain: "Wie „Kurs über SMA“, nur mit einem Band um den Durchschnitt: <strong>Kauf</strong>, wenn der Kurs mindestens X % <em>über</em> dem SMA schließt, <strong>Verkauf</strong>, wenn er mindestens X % <em>darunter</em> schließt; dazwischen bleibt die Position unverändert. Das verringert Fehlsignale und Handelskosten. Stärke: ruhiger, weniger Trades. Schwäche: Ein- und Ausstieg kommen später, ein Teil der Bewegung geht verloren.",
+      label: "Kurs über SMA mit Band",
+      desc: "Wie „Kurs über SMA“, aber mit Puffer, damit kleine Ausschläge nicht sofort umschalten.",
+      params: [
+        { key: "n", label: "SMA (Tage)", def: 200, min: 5, max: 500 },
+        { key: "band", label: "Band (%)", def: 2, min: 0.5, max: 15, float: true, step: 0.5 }
+      ]
+    },
+    high52: {
+      explain: "Aktien nahe ihrem 52-Wochen-Hoch (252 Handelstage) laufen laut Studien tendenziell weiter. <strong>Long</strong>, solange der Schlusskurs höchstens X % unter dem höchsten Schlusskurs der letzten N Tage liegt, sonst Cash. Stärke: bleibt in starken Trends investiert und steigt bei größeren Rückgängen aus. Schwäche: Ausstieg erst nach einem merklichen Rückgang; in Seitwärtsphasen wechselt die Position oft.",
+      label: "Nähe zum Hoch",
+      desc: "Long, solange der Kurs nahe seinem Hoch der letzten N Tage liegt.",
+      params: [
+        { key: "look", label: "Rückblick (Tage)", def: 252, min: 20, max: 500 },
+        { key: "within", label: "Maximal unter Hoch (%)", def: 10, min: 1, max: 40, float: true }
+      ]
+    },
+    trailing: {
+      explain: "Start investiert. Der <strong>Stop</strong> zieht mit jedem neuen Hoch mit: Fällt der Kurs um X % vom höchsten Schlusskurs seit dem Einstieg, wird verkauft. <strong>Wiedereinstieg</strong>, sobald der Kurs über seinem SMA schließt. Begrenzt große Verluste. Stärke: Schutz vor Crashs, einfach zu verstehen. Schwäche: Ein enger Stop wird bei normalen Schwankungen „ausgestoppt“; nach dem Verkauf wird oft ein Teil der Erholung verpasst.",
+      label: "Trailing-Stop",
+      desc: "Investiert, bis der Kurs X % vom Hoch fällt; Wiedereinstieg über einem SMA.",
+      params: [
+        { key: "stop", label: "Stop (% unter Hoch)", def: 15, min: 2, max: 50, float: true },
+        { key: "n", label: "Wiedereinstieg: SMA (Tage)", def: 50, min: 5, max: 300 }
+      ]
+    },
+    season: {
+      explain: "Die „Halloween-Regel“: Aktien sollen von November bis April besser laufen als von Mai bis Oktober. <strong>Long</strong> ab dem Einstiegsmonat bis einschließlich Monat vor dem Ausstiegsmonat (Standard: Nov = 11 bis Mai = 5, also Nov–Apr), sonst Cash. Kein Kurssignal, nur Kalender. Stärke: wenig Trades, sehr einfach. Schwäche: Der Effekt ist in einzelnen Aktien und Jahren unzuverlässig und kann zufällig sein.",
+      label: "Saison (Halloween)",
+      desc: "Nur in bestimmten Monaten investiert – klassisch November bis April („Sell in May“).",
+      params: [
+        { key: "start", label: "Einstiegsmonat (1–12)", def: 11, min: 1, max: 12 },
+        { key: "end", label: "Ausstiegsmonat (1–12)", def: 5, min: 1, max: 12 }
+      ]
     }
   };
+
+
+  /** Exponentieller Durchschnitt; Eingabe darf führende null-Werte haben. Start mit dem SMA der ersten n gültigen Werte. */
+  function ema(vals, n) {
+    var out = new Array(vals.length), i, s = -1;
+    for (i = 0; i < vals.length; i++) out[i] = null;
+    for (i = 0; i < vals.length; i++) { if (vals[i] != null) { s = i; break; } }
+    if (s < 0 || vals.length - s < n) return out;
+    var sum = 0, k = 2 / (n + 1);
+    for (i = s; i < s + n; i++) sum += vals[i];
+    out[s + n - 1] = sum / n;
+    for (i = s + n; i < vals.length; i++) out[i] = vals[i] * k + out[i - 1] * (1 - k);
+    return out;
+  }
+
+  /** Rollender Durchschnitt und Standardabweichung (Stichprobe) über n Werte. */
+  function rollingMeanStd(vals, n) {
+    var mean_ = new Array(vals.length), sd = new Array(vals.length);
+    for (var i = 0; i < vals.length; i++) {
+      if (i < n - 1) { mean_[i] = null; sd[i] = null; continue; }
+      var m = 0, a, v = 0;
+      for (a = i - n + 1; a <= i; a++) m += vals[a];
+      m /= n;
+      for (a = i - n + 1; a <= i; a++) v += (vals[a] - m) * (vals[a] - m);
+      mean_[i] = m; sd[i] = Math.sqrt(v / (n - 1));
+    }
+    return { mean: mean_, sd: sd };
+  }
+
+  /** Prüft Parameter auf unsinnige Kombinationen; liefert eine Meldung oder null. */
+  function validateParams(type, p) {
+    if ((type === 'sma_cross' || type === 'ema_cross' || type === 'macd') && p.fast >= p.slow) return 'Der schnelle Durchschnitt muss kürzer sein als der langsame.';
+    if (type === 'breakout' && p.down >= p.up) return 'Das Ausstiegs-Fenster muss kürzer sein als das Einstiegs-Fenster.';
+    if (type === 'rsi_revert' && p.lo >= p.hi) return 'Die Kauf-Schwelle muss unter der Verkaufs-Schwelle liegen.';
+    if (type === 'season' && p.start === p.end) return 'Einstiegs- und Ausstiegsmonat dürfen nicht gleich sein.';
+    return null;
+  }
 
   function defaultParams(type) {
     var o = {};
@@ -260,7 +372,7 @@ window.App.Quant = (function () {
   }
 
   /** Liefert je Handelstag das Zielsignal (1 = investiert, 0 = Cash) nach Schlusskurs des Tages. */
-  function computeSignals(closes, type, p) {
+  function computeSignals(closes, type, p, dates) {
     var n = closes.length, sig = new Array(n), i;
     for (i = 0; i < n; i++) sig[i] = 0;
 
@@ -296,6 +408,58 @@ window.App.Quant = (function () {
       }
     } else if (type === 'momentum') {
       for (i = 0; i < n; i++) sig[i] = (i >= p.n && closes[i] / closes[i - p.n] - 1 > 0) ? 1 : 0;
+    } else if (type === 'ema_cross') {
+      var ef = ema(closes, p.fast), es = ema(closes, p.slow);
+      for (i = 0; i < n; i++) sig[i] = (ef[i] != null && es[i] != null && ef[i] > es[i]) ? 1 : 0;
+    } else if (type === 'macd') {
+      var mf = ema(closes, p.fast), ms = ema(closes, p.slow), line = new Array(n);
+      for (i = 0; i < n; i++) line[i] = (mf[i] != null && ms[i] != null) ? mf[i] - ms[i] : null;
+      var sg = ema(line, p.signal);
+      for (i = 0; i < n; i++) sig[i] = (line[i] != null && sg[i] != null && line[i] > sg[i]) ? 1 : 0;
+    } else if (type === 'bollinger') {
+      var bb = rollingMeanStd(closes, p.n), pb = 0;
+      for (i = 0; i < n; i++) {
+        if (bb.mean[i] == null) { sig[i] = 0; continue; }
+        if (pb === 0 && closes[i] < bb.mean[i] - p.k * bb.sd[i]) pb = 1;
+        else if (pb === 1 && closes[i] >= bb.mean[i]) pb = 0;
+        sig[i] = pb;
+      }
+    } else if (type === 'dip_trend') {
+      var tr = sma(closes, p.trend), rs = rsi(closes, p.n), ex = sma(closes, p.exit), pd = 0;
+      for (i = 0; i < n; i++) {
+        if (tr[i] == null || rs[i] == null) { sig[i] = 0; continue; }
+        if (pd === 0 && closes[i] > tr[i] && rs[i] < p.lo) pd = 1;
+        else if (pd === 1 && ((ex[i] != null && closes[i] > ex[i]) || closes[i] < tr[i])) pd = 0;
+        sig[i] = pd;
+      }
+    } else if (type === 'sma_band') {
+      var sb = sma(closes, p.n), pbd = 0;
+      for (i = 0; i < n; i++) {
+        if (sb[i] == null) { sig[i] = 0; continue; }
+        if (closes[i] > sb[i] * (1 + p.band / 100)) pbd = 1;
+        else if (closes[i] < sb[i] * (1 - p.band / 100)) pbd = 0;
+        sig[i] = pbd;
+      }
+    } else if (type === 'high52') {
+      for (i = p.look - 1; i < n; i++) {
+        var hi52 = -Infinity;
+        for (var w = i - p.look + 1; w <= i; w++) if (closes[w] > hi52) hi52 = closes[w];
+        sig[i] = closes[i] >= hi52 * (1 - p.within / 100) ? 1 : 0;
+      }
+    } else if (type === 'trailing') {
+      var st = sma(closes, p.n), pt = 1, peak = closes[0];
+      for (i = 0; i < n; i++) {
+        if (pt === 1) {
+          if (closes[i] > peak) peak = closes[i];
+          if (closes[i] < peak * (1 - p.stop / 100)) pt = 0;
+        } else if (st[i] != null && closes[i] > st[i]) { pt = 1; peak = closes[i]; }
+        sig[i] = pt;
+      }
+    } else if (type === 'season') {
+      for (i = 0; i < n; i++) {
+        var mo = dates ? Number(String(dates[i]).slice(5, 7)) : 0;
+        sig[i] = (p.start <= p.end ? (mo >= p.start && mo < p.end) : (mo >= p.start || mo < p.end)) ? 1 : 0;
+      }
     }
     return sig;
   }
@@ -328,7 +492,7 @@ window.App.Quant = (function () {
     var closes = hist.map(function (h) { return h.close; });
     var dates = hist.map(function (h) { return h.date; });
 
-    var sig = computeSignals(closes, type, p);
+    var sig = computeSignals(closes, type, p, dates);
     var pos = new Array(n), i;
     for (i = 0; i < n; i++) pos[i] = i >= 2 ? sig[i - 2] : 0;     // 1 Tag Verzögerung bis zum Fill
 
@@ -386,7 +550,15 @@ window.App.Quant = (function () {
     price_sma: { n: [20, 30, 50, 75, 100, 125, 150, 200, 250, 300] },
     rsi_revert: { n: [7, 14, 21], lo: [20, 25, 30, 35, 40], hi: [50, 55, 60, 65, 70, 75] },
     breakout: { up: [20, 30, 40, 55, 80, 100, 150, 200], down: [10, 15, 20, 30, 40, 50, 75, 100] },
-    momentum: { n: [20, 40, 60, 90, 126, 180, 250] }
+    momentum: { n: [20, 40, 60, 90, 126, 180, 250] },
+    ema_cross: { fast: [5, 8, 10, 12, 15, 20, 30, 50], slow: [20, 26, 40, 50, 80, 100, 150, 200] },
+    macd: { fast: [8, 10, 12, 16], slow: [20, 24, 26, 35], signal: [5, 7, 9, 12] },
+    bollinger: { n: [10, 15, 20, 30, 50], k: [1, 1.5, 2, 2.5, 3] },
+    dip_trend: { trend: [100, 150, 200], n: [2, 3, 5], lo: [5, 10, 15, 20], exit: [3, 5, 7, 10] },
+    sma_band: { n: [50, 100, 150, 200, 250], band: [0.5, 1, 2, 3, 5] },
+    high52: { look: [60, 120, 180, 252], within: [3, 5, 10, 15, 20] },
+    trailing: { stop: [5, 8, 10, 15, 20, 25, 30], n: [20, 50, 100, 150, 200] },
+    season: { start: [8, 9, 10, 11, 12], end: [3, 4, 5, 6] }
   };
 
   function gridCombos(type) {
@@ -400,11 +572,7 @@ window.App.Quant = (function () {
       });
       combos = next;
     });
-    return combos.filter(function (c) {
-      if (type === 'sma_cross') return c.fast < c.slow;
-      if (type === 'breakout') return c.down < c.up;
-      return true;
-    });
+    return combos.filter(function (c) { return validateParams(type, c) === null; });
   }
 
   /**
@@ -465,7 +633,7 @@ window.App.Quant = (function () {
     annualVol: annualVol, sharpe: sharpe, sortino: sortino,
     varHist: varHist, cvarHist: cvarHist, drawdown: drawdown,
     alignedReturns: alignedReturns, betaCorr: betaCorr, histogram: histogram,
-    sma: sma, rsi: rsi,
+    sma: sma, ema: ema, rsi: rsi, validateParams: validateParams,
     STRATEGIES: STRATEGIES, defaultParams: defaultParams, computeSignals: computeSignals, backtest: backtest,
     PARAM_GRIDS: PARAM_GRIDS, gridCombos: gridCombos, searchParams: searchParams,
     loadHistory: loadHistory, loadHistoryFor: loadHistoryFor
