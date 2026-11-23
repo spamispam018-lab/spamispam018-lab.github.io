@@ -58,11 +58,13 @@ window.App.StockStrategy = (function () {
   }
 
   function currentParams() {
-    var def = Q().defaultParams(state.type);
+    var defs = Q().STRATEGIES[state.type].params;
     var out = {};
-    Object.keys(def).forEach(function (k) {
-      var v = Number(state.params[state.type + '.' + k]);
-      out[k] = isFinite(v) && v > 0 ? Math.round(v) : def[k];
+    defs.forEach(function (d) {
+      var v = Number(state.params[state.type + '.' + d.key]);
+      if (!isFinite(v) || v <= 0) { out[d.key] = d.def; return; }
+      v = d.float ? Math.round(v * 100) / 100 : Math.round(v);
+      out[d.key] = Math.min(d.max, Math.max(d.min, v));       // in den erlaubten Bereich zwingen
     });
     return out;
   }
@@ -128,7 +130,7 @@ window.App.StockStrategy = (function () {
       var cur = currentParams();
       container.querySelector('#bt-params').innerHTML = def.params.map(function (p) {
         return '<div><label for="bt-p-' + p.key + '" style="font-size:0.72rem;color:var(--text-dim);">' + esc(p.label) + '</label>' +
-          '<input id="bt-p-' + p.key + '" data-pkey="' + p.key + '" class="search-input" type="number" min="' + p.min + '" max="' + p.max + '" step="1" inputmode="numeric" value="' + cur[p.key] + '" style="width:100%;margin-top:4px;padding-left:12px;"></div>';
+          '<input id="bt-p-' + p.key + '" data-pkey="' + p.key + '" class="search-input" type="number" min="' + p.min + '" max="' + p.max + '" step="' + (p.step || 1) + '" inputmode="decimal" value="' + cur[p.key] + '" style="width:100%;margin-top:4px;padding-left:12px;"></div>';
       }).join('');
       container.querySelectorAll('#bt-params input').forEach(function (inp) {
         inp.oninput = function () { state.params[state.type + '.' + inp.getAttribute('data-pkey')] = inp.value; };
@@ -252,8 +254,9 @@ window.App.StockStrategy = (function () {
     var def = q.STRATEGIES[state.type];
     var params = currentParams();
 
-    if (state.type === 'sma_cross' && params.fast >= params.slow) {
-      out.innerHTML = '<div class="state-box"><p>Der schnelle Durchschnitt muss kürzer sein als der langsame.</p></div>';
+    var problem = q.validateParams(state.type, params);
+    if (problem) {
+      out.innerHTML = '<div class="state-box"><p>' + esc(problem) + '</p></div>';
       return;
     }
     var per = PERIODS.filter(function (p) { return p.key === state.period; })[0];
@@ -269,7 +272,7 @@ window.App.StockStrategy = (function () {
       insights.push('Der größte Rückgang betrug ' + pct(s.maxDD, 1) + ' – bei Buy &amp; Hold waren es ' + pct(b.maxDD, 1) + (s.maxDD > b.maxDD ? ' (die Strategie war hier ruhiger).' : ' (die Strategie war hier nicht ruhiger).'));
       if (s.trades < 10) insights.push('Mit nur ' + s.trades + ' Trades ist das Ergebnis statistisch dünn und kein Beleg für die Regel.');
     }
-    var paramTxt = def.params.map(function (p) { return esc(p.label) + ' ' + params[p.key]; }).join(' · ');
+    var paramTxt = def.params.map(function (p) { return esc(p.label) + ' ' + String(params[p.key]).replace('.', ','); }).join(' · ');
 
     function row(label, sv, bv, sc, bc) {
       return '<tr><td>' + label + '</td>' +
