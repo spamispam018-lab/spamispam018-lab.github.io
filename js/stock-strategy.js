@@ -116,8 +116,10 @@ window.App.StockStrategy = (function () {
             '<input id="bt-fee" class="search-input" type="number" min="0" max="5" step="0.05" inputmode="decimal" value="' + state.fee + '" style="width:100%;margin-top:4px;padding-left:12px;"></div>' +
           '<button class="chip-btn active" id="bt-run" style="height:42px;justify-content:center;">Backtest starten</button>' +
           '<button class="chip-btn" id="bt-search-btn" style="height:42px;justify-content:center;">Parameter suchen, die Buy &amp; Hold schlagen</button>' +
+          '<button class="chip-btn" id="bt-best-btn" style="height:42px;justify-content:center;">Beste Strategie finden (mit Testzeitraum)</button>' +
         '</div>' +
       '</div>' +
+      '<div id="bt-best"></div>' +
       '<div id="bt-search"></div>' +
       '<div id="bt-single-results"></div>';
 
@@ -137,6 +139,7 @@ window.App.StockStrategy = (function () {
       });
     }
     drawParams();
+    container.__drawParams = drawParams;
 
     container.querySelector('#bt-type').onchange = function (e) {
       state.type = e.target.value;
@@ -154,6 +157,7 @@ window.App.StockStrategy = (function () {
     };
     container.querySelector('#bt-run').onclick = function () { run(container, ticker, full); };
     container.querySelector('#bt-search-btn').onclick = function () { search(container, ticker, full); };
+    container.querySelector('#bt-best-btn').onclick = function () { findBest(container, ticker, full); };
 
     run(container, ticker, full);   // direkt ein erstes Ergebnis zeigen
   }
@@ -238,6 +242,93 @@ window.App.StockStrategy = (function () {
               var inp = container.querySelector('#bt-p-' + k);
               if (inp) inp.value = r.params[k];
             });
+            run(container, ticker, full);
+            var target = container.querySelector('#bt-single-results');
+            if (target && target.scrollIntoView) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          };
+        });
+      }
+      draw();
+    }, 30);
+  }
+
+  /* ---------- Beste Strategie finden: Training / Testzeitraum ---------- */
+  function findBest(container, ticker, full) {
+    var q = Q(), f = F();
+    var box = container.querySelector('#bt-best');
+    box.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Teste alle Strategien…</p></div>';
+
+    setTimeout(function () {
+      var per = PERIODS.filter(function (p) { return p.key === state.period; })[0];
+      var hist = q.sliceYears(full, per.years);
+      var res = q.findBest(hist, state.fee / 100, 0.3);
+      if (res.error) { box.innerHTML = '<div class="state-box"><p>' + esc(res.error) + '</p></div>'; return; }
+
+      var sortKey = 'sharpe';
+      var bt = res.bhTest;
+      var beatRet = res.rows.filter(function (r) { return r.test.totalReturn > bt.totalReturn; }).length;
+      var beatSh = res.rows.filter(function (r) { return r.test.sharpe != null && bt.sharpe != null && r.test.sharpe > bt.sharpe; }).length;
+      var beatDD = res.rows.filter(function (r) { return r.test.maxDD > bt.maxDD; }).length;
+
+      function draw() {
+        var list = res.rows.slice().sort(function (a, b) {
+          if (sortKey === 'total') return b.test.totalReturn - a.test.totalReturn;
+          if (sortKey === 'dd') return b.test.maxDD - a.test.maxDD;
+          return (b.test.sharpe == null ? -99 : b.test.sharpe) - (a.test.sharpe == null ? -99 : a.test.sharpe);
+        });
+        var chip = function (k, label) { return '<button class="chip-btn ' + (sortKey === k ? 'active' : '') + '" data-bt-bsort="' + k + '">' + label + '</button>'; };
+        var top = list[0];
+        var topDef = q.STRATEGIES[top.type];
+        var metricName = sortKey === 'total' ? 'der Rendite' : (sortKey === 'dd' ? 'beim Drawdown' : 'beim Sharpe-Ratio');
+        var headline;
+        if (sortKey === 'total' ? top.test.totalReturn > bt.totalReturn : (sortKey === 'dd' ? top.test.maxDD > bt.maxDD : (top.test.sharpe != null && bt.sharpe != null && top.test.sharpe > bt.sharpe))) {
+          headline = 'Vorn liegt <strong>' + esc(topDef.label) + '</strong> (' + esc(paramLabel(topDef, top.params)) + ') – im Testzeitraum ' + metricName + ' besser als Buy &amp; Hold. ' +
+            'Das ist die beste von ' + res.rows.length + ' Strategien <em>im Nachhinein</em>; ob sie es künftig bleibt, ist offen. Prüfe auch die anderen Kennzahlen.';
+        } else {
+          headline = 'Im Testzeitraum schlägt <strong>keine</strong> Strategie Buy &amp; Hold ' + metricName + '. Die beste ist ' + esc(topDef.label) + ' (' + esc(paramLabel(topDef, top.params)) + '). Buy &amp; Hold bleibt hier die stärkste Wahl.';
+        }
+
+        var html = '' +
+          '<div class="card">' +
+            '<div class="card-header-dotted"><span class="card-title">Beste Strategie</span><span class="period-tag">' + esc(per.label) + '</span></div>' +
+            '<div style="padding:10px 12px;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:0.8rem;line-height:1.5;margin-bottom:12px;">' +
+              '<div style="margin-bottom:8px;">' + headline + '</div>' +
+              '<div style="color:var(--text-dim);">Die Parameter wurden nur auf den Daten bis ' + f.date(res.trainEnd) + ' gesucht. Bewertet wird <strong style="color:var(--text-main);">ausschließlich der Testzeitraum ' + f.date(res.testStart) + ' – ' + f.date(res.testEnd) + '</strong> (letzte 30 %), den die Suche nie gesehen hat. ' +
+              'Gegenüber Buy &amp; Hold (' + pct(bt.totalReturn, 1, true) + ', Max. DD ' + pct(bt.maxDD, 1) + ', Sharpe ' + num(bt.sharpe, 2) + ') waren im Test besser: Rendite ' + beatRet + ', Sharpe ' + beatSh + ', Drawdown ' + beatDD + ' von ' + res.rows.length + ' Strategien.</div>' +
+            '</div>' +
+            '<div class="horizontal-scroll-row" style="margin-bottom:10px;"><span style="font-size:0.72rem;color:var(--text-dim);align-self:center;white-space:nowrap;">Sortieren nach (Test):</span>' +
+              chip('sharpe', 'Sharpe') + chip('total', 'Rendite') + chip('dd', 'Kleinster Drawdown') + '</div>' +
+            '<div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:6px;">Zeile antippen, um Strategie und Parameter zu übernehmen</div>' +
+            '<div class="table-responsive-wrapper"><table class="data-table compact"><thead><tr><th>Strategie</th><th style="text-align:right;">Test-Rendite</th><th style="text-align:right;">Test-DD</th><th style="text-align:right;" title="Sharpe im Training → im Test">Sharpe</th></tr></thead><tbody>' +
+            '<tr style="opacity:0.8;"><td><strong>Buy &amp; Hold</strong><div style="font-size:0.68rem;color:var(--text-dim);">Vergleichsbasis</div></td>' +
+              '<td style="text-align:right;font-weight:700;color:' + tone(bt.totalReturn) + ';">' + pct(bt.totalReturn, 1, true) + '</td>' +
+              '<td style="text-align:right;white-space:nowrap;">' + pct(bt.maxDD, 1) + '</td><td style="text-align:right;">' + num(bt.sharpe, 2) + '</td></tr>' +
+            list.map(function (r, i) {
+              var d = q.STRATEGIES[r.type];
+              return '<tr data-bt-bpick="' + i + '" style="cursor:pointer;">' +
+                '<td><strong>' + esc(d.label) + '</strong><div style="font-size:0.68rem;color:var(--text-dim);">' + esc(paramLabel(d, r.params)) + ' · ' + r.trades + ' Trades</div></td>' +
+                '<td style="text-align:right;font-weight:700;color:' + tone(r.test.totalReturn) + ';">' + pct(r.test.totalReturn, 1, true) +
+                  '<div style="font-size:0.68rem;font-weight:400;color:' + tone(r.test.totalReturn - bt.totalReturn) + ';">' + pct(r.test.totalReturn - bt.totalReturn, 1, true) + '-Pkt.</div></td>' +
+                '<td style="text-align:right;white-space:nowrap;">' + pct(r.test.maxDD, 1) + '</td>' +
+                '<td style="text-align:right;">' + num(r.test.sharpe, 2) + '<div style="font-size:0.68rem;color:var(--text-dim);">Training ' + num(r.trainSharpe, 2) + '</div></td></tr>';
+            }).join('') + '</tbody></table></div>' +
+            '<div style="font-size:0.72rem;color:var(--text-dim);line-height:1.5;margin-top:12px;">' +
+              '<strong style="color:var(--text-main);">So liest du das:</strong> Ein großer Abstand zwischen „Training“ und Test-Sharpe ist das typische Zeichen von Überanpassung. ' +
+              'Der Testzeitraum ist nur ein Ausschnitt (hier ' + res.days + ' Handelstage) und wurde nun mit ' + res.rows.length + ' Strategien verglichen – auch die Wahl des Siegers ist wieder eine Auswahl aus vielen. ' +
+              'Länger gültig sind Ergebnisse bei langen Zeiträumen (10 Jahre oder Max.) und vielen Trades. Keine Anlageberatung.</div>' +
+          '</div>';
+        box.innerHTML = html;
+
+        box.querySelectorAll('[data-bt-bsort]').forEach(function (b) {
+          b.onclick = function () { sortKey = b.getAttribute('data-bt-bsort'); draw(); };
+        });
+        box.querySelectorAll('[data-bt-bpick]').forEach(function (tr) {
+          tr.onclick = function () {
+            var r = list[Number(tr.getAttribute('data-bt-bpick'))];
+            state.type = r.type;
+            Object.keys(r.params).forEach(function (k) { state.params[r.type + '.' + k] = r.params[k]; });
+            var sel = container.querySelector('#bt-type'); if (sel) sel.value = r.type;
+            if (typeof container.__drawParams === 'function') container.__drawParams();
             run(container, ticker, full);
             var target = container.querySelector('#bt-single-results');
             if (target && target.scrollIntoView) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
