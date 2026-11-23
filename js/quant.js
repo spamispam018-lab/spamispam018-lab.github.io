@@ -496,13 +496,13 @@ window.App.Quant = (function () {
     var pos = new Array(n), i;
     for (i = 0; i < n; i++) pos[i] = i >= 2 ? sig[i - 2] : 0;     // 1 Tag Verzögerung bis zum Fill
 
-    var eq = [100], rets = [0], bh = [100 * (1 - fee)];
+    var eq = [100], rets = [0], bh = [100, 100 * (1 - fee)];   // B&H steigt wie die Strategien frühestens am 2. Handelstag ein
     for (i = 1; i < n; i++) {
       if (pos[i] !== pos[i - 1]) eq[i - 1] *= (1 - fee);          // Kosten beim Fill
       var r = closes[i] / closes[i - 1] - 1;
       eq.push(eq[i - 1] * (1 + pos[i] * r));
       rets.push(eq[i] / eq[i - 1] - 1);
-      bh.push(bh[0] * closes[i] / closes[0]);
+      if (i >= 2) bh.push(bh[1] * closes[i] / closes[1]);
     }
 
     // Trades aus den Positionswechseln
