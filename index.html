@@ -112,11 +112,8 @@
   <script src="js/stock-institutional.js"></script>
   <script src="js/stock-options.js"></script>
   <script src="js/quant.js"></script>
-  <script src="js/providers.js"></script>
   <script src="js/stock-risk.js"></script>
   <script src="js/stock-strategy.js"></script>
-  <script src="js/stock-fundamentals.js"></script>
-  <script src="js/stock-congress.js"></script>
   <script src="js/compare.js"></script>
   <script src="js/backtest.js"></script>
   <script src="js/portfolio.js"></script>
@@ -277,8 +274,6 @@
                   '<button class="sub-tab-btn ' + (activeTab === 'options' ? 'active' : '') + '" data-tab="options">Optionen</button>' +
                   '<button class="sub-tab-btn ' + (activeTab === 'risk' ? 'active' : '') + '" data-tab="risk">Risiko</button>' +
                   '<button class="sub-tab-btn ' + (activeTab === 'strategy' ? 'active' : '') + '" data-tab="strategy">Backtest</button>' +
-                  '<button class="sub-tab-btn ' + (activeTab === 'fundamentals' ? 'active' : '') + '" data-tab="fundamentals">Fundamentals</button>' +
-                  '<button class="sub-tab-btn ' + (activeTab === 'congress' ? 'active' : '') + '" data-tab="congress">Kongress</button>' +
                 '</div>' +
                 '<div id="stock-active-subtab-area"></div>' +
               '</div>';
@@ -347,8 +342,6 @@
           case 'options': window.App.StockOptions.render(subArea, stock); break;
           case 'risk': window.App.StockRisk.render(subArea, stock); break;
           case 'strategy': window.App.StockStrategy.render(subArea, stock); break;
-          case 'fundamentals': window.App.StockFundamentals.render(subArea, stock); break;
-          case 'congress': window.App.StockCongress.render(subArea, stock); break;
           default: window.App.StockOverview.render(subArea, stock); break;
         }
       }
