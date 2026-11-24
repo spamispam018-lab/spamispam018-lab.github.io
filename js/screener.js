@@ -480,7 +480,16 @@ window.App.Screener = (function () {
     nodes.forEach(function (n) {
       var p = n.getAttribute('data-count-for');
       n.textContent = presetCounts[p] !== undefined ? '· ' + presetCounts[p] : '';
+      if (/^ema_/.test(p) && allStocks.length && !emaDataPresent()) { n.textContent = '· ⚠'; n.title = 'EMA-Daten fehlen noch: Daten-Pipeline einmal neu laufen lassen'; }
     });
+    var miss = allStocks.length && !emaDataPresent();
+    document.querySelectorAll('.ema-missing-note').forEach(function (w) { w.style.display = miss ? 'block' : 'none'; });
+  }
+
+  // EMA-Kennzahlen kommen aus der Pipeline (fetch_market_data.py); ältere Datenstände enthalten sie nicht
+  function emaDataPresent() {
+    for (var i = 0; i < allStocks.length; i++) if (allStocks[i].emaTrend !== undefined || allStocks[i].emaCross !== undefined) return true;
+    return false;
   }
 
   function applyFiltersAndRender() {
@@ -1323,6 +1332,7 @@ window.App.Screener = (function () {
         '<button class="chip-btn' + (isActive(p.id) ? ' active' : '') + '" data-sheet-preset="' + p.id + '">' +
           p.chip + '<span data-count-for="' + p.id + '" style="font-size: 0.68rem; opacity: 0.75;"></span></button>' +
         '<div style="font-size: 0.7rem; color: var(--text-dim); line-height: 1.4; margin-top: 5px;">' + esc(p.info()) + '</div>' +
+        (/^ema_/.test(p.id) ? '<div class="ema-missing-note" style="display:none;font-size:0.7rem;color:var(--bearish);line-height:1.4;margin-top:4px;">⚠ Im aktuellen Datenstand fehlen die EMA-Kennzahlen. Starte die Daten-Pipeline (GitHub-Workflow) einmal neu, dann zeigt der Filter Treffer.</div>' : '') +
       '</div>';
     });
 
@@ -1423,6 +1433,8 @@ window.App.Screener = (function () {
 
   return {
     initView: initView,
-    checkScreenerAlerts: checkScreenerAlerts
+    checkScreenerAlerts: checkScreenerAlerts,
+    // aktuell angezeigte (gefilterte, sortierte) Treffer; vom Strategie-Scanner genutzt
+    getFilteredStocks: function () { return filteredStocks.slice(); }
   };
 })();
