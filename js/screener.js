@@ -392,13 +392,11 @@ window.App.Screener = (function () {
     if (!container) return;
 
     unlockPageScroll();
-    var headerFilterBtn = document.getElementById('btn-header-filter');
-    if (headerFilterBtn) {
-      headerFilterBtn.style.display = 'inline-flex';
-      headerFilterBtn.onclick = openSheet;
-    }
-
     container.innerHTML = getTemplateHtml();
+    var filterOpenBtn = document.getElementById('screener-filter-open');
+    if (filterOpenBtn) filterOpenBtn.onclick = openSheet;
+    var moreBtn = document.getElementById('screener-more-btn');
+    if (moreBtn) moreBtn.onclick = openMoreActions;
     if (window.App.StrategyScanner) {
       window.App.StrategyScanner.mount(document.getElementById('screener-scanner-slot'), { startCollapsed: true });
     }
@@ -445,7 +443,7 @@ window.App.Screener = (function () {
 
     if (winnerEl && winner) {
       var sign = winner.changePercent >= 0 ? '+' : '';
-      winnerEl.innerHTML = esc(winner.ticker || '—') + '<br><span style="font-size:0.75rem;">(' + sign + fmtNum(winner.changePercent, 2) + ' %)</span>';
+      winnerEl.innerHTML = '<b>' + esc(winner.ticker || '—') + '</b> <span style="color: var(--bullish); font-weight: 600;">' + sign + fmtNum(winner.changePercent, 2) + ' %</span>';
     }
 
     var peValues = stocks.filter(function (s) { return s.pe && s.pe > 0 && s.pe < 150; });
@@ -911,11 +909,53 @@ window.App.Screener = (function () {
     if (st && lSt) lSt.textContent = stopLabel(Number(st.value));
   }
 
+  function activeSliderCount() {
+    var n = 0;
+    if (sliderFilters.maxPe !== null) n++;
+    if (sliderFilters.minYield > 0) n++;
+    if (sliderFilters.minPerf !== null) n++;
+    if (sliderFilters.minCrv !== null) n++;
+    if (sliderFilters.maxStop !== null) n++;
+    return n;
+  }
+
   function updateHeaderFilterIndicator() {
-    var btn = document.getElementById('btn-header-filter');
-    if (!btn) return;
-    btn.style.borderColor = slidersActive() ? 'var(--accent-purple)' : '';
-    btn.style.color = slidersActive() ? 'var(--accent-purple-light)' : '';
+    var btn = document.getElementById('screener-filter-open');
+    var badge = document.getElementById('screener-filter-badge');
+    var n = activeSliderCount();
+    if (btn) btn.classList.toggle('active', n > 0);
+    if (badge) {
+      badge.textContent = String(n);
+      badge.style.display = n > 0 ? 'inline-flex' : 'none';
+    }
+  }
+
+  /** ⋯-Menü der Ergebnisliste: seltener genutzte Aktionen gebündelt */
+  function openMoreActions() {
+    var UI = window.App.UI;
+    var items = [
+      { label: 'Als CSV exportieren', desc: filteredStocks.length + ' Treffer herunterladen', onClick: exportCsv },
+      { label: 'Filter speichern', desc: 'Aktuelle Auswahl als eigenen Filter-Chip ablegen', onClick: saveCurrentFilter },
+      { label: 'Als Alarm speichern', desc: 'Benachrichtigen, wenn neue Aktien den Filter erfüllen', onClick: createScreenerAlert },
+      { label: 'Treffer mit Strategie-Scanner prüfen', desc: 'Kauf-Signale für die aktuelle Liste suchen', onClick: openScanner },
+      { label: 'Fertige Strategien', desc: 'Value, Momentum, Dividende, Buy the Dip …', onClick: function () { window.App.Router.navigate('/strategies'); } }
+    ];
+    if (UI) UI.actionSheet('Aktionen für diese Liste', items);
+  }
+
+  function exportCsv() {
+    if (!filteredStocks.length) {
+      window.alert('Keine Ergebnisse zum Exportieren.');
+      return;
+    }
+    window.App.Export.downloadStocks('screener', filteredStocks);
+  }
+
+  function openScanner() {
+    var slot = document.getElementById('screener-scanner-slot');
+    if (!slot || !window.App.StrategyScanner) return;
+    window.App.StrategyScanner.mount(slot, { startCollapsed: false });
+    setTimeout(function () { slot.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 50);
   }
 
   function applySliders() {
@@ -1060,9 +1100,8 @@ window.App.Screener = (function () {
     var saved = loadSavedFilters();
     var sig = currentFilterSignature();
     
-    // NEU: Strategie-Button hier eingefügt (ganz am Anfang der Zeile)
-    var html = '<button class="chip-btn" id="screener-strategy-btn" style="background:var(--accent-purple-glow); border-color:var(--accent-purple); color:var(--text-main); font-weight:700; flex-shrink:0;">🎯 Strategie</button>';
-    html += '<button class="chip-btn" id="screener-save-btn" style="flex-shrink:0;">＋ Filter speichern</button>';
+    // Nur eigene, gespeicherte Filter. "Speichern" & "Strategie" liegen im ⋯-Menü.
+    var html = '';
     
     saved.forEach(function (f) {
       var on = savedSignature(f) === sig && (activePresets.length > 0 || slidersActive());
@@ -1072,18 +1111,7 @@ window.App.Screener = (function () {
       '</button>';
     });
     row.innerHTML = html;
-    row.style.display = '';
-
-    // Event für den neuen Strategie-Button binden
-    var stratBtn = document.getElementById('screener-strategy-btn');
-    if (stratBtn) {
-      stratBtn.onclick = function () {
-        window.App.Router.navigate('/strategies');
-      };
-    }
-
-    var saveBtn = document.getElementById('screener-save-btn');
-    if (saveBtn) saveBtn.onclick = saveCurrentFilter;
+    row.style.display = saved.length ? '' : 'none';
     row.querySelectorAll('[data-saved-id]').forEach(function (btn) {
       btn.onclick = function (e) {
         var id = btn.getAttribute('data-saved-id');
@@ -1148,16 +1176,7 @@ window.App.Screener = (function () {
 
   function bindSavedAndExport() {
     renderSavedRow();
-    var exp = document.getElementById('screener-export-btn');
-    if (exp) {
-      exp.onclick = function () {
-        if (!filteredStocks.length) {
-          window.alert('Keine Ergebnisse zum Exportieren.');
-          return;
-        }
-        window.App.Export.downloadStocks('screener', filteredStocks);
-      };
-    }
+    // CSV-Export: jetzt im ⋯-Menü (openMoreActions)
   }
 
   function loadScreenerAlerts() {
@@ -1343,44 +1362,42 @@ window.App.Screener = (function () {
 
     return '' +
       '<div class="view-container">' +
-        '<div class="hero-banner">' +
-          '<div class="hero-tag">Marktübersicht (Aktienuniversum)</div>' +
-          '<div class="hero-count" id="screener-hero-count">Lade Titel...</div>' +
-          '<div class="hero-stats-grid">' +
-            '<div><div class="hero-stat-label">Tagesgewinner</div><div class="hero-stat-value" id="screener-hero-winner" style="color: #6ee7b7;">—</div></div>' +
-            '<div><div class="hero-stat-label">Ø KGV</div><div class="hero-stat-value" id="screener-hero-pe">—</div></div>' +
-            '<div><div class="hero-stat-label">Ø Div.-Rendite</div><div class="hero-stat-value" id="screener-hero-yield">—</div></div>' +
-          '</div>' +
+        '<div class="scr-statline">' +
+          '<span><b id="screener-hero-count">Lade Titel...</b> · Ø KGV <span id="screener-hero-pe">—</span> · Ø Div. <span id="screener-hero-yield">—</span></span>' +
+          '<span>Top heute: <span id="screener-hero-winner">—</span></span>' +
         '</div>' +
         '<div id="screener-data-stamp" style="font-size: 0.7rem; color: var(--text-dim); margin: -4px 2px 10px;"></div>' +
 
-        '<div class="search-bar-wrapper">' +
-          '<svg class="search-icon-left" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
-            '<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>' +
-          '</svg>' +
-          '<input type="text" id="screener-search-input" class="search-input" placeholder="Name, Ticker oder Branche suchen..." autocomplete="off">' +
+        '<div class="scr-toolrow">' +
+          '<div class="search-bar-wrapper">' +
+            '<svg class="search-icon-left" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+              '<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>' +
+            '</svg>' +
+            '<input type="text" id="screener-search-input" class="search-input" placeholder="Name, Ticker oder Branche" autocomplete="off" aria-label="Aktien durchsuchen">' +
+          '</div>' +
+          '<button class="scr-filter-btn" id="screener-filter-open" aria-label="Feinfilter öffnen">' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>' +
+            'Filter<span class="scr-badge" id="screener-filter-badge" style="display:none;">0</span>' +
+          '</button>' +
         '</div>' +
 
         '<div class="horizontal-scroll-row">' + chips + '</div>' +
-        
-        // HIER WURDE DER BUTTON ENTFERNT
-        '<div class="horizontal-scroll-row" id="screener-saved-row"></div>' +
-        
+        '<div class="horizontal-scroll-row" id="screener-saved-row" style="display:none;"></div>' +
         '<div id="screener-active-summary"></div>' +
-        '<div id="screener-scanner-slot"></div>' +
 
         '<div class="sub-header-bar">' +
-          '<span><span id="screener-result-count">0 Ergebnisse</span>' +
-            '<button class="chip-btn" id="screener-export-btn" style="padding: 3px 9px; margin-left: 8px; font-size: 0.72rem;">⬇ CSV</button></span>' +
-          '<select id="screener-sort-select" class="sort-select">' + sortOptions + '</select>' +
+          '<span id="screener-result-count">0 Ergebnisse</span>' +
+          '<span style="display:flex;align-items:center;">' +
+            '<select id="screener-sort-select" class="sort-select" aria-label="Sortierung">' + sortOptions + '</select>' +
+            '<button class="scr-more-btn" id="screener-more-btn" aria-label="Weitere Aktionen: Export, Speichern, Alarm, Scanner">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>' +
+            '</button>' +
+          '</span>' +
         '</div>' +
 
         '<div id="screener-ai-banner-container"></div>' +
-
+        '<div id="screener-scanner-slot"></div>' +
         '<div id="screener-alerts-container"></div>' +
-        '<div style="display: flex; gap: 8px; margin-bottom: 12px;">' +
-          '<button class="chip-btn" id="screener-save-alert-btn" style="flex: 1; justify-content: center;">🔔 Filter als Alert speichern</button>' +
-        '</div>' +
 
         '<div id="screener-list-container">' +
           '<div class="state-box"><div class="spinner"></div><p>Lade Aktien...</p></div>' +
