@@ -18,8 +18,26 @@
   var headerSubtitle = document.getElementById('app-header-subtitle');
   var backBtn = document.getElementById('btn-header-back');
 
+  /** Rechtsform-Zusätze entfernen: "Apple Inc." -> "Apple", "Merck & Company, Inc." -> "Merck & Company" */
+  function shortName(name) {
+    if (!name) return '';
+    var orig = String(name).trim();
+    var n = orig.replace(/\s*\(the\)\s*$/i, '');
+    var re = /[,\s]+(inc\.?|incorporated|corp\.?|corporation|co\.?|company|ltd\.?|limited|plc|ag|se|sa|s\.a\.|n\.v\.|nv|a\/s|kgaa|gmbh|aktiengesellschaft|holdings?|group)$/i;
+    for (var i = 0; i < 3; i++) {
+      var next = n.replace(re, '').trim();
+      // "Merck & Company" nicht zu "Merck &" kürzen
+      if (!next || next === n || /(&|\band)$/i.test(next)) break;
+      n = next;
+    }
+    return n || orig;
+  }
+
   function setHeader(title, subtitle, showBack) {
-    if (headerTitle) headerTitle.textContent = title;
+    if (headerTitle) {
+      headerTitle.textContent = title;
+      headerTitle.title = (detail && detail.fullName && title === detail.title) ? detail.fullName : title;
+    }
     if (headerSubtitle) headerSubtitle.textContent = subtitle || '';
     if (backBtn) backBtn.style.display = showBack ? 'inline-flex' : 'none';
   }
@@ -161,7 +179,8 @@
         var chgCls = App.Format.changeClass(quote.changePercent);
         var sign = (quote.changePercent || 0) >= 0 ? '+' : '';
 
-        detail.title = profile.name || ticker;
+        detail.title = shortName(profile.name) || ticker;
+        detail.fullName = profile.name || ticker;
         detail.subtitle = ticker + (profile.sector ? ' · ' + profile.sector : '') + (profile.exchange ? ' · ' + profile.exchange : '');
         setHeader(detail.title, detail.subtitle, true);
 
