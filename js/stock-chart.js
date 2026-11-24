@@ -12,7 +12,7 @@ window.App.StockChart = (function () {
   var currentPeriod = '1Y';
   var candleWeeks = 52;
   var vwapWindow = 20; // 0 = Aus, sonst Anzahl Handelstage (z. B. 20, 50, 200)
-  var emaPair = '12-26'; // 'off' oder 'schnell-langsam' in Handelstagen
+  var emaPair = '12-26'; // 'schnell-langsam' in Handelstagen
 
   var COLORS = {
     price: '#818cf8',
@@ -284,8 +284,9 @@ window.App.StockChart = (function () {
 
     var s50 = sma(closes, 50), s200 = sma(closes, 200);
     var vwapArr = rollingVwap(hist, vwapWindow);
-    var emaPeriods = emaPair === 'off' ? null : emaPair.split('-').map(Number);
-    var emaF = emaPeriods ? ema(closes, emaPeriods[0]) : null, emaS = emaPeriods ? ema(closes, emaPeriods[1]) : null;
+    if (emaPair !== '12-26' && emaPair !== '20-50' && emaPair !== '50-200') emaPair = '12-26';
+    var emaPeriods = emaPair.split('-').map(Number);
+    var emaF = ema(closes, emaPeriods[0]), emaS = ema(closes, emaPeriods[1]);
     var rsiArr = rsi(closes, 14), m = macd(closes);
 
     var tail = n;
@@ -333,6 +334,17 @@ window.App.StockChart = (function () {
       var golden = s50Last > s200Last;
       var crossTxt = cross ? ' (letztes Kreuz: ' + (cross.type === 'golden' ? 'Golden Cross' : 'Death Cross') + ' am ' + deDate(cross.date) + ')' : '';
       signals.push({ label: 'SMA 50 vs. SMA 200', text: (golden ? 'SMA 50 über SMA 200' : 'SMA 50 unter SMA 200') + crossTxt, state: golden ? 'bull' : 'bear' });
+    }
+    var emaFLast = lastValid(emaF), emaSLast = lastValid(emaS);
+    if (emaFLast !== null) {
+      var dEmaF = (price / emaFLast - 1) * 100;
+      signals.push({ label: 'Kurs vs. EMA ' + emaPeriods[0], text: pct(dEmaF) + (dEmaF >= 0 ? ' darüber' : ' darunter'), state: dEmaF >= 0 ? 'bull' : 'bear' });
+    }
+    if (emaFLast !== null && emaSLast !== null) {
+      var emaUp = emaFLast > emaSLast;
+      var emaCross = findLastCross(emaF, emaS, dates);
+      var emaCrossTxt = emaCross ? ' (letztes Kreuz: ' + (emaCross.type === 'golden' ? 'Aufwärtskreuz' : 'Abwärtskreuz') + ' am ' + deDate(emaCross.date) + ')' : '';
+      signals.push({ label: 'EMA ' + emaPeriods[0] + ' vs. EMA ' + emaPeriods[1], text: (emaUp ? 'EMA ' + emaPeriods[0] + ' über EMA ' + emaPeriods[1] : 'EMA ' + emaPeriods[0] + ' unter EMA ' + emaPeriods[1]) + emaCrossTxt, state: emaUp ? 'bull' : 'bear' });
     }
     if (rsiLast !== null) {
       var rsiState = 'neutral', rsiTxt = fmt(rsiLast, 0);
@@ -426,15 +438,6 @@ window.App.StockChart = (function () {
             '<button class="pill-btn ' + (vwapWindow === 200 ? 'active' : '') + '" data-vwap="200">200T</button>' +
           '</div>' +
         '</div>' +
-        '<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; gap: 8px; flex-wrap: wrap;">' +
-          '<span style="font-size: 0.72rem; color: var(--text-dim); font-weight: 600;">EMA schnell / langsam</span>' +
-          '<div class="pill-group" id="ema-pills">' +
-            '<button class="pill-btn ' + (emaPair === 'off' ? 'active' : '') + '" data-ema="off">Aus</button>' +
-            '<button class="pill-btn ' + (emaPair === '12-26' ? 'active' : '') + '" data-ema="12-26">12/26</button>' +
-            '<button class="pill-btn ' + (emaPair === '20-50' ? 'active' : '') + '" data-ema="20-50">20/50</button>' +
-            '<button class="pill-btn ' + (emaPair === '50-200' ? 'active' : '') + '" data-ema="50-200">50/200</button>' +
-          '</div>' +
-        '</div>' +
         '<div style="height: 220px; width: 100%; position: relative; margin-top: 8px;">' +
           '<canvas id="chart-tab-price" style="width: 100%; height: 220px; display: block;"></canvas>' +
         '</div>' +
@@ -442,10 +445,30 @@ window.App.StockChart = (function () {
           legendItem(COLORS.price, 'Kurs') +
           legendItem(COLORS.sma50, 'SMA 50') +
           legendItem(COLORS.sma200, 'SMA 200') +
-          (emaPeriods ? legendItem(COLORS.emaFast, 'EMA ' + emaPeriods[0]) + legendItem(COLORS.emaSlow, 'EMA ' + emaPeriods[1]) : '') +
           (vwapWindow > 0 ? legendItem(COLORS.vwap, 'VWAP (' + vwapWindow + 'T)') : '') +
         '</div>' +
         (vwapWindow > 0 && !hasVolumeData ? '<div class="chart-note" style="color: var(--bearish);">Hinweis: Für diesen Titel liegen keine Volumendaten vor – VWAP kann nicht berechnet werden.</div>' : '') +
+      '</div>' +
+
+      '<div class="card">' +
+        '<div class="card-header-dotted"><span class="card-title">' + termLink('EMA-Trend') + '</span><span class="period-tag">' + pLabel + '</span></div>' +
+        '<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; gap: 8px; flex-wrap: wrap;">' +
+          '<span style="font-size: 0.72rem; color: var(--text-dim); font-weight: 600;">EMA schnell / langsam</span>' +
+          '<div class="pill-group" id="ema-pills">' +
+            '<button class="pill-btn ' + (emaPair === '12-26' ? 'active' : '') + '" data-ema="12-26">12/26</button>' +
+            '<button class="pill-btn ' + (emaPair === '20-50' ? 'active' : '') + '" data-ema="20-50">20/50</button>' +
+            '<button class="pill-btn ' + (emaPair === '50-200' ? 'active' : '') + '" data-ema="50-200">50/200</button>' +
+          '</div>' +
+        '</div>' +
+        '<div style="height: 220px; width: 100%; position: relative; margin-top: 8px;">' +
+          '<canvas id="chart-tab-ema" style="width: 100%; height: 220px; display: block;"></canvas>' +
+        '</div>' +
+        '<div class="legend-row">' +
+          legendItem(COLORS.price, 'Kurs') +
+          legendItem(COLORS.emaFast, 'EMA ' + emaPeriods[0]) +
+          legendItem(COLORS.emaSlow, 'EMA ' + emaPeriods[1]) +
+        '</div>' +
+        '<div class="chart-note">▲ EMA ' + emaPeriods[0] + ' kreuzt über EMA ' + emaPeriods[1] + ' (Aufwärtskreuz), ▼ darunter (Abwärtskreuz). Der EMA gewichtet aktuelle Kurse stärker als der SMA und reagiert schneller.</div>' +
       '</div>' +
 
       // KGV-Band-Chart (mit dynamischen IDs für den Wechsel auf KUV)
@@ -522,10 +545,6 @@ window.App.StockChart = (function () {
       { name: 'SMA 50', color: COLORS.sma50, values: s50.slice(-tail), width: 1.5 },
       { name: 'SMA 200', color: COLORS.sma200, values: s200.slice(-tail), width: 1.5 }
     ];
-    if (emaPeriods) {
-      priceSeries.push({ name: 'EMA ' + emaPeriods[0], color: COLORS.emaFast, values: emaF.slice(-tail), width: 1.3 });
-      priceSeries.push({ name: 'EMA ' + emaPeriods[1], color: COLORS.emaSlow, values: emaS.slice(-tail), width: 1.3 });
-    }
     if (vwapWindow > 0) {
       priceSeries.push({
         name: 'VWAP (' + vwapWindow + 'T)',
@@ -539,6 +558,24 @@ window.App.StockChart = (function () {
     Charts.renderMultiLineChart(document.getElementById('chart-tab-price'), {
       labels: labels,
       series: priceSeries,
+      formatY: function (v) { return window.App.Format.currency(v, cur, 0); }
+    });
+
+    var emaMarkers = [], prevSgn = 0;
+    for (var ei = 0; ei < n; ei++) {
+      if (emaF[ei] === null || emaS[ei] === null) continue;
+      var sgn = emaF[ei] > emaS[ei] ? 1 : -1;
+      if (prevSgn !== 0 && sgn !== prevSgn && ei >= n - tail) emaMarkers.push({ index: ei - (n - tail), type: sgn > 0 ? 'Buy' : 'Sell' });
+      prevSgn = sgn;
+    }
+    Charts.renderMultiLineChart(document.getElementById('chart-tab-ema'), {
+      labels: labels,
+      series: [
+        { name: 'Kurs', color: COLORS.price, values: slicedCloses, width: 1.6 },
+        { name: 'EMA ' + emaPeriods[0], color: COLORS.emaFast, values: emaF.slice(-tail), width: 1.5 },
+        { name: 'EMA ' + emaPeriods[1], color: COLORS.emaSlow, values: emaS.slice(-tail), width: 1.5 }
+      ],
+      markers: emaMarkers,
       formatY: function (v) { return window.App.Format.currency(v, cur, 0); }
     });
 
@@ -731,7 +768,7 @@ window.App.StockChart = (function () {
   function bindEmaPills(container, stock, hist) {
     container.querySelectorAll('#ema-pills .pill-btn').forEach(function (pill) {
       pill.onclick = function () {
-        emaPair = pill.getAttribute('data-ema') || 'off';
+        emaPair = pill.getAttribute('data-ema') || '12-26';
         buildView(container, stock, hist);
       };
     });
@@ -781,6 +818,7 @@ window.App.StockChart = (function () {
     Umsatzwachstum: { name: 'Umsatzwachstum', text: 'Prozentuale Veränderung des Umsatzes gegenüber dem Vorjahr.' },
     Verlust: { name: 'Verlust', text: 'Das Unternehmen hat mehr ausgegeben als eingenommen.' },
     Spanne: { name: '52-Wochen-Spanne', text: 'Spanne zwischen 52W-Tief und 52W-Hoch.' },
+    EMA: { name: 'EMA', text: 'Exponentieller gleitender Durchschnitt: gewichtet jüngere Kurse stärker als der SMA und reagiert schneller auf Trendwechsel. Kurs über dem EMA und schneller EMA über langsamem EMA gelten als bullisch, umgekehrt als bärisch.' },
     SMA: { name: 'SMA', text: 'Gleitender Durchschnitt der letzten 50 bzw. 200 Handelstage.' },
     VWAP: { name: 'Rolling VWAP', text: 'Volumengewichteter Durchschnittspreis über die gewählte Anzahl an Handelstagen. Zeigt den durchschnittlichen Einstandskurs gewichtet nach Handelsvolumen.' },
     Cross: { name: 'Golden/Death Cross', text: 'Golden Cross: SMA 50 kreuzt SMA 200 von unten. Death Cross: umgekehrt.' },
@@ -796,7 +834,7 @@ window.App.StockChart = (function () {
   var TERM_RULES = [
     [/^KGV/, 'KGV'], [/PEG/, 'PEG'], [/Gewinnmarge/, 'Gewinnmarge'], [/Verschuldung/, 'Verschuldung'],
     [/Umsatz/, 'Umsatzwachstum'], [/Verlust/, 'Verlust'], [/Jahrestief|Spanne/, 'Spanne'],
-    [/RSI/, 'RSI'], [/MACD/, 'MACD'], [/Kreuz|Golden|Death|SMA 50 vs/, 'Cross'], [/VWAP/, 'VWAP'], [/SMA|Tage-Linie/, 'SMA'],
+    [/EMA/, 'EMA'], [/RSI/, 'RSI'], [/MACD/, 'MACD'], [/Kreuz|Golden|Death|SMA 50 vs/, 'Cross'], [/VWAP/, 'VWAP'], [/SMA|Tage-Linie/, 'SMA'],
     [/Momentum/, 'Momentum'], [/Volatilität/, 'Volatilität'], [/Drawdown/, 'Drawdown'], [/Volumen/, 'Volumen'],
     [/Unterstützung|Widerstand/, 'Support']
   ];
