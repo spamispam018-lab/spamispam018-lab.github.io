@@ -17,6 +17,7 @@ window.App.StockLive = (function () {
   var state = { type: 'sma_cross', params: {}, interval: 5, range: '1d' };
   var data = null;   // { ticker, points:[{t,price}], currency, us, fetchedAt }
   var daily = null;  // [{date, close}] der aktuellen Aktie
+  var currentTicker = '', currentStock = null;
 
   function Q() { return window.App.Quant; }
   function F() { return window.App.Format; }
@@ -201,46 +202,113 @@ window.App.StockLive = (function () {
     root.querySelector('#lv-adopted').innerHTML = 'Aktiv: <strong>' + esc(def.label) + '</strong>' + (def2 ? ' (' + esc(def2) + ')' : '') + ' – Werte aus dem Backtest-Tab, hier änderbar.';
   }
 
-  // Alle Strategien auf einen Blick: Signal beim aktuellen Kurs (Standardwerte; die gewählte Strategie mit deinen Werten)
+  // Optimierte Werte je Strategie (Suche auf den älteren 70 % der Kurse, Prüfung auf den jüngeren 30 %), je Aktie zwischengespeichert
+  var optCache = {};
+  function getOptimized() {
+    var q = Q(), t = currentTicker + (q.preferDaily() ? ':d' : '');
+    if (!optCache[t]) {
+      optCache[t] = q.loadHistory(currentTicker, currentStock && currentStock.chartHistory).then(function (hist) {
+        return new Promise(function (resolve) {
+          setTimeout(function () {       // erst die Standard-Tabelle zeichnen lassen, dann rechnen
+            try {
+              var r = q.findBest(hist, 0.001, 0.3);
+              if (r.error) { resolve({ error: /^Zu wenig Daten/.test(r.error) ? 'Zu wenig Kurshistorie (mindestens etwa 4 Jahre nötig). Tipp: im Backtest-Tab „Tageskurse“ wählen, dann wird die lange Historie über den Proxy geladen.' : r.error }); return; }
+              var by = {};
+              r.rows.forEach(function (row) { by[row.type] = row; });
+              resolve({ by: by, bhTest: r.bhTest, testStart: r.testStart, testEnd: r.testEnd, days: r.days });
+            } catch (e) { resolve({ error: String(e && e.message || e) }); }
+          }, 60);
+        });
+      }).catch(function (e) { return { error: String(e && e.message || e) }; });
+    }
+    return optCache[t];
+  }
+
+  // Alle Strategien auf einen Blick: Signal beim aktuellen Kurs mit Standard- und mit optimierten Werten
   function renderOverview(root, c) {
     var box = root.querySelector('#lv-overview'), q = Q();
     if (!box) return;
     var nb = c.base.length;
     var closes = c.base.map(function (d) { return d.close; }).concat([c.lastLive]);
     var dates = c.base.map(function (d) { return d.date; }).concat([c.today]);
+    function sigOf(k, p) {
+      try { var sg = q.computeSignals(closes, k, p, dates); return { now: sg[nb], prev: sg[nb - 1] }; } catch (e) { return null; }
+    }
     var rows = [];
     Object.keys(q.STRATEGIES).forEach(function (k) {
       if (k === 'buyhold') return;
-      var def = q.STRATEGIES[k];
-      var p = k === state.type ? c.params : q.defaultParams(k);
-      var row = { key: k, label: def.label, params: def.params.map(function (d) { return p[d.key]; }).join(' / '), custom: k === state.type };
-      try {
-        var sg = q.computeSignals(closes, k, p, dates);
-        row.now = sg[nb]; row.prev = sg[nb - 1];
-      } catch (e) { row.now = null; }
-      if (row.now !== null && row.now !== undefined) rows.push(row);
+      var def = q.STRATEGIES[k], p = q.defaultParams(k), sg = sigOf(k, p);
+      if (!sg) return;
+      rows.push({ key: k, label: def.label, defs: def.params, dp: p, d: sg });
     });
-    var buys = rows.filter(function (r) { return r.now === 1; }).length;
-    rows.sort(function (a, b) { return (b.now - a.now) || a.label.localeCompare(b.label); });
-    var pct = rows.length ? Math.round(buys / rows.length * 100) : 0;
-    var col = buys / Math.max(1, rows.length) >= 0.6 ? BUY : (buys / Math.max(1, rows.length) <= 0.3 ? SELL : '#f59e0b');
-    box.innerHTML = '<div class="card-header-dotted"><span class="card-title">Strategien im Überblick</span><span class="period-tag">' + buys + ' von ' + rows.length + '</span></div>' +
-      '<div style="margin:8px 0 10px;"><div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px;"><strong>' + buys + ' von ' + rows.length + ' Strategien mit Kaufsignal</strong><span style="color:var(--text-dim);">' + pct + ' %</span></div>' +
-      '<div style="height:8px;border-radius:4px;background:var(--bg-tertiary);overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:' + col + ';"></div></div></div>' +
-      '<table class="data-table compact"><thead><tr><th>Strategie</th><th>Werte</th><th style="text-align:right;">Signal</th></tr></thead><tbody>' +
-      rows.map(function (r) {
-        var changed = r.prev !== r.now ? ' <span style="font-size:0.66rem;color:var(--text-dim);">neu</span>' : '';
-        return '<tr data-lv-pick="' + r.key + '" style="cursor:pointer;"><td' + (r.custom ? ' style="font-weight:800;"' : '') + '>' + esc(r.label) + '</td><td style="white-space:nowrap;color:var(--text-dim);">' + esc(r.params || '–') + (r.custom ? '*' : '') + '</td>' +
-          '<td style="text-align:right;white-space:nowrap;font-weight:700;color:' + (r.now === 1 ? BUY : SELL) + ';">' + (r.now === 1 ? '▲ Kauf' : '▼ Cash') + changed + '</td></tr>';
-      }).join('') + '</tbody></table>' +
-      '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.45;margin-top:8px;">Signal beim aktuellen Kurs, Standardwerte der Strategien; * = die oben gewählte Strategie mit deinen Werten. „neu“ = seit gestern gewechselt. Zeile antippen, um die Strategie oben anzuzeigen. Buy &amp; Hold ist nicht mitgezählt. Viele Kaufsignale ersetzen keine Prüfung im Backtest: Strategien liegen oft gleichzeitig richtig oder falsch.</div>';
-    box.querySelectorAll('[data-lv-pick]').forEach(function (tr) {
-      tr.onclick = function () {
-        state.type = tr.getAttribute('data-lv-pick');
-        root.querySelector('#lv-type').value = state.type;
-        drawParams(root); update(root);
-        var top = root.querySelector('#lv-card'); if (top && top.scrollIntoView) top.scrollIntoView({ block: 'start' });
-      };
+    var seq = (box.__seq = (box.__seq || 0) + 1);
+
+    function paint(opt) {
+      var haveOpt = opt && opt.by;
+      rows.forEach(function (r) {
+        r.o = null;
+        if (haveOpt && opt.by[r.key]) {
+          var orow = opt.by[r.key], sg = sigOf(r.key, orow.params);
+          if (sg) r.o = { now: sg.now, prev: sg.prev, params: orow.params, ok: !!orow.beatsTest, test: orow.test.totalReturn };
+        }
+      });
+      var nd = rows.length, buysD = rows.filter(function (r) { return r.d.now === 1; }).length;
+      var proven = rows.filter(function (r) { return r.o && r.o.ok; });
+      var buysP = proven.filter(function (r) { return r.o.now === 1; }).length;
+      rows.sort(function (a, b) {
+        var pa = a.o && a.o.ok && a.o.now === 1 ? 1 : 0, pb = b.o && b.o.ok && b.o.now === 1 ? 1 : 0;
+        return (pb - pa) || (b.d.now - a.d.now) || a.label.localeCompare(b.label);
+      });
+      var pct = nd ? Math.round(buysD / nd * 100) : 0;
+      var col = function (x, y) { return y && x / y >= 0.6 ? BUY : (y && x / y <= 0.3 ? SELL : '#f59e0b'); };
+      var sigTxt = function (v) { return '<span style="color:' + (v === 1 ? BUY : SELL) + ';font-weight:700;white-space:nowrap;">' + (v === 1 ? '▲ Kauf' : '▼ Cash') + '</span>'; };
+      var pv = function (defs, p) { return defs.map(function (d) { return String(p[d.key]).replace('.', ','); }).join('/'); };
+
+      var provenBlock;
+      if (!opt) provenBlock = '<div style="font-size:0.78rem;color:var(--text-dim);display:flex;align-items:center;gap:8px;"><div class="spinner" style="width:14px;height:14px;border-width:2px;"></div>Suche optimierte Werte und prüfe sie im Testzeitraum…</div>';
+      else if (opt.error) provenBlock = '<div style="font-size:0.76rem;color:var(--text-dim);line-height:1.45;">Optimierte Werte nicht verfügbar: ' + esc(opt.error) + '</div>';
+      else provenBlock = '<div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px;"><strong>' + buysP + ' von ' + proven.length + ' bewährten Strategien mit Kaufsignal</strong><span style="color:var(--text-dim);">' + (proven.length ? Math.round(buysP / proven.length * 100) : 0) + ' %</span></div>' +
+        '<div style="height:8px;border-radius:4px;background:var(--bg-tertiary);overflow:hidden;"><div style="height:100%;width:' + (proven.length ? Math.round(buysP / proven.length * 100) : 0) + '%;background:' + col(buysP, proven.length) + ';"></div></div>' +
+        '<div style="font-size:0.7rem;color:var(--text-dim);margin-top:3px;">„Bewährt“ = mit den optimierten Werten im Testzeitraum (' + F().date(opt.testStart) + ' – ' + F().date(opt.testEnd) + ') besser als Buy &amp; Hold (' + F().percent(opt.bhTest.totalReturn, true, 1) + ').</div>';
+
+      box.innerHTML = '<div class="card-header-dotted"><span class="card-title">Strategien im Überblick</span><span class="period-tag">' + (haveOpt ? buysP + ' / ' + proven.length + ' bewährt' : buysD + ' von ' + nd) + '</span></div>' +
+        '<div style="margin:8px 0 12px;">' + provenBlock + '</div>' +
+        '<div style="margin:0 0 10px;"><div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px;"><strong>' + buysD + ' von ' + nd + ' mit Kaufsignal (Standardwerte)</strong><span style="color:var(--text-dim);">' + pct + ' %</span></div>' +
+        '<div style="height:8px;border-radius:4px;background:var(--bg-tertiary);overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:' + col(buysD, nd) + ';"></div></div></div>' +
+        '<table class="data-table compact"><thead><tr><th>Strategie</th><th>Standard</th><th style="text-align:right;">Optimiert</th></tr></thead><tbody>' +
+        rows.map(function (r) {
+          var chg = function (x) { return x.prev !== x.now ? ' · neu' : ''; };
+          var dcell = '<td data-lv-pick="' + r.key + '" data-lv-mode="def" style="cursor:pointer;white-space:nowrap;">' + sigTxt(r.d.now) + '<div style="font-size:0.66rem;color:var(--text-dim);">' + esc(pv(r.defs, r.dp) || '–') + chg(r.d) + '</div></td>';
+          var ocell;
+          if (!opt) ocell = '<td style="text-align:right;color:var(--text-dim);">…</td>';
+          else if (!r.o) ocell = '<td style="text-align:right;color:var(--text-dim);">–</td>';
+          else ocell = '<td data-lv-pick="' + r.key + '" data-lv-mode="opt" style="cursor:pointer;text-align:right;white-space:nowrap;' + (r.o.ok ? '' : 'opacity:0.5;') + '">' + sigTxt(r.o.now) + ' <span title="' + (r.o.ok ? 'im Testzeitraum besser als Buy & Hold' : 'im Testzeitraum nicht besser als Buy & Hold') + '" style="font-weight:700;color:' + (r.o.ok ? BUY : 'var(--text-dim)') + ';">' + (r.o.ok ? '✓' : '✗') + '</span>' +
+            '<div style="font-size:0.66rem;color:var(--text-dim);">' + esc(pv(r.defs, r.o.params) || '–') + chg(r.o) + '</div></td>';
+          return '<tr><td style="font-weight:600;">' + esc(r.label) + '</td>' + dcell + ocell + '</tr>';
+        }).join('') + '</tbody></table>' +
+        '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.45;margin-top:8px;">Signal beim aktuellen Kurs. <strong>Standard</strong> = feste Voreinstellung. <strong>Optimiert</strong> = beste Werte auf den älteren ~70 % der Kurse; ✓ heißt, dass sie auf den jüngeren ~30 % (die bei der Suche unbekannt waren) Buy &amp; Hold geschlagen haben, ✗ (ausgegraut, nicht mitgezählt), dass sie das nicht geschafft haben. „neu“ = seit gestern gewechselt. ' +
+        'Auch ✓ ist kein Versprechen: Ein einzelner Testzeitraum kann Zufall sein. Wert antippen, um die Strategie mit diesen Werten oben anzuzeigen. Buy &amp; Hold ist nicht mitgezählt.</div>';
+
+      box.querySelectorAll('[data-lv-pick]').forEach(function (td) {
+        td.onclick = function () {
+          var k = td.getAttribute('data-lv-pick'), mode = td.getAttribute('data-lv-mode');
+          var row = rows.filter(function (r) { return r.key === k; })[0];
+          var p = mode === 'opt' && row && row.o ? row.o.params : q.defaultParams(k);
+          state.type = k;
+          Object.keys(p).forEach(function (key) { state.params[k + '.' + key] = p[key]; });
+          root.querySelector('#lv-type').value = k;
+          drawParams(root); update(root);
+          var top = root.querySelector('#lv-card'); if (top && top.scrollIntoView) top.scrollIntoView({ block: 'start' });
+        };
+      });
+    }
+
+    var cached = optCache[currentTicker + (q.preferDaily() ? ':d' : '')];
+    if (cached && cached.__done) { paint(cached.__done); return; }
+    paint(null);
+    getOptimized().then(function (opt) {
+      var pr = optCache[currentTicker + (q.preferDaily() ? ':d' : '')]; if (pr) pr.__done = opt;
+      if (box.__seq === seq && root.contains(box)) paint(opt);
     });
   }
 
@@ -324,6 +392,7 @@ window.App.StockLive = (function () {
   function render(container, stock) {
     var ticker = (stock.ticker || (stock.profile && stock.profile.ticker) || '').toUpperCase();
     if (!PM() || !Q()) { container.innerHTML = '<div class="state-box"><p>Live-Modul nicht verfügbar.</p></div>'; return; }
+    currentTicker = ticker; currentStock = stock;
     daily = (stock.chartHistory || []).filter(function (p) { return p && p.close > 0 && p.date; }).map(function (p) { return { date: String(p.date).slice(0, 10), close: p.close }; });
     data = null;
     adoptBacktest();
