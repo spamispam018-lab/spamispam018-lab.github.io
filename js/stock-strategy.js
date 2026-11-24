@@ -117,6 +117,7 @@ window.App.StockStrategy = (function () {
           '<div><label for="bt-fee" style="font-size:0.72rem;color:var(--text-dim);">Kosten je Kauf/Verkauf (%)</label>' +
             '<input id="bt-fee" class="search-input" type="number" min="0" max="5" step="0.05" inputmode="decimal" value="' + state.fee + '" style="width:100%;margin-top:4px;padding-left:12px;"></div>' +
           '<button class="chip-btn active" id="bt-run" style="height:42px;justify-content:center;">Backtest starten</button>' +
+          '<button class="chip-btn" id="bt-live-btn" style="height:42px;justify-content:center;">⚡ Mit diesen Werten Live-Signal ansehen</button>' +
           '<button class="chip-btn" id="bt-search-btn" style="height:42px;justify-content:center;">Parameter suchen, die Buy &amp; Hold schlagen</button>' +
           '<button class="chip-btn" id="bt-best-btn" style="height:42px;justify-content:center;">Beste Strategie finden (mit Testzeitraum)</button>' +
         '</div>' +
@@ -159,6 +160,7 @@ window.App.StockStrategy = (function () {
       state.fee = isFinite(v) && v >= 0 ? v : 0.1;
     };
     container.querySelector('#bt-run').onclick = function () { run(container, ticker, full); };
+    container.querySelector('#bt-live-btn').onclick = function () { window.App.Router.navigate('/stock/' + ticker + '/live'); };
     container.querySelector('#bt-search-btn').onclick = function () { search(container, ticker, full); };
     container.querySelector('#bt-best-btn').onclick = function () { findBest(container, ticker, full); };
 
@@ -575,5 +577,7 @@ window.App.StockStrategy = (function () {
     state.period = ok ? period : 'MAX';
   }
 
-  return { render: render, prefill: prefill };
+  function getConfig() { return { type: state.type, params: currentParams() }; }
+
+  return { render: render, prefill: prefill, getConfig: getConfig };
 })();
