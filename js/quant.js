@@ -823,7 +823,46 @@ window.App.Quant = (function () {
    * Lädt die längste verfügbare Historie: long/<TICKER>.json oder – falls kürzer – die chartHistory aus der Aktie.
    * @returns {Promise<Array>} bereinigte Historie [{date, close}]
    */
-  function loadHistory(ticker, fallbackHistory) {
+  /* ---------- Tageskurse statt Wochenkurse (optional, über den Yahoo-Proxy) ---------- */
+  var PREF_KEY = 'prefer_daily_history_v1';
+  var DAILY_PROXY = 'https://yahoo-proxy.spamispam018.workers.dev';
+  var dailyLongCache = {};
+  var DAILY_MAX_YEARS = 20;
+
+  function preferDaily() {
+    try { return localStorage.getItem(PREF_KEY) === '1'; } catch (e) { return false; }
+  }
+  function setPreferDaily(on) {
+    try { localStorage.setItem(PREF_KEY, on ? '1' : '0'); } catch (e) { /* ohne Speicher: nur für diese Sitzung */ }
+    prefMemory = !!on;
+  }
+  var prefMemory = null;
+  function wantsDaily() { return prefMemory !== null ? prefMemory : preferDaily(); }
+
+  /** Tägliche Schlusskurse (bis zu 20 Jahre) vom Proxy. Datum = Börsendatum. */
+  function fetchDailyLong(ticker) {
+    var key = String(ticker).toUpperCase();
+    if (dailyLongCache[key]) return dailyLongCache[key];
+    var url = DAILY_PROXY + '/?ticker=' + encodeURIComponent(key) + '&interval=1d&range=max&t=' + Date.now();
+    dailyLongCache[key] = fetch(url).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function (d) {
+      var res = d.chart.result[0], ts = res.timestamp || [], cl = res.indicators.quote[0].close || [];
+      var off = (res.meta && res.meta.gmtoffset) || 0, out = [];
+      for (var i = 0; i < ts.length; i++) {
+        if (cl[i] != null && cl[i] > 0) out.push({ date: new Date((ts[i] + off) * 1000).toISOString().slice(0, 10), close: cl[i] });
+      }
+      if (out.length < 250) throw new Error('zu wenige Tageskurse');
+      var cutoff = new Date(); cutoff.setUTCFullYear(cutoff.getUTCFullYear() - DAILY_MAX_YEARS);
+      var cs = cutoff.toISOString().slice(0, 10);
+      return out.filter(function (p) { return p.date >= cs; });
+    });
+    dailyLongCache[key].catch(function () { delete dailyLongCache[key]; });   // Fehler nicht zwischenspeichern
+    return dailyLongCache[key];
+  }
+
+  function loadHistoryWeekly(ticker, fallbackHistory) {
     var fallback = cleanHistory(fallbackHistory);
     var D = window.App.Data;
     if (!D || !D.getLongHistory) return Promise.resolve(fallback);
@@ -835,6 +874,18 @@ window.App.Quant = (function () {
       }
       return fallback;
     }).catch(function () { return fallback; });
+  }
+
+  function loadHistory(ticker, fallbackHistory) {
+    if (!wantsDaily()) return loadHistoryWeekly(ticker, fallbackHistory);
+    var fallback = cleanHistory(fallbackHistory);
+    return fetchDailyLong(ticker).then(function (d) {
+      var c = cleanHistory(d);
+      if (c.length >= 250 && spanYears(c) + 0.05 >= spanYears(fallback)) return c;
+      throw new Error('Tageskurse unvollständig');
+    }).catch(function () {
+      return loadHistoryWeekly(ticker, fallbackHistory).then(function (h) { h.dailyFailed = true; return h; });
+    });
   }
 
   /** Lädt die Historie eines beliebigen Tickers (z. B. Benchmark-ETF). */
@@ -856,6 +907,6 @@ window.App.Quant = (function () {
     sma: sma, ema: ema, rsi: rsi, validateParams: validateParams,
     STRATEGIES: STRATEGIES, defaultParams: defaultParams, computeSignals: computeSignals, backtest: backtest,
     PARAM_GRIDS: PARAM_GRIDS, gridCombos: gridCombos, searchParams: searchParams, findBest: findBest, findBestRecent: findBestRecent, indicatorSeries: indicatorSeries,
-    loadHistory: loadHistory, loadHistoryFor: loadHistoryFor
+    loadHistory: loadHistory, loadHistoryFor: loadHistoryFor, preferDaily: wantsDaily, setPreferDaily: setPreferDaily
   };
 })();
