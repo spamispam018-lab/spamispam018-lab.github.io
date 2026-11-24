@@ -114,6 +114,7 @@
   <script src="js/quant.js"></script>
   <script src="js/stock-risk.js"></script>
   <script src="js/stock-strategy.js"></script>
+  <script src="js/stock-live.js"></script>
   <script src="js/strategy-scanner.js"></script>
   <script src="js/compare.js"></script>
   <script src="js/backtest.js"></script>
@@ -275,6 +276,7 @@
                   '<button class="sub-tab-btn ' + (activeTab === 'options' ? 'active' : '') + '" data-tab="options">Optionen</button>' +
                   '<button class="sub-tab-btn ' + (activeTab === 'risk' ? 'active' : '') + '" data-tab="risk">Risiko</button>' +
                   '<button class="sub-tab-btn ' + (activeTab === 'strategy' ? 'active' : '') + '" data-tab="strategy">Backtest</button>' +
+                  '<button class="sub-tab-btn ' + (activeTab === 'live' ? 'active' : '') + '" data-tab="live">Live</button>' +
                 '</div>' +
                 '<div id="stock-active-subtab-area"></div>' +
               '</div>';
@@ -343,6 +345,7 @@
           case 'options': window.App.StockOptions.render(subArea, stock); break;
           case 'risk': window.App.StockRisk.render(subArea, stock); break;
           case 'strategy': window.App.StockStrategy.render(subArea, stock); break;
+          case 'live': window.App.StockLive.render(subArea, stock); break;
           default: window.App.StockOverview.render(subArea, stock); break;
         }
       }
