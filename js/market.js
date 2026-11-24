@@ -401,7 +401,7 @@ window.App.Market = (function () {
     return html;
   }
 
-  function draw(container) {
+  function draw(container, toTop) {
     var p = periodInfo();
     var key = p.key;
     
@@ -573,6 +573,7 @@ window.App.Market = (function () {
       html += '<p style="font-size:.72rem;color:var(--text-dim);padding:0 4px;">Für diesen Zeitraum liegen noch keine Daten vor – sie erscheinen nach dem nächsten Daten-Update.</p>';
     }
 
+    var keepY = toTop ? 0 : (window.pageYOffset || document.documentElement.scrollTop || 0);
     container.innerHTML = '<div class="view-container">' + html + '</div>';
 
     var holder = container.querySelector('#mk-map');
@@ -583,26 +584,29 @@ window.App.Market = (function () {
       holder.innerHTML = treemapHtml(pendingMap.items, W, H, pendingMap.attr);
     }
     bind(container);
+    // Scrollposition behalten (neu zeichnen ließ die Seite sonst nach oben springen); Drill-down setzt danach selbst nach oben
+    if (toTop) window.scrollTo(0, 0);
+    else if (keepY > 0) { window.scrollTo(0, keepY); requestAnimationFrame(function () { window.scrollTo(0, keepY); }); }
   }
 
   function bind(container) {
     bindLive(container);
     if (window.App.Macro) window.App.Macro.bind();
     container.querySelectorAll('[data-mk-period]').forEach(function (b) {
-      b.onclick = function () { state.period = b.getAttribute('data-mk-period'); draw(container); window.scrollTo(0, 0); };
+      b.onclick = function () { state.period = b.getAttribute('data-mk-period'); draw(container); };
     });
     container.querySelectorAll('[data-mk-sector]').forEach(function (b) {
       b.onclick = function () { 
         state.sector = b.getAttribute('data-mk-sector'); 
         state.industry = null; 
-        draw(container); window.scrollTo(0, 0); 
+        draw(container, true); 
       };
     });
     
     container.querySelectorAll('[data-mk-industry]').forEach(function (b) {
       b.onclick = function () { 
         state.industry = b.getAttribute('data-mk-industry'); 
-        draw(container); window.scrollTo(0, 0); 
+        draw(container, true); 
       };
     });
 
@@ -615,10 +619,10 @@ window.App.Market = (function () {
     });
 
     var backInd = container.querySelector('#mk-back-industry');
-    if (backInd) backInd.onclick = function () { state.industry = null; draw(container); window.scrollTo(0, 0); };
+    if (backInd) backInd.onclick = function () { state.industry = null; draw(container, true); };
 
     var back = container.querySelector('#mk-back');
-    if (back) back.onclick = function () { state.sector = null; state.industry = null; draw(container); window.scrollTo(0, 0); };
+    if (back) back.onclick = function () { state.sector = null; state.industry = null; draw(container, true); };
     
     var large = container.querySelector('#mk-large');
     if (large) large.onclick = function () { state.largeOnly = !state.largeOnly; draw(container); };
