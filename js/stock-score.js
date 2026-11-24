@@ -19,6 +19,9 @@ window.App.Score = (function () {
     useReddit: true,          // Reddit-Kategorie berücksichtigen
     useFlags: true,           // Warnsignale als Abzug berücksichtigen
     redditWeight: 0.08,       // Anteil der Reddit-Kategorie, wenn Daten vorliegen
+    useQuality: true,         // Kategorie "Qualität" (ROE, ROA, PEG, Verschuldung/EBITDA)
+    qualityWeight: 0.10,      // Anteil der Qualität, wenn mindestens 2 Kennzahlen vorliegen
+    qualityMinMetrics: 2,
     redditMinMentions: 10,    // darunter ist die Stichprobe zu klein
     redditMinComments: 10,    // WSB-Kommentare für die Stimmung
     trendPct: 50, trendMinMentions: 20,
@@ -60,7 +63,8 @@ window.App.Score = (function () {
       else if (val >= maxGreat) score = 5.0;
       else score = 2.5 + ((val - minGood) / (maxGreat - minGood)) * 2.5;
     } else {
-      if (val >= minGood) score = Math.max(0, 5.0 - ((val - minGood) / (maxGreat - minGood)) * 2.5);
+      // Fix: Werte schlechter als minGood fallen von 2,5 auf 0 (vorher stieg die Note für hohes KGV/hohe Verschuldung auf 5)
+      if (val >= minGood) score = Math.max(0, 2.5 - ((val - minGood) / (minGood - maxGreat)) * 2.5);
       else if (val <= maxGreat) score = 5.0;
       else score = 2.5 + ((minGood - val) / (minGood - maxGreat)) * 2.5;
     }
@@ -130,6 +134,39 @@ window.App.Score = (function () {
     return { category: 'Fundamentaldaten', score: score, metrics: metrics, reason: reason };
   }
 
+  // NEU: Qualität (Kapitalrenditen, PEG, Verschuldung/EBITDA). Entfällt ganz, wenn weniger als 2 Kennzahlen vorliegen.
+  function evalQuality(stock) {
+    var r = stock.ratios || {};
+    var roe = num(r.returnOnEquity), roa = num(r.returnOnAssets), peg = num(r.pegRatio), nde = num(r.debtToEbitda);
+    var parts = [], metrics = [], pros = [], cons = [];
+    if (roe !== null) {
+      parts.push([scoreMetric(roe, 0.05, 0.20, 1), 0.30]);
+      metrics.push({ name: 'Eigenkapitalrendite (ROE)', value: (roe * 100).toFixed(1) + ' %' });
+      if (roe >= 0.20) pros.push('hohe Eigenkapitalrendite'); if (roe < 0.05) cons.push('schwache Eigenkapitalrendite');
+    }
+    if (roa !== null) {
+      parts.push([scoreMetric(roa, 0.02, 0.08, 1), 0.20]);
+      metrics.push({ name: 'Gesamtkapitalrendite (ROA)', value: (roa * 100).toFixed(1) + ' %' });
+      if (roa >= 0.08) pros.push('hohe Gesamtkapitalrendite'); if (roa < 0.02) cons.push('schwache Gesamtkapitalrendite');
+    }
+    if (peg !== null && peg > 0) {
+      parts.push([scoreMetric(peg, 2.0, 1.0, -1), 0.25]);
+      metrics.push({ name: 'PEG-Ratio', value: peg.toFixed(2) });
+      if (peg <= 1) pros.push('Wachstum günstig bewertet (PEG ≤ 1)'); if (peg > 2.5) cons.push('Wachstum teuer bezahlt (PEG > 2,5)');
+    }
+    if (nde !== null) {
+      parts.push([nde <= 0 ? 5.0 : scoreMetric(nde, 4, 1.5, -1), 0.25]);
+      metrics.push({ name: 'Nettoschulden / EBITDA', value: nde <= 0 ? 'Nettoliquidität' : nde.toFixed(1) + 'x' });
+      if (nde <= 1.5) pros.push('geringe Nettoverschuldung'); if (nde > 4) cons.push('hohe Nettoverschuldung');
+    }
+    if (parts.length < CONFIG.qualityMinMetrics) return null;
+    var score = Math.round(weightedAvg(parts) * 10) / 10;
+    var reason = score >= 4 ? 'Hohe Kapitalqualität. ' + (pros.length ? pros.join(', ') + '.' : '')
+      : score <= 2 ? 'Schwache Kapitalqualität. ' + (cons.length ? cons.join(', ') + '.' : '')
+      : 'Durchschnittliche Qualität. ' + (pros.length ? 'Stärken: ' + pros.join(', ') + '. ' : '') + (cons.length ? 'Schwächen: ' + cons.join(', ') + '.' : '');
+    return { category: 'Qualität', score: score, metrics: metrics, reason: reason };
+  }
+
   // Trend-Kennzahlen: aus der Kurshistorie (Detail) oder aus Universe-Feldern (Screener)
   function smaOf(c, n) {
     if (!c || c.length < n) return null;
@@ -159,6 +196,49 @@ window.App.Score = (function () {
     return out;
   }
   function fmtPct(v) { return (v > 0 ? '+' : '') + v.toFixed(1) + ' %'; }
+
+  // EMA mit SMA-Start (wie in der Pipeline)
+  function emaLast(c, n) {
+    if (!c || c.length < n) return null;
+    var k = 2 / (n + 1), e = 0, i;
+    for (i = 0; i < n; i++) e += c[i];
+    e /= n;
+    for (i = n; i < c.length; i++) e = c[i] * k + e * (1 - k);
+    return e;
+  }
+  // EMA-Trend/-Kreuz: aus der Kurshistorie (Detail) oder aus den Pipeline-Feldern (Screener); fehlt beides: null
+  function emaInfo(stock) {
+    var out = { trend: null, state: null, cross: null, crossDays: null };
+    var hist = stock.chartHistory;
+    var c = Array.isArray(hist) ? hist.map(function (h) { return h && num(h.close); }).filter(function (v) { return v !== null && v > 0; }) : [];
+    if (c.length >= 200) {
+      var e50 = emaLast(c, 50), e200 = emaLast(c, 200), px = c[c.length - 1];
+      out.state = px > e50 && e50 > e200 ? 'up' : px < e50 && e50 < e200 ? 'down' : 'mixed';
+      out.trend = out.state === 'up';
+      // Kreuz EMA 12/26 (letzte 60 Handelstage)
+      var k12 = 2 / 13, k26 = 2 / 27, a = 0, b = 0, i;
+      for (i = 0; i < 12; i++) a += c[i]; a /= 12;
+      for (i = 0; i < 26; i++) b += c[i]; b /= 26;
+      var ea = [], eb = [];
+      for (i = 0; i < c.length; i++) {
+        if (i >= 12) a = c[i] * k12 + a * (1 - k12);
+        if (i >= 26) b = c[i] * k26 + b * (1 - k26);
+        ea.push(i >= 11 ? a : null); eb.push(i >= 25 ? b : null);
+      }
+      var prev = 0, lastIdx = null, kind = null;
+      for (i = 26; i < c.length; i++) {
+        var sg = ea[i] > eb[i] ? 1 : -1;
+        if (prev !== 0 && sg !== prev) { lastIdx = i; kind = sg > 0 ? 'up' : 'down'; }
+        prev = sg;
+      }
+      if (lastIdx !== null && c.length - 1 - lastIdx <= 60) { out.cross = kind; out.crossDays = c.length - 1 - lastIdx; }
+    } else if (stock.emaTrend !== undefined && stock.emaTrend !== null) {
+      out.trend = stock.emaTrend === true;
+      out.state = out.trend ? 'up' : 'mixed';
+      if (stock.emaCross && num(stock.emaCrossDaysAgo) !== null) { out.cross = stock.emaCross; out.crossDays = Number(stock.emaCrossDaysAgo); }
+    } else return null;
+    return out;
+  }
 
   function evalTechnicals(stock) {
     var rsi = num(stock.rsi);
@@ -202,6 +282,19 @@ window.App.Score = (function () {
       metrics.push({ name: 'Trend (SMA 50/200)', value: tr.below200 && tr.below50 ? 'unter beiden' : tr.below200 ? 'unter SMA200' : tr.below50 ? 'unter SMA50' : 'über beiden' });
       if (tr.below200 && tr.below50) cons.push('Kurs unter SMA50 und SMA200');
       if (!tr.below200 && !tr.below50) pros.push('Kurs über SMA50 und SMA200');
+    }
+    // NEU: EMA-Trend (Kurs > EMA50 > EMA200) und frisches EMA-Kreuz 12/26; geringe Gewichte, weil mit dem SMA-Trend verwandt
+    var em = emaInfo(stock);
+    if (em) {
+      parts.push([em.state === 'up' ? 4.5 : em.state === 'down' ? 1.0 : 2.8, 0.2]);
+      metrics.push({ name: 'EMA-Trend (50/200)', value: em.state === 'up' ? 'Kurs > EMA50 > EMA200' : em.state === 'down' ? 'Kurs < EMA50 < EMA200' : 'gemischt' });
+      if (em.state === 'up') pros.push('EMA-Trend intakt');
+      if (em.state === 'down') cons.push('EMA-Abwärtstrend');
+      if (em.cross && em.crossDays !== null && em.crossDays <= 20) {
+        parts.push([em.cross === 'up' ? 4.2 : 1.8, 0.15]);
+        metrics.push({ name: 'EMA-Kreuz 12/26', value: (em.cross === 'up' ? 'Aufwärts' : 'Abwärts') + ' vor ' + (em.crossDays === 0 ? '0 Tagen (heute)' : em.crossDays + ' Tg.') });
+        (em.cross === 'up' ? pros : cons).push('frisches EMA-' + (em.cross === 'up' ? 'Aufwärts' : 'Abwärts') + 'kreuz');
+      }
     }
     if (tr.p3m !== null) {
       var sMo = tr.p3m <= -25 ? 1.0 : tr.p3m <= -10 ? 2.0 : tr.p3m >= 25 ? 4.5 : tr.p3m >= 10 ? 4.0 : 3.0;
@@ -274,6 +367,22 @@ window.App.Score = (function () {
       else parts.push([2.5, 0.5]);
     }
     
+    var nb = num(summary.buysCount2Q), ns = num(summary.sellsCount2Q);
+    if (nb !== null && ns !== null && (nb + ns) > 0) metrics.push({ name: 'Insider-Trades (2 Quartale)', value: nb + ' Käufe / ' + ns + ' Verkäufe' });
+
+    // NEU: Gewinn-Überraschungen der letzten Quartale (Ist gegenüber Schätzung)
+    var eh = (stock.analysts && Array.isArray(stock.analysts.epsEstimates)) ? stock.analysts.epsEstimates : [];
+    var sur = eh.map(function (e) { return e && num(e.surprisePercent); }).filter(function (v) { return v !== null; });
+    if (sur.length >= 2) {
+      var beats = sur.filter(function (v) { return v > 0; }).length, avgS = sur.reduce(function (x, y) { return x + y; }, 0) / sur.length;
+      parts.push([avgS >= 5 && beats >= sur.length - 1 ? 4.5 : avgS > 0 && beats > sur.length / 2 ? 3.6 : avgS <= -5 ? 1.5 : avgS < 0 ? 2.0 : 2.8, 0.4]);
+      metrics.push({ name: 'Gewinn-Überraschungen', value: beats + ' von ' + sur.length + ' Quartalen über Schätzung (Ø ' + (avgS > 0 ? '+' : '') + avgS.toFixed(1) + ' %)' });
+      if (avgS >= 5 && beats >= sur.length - 1) pros.push('schlägt regelmäßig die Gewinnschätzungen');
+      if (avgS <= -5) cons.push('verfehlt Gewinnschätzungen');
+    }
+    var inst = stock.institutional && stock.institutional.summary ? num(stock.institutional.summary.institutionalPercent) : null;
+    if (inst !== null) metrics.push({ name: 'Institutioneller Anteil', value: (inst * 100).toFixed(0) + ' % (nur Info)' });
+
     var newsScore = 0;
     var newsCount = 0;
     if (window.App.News && window.App.News.cache && window.App.News.cache.index) {
@@ -401,13 +510,15 @@ window.App.Score = (function () {
     var catAnalyst = evalAnalysts(stock);
     var catSmart = evalSmartMoney(stock);
     var catReddit = CONFIG.useReddit ? evalReddit(stock) : null;
+    var catQuality = CONFIG.useQuality ? evalQuality(stock) : null;
 
-    // Gewichte: ohne Reddit-Daten exakt 40/25/20/15 wie bisher
-    var base = [0.40, 0.25, 0.20, 0.15], rw = catReddit ? CONFIG.redditWeight : 0;
-    var w = base.map(function (x) { return x * (1 - rw); });
+    // Gewichte: Basis 40/25/20/15; Reddit und Qualität nehmen ihren Anteil nur, wenn Daten vorliegen (Rest wird anteilig gekürzt)
+    var base = [0.40, 0.25, 0.20, 0.15], rw = catReddit ? CONFIG.redditWeight : 0, qw = catQuality ? CONFIG.qualityWeight : 0;
+    var w = base.map(function (x) { return x * (1 - rw - qw); });
     var cats = [catFund, catTech, catAnalyst, catSmart];
     var totalPoints = 0;
     cats.forEach(function (c, i) { totalPoints += c.score * w[i]; c.weight = Math.round(w[i] * 100) + '%'; });
+    if (catQuality) { totalPoints += catQuality.score * qw; catQuality.weight = Math.round(qw * 100) + '%'; cats.push(catQuality); }
     if (catReddit) { totalPoints += catReddit.score * rw; catReddit.weight = Math.round(rw * 100) + '%'; cats.push(catReddit); }
 
     var f = CONFIG.useFlags ? evalFlags(stock) : { flags: [], info: [], penalty: 0 };
@@ -437,7 +548,9 @@ window.App.Score = (function () {
     var pseudo = {
       ticker: u.ticker, sector: u.sector, name: u.name,
       ratios: { peTrailing: u.pe, peForward: u.forwardPe, profitMargins: u.profitMargins, revenueGrowth: u.revGrowth,
-                debtToEquity: u.debtToEquity, dividendYield: u.dividendYield },
+                debtToEquity: u.debtToEquity, dividendYield: u.dividendYield,
+                returnOnEquity: u.returnOnEquity, returnOnAssets: u.roa, pegRatio: u.peg, debtToEbitda: u.debtToEbitda },
+      emaTrend: u.emaTrend, emaCross: u.emaCross, emaCrossDaysAgo: u.emaCrossDaysAgo,
       rsi: u.rsi, cross: u.cross, rangePos: u.rangePos, perf1m: u.perf1m, perf3m: u.perf3m, high52: u.high52, bottom: u.bottom, rrCrv: u.rrCrv,
       nextEarningsDate: u.nextEarningsDate,
       quote: { price: price },
