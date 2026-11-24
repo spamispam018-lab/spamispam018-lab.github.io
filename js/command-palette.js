@@ -14,14 +14,20 @@ window.App.CommandPalette = (function () {
   var items = [];
 
   function getActions() {
+    var nav = function (path) { return function () { window.App.Router.navigate(path); }; };
     return [
-      { id: 'nav:screener', label: 'Screener', desc: 'Aktien filtern und durchsuchen', icon: '🔍', action: function () { window.App.Router.navigate('/screener'); } },
-      { id: 'nav:market', label: 'Markt', desc: 'Sektoren-Heatmap', icon: '📊', action: function () { window.App.Router.navigate('/market'); } },
-      { id: 'nav:watchlist', label: 'Watchlist', desc: 'Favoriten & Gruppen', icon: '⭐', action: function () { window.App.Router.navigate('/watchlist'); } },
-      { id: 'nav:compare', label: 'Vergleich', desc: 'Aktien vergleichen', icon: '⚖️', action: function () { window.App.Router.navigate('/compare'); } },
-      { id: 'nav:portfolio', label: 'Portfolio', desc: 'Bestände & Performance', icon: '💼', action: function () { window.App.Router.navigate('/portfolio'); } },
-      { id: 'nav:dividends', label: 'Dividenden', desc: 'Kalender & Yield on Cost', icon: '💰', action: function () { window.App.Router.navigate('/dividends'); } },
-      { id: 'nav:journal', label: 'Journal', desc: 'Thesen & Notizen', icon: '📝', action: function () { window.App.Router.navigate('/journal'); } },
+      { id: 'nav:screener', label: 'Filter', desc: 'Entdecken › Aktien filtern und durchsuchen', icon: '🔍', action: nav('/screener') },
+      { id: 'nav:strategies', label: 'Strategien', desc: 'Entdecken › Value, Momentum, Dividende …', icon: '🎯', action: nav('/strategies') },
+      { id: 'nav:backtest', label: 'Backtest', desc: 'Entdecken › Filter-Performance simulieren', icon: '🧪', action: nav('/backtest') },
+      { id: 'nav:compare', label: 'Vergleich', desc: 'Entdecken › Aktien vergleichen', icon: '⚖️', action: nav('/compare') },
+      { id: 'nav:market', label: 'Markt-Übersicht', desc: 'Markt › Sektoren-Heatmap & Trends', icon: '📊', action: nav('/market') },
+      { id: 'nav:macro', label: 'Makro', desc: 'Markt › Zinsen, Inflation, Konjunktur', icon: '🌍', action: nav('/macro') },
+      { id: 'nav:watchlist', label: 'Watchlist', desc: 'Favoriten & Gruppen', icon: '⭐', action: nav('/watchlist') },
+      { id: 'nav:alerts', label: 'Alarme', desc: 'Watchlist › Preisalarme', icon: '🔔', action: nav('/watchlist/alerts') },
+      { id: 'nav:earnings', label: 'Termine', desc: 'Watchlist › Quartalszahlen', icon: '📅', action: nav('/watchlist/earnings') },
+      { id: 'nav:portfolio', label: 'Depot', desc: 'Bestände & Performance', icon: '💼', action: nav('/portfolio') },
+      { id: 'nav:dividends', label: 'Dividenden', desc: 'Depot › Kalender & Yield on Cost', icon: '💰', action: nav('/dividends') },
+      { id: 'nav:journal', label: 'Journal', desc: 'Depot › Thesen & Notizen', icon: '📝', action: nav('/journal') },
       { id: 'theme:toggle', label: 'Theme wechseln', desc: 'Dark/Light umschalten', icon: '🌓', action: function () { window.App.Theme.toggle(); } }
     ];
   }
@@ -79,6 +85,14 @@ window.App.CommandPalette = (function () {
     var q = (input.value || '').trim().toLowerCase();
     var out = [];
 
+    // Ohne Eingabe: zuletzt angesehene Aktien zuerst
+    if (!q && window.App.UI) {
+      window.App.UI.getRecent().slice(0, 5).forEach(function (t) {
+        var u = universe.filter(function (x) { return x.ticker === t; })[0];
+        out.push({ type: 'stock', recent: true, data: u || { ticker: t, name: t, sector: 'Zuletzt angesehen' } });
+      });
+    }
+
     getActions().forEach(function (a) {
       if (!q || a.label.toLowerCase().indexOf(q) !== -1 || a.desc.toLowerCase().indexOf(q) !== -1) {
         out.push({ type: 'action', data: a });
@@ -102,12 +116,14 @@ window.App.CommandPalette = (function () {
     if (selectedIdx >= items.length) selectedIdx = 0;
 
     if (!items.length) {
-      resultsEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-dim);font-size:0.85rem;">Keine Treffer</div>';
+      resultsEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-dim);font-size:0.85rem;">Keine Treffer – Enter öffnet <b>' + esc(q.toUpperCase()) + '</b> als Ticker</div>';
       return;
     }
 
     var html = '';
     items.forEach(function (item, i) {
+      if (item.recent && i === 0) html += '<div style="padding:10px 16px 4px;font-size:0.68rem;font-weight:700;letter-spacing:0.06em;color:var(--text-dim);">ZULETZT ANGESEHEN</div>';
+      if (!item.recent && i > 0 && items[i - 1].recent) html += '<div style="padding:10px 16px 4px;font-size:0.68rem;font-weight:700;letter-spacing:0.06em;color:var(--text-dim);">BEREICHE</div>';
       var sel = i === selectedIdx ? 'background:var(--accent-purple-glow);' : '';
       if (item.type === 'action') {
         html += '<div class="cmdk-item" data-idx="' + i + '" style="display:flex;align-items:center;gap:12px;padding:10px 16px;cursor:pointer;' + sel + '">' +
@@ -139,7 +155,11 @@ window.App.CommandPalette = (function () {
 
   function execute(idx) {
     var item = items[idx];
-    if (!item) return;
+    if (!item) {
+      var q = (input && input.value || '').trim().toUpperCase();
+      if (q && /^[A-Z0-9.\-^=]{1,12}$/.test(q)) { close(); window.App.Router.navigate('/stock/' + q + '/overview'); }
+      return;
+    }
     close();
     if (item.type === 'action') item.data.action();
     else if (item.type === 'stock') window.App.Router.navigate('/stock/' + item.data.ticker + '/overview');
