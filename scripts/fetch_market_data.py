@@ -450,15 +450,34 @@ def process_options(ticker_obj, info):
         return None
 
 
+def ema_series(vals, period):
+    """EMA mit SMA-Startwert (identisch zur Berechnung im Chart-Tab der App)."""
+    out = []
+    k = 2.0 / (period + 1)
+    prev = None
+    for i, v in enumerate(vals):
+        if prev is None:
+            if i + 1 < period:
+                out.append(None)
+                continue
+            prev = sum(vals[i + 1 - period:i + 1]) / period
+        else:
+            prev = v * k + prev * (1 - k)
+        out.append(prev)
+    return out
+
+
 def compute_chart_patterns(chart_history, symbol=""):
     if not chart_history or len(chart_history) < 60:
         return {"chartPatterns": [], "hasBullishPattern": False, "hasBearishPattern": False,
-                "bollingerSqueeze": False, "cross": None, "crossDaysAgo": None}
+                "bollingerSqueeze": False, "cross": None, "crossDaysAgo": None,
+                "emaCross": None, "emaCrossDaysAgo": None, "emaTrend": False}
     closes = [p["close"] for p in chart_history if p.get("close")]
     n = len(closes)
     if n < 60:
         return {"chartPatterns": [], "hasBullishPattern": False, "hasBearishPattern": False,
-                "bollingerSqueeze": False, "cross": None, "crossDaysAgo": None}
+                "bollingerSqueeze": False, "cross": None, "crossDaysAgo": None,
+                "emaCross": None, "emaCrossDaysAgo": None, "emaTrend": False}
 
     def sma_series(vals, period):
         out = []
@@ -488,6 +507,28 @@ def compute_chart_patterns(chart_history, symbol=""):
         cross_days_ago = n - 1 - last_cross_idx
         if cross_days_ago > 60:
             cross = None
+
+    # EMA-Signale: Kreuz EMA 12/26 (nur wenn höchstens 60 Handelstage her) und Trend Kurs > EMA 50 > EMA 200
+    e12, e26 = ema_series(closes, 12), ema_series(closes, 26)
+    e50, e200 = ema_series(closes, 50), ema_series(closes, 200)
+    ema_cross = None
+    ema_cross_days_ago = None
+    prev_sign = 0
+    last_idx = None
+    for i in range(n):
+        if e12[i] is None or e26[i] is None:
+            continue
+        sign = 1 if e12[i] > e26[i] else -1
+        if prev_sign != 0 and sign != prev_sign:
+            last_idx = i
+            ema_cross = "up" if sign > 0 else "down"
+        prev_sign = sign
+    if last_idx is not None:
+        ema_cross_days_ago = n - 1 - last_idx
+        if ema_cross_days_ago > 60:
+            ema_cross = None
+            ema_cross_days_ago = None
+    ema_trend = bool(e50[-1] is not None and e200[-1] is not None and closes[-1] > e50[-1] > e200[-1])
 
     patterns = []
     has_bull = False
@@ -531,7 +572,10 @@ def compute_chart_patterns(chart_history, symbol=""):
         "hasBearishPattern": has_bear,
         "bollingerSqueeze": squeeze,
         "cross": cross,
-        "crossDaysAgo": cross_days_ago
+        "crossDaysAgo": cross_days_ago,
+        "emaCross": ema_cross,
+        "emaCrossDaysAgo": ema_cross_days_ago,
+        "emaTrend": ema_trend
     }
 
 
