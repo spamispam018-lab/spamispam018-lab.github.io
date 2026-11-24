@@ -1292,3 +1292,13 @@ input, button, select, textarea {
 .bottom-nav .nav-item { min-height: 44px; }
 button.segbar-btn { background: transparent; border: 0; font-family: inherit; cursor: pointer; }
 button.segbar-btn.active { background: var(--bg-tertiary); }
+
+/* Header: lange Namen einzeilig mit "…" statt Umbruch */
+.header-title-group { min-width: 0; overflow: hidden; }
+.header-title,
+.header-subtitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
