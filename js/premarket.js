@@ -685,5 +685,9 @@ window.App.PreMarket = (function () {
 
   function stopAutoRefresh() { /* Kein Timer mehr vorhanden */ }
 
-  return { render: render, stopAutoRefresh: stopAutoRefresh };
+  return {
+    render: render, stopAutoRefresh: stopAutoRefresh,
+    // von der Live-Signale-Karte mitgenutzt
+    fetchChart: fetchChart, extractSeries: extractSeries, classifySession: classifySession, etDate: etDate, isUsTicker: isUsTicker
+  };
 })();
