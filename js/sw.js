@@ -3,7 +3,7 @@
  * Cacht App-Shell; Netzwerk-Anfragen laufen mit Cache-Fallback.
  */
 'use strict';
-var CACHE_NAME = 'aktien-app-v28';
+var CACHE_NAME = 'aktien-app-v29';
 var APP_SHELL = [
   './',
   './index.html',
@@ -16,6 +16,7 @@ var APP_SHELL = [
   './js/transactions.js',
   './js/charts.js',
   './js/stock-score.js',
+  './js/ui.js',
   './js/router.js',
   './js/export.js',
   './js/command-palette.js',
@@ -39,7 +40,7 @@ var APP_SHELL = [
   './js/stock-risk.js',
   './js/stock-strategy.js',
   './js/strategy-scanner.js',
-    './js/stock-live.js',
+  './js/stock-live.js',
   './js/compare.js',
   './js/backtest.js',
   './js/portfolio.js',
@@ -47,6 +48,10 @@ var APP_SHELL = [
   './js/journal.js',
   './js/alerts.js',
   './js/earnings.js',
+  './js/strategies.js',
+  './js/macro.js',
+  './js/premarket.js',
+  './js/app.js',
   './manifest.json'
 ];
 
