@@ -11,6 +11,7 @@ window.App.Screener = (function () {
   var PROGNOSE_STEIGEND_MIN = 10;   
   var PROGNOSE_FALLEND_MAX = 0;     
   var MIN_ANALYSTS = 5;             
+  var EMA_CROSS_RECENT_DAYS = 10;   // EMA-12/26-Kreuz gilt als frisch
   var CROSS_RECENT_DAYS = 60;       
   var QUALITY_MIN_MARGIN = 0.10;    
   var QUALITY_MAX_DEBT_EQUITY = 100; 
@@ -62,6 +63,7 @@ window.App.Screener = (function () {
   var PRESET_EXCLUSIVE = {
     forecast_up: 'forecast_down', forecast_down: 'forecast_up',
     death_cross: 'golden_cross', golden_cross: 'death_cross',
+    ema_up: 'ema_down', ema_down: 'ema_up',
     tech_bullish: 'tech_bearish', tech_bearish: 'tech_bullish'
   };
 
@@ -169,6 +171,7 @@ window.App.Screener = (function () {
   function isConsensusSell(s) { return hasNum(s.buyPct) && s.buyPct <= 20 && analystOk(s); }
   function isLowRisk(s) { return hasNum(s.rrCrv) && hasNum(s.rrStopPct) && s.rrCrv >= RR_MIN_CRV && s.rrStopPct <= RR_MAX_STOP_PCT; }
   function hasRecentCross(s, type) { return s.cross === type && hasNum(s.crossDaysAgo) && s.crossDaysAgo <= CROSS_RECENT_DAYS; }
+  function hasEmaCross(s, type) { return s.emaCross === type && hasNum(s.emaCrossDaysAgo) && s.emaCrossDaysAgo <= EMA_CROSS_RECENT_DAYS; }
   function hasTechPattern(s, id) { return Array.isArray(s.chartPatterns) && s.chartPatterns.indexOf(id) !== -1; }
 
   var PRESET_FILTERS = {
@@ -182,6 +185,9 @@ window.App.Screener = (function () {
     forecast_down: function (s) { return hasUpside(s) && s.upside < PROGNOSE_FALLEND_MAX && analystOk(s); },
     death_cross: function (s) { return hasRecentCross(s, 'death'); },
     golden_cross: function (s) { return hasRecentCross(s, 'golden'); },
+    ema_up: function (s) { return hasEmaCross(s, 'up'); },
+    ema_down: function (s) { return hasEmaCross(s, 'down'); },
+    ema_trend: function (s) { return s.emaTrend === true; },
     quality: function (s) { return isQuality(s); },
     earnings_growth: function (s) { return isEarningsGrowth(s); },
     recovery: function (s) { return isRecovery(s); },
@@ -212,6 +218,9 @@ window.App.Screener = (function () {
     { id: 'forecast_down', chip: '🔽 Prognose fallend', name: 'Prognose fallend', info: function () { return 'Mittleres Analysten-Kursziel unter dem aktuellen Kurs, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
     { id: 'death_cross', chip: '☠️ Death Cross', name: 'Death Cross', info: function () { return 'SMA 50 hat SMA 200 in den letzten ' + CROSS_RECENT_DAYS + ' Handelstagen von oben nach unten gekreuzt (Abwärtssignal).'; } },
     { id: 'golden_cross', chip: '✨ Golden Cross', name: 'Golden Cross', info: function () { return 'SMA 50 hat SMA 200 in den letzten ' + CROSS_RECENT_DAYS + ' Handelstagen von unten nach oben gekreuzt (Aufwärtssignal).'; } },
+    { id: 'ema_up', chip: '⚡ EMA-Aufwärtskreuz', name: 'EMA-Aufwärtskreuz', info: function () { return 'EMA 12 hat EMA 26 in den letzten ' + EMA_CROSS_RECENT_DAYS + ' Handelstagen von unten nach oben gekreuzt (früheres Signal als der Golden Cross, aber anfälliger für Fehlsignale).'; } },
+    { id: 'ema_down', chip: '🔻 EMA-Abwärtskreuz', name: 'EMA-Abwärtskreuz', info: function () { return 'EMA 12 hat EMA 26 in den letzten ' + EMA_CROSS_RECENT_DAYS + ' Handelstagen von oben nach unten gekreuzt (Warnsignal).'; } },
+    { id: 'ema_trend', chip: '📶 EMA-Trend intakt', name: 'EMA-Trend intakt', info: function () { return 'Kurs über dem EMA 50 und der EMA 50 über dem EMA 200: etablierter Aufwärtstrend.'; } },
     { id: 'quality', chip: '🏆 Qualität', name: 'Qualität', info: function () { return 'Nettomarge ≥ ' + Math.round(QUALITY_MIN_MARGIN * 100) + ' %, Umsatzwachstum ≥ 0 % und Verschuldung (Debt/Equity) ≤ ' + QUALITY_MAX_DEBT_EQUITY + '.'; } },
     { id: 'earnings_growth', chip: '📈 Gewinnwachstum erwartet', name: 'Gewinnwachstum erwartet', info: function () { return 'KGV positiv und Forward-KGV mindestens ' + Math.round(EARNINGS_GROWTH_MIN * 100) + ' % unter dem aktuellen KGV (Analysten erwarten steigende Gewinne).'; } },
     { id: 'recovery', chip: '🌱 Erholung', name: 'Erholung', info: function () { return 'Kurs im unteren Drittel der 52W-Spanne (≤ ' + RECOVERY_MAX_RANGEPOS + ' %), Kursziel mindestens ' + PROGNOSE_STEIGEND_MIN + ' % darüber, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
@@ -573,6 +582,7 @@ window.App.Screener = (function () {
     if (isActive('quality') && hasNum(s.profitMargins)) tags.push('Marge ' + fmtNum(s.profitMargins * 100, 0) + ' %');
     if (isActive('earnings_growth') && hasNum(s.pe) && hasNum(s.forwardPe)) tags.push('KGV ' + fmtNum(s.pe, 0) + ' → ' + fmtNum(s.forwardPe, 0));
     if (isActive('recovery') && hasNum(s.rangePos)) tags.push('52W-Spanne ' + fmtNum(s.rangePos, 0) + ' %');
+    if ((isActive('ema_up') || isActive('ema_down')) && s.emaCross && hasNum(s.emaCrossDaysAgo)) tags.push('EMA-Kreuz ' + (s.emaCross === 'up' ? '▲' : '▼') + ' ' + (s.emaCrossDaysAgo === 0 ? 'heute' : 'vor ' + s.emaCrossDaysAgo + ' Tg.'));
     if (isActive('oversold') && hasNum(s.rsi)) tags.push('RSI ' + fmtNum(s.rsi, 0));
     if (isActive('low_risk') && hasNum(s.rrCrv)) tags.push('CRV ' + fmtNum(s.rrCrv, 1) + ' · Stop −' + fmtNum(s.rrStopPct, 1) + ' % · Ziel +' + fmtNum(s.rrTgtPct, 1) + ' %');
     if ((isActive('value') || isActive('undervalued')) && hasNum(s.pe) && s.pe > 0) {
