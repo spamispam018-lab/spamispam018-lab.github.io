@@ -2,7 +2,7 @@
  * js/premarket.js
  * US-Vorbörsenhandel-Indikator für deutsche Anleger.
  * Features: Futures, Volumen-Check, VWAP, 15-Min-RSI, Momentum-Warnung, Timer, Info-Popups.
- * NEU: Zeitfenster-Buttons (1T, 6h, 3h, 2h, 1h) für den Chart.
+ * NEU: Zeitfenster-Buttons (1T, 6h, 3h, 2h, 1h, 30m) für den Chart.
  */
 window.App = window.App || {};
 
@@ -264,6 +264,7 @@ window.App.PreMarket = (function () {
           '<button class="pill-btn" data-pm-range="3h">3h</button>' +
           '<button class="pill-btn" data-pm-range="2h">2h</button>' +
           '<button class="pill-btn" data-pm-range="1h">1h</button>' +
+          '<button class="pill-btn" data-pm-range="30m">30m</button>' +
         '</div>' +
         '<div style="display:flex;justify-content:center;margin-top:8px;">' +
           '<button class="pill-btn" id="pm-channel-btn">📐 Trendkanal</button>' +
@@ -571,7 +572,7 @@ window.App.PreMarket = (function () {
     drawChart(container, state.lastPrePoints, state.lastHLines);
   }
 
-  // Zeitfenster-Buttons (1T, 6h, 3h, 2h, 1h): auch vor dem Laden der Daten klickbar
+  // Zeitfenster-Buttons (1T, 6h, 3h, 2h, 1h, 30m): auch vor dem Laden der Daten klickbar
   function bindPills(container) {
     var chBtn = container.querySelector('#pm-channel-btn');
     if (chBtn) {
@@ -602,25 +603,26 @@ window.App.PreMarket = (function () {
     var canvas = container.querySelector('#pm-canvas');
     if (!canvas) return;
 
-    // NEU: Filtern nach dem ausgewählten Zeitfenster (relativ zum LETZTEN Datenpunkt!)
-    var lastTimestamp = points.length > 0 ? points[points.length - 1].t : Date.now();
-    var cutoff = 0;
-    if (state.chartRange === '1d') {
-      // 1 Handelstag = 16 Stunden (04:00-20:00 ET) = 960 Minuten-Punkte: bei früher Vorbörse reicht das in den Vortag zurück
-      if (points.length > 960) cutoff = points[points.length - 960].t;
-    }
-    else if (state.chartRange === '6h') cutoff = lastTimestamp - 6 * 60 * 60 * 1000;
-    else if (state.chartRange === '3h') cutoff = lastTimestamp - 3 * 60 * 60 * 1000;
-    else if (state.chartRange === '2h') cutoff = lastTimestamp - 2 * 60 * 60 * 1000;
-    else if (state.chartRange === '1h') cutoff = lastTimestamp - 1 * 60 * 60 * 1000;
-
-    var timeFiltered = points.filter(function(p) { return p.t >= cutoff; });
-
-    var filtered = timeFiltered.filter(function (p) {
-      var s = classifySession(p.t);
-      return s === 'pre' || s === 'post' || s === 'regular';
+    // Zeitfenster zählt Handelsminuten (nicht Uhrzeit): Nachts ist der US-Handel zu, sonst wären 2h/3h/6h am frühen
+    // Morgen identisch. So reicht das Fenster bei Bedarf in den Vortag (Nachbörse/Handel) zurück.
+    var sess = points.filter(function (p) {
+      var s0 = classifySession(p.t);
+      return s0 === 'pre' || s0 === 'post' || s0 === 'regular';
     });
-    
+    var WIN = { '1d': 960, '6h': 360, '3h': 180, '2h': 120, '1h': 60, '30m': 30 };
+    var nWin = WIN[state.chartRange] || 960;
+    var filtered = sess.length > nWin ? sess.slice(sess.length - nWin) : sess;
+    var note = container.querySelector('#pm-range-note');
+    if (!note) {
+      note = document.createElement('div');
+      note.id = 'pm-range-note';
+      note.style.cssText = 'font-size:0.68rem;color:var(--text-dim);text-align:center;margin-top:6px;';
+      var pg = container.querySelector('#pm-range-pills');
+      if (pg && pg.parentNode) pg.parentNode.insertBefore(note, pg.nextSibling); else canvas.parentElement.appendChild(note);
+    }
+    var spansDays = filtered.length > 1 && etDate(filtered[0].t) !== etDate(filtered[filtered.length - 1].t);
+    note.textContent = spansDays ? 'Das Fenster reicht in den Vortag zurück, weil heute noch nicht genug Handelsminuten vorliegen.' : '';
+
     if (filtered.length < 2) {
       var g = canvas.getContext('2d');
       var W = canvas.parentElement.clientWidth;
