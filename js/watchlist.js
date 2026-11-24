@@ -19,16 +19,18 @@ window.App.Watchlist = (function () {
 
     var tab = (params && params.tab) || 'stocks';
     var tabs = [
-      { id: 'stocks', label: '⭐ Werte' },
-      { id: 'alerts', label: '🔔 Alarme' },
-      { id: 'earnings', label: '📅 Termine' }
+      { id: 'stocks', label: 'Werte' },
+      { id: 'alerts', label: 'Alarme' },
+      { id: 'earnings', label: 'Termine' }
     ];
 
     container.innerHTML = '' +
-      '<div class="horizontal-scroll-row" style="margin-bottom: 12px; padding: 4px 16px; gap: 8px; box-sizing: border-box;">' +
+      '<div style="max-width: 680px; margin: 0 auto; padding: 12px 16px 4px; box-sizing: border-box;">' +
+        '<div class="segbar" role="tablist" aria-label="Watchlist">' +
         tabs.map(function (t) {
-          return '<button class="chip-btn ' + (tab === t.id ? 'active' : '') + '" style="flex-shrink: 0; white-space: nowrap;" data-wl-tab="' + t.id + '">' + t.label + '</button>';
+          return '<button role="tab" aria-selected="' + (tab === t.id) + '" class="segbar-btn ' + (tab === t.id ? 'active' : '') + '" data-wl-tab="' + t.id + '">' + t.label + '</button>';
         }).join('') +
+        '</div>' +
       '</div>' +
       '<div id="watchlist-tab-content"></div>';
 
