@@ -75,8 +75,9 @@ window.App.StockStrategy = (function () {
     var ticker = (stock.ticker || (stock.profile && stock.profile.ticker) || '').toUpperCase();
     container.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Lade Kurshistorie…</p></div>';
 
-    if (!histCache[ticker]) histCache[ticker] = Q().loadHistory(ticker, stock.chartHistory);
-    histCache[ticker].then(function (full) {
+    var ck = ticker + (Q().preferDaily() ? ':d' : '');
+    if (!histCache[ck]) histCache[ck] = Q().loadHistory(ticker, stock.chartHistory);
+    histCache[ck].then(function (full) {
       if (full.length < 60) {
         container.innerHTML = '<div class="state-box"><p>Zu wenig Kursdaten für einen Backtest (mindestens 60 Handelstage).</p></div>';
         return;
@@ -114,6 +115,14 @@ window.App.StockStrategy = (function () {
           '<div id="bt-params" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;"></div>' +
           '<div><div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:4px;">Zeitraum</div>' +
             '<div class="horizontal-scroll-row" style="margin-bottom:0;padding-bottom:0;">' + chips + '</div></div>' +
+          '<div><div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:4px;">Kursdaten</div>' +
+            '<div class="horizontal-scroll-row" style="margin-bottom:0;padding-bottom:0;">' +
+              '<button class="chip-btn ' + (q.preferDaily() ? '' : 'active') + '" data-bt-data="weekly">Wochenkurse (lange Historie)</button>' +
+              '<button class="chip-btn ' + (q.preferDaily() ? 'active' : '') + '" data-bt-data="daily">Tageskurse</button></div>' +
+            '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.4;margin-top:4px;">' +
+              (full.dailyFailed ? '<span style="color:var(--bearish);">Tageskurse konnten nicht geladen werden – es werden Wochenkurse verwendet.</span> ' : '') +
+              (q.preferDaily() && !full.dailyFailed ? 'Tägliche Schlusskurse über den Proxy (bis 20 Jahre, Handelswährung). ' : 'Tageskurse laden über den Proxy; zusätzlich gilt das für den Risiko-Tab. ') +
+              'Aktuell: ' + (q.periodsPerYear(full) >= 200 ? 'Tageskurse' : (q.periodsPerYear(full) >= 40 ? 'Wochenkurse' : 'Monatskurse')) + ', ' + full.length + ' Datenpunkte.</div></div>' +
           '<div><label for="bt-fee" style="font-size:0.72rem;color:var(--text-dim);">Kosten je Kauf/Verkauf (%)</label>' +
             '<input id="bt-fee" class="search-input" type="number" min="0" max="5" step="0.05" inputmode="decimal" value="' + state.fee + '" style="width:100%;margin-top:4px;padding-left:12px;"></div>' +
           '<button class="chip-btn active" id="bt-run" style="height:42px;justify-content:center;">Backtest starten</button>' +
@@ -159,6 +168,14 @@ window.App.StockStrategy = (function () {
       var v = Number(e.target.value);
       state.fee = isFinite(v) && v >= 0 ? v : 0.1;
     };
+    container.querySelectorAll('[data-bt-data]').forEach(function (btn) {
+      btn.onclick = function () {
+        var wantDaily = btn.getAttribute('data-bt-data') === 'daily';
+        if (wantDaily === q.preferDaily()) return;
+        q.setPreferDaily(wantDaily);
+        render(container, stock);
+      };
+    });
     container.querySelector('#bt-run').onclick = function () { run(container, ticker, full); };
     container.querySelector('#bt-live-btn').onclick = function () { window.App.Router.navigate('/stock/' + ticker + '/live'); };
     container.querySelector('#bt-search-btn').onclick = function () { search(container, ticker, full); };
