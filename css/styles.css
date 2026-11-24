@@ -1069,3 +1069,226 @@ input, button, select, textarea {
     overflow-x: visible;
   }
 }
+/* ==========================================================
+   NEUES BEDIENKONZEPT (js/ui.js)
+   4 Bereiche, Umschalter-Leiste, Sheets, Detail-Karten
+   ========================================================== */
+
+/* Umschalter-Leiste unter dem Header */
+#app-segbar {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 12px 16px 0;
+}
+.segbar {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+.segbar-btn {
+  flex: 1;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.segbar-btn.active {
+  background: var(--bg-tertiary);
+  color: var(--text-main);
+  box-shadow: 0 1px 2px var(--shadow-soft);
+}
+#app-segbar + #app-view-content .view-container { padding-top: 12px; }
+
+/* Aktions-Sheet & Einstellungen */
+.ui-action-list { display: flex; flex-direction: column; }
+.ui-action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 2px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+.ui-action-item:last-child { border-bottom: 0; }
+.ui-action-label { font-size: 0.95rem; font-weight: 600; }
+.ui-action-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
+.ui-switch-row { flex-direction: row; align-items: center; justify-content: space-between; gap: 14px; }
+.ui-switch-row > span:first-child { display: flex; flex-direction: column; gap: 2px; }
+.ui-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 46px;
+  height: 28px;
+  border-radius: 14px;
+  background: var(--border-color);
+  transition: background-color 0.15s ease;
+}
+.ui-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s ease;
+}
+.ui-switch.on { background: var(--accent-purple); }
+.ui-switch.on::after { transform: translateX(18px); }
+
+/* Screener: kompakte Kopfzeile + Werkzeugzeile */
+.scr-statline {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.scr-statline b { color: var(--text-main); }
+.scr-toolrow { display: flex; gap: 8px; margin-bottom: 12px; }
+.scr-toolrow .search-bar-wrapper { flex: 1; margin-bottom: 0; min-width: 0; }
+.scr-filter-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  min-height: 44px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.scr-filter-btn.active { border-color: var(--accent-purple); color: var(--accent-purple-light); }
+.scr-badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--accent-purple);
+  color: #fff;
+  font-size: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.scr-more-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+/* Detailansicht */
+.dt-actions {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.dt-action {
+  min-height: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.dt-action.active { color: #f59e0b; }
+.dt-action.active svg { fill: currentColor; }
+.dt-sections {
+  position: sticky;
+  top: var(--header-height);
+  z-index: 20;
+  margin: 0 -16px 12px;
+  padding: 8px 16px;
+  background: var(--bg-primary);
+}
+.dt-sections .horizontal-scroll-row { margin-bottom: 0; padding-bottom: 0; }
+.dt-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.dt-card-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: transparent;
+  border: 0;
+  color: var(--text-main);
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+.dt-card-head > span { flex: 1; min-width: 0; }
+.dt-card-title { display: block; font-size: 0.95rem; font-weight: 700; }
+.dt-card-desc { display: block; font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+.dt-card-head svg { flex-shrink: 0; transition: transform 0.15s ease; color: var(--text-muted); }
+.dt-card.open .dt-card-head svg { transform: rotate(180deg); }
+.dt-card-body { display: none; padding: 0 12px 12px; }
+.dt-card.open .dt-card-body { display: block; }
+/* Karten in der Karte etwas flacher darstellen */
+.dt-card-body > .card:last-child, .dt-card-body .card:last-child { margin-bottom: 0; }
+.dt-more-btn {
+  width: 100%;
+  min-height: 44px;
+  margin-bottom: 10px;
+  border: 1px dashed var(--accent-purple);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--accent-purple-light);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Bottom-Nav: 4 Bereiche */
+.bottom-nav .nav-item { min-height: 44px; }
+button.segbar-btn { background: transparent; border: 0; font-family: inherit; cursor: pointer; }
+button.segbar-btn.active { background: var(--bg-tertiary); }
