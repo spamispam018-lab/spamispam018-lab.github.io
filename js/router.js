@@ -112,7 +112,12 @@ window.App.Router = (function () {
 
     // Aktiven Hauptnavigationspunkt bestimmen
     var primarySection = path.split('/')[1] || 'screener';
-    updateBottomNav(primarySection);
+    if (window.App.UI && window.App.UI.onRoute) {
+      // Neues Navigationskonzept: Bereiche + Umschalter-Leiste
+      window.App.UI.onRoute(primarySection, path);
+    } else {
+      updateBottomNav(primarySection);
+    }
 
     // Handler ausführen
     matchedHandler(routeParams);
