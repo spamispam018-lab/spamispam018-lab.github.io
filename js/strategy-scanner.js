@@ -19,6 +19,8 @@ window.App.StrategyScanner = (function () {
     { key: '10Y', years: 10, label: '10 Jahre / Max.' }
   ];
   var SELECTIONS = [
+    { key: 'filter30', label: 'Top 30 meiner Filter-Treffer' },
+    { key: 'filterAll', label: 'Alle Filter-Treffer (max. 150)' },
     { key: 'watch', label: 'Meine Watchlist' },
     { key: 'top30', label: 'Top 30 nach Börsenwert' },
     { key: 'top80', label: 'Top 80 nach Börsenwert' },
@@ -161,6 +163,10 @@ window.App.StrategyScanner = (function () {
       universe.forEach(function (u) { byT[String(u.ticker).toUpperCase()] = u; });
       return w.map(function (t) { return byT[t] || { ticker: t, name: t, sector: '' }; });
     }
+    if (state.selection === 'filter30' || state.selection === 'filterAll') {
+      var S = window.App.Screener, fl = (S && S.getFilteredStocks ? S.getFilteredStocks() : []).filter(function (s) { return s && s.ticker; });
+      return fl.slice(0, state.selection === 'filter30' ? 30 : 150);   // Reihenfolge wie in der Screener-Liste (aktuelle Sortierung)
+    }
     list = list.filter(function (s) { return s && s.ticker; });
     list.sort(function (a, b) { return (Number(b.marketCap) || 0) - (Number(a.marketCap) || 0); });
     if (state.selection === 'top30') return list.slice(0, 30);
@@ -197,7 +203,7 @@ window.App.StrategyScanner = (function () {
 
     window.App.Data.getUniverse().then(function (universe) {
       var items = pickTickers(universe || []);
-      if (!items.length) { out.innerHTML = '<div class="state-box"><p>' + (state.selection === 'watch' ? 'Deine Watchlist ist leer.' : 'Keine Aktien im Universum.') + '</p></div>'; return; }
+      if (!items.length) { out.innerHTML = '<div class="state-box"><p>' + (state.selection === 'watch' ? 'Deine Watchlist ist leer.' : /^filter/.test(state.selection) ? 'Deine Filter haben keine Treffer.' : 'Keine Aktien im Universum.') + '</p></div>'; return; }
       return loadAll(items, function (d, n) {
         var el = out.querySelector('#scan-prog'); if (el) el.textContent = 'Lade Kurse ' + d + ' / ' + n + '…';
       }, token).then(function (hists) {
@@ -240,7 +246,7 @@ window.App.StrategyScanner = (function () {
 
     window.App.Data.getUniverse().then(function (universe) {
       var items = pickTickers(universe || []);
-      if (!items.length) { out.innerHTML = '<div class="state-box"><p>' + (state.selection === 'watch' ? 'Deine Watchlist ist leer.' : 'Keine Aktien im Universum.') + '</p></div>'; return; }
+      if (!items.length) { out.innerHTML = '<div class="state-box"><p>' + (state.selection === 'watch' ? 'Deine Watchlist ist leer.' : /^filter/.test(state.selection) ? 'Deine Filter haben keine Treffer.' : 'Keine Aktien im Universum.') + '</p></div>'; return; }
       return loadAll(items, function (d, n) {
         var el = out.querySelector('#scan-prog'); if (el) el.textContent = 'Lade Kurse ' + d + ' / ' + n + '…';
       }, token).then(function (hists) {
