@@ -79,12 +79,13 @@ window.App.StockRisk = (function () {
   }
 
   function getHistory(ticker, fallback) {
-    if (!histCache[ticker]) histCache[ticker] = Q().loadHistory(ticker, fallback);
-    return histCache[ticker];
+    var ck = ticker + (Q().preferDaily() ? ':d' : '');
+    if (!histCache[ck]) histCache[ck] = Q().loadHistory(ticker, fallback);
+    return histCache[ck];
   }
 
   function getBenchHistory(ticker) {
-    var key = 'bench:' + ticker;
+    var key = 'bench:' + ticker + (Q().preferDaily() ? ':d' : '');
     if (!histCache[key]) histCache[key] = Q().loadHistoryFor(ticker);
     return histCache[key];
   }
