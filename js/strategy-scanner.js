@@ -55,7 +55,7 @@ window.App.StrategyScanner = (function () {
     ['Was er nicht tut', 'Er wählt keine Aktien nach Qualität oder Bewertung aus – das macht der Screener. Es werden feste Parameter genutzt (keine Optimierung je Aktie), damit die Ergebnisse nicht auf die Vergangenheit zurechtgebogen sind. Er ist keine Kaufempfehlung: „Signal heute“ ist nur das Ergebnis der Regel am letzten Kurs.'],
     ['So liest du das Ergebnis', 'Schlägt die Regel bei deutlich mehr als der Hälfte der Aktien Buy &amp; Hold, ist das ein stärkeres Indiz als ein einzelner Treffer. Bei starken Dauergewinnern verliert Timing meist bei der Rendite, gewinnt aber oft beim Drawdown. Wähle deshalb auch die Spalte Drawdown.'],
     ['Modus „Alle Strategien“', 'Je Aktie werden alle 13 Strategien mit ihren Standardwerten getestet. Du siehst, bei wie vielen jetzt ein Kaufsignal besteht und bei wie vielen die Strategie im Zeitraum Buy &amp; Hold geschlagen hat. Viele Strategien messen im Kern Trend: „viele Kaufsignale“ heißt oft nur „die Aktie steigt gerade“. Aussagekräftiger ist die Spalte „schlagen Buy &amp; Hold“. Mit „Gründlich prüfen“ werden für die besten Treffer zusätzlich je Strategie optimierte Werte gesucht und auf einem Testzeitraum geprüft („bewährt“).'],
-    ['Grenzen der Daten', 'Es werden die Wochen-Langhistorien genutzt (Zeit-Parameter in Tagen werden in Wochen umgerechnet). Das Universum enthält nur Aktien, die es heute noch gibt (Auswahlverzerrung), Dividenden und Steuern fehlen. Aktien ohne ausreichend lange Historie werden übersprungen und gezählt.']
+    ['Grenzen der Daten', 'Je nach Auswahl „Kursdaten“ werden die vorberechneten Wochen-Langhistorien (schnell; Zeit-Parameter in Tagen werden in Wochen umgerechnet) oder Tageskurse über den Proxy genutzt. Das Universum enthält nur Aktien, die es heute noch gibt (Auswahlverzerrung), Dividenden und Steuern fehlen. Aktien ohne ausreichend lange Historie werden übersprungen und gezählt.']
   ];
 
   /* ---------- Rendering ---------- */
@@ -92,6 +92,9 @@ window.App.StrategyScanner = (function () {
               '<select id="scan-type" class="sort-select" style="width:100%;margin-top:4px;">' + stratOpts + '</select>' +
               '<div id="scan-desc" style="font-size:0.72rem;color:var(--text-dim);margin-top:6px;line-height:1.4;"></div></div>' +
             '<div id="scan-params" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;"></div></div>' +
+            '<div class="horizontal-scroll-row" style="margin-bottom:0;padding-bottom:0;"><span style="font-size:0.72rem;color:var(--text-dim);align-self:center;white-space:nowrap;">Kursdaten:</span>' +
+              '<button type="button" class="chip-btn" data-scan-data="weekly">Wochenkurse</button><button type="button" class="chip-btn" data-scan-data="daily">Tageskurse</button></div>' +
+            '<div id="scan-data-note" style="font-size:0.7rem;color:var(--text-dim);line-height:1.45;margin-top:-4px;"></div>' +
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
               '<div><label for="scan-sel" style="font-size:0.72rem;color:var(--text-dim);">Aktien</label><select id="scan-sel" class="sort-select" style="width:100%;margin-top:4px;">' + selOpts + '</select></div>' +
               '<div><label for="scan-per" style="font-size:0.72rem;color:var(--text-dim);">Zeitraum</label><select id="scan-per" class="sort-select" style="width:100%;margin-top:4px;">' + perOpts + '</select></div>' +
@@ -151,6 +154,17 @@ window.App.StrategyScanner = (function () {
       b.onclick = function () { state.token++; state.mode = b.getAttribute('data-scan-mode'); applyMode(); };
     });
     slot.querySelector('#scan-run').onclick = function () { if (state.mode === 'all') runAll(slot); else run(slot, curParams()); };
+    function applyData() {
+      var d = Q().preferDaily();
+      slot.querySelectorAll('[data-scan-data]').forEach(function (b) { b.classList.toggle('active', (b.getAttribute('data-scan-data') === 'daily') === d); });
+      slot.querySelector('#scan-data-note').textContent = d
+        ? 'Tageskurse kommen einzeln über den Kurs-Proxy (länger, bei „Alle Aktien“ sehr lange). Die Einstellung gilt auch im Backtest-Tab. Nicht ladbare Aktien fallen auf Wochenkurse zurück.'
+        : 'Wochenkurse sind vorberechnet und schnell. Regeln mit Tageskursen können anders abschneiden.';
+    }
+    slot.querySelectorAll('[data-scan-data]').forEach(function (b) {
+      b.onclick = function () { state.token++; Q().setPreferDaily(b.getAttribute('data-scan-data') === 'daily'); state.results = null; state.allRows = null; applyData(); applyMode(); };
+    });
+    applyData();
     applyMode();
   }
 
@@ -181,7 +195,10 @@ window.App.StrategyScanner = (function () {
         if (token !== state.token) { resolve(null); return; }
         var i = next++;
         if (i >= items.length) { if (done >= items.length) resolve(results); return; }
-        D.getLongHistory(items[i].ticker).then(function (h) { return h || []; }, function () { return []; }).then(function (h) {
+        var qq = Q(), tk = items[i].ticker;
+        // Tageskurse über den Proxy (Einstellung gilt app-weit), sonst die Wochenkurse aus data/long
+        var p = qq.preferDaily() ? qq.loadHistory(tk, []) : D.getLongHistory(tk);
+        p.then(function (h) { return h || []; }, function () { return []; }).then(function (h) {
           results[i] = h; done++; onProgress(done, items.length);
           if (done >= items.length) resolve(results); else worker();
         });
@@ -348,7 +365,7 @@ window.App.StrategyScanner = (function () {
       html += '<div style="margin-top:12px;"><button class="chip-btn" id="all-deep" style="width:100%;justify-content:center;height:38px;">🔬 Gründlich prüfen (beste ' + Math.min(20, list.length) + ' dieser Liste)</button>' +
         '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.45;margin-top:4px;">Sucht je Aktie optimierte Werte auf den älteren 70 % der Kurse und prüft sie auf den jüngeren 30 %. „Bewährt“ = im Testzeitraum besser als Buy &amp; Hold. Dauert wenige Sekunden pro Aktie; Aktien mit weniger als etwa 4 Jahren Historie werden ausgelassen.</div></div>';
     }
-    html += '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.5;margin-top:12px;"><strong style="color:var(--text-main);">Hinweis:</strong> Vergangenheitswerte mit Standardparametern auf Wochenkursen, Kosten ' + F().number(FEE * 100, 1) + ' % je Kauf/Verkauf, ohne Dividenden und Steuern. „Kaufsignal heute“ bezieht sich auf den letzten Wochenschluss. Keine Anlageempfehlung.</div>';
+    html += '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.5;margin-top:12px;"><strong style="color:var(--text-main);">Hinweis:</strong> Vergangenheitswerte mit Standardparametern auf ' + (Q().preferDaily() ? 'Tageskursen' : 'Wochenkursen') + ', Kosten ' + F().number(FEE * 100, 1) + ' % je Kauf/Verkauf, ohne Dividenden und Steuern. „Kaufsignal heute“ bezieht sich auf den ' + (Q().preferDaily() ? 'letzten Handelstag' : 'letzten Wochenschluss') + '. Keine Anlageempfehlung.</div>';
     out.innerHTML = html;
 
     out.querySelectorAll('[data-all-sort]').forEach(function (b) { b.onclick = function () { state.allSort = b.getAttribute('data-all-sort'); drawAll(out); }; });
@@ -446,7 +463,7 @@ window.App.StrategyScanner = (function () {
         }).join('') + '</tbody></table></div>';
       if (list.length > MAX_ROWS) html += '<div style="font-size:0.7rem;color:var(--text-dim);margin-top:6px;">Die ersten ' + MAX_ROWS + ' von ' + list.length + ' Aktien (nach der gewählten Sortierung).</div>';
     }
-    html += '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.5;margin-top:12px;"><strong style="color:var(--text-main);">Hinweis:</strong> Vergangenheitswerte mit Standardparametern auf Wochenkursen, Kosten ' + F().number(FEE * 100, 1) + ' % je Kauf/Verkauf, ohne Dividenden und Steuern. Nur Aktien, die es heute noch gibt. „Signal heute“ ist das Ergebnis der Regel am letzten Kurs und keine Anlageempfehlung.</div>';
+    html += '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.5;margin-top:12px;"><strong style="color:var(--text-main);">Hinweis:</strong> Vergangenheitswerte mit Standardparametern auf ' + (Q().preferDaily() ? 'Tageskursen' : 'Wochenkursen') + ', Kosten ' + F().number(FEE * 100, 1) + ' % je Kauf/Verkauf, ohne Dividenden und Steuern. Nur Aktien, die es heute noch gibt. „Signal heute“ ist das Ergebnis der Regel am letzten Kurs und keine Anlageempfehlung.</div>';
     out.innerHTML = html;
 
     out.querySelectorAll('[data-scan-sort]').forEach(function (b) { b.onclick = function () { state.sort = b.getAttribute('data-scan-sort'); drawResults(out); }; });
