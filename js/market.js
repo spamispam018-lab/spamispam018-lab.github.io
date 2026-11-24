@@ -422,7 +422,7 @@ window.App.Market = (function () {
     var html = '';
 
     html += liveCardHtml();
-    html += (window.App.Macro ? window.App.Macro.html() : '');
+    // Makro hat jetzt eine eigene Unterseite (Markt › Makro)
 
     // Zeitraum
     html += '<div class="horizontal-scroll-row" style="margin-bottom:12px;">';
@@ -591,7 +591,6 @@ window.App.Market = (function () {
 
   function bind(container) {
     bindLive(container);
-    if (window.App.Macro) window.App.Macro.bind();
     container.querySelectorAll('[data-mk-period]').forEach(function (b) {
       b.onclick = function () { state.period = b.getAttribute('data-mk-period'); draw(container); };
     });
