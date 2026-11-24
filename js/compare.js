@@ -41,7 +41,11 @@ window.App.Compare = (function () {
       selectedTickers = params.tickers.split(',').slice(0, 4);
       saveTickers();
     } else if (params && params.ticker) {
-      if (selectedTickers.indexOf(params.ticker) === -1) selectedTickers[0] = params.ticker;
+      // Aus der Detailansicht: Aktie vorne einreihen, bisherige Auswahl behalten
+      loadSavedTickers();
+      var tk = String(params.ticker).toUpperCase();
+      selectedTickers = [tk].concat(selectedTickers.filter(function (t) { return t !== tk; })).slice(0, 4);
+      if (selectedTickers.length < 2) selectedTickers.push(tk === 'MSFT' ? 'AAPL' : 'MSFT');
       saveTickers();
     } else {
       loadSavedTickers();
@@ -115,7 +119,7 @@ window.App.Compare = (function () {
     var html = '';
     selectedTickers.forEach(function (ticker, idx) {
       var color = COLOR_PALETTE[idx % COLOR_PALETTE.length];
-      html += '<span class="chip-btn" style="border-color:' + color + '; color:#fff; background: rgba(255,255,255,0.05);">' +
+      html += '<span class="chip-btn" style="border-color:' + color + '; color:var(--text-main); background: var(--bg-tertiary);">' +
         '<span style="width:8px; height:8px; border-radius:50%; background:' + color + ';"></span>' +
         '<strong>' + ticker + '</strong>' +
         '<span data-remove-ticker="' + ticker + '" style="cursor:pointer; margin-left:4px; opacity:0.7;">&times;</span>' +
