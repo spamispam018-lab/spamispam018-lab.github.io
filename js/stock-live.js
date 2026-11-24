@@ -142,7 +142,7 @@ window.App.StockLive = (function () {
       if (sig[j] !== prev) events.push({ i: j, type: sig[j] === 1 ? 'Buy' : 'Sell', t: bars[j].t, price: bars[j].price });
       prev = sig[j];
     }
-    return { bars: bars, sig: sig, prevSig: prevSig, overlays: overlays, panels: panels, events: events, params: params, today: today, lastDaily: lastDaily, mismatch: mismatch, note: noteInd };
+    return { base: base, lastLive: lastLive, bars: bars, sig: sig, prevSig: prevSig, overlays: overlays, panels: panels, events: events, params: params, today: today, lastDaily: lastDaily, mismatch: mismatch, note: noteInd };
   }
 
   function hm(t) { return new Date(t).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }); }
@@ -184,7 +184,8 @@ window.App.StockLive = (function () {
           'So lesen: Die Strategie arbeitet mit den <strong>Tageskursen</strong> bis gestern. Für „heute“ wird der jeweilige Live-Kurs als Schlusskurs eingesetzt. ' +
           '▲/▼ zeigen, bei welchem Kurs des heutigen Tages sich das Signal geändert hätte. Maßgeblich ist erst der Schlusskurs: Nahe an einer Schwelle kann das Signal im Tagesverlauf mehrfach wechseln. ' +
           'Der Backtest handelt erst am Schlusskurs des Folgetags. Keine Anlageberatung.</div>' +
-      '</div>';
+      '</div>' +
+      '<div class="card" id="lv-overview"></div>';
   }
 
   function drawParams(root) {
@@ -198,6 +199,49 @@ window.App.StockLive = (function () {
     }).join('') || '<div style="font-size:0.75rem;color:var(--text-dim);">Diese Strategie hat keine Parameter.</div>';
     var def2 = def.params.map(function (d) { return cur[d.key]; }).join(' / ');
     root.querySelector('#lv-adopted').innerHTML = 'Aktiv: <strong>' + esc(def.label) + '</strong>' + (def2 ? ' (' + esc(def2) + ')' : '') + ' – Werte aus dem Backtest-Tab, hier änderbar.';
+  }
+
+  // Alle Strategien auf einen Blick: Signal beim aktuellen Kurs (Standardwerte; die gewählte Strategie mit deinen Werten)
+  function renderOverview(root, c) {
+    var box = root.querySelector('#lv-overview'), q = Q();
+    if (!box) return;
+    var nb = c.base.length;
+    var closes = c.base.map(function (d) { return d.close; }).concat([c.lastLive]);
+    var dates = c.base.map(function (d) { return d.date; }).concat([c.today]);
+    var rows = [];
+    Object.keys(q.STRATEGIES).forEach(function (k) {
+      if (k === 'buyhold') return;
+      var def = q.STRATEGIES[k];
+      var p = k === state.type ? c.params : q.defaultParams(k);
+      var row = { key: k, label: def.label, params: def.params.map(function (d) { return p[d.key]; }).join(' / '), custom: k === state.type };
+      try {
+        var sg = q.computeSignals(closes, k, p, dates);
+        row.now = sg[nb]; row.prev = sg[nb - 1];
+      } catch (e) { row.now = null; }
+      if (row.now !== null && row.now !== undefined) rows.push(row);
+    });
+    var buys = rows.filter(function (r) { return r.now === 1; }).length;
+    rows.sort(function (a, b) { return (b.now - a.now) || a.label.localeCompare(b.label); });
+    var pct = rows.length ? Math.round(buys / rows.length * 100) : 0;
+    var col = buys / Math.max(1, rows.length) >= 0.6 ? BUY : (buys / Math.max(1, rows.length) <= 0.3 ? SELL : '#f59e0b');
+    box.innerHTML = '<div class="card-header-dotted"><span class="card-title">Strategien im Überblick</span><span class="period-tag">' + buys + ' von ' + rows.length + '</span></div>' +
+      '<div style="margin:8px 0 10px;"><div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px;"><strong>' + buys + ' von ' + rows.length + ' Strategien mit Kaufsignal</strong><span style="color:var(--text-dim);">' + pct + ' %</span></div>' +
+      '<div style="height:8px;border-radius:4px;background:var(--bg-tertiary);overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:' + col + ';"></div></div></div>' +
+      '<table class="data-table compact"><thead><tr><th>Strategie</th><th>Werte</th><th style="text-align:right;">Signal</th></tr></thead><tbody>' +
+      rows.map(function (r) {
+        var changed = r.prev !== r.now ? ' <span style="font-size:0.66rem;color:var(--text-dim);">neu</span>' : '';
+        return '<tr data-lv-pick="' + r.key + '" style="cursor:pointer;"><td' + (r.custom ? ' style="font-weight:800;"' : '') + '>' + esc(r.label) + '</td><td style="white-space:nowrap;color:var(--text-dim);">' + esc(r.params || '–') + (r.custom ? '*' : '') + '</td>' +
+          '<td style="text-align:right;white-space:nowrap;font-weight:700;color:' + (r.now === 1 ? BUY : SELL) + ';">' + (r.now === 1 ? '▲ Kauf' : '▼ Cash') + changed + '</td></tr>';
+      }).join('') + '</tbody></table>' +
+      '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.45;margin-top:8px;">Signal beim aktuellen Kurs, Standardwerte der Strategien; * = die oben gewählte Strategie mit deinen Werten. „neu“ = seit gestern gewechselt. Zeile antippen, um die Strategie oben anzuzeigen. Buy &amp; Hold ist nicht mitgezählt. Viele Kaufsignale ersetzen keine Prüfung im Backtest: Strategien liegen oft gleichzeitig richtig oder falsch.</div>';
+    box.querySelectorAll('[data-lv-pick]').forEach(function (tr) {
+      tr.onclick = function () {
+        state.type = tr.getAttribute('data-lv-pick');
+        root.querySelector('#lv-type').value = state.type;
+        drawParams(root); update(root);
+        var top = root.querySelector('#lv-card'); if (top && top.scrollIntoView) top.scrollIntoView({ block: 'start' });
+      };
+    });
   }
 
   function update(root) {
@@ -217,6 +261,7 @@ window.App.StockLive = (function () {
     var c = compute();
     if (c.error) { sum.innerHTML = ''; out.innerHTML = '<div class="state-box"><p>' + esc(c.error) + '</p></div>'; evBox.innerHTML = ''; return; }
 
+    renderOverview(root, c);
     var n = c.bars.length, last = c.bars[n - 1];
     var inPos = c.sig[n - 1] === 1, changedToday = (inPos ? 1 : 0) !== c.prevSig;
     var lastEv = c.events.length ? c.events[c.events.length - 1] : null;
