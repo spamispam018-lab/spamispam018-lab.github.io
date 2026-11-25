@@ -241,7 +241,48 @@ window.App.Data = (function () {
     setGroups(groups);
   }
 
+  // ---- Mehrfach-Zuordnung & Verwaltung ----
+  /** Alle Gruppen, in denen der Ticker steckt (eine Aktie kann in mehreren Gruppen sein). */
+  function getGroupsForTicker(ticker) {
+    if (!ticker) return [];
+    var t = ticker.toUpperCase().trim();
+    return getGroups().filter(function (g) { return g.tickers.indexOf(t) !== -1; }).map(function (g) { return g.name; });
+  }
+
+  /** Setzt die Gruppen eines Tickers auf genau die übergebenen Namen. */
+  function setTickerGroups(ticker, names) {
+    if (!ticker) return;
+    var t = ticker.toUpperCase().trim();
+    var wanted = (names || []).filter(Boolean);
+    var groups = getGroups();
+    groups.forEach(function (g) {
+      var has = g.tickers.indexOf(t) !== -1;
+      var want = wanted.indexOf(g.name) !== -1;
+      if (want && !has) g.tickers.push(t);
+      if (!want && has) g.tickers = g.tickers.filter(function (x) { return x !== t; });
+    });
+    wanted.forEach(function (n) {
+      if (!groups.some(function (g) { return g.name === n; })) groups.push({ name: n, tickers: [t] });
+    });
+    setGroups(groups);
+  }
+
+  /** Benennt eine Gruppe um. false, wenn der neue Name leer ist oder schon existiert. */
+  function renameGroup(oldName, newName) {
+    newName = (newName || '').trim();
+    if (!newName) return false;
+    if (newName === oldName) return true;
+    var groups = getGroups();
+    if (groups.some(function (g) { return g.name === newName; })) return false;
+    groups.forEach(function (g) { if (g.name === oldName) g.name = newName; });
+    setGroups(groups);
+    return true;
+  }
+
   return {
+    getGroupsForTicker: getGroupsForTicker,
+    setTickerGroups: setTickerGroups,
+    renameGroup: renameGroup,
     getUniverse: getUniverse,
     getJsonFile: fetchJsonWithFallback,
     getStock: getStock,
