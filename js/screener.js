@@ -614,7 +614,7 @@ window.App.Screener = (function () {
   function crossTag(s) {
     if (!s.cross || !hasNum(s.crossDaysAgo) || s.crossDaysAgo > CROSS_RECENT_DAYS) return '';
     var isDeath = s.cross === 'death';
-    var when = s.crossDaysAgo === 0 ? 'heute' : 'vor ' + s.crossDaysAgo + ' Tg.';
+    var when = s.crossDaysAgo === 0 ? (s.crossLive ? 'heute (vorläufig)' : 'heute') : 'vor ' + s.crossDaysAgo + ' Tg.';
     return '<span class="sector-label" style="color: var(' + (isDeath ? '--bearish' : '--bullish') + '); font-weight: 700;">• ' + (isDeath ? 'Death Cross ' : 'Golden Cross ') + when + '</span>';
   }
 
@@ -625,7 +625,7 @@ window.App.Screener = (function () {
     if (isActive('quality') && hasNum(s.profitMargins)) tags.push('Marge ' + fmtNum(s.profitMargins * 100, 0) + ' %');
     if (isActive('earnings_growth') && hasNum(s.pe) && hasNum(s.forwardPe)) tags.push('KGV ' + fmtNum(s.pe, 0) + ' → ' + fmtNum(s.forwardPe, 0));
     if (isActive('recovery') && hasNum(s.rangePos)) tags.push('52W-Spanne ' + fmtNum(s.rangePos, 0) + ' %');
-    if ((isActive('ema_up') || isActive('ema_down')) && s.emaCross && hasNum(s.emaCrossDaysAgo)) tags.push('EMA-Kreuz ' + (s.emaCross === 'up' ? '▲' : '▼') + ' ' + (s.emaCrossDaysAgo === 0 ? 'heute' : 'vor ' + s.emaCrossDaysAgo + ' Tg.'));
+    if ((isActive('ema_up') || isActive('ema_down')) && s.emaCross && hasNum(s.emaCrossDaysAgo)) tags.push('EMA-Kreuz ' + (s.emaCross === 'up' ? '▲' : '▼') + ' ' + (s.emaCrossDaysAgo === 0 ? (s.emaCrossLive ? 'heute (vorläufig)' : 'heute') : 'vor ' + s.emaCrossDaysAgo + ' Tg.'));
     if (isActive('oversold') && hasNum(s.rsi)) tags.push('RSI ' + fmtNum(s.rsi, 0));
     if (isActive('low_risk') && hasNum(s.rrCrv)) tags.push('CRV ' + fmtNum(s.rrCrv, 1) + ' · Stop −' + fmtNum(s.rrStopPct, 1) + ' % · Ziel +' + fmtNum(s.rrTgtPct, 1) + ' %' + (annualVol(s) !== null ? ' · Vola ' + fmtNum(annualVol(s), 0) + ' %' : ''));
     if ((isActive('value') || isActive('undervalued')) && hasNum(s.pe) && s.pe > 0) {
@@ -774,8 +774,9 @@ window.App.Screener = (function () {
         if (hasNum(s.rrCrv)) parts.push("Risk/Reward (Long): CRV " + fmtNum(s.rrCrv, 1) + ", Stop −" + fmtNum(s.rrStopPct, 1) + " % an der Unterstützung, Ziel +" + fmtNum(s.rrTgtPct, 1) + " %");
         if (hasNum(s.perf52w)) parts.push("52W-Perf.: " + fmtNum(s.perf52w, 0) + " %");
         if (hasUpside(s)) parts.push("Upside-Ziel: " + fmtNum(s.upside, 1) + " %" + (hasNum(s.analystCount) ? " (" + s.analystCount + " Analysten)" : ""));
-        if (hasRecentCross(s, 'death')) parts.push("Death Cross vor " + s.crossDaysAgo + " Tg.");
-        if (hasRecentCross(s, 'golden')) parts.push("Golden Cross vor " + s.crossDaysAgo + " Tg.");
+        if (hasRecentCross(s, 'death')) parts.push("Death Cross " + (s.crossDaysAgo === 0 ? (s.crossLive ? "heute (vorläufig, Live-Kurs)" : "heute") : "vor " + s.crossDaysAgo + " Tg."));
+        if (hasRecentCross(s, 'golden')) parts.push("Golden Cross " + (s.crossDaysAgo === 0 ? (s.crossLive ? "heute (vorläufig, Live-Kurs)" : "heute") : "vor " + s.crossDaysAgo + " Tg."));
+        if (s.emaCross && hasNum(s.emaCrossDaysAgo) && s.emaCrossDaysAgo <= EMA_CROSS_RECENT_DAYS) parts.push("EMA-12/26-Kreuz " + (s.emaCross === 'up' ? "aufwärts " : "abwärts ") + (s.emaCrossDaysAgo === 0 ? (s.emaCrossLive ? "heute (vorläufig, Live-Kurs)" : "heute") : "vor " + s.emaCrossDaysAgo + " Tg."));
         if (Array.isArray(s.chartPatterns) && s.chartPatterns.length > 0) parts.push("Chart-Muster: " + s.chartPatterns.join(', '));
         if (s.bottom) parts.push("Boden-Check: " + ({ base: 'Bodenbildung', knife: 'fallendes Messer', wait: 'unklar' })[s.bottom]);
         var nl = window.App.News && window.App.News.indexLine(s.ticker, true);
