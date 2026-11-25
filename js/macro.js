@@ -27,11 +27,25 @@ window.App.Macro = (function () {
     });
   }
 
-  function load() {
-    if (cache) return Promise.resolve(cache);
+  var WORKER = 'https://yahoo-proxy.spamispam018.workers.dev';
+
+  /** Makrodaten live vom Cloudflare Worker, Rückfall: data/macro.json aus GitHub. */
+  function load(force) {
+    if (cache && !force) return Promise.resolve(cache);
     if (loading) return loading;
     var D = window.App.Data;
-    var p = (D && D.getJsonFile) ? D.getJsonFile('macro.json') : Promise.reject(new Error('Data.getJsonFile fehlt'));
+    var fileP = function () {
+      return (D && D.getJsonFile) ? D.getJsonFile('macro.json') : Promise.reject(new Error('Data.getJsonFile fehlt'));
+    };
+    var p = fetch(WORKER + '/macro?' + (force ? 'refresh=1&' : '') + 't=' + Date.now())
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (d) {
+        if (!d || !d.items || !d.items.length) throw new Error('leer');
+        d.updated = d.fetchedAt || d.updated;
+        d.live = true;
+        return d;
+      })
+      .catch(function () { return fileP(); });
     loading = p.then(function (data) {
       cache = { data: data, error: null };
       loading = null;
@@ -287,7 +301,7 @@ window.App.Macro = (function () {
       '</div>';
     });
     var upd = res.data.updated ? parseFlexibleDate(res.data.updated) : null;
-    h += '<div style="font-size:.64rem;color:var(--text-dim);margin-top:8px;line-height:1.5;">Quellen: FRED (US-Notenbank St. Louis) und Yahoo Finance' +
+    h += '<div style="font-size:.64rem;color:var(--text-dim);margin-top:8px;line-height:1.5;">Quellen: FRED (US-Notenbank St. Louis) und Yahoo Finance' + (res.data.live ? ' (live über Cloudflare)' : '') +
       (upd ? ', Abruf ' + upd.toLocaleDateString('de-DE') + ' ' + upd.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr' : '') +
       '. Ampel nach Faustregeln, keine Prognose. Einkaufsmanagerindizes sind nicht kostenlos verfügbar, daher stehen Arbeitsmarktdaten (Sahm-Regel, Erstanträge) als Konjunktur-Frühindikatoren da. Keine Anlageberatung.</div>';
     return h;
@@ -295,7 +309,8 @@ window.App.Macro = (function () {
 
   function cardShell() {
     return '<div class="card" id="mac-card">' +
-      '<div class="card-header-dotted" style="align-items:center;"><span class="card-title">Makro-Umfeld</span>' +
+      '<div class="card-header-dotted" style="align-items:center;gap:8px;"><span class="card-title" style="flex:1;">Makro-Umfeld</span>' +
+        '<span id="mac-upd-slot"></span>' +
         '<button id="mac-expand" class="chip-btn" style="height:28px;font-size:.7rem;">' + (expanded ? 'Alles zuklappen' : 'Alles aufklappen') + '</button></div>' +
       '<div id="mac-body" style="font-size:.75rem;color:var(--text-dim);">Lade Makro-Daten…</div></div>';
   }
@@ -325,6 +340,20 @@ window.App.Macro = (function () {
     if (!body || !cache) return;
     body.innerHTML = bodyHtml(cache);
     if (btn) btn.textContent = expanded ? 'Alles zuklappen' : 'Alles aufklappen';
+
+    var updSlot = document.getElementById('mac-upd-slot');
+    if (updSlot && window.App.UI && window.App.UI.updateButton) {
+      updSlot.innerHTML = window.App.UI.updateButton('macro', cache.data && cache.data.updated, 'Makrodaten aktualisieren');
+      var ub = updSlot.querySelector('[data-upd="macro"]');
+      if (ub) ub.onclick = function () {
+        window.App.UI.setUpdating(ub, true);
+        load(true).then(function (res) {
+          if (res && res.data) cache = res;
+          paint();
+          if (res && res.data && res.data.stale && window.App.UI.toast) window.App.UI.toast('Quellen gerade nicht erreichbar – letzter Stand');
+        });
+      };
+    }
 
     [].forEach.call(body.querySelectorAll('.mac-toggle'), function (b) {
       b.onclick = function () {

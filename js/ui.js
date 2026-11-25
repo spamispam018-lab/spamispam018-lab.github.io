@@ -334,6 +334,36 @@ window.App.UI = (function () {
     });
   }
 
+  // ---------- Aktualisieren-Knopf mit Stand ----------
+
+  function stampText(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var now = new Date();
+    var time = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    if (d.toDateString() === now.toDateString()) return time;
+    return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) + ' ' + time;
+  }
+
+  var REFRESH_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M21 12a9 9 0 11-3-6.7"/><path d="M21 4v5h-5"/></svg>';
+
+  /**
+   * Kleiner Knopf "↻ 14:32" für Kartenköpfe.
+   * key: frei wählbarer Name (data-upd), iso: Zeitpunkt des angezeigten Stands, title: Beschriftung für Screenreader
+   */
+  function updateButton(key, iso, title) {
+    var st = stampText(iso);
+    return '<button type="button" class="upd-btn" data-upd="' + esc(key) + '" aria-label="' + esc(title || 'Aktualisieren') + (st ? ', Stand ' + esc(st) : '') + '" title="Neu laden">' +
+      REFRESH_SVG + (st ? '<span>' + esc(st) + '</span>' : '<span>Laden</span>') + '</button>';
+  }
+
+  function setUpdating(btn, on) {
+    if (!btn) return;
+    btn.classList.toggle('loading', !!on);
+    btn.disabled = !!on;
+  }
+
   // ---------- Kurzmeldung ----------
 
   var toastTimer = null;
@@ -397,6 +427,9 @@ window.App.UI = (function () {
     openSheet: openSheetHtml,
     info: info,
     bindInfo: bindInfo,
+    updateButton: updateButton,
+    setUpdating: setUpdating,
+    stampText: stampText,
     toast: toast,
     openMenu: openMenu,
     closeSheet: closeSheet,

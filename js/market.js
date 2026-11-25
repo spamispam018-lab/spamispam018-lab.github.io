@@ -344,8 +344,11 @@ window.App.Market = (function () {
     // Standardmäßig die Top 8 anzeigen, außer der User hat auf "Alle anzeigen" geklickt
     var displayList = showAllReddit ? allValidReddit : allValidReddit.slice(0, 8);
 
-    var html = '<div class="card"><div class="card-header-dotted"><span class="card-title">Reddit-Trends</span>' +
-               '<span class="sector-label">ApeWisdom & WSB</span></div>';
+    var meta = (window.App.News && window.App.News.redditMeta) ? window.App.News.redditMeta() : {};
+    var html = '<div class="card"><div class="card-header-dotted" style="align-items:center;gap:8px;"><span class="card-title">Reddit-Trends</span>' +
+               '<span class="sector-label" style="flex:1;">ApeWisdom & WSB</span>' +
+               (window.App.UI && window.App.UI.updateButton ? window.App.UI.updateButton('mk-reddit', meta.fetchedAt, 'Reddit-Trends aktualisieren') : '') +
+               '</div>';
 
     displayList.forEach(function(r) {
         var isBull = r.sentiment === 'Bullish';
@@ -627,6 +630,17 @@ window.App.Market = (function () {
     if (large) large.onclick = function () { state.largeOnly = !state.largeOnly; draw(container); };
 
     // NEU: Toggle-Button für die Reddit-Trends
+    var redditUpd = container.querySelector('[data-upd="mk-reddit"]');
+    if (redditUpd) {
+        redditUpd.onclick = function () {
+            window.App.UI.setUpdating(redditUpd, true);
+            window.App.News.loadRedditIndex(true).then(function (d) {
+                redditData = d || {};
+                draw(container);
+            });
+        };
+    }
+
     var redditToggle = container.querySelector('#mk-reddit-toggle');
     if (redditToggle) {
         redditToggle.onclick = function () {
