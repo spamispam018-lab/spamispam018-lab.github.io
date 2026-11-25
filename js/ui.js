@@ -269,6 +269,70 @@ window.App.UI = (function () {
     });
   }
 
+  // ---------- ⓘ-Erklärungen direkt an der Kennzahl ----------
+
+  /** Kleiner ⓘ-Knopf. key verweist auf einen Eintrag im Wörterbuch von bindInfo. */
+  function info(key) {
+    return '<button type="button" class="info-i" data-info="' + esc(key) + '" aria-label="Erklärung anzeigen" aria-expanded="false">i</button>';
+  }
+
+  /**
+   * Klick auf ⓘ klappt die Erklärung direkt darunter auf/zu:
+   * in einer Kennzahl-Kachel innerhalb der Kachel, in einer Tabelle als eigene Zeile,
+   * sonst unter der Kopfzeile der Karte.
+   * dict: { key: { title, text } } (text darf einfaches HTML enthalten)
+   */
+  function bindInfo(container, dict) {
+    if (!container) return;
+    container.__infoDict = dict;
+    if (container.__infoBound) return;
+    container.__infoBound = true;
+    container.addEventListener('click', function (ev) {
+      var btn = ev.target && ev.target.closest ? ev.target.closest('.info-i') : null;
+      if (!btn || !container.contains(btn)) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      var key = btn.getAttribute('data-info');
+      var entry = (container.__infoDict || {})[key];
+      if (!entry) return;
+
+      var open = btn.__infoBox && btn.__infoBox.parentNode;
+      if (open) {
+        btn.__infoBox.parentNode.removeChild(btn.__infoBox);
+        btn.__infoBox = null;
+        btn.setAttribute('aria-expanded', 'false');
+        btn.classList.remove('on');
+        return;
+      }
+
+      var body = '<div class="info-box-title">' + esc(entry.title) + '</div><div class="info-box-text">' + entry.text + '</div>';
+      var box;
+      var row = btn.closest('tr');
+      var cell = btn.closest('.metric-cell');
+      if (row) {
+        box = document.createElement('tr');
+        box.className = 'info-row';
+        box.innerHTML = '<td colspan="' + (row.children.length || 1) + '"><div class="info-box">' + body + '</div></td>';
+        row.parentNode.insertBefore(box, row.nextSibling);
+      } else if (cell) {
+        box = document.createElement('div');
+        box.className = 'info-box info-box-cell';
+        box.innerHTML = body;
+        cell.appendChild(box);
+      } else {
+        box = document.createElement('div');
+        box.className = 'info-box';
+        box.innerHTML = body;
+        var head = btn.closest('.card-header-dotted');
+        var anchor = head || btn.parentNode;
+        anchor.parentNode.insertBefore(box, anchor.nextSibling);
+      }
+      btn.__infoBox = box;
+      btn.setAttribute('aria-expanded', 'true');
+      btn.classList.add('on');
+    });
+  }
+
   // ---------- Kurzmeldung ----------
 
   var toastTimer = null;
@@ -330,6 +394,8 @@ window.App.UI = (function () {
     getRecent: getRecent,
     actionSheet: actionSheet,
     openSheet: openSheetHtml,
+    info: info,
+    bindInfo: bindInfo,
     toast: toast,
     openMenu: openMenu,
     closeSheet: closeSheet,
