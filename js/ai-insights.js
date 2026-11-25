@@ -110,6 +110,9 @@ window.App.AIInsights = (function () {
         '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px;">Stand ' + esc(fmtStamp(d.updatedAt)) + ' · ' + esc(d.universeSize || '') + ' Werte</div></div>' +
         '<span class="period-tag" style="display:inline-flex;align-items:center;white-space:nowrap;flex-shrink:0;">Keine Beratung' + info('limits') + '</span>' +
       '</div>' +
+      '<div style="display:flex;justify-content:flex-end;margin-top:10px;">' +
+        '<button type="button" class="upd-btn" id="ai-rerun">Neu auswerten</button>' +
+      '</div>' +
       ((d.errors && d.errors.length) ? '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:8px;">Nicht aktualisiert: ' + esc(d.errors.map(function (e) { return e.segment; }).join(', ')) + ' (vorheriger Stand oder fehlend).</div>' : '') +
     '</div>';
 
@@ -175,6 +178,8 @@ window.App.AIInsights = (function () {
 
   function bind(container) {
     if (window.App.UI && window.App.UI.bindInfo) window.App.UI.bindInfo(container, INFO);
+    var rerun = container.querySelector('#ai-rerun');
+    if (rerun) rerun.onclick = function () { if (window.App.Sync) window.App.Sync.open({ highlight: 'update_ai.yml' }); };
     container.querySelectorAll('[data-ai-region]').forEach(function (b) {
       b.onclick = function () { state.region = b.getAttribute('data-ai-region'); render(container); };
     });

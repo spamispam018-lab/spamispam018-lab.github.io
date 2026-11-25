@@ -228,6 +228,12 @@ window.App.UI = (function () {
     });
   }
 
+  /** Ticker der gerade geöffneten Detailansicht oder '' */
+  function stockTicker() {
+    var m = /^#\/stock\/([^/]+)/.exec(window.location.hash || '');
+    return m ? decodeURIComponent(m[1]).toUpperCase() : '';
+  }
+
   /** App-Menü (⋯ oben rechts) */
   function openMenu() {
     var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
@@ -246,6 +252,7 @@ window.App.UI = (function () {
           '<span class="ui-switch' + (expert ? ' on' : '') + '" aria-hidden="true"></span>' +
         '</button>' +
         '<button class="ui-action-item" id="ui-menu-search"><span class="ui-action-label">Suche öffnen</span><span class="ui-action-desc">Aktien und alle Bereiche (Strg/Cmd + K)</span></button>' +
+        '<button class="ui-action-item" id="ui-menu-sync"><span class="ui-action-label">Daten-Updates</span><span class="ui-action-desc">GitHub-Abrufe starten: Kurse, Nachrichten, KI' + (stockTicker() ? ' oder nur ' + esc(stockTicker()) : '') + '</span></button>' +
         (canInstall ? '<button class="ui-action-item" id="ui-menu-install"><span class="ui-action-label">App installieren</span><span class="ui-action-desc">Als App auf dem Startbildschirm</span></button>' : '') +
       '</div>';
 
@@ -260,6 +267,10 @@ window.App.UI = (function () {
         setExpert(on);
         this.setAttribute('aria-checked', on);
         this.querySelector('.ui-switch').classList.toggle('on', on);
+      };
+      root.querySelector('#ui-menu-sync').onclick = function () {
+        closeSheet();
+        if (window.App.Sync) setTimeout(function () { window.App.Sync.open({ ticker: stockTicker() }); }, 60);
       };
       root.querySelector('#ui-menu-search').onclick = function () {
         closeSheet();
