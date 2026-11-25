@@ -1302,3 +1302,131 @@ button.segbar-btn.active { background: var(--bg-tertiary); }
   text-overflow: ellipsis;
   line-height: 1.25;
 }
+
+/* Sheets: Formular-Bausteine (Watchlist-Gruppen u. a.) */
+.ui-sheet-title { font-size: 1.05rem; font-weight: 700; margin: 0 0 2px; }
+.ui-sheet-sub { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 14px; }
+.ui-check-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 50px;
+  padding: 0 2px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+}
+.ui-check-row .ui-check-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ui-check-row .ui-check-count { font-size: 0.75rem; color: var(--text-dim); }
+.ui-check-box {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  border: 2px solid var(--border-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+.ui-check-row[aria-checked="true"] .ui-check-box { background: var(--accent-purple); border-color: var(--accent-purple); color: #fff; }
+.ui-inline-form { display: flex; gap: 8px; margin-top: 14px; }
+.ui-input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font: inherit;
+  font-size: 0.9rem;
+}
+.ui-input:focus { outline: none; border-color: var(--accent-purple); }
+.ui-hint { min-height: 18px; font-size: 0.75rem; color: var(--bearish); margin-top: 6px; }
+.ui-sheet-actions { display: flex; gap: 10px; margin-top: 16px; }
+.ui-btn {
+  flex: 1;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-main);
+}
+.ui-btn-primary { background: var(--accent-purple); border-color: var(--accent-purple); color: #fff; }
+.ui-btn-small { flex: 0 0 auto; min-height: 44px; }
+.ui-group-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.ui-group-row .ui-input { height: 40px; }
+.ui-group-count { font-size: 0.75rem; color: var(--text-dim); width: 54px; text-align: right; flex-shrink: 0; }
+.ui-del-btn {
+  flex-shrink: 0;
+  min-width: 44px;
+  height: 40px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ui-del-btn.confirm { border-color: var(--bearish); background: var(--bearish); color: #fff; }
+.ui-empty { padding: 14px 0; font-size: 0.85rem; color: var(--text-muted); }
+.ui-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--bottom-nav-height, 64px) + 18px);
+  transform: translate(-50%, 20px);
+  z-index: 400;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--text-main);
+  color: var(--bg-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+}
+.ui-toast.show { opacity: 1; transform: translate(-50%, 0); }
+/* Gruppen-Knopf in der Watchlist-Zeile */
+.wl-group-assign {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.wl-group-assign.has-groups { color: var(--accent-purple-light); border-color: var(--accent-purple); }
