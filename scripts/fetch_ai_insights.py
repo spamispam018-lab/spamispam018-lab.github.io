@@ -4,17 +4,22 @@ KI-Vorschläge für den Screener (läuft nachts per GitHub Action, siehe .github
 Ablauf:
   1. data/universe.json (+ News- und Reddit-Index, falls vorhanden) einlesen
   2. Je Sektor eine kompakte Kennzahlen-Tabelle bauen, ETFs als eigenes Segment
-  3. Stufe 1: Gemini wählt je Sektor 3–5 Kandidaten und bis zu 3 Warnungen, jeweils mit Zahlen begründet
-  4. Stufe 2: Gemini vergleicht nur die Sektor-Kandidaten und erstellt eine Top-10-Liste
+  3. Stufe 1: Die KI wählt je Sektor 3–5 Kandidaten und bis zu 3 Warnungen, jeweils mit Zahlen begründet
+  4. Stufe 2: Die KI vergleicht nur die Sektor-Kandidaten und erstellt eine Top-10-Liste
   5. Ergebnis nach data/ai_insights.json schreiben
 
 Nur Python-Standardbibliothek, keine zusätzlichen Pakete nötig.
 
-Umgebungsvariablen:
-  GEMINI_API_KEY  (Pflicht)  Schlüssel aus Google AI Studio, in GitHub als Secret hinterlegt
-  GEMINI_MODEL    (optional) z. B. "gemini-3.6-flash". Ohne Angabe wird das neueste stabile Flash-Modell gewählt.
+Anbieter (mindestens einer nötig, beide als Secret in GitHub):
+  GROQ_API_KEY    Schlüssel von console.groq.com – Hauptanbieter (ca. 1.000 Anfragen/Tag je Modell kostenlos)
+  GEMINI_API_KEY  Schlüssel aus Google AI Studio – Ersatz, falls Groq ausfällt oder sein Kontingent leer ist
+  GEMINI_MODEL    (optional) erzwingt ein Gemini-Modell als erste Wahl unter den Gemini-Modellen
+  GROQ_MODEL      (optional) erzwingt ein Groq-Modell als erste Wahl
 
-Aufruf lokal:  GEMINI_API_KEY=... python scripts/fetch_ai_insights.py [--only Technology] [--dry-run]
+Reihenfolge: Groq-Modelle -> Gemini Flash-Lite -> Gemini Flash (Top 10: Groq -> Gemini Flash -> Flash-Lite).
+Ist ein Modell überlastet oder sein Kontingent erschöpft, wird automatisch das nächste genommen.
+
+Aufruf lokal:  GROQ_API_KEY=... GEMINI_API_KEY=... python scripts/fetch_ai_insights.py [--only Technology] [--dry-run]
 """
 
 import argparse
@@ -34,6 +39,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 OUT_FILE = os.path.join(DATA, "ai_insights.json")
 API_BASE = "https://generativelanguage.googleapis.com/v1beta"
+GROQ_BASE = "https://api.groq.com/openai/v1"
+GROQ_PREFERRED = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "openai/gpt-oss-20b"]
 
 MAX_ROWS_PER_SECTOR = 90       # größere Sektoren werden nach Marktkapitalisierung gekürzt
 PAUSE_BETWEEN_CALLS = 6        # Sekunden, schont die Minuten-Limits der kostenlosen Stufe (Flash-Lite ~10–15/Min.)
@@ -41,6 +48,8 @@ PAUSE_FLASH = 13               # Flash erlaubt in der kostenlosen Stufe nur ~5 A
 
 
 def pause_for(model):
+    if (model or "").startswith("groq:"):
+        return 4            # Groq: Minutenlimits greifen über retry-after
     return PAUSE_BETWEEN_CALLS if "lite" in (model or "") else PAUSE_FLASH
 MAX_RETRIES = 3
 HTTP_TIMEOUT = 120             # Sekunden je Anfrage
@@ -264,7 +273,7 @@ def version_tuple(name):
     return (int(m.group(1)), int(m.group(2) or 0)) if m else (0, 0)
 
 
-def pick_models(key):
+def pick_models(key, gkey=None):
     """Zwei Modell-Listen in Reihenfolge der Nutzung.
 
     Sektoren (12+ Anfragen): Flash-Lite zuerst – in der kostenlosen Stufe ca. 500 Anfragen/Tag statt ca. 20 bei Flash.
@@ -274,6 +283,9 @@ def pick_models(key):
     """
     forced = (os.environ.get("GEMINI_MODEL") or "").strip().replace("models/", "")
     flash, lite = [], []
+    if not key:
+        groq = ["groq:" + n for n in groq_models(gkey)] if gkey else []
+        return list(groq), list(groq)
     try:
         names, page = [], None
         for _ in range(5):
@@ -301,11 +313,30 @@ def pick_models(key):
                 out.append(n)
         return out
 
-    lite_all = lite + ["gemini-flash-lite-latest", "gemini-2.5-flash-lite"]
-    flash_all = flash + ["gemini-flash-latest", "gemini-2.5-flash"]
-    sectors = uniq([forced] + lite_all + flash_all)
-    overall = uniq([forced] + flash_all + lite_all)
+    lite_all = ["gemini:" + n for n in lite + ["gemini-flash-lite-latest", "gemini-2.5-flash-lite"]]
+    flash_all = ["gemini:" + n for n in flash + ["gemini-flash-latest", "gemini-2.5-flash"]]
+    forced = "gemini:" + forced if forced else ""
+    groq = ["groq:" + n for n in groq_models(gkey)] if gkey else []
+    sectors = uniq(groq + [forced] + lite_all + flash_all)
+    overall = uniq(groq + [forced] + flash_all + lite_all)
     return sectors, overall
+
+
+def groq_models(gkey):
+    """Groq-Modelle in Wunschreihenfolge, gefiltert auf die, die das Konto wirklich anbietet."""
+    forced = (os.environ.get("GROQ_MODEL") or "").strip()
+    pref = ([forced] if forced else []) + GROQ_PREFERRED
+    try:
+        req = urllib.request.Request(GROQ_BASE + "/models", headers={"Authorization": "Bearer " + gkey, "User-Agent": "aktien-app"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            ids = {m.get("id") for m in json.loads(resp.read().decode("utf-8")).get("data", [])}
+        avail = [m for m in pref if m in ids]
+        if avail:
+            return list(dict.fromkeys(avail))
+        print("Groq: keines der Wunschmodelle gelistet, nehme Standardliste")
+    except Exception as e:
+        print("Groq-Modellliste nicht abrufbar:", e)
+    return list(dict.fromkeys(pref))
 
 
 def call_gemini(key, model, prompt):
@@ -349,6 +380,74 @@ def call_gemini(key, model, prompt):
             print("  Fehler:", last, "– neuer Versuch")
             time.sleep(10 * (attempt + 1))
     raise RuntimeError(last or "unbekannter Fehler")
+
+
+def call_groq(gkey, model, prompt):
+    body = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": "Du bist ein sorgfältiger Aktienanalyst. Antworte ausschließlich mit einem gültigen JSON-Objekt im verlangten Format."},
+            {"role": "user", "content": prompt},
+        ],
+        "response_format": {"type": "json_object"},
+        "temperature": 0.3,
+    }
+    if "gpt-oss" in model:
+        body["reasoning_effort"] = "medium"
+    data = json.dumps(body).encode("utf-8")
+    last = None
+    for attempt in range(MAX_RETRIES):
+        req = urllib.request.Request(GROQ_BASE + "/chat/completions", data=data, method="POST", headers={
+            "Authorization": "Bearer " + gkey, "Content-Type": "application/json", "User-Agent": "aktien-app"})
+        try:
+            with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
+                res = json.loads(resp.read().decode("utf-8"))
+            choices = res.get("choices") or []
+            if not choices:
+                raise ValueError("Keine Antwort")
+            return parse_json((choices[0].get("message") or {}).get("content") or "")
+        except urllib.error.HTTPError as e:
+            full = e.read().decode("utf-8", "ignore")
+            last = "HTTP %s: %s" % (e.code, re.sub(r"\s+", " ", full)[:300])
+            if e.code == 429 and re.search(r"per day|\(TPD\)|\(RPD\)", full, re.I):
+                print("  " + last)
+                raise QuotaExhausted("Tageskontingent für %s aufgebraucht (HTTP 429)" % model)
+            if e.code == 413 or (e.code == 400 and "too large" in full.lower()):
+                raise ModelUnavailable("Anfrage zu groß für %s (HTTP %s)" % (model, e.code))
+            if e.code == 404 or (e.code == 400 and re.search(r"model_not_found|decommissioned|does not exist", full, re.I)):
+                raise ModelUnavailable("%s nicht verfügbar (HTTP %s)" % (model, e.code))
+            if e.code == 400 and "json_validate_failed" in full and attempt + 1 < MAX_RETRIES:
+                print("  Ungültiges JSON von %s – neuer Versuch" % model)
+                continue
+            if e.code in (429, 498, 500, 502, 503, 504):
+                ra = e.headers.get("retry-after") if e.headers else None
+                m = re.search(r"try again in (?:(\d+)m)?([\d.]+)s", full)
+                wait = float(ra) if ra and re.match(r"^[\d.]+$", ra) else (
+                    (int(m.group(1) or 0) * 60 + float(m.group(2))) if m else 20 * (attempt + 1))
+                wait = min(max(wait, 1) + 1, 90)
+                if attempt + 1 >= MAX_RETRIES or time_left() < wait + HTTP_TIMEOUT:
+                    if e.code in (498, 503):
+                        raise ModelUnavailable("%s überlastet (HTTP %s)" % (model, e.code))
+                    break
+                print("  %s – neuer Versuch in %ds" % (last[:160], wait))
+                time.sleep(wait)
+                continue
+            raise RuntimeError(last)
+        except (urllib.error.URLError, TimeoutError, ValueError, OSError) as e:
+            last = str(e) or e.__class__.__name__
+            if attempt + 1 >= MAX_RETRIES or time_left() < HTTP_TIMEOUT + 20:
+                break
+            print("  Fehler:", last, "– neuer Versuch")
+            time.sleep(10 * (attempt + 1))
+    raise RuntimeError(last or "unbekannter Fehler")
+
+
+def call_model(spec, keys, prompt):
+    """spec = "groq:<modell>" oder "gemini:<modell>"."""
+    provider, _, name = spec.partition(":")
+    if provider == "groq":
+        return call_groq(keys["groq"], name, prompt)
+    return call_gemini(keys["gemini"], name, prompt)
 
 
 def parse_json(text):
@@ -464,9 +563,13 @@ def main():
     print("Segmente:", ", ".join("%s (%d)" % (s, len(by_sector[s])) for s in sectors))
 
     key = os.environ.get("GEMINI_API_KEY", "").strip()
-    if not key and not args.dry_run:
-        print("FEHLER: GEMINI_API_KEY ist nicht gesetzt. In GitHub unter Settings › Secrets › Actions anlegen.")
+    gkey = os.environ.get("GROQ_API_KEY", "").strip()
+    keys = {"gemini": key, "groq": gkey}
+    if not key and not gkey and not args.dry_run:
+        print("FEHLER: Weder GROQ_API_KEY noch GEMINI_API_KEY gesetzt. In GitHub unter Settings › Secrets › Actions anlegen.")
         sys.exit(1)
+    if not gkey:
+        print("Hinweis: GROQ_API_KEY fehlt – nur Gemini wird genutzt.")
 
     previous = load_json(OUT_FILE, {})
     prev_sectors = previous.get("sectors") or {}
@@ -499,7 +602,7 @@ def main():
     if args.dry_run:
         models, models_overall = ["dry-run"], ["dry-run"]
     else:
-        models, models_overall = pick_models(key)
+        models, models_overall = pick_models(key, gkey)
     model = models[0]
     print("Modelle Sektoren:", ", ".join(models))
     print("Modelle Gesamt-Top-10:", ", ".join(models_overall))
@@ -539,7 +642,7 @@ def main():
         while lst:
             m = lst[0]
             try:
-                out = call_gemini(key, m, prompt)
+                out = call_model(m, keys, prompt)
                 if m not in used:
                     used.append(m)
                 result["model"] = ", ".join(used)
