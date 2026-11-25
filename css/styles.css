@@ -1536,3 +1536,10 @@ button.segbar-btn.active { background: var(--bg-tertiary); }
 .upd-btn.loading svg { animation: upd-spin 0.8s linear infinite; }
 @keyframes upd-spin { to { transform: rotate(360deg); } }
 .card-header-dotted .upd-btn { margin-left: auto; }
+
+/* Daten-Updates (js/sync.js) */
+.sync-row { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border-subtle); }
+.sync-row:last-of-type { border-bottom: 0; }
+.sync-row .ui-btn[disabled] { opacity: 0.55; cursor: default; }
+.sync-dot { width: 8px; height: 8px; border-radius: 4px; background: #f59e0b; animation: sync-pulse 1.2s ease-in-out infinite; }
+@keyframes sync-pulse { 50% { opacity: 0.3; } }
