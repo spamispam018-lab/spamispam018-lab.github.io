@@ -43,7 +43,15 @@ window.App.Macro = (function () {
         if (!d || !d.items || !d.items.length) throw new Error('leer');
         d.updated = d.fetchedAt || d.updated;
         d.live = true;
-        return d;
+        // Fehlende Reihen (z. B. FRED gesperrt) mit dem letzten Stand aus GitHub auffüllen
+        return fileP().then(function (file) {
+          var have = {};
+          d.items.forEach(function (it) { have[it.id] = 1; });
+          var missing = ((file && file.items) || []).filter(function (it) { return !have[it.id]; });
+          missing.forEach(function (it) { d.items.push(Object.assign({}, it, { stale: true })); });
+          d.filled = missing.length;
+          return d;
+        }).catch(function () { return d; });
       })
       .catch(function () { return fileP(); });
     loading = p.then(function (data) {
@@ -300,10 +308,11 @@ window.App.Macro = (function () {
         (open ? list.map(rowHtml).join('') : '') +
       '</div>';
     });
-    var upd = res.data.updated ? parseFlexibleDate(res.data.updated) : null;
+    var upd = res.data.updated ? new Date(res.data.updated) : null;
+    if (upd && isNaN(upd.getTime())) upd = parseFlexibleDate(res.data.updated);
     h += '<div style="font-size:.64rem;color:var(--text-dim);margin-top:8px;line-height:1.5;">Quellen: FRED (US-Notenbank St. Louis) und Yahoo Finance' + (res.data.live ? ' (live über Cloudflare)' : '') +
       (upd ? ', Abruf ' + upd.toLocaleDateString('de-DE') + ' ' + upd.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr' : '') +
-      '. Ampel nach Faustregeln, keine Prognose. Einkaufsmanagerindizes sind nicht kostenlos verfügbar, daher stehen Arbeitsmarktdaten (Sahm-Regel, Erstanträge) als Konjunktur-Frühindikatoren da. Keine Anlageberatung.</div>';
+      '. ' + (res.data.filled ? res.data.filled + ' Reihen live nicht erreichbar, dort gilt der letzte Stand aus GitHub (markiert mit „veraltet“). ' : '') + 'Ampel nach Faustregeln, keine Prognose. Einkaufsmanagerindizes sind nicht kostenlos verfügbar, daher stehen Arbeitsmarktdaten (Sahm-Regel, Erstanträge) als Konjunktur-Frühindikatoren da. Keine Anlageberatung.</div>';
     return h;
   }
 
