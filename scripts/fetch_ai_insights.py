@@ -600,7 +600,7 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="Nur Prompts erzeugen und Größe ausgeben, keine API-Aufrufe")
     args = ap.parse_args()
 
-    universe = load_json(os.path.join(DATA, "universe.json"), [])
+    universe = [u for u in load_json(os.path.join(DATA, "universe.json"), []) if isinstance(u, dict) and u.get("ticker")]
     if not universe:
         print("FEHLER: data/universe.json fehlt oder ist leer.")
         sys.exit(1)
@@ -696,7 +696,7 @@ def main():
     fit_rows = {}   # je Modell: so viele Zeilen passten zuletzt ins Minutenlimit (-1 = passt gar nicht)
     busy_until = {} # je Modell: bis wann es nach einer Überlastung erst einmal hinten ansteht
 
-    def ask(build, lst, n=None):
+    def ask(build, lst, n=None, min_rows=30):
         """Fragt die Modelle der Liste der Reihe nach (für jede Anfrage neu ab dem ersten).
         - Anfrage zu groß (Groq-Minutenlimit): gleiches Modell mit weniger Zeilen (größte Werte bleiben drin),
           reicht das nicht, nur für diese Anfrage das nächste Modell
@@ -720,9 +720,9 @@ def main():
                 return out, m, rows_used
             except TooLarge as e:
                 cur = len(rows_used) if rows_used else 0
-                if cur > 30:
-                    n = max(30, int(cur * 0.65))
-                    print("  %s – erneut mit den %d größten Werten" % (e, n))
+                if cur > min_rows:
+                    n = max(min_rows, int(cur * 0.65))
+                    print("  %s – erneut mit %d statt %d Einträgen" % (e, n, cur))
                     continue
                 n = None
                 fit_rows[m] = -1
@@ -847,7 +847,12 @@ def main():
             result["errors"].append({"segment": "Gesamt", "error": "Zu wenige Sektor-Kandidaten für eine Gesamtauswertung."})
         else:
             try:
-                res, used_model, _ = ask(lambda n: (overall_prompt(stock_cands), None), models_overall)
+                # Bei zu großer Anfrage (Groq-Minutenlimit) werden die Kandidaten mit der geringsten Überzeugung zuerst weggelassen
+                ranked = sorted(stock_cands, key=lambda c: -(c.get("conviction") or 3))
+                res, used_model, sent = ask(lambda n: (overall_prompt(ranked if n is None else ranked[:n]),
+                                                       ranked if n is None else ranked[:n]), models_overall, min_rows=15)
+                if len(sent) < len(ranked):
+                    print("Top 10 aus %d von %d Kandidaten (stärkste Überzeugung)" % (len(sent), len(ranked)))
                 print("Gesamt-Top-10 von", used_model)
                 cand_map = {c["ticker"]: c for c in stock_cands}
                 top, seen = [], set()
