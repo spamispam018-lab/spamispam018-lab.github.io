@@ -413,6 +413,19 @@ window.App.Live = (function () {
     var p0 = Number(item.price);
     var p1 = Number(e.price);
 
+    // Dateiwerte einmal sichern: wiederholtes Anwenden rechnet immer vom Dateistand aus
+    if (!item._file) {
+      item._file = {
+        price: p0,
+        pe: item.pe, forwardPe: item.forwardPe, peg: item.peg, marketCap: item.marketCap, dividendYield: item.dividendYield,
+        cross: item.cross, crossDaysAgo: item.crossDaysAgo, emaCross: item.emaCross, emaCrossDaysAgo: item.emaCrossDaysAgo,
+        emaTrend: item.emaTrend, bollingerSqueeze: item.bollingerSqueeze,
+        chartPatterns: Array.isArray(item.chartPatterns) ? item.chartPatterns.slice() : item.chartPatterns,
+        hasBullishPattern: item.hasBullishPattern, hasBearishPattern: item.hasBearishPattern
+      };
+    }
+    applyValuation(item, item._file, p1);
+
     if (p0 > 0) {
       ['perf1w', 'perf1m', 'perf3m', 'perfYtd', 'perf52w'].forEach(function (k) {
         if (isNum(item[k])) {
@@ -473,6 +486,9 @@ window.App.Live = (function () {
         }
       }
     }
+    if (Array.isArray(item.closes) && item.closes.length > 20) {
+      applyTechnicals(item, item._file, p1, new Date(e.ts).toISOString().slice(0, 10));
+    }
     if (isNum(item.low52) && isNum(item.high52)) {
       var lo = Math.min(Number(item.low52), p1), hi = Math.max(Number(item.high52), p1);
       if (hi > lo) item.rangePos = ((p1 - lo) / (hi - lo)) * 100;
@@ -483,6 +499,91 @@ window.App.Live = (function () {
     item.currency = 'EUR';
     item.liveTs = e.ts;
     return item;
+  }
+
+  // ---------------------------------------------------------------- Bewertung mit Live-Kurs
+  // Gewinne, Dividende und Aktienzahl ändern sich im Tagesverlauf nicht: die Kennzahlen skalieren mit dem Kurs.
+  function applyValuation(item, f, p1) {
+    var r = f.price > 0 ? p1 / f.price : null;
+    if (!(r > 0)) return;
+    ['pe', 'forwardPe', 'peg', 'marketCap'].forEach(function (k) {
+      if (isNum(f[k])) item[k] = Number(f[k]) * r;
+    });
+    if (isNum(f.dividendYield)) item.dividendYield = Number(f.dividendYield) / r;
+  }
+
+  // ---------------------------------------------------------------- Kreuze, EMA-Trend, Squeeze mit Live-Kurs
+  // Basis aus der Pipeline (item.liveBase): EMA 12/26/50/200 und SMA 200 am vorletzten und letzten Dateitag,
+  // dazu die beiden Kurse, die beim SMA 200 aus dem Fenster fallen. SMA 50 und Squeeze kommen aus item.closes.
+  // Ein Kreuz, das erst durch den Live-Kurs entsteht, wird als vorläufig markiert (crossLive / emaCrossLive).
+  function avg(a) { var t = 0; for (var i = 0; i < a.length; i++) t += a[i]; return t / a.length; }
+
+  function liveCross(f, prev, typeKey, daysKey, isNewDay, prevSign, liveSign, upName, downName) {
+    var cross = f[typeKey], days = isNum(f[daysKey]) ? Number(f[daysKey]) : null;
+    if (isNewDay) { if (days !== null) days += 1; }
+    else if (days === 0) {
+      // Kreuz lag auf dem heutigen Datenpunkt: Stand davor nehmen (ein Tag älter)
+      cross = prev ? prev[typeKey] : null;
+      days = prev && isNum(prev[daysKey]) ? Number(prev[daysKey]) + 1 : null;
+    }
+    if (prevSign && liveSign && prevSign !== liveSign) return { type: liveSign > 0 ? upName : downName, days: 0, live: true };
+    if (days !== null && days > 60) { cross = null; days = null; }
+    return { type: cross || null, days: cross ? days : null, live: false };
+  }
+
+  function applyTechnicals(item, f, p1, day) {
+    var file = item.closes;
+    var isNewDay = !!(item.closesEnd && day > item.closesEnd);
+    var cl = file.slice();
+    if (isNewDay) cl.push(p1); else cl[cl.length - 1] = p1;
+    var b = item.liveBase || null;
+
+    // SMA 50/200 -> Golden/Death Cross
+    if (b && b.s200 && b.c200 && file.length >= 51) {
+      var s50Live = avg(cl.slice(-50));
+      var s50Prev = isNewDay ? avg(file.slice(-50)) : avg(file.slice(-51, -1));
+      var s200Prev = isNewDay ? b.s200[1] : b.s200[0];
+      var s200Live = isNewDay ? b.s200[1] + (p1 - b.c200[1]) / 200 : b.s200[0] + (p1 - b.c200[0]) / 200;
+      var c = liveCross(f, b.prev, 'cross', 'crossDaysAgo', isNewDay,
+        s50Prev > s200Prev ? 1 : -1, s50Live > s200Live ? 1 : -1, 'golden', 'death');
+      item.cross = c.type; item.crossDaysAgo = c.days; item.crossLive = c.live;
+      item.sma50Live = s50Live; item.sma200Live = s200Live;
+    }
+
+    // EMA 12/26 -> Kreuz, EMA 50/200 -> Trend
+    function emaLive(key, n) {
+      var v = b && b[key];
+      if (!v) return null;
+      var base = isNewDay ? v[1] : v[0], k = 2 / (n + 1);
+      return { prev: base, live: base + k * (p1 - base) };
+    }
+    var e12 = emaLive('e12', 12), e26 = emaLive('e26', 26), e50 = emaLive('e50', 50), e200 = emaLive('e200', 200);
+    if (e12 && e26) {
+      var ec = liveCross(f, b.prev, 'emaCross', 'emaCrossDaysAgo', isNewDay,
+        e12.prev > e26.prev ? 1 : -1, e12.live > e26.live ? 1 : -1, 'up', 'down');
+      item.emaCross = ec.type; item.emaCrossDaysAgo = ec.days; item.emaCrossLive = ec.live;
+    }
+    if (e50 && e200) {
+      item.emaTrend = p1 > e50.live && e50.live > e200.live;
+      item.ema50Live = e50.live; item.ema200Live = e200.live;
+    }
+
+    // Bollinger-Squeeze über die letzten 20 Kurse (wie in der Pipeline)
+    var w = cl.slice(-20), m = avg(w), v2 = 0;
+    for (var i = 0; i < w.length; i++) v2 += (w[i] - m) * (w[i] - m);
+    var squeeze = m > 0 && (4 * Math.sqrt(v2 / w.length)) / m < 0.05;
+    item.bollingerSqueeze = squeeze;
+
+    // Musterliste und Bull/Bär-Flags passend nachziehen
+    var pats = (Array.isArray(f.chartPatterns) ? f.chartPatterns : []).filter(function (x) {
+      return x !== 'squeeze' && (!b || (x !== 'golden_cross' && x !== 'death_cross'));
+    });
+    if (b && item.cross === 'golden') pats.unshift('golden_cross');
+    if (b && item.cross === 'death') pats.unshift('death_cross');
+    if (squeeze) pats.push('squeeze');
+    item.chartPatterns = pats;
+    item.hasBullishPattern = pats.indexOf('golden_cross') !== -1 || pats.indexOf('double_bottom') !== -1;
+    item.hasBearishPattern = pats.indexOf('death_cross') !== -1 || pats.indexOf('double_top') !== -1;
   }
 
   function applyUniverse(list) {
