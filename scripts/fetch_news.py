@@ -72,7 +72,7 @@ def summary(items):
 
 def main():
     os.makedirs(NEWS, exist_ok=True)
-    universe = load(os.path.join(DATA, "universe.json"), [])
+    universe = [u for u in load(os.path.join(DATA, "universe.json"), []) if isinstance(u, dict) and u.get("ticker")]
     index, by_ticker = {}, {}
     for u in universe:
         t = u["ticker"]
