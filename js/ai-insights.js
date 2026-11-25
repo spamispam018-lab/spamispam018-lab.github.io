@@ -113,7 +113,8 @@ window.App.AIInsights = (function () {
       '<div style="display:flex;justify-content:flex-end;margin-top:10px;">' +
         '<button type="button" class="upd-btn" id="ai-rerun">Neu auswerten</button>' +
       '</div>' +
-      ((d.errors && d.errors.length) ? '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:8px;">Nicht aktualisiert: ' + esc(d.errors.map(function (e) { return e.segment; }).join(', ')) + ' (vorheriger Stand oder fehlend).</div>' : '') +
+      ((d.pending && d.pending.length) ? '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:8px;line-height:1.4;">Noch nicht neu ausgewertet: ' + esc(d.pending.join(', ')) + '. Der nächste Lauf macht dort weiter.</div>' :
+        (d.errors && d.errors.length) ? '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:8px;">Nicht aktualisiert: ' + esc(d.errors.map(function (e) { return e.segment; }).join(', ')) + ' (vorheriger Stand oder fehlend).</div>' : '') +
     '</div>';
 
     // Region
@@ -128,6 +129,11 @@ window.App.AIInsights = (function () {
     var top = (overall.top || []).filter(function (x) { return regionMatch(x.region); });
     html += '<div class="card"><div class="card-header-dotted"><span class="card-title">Top 10 über alle Sektoren</span>' +
       (overall.stale ? '<span class="period-tag">älterer Stand</span>' : '') + '</div>';
+    if (overall.updatedAt || (overall.stale && d.pending && d.pending.length)) {
+      html += '<div style="font-size:0.7rem;color:var(--text-dim);margin:-2px 0 8px;">' +
+        (overall.updatedAt ? 'Stand ' + esc(fmtStamp(overall.updatedAt)) : '') +
+        (overall.stale && d.pending && d.pending.length ? (overall.updatedAt ? ' · ' : '') + 'wird neu erstellt, sobald alle Sektoren aktuell sind' : '') + '</div>';
+    }
     if (overall.marketView) html += '<div class="ai-summary">' + esc(overall.marketView) + '</div>';
     html += top.length ? top.map(function (x) {
       return itemHtml({ rank: x.rank, ticker: x.ticker, name: x.name, badge: (x.sectorDe || '') + (x.type ? ' · ' + x.type : ''), thesis: x.thesis, lines: x.why ? [x.why] : [], risk: x.risk });
@@ -146,6 +152,7 @@ window.App.AIInsights = (function () {
       }).join('') + '</div>';
 
       if (sec) {
+        if (sec.updatedAt) html += '<div style="font-size:0.7rem;color:var(--text-dim);margin:-4px 0 8px;">Stand ' + esc(fmtStamp(sec.updatedAt)) + '</div>';
         if (sec.summary) html += '<div class="ai-summary">' + esc(sec.summary) + '</div>';
         var picks = (sec.picks || []).filter(function (p) { return regionMatch(p.region); });
         html += picks.length ? picks.map(function (p) {
