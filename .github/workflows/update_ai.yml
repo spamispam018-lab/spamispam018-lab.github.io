@@ -1,0 +1,59 @@
+name: KI-Vorschläge
+
+on:
+  # Läuft automatisch, sobald das abendliche Marktdaten-Update fertig ist
+  workflow_run:
+    workflows: ["Tägliches Marktdaten-Update"]
+    types: [completed]
+  # Manuell startbar (Actions › KI-Vorschläge › Run workflow)
+  workflow_dispatch:
+    inputs:
+      only:
+        description: 'Optional: nur einen Sektor testen (englischer Name, z. B. Technology)'
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: ai-insights
+  cancel-in-progress: false
+
+jobs:
+  ai-insights:
+    # Nach dem Marktdaten-Update nur laufen, wenn es erfolgreich war
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: KI-Auswertung erstellen
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          ONLY_SECTOR: ${{ github.event.inputs.only }}
+        run: |
+          if [ -n "$ONLY_SECTOR" ]; then
+            python scripts/fetch_ai_insights.py --only "$ONLY_SECTOR"
+          else
+            python scripts/fetch_ai_insights.py
+          fi
+      - name: Committen und pushen
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/ai_insights.json
+          if git diff --staged --quiet; then
+            echo "Keine Änderungen."
+          else
+            git commit -m "Auto-Update KI-Vorschläge: $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git pull --rebase origin main
+            git push origin main
+          fi
