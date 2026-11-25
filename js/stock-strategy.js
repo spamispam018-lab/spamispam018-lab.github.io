@@ -25,7 +25,26 @@ window.App.StockStrategy = (function () {
   var BEST_WINS = [['30p', 'Letzte 30 %'], ['1Y', '1 Jahr'], ['6M', '6 Monate'], ['3M', '3 Monate'], ['1M', '1 Monat'], ['1W', '1 Woche'], ['1D', '1 Tag']];
   var BEST_DAYS = { '1Y': 365, '6M': 182, '3M': 91, '1M': 30, '1W': 7, '1D': 1 };
 
-  var BT_HELP = [["Gesamtrendite / CAGR", "Gesamtrendite ist der Gewinn über den ganzen Zeitraum; CAGR rechnet ihn auf ein Jahr um, damit sich verschieden lange Zeiträume vergleichen lassen."], ["Volatilität p. a.", "Wie stark der Wert der Strategie schwankt (Standardabweichung der Tagesrenditen, aufs Jahr hochgerechnet). Zeiten in Cash dämpfen sie."], ["Max. Drawdown", "Der größte Rückgang vom bisherigen Höchststand bis zum folgenden Tief. Er zeigt, wie viel Durchhaltevermögen die Strategie verlangt hätte. Ein Minus von 30 % braucht +43 %, um wieder auszugleichen."], ["Sharpe Ratio", "Überrendite gegenüber 2 % Zins je Einheit Schwankung. Unter 0: schlechter als Zinsen; um 0,5: mäßig; ab 1: gut. Nur historisch und bei kurzen Zeiträumen wenig belastbar."], ["Calmar Ratio", "Rendite p. a. geteilt durch den größten Rückgang. Je höher, desto mehr Ertrag pro ertragenem Verlust."], ["Zeit investiert", "Anteil der Handelstage mit Position. Eine Strategie, die nur halb so lange investiert war und ähnlich viel verdient hat, hat das mit weniger Marktrisiko geschafft."], ["Trefferquote und Ø Trade", "Anteil der Gewinn-Trades und ihre durchschnittliche Rendite. Eine hohe Trefferquote allein sagt wenig: Trendfolger gewinnen oft nur in 35–45 % der Trades, aber mit großen Gewinnen; Gegenstrategien gewinnen oft häufig, aber klein."], ["Signal heute", "Was die Regel am letzten Schlusskurs sagt. Ausgeführt würde sie – wie im Backtest – erst am nächsten Handelstag."], ["Regeln der Simulation", "Signal am Schlusskurs, Ausführung am nächsten Schlusskurs (kein Blick in die Zukunft). Nur Long, voll investiert oder Cash ohne Zinsen. Kosten fallen bei jedem Kauf und Verkauf an."], ["Typische Fallstricke", "<strong>Überanpassung:</strong> Wer Parameter so lange dreht, bis die Kurve schön aussieht, optimiert auf die Vergangenheit. Robust ist eine Einstellung, die auch bei Nachbarwerten (z. B. 40/180 statt 50/200) ähnlich funktioniert. <strong>Auswahlverzerrung:</strong> Du testest eine Aktie, die es heute noch gibt und die du kennst; gescheiterte Titel fehlen. <strong>Wenige Trades:</strong> Bei unter etwa 10 Trades ist das Ergebnis Zufall, nicht Beleg. <strong>Währung:</strong> Kurse sind in Euro umgerechnet, Wechselkurse fließen ins Ergebnis ein."]];
+  // Erklärungen für die ⓘ-Knöpfe
+  var BT_INFO = {
+    total: { title: 'Gesamtrendite', text: 'Der Gewinn oder Verlust über den ganzen gewählten Zeitraum, nach Kosten.' },
+    cagr: { title: 'Rendite p. a. (CAGR)', text: 'Die Gesamtrendite auf ein Jahr umgerechnet (mit Zinseszins), damit sich verschieden lange Zeiträume vergleichen lassen.' },
+    vol: { title: 'Volatilität p. a.', text: 'Wie stark der Wert der Strategie schwankt (Standardabweichung der Tagesrenditen, aufs Jahr hochgerechnet). Zeiten in Cash dämpfen sie.' },
+    maxdd: { title: 'Max. Drawdown', text: 'Der größte Rückgang vom bisherigen Höchststand bis zum folgenden Tief. Er zeigt, wie viel Durchhaltevermögen die Strategie verlangt hätte. Ein Minus von 30 % braucht +43 %, um wieder auszugleichen.' },
+    sharpe: { title: 'Sharpe Ratio', text: 'Überrendite gegenüber 2 % Zins je Einheit Schwankung. Unter 0: schlechter als Zinsen; um 0,5: mäßig; ab 1: gut. Nur historisch und bei kurzen Zeiträumen wenig belastbar.' },
+    calmar: { title: 'Calmar Ratio', text: 'Rendite p. a. geteilt durch den größten Rückgang. Je höher, desto mehr Ertrag pro ertragenem Verlust.' },
+    exposure: { title: 'Zeit investiert', text: 'Anteil der Handelstage mit Position. Eine Strategie, die nur halb so lange investiert war und ähnlich viel verdient hat, hat das mit weniger Marktrisiko geschafft.' },
+    trades: { title: 'Anzahl Trades', text: 'Wie oft gekauft und wieder verkauft wurde. Bei unter etwa 10 Trades ist das Ergebnis eher Zufall als Beleg.' },
+    winrate: { title: 'Trefferquote', text: 'Anteil der Trades mit Gewinn. Allein wenig aussagekräftig: Trendfolger gewinnen oft nur in 35–45 % der Trades, dafür mit großen Gewinnen; Gegenstrategien gewinnen oft häufig, aber klein.' },
+    avg: { title: 'Ø Trade', text: 'Durchschnittliche Rendite pro Trade, nach Kosten. Zusammen mit der Trefferquote zeigt sie, ob die Strategie von vielen kleinen oder wenigen großen Gewinnen lebt.' },
+    extremes: { title: 'Bester / schlechtester Trade', text: 'Die Spanne der einzelnen Trade-Ergebnisse. Ein einzelner sehr großer Gewinn kann das Gesamtergebnis stark prägen.' },
+    signal: { title: 'Signal heute', text: 'Was die Regel am letzten Schlusskurs sagt. Ausgeführt würde sie – wie im Backtest – erst am nächsten Handelstag.' },
+    rules: { title: 'Regeln der Simulation', text: 'Signal am Schlusskurs, Ausführung am nächsten Schlusskurs (kein Blick in die Zukunft). Nur Long, voll investiert oder Cash ohne Zinsen. Kosten fallen bei jedem Kauf und Verkauf an.' },
+    pitfalls: { title: 'Typische Fallstricke', text: '<strong>Überanpassung:</strong> Wer Parameter so lange dreht, bis die Kurve schön aussieht, optimiert auf die Vergangenheit. Robust ist eine Einstellung, die auch bei Nachbarwerten (z. B. 40/180 statt 50/200) ähnlich funktioniert. <strong>Auswahlverzerrung:</strong> Du testest eine Aktie, die es heute noch gibt und die du kennst; gescheiterte Titel fehlen. <strong>Wenige Trades:</strong> Bei unter etwa 10 Trades ist das Ergebnis Zufall, nicht Beleg. <strong>Währung:</strong> Kurse sind in Euro umgerechnet, Wechselkurse fließen ins Ergebnis ein.' }
+  };
+
+  function info(key) { return window.App.UI && window.App.UI.info ? window.App.UI.info(key) : ''; }
+  function bindInfo(root) { if (window.App.UI && window.App.UI.bindInfo) window.App.UI.bindInfo(root, BT_INFO); }
 
   var histCache = {};
 
@@ -45,20 +64,6 @@ window.App.StockStrategy = (function () {
   function tone(v) { return v == null || !isFinite(v) ? '' : v >= 0 ? 'var(--bullish)' : 'var(--bearish)'; }
 
 
-  function helpCard(items, key) {
-    return '<details class="card" data-help="' + key + '"' + (state.helpOpen ? ' open' : '') + ' style="padding:14px 16px;">' +
-      '<summary style="font-weight:700;font-size:0.85rem;cursor:pointer;">Was bedeuten die Werte?</summary>' +
-      '<div style="margin-top:12px;">' + items.map(function (it) {
-        return '<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:0.8rem;color:var(--text-main);">' + it[0] + '</div>' +
-          '<div style="font-size:0.76rem;color:var(--text-dim);line-height:1.55;margin-top:2px;">' + it[1] + '</div></div>';
-      }).join('') + '</div></details>';
-  }
-
-  function bindHelp(root) {
-    var d = root.querySelector('details[data-help]');
-    if (d) d.addEventListener('toggle', function () { state.helpOpen = d.open; });
-  }
-
   function currentParams() {
     var defs = Q().STRATEGIES[state.type].params;
     var out = {};
@@ -72,6 +77,7 @@ window.App.StockStrategy = (function () {
   }
 
   function render(container, stock) {
+    bindInfo(container); // ⓘ-Klicks im ganzen Modul (auch Parameter-Suche)
     var ticker = (stock.ticker || (stock.profile && stock.profile.ticker) || '').toUpperCase();
     container.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Lade Kurshistorie…</p></div>';
 
@@ -227,7 +233,7 @@ window.App.StockStrategy = (function () {
 
         var html = '' +
           '<div class="card">' +
-            '<div class="card-header-dotted"><span class="card-title">Parameter-Suche</span><span class="period-tag">' + esc(def.label) + ' · ' + esc(per.label) + '</span></div>' +
+            '<div class="card-header-dotted"><span class="card-title" style="display:flex;align-items:center;">Parameter-Suche' + info('pitfalls') + '</span><span class="period-tag">' + esc(def.label) + ' · ' + esc(per.label) + '</span></div>' +
             '<div style="padding:10px 12px;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:0.8rem;line-height:1.5;margin-bottom:12px;">' +
               (winners.length
                 ? '<strong>' + winners.length + ' von ' + res.rows.length + '</strong> getesteten Kombinationen (' + f.number(winners.length / res.rows.length * 100, 0) + ' %) haben eine höhere Gesamtrendite als Buy &amp; Hold (' + pct(res.bh.totalReturn, 1, true) + '). ' +
@@ -510,7 +516,7 @@ window.App.StockStrategy = (function () {
 
     var html = '' +
       '<div class="card">' +
-        '<div class="card-header-dotted"><span class="card-title">' + esc(def.label) + '</span><span class="period-tag">' + esc(per.label) + '</span></div>' +
+        '<div class="card-header-dotted"><span class="card-title" style="display:flex;align-items:center;">' + esc(def.label) + info('pitfalls') + '</span><span class="period-tag">' + esc(per.label) + '</span></div>' +
         (paramTxt ? '<div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:10px;">' + paramTxt + ' · Kosten ' + f.number(state.fee, 2) + ' %</div>' : '') +
         (freqNote ? '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.4;margin:-4px 0 10px;">' + freqNote + '</div>' : '') +
         '<div style="padding:10px 12px;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:0.82rem;margin-bottom:14px;line-height:1.4;">' +
@@ -521,28 +527,28 @@ window.App.StockStrategy = (function () {
         (insights.length ? '<ul style="margin:-4px 0 14px 18px;padding:0;font-size:0.76rem;color:var(--text-dim);line-height:1.5;">' + insights.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul>' : '') +
         '</div>' +
         '<div class="table-responsive-wrapper"><table class="data-table compact"><thead><tr><th>Kennzahl</th><th style="text-align:right;">Strategie</th><th style="text-align:right;">Buy &amp; Hold</th></tr></thead><tbody>' +
-          row('Gesamtrendite', pct(s.totalReturn, 1, true), pct(b.totalReturn, 1, true), tone(s.totalReturn), tone(b.totalReturn)) +
-          row('Rendite p. a. (CAGR)', pct(s.cagr, 1, true), pct(b.cagr, 1, true), tone(s.cagr), tone(b.cagr)) +
-          row('Volatilität p. a.', pct(s.vol, 1), pct(b.vol, 1)) +
-          row('Max. Drawdown', pct(s.maxDD, 1), pct(b.maxDD, 1), 'var(--bearish)', 'var(--bearish)') +
-          row('Sharpe Ratio', num(s.sharpe, 2), num(b.sharpe, 2)) +
-          row('Calmar Ratio', num(s.calmar, 2), num(b.calmar, 2)) +
-          row('Zeit investiert', pct(s.exposure, 0), '100 %') +
-          row('Anzahl Trades', String(s.trades), '1') +
-          row('Trefferquote', pct(s.winRate, 0), '—') +
-          row('Ø Trade', pct(s.avgTrade, 1, true), '—', tone(s.avgTrade)) +
-          row('Bester / schlechtester', pct(s.bestTrade, 1, true) + ' / ' + pct(s.worstTrade, 1, true), '—') +
+          row('Gesamtrendite' + info('total'), pct(s.totalReturn, 1, true), pct(b.totalReturn, 1, true), tone(s.totalReturn), tone(b.totalReturn)) +
+          row('Rendite p. a. (CAGR)' + info('cagr'), pct(s.cagr, 1, true), pct(b.cagr, 1, true), tone(s.cagr), tone(b.cagr)) +
+          row('Volatilität p. a.' + info('vol'), pct(s.vol, 1), pct(b.vol, 1)) +
+          row('Max. Drawdown' + info('maxdd'), pct(s.maxDD, 1), pct(b.maxDD, 1), 'var(--bearish)', 'var(--bearish)') +
+          row('Sharpe Ratio' + info('sharpe'), num(s.sharpe, 2), num(b.sharpe, 2)) +
+          row('Calmar Ratio' + info('calmar'), num(s.calmar, 2), num(b.calmar, 2)) +
+          row('Zeit investiert' + info('exposure'), pct(s.exposure, 0), '100 %') +
+          row('Anzahl Trades' + info('trades'), String(s.trades), '1') +
+          row('Trefferquote' + info('winrate'), pct(s.winRate, 0), '—') +
+          row('Ø Trade' + info('avg'), pct(s.avgTrade, 1, true), '—', tone(s.avgTrade)) +
+          row('Bester / schlechtester' + info('extremes'), pct(s.bestTrade, 1, true) + ' / ' + pct(s.worstTrade, 1, true), '—') +
         '</tbody></table></div>' +
       '</div>' +
 
       (state.type !== 'buyhold' ? '<div class="card" id="bt-ind-card"></div>' : '') +
 
-      '<div class="card"><div class="card-header-dotted"><span class="card-title">Kapitalverlauf (Start = 100)</span>' +
+      '<div class="card"><div class="card-header-dotted"><span class="card-title" style="display:flex;align-items:center;">Kapitalverlauf (Start = 100)' + info('rules') + '</span>' +
         '<span class="period-tag"><span style="color:#818cf8;">●</span> Strategie &nbsp;<span style="color:#94a3b8;">●</span> Buy &amp; Hold</span></div>' +
         '<div style="height:220px;position:relative;"><canvas id="bt-single-chart" class="chart-canvas" style="height:100%;"></canvas></div></div>' +
 
       '<div class="card"><div class="card-header-dotted"><span class="card-title">Trades (' + res.trades.length + ')</span>' +
-        (res.pendingSignal === 'long' && state.type !== 'buyhold' ? '<span class="period-tag">Signal heute: investiert</span>' : (state.type !== 'buyhold' ? '<span class="period-tag">Signal heute: Cash</span>' : '')) + '</div>';
+        (res.pendingSignal === 'long' && state.type !== 'buyhold' ? '<span class="period-tag" style="display:inline-flex;align-items:center;">Signal heute: investiert' + info('signal') + '</span>' : (state.type !== 'buyhold' ? '<span class="period-tag" style="display:inline-flex;align-items:center;">Signal heute: Cash' + info('signal') + '</span>' : '')) + '</div>';
 
     if (!res.trades.length) {
       html += '<div style="font-size:0.82rem;color:var(--text-dim);">Die Strategie hat im Zeitraum kein Signal erzeugt.</div>';
@@ -558,14 +564,13 @@ window.App.StockStrategy = (function () {
       if (res.trades.length > 30) html += '<div style="font-size:0.7rem;color:var(--text-dim);margin-top:6px;">Die letzten 30 von ' + res.trades.length + ' Trades.</div>';
     }
     html += '</div>' +
-      helpCard(BT_HELP, 'bt') +
       '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.45;padding:2px 4px 12px;">' +
         'Simulation auf täglichen Schlusskursen (in Euro umgerechnet): Signal am Schlusskurs, Ausführung am nächsten Schlusskurs, nur Long, voll investiert oder Cash (ohne Zinsen). ' +
         'Keine Steuern, Spreads oder Teilausführungen. Wer Parameter so lange verändert, bis das Ergebnis gut aussieht, passt sie an die Vergangenheit an – das sagt nichts über die Zukunft.' +
       '</div>';
 
     out.innerHTML = html;
-    bindHelp(out);
+    bindInfo(out);
 
     drawIndicators(out, hist, res, params);
 
