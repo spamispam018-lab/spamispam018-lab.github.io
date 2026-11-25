@@ -72,6 +72,8 @@ window.App.Data = (function () {
   function getUniverse() {
     return fetchJsonWithFallback('universe.json')
       .then(function (data) {
+        // Einträge ohne Ticker (alter Pipeline-Fehler) ignorieren, sie bringen sonst Suche und Listen zum Absturz
+        if (Array.isArray(data)) data = data.filter(function (u) { return u && u.ticker; });
         if (Array.isArray(data) && data.length > 0) {
           try { safeSet(STORAGE_KEYS.UNIVERSE, JSON.stringify(data)); } catch (e) {}
           return withLiveUniverse(data);
