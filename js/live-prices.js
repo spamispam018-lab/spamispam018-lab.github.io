@@ -433,6 +433,9 @@ window.App.Live = (function () {
           if (baseP > 0) item[k] = (p1 / baseP - 1) * 100;
         }
       });
+      ['upsideLow', 'upsideHigh'].forEach(function (k) {
+        if (isNum(item[k])) item[k] = (p0 * (1 + Number(item[k]) / 100) / p1 - 1) * 100;
+      });
       if (isNum(item.upside)) {
         var target = p0 * (1 + Number(item.upside) / 100);
         item.upside = (target / p1 - 1) * 100;
