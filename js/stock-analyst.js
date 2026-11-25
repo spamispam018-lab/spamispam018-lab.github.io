@@ -352,7 +352,7 @@ window.App.StockAnalyst = (function () {
 
       // Charts & Listen initialisieren
       if (!isAgg) {
-        renderEpsTimeline(epsList, currency, analysts.epsForecast);
+        renderEpsTimeline(epsList, currency, analysts.epsForecast, analysts.nextEarningsDate);
         renderRecommendationsHistory(recs.history || []);
       }
       renderRecommendationsDonut(recs);
@@ -368,58 +368,90 @@ window.App.StockAnalyst = (function () {
     return 'Verkaufen (Sell)';
   }
 
-  function renderEpsTimeline(epsList, currency, forecast) {
+  /** "2026-09-30" -> "Q3 '26" (Kalenderquartal des Quartalsendes) */
+  function quarterLabel(dateStr) {
+    if (!dateStr || dateStr === 'None') return 'Q';
+    var m = /^(\d{4})-(\d{2})/.exec(String(dateStr));
+    if (!m) return String(dateStr).slice(0, 7);
+    var q = Math.floor((parseInt(m[2], 10) - 1) / 3) + 1;
+    return 'Q' + q + " '" + m[1].slice(2);
+  }
+
+  /** Quartal nach dem angegebenen: "2026-09-30" -> "Q4 '26" */
+  function nextQuarterLabel(dateStr) {
+    var m = /^(\d{4})-(\d{2})/.exec(String(dateStr || ''));
+    if (!m) return 'Nächstes';
+    var y = parseInt(m[1], 10);
+    var q = Math.floor((parseInt(m[2], 10) - 1) / 3) + 2;
+    if (q > 4) { q = 1; y++; }
+    return 'Q' + q + " '" + String(y).slice(2);
+  }
+
+  function renderEpsTimeline(epsList, currency, forecast, nextEarningsDate) {
     var container = document.getElementById('analyst-eps-timeline');
     if (!container || !epsList || epsList.length === 0) return;
 
     var F = window.App.Format;
     var hasFc = !!(forecast && forecast.estimate !== null && forecast.estimate !== undefined);
-    var items = epsList.slice(-4);
+
+    // Chronologisch sortieren (Daten kommen teils neuestes zuerst) und die letzten 4 nehmen
+    var items = epsList
+      .filter(function (it) { return it && it.quarter && it.quarter !== 'None'; })
+      .slice()
+      .sort(function (a, b) { return String(a.quarter).localeCompare(String(b.quarter)); })
+      .slice(-4);
+    if (!items.length) items = epsList.slice(0, 4);
+
     var html = '';
+    var fcVal = hasFc ? F.currency(forecast.estimate, currency, 2) : '';
+    var fcDateRaw = (forecast && forecast.date) || nextEarningsDate || null;
+    var fcDate = fcDateRaw ? F.date(fcDateRaw) : '';
 
     if (hasFc) {
-      var fcVal = F.currency(forecast.estimate, currency, 2);
-      var fcDate = forecast.date ? F.date(forecast.date) : '';
       html += '<div style="background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 10px; text-align: center; margin-bottom: 20px;">' +
         '<div style="font-size: 1.1rem; font-weight: 800; color: var(--text-main);">' + fcVal + ' Schätzung</div>' +
-        '<div style="font-size: 0.7rem; color: var(--text-dim);">für das nächste Quartal ' + (fcDate ? '(' + fcDate + ')' : '') + '</div>' +
+        '<div style="font-size: 0.7rem; color: var(--text-dim);">für das nächste Quartal' + (fcDate ? ' · Zahlen am ' + fcDate : '') + '</div>' +
       '</div>';
     }
 
-    html += '<div style="position: relative; display: flex; justify-content: space-between; align-items: flex-start; margin: 0 10px;">';
+    html += '<div style="position: relative; display: flex; justify-content: space-between; align-items: flex-start; margin: 0 4px;">';
     html += '<div style="position: absolute; top: 10px; left: 0; right: 0; height: 1px; border-top: 1px dashed var(--text-dim); z-index: 0;"></div>';
 
-    items.forEach(function(it) {
-      var isMiss = it.actual !== null && it.estimate !== null && it.actual < it.estimate;
-      var isBeat = it.actual !== null && it.estimate !== null && it.actual >= it.estimate;
-      var isFuture = it.actual === null;
-      
-      var color = isFuture ? 'transparent' : (isBeat ? 'var(--bullish)' : 'var(--bearish)');
-      var border = isFuture ? '2px solid var(--text-dim)' : 'none';
-      var textClass = isFuture ? 'var(--text-dim)' : (isBeat ? 'var(--bullish)' : 'var(--bearish)');
-      var statusText = isFuture ? 'Ausstehend' : (isBeat ? 'Übertroffen' : 'Verfehlt');
-      
-      var surprise = (it.actual !== null && it.estimate !== null) ? (it.actual - it.estimate) : null;
-      var surpriseText = surprise !== null ? (surprise >= 0 ? '+' : '') + F.currency(surprise, currency, 2) : '—';
+    function node(dotStyle, label, labelColor, status, statusColor, value, valueColor) {
+      return '<div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; flex: 1 1 0; min-width: 0; text-align: center;">' +
+        '<div style="width: 20px; height: 20px; border-radius: 50%; ' + dotStyle + ' box-shadow: 0 0 0 4px var(--bg-card); margin-bottom: 8px;"></div>' +
+        '<div style="font-size: 0.75rem; font-weight: 700; color: ' + labelColor + '; margin-bottom: 2px; white-space: nowrap;">' + label + '</div>' +
+        '<div style="font-size: 0.62rem; font-weight: 700; color: ' + statusColor + '; margin-bottom: 2px; white-space: nowrap;">' + status + '</div>' +
+        '<div style="font-size: 0.68rem; color: ' + valueColor + '; white-space: nowrap;">' + value + '</div>' +
+      '</div>';
+    }
 
-      html += '<div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 60px;">' +
-        '<div style="width: 20px; height: 20px; border-radius: 50%; background: ' + color + '; border: ' + border + '; box-shadow: 0 0 0 4px var(--bg-card); margin-bottom: 8px;"></div>' +
-        '<div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px;">' + (it.quarter && it.quarter !== 'None' ? it.quarter.slice(0, 5) : 'Q') + '</div>' +
-        '<div style="font-size: 0.65rem; font-weight: 700; color: ' + textClass + '; margin-bottom: 2px;">' + statusText + '</div>' +
-        '<div style="font-size: 0.7rem; color: ' + textClass + ';">' + surpriseText + '</div>' +
-      '</div>';
+    items.forEach(function (it) {
+      var hasBoth = it.actual !== null && it.actual !== undefined && it.estimate !== null && it.estimate !== undefined;
+      var label = quarterLabel(it.quarter);
+      if (!hasBoth) {
+        html += node('background: transparent; border: 2px solid var(--text-dim);', label, 'var(--text-main)', 'Ausstehend', 'var(--text-dim)', '—', 'var(--text-dim)');
+        return;
+      }
+      var diff = it.actual - it.estimate;
+      // Abweichung in %: bevorzugt aus den Daten, sonst selbst berechnet
+      var pct = (typeof it.surprisePercent === 'number') ? it.surprisePercent * 100
+        : (it.estimate !== 0 ? (diff / Math.abs(it.estimate)) * 100 : 0);
+      var met = Math.abs(diff) < 0.005; // auf Cent gerundet gleich
+      var col = met ? 'var(--text-muted)' : (diff > 0 ? 'var(--bullish)' : 'var(--bearish)');
+      var status = met ? 'Getroffen' : (diff > 0 ? 'Besser' : 'Schwächer'); // kurz, damit 5 Spalten aufs Handy passen
+      var value = met ? '±0 %' : (pct >= 0 ? '+' : '−') + F.number(Math.abs(pct), 1) + ' %';
+      var dot = met ? 'background: var(--text-muted); border: none;' : 'background: ' + col + '; border: none;';
+      html += node(dot, label, 'var(--text-main)', status, col, value, col);
     });
-    
+
     if (hasFc) {
-       html += '<div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 60px;">' +
-        '<div style="width: 20px; height: 20px; border-radius: 50%; background: transparent; border: 2px solid var(--text-dim); box-shadow: 0 0 0 4px var(--bg-card); margin-bottom: 8px;"></div>' +
-        '<div style="font-size: 0.75rem; font-weight: 700; color: var(--text-dim); margin-bottom: 2px;">Nächstes</div>' +
-        '<div style="font-size: 0.65rem; font-weight: 700; color: var(--text-dim);">Prognose</div>' +
-        '<div style="font-size: 0.7rem; color: var(--text-dim);">—</div>' +
-      '</div>';
+      var last = items.length ? items[items.length - 1].quarter : null;
+      html += node('background: transparent; border: 2px solid var(--accent-purple-light);', nextQuarterLabel(last), 'var(--accent-purple-light)', 'Prognose', 'var(--text-dim)', fcVal, 'var(--text-main)');
     }
 
     html += '</div>';
+    html += '<div style="font-size: 0.68rem; color: var(--text-dim); text-align: center; margin-top: 12px;">Abweichung des tatsächlichen Gewinns je Aktie von der Analystenschätzung</div>';
     container.innerHTML = html;
   }
 
