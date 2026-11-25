@@ -52,6 +52,25 @@ TICKERS_SECTORS = [
     "XDWF.DE", "IUSP.DE"
 ]
 
+# US-ETFs auf denselben (oder sehr ähnlichen) Index: Yahoo liefert für Xetra-Listings oft keine Positionen,
+# für diese US-ETFs aber die aktuellen Top-10 mit Symbol und Gewicht.
+HOLDINGS_PROXY = {
+    "EUNL.DE": "URTH",   # MSCI World
+    "SPYI.DE": "ACWI",   # MSCI ACWI (IMI)
+    "SXR8.DE": "IVV",    # S&P 500
+    "EXS1.DE": "EWG",    # Deutschland (DAX ~ MSCI Germany)
+    "AMEM.DE": "EEM",    # MSCI Emerging Markets
+    "CSX5.DE": "FEZ",    # EURO STOXX 50
+    "XDWT.DE": "IXN",    # MSCI World IT
+    "QDVE.DE": "XLK",    # S&P 500 IT
+    "QDVF.DE": "XLE",    # S&P 500 Energie
+    "WNRG.DE": "IXC",    # MSCI World Energie
+    "XDW0.DE": "IXC",    # MSCI World Energie
+    "IU5C.DE": "XLC",    # S&P 500 Kommunikation
+    "XWTS.DE": "IXP",    # MSCI World Kommunikation
+}
+
+# Letzter Ausweg, wenn weder das ETF selbst noch der US-Vergleichs-ETF Positionen liefern (Stand fest, nicht aktuell)
 KNOWN_ETF_HOLDINGS = {
     "EUNL.DE": [{"name": "NVIDIA Corp", "weight": 5.2}, {"name": "Apple Inc", "weight": 4.8},
                 {"name": "Microsoft Corp", "weight": 4.5}, {"name": "Amazon.com Inc", "weight": 2.6},
@@ -184,30 +203,56 @@ def df_to_dict_records(df, cur):
     return records
 
 
-def process_fund_data(ticker_obj, symbol=""):
-    holdings = []
+def _read_top_holdings(ticker_obj, limit=10):
+    """Top-Positionen eines Fonds aus Yahoo: Symbol, Name, Gewicht in %."""
+    out = []
     try:
         fd = getattr(ticker_obj, "funds_data", None)
-        if fd is not None:
-            th = getattr(fd, "top_holdings", None)
-            if th is not None and not th.empty:
-                for idx, row in th.iterrows():
-                    name = row.get("Holding Name") or row.get("Name") or str(idx)
-                    pct = row.get("Holding Percent") or row.get("Percentage") or row.get("Weight") or 0.0
-                    weight = 0.0
-                    try:
-                        if isinstance(pct, str): pct = pct.replace("%", "").replace(",", ".").strip()
-                        if pct and not math.isnan(float(pct)):
-                            weight = float(pct)
-                            if 0 < weight <= 1.0: weight *= 100.0
-                    except Exception:
-                        weight = 0.0
-                    if weight > 0:
-                        holdings.append({"name": str(name), "weight": round(weight, 2)})
+        th = getattr(fd, "top_holdings", None) if fd is not None else None
+        if th is None or th.empty:
+            return out
+        for idx, row in th.iterrows():
+            name = row.get("Name") or row.get("Holding Name") or str(idx)
+            pct = row.get("Holding Percent") or row.get("Percentage") or row.get("Weight") or 0.0
+            weight = 0.0
+            try:
+                if isinstance(pct, str):
+                    pct = pct.replace("%", "").replace(",", ".").strip()
+                if pct and not math.isnan(float(pct)):
+                    weight = float(pct)
+                    if 0 < weight <= 1.0:
+                        weight *= 100.0
+            except Exception:
+                weight = 0.0
+            if weight > 0:
+                item = {"name": str(name), "weight": round(weight, 2)}
+                sym = str(idx or "").strip()
+                if sym and sym.lower() not in ("nan", "none") and not sym.isdigit():
+                    item["symbol"] = sym.upper()
+                out.append(item)
     except Exception:
         pass
-    if not holdings and symbol in KNOWN_ETF_HOLDINGS:
-        return KNOWN_ETF_HOLDINGS[symbol]
+    out.sort(key=lambda h: -h["weight"])
+    return out[:limit]
+
+
+def process_fund_data(ticker_obj, symbol=""):
+    """Top-10-Positionen: erst vom ETF selbst, sonst vom US-ETF auf denselben Index, sonst feste Liste."""
+    holdings = _read_top_holdings(ticker_obj)
+    if len(holdings) >= 3:
+        return holdings
+    proxy = HOLDINGS_PROXY.get(symbol)
+    if proxy:
+        try:
+            ph = _read_top_holdings(yf.Ticker(proxy))
+            if len(ph) >= 3:
+                for h in ph:
+                    h["via"] = proxy
+                return ph
+        except Exception as e:
+            print("  Positionen über %s nicht abrufbar: %s" % (proxy, e))
+    if symbol in KNOWN_ETF_HOLDINGS:
+        return [dict(h, via="fest") for h in KNOWN_ETF_HOLDINGS[symbol]]
     return holdings
 
 
@@ -1147,6 +1192,11 @@ def build_universe_item(stock_data, existing_item=None):
         mean_target = targets.get("mean")
         if mean_target:
             u_item["upside"] = ((mean_target - price) / price) * 100
+            # Spanne der Kursziele (für ETF-Szenarien aus den Top-Positionen)
+            if targets.get("low"):
+                u_item["upsideLow"] = round(((targets["low"] - price) / price) * 100, 2)
+            if targets.get("high"):
+                u_item["upsideHigh"] = round(((targets["high"] - price) / price) * 100, 2)
         
         u_item["analystCount"] = targets.get("analystCount")
         
