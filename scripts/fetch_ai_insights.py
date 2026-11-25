@@ -36,7 +36,12 @@ OUT_FILE = os.path.join(DATA, "ai_insights.json")
 API_BASE = "https://generativelanguage.googleapis.com/v1beta"
 
 MAX_ROWS_PER_SECTOR = 90       # größere Sektoren werden nach Marktkapitalisierung gekürzt
-PAUSE_BETWEEN_CALLS = 6        # Sekunden, schont die Minuten-Limits der kostenlosen Stufe
+PAUSE_BETWEEN_CALLS = 6        # Sekunden, schont die Minuten-Limits der kostenlosen Stufe (Flash-Lite ~10–15/Min.)
+PAUSE_FLASH = 13               # Flash erlaubt in der kostenlosen Stufe nur ~5 Anfragen pro Minute
+
+
+def pause_for(model):
+    return PAUSE_BETWEEN_CALLS if "lite" in (model or "") else PAUSE_FLASH
 MAX_RETRIES = 3
 HTTP_TIMEOUT = 120             # Sekunden je Anfrage
 TIME_BUDGET = 33 * 60          # danach keine neuen Anfragen mehr; der Workflow bricht nach 45 Min. hart ab
@@ -260,12 +265,15 @@ def version_tuple(name):
 
 
 def pick_models(key):
-    """Kandidaten in Reihenfolge: GEMINI_MODEL (falls gesetzt), dann die neuesten stabilen Flash-Modelle,
-    zuletzt bewährte Aliase. Ist ein Modell überlastet oder sein Kontingent leer, wird das nächste genommen."""
-    out = []
-    forced = (os.environ.get("GEMINI_MODEL") or "").strip()
-    if forced:
-        out.append(forced.replace("models/", ""))
+    """Zwei Modell-Listen in Reihenfolge der Nutzung.
+
+    Sektoren (12+ Anfragen): Flash-Lite zuerst – in der kostenlosen Stufe ca. 500 Anfragen/Tag statt ca. 20 bei Flash.
+    Gesamt-Top-10 (1 Anfrage): Flash zuerst – stärkeres Modell für den Vergleich über alle Sektoren.
+    Ist ein Modell überlastet oder sein Kontingent leer, wird das nächste der Liste genommen.
+    GEMINI_MODEL (falls gesetzt) steht in beiden Listen vorn.
+    """
+    forced = (os.environ.get("GEMINI_MODEL") or "").strip().replace("models/", "")
+    flash, lite = [], []
     try:
         names, page = [], None
         for _ in range(5):
@@ -277,19 +285,27 @@ def pick_models(key):
             page = res.get("nextPageToken")
             if not page:
                 break
-        bad = ("lite", "preview", "exp", "image", "tts", "live", "audio", "embedding", "thinking", "latest", "translate")
-        flash = [n for n in names if n.startswith("gemini-") and "flash" in n and not any(b in n for b in bad)]
-        flash.sort(key=lambda n: (version_tuple(n), -len(n)), reverse=True)
-        out += flash[:4]
+        bad = ("preview", "exp", "image", "tts", "live", "audio", "embedding", "thinking", "latest", "translate")
+        stable = [n for n in names if n.startswith("gemini-") and "flash" in n and not any(b in n for b in bad)]
+        stable.sort(key=lambda n: (version_tuple(n), -len(n)), reverse=True)
+        lite = [n for n in stable if "lite" in n][:3]
+        flash = [n for n in stable if "lite" not in n][:3]
     except Exception as e:
         print("Modellliste nicht abrufbar:", e)
-    out += ["gemini-flash-latest", "gemini-2.5-flash", "gemini-flash-lite-latest"]
-    seen, res = set(), []
-    for n in out:
-        if n not in seen:
-            seen.add(n)
-            res.append(n)
-    return res
+
+    def uniq(lst):
+        seen, out = set(), []
+        for n in lst:
+            if n and n not in seen:
+                seen.add(n)
+                out.append(n)
+        return out
+
+    lite_all = lite + ["gemini-flash-lite-latest", "gemini-2.5-flash-lite"]
+    flash_all = flash + ["gemini-flash-latest", "gemini-2.5-flash"]
+    sectors = uniq([forced] + lite_all + flash_all)
+    overall = uniq([forced] + flash_all + lite_all)
+    return sectors, overall
 
 
 def call_gemini(key, model, prompt):
@@ -480,9 +496,13 @@ def main():
         print("Alles aktuell – nichts zu tun.")
         return
 
-    models = ["dry-run"] if args.dry_run else pick_models(key)
+    if args.dry_run:
+        models, models_overall = ["dry-run"], ["dry-run"]
+    else:
+        models, models_overall = pick_models(key)
     model = models[0]
-    print("Modelle (in dieser Reihenfolge):", ", ".join(models))
+    print("Modelle Sektoren:", ", ".join(models))
+    print("Modelle Gesamt-Top-10:", ", ".join(models_overall))
 
     result = {
         "updatedAt": previous.get("updatedAt"),
@@ -511,20 +531,27 @@ def main():
             json.dump(result, f, ensure_ascii=False, separators=(",", ":"))
         os.replace(tmp, OUT_FILE)   # nach jedem Sektor gespeichert: bricht der Job ab, bleibt der Fortschritt
 
-    def ask(prompt):
-        """Fragt das aktuelle Modell; bei leerem Kontingent oder Überlastung das nächste."""
-        nonlocal model
-        while True:
+    used = []
+
+    def ask(prompt, lst):
+        """Fragt das erste Modell der Liste; bei leerem Kontingent oder Überlastung das nächste.
+        Ein ausgefallenes Modell wird aus beiden Listen entfernt."""
+        while lst:
+            m = lst[0]
             try:
-                out = call_gemini(key, model, prompt)
-                result["model"] = model
-                return out
+                out = call_gemini(key, m, prompt)
+                if m not in used:
+                    used.append(m)
+                result["model"] = ", ".join(used)
+                return out, m
             except (QuotaExhausted, ModelUnavailable) as e:
-                models.pop(0)
-                if not models or time_left() < HTTP_TIMEOUT + 30:
+                for l in (models, models_overall):
+                    if m in l:
+                        l.remove(m)
+                if not lst or time_left() < HTTP_TIMEOUT + 30:
                     raise QuotaExhausted("Kein Gemini-Modell verfügbar (zuletzt: %s)" % e)
-                model = models[0]
-                print("  %s – wechsle auf %s" % (e, model))
+                print("  %s – wechsle auf %s" % (e, lst[0]))
+        raise QuotaExhausted("Kein Gemini-Modell verfügbar")
 
     stop_reason = None
     done = 0
@@ -542,7 +569,7 @@ def main():
             continue
         t0 = time.time()
         try:
-            res = ask(prompt)
+            res, used_model = ask(prompt, models)
         except QuotaExhausted as e:
             stop_reason = str(e) + " – nächster Lauf macht weiter"
             print("  ABBRUCH:", e)
@@ -551,9 +578,9 @@ def main():
         except Exception as e:
             print("  übersprungen:", e)
             result["errors"].append({"segment": sec_de, "error": clean_text(e, 200)})
-            time.sleep(PAUSE_BETWEEN_CALLS)
+            time.sleep(pause_for(models[0] if models else ""))
             continue
-        print("  Antwort nach %ds (noch %d Min. Budget)" % (time.time() - t0, time_left() // 60))
+        print("  Antwort von %s nach %ds (noch %d Min. Budget)" % (used_model, time.time() - t0, time_left() // 60))
 
         valid = {r["t"] for r in srows}
         picks = []
@@ -577,12 +604,12 @@ def main():
                 warnings.append({"ticker": t, "name": by_ticker[t]["name"], "region": by_ticker[t]["region"],
                                  "reason": clean_text(w.get("reason"), 220)})
         result["sectors"][sec] = {"name": sec_de, "count": len(by_sector[sec]), "summary": clean_text(res.get("summary"), 400),
-                                  "picks": picks, "warnings": warnings, "updatedAt": now_iso()}
+                                  "picks": picks, "warnings": warnings, "updatedAt": now_iso(), "model": used_model}
         result["updatedAt"] = now_iso()
         done += 1
         write_out()
         print("  %d Kandidaten, %d Warnungen – gespeichert" % (len(picks), len(warnings)))
-        time.sleep(PAUSE_BETWEEN_CALLS)
+        time.sleep(pause_for(used_model))
 
     if args.dry_run:
         print("Trockenlauf beendet, nichts geschrieben.")
@@ -618,7 +645,8 @@ def main():
             result["errors"].append({"segment": "Gesamt", "error": "Zu wenige Sektor-Kandidaten für eine Gesamtauswertung."})
         else:
             try:
-                res = ask(overall_prompt(stock_cands))
+                res, used_model = ask(overall_prompt(stock_cands), models_overall)
+                print("Gesamt-Top-10 von", used_model)
                 cand_map = {c["ticker"]: c for c in stock_cands}
                 top, seen = [], set()
                 for item in sorted(res.get("top") or [], key=lambda x: x.get("rank") or 99):
@@ -635,7 +663,7 @@ def main():
                                 "why": clean_text(item.get("why"), 320), "risk": clean_text(item.get("risk"), 220)})
                     if len(top) >= 10:
                         break
-                result["overall"] = {"marketView": clean_text(res.get("marketView"), 600), "top": top, "updatedAt": now_iso()}
+                result["overall"] = {"marketView": clean_text(res.get("marketView"), 600), "top": top, "updatedAt": now_iso(), "model": used_model}
                 result["updatedAt"] = now_iso()
                 done += 1
                 print("Gesamt: %d Plätze" % len(top))
