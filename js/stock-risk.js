@@ -29,7 +29,36 @@ window.App.StockRisk = (function () {
   ];
 
   var state = { period: '2Y', bench: 'SXR8.DE', amount: 10000, helpOpen: false };
-  var RISK_HELP = [["Volatilität p. a.", "Wie stark die Tagesrenditen schwanken, auf ein Jahr hochgerechnet. Grob gilt: In etwa zwei von drei Jahren liegt die Rendite innerhalb von ± dieser Spanne um ihren Durchschnitt – real treten Ausreißer häufiger auf als diese Faustregel vermuten lässt. Das Risikoprofil ordnet nach &lt; 15 % niedrig, &lt; 25 % mittel, &lt; 40 % hoch, darüber sehr hoch."], ["Max. Drawdown", "Der größte Rückgang vom bisherigen Höchststand bis zum folgenden Tief im gewählten Zeitraum – das Verlustgefühl, das ein Anleger hätte aushalten müssen. Ein Minus von 30 % braucht +43 %, um wieder auszugleichen. „Aktueller Drawdown“ ist der heutige Abstand zum Hoch."], ["VaR 95 % / 99 % (1 Tag)", "Value at Risk: Der Tagesverlust, der in der Vergangenheit nur an 5 % (bzw. 1 %) der Tage überschritten wurde. Beispiel: 2,8 % bei 95 % heißt, dass an etwa 1 von 20 Tagen mehr als 2,8 % verloren gingen. Er sagt nicht, wie schlimm es in den restlichen Fällen wurde."], ["CVaR 95 %", "Expected Shortfall: der durchschnittliche Verlust an genau diesen schlechtesten 5 % der Tage. Immer größer als der VaR und die ehrlichere Zahl für den Ernstfall."], ["Sharpe Ratio", "Überrendite gegenüber 2 % Zins je Einheit Schwankung. Unter 0: schlechter als Zinsen; um 0,5: mäßig; ab 1: gut. Stark vom gewählten Zeitraum abhängig."], ["Sortino Ratio", "Wie Sharpe, bestraft aber nur Kursrückgänge – Aufwärtsschwankungen zählen nicht als Risiko."], ["Calmar Ratio", "Rendite p. a. geteilt durch den größten Rückgang: wie viel Ertrag pro ertragenem Verlust."], ["Beta und Korrelation", "Beta 1 heißt: bewegt sich im Schnitt wie der Benchmark; über 1: schwankt stärker (verstärkt Markt-Auf und -Abs); unter 1: schwächer; negativ: gegenläufig. Die Korrelation (−1 bis +1) zeigt, wie eng der Gleichlauf ist – bei niedriger Korrelation ist das Beta wenig aussagekräftig. Der Benchmark ist ein ETF in Euro und lässt sich oben wählen."], ["Verlusttage", "Anteil der Handelstage mit negativer Rendite. Auch gute Aktien liegen oft an 45–50 % der Tage im Minus."], ["Drawdown-Chart", "Zeigt für jeden Tag den Abstand zum bisherigen Hoch. 0 % bedeutet: neues Hoch. Lange, tiefe Täler sind die Phasen, in denen man auf der Position hätte sitzen müssen, ohne im Plus zu sein."], ["Renditeverteilung", "Wie oft welche Tagesrendite vorkam. Eine breite Glocke bedeutet hohe Schwankung; Balken weit außen links sind die seltenen, aber schmerzhaften Tage."], ["Positions-Rechner", "Rechnet die Prozentwerte auf deinen Einsatz um. Der 10-Tage-Wert skaliert den Tageswert mit √10 – eine grobe Näherung, die Erholung und Serien schlechter Tage ignoriert."], ["Grenzen", "Alles basiert auf der Vergangenheit und den Schlusskursen in Euro (Währungsschwankungen sind enthalten). Der VaR ist keine Obergrenze, und kurze Zeiträume bilden seltene Krisen oft gar nicht ab – ein längerer Zeitraum ist aussagekräftiger."]];
+  // Erklärungen für die ⓘ-Knöpfe. {a} {s} {p} {pl} werden je nach Datenbasis (Tage/Wochen/Monate) ersetzt.
+  var RISK_INFO = {
+    vol: ['Volatilität p. a.', 'Wie stark die {a}renditen schwanken, auf ein Jahr hochgerechnet. Grob gilt: In etwa zwei von drei Jahren liegt die Rendite innerhalb von ± dieser Spanne um ihren Durchschnitt – real treten Ausreißer häufiger auf, als diese Faustregel vermuten lässt. Das Risikoprofil ordnet nach &lt; 15 % niedrig, &lt; 25 % mittel, &lt; 40 % hoch, darüber sehr hoch.'],
+    maxdd: ['Max. Drawdown', 'Der größte Rückgang vom bisherigen Höchststand bis zum folgenden Tief im gewählten Zeitraum – das Verlustgefühl, das man hätte aushalten müssen. Ein Minus von 30 % braucht +43 %, um wieder auszugleichen.'],
+    curdd: ['Aktueller Drawdown', 'Der heutige Abstand zum höchsten Kurs im gewählten Zeitraum. 0 % heißt: Die Aktie steht auf einem neuen Hoch.'],
+    var95: ['VaR 95 % (Value at Risk)', 'Der Verlust, der in der Vergangenheit nur in 5 % der {p} überschritten wurde. Beispiel: 2,8 % heißt, dass an etwa 1 von 20 {pl} mehr als 2,8 % verloren gingen. Er sagt nicht, wie schlimm es in diesen Fällen wurde – dafür gibt es den CVaR.'],
+    var99: ['VaR 99 %', 'Wie VaR 95 %, nur strenger: der Verlust, der nur in 1 % der {p} überschritten wurde (etwa 1 von 100 {pl}). Bei kurzen Zeiträumen beruht er auf sehr wenigen Datenpunkten.'],
+    cvar: ['CVaR 95 % (Expected Shortfall)', 'Der durchschnittliche Verlust in genau diesen schlechtesten 5 % der {p}. Immer größer als der VaR und die ehrlichere Zahl für den Ernstfall.'],
+    extremes: ['Schlechteste / beste {s}', 'Die stärkste {a}rendite nach unten und nach oben im gewählten Zeitraum. Zeigt, welche Ausschläge tatsächlich vorkamen.'],
+    sharpe: ['Sharpe Ratio', 'Überrendite gegenüber dem risikolosen Zins je Einheit Schwankung. Unter 0: schlechter als Zinsen; um 0,5: mäßig; ab 1: gut. Stark vom gewählten Zeitraum abhängig.'],
+    sortino: ['Sortino Ratio', 'Wie Sharpe, bestraft aber nur Kursrückgänge – Aufwärtsschwankungen zählen nicht als Risiko. Liegt meist über der Sharpe Ratio.'],
+    calmar: ['Calmar Ratio', 'Rendite pro Jahr geteilt durch den größten Rückgang: wie viel Ertrag pro ertragenem Verlust. Über 1 ist gut, unter 0,5 eher schwach.'],
+    neg: ['Verlust{p}', 'Anteil der {p} mit negativer Rendite. Auch gute Aktien liegen oft in 45–50 % der {p} im Minus.'],
+    beta: ['Beta', 'Beta 1 heißt: bewegt sich im Schnitt wie der Benchmark; über 1: schwankt stärker (verstärkt Markt-Auf und -Abs); unter 1: schwächer; negativ: gegenläufig. Nur aussagekräftig, wenn die Korrelation nicht zu niedrig ist. Den Benchmark (ein ETF in Euro) wählst du unten.'],
+    corr: ['Korrelation', 'Wie eng die Aktie mit dem Benchmark gleichläuft, von −1 (gegenläufig) über 0 (kein Zusammenhang) bis +1 (völlig gleich). Unter etwa 0,3 ist das Beta wenig aussagekräftig.'],
+    limits: ['Grenzen der Kennzahlen', 'Alles basiert auf der Vergangenheit und den Schlusskursen in Euro (Währungsschwankungen sind enthalten). Der VaR ist keine Obergrenze, und kurze Zeiträume bilden seltene Krisen oft gar nicht ab – ein längerer Zeitraum ist aussagekräftiger.'],
+    ddchart: ['Drawdown-Chart', 'Zeigt für jeden Zeitpunkt den Abstand zum bisherigen Hoch. 0 % bedeutet: neues Hoch. Lange, tiefe Täler sind die Phasen, in denen man auf der Position hätte sitzen müssen, ohne im Plus zu sein.'],
+    dist: ['Renditeverteilung', 'Wie oft welche {a}rendite vorkam. Eine breite Glocke bedeutet hohe Schwankung; Balken weit außen links sind die seltenen, aber schmerzhaften {p}.'],
+    calc: ['Positions-Rechner', 'Rechnet die Prozentwerte auf deinen Einsatz um. Der 10-{p}-Wert skaliert den Einzelwert mit √10 – eine grobe Näherung, die Erholung und Serien schlechter {p} ignoriert.']
+  };
+
+  function infoDict(U) {
+    var out = {};
+    function fill(t) { return t.replace(/\{a\}/g, U.a).replace(/\{s\}/g, U.s).replace(/\{pl\}/g, U.pl).replace(/\{p\}/g, U.p); }
+    Object.keys(RISK_INFO).forEach(function (k) { out[k] = { title: fill(RISK_INFO[k][0]), text: fill(RISK_INFO[k][1]) }; });
+    out.neg.title = 'Verlust' + U.p.toLowerCase();
+    return out;
+  }
+
+  function info(key) { return window.App.UI && window.App.UI.info ? window.App.UI.info(key) : ''; }
 
   var histCache = {};   // ticker -> Promise<Array>
 
@@ -49,23 +78,9 @@ window.App.StockRisk = (function () {
   function num(v, d) { return (v == null || !isFinite(v)) ? '—' : F().number(v, d == null ? 2 : d); }
 
 
-  function helpCard(items, key) {
-    return '<details class="card" data-help="' + key + '"' + (state.helpOpen ? ' open' : '') + ' style="padding:14px 16px;">' +
-      '<summary style="font-weight:700;font-size:0.85rem;cursor:pointer;">Was bedeuten die Werte?</summary>' +
-      '<div style="margin-top:12px;">' + items.map(function (it) {
-        return '<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:0.8rem;color:var(--text-main);">' + it[0] + '</div>' +
-          '<div style="font-size:0.76rem;color:var(--text-dim);line-height:1.55;margin-top:2px;">' + it[1] + '</div></div>';
-      }).join('') + '</div></details>';
-  }
-
-  function bindHelp(root) {
-    var d = root.querySelector('details[data-help]');
-    if (d) d.addEventListener('toggle', function () { state.helpOpen = d.open; });
-  }
-
-  function cell(label, value, hint, color) {
+  function cell(label, value, hint, color, infoKey) {
     return '<div class="metric-cell">' +
-      '<span class="metric-label">' + label + '</span>' +
+      '<span class="metric-label" style="display:flex;align-items:center;">' + label + (infoKey ? info(infoKey) : '') + '</span>' +
       '<span class="metric-value"' + (color ? ' style="color:' + color + ';"' : '') + '>' + value + '</span>' +
       (hint ? '<span style="font-size:0.65rem;color:var(--text-dim);line-height:1.3;">' + hint + '</span>' : '') +
       '</div>';
@@ -166,7 +181,7 @@ window.App.StockRisk = (function () {
       '<div class="card" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;">' +
         '<div><div style="font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;font-weight:600;">Risikoprofil (nach Volatilität)</div>' +
           '<div style="font-size:1.15rem;font-weight:800;color:' + lbl.color + ';">' + lbl.text + '</div></div>' +
-        '<div style="text-align:right;"><div style="font-size:0.72rem;color:var(--text-dim);">Volatilität p. a.</div>' +
+        '<div style="text-align:right;"><div style="font-size:0.72rem;color:var(--text-dim);display:flex;align-items:center;justify-content:flex-end;white-space:nowrap;">Volatilität p. a.' + info('vol') + '</div>' +
           '<div style="font-size:1.15rem;font-weight:800;font-variant-numeric:tabular-nums;">' + pct(vol, 1) + '</div></div>' +
       '</div>' +
 
@@ -174,22 +189,22 @@ window.App.StockRisk = (function () {
         '<div class="horizontal-scroll-row" style="margin-bottom:0;padding-bottom:0;flex:1;min-width:0;">' + periodChips + '</div>' +
       '</div>' +
 
-      '<div class="card"><div class="card-header-dotted"><span class="card-title">Kennzahlen</span>' +
+      '<div class="card"><div class="card-header-dotted"><span class="card-title" style="display:flex;align-items:center;">Kennzahlen' + info('limits') + '</span>' +
         '<span class="period-tag">' + f.date(dates[0]) + ' – ' + f.date(dates[dates.length - 1]) + '</span></div>' +
         summaryHtml +
         '<div class="metrics-grid-2col">' +
-          cell('Max. Drawdown', pct(dd.maxDD, 1), f.date(dd.peakDate) + ' → ' + f.date(dd.troughDate) + (dd.recoveryDate ? ', erholt ' + f.date(dd.recoveryDate) : ', noch nicht erholt'), 'var(--bearish)') +
-          cell('Aktueller Drawdown', pct(dd.current, 1), 'Abstand zum Hoch im Zeitraum', dd.current < -0.05 ? 'var(--bearish)' : '') +
-          cell('VaR 95 % (1 ' + U.s + ')', pct(v95 == null ? null : v95 * 100, 2), 'An 1 von 20 ' + U.pl + ' war der Verlust größer') +
-          cell('VaR 99 % (1 ' + U.s + ')', pct(v99 == null ? null : v99 * 100, 2), 'An 1 von 100 ' + U.pl + ' war der Verlust größer') +
-          cell('CVaR 95 %', pct(cv95 == null ? null : cv95 * 100, 2), 'Ø-Verlust in den schlechtesten 5 % der ' + U.p) +
-          cell('Schlechteste / beste ' + U.s, pct(worst, 1) + ' / ' + pct(best, 1, true), U.a + 'rendite im Zeitraum') +
-          cell('Sharpe Ratio', num(sh, 2), 'Überrendite je Risikoeinheit (Rf ' + f.number(q.RF * 100, 0) + ' %)') +
-          cell('Sortino Ratio', num(so, 2), 'Wie Sharpe, nur Abwärtsrisiko') +
-          cell('Calmar Ratio', num(calmar, 2), 'Jahresrendite ÷ max. Drawdown') +
-          cell('Verlust' + U.p.toLowerCase(), pct(negDays, 0), 'Anteil der ' + U.p + ' mit Minus') +
-          cell('Beta', num(bc.beta, 2), al ? 'zum Benchmark (' + al.n + ' gemeinsame Zeitpunkte)' : 'Benchmark-Daten fehlen') +
-          cell('Korrelation', num(bc.corr, 2), 'zum Benchmark, −1 bis +1') +
+          cell('Max. Drawdown', pct(dd.maxDD, 1), f.date(dd.peakDate) + ' → ' + f.date(dd.troughDate) + (dd.recoveryDate ? ', erholt ' + f.date(dd.recoveryDate) : ', noch nicht erholt'), 'var(--bearish)', 'maxdd') +
+          cell('Aktueller Drawdown', pct(dd.current, 1), 'Abstand zum Hoch im Zeitraum', dd.current < -0.05 ? 'var(--bearish)' : '', 'curdd') +
+          cell('VaR 95 % (1 ' + U.s + ')', pct(v95 == null ? null : v95 * 100, 2), 'An 1 von 20 ' + U.pl + ' war der Verlust größer', '', 'var95') +
+          cell('VaR 99 % (1 ' + U.s + ')', pct(v99 == null ? null : v99 * 100, 2), 'An 1 von 100 ' + U.pl + ' war der Verlust größer', '', 'var99') +
+          cell('CVaR 95 %', pct(cv95 == null ? null : cv95 * 100, 2), 'Ø-Verlust in den schlechtesten 5 % der ' + U.p, '', 'cvar') +
+          cell('Schlechteste / beste ' + U.s, pct(worst, 1) + ' / ' + pct(best, 1, true), U.a + 'rendite im Zeitraum', '', 'extremes') +
+          cell('Sharpe Ratio', num(sh, 2), 'Überrendite je Risikoeinheit (Rf ' + f.number(q.RF * 100, 0) + ' %)', '', 'sharpe') +
+          cell('Sortino Ratio', num(so, 2), 'Wie Sharpe, nur Abwärtsrisiko', '', 'sortino') +
+          cell('Calmar Ratio', num(calmar, 2), 'Jahresrendite ÷ max. Drawdown', '', 'calmar') +
+          cell('Verlust' + U.p.toLowerCase(), pct(negDays, 0), 'Anteil der ' + U.p + ' mit Minus', '', 'neg') +
+          cell('Beta', num(bc.beta, 2), al ? 'zum Benchmark (' + al.n + ' gemeinsame Zeitpunkte)' : 'Benchmark-Daten fehlen', '', 'beta') +
+          cell('Korrelation', num(bc.corr, 2), 'zum Benchmark, −1 bis +1', '', 'corr') +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:8px;margin-top:2px;">' +
           '<label for="risk-bench" style="font-size:0.72rem;color:var(--text-dim);white-space:nowrap;">Benchmark</label>' +
@@ -197,14 +212,14 @@ window.App.StockRisk = (function () {
         '</div>' +
       '</div>' +
 
-      '<div class="card"><div class="card-header-dotted"><span class="card-title">Drawdown</span><span class="period-tag">Abstand zum bisherigen Hoch</span></div>' +
+      '<div class="card"><div class="card-header-dotted"><span class="card-title" style="display:flex;align-items:center;">Drawdown' + info('ddchart') + '</span><span class="period-tag">Abstand zum bisherigen Hoch</span></div>' +
         '<div style="height:190px;position:relative;"><canvas id="risk-dd-chart" class="chart-canvas" style="height:100%;"></canvas></div></div>' +
 
-      '<div class="card"><div class="card-header-dotted"><span class="card-title">Verteilung der ' + U.a + 'renditen</span><span class="period-tag">Häufigkeit je Klasse</span></div>' +
+      '<div class="card"><div class="card-header-dotted"><span class="card-title" style="display:flex;align-items:center;">Verteilung der ' + U.a + 'renditen' + info('dist') + '</span><span class="period-tag">Häufigkeit je Klasse</span></div>' +
         '<div style="height:190px;position:relative;"><canvas id="risk-hist-chart" class="chart-canvas" style="height:100%;"></canvas></div>' +
         '<div style="font-size:0.7rem;color:var(--text-dim);margin-top:6px;">Klassen in Prozentpunkten; die äußeren Klassen enthalten alle stärkeren Ausschläge.</div></div>' +
 
-      '<div class="card"><div class="card-header-dotted"><span class="card-title">Positions-Rechner</span></div>' +
+      '<div class="card"><div class="card-header-dotted"><span class="card-title" style="display:flex;align-items:center;">Positions-Rechner' + info('calc') + '</span></div>' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">' +
           '<label for="risk-amount" style="font-size:0.72rem;color:var(--text-dim);white-space:nowrap;">Einsatz (' + esc(curr) + ')</label>' +
           '<input id="risk-amount" class="search-input" type="number" min="0" step="100" inputmode="decimal" value="' + state.amount + '" style="flex:1;padding-left:12px;">' +
@@ -212,14 +227,13 @@ window.App.StockRisk = (function () {
         '<div id="risk-calc"></div>' +
       '</div>' +
 
-      helpCard(RISK_HELP, 'risk') +
       '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.45;padding:2px 4px 12px;">' +
         'Alle Werte sind historisch auf Basis täglicher Schlusskurse (in Euro umgerechnet, enthält Währungseffekte). ' +
         'Der VaR ist keine Obergrenze: Echte Verluste können deutlich größer ausfallen. Vergangenheit ist keine Prognose.' +
       '</div>';
 
     container.innerHTML = html;
-    bindHelp(container);
+    if (window.App.UI && window.App.UI.bindInfo) window.App.UI.bindInfo(container, infoDict(U));
 
     // Charts
     var ddCanvas = container.querySelector('#risk-dd-chart');
