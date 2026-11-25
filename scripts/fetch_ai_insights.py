@@ -40,7 +40,9 @@ DATA = os.path.join(ROOT, "data")
 OUT_FILE = os.path.join(DATA, "ai_insights.json")
 API_BASE = "https://generativelanguage.googleapis.com/v1beta"
 GROQ_BASE = "https://api.groq.com/openai/v1"
-GROQ_PREFERRED = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "openai/gpt-oss-20b"]
+GROQ_PREFERRED = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "meta-llama/llama-4-scout-17b-16e-instruct", "openai/gpt-oss-20b"]
+GROQ_MAX_OUT = 3000            # Antwort-Tokens; zählt bei Groq mit ins Minutenlimit (kostenlos z. B. 8.000 TPM)
+GROQ_STATE = {}                # je Modell: verbleibende Tokens im Minutenfenster und Zeitpunkt des Resets
 
 MAX_ROWS_PER_SECTOR = 90       # größere Sektoren werden nach Marktkapitalisierung gekürzt
 PAUSE_BETWEEN_CALLS = 6        # Sekunden, schont die Minuten-Limits der kostenlosen Stufe (Flash-Lite ~10–15/Min.)
@@ -62,7 +64,15 @@ class QuotaExhausted(RuntimeError):
 
 
 class ModelUnavailable(RuntimeError):
-    """Modell dauerhaft überlastet (503) oder nicht verfügbar (404) – anderes Modell versuchen."""
+    """Modell nicht verfügbar (404) – anderes Modell versuchen."""
+
+
+class ModelBusy(ModelUnavailable):
+    """Modell gerade überlastet (503) – anderes Modell versuchen, später evtl. wieder dieses."""
+
+
+class TooLarge(ModelUnavailable):
+    """Anfrage passt nicht ins Minutenlimit des Modells – mit weniger Zeilen erneut versuchen."""
 
 
 def time_left():
@@ -313,8 +323,8 @@ def pick_models(key, gkey=None):
                 out.append(n)
         return out
 
-    lite_all = ["gemini:" + n for n in lite + ["gemini-flash-lite-latest", "gemini-2.5-flash-lite"]]
-    flash_all = ["gemini:" + n for n in flash + ["gemini-flash-latest", "gemini-2.5-flash"]]
+    lite_all = ["gemini:" + n for n in lite + ["gemini-flash-lite-latest"]]
+    flash_all = ["gemini:" + n for n in flash + ["gemini-flash-latest"]]
     forced = "gemini:" + forced if forced else ""
     groq = ["groq:" + n for n in groq_models(gkey)] if gkey else []
     sectors = uniq(groq + [forced] + lite_all + flash_all)
@@ -367,8 +377,10 @@ def call_gemini(key, model, prompt):
                 wait = retry_delay(full, 20 * (attempt + 1))
                 if attempt + 1 >= MAX_RETRIES or time_left() < wait + HTTP_TIMEOUT:
                     if e.code == 503:
-                        raise ModelUnavailable("%s überlastet (HTTP 503)" % model)
+                        raise ModelBusy("%s überlastet (HTTP 503)" % model)
                     break
+                if e.code == 503 and attempt >= 1:
+                    raise ModelBusy("%s überlastet (HTTP 503)" % model)   # nicht minutenlang warten, lieber anderes Modell
                 print("  %s – neuer Versuch in %ss" % (last[:160], wait))
                 time.sleep(wait)
                 continue
@@ -382,7 +394,32 @@ def call_gemini(key, model, prompt):
     raise RuntimeError(last or "unbekannter Fehler")
 
 
+def parse_duration(v):
+    """Groq-Zeitangaben wie "7.66s", "1m2.5s", "450ms" -> Sekunden."""
+    v = str(v or "").strip()
+    if not v:
+        return 0.0
+    if re.match(r"^[\d.]+$", v):
+        return float(v)
+    total = 0.0
+    for num, unit in re.findall(r"([\d.]+)(ms|h|m|s)", v):
+        total += float(num) * {"ms": 0.001, "s": 1, "m": 60, "h": 3600}[unit]
+    return total
+
+
+def groq_wait_for_tokens(model, need):
+    """Vor dem Senden warten, falls das Minutenfenster laut letzter Antwort nicht mehr reicht."""
+    st = GROQ_STATE.get(model)
+    if not st or st["remaining"] >= need:
+        return
+    wait = st["reset_at"] - time.time()
+    if wait > 0:
+        print("  warte %ds auf Groq-Minutenlimit" % (wait + 1))
+        time.sleep(min(wait + 1, 65))
+
+
 def call_groq(gkey, model, prompt):
+    est_in = int(len(prompt) / 3.2)          # Zahlen-Tabellen ergeben mehr Tokens als Fließtext
     body = {
         "model": model,
         "messages": [
@@ -391,17 +428,27 @@ def call_groq(gkey, model, prompt):
         ],
         "response_format": {"type": "json_object"},
         "temperature": 0.3,
+        "max_completion_tokens": GROQ_MAX_OUT,
     }
     if "gpt-oss" in model:
-        body["reasoning_effort"] = "medium"
+        body["reasoning_effort"] = "low"     # wenig Denk-Tokens: schneller, passt ins Minutenlimit
     data = json.dumps(body).encode("utf-8")
     last = None
-    for attempt in range(MAX_RETRIES):
+    attempt = waits = 0
+    while attempt < MAX_RETRIES:
+        groq_wait_for_tokens(model, est_in + GROQ_MAX_OUT)
         req = urllib.request.Request(GROQ_BASE + "/chat/completions", data=data, method="POST", headers={
             "Authorization": "Bearer " + gkey, "Content-Type": "application/json", "User-Agent": "aktien-app"})
         try:
             with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
+                h = resp.headers
                 res = json.loads(resp.read().decode("utf-8"))
+            try:
+                if h and h.get("x-ratelimit-remaining-tokens") is not None:
+                    GROQ_STATE[model] = {"remaining": int(float(h.get("x-ratelimit-remaining-tokens"))),
+                                         "reset_at": time.time() + parse_duration(h.get("x-ratelimit-reset-tokens"))}
+            except (TypeError, ValueError):
+                pass
             choices = res.get("choices") or []
             if not choices:
                 raise ValueError("Keine Antwort")
@@ -413,32 +460,42 @@ def call_groq(gkey, model, prompt):
                 print("  " + last)
                 raise QuotaExhausted("Tageskontingent für %s aufgebraucht (HTTP 429)" % model)
             if e.code == 413 or (e.code == 400 and "too large" in full.lower()):
-                raise ModelUnavailable("Anfrage zu groß für %s (HTTP %s)" % (model, e.code))
+                raise TooLarge("Anfrage zu groß für %s (HTTP %s)" % (model, e.code))
             if e.code == 404 or (e.code == 400 and re.search(r"model_not_found|decommissioned|does not exist", full, re.I)):
                 raise ModelUnavailable("%s nicht verfügbar (HTTP %s)" % (model, e.code))
-            if e.code == 400 and "json_validate_failed" in full and attempt + 1 < MAX_RETRIES:
+            if e.code == 400 and "json_validate_failed" in full:
+                attempt += 1
                 print("  Ungültiges JSON von %s – neuer Versuch" % model)
                 continue
-            if e.code in (429, 498, 500, 502, 503, 504):
+            if e.code == 429 and waits < 6:
+                # Minutenlimit: warten zählt nicht als Fehlversuch
                 ra = e.headers.get("retry-after") if e.headers else None
-                m = re.search(r"try again in (?:(\d+)m)?([\d.]+)s", full)
-                wait = float(ra) if ra and re.match(r"^[\d.]+$", ra) else (
-                    (int(m.group(1) or 0) * 60 + float(m.group(2))) if m else 20 * (attempt + 1))
-                wait = min(max(wait, 1) + 1, 90)
-                if attempt + 1 >= MAX_RETRIES or time_left() < wait + HTTP_TIMEOUT:
-                    if e.code in (498, 503):
-                        raise ModelUnavailable("%s überlastet (HTTP %s)" % (model, e.code))
+                m = re.search(r"try again in ([\dmsh.]+)", full)
+                wait = parse_duration(ra) or (parse_duration(m.group(1)) if m else 20)
+                wait = min(max(wait, 1) + 1, 65)
+                if time_left() < wait + HTTP_TIMEOUT:
                     break
-                print("  %s – neuer Versuch in %ds" % (last[:160], wait))
+                waits += 1
+                print("  Minutenlimit %s – warte %ds" % (model, wait))
                 time.sleep(wait)
+                continue
+            if e.code in (429, 498, 500, 502, 503, 504):
+                attempt += 1
+                if e.code in (498, 503) and attempt >= 2:
+                    raise ModelBusy("%s überlastet (HTTP %s)" % (model, e.code))
+                if attempt >= MAX_RETRIES or time_left() < 20 + HTTP_TIMEOUT:
+                    break
+                print("  %s – neuer Versuch in 20s" % last[:160])
+                time.sleep(20)
                 continue
             raise RuntimeError(last)
         except (urllib.error.URLError, TimeoutError, ValueError, OSError) as e:
+            attempt += 1
             last = str(e) or e.__class__.__name__
-            if attempt + 1 >= MAX_RETRIES or time_left() < HTTP_TIMEOUT + 20:
+            if attempt >= MAX_RETRIES or time_left() < HTTP_TIMEOUT + 20:
                 break
             print("  Fehler:", last, "– neuer Versuch")
-            time.sleep(10 * (attempt + 1))
+            time.sleep(10 * attempt)
     raise RuntimeError(last or "unbekannter Fehler")
 
 
@@ -636,25 +693,62 @@ def main():
 
     used = []
 
-    def ask(prompt, lst):
-        """Fragt das erste Modell der Liste; bei leerem Kontingent oder Überlastung das nächste.
-        Ein ausgefallenes Modell wird aus beiden Listen entfernt."""
-        while lst:
-            m = lst[0]
+    fit_rows = {}   # je Modell: so viele Zeilen passten zuletzt ins Minutenlimit (-1 = passt gar nicht)
+    busy_until = {} # je Modell: bis wann es nach einer Überlastung erst einmal hinten ansteht
+
+    def ask(build, lst, n=None):
+        """Fragt die Modelle der Liste der Reihe nach (für jede Anfrage neu ab dem ersten).
+        - Anfrage zu groß (Groq-Minutenlimit): gleiches Modell mit weniger Zeilen (größte Werte bleiben drin),
+          reicht das nicht, nur für diese Anfrage das nächste Modell
+        - überlastet: nur für diese Anfrage das nächste Modell (beim nächsten Sektor wieder ab vorn)
+        - Kontingent leer / nicht verfügbar: Modell für den ganzen Lauf entfernen
+        build(n) liefert (prompt, zeilen); n=None heißt alle Zeilen."""
+        now = time.time()
+        order = [x for x in lst if fit_rows.get(x) != -1]
+        order = [x for x in order if busy_until.get(x, 0) <= now] + [x for x in order if busy_until.get(x, 0) > now]
+        busy_round = 0
+        while order:
+            m = order[0]
+            prompt, rows_used = build(n if n is not None else fit_rows.get(m))
             try:
                 out = call_model(m, keys, prompt)
+                if rows_used is not None and n is not None:
+                    fit_rows[m] = len(rows_used)
                 if m not in used:
                     used.append(m)
                 result["model"] = ", ".join(used)
-                return out, m
+                return out, m, rows_used
+            except TooLarge as e:
+                cur = len(rows_used) if rows_used else 0
+                if cur > 30:
+                    n = max(30, int(cur * 0.65))
+                    print("  %s – erneut mit den %d größten Werten" % (e, n))
+                    continue
+                n = None
+                fit_rows[m] = -1
+                order.pop(0)
+                if order:
+                    print("  %s – für diesen Sektor %s" % (e, order[0]))
+            except ModelBusy as e:
+                busy_until[m] = time.time() + 180
+                order.pop(0)
+                if order:
+                    print("  %s – versuche %s" % (e, order[0]))
+                elif busy_round < 1 and time_left() > HTTP_TIMEOUT + 90:
+                    busy_round += 1
+                    order = [x for x in lst]
+                    print("  %s – alle Modelle belegt, warte 45s und versuche erneut" % e)
+                    time.sleep(45)
             except (QuotaExhausted, ModelUnavailable) as e:
                 for l in (models, models_overall):
                     if m in l:
                         l.remove(m)
-                if not lst or time_left() < HTTP_TIMEOUT + 30:
-                    raise QuotaExhausted("Kein Gemini-Modell verfügbar (zuletzt: %s)" % e)
-                print("  %s – wechsle auf %s" % (e, lst[0]))
-        raise QuotaExhausted("Kein Gemini-Modell verfügbar")
+                order = [x for x in order if x != m]
+                if order:
+                    print("  %s – wechsle auf %s" % (e, order[0]))
+            if time_left() < HTTP_TIMEOUT + 30:
+                break
+        raise QuotaExhausted("Kein KI-Modell verfügbar")
 
     stop_reason = None
     done = 0
@@ -671,8 +765,12 @@ def main():
             print("  verschoben:", stop_reason)
             continue
         t0 = time.time()
+
+        def build_sector(n, sec_de=sec_de, srows=srows):
+            rows = srows if n is None else srows[:n]
+            return sector_prompt(sec_de, rows, medians(rows)), rows
         try:
-            res, used_model = ask(prompt, models)
+            res, used_model, rows_used = ask(build_sector, models)
         except QuotaExhausted as e:
             stop_reason = str(e) + " – nächster Lauf macht weiter"
             print("  ABBRUCH:", e)
@@ -683,7 +781,8 @@ def main():
             result["errors"].append({"segment": sec_de, "error": clean_text(e, 200)})
             time.sleep(pause_for(models[0] if models else ""))
             continue
-        print("  Antwort von %s nach %ds (noch %d Min. Budget)" % (used_model, time.time() - t0, time_left() // 60))
+        print("  Antwort von %s nach %ds%s (noch %d Min. Budget)" % (used_model, time.time() - t0,
+              "" if len(rows_used) == len(srows) else ", %d von %d Werten" % (len(rows_used), len(srows)), time_left() // 60))
 
         valid = {r["t"] for r in srows}
         picks = []
@@ -748,7 +847,7 @@ def main():
             result["errors"].append({"segment": "Gesamt", "error": "Zu wenige Sektor-Kandidaten für eine Gesamtauswertung."})
         else:
             try:
-                res, used_model = ask(overall_prompt(stock_cands), models_overall)
+                res, used_model, _ = ask(lambda n: (overall_prompt(stock_cands), None), models_overall)
                 print("Gesamt-Top-10 von", used_model)
                 cand_map = {c["ticker"]: c for c in stock_cands}
                 top, seen = [], set()
