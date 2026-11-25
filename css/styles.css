@@ -1474,3 +1474,38 @@ button.segbar-btn.active { background: var(--bg-tertiary); }
 .info-row td { padding-top: 0 !important; border-top: 0 !important; }
 .info-row .info-box { margin: 0 0 6px; }
 .info-box-title { font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
+
+/* KI-Vorschläge (js/ai-insights.js) */
+.ai-summary {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  padding: 10px 12px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+}
+.ai-item {
+  padding: 12px 2px;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+}
+.ai-item:last-child { border-bottom: 0; }
+.ai-item:focus-visible { outline: 2px solid var(--accent-purple); outline-offset: 2px; border-radius: 8px; }
+.ai-rank {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 13px;
+  background: var(--accent-purple);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ai-reasons { margin: 6px 0 0 16px; padding: 0; font-size: 0.76rem; line-height: 1.5; color: var(--text-muted); }
+.ai-risk { display: flex; gap: 6px; margin-top: 6px; font-size: 0.74rem; line-height: 1.45; color: #f59e0b; }
+.ai-warn-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); margin: 14px 0 2px; }
+.ai-item-warn .ai-risk { color: var(--bearish); }
