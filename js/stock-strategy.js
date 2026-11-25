@@ -21,7 +21,17 @@ window.App.StockStrategy = (function () {
     { key: 'MAX', label: 'Max.', years: null }
   ];
 
-  var state = { type: 'sma_cross', params: {}, period: 'MAX', fee: 0.1, helpOpen: false, bestWin: '30p', collapsed: { search: false, best: false } };
+  // Ansicht der Charts (nur Ausschnitt, die Simulation läuft über den gewählten Zeitraum)
+  var VIEWS = [
+    { key: 'ALL', label: 'Alles', days: null },
+    { key: '5Y', label: '5 J.', days: 1826 },
+    { key: '2Y', label: '2 J.', days: 730 },
+    { key: '1Y', label: '1 J.', days: 365 },
+    { key: '6M', label: '6 M.', days: 182 },
+    { key: '3M', label: '3 M.', days: 91 }
+  ];
+
+  var state = { type: 'sma_cross', params: {}, period: 'MAX', view: 'ALL', fee: 0.1, helpOpen: false, bestWin: '30p', collapsed: { search: false, best: false } };
   var BEST_WINS = [['30p', 'Letzte 30 %'], ['1Y', '1 Jahr'], ['6M', '6 Monate'], ['3M', '3 Monate'], ['1M', '1 Monat'], ['1W', '1 Woche'], ['1D', '1 Tag']];
   var BEST_DAYS = { '1Y': 365, '6M': 182, '3M': 91, '1M': 30, '1W': 7, '1D': 1 };
 
@@ -414,20 +424,61 @@ window.App.StockStrategy = (function () {
     }, 30);
   }
 
+  /* ---------- Chart-Ausschnitt ---------- */
+  function daysBetween(a, b) { return (new Date(b) - new Date(a)) / 86400000; }
+
+  /** Ansichten, die kürzer als die simulierte Spanne sind (plus "Alles"). */
+  function viewsFor(dates) {
+    var span = dates.length > 1 ? daysBetween(dates[0], dates[dates.length - 1]) : 0;
+    return VIEWS.filter(function (v) { return v.days === null || v.days < span * 0.9; });
+  }
+
+  /** Erster Index im Ausschnitt (mind. 8 Punkte, damit eine Linie entsteht). */
+  function viewStart(dates) {
+    var v = viewsFor(dates).filter(function (x) { return x.key === state.view; })[0];
+    if (!v || v.days === null) return 0;
+    var cut = new Date(new Date(dates[dates.length - 1]) - v.days * 86400000).toISOString().slice(0, 10);
+    var from = 0;
+    while (from < dates.length - 1 && dates[from] < cut) from++;
+    return Math.max(0, Math.min(from, dates.length - 8));
+  }
+
+  /** Index-Auswahl ab "from", höchstens ~400 Punkte. */
+  function sampleIdx(from, n) {
+    var step = Math.max(1, Math.floor((n - from) / 400));
+    var idxs = [];
+    for (var i = from; i < n; i += step) idxs.push(i);
+    if (idxs[idxs.length - 1] !== n - 1) idxs.push(n - 1);
+    return { idxs: idxs, step: step };
+  }
+
+  function viewChips(dates, id) {
+    var vs = viewsFor(dates);
+    if (vs.length < 2) return '';
+    return '<div class="horizontal-scroll-row" style="margin:0 -4px 10px;padding:0 4px;gap:6px;" id="' + id + '">' +
+      vs.map(function (v) {
+        return '<button class="chip-btn ' + (v.key === state.view ? 'active' : '') + '" style="flex-shrink:0;" data-bt-view="' + v.key + '">' + v.label + '</button>';
+      }).join('') + '</div>';
+  }
+
+  function bindViewChips(out, redraw) {
+    out.querySelectorAll('[data-bt-view]').forEach(function (b) {
+      b.onclick = function () { state.view = b.getAttribute('data-bt-view'); redraw(); };
+    });
+  }
+
   /* ---------- Kurs, Indikatoren und Kauf-/Verkaufspunkte der gewählten Strategie ---------- */
-  function drawIndicators(out, hist, res, params) {
+  function drawIndicators(out, hist, res, params, ind) {
     var card = out.querySelector('#bt-ind-card');
     if (!card) return;
     var q = Q(), f = F();
-    var ind = q.indicatorSeries(hist, state.type, params);
     var def = q.STRATEGIES[state.type];
 
-    var step = Math.max(1, Math.floor(hist.length / 400));
-    var idxs = [];
-    for (var i = 0; i < hist.length; i += step) idxs.push(i);
-    if (idxs[idxs.length - 1] !== hist.length - 1) idxs.push(hist.length - 1);
+    var from = viewStart(res.dates);
+    var smp = sampleIdx(from, hist.length);
+    var idxs = smp.idxs, step = smp.step;
     var pick = function (arr) { return idxs.map(function (k) { return arr[k]; }); };
-    var toPicked = function (k) { return Math.min(idxs.length - 1, Math.round(k / step)); };
+    var toPicked = function (k) { return Math.min(idxs.length - 1, Math.round((k - from) / step)); };
     var labels = pick(res.dates).map(shortDate);
     var shade = pick(res.pos).map(function (v) { return v === 1; });
 
@@ -435,8 +486,9 @@ window.App.StockStrategy = (function () {
     res.dates.forEach(function (d, k) { dateIdx[d] = k; });
     var markers = [];
     res.trades.forEach(function (t) {
-      if (dateIdx[t.entryDate] != null) markers.push({ index: toPicked(dateIdx[t.entryDate]), type: 'Buy' });
-      if (!t.open && dateIdx[t.exitDate] != null) markers.push({ index: toPicked(dateIdx[t.exitDate]), type: 'Sell' });
+      var a = dateIdx[t.entryDate], z = dateIdx[t.exitDate];
+      if (a != null && a >= from) markers.push({ index: toPicked(a), type: 'Buy' });
+      if (!t.open && z != null && z >= from) markers.push({ index: toPicked(z), type: 'Sell' });
     });
 
     var series = [{ values: pick(hist.map(function (h) { return h.close; })), color: '#818cf8', width: 2 }];
@@ -449,6 +501,7 @@ window.App.StockStrategy = (function () {
       '<div class="legend-item"><span class="legend-dot" style="background:rgba(16,185,129,0.35);"></span><span>investiert</span></div>';
 
     var html = '<div class="card-header-dotted"><span class="card-title">Kurs &amp; Indikatoren</span><span class="period-tag">' + esc(def.label) + '</span></div>' +
+      viewChips(res.dates, 'bt-view-ind') +
       '<div style="height:240px;position:relative;"><canvas id="bt-ind-price" class="chart-canvas" style="height:100%;"></canvas></div>' +
       '<div class="legend-row">' + legend + '</div>' +
       (ind.note ? '<div style="font-size:0.72rem;color:var(--text-dim);line-height:1.45;margin-top:6px;">' + esc(ind.note) + '</div>' : '');
@@ -461,6 +514,7 @@ window.App.StockStrategy = (function () {
       'Dreiecke zeigen, wo die Simulation kauft bzw. verkauft: am Schlusskurs des Tages <em>nach</em> dem Signal. ' +
       (ind.ppy < 200 ? 'Bei Wochenkursen sind die Tage-Parameter in Wochen umgerechnet, die Linien entsprechen der Berechnung der Strategie.' : '') + '</div>';
     card.innerHTML = html;
+    bindViewChips(card, function () { redrawViews(out, hist, res, params, ind); });
 
     var C = window.App.Charts;
     C.renderMultiLineChart(card.querySelector('#bt-ind-price'), {
@@ -545,7 +599,8 @@ window.App.StockStrategy = (function () {
 
       '<div class="card"><div class="card-header-dotted"><span class="card-title" style="display:flex;align-items:center;">Kapitalverlauf (Start = 100)' + info('rules') + '</span>' +
         '<span class="period-tag"><span style="color:#818cf8;">●</span> Strategie &nbsp;<span style="color:#94a3b8;">●</span> Buy &amp; Hold</span></div>' +
-        '<div style="height:220px;position:relative;"><canvas id="bt-single-chart" class="chart-canvas" style="height:100%;"></canvas></div></div>' +
+        '<div style="height:220px;position:relative;"><canvas id="bt-single-chart" class="chart-canvas" style="height:100%;"></canvas></div>' +
+        '<div id="bt-eq-note" style="display:none;font-size:0.72rem;color:var(--text-dim);line-height:1.45;margin-top:8px;"></div></div>' +
 
       '<div class="card"><div class="card-header-dotted"><span class="card-title">Trades (' + res.trades.length + ')</span>' +
         (res.pendingSignal === 'long' && state.type !== 'buyhold' ? '<span class="period-tag" style="display:inline-flex;align-items:center;">Signal heute: investiert' + info('signal') + '</span>' : (state.type !== 'buyhold' ? '<span class="period-tag" style="display:inline-flex;align-items:center;">Signal heute: Cash' + info('signal') + '</span>' : '')) + '</div>';
@@ -572,21 +627,52 @@ window.App.StockStrategy = (function () {
     out.innerHTML = html;
     bindInfo(out);
 
-    drawIndicators(out, hist, res, params);
+    if (!viewsFor(res.dates).some(function (v) { return v.key === state.view; })) state.view = 'ALL';
+    var ind = state.type !== 'buyhold' ? q.indicatorSeries(hist, state.type, params) : null;
+    redrawViews(out, hist, res, params, ind);
+  }
 
+  /** Zeichnet Indikator- und Kapitalchart im gewählten Ausschnitt (ohne neue Simulation). */
+  function redrawViews(out, hist, res, params, ind) {
+    if (ind) drawIndicators(out, hist, res, params, ind);
+    drawEquity(out, hist, res, params, ind);
+  }
+
+  function drawEquity(out, hist, res, params, ind) {
     var canvas = out.querySelector('#bt-single-chart');
-    if (canvas) {
-      var step = Math.max(1, Math.floor(res.equity.length / 400));
-      var pick = function (arr) { return arr.filter(function (_, i) { return i % step === 0 || i === arr.length - 1; }); };
-      window.App.Charts.renderMultiLineChart(canvas, {
-        labels: pick(res.dates).map(shortDate),
-        series: [
-          { values: pick(res.buyHold), color: '#94a3b8', width: 1.5, dash: [4, 3] },
-          { values: pick(res.equity), color: '#818cf8', width: 2.5 }
-        ],
-        formatY: function (v) { return f.number(v, 0); }
-      });
+    if (!canvas) return;
+    var f = F();
+    var from = viewStart(res.dates);
+    // Ausschnitt neu auf 100 normiert, damit Strategie und Buy & Hold ab Ausschnittbeginn vergleichbar sind
+    var chips = out.querySelector('#bt-view-eq');
+    var host = canvas.parentNode;
+    if (!ind) {
+      if (chips) chips.remove();
+      host.insertAdjacentHTML('beforebegin', viewChips(res.dates, 'bt-view-eq'));
+      bindViewChips(out, function () { redrawViews(out, hist, res, params, ind); });
     }
+    var note = out.querySelector('#bt-eq-note');
+    var e0 = res.equity[from] || 100, b0 = res.buyHold[from] || 100;
+    if (note) {
+      if (from > 0) {
+        var se = (res.equity[res.equity.length - 1] / e0 - 1) * 100, sb = (res.buyHold[res.buyHold.length - 1] / b0 - 1) * 100;
+        note.innerHTML = 'Ausschnitt ab ' + f.date(res.dates[from]) + ', neu auf 100 gesetzt: Strategie <strong style="color:' + tone(se) + ';">' + pct(se, 1, true) +
+          '</strong>, Buy &amp; Hold <strong style="color:' + tone(sb) + ';">' + pct(sb, 1, true) + '</strong>.';
+        note.style.display = '';
+      } else {
+        note.style.display = 'none';
+      }
+    }
+    var smp = sampleIdx(from, res.equity.length);
+    var pick = function (arr, base) { return smp.idxs.map(function (k) { return arr[k] / base * 100; }); };
+    window.App.Charts.renderMultiLineChart(canvas, {
+      labels: smp.idxs.map(function (k) { return shortDate(res.dates[k]); }),
+      series: [
+        { values: pick(res.buyHold, b0), color: '#94a3b8', width: 1.5, dash: [4, 3] },
+        { values: pick(res.equity, e0), color: '#818cf8', width: 2.5 }
+      ],
+      formatY: function (v) { return f.number(v, 0); }
+    });
   }
 
   /** Vorauswahl von außen (z. B. Strategie-Scanner): Strategie, Parameter und Zeitraum setzen, bevor der Tab geöffnet wird. */
