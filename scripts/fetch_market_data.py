@@ -1213,6 +1213,27 @@ def build_universe_item(stock_data, existing_item=None):
         pats = compute_chart_patterns(hist)
         u_item.update(pats)
 
+        # Basiswerte, mit denen der Browser Kreuze und EMA-Trend mit dem Live-Kurs fortschreibt
+        # (js/live-prices.js applyTechnicals): Werte am vorletzten und letzten Dateitag
+        cl_all = [p["close"] for p in hist]
+        live_base = {}
+        for per in (12, 26, 50, 200):
+            es = ema_series(cl_all, per)
+            if len(es) >= 2 and es[-1] is not None and es[-2] is not None:
+                live_base["e%d" % per] = [round(es[-2], 6), round(es[-1], 6)]
+        if len(cl_all) >= 201:
+            live_base["s200"] = [round(sum(cl_all[-201:-1]) / 200, 6), round(sum(cl_all[-200:]) / 200, 6)]
+            live_base["c200"] = [round(cl_all[-201], 6), round(cl_all[-200], 6)]
+        if live_base and len(hist) > 60:
+            # Kreuz-Stand ohne den letzten Punkt: falls der Live-Kurs ein Kreuz vom letzten Dateitag wieder aufhebt
+            pp = compute_chart_patterns(hist[:-1])
+            live_base["prev"] = {"cross": pp.get("cross"), "crossDaysAgo": pp.get("crossDaysAgo"),
+                                 "emaCross": pp.get("emaCross"), "emaCrossDaysAgo": pp.get("emaCrossDaysAgo")}
+        if live_base:
+            u_item["liveBase"] = live_base
+        else:
+            u_item.pop("liveBase", None)
+
         # Boden-Check (Filter "Bodenbildung" / "Fallendes Messer")
         bottom = compute_bottom_check([p.get("close") for p in hist])
         if bottom:
