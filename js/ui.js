@@ -237,8 +237,8 @@ window.App.UI = (function () {
   /** App-Menü (⋯ oben rechts) */
   function openMenu() {
     var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-    var installBtn = document.getElementById('pwa-install-btn');
-    var canInstall = installBtn && installBtn.style.display !== 'none';
+    var PWA = window.App.PWA;
+    var canInstall = PWA && PWA.isStandalone ? !PWA.isStandalone() : false;
     var expert = isExpert();
 
     var html = '<div class="sheet-header"><h3 style="font-size:1.05rem;font-weight:700;">Einstellungen</h3></div>' +
@@ -277,7 +277,7 @@ window.App.UI = (function () {
         if (window.App.CommandPalette) window.App.CommandPalette.open();
       };
       var inst = root.querySelector('#ui-menu-install');
-      if (inst) inst.onclick = function () { closeSheet(); installBtn.click(); };
+      if (inst) inst.onclick = function () { closeSheet(); setTimeout(function () { PWA.install(); }, 60); };
     });
   }
 
