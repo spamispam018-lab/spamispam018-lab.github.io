@@ -24,7 +24,9 @@ window.App.Screener = (function () {
   var VALUE_FALLBACK_PE = 18;       
   var MIN_SECTOR_SIZE = 5;          
   var RR_MIN_CRV = 2;               
-  var RR_MAX_STOP_PCT = 5;          
+  var RR_MAX_STOP_PCT = 5;
+  var RR_MAX_VOL_PCT = 40;          // "Kleines Risiko": Volatilität p. a. höchstens 40 % (darüber: Risikoprofil "sehr hoch")
+  var RR_STOP_SIGMA = 1.5;          // Stop muss mindestens 1,5 typische Tagesbewegungen entfernt sein          
   var STALE_AFTER_HOURS = 84;       
 
   var STORAGE_KEY = 'screener_state_v1';
@@ -169,7 +171,41 @@ window.App.Screener = (function () {
   }
 
   function isConsensusSell(s) { return hasNum(s.buyPct) && s.buyPct <= 20 && analystOk(s); }
-  function isLowRisk(s) { return hasNum(s.rrCrv) && hasNum(s.rrStopPct) && s.rrCrv >= RR_MIN_CRV && s.rrStopPct <= RR_MAX_STOP_PCT; }
+  var volCache = {};
+
+  /** Volatilität p. a. in % aus den letzten Schlusskursen (wie im Risiko-Tab, nur kürzerer Zeitraum). */
+  function annualVol(s) {
+    var c = Array.isArray(s.closes) ? s.closes : [];
+    var key = c.length + ':' + c[c.length - 1];
+    if (volCache[s.ticker] && volCache[s.ticker].key === key) return volCache[s.ticker].v;
+    var r = [];
+    for (var i = 1; i < c.length; i++) {
+      if (c[i - 1] > 0 && c[i] > 0) r.push(Math.log(c[i] / c[i - 1]));
+    }
+    var v = null;
+    if (r.length >= 20) {
+      var m = r.reduce(function (a, b) { return a + b; }, 0) / r.length;
+      var varc = r.reduce(function (a, b) { return a + (b - m) * (b - m); }, 0) / (r.length - 1);
+      v = Math.sqrt(varc) * Math.sqrt(252) * 100;
+    }
+    volCache[s.ticker] = { key: key, v: v };
+    return v;
+  }
+
+  /**
+   * Kleines Risiko: gutes Chance-Risiko-Verhältnis UND ein Stop, der nicht schon
+   * durch normales Tagesrauschen ausgelöst wird. Bei sehr schwankenden Aktien
+   * (z. B. 120 % Volatilität = ~8 % typische Tagesbewegung) ist ein Stop 5 % unter dem Kurs
+   * kein kleines Risiko, sondern fast sicher ein Verlust.
+   */
+  function isLowRisk(s) {
+    if (!(hasNum(s.rrCrv) && hasNum(s.rrStopPct) && s.rrCrv >= RR_MIN_CRV && s.rrStopPct <= RR_MAX_STOP_PCT)) return false;
+    var vol = annualVol(s);
+    if (vol === null) return false;                       // ohne Kursverlauf keine Aussage
+    if (vol > RR_MAX_VOL_PCT) return false;
+    var dailyMove = vol / Math.sqrt(252);                 // typische Tagesbewegung in %
+    return s.rrStopPct >= RR_STOP_SIGMA * dailyMove;
+  }
   function hasRecentCross(s, type) { return s.cross === type && hasNum(s.crossDaysAgo) && s.crossDaysAgo <= CROSS_RECENT_DAYS; }
   function hasEmaCross(s, type) { return s.emaCross === type && hasNum(s.emaCrossDaysAgo) && s.emaCrossDaysAgo <= EMA_CROSS_RECENT_DAYS; }
   function hasTechPattern(s, id) { return Array.isArray(s.chartPatterns) && s.chartPatterns.indexOf(id) !== -1; }
@@ -230,7 +266,7 @@ window.App.Screener = (function () {
     { id: 'consensus_sell', chip: '👎 Verkaufskonsens', name: 'Verkaufskonsens', info: function () { return 'Höchstens 20 % der Analysten mit Buy/StrongBuy, bei mindestens ' + MIN_ANALYSTS + ' Analysten.'; } },
     { id: 'bottom_base', chip: '🌅 Bodenbildung', name: 'Bodenbildung', info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch und mindestens 4 von 6 Stabilisierungs-Signalen. Möglicher Boden, keine Garantie.'; } },
     { id: 'bottom_knife', chip: '🔪 Fallendes Messer', name: 'Fallendes Messer', info: function () { return 'Kurs mindestens 20 % unter dem 52W-Hoch, höchstens 2 von 6 Stabilisierungs-Signalen und frisches Tief. Abwärtstrend noch intakt.'; } },
-    { id: 'low_risk', chip: '🛡️ Kleines Risiko', name: 'Kleines Risiko', info: function () { return 'Long-Setup mit begrenztem Risiko: Stop knapp unter der nächsten Unterstützung höchstens ' + RR_MAX_STOP_PCT + ' % unter dem Kurs und Chance-Risiko-Verhältnis (CRV) mindestens ' + RR_MIN_CRV + ':1.'; } },
+    { id: 'low_risk', chip: '🛡️ Kleines Risiko', name: 'Kleines Risiko', info: function () { return 'Long-Setup mit begrenztem Risiko: Stop knapp unter der nächsten Unterstützung höchstens ' + RR_MAX_STOP_PCT + ' % unter dem Kurs, Chance-Risiko-Verhältnis (CRV) mindestens ' + RR_MIN_CRV + ':1, Volatilität höchstens ' + RR_MAX_VOL_PCT + ' % p. a. und der Stop mindestens ' + String(RR_STOP_SIGMA).replace('.', ',') + ' typische Tagesbewegungen entfernt (damit normales Schwanken ihn nicht auslöst).'; } },
     { id: 'news_positive', chip: '📰 Positive News', name: 'Positive Nachrichten', info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % positiv (automatische FinBERT-Einschätzung).'; } },
     { id: 'news_negative', chip: '⚠️ Negative News', name: 'Negative Nachrichten', info: function () { return 'Mindestens ' + NEWS_MIN_ITEMS + ' aktuelle Nachrichten, davon mindestens ' + Math.round(NEWS_SHARE_MIN * 100) + ' % negativ (automatische FinBERT-Einschätzung).'; } },
     { id: 'tech_bullish', chip: '📊 Bullisches Chartmuster', name: 'Bullisches Chartmuster', info: function () { return 'In der Daten-Pipeline wurde mindestens ein bullisches Chartmuster erkannt (Doppel-Boden, Golden Cross, aufsteigendes Dreieck). Vergangene Kursdaten, keine Prognose.'; } },
@@ -591,7 +627,7 @@ window.App.Screener = (function () {
     if (isActive('recovery') && hasNum(s.rangePos)) tags.push('52W-Spanne ' + fmtNum(s.rangePos, 0) + ' %');
     if ((isActive('ema_up') || isActive('ema_down')) && s.emaCross && hasNum(s.emaCrossDaysAgo)) tags.push('EMA-Kreuz ' + (s.emaCross === 'up' ? '▲' : '▼') + ' ' + (s.emaCrossDaysAgo === 0 ? 'heute' : 'vor ' + s.emaCrossDaysAgo + ' Tg.'));
     if (isActive('oversold') && hasNum(s.rsi)) tags.push('RSI ' + fmtNum(s.rsi, 0));
-    if (isActive('low_risk') && hasNum(s.rrCrv)) tags.push('CRV ' + fmtNum(s.rrCrv, 1) + ' · Stop −' + fmtNum(s.rrStopPct, 1) + ' % · Ziel +' + fmtNum(s.rrTgtPct, 1) + ' %');
+    if (isActive('low_risk') && hasNum(s.rrCrv)) tags.push('CRV ' + fmtNum(s.rrCrv, 1) + ' · Stop −' + fmtNum(s.rrStopPct, 1) + ' % · Ziel +' + fmtNum(s.rrTgtPct, 1) + ' %' + (annualVol(s) !== null ? ' · Vola ' + fmtNum(annualVol(s), 0) + ' %' : ''));
     if ((isActive('value') || isActive('undervalued')) && hasNum(s.pe) && s.pe > 0) {
       var med = sectorPe[s.sector];
       tags.push('KGV ' + fmtNum(s.pe, 0) + (med ? ' (Branche Ø ' + fmtNum(med, 0) + ')' : ''));
@@ -1452,6 +1488,9 @@ window.App.Screener = (function () {
     initView: initView,
     checkScreenerAlerts: checkScreenerAlerts,
     // aktuell angezeigte (gefilterte, sortierte) Treffer; vom Strategie-Scanner genutzt
-    getFilteredStocks: function () { return filteredStocks.slice(); }
+    getFilteredStocks: function () { return filteredStocks.slice(); },
+    // gemeinsame Regel für "Kleines Risiko" (auch im Backtest genutzt)
+    isLowRisk: isLowRisk,
+    annualVol: annualVol
   };
 })();
