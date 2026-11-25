@@ -5,6 +5,10 @@ on:
   workflow_run:
     workflows: ["Tägliches Marktdaten-Update"]
     types: [completed]
+  # Folgeläufe in der Nacht: machen weiter, falls der erste Lauf nicht alle Sektoren geschafft hat
+  # (01:30 und 02:30 Uhr deutscher Winterzeit, Di–Sa = nach jedem Werktags-Update). Ist alles aktuell, endet der Lauf sofort.
+  schedule:
+    - cron: '30 0,1 * * 2-6'
   # Manuell startbar (Actions › KI-Vorschläge › Run workflow)
   workflow_dispatch:
     inputs:
@@ -20,10 +24,10 @@ concurrency:
 
 jobs:
   ai-insights:
-    # Nach dem Marktdaten-Update nur laufen, wenn es erfolgreich war
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    # Automatisch nur nach dem planmäßigen abendlichen Datenlauf (nicht nach manuellen Einzel-Updates aus der App)
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'schedule')
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     permissions:
       contents: write
     steps:
@@ -39,16 +43,24 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           ONLY_SECTOR: ${{ github.event.inputs.only }}
+          EVENT: ${{ github.event_name }}
+        # Python-Ausgabe sofort ins Log schreiben (sonst fehlt sie, wenn der Job abbricht)
         run: |
+          export PYTHONUNBUFFERED=1
           if [ -n "$ONLY_SECTOR" ]; then
             python scripts/fetch_ai_insights.py --only "$ONLY_SECTOR"
+          elif [ "$EVENT" = "workflow_dispatch" ]; then
+            python scripts/fetch_ai_insights.py --force   # manuell: alle Sektoren, älteste zuerst
           else
-            python scripts/fetch_ai_insights.py
+            python scripts/fetch_ai_insights.py           # automatisch: nur veraltete Sektoren
           fi
+      # Auch nach Abbruch/Zeitüberschreitung: bereits fertige Sektoren sichern
       - name: Committen und pushen
+        if: always()
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          [ -f data/ai_insights.json ] || { echo "Keine Datei."; exit 0; }
           git add data/ai_insights.json
           if git diff --staged --quiet; then
             echo "Keine Änderungen."
