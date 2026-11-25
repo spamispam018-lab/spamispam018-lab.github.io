@@ -1140,6 +1140,10 @@ def build_universe_item(stock_data, existing_item=None):
     u_item = existing_item or {}
     if not stock_data:
         return u_item
+    # Ticker immer setzen – neue Werte hatten sonst keinen und brachen alle Leser der universe.json
+    tk = stock_data.get("ticker") or (stock_data.get("profile") or {}).get("ticker")
+    if tk:
+        u_item["ticker"] = tk
     
     # Basis
     prof = stock_data.get("profile", {})
@@ -1307,18 +1311,42 @@ def compute_rs_ratings(universe_map):
         item["rsRating"] = int((i / total) * 100) if total > 0 else 50
 
 
+def read_universe_map(universe_file):
+    """universe.json -> {ticker: eintrag}. Einträge ohne Ticker werden übersprungen (und beim Lauf neu aufgebaut)."""
+    universe_map = {}
+    if os.path.exists(universe_file):
+        try:
+            with open(universe_file, "r", encoding="utf-8") as f:
+                for item in json.load(f):
+                    t = item.get("ticker") if isinstance(item, dict) else None
+                    if t:
+                        universe_map[t] = item
+                    else:
+                        print("  Hinweis: Eintrag ohne Ticker in universe.json verworfen:", (item or {}).get("name") if isinstance(item, dict) else item)
+        except Exception as e:
+            print("  universe.json nicht lesbar:", e)
+    return universe_map
+
+
+def write_universe(universe_file, universe_map):
+    """Schreibt die Übersicht; der Schlüssel ist immer auch der Ticker des Eintrags."""
+    out = []
+    for t, item in universe_map.items():
+        if not t or not isinstance(item, dict):
+            continue
+        item["ticker"] = t
+        out.append(item)
+    with open(universe_file, "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False, indent=2)
+
+
 def run_delta_sync(tickers, is_manual=False, sections=None):
     load_live_forex()
 
     if sections:
         print(f"Lade gezielt Sektionen: {', '.join(sections)} für {len(tickers)} Ticker...")
         universe_file = os.path.join(DATA_DIR, "universe.json")
-        universe_map = {}
-        if os.path.exists(universe_file):
-            try:
-                with open(universe_file, "r", encoding="utf-8") as f:
-                    for item in json.load(f): universe_map[item["ticker"]] = item
-            except Exception: pass
+        universe_map = read_universe_map(universe_file)
 
         for sym in tickers:
             stock_file = os.path.join(DATA_DIR, f"{sym}.json")
@@ -1351,8 +1379,7 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
 
         if any(s in sections for s in ["quote", "profile", "ratios", "history", "perf"]):
             compute_rs_ratings(universe_map)
-            with open(universe_file, "w", encoding="utf-8") as f:
-                json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
+            write_universe(universe_file, universe_map)
         return
 
     if is_manual and len(tickers) == 1:
@@ -1363,16 +1390,12 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
             with open(stock_file, "w", encoding="utf-8") as f:
                 json.dump(stock_data, f, ensure_ascii=False, indent=2)
             universe_file = os.path.join(DATA_DIR, "universe.json")
-            universe_map = {}
-            if os.path.exists(universe_file):
-                with open(universe_file, "r", encoding="utf-8") as f:
-                    for item in json.load(f): universe_map[item["ticker"]] = item
+            universe_map = read_universe_map(universe_file)
             
             universe_map[sym] = build_universe_item(stock_data, universe_map.get(sym))
             compute_rs_ratings(universe_map)
             
-            with open(universe_file, "w", encoding="utf-8") as f:
-                json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
+            write_universe(universe_file, universe_map)
             return
         except Exception as e:
             print(f"Manual Fetch für {sym} fehlgeschlagen: {e}")
@@ -1381,14 +1404,7 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
     print(f"Starte schnelles Batch-Update für {len(tickers)} Ticker...")
     batch_df = yf.download(tickers, period="5d", interval="1d", group_by="ticker", auto_adjust=False, threads=True)
     universe_file = os.path.join(DATA_DIR, "universe.json")
-    universe_map = {}
-    if os.path.exists(universe_file):
-        try:
-            with open(universe_file, "r", encoding="utf-8") as f:
-                for item in json.load(f):
-                    universe_map[item["ticker"]] = item
-        except Exception:
-            pass
+    universe_map = read_universe_map(universe_file)
 
     now_iso = datetime.now(timezone.utc).isoformat()
     fin_backfilled = 0
@@ -1504,8 +1520,7 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
 
     compute_rs_ratings(universe_map)
 
-    with open(universe_file, "w", encoding="utf-8") as f:
-        json.dump(list(universe_map.values()), f, ensure_ascii=False, indent=2)
+    write_universe(universe_file, universe_map)
 
 
 def main():
