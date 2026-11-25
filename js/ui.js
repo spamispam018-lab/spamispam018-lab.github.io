@@ -181,8 +181,12 @@ window.App.UI = (function () {
     return sheetEls;
   }
 
-  function openSheetHtml(html, bind) {
+  var sheetOnClose = null;
+
+  /** Öffnet ein Sheet. onClose läuft bei jedem Schließen (Button, Hintergrund, Esc). */
+  function openSheetHtml(html, bind, onClose) {
     var s = ensureSheet();
+    sheetOnClose = onClose || null;
     s.sheet.innerHTML = '<div class="sheet-handle"></div>' + html;
     if (bind) bind(s.sheet);
     s.backdrop.classList.add('open');
@@ -191,8 +195,12 @@ window.App.UI = (function () {
 
   function closeSheet() {
     if (!sheetEls) return;
+    var wasOpen = sheetEls.sheet.classList.contains('open');
     sheetEls.backdrop.classList.remove('open');
     sheetEls.sheet.classList.remove('open');
+    var cb = sheetOnClose;
+    sheetOnClose = null;
+    if (wasOpen && cb) { try { cb(); } catch (e) { console.error(e); } }
   }
 
   /**
@@ -261,6 +269,24 @@ window.App.UI = (function () {
     });
   }
 
+  // ---------- Kurzmeldung ----------
+
+  var toastTimer = null;
+  function toast(msg) {
+    var el = document.getElementById('ui-toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'ui-toast';
+      el.className = 'ui-toast';
+      el.setAttribute('role', 'status');
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2200);
+  }
+
   // ---------- Vorbelegung von Formularen ----------
 
   /**
@@ -303,6 +329,8 @@ window.App.UI = (function () {
     addRecent: addRecent,
     getRecent: getRecent,
     actionSheet: actionSheet,
+    openSheet: openSheetHtml,
+    toast: toast,
     openMenu: openMenu,
     closeSheet: closeSheet,
     prefill: prefill,
