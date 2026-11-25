@@ -37,7 +37,24 @@ API_BASE = "https://generativelanguage.googleapis.com/v1beta"
 
 MAX_ROWS_PER_SECTOR = 90       # größere Sektoren werden nach Marktkapitalisierung gekürzt
 PAUSE_BETWEEN_CALLS = 6        # Sekunden, schont die Minuten-Limits der kostenlosen Stufe
-MAX_RETRIES = 4
+MAX_RETRIES = 3
+HTTP_TIMEOUT = 120             # Sekunden je Anfrage
+TIME_BUDGET = 33 * 60          # danach keine neuen Anfragen mehr; der Workflow bricht nach 45 Min. hart ab
+STARTED = time.time()
+
+
+class QuotaExhausted(RuntimeError):
+    """Tageskontingent der kostenlosen Stufe verbraucht – weitere Anfragen sind heute zwecklos."""
+
+
+def time_left():
+    return TIME_BUDGET - (time.time() - STARTED)
+
+
+def retry_delay(msg, default):
+    """Wartezeit aus der Fehlermeldung (\"retryDelay\": \"37s\"), sonst default."""
+    m = re.search(r'retryDelay"?\s*:\s*"(\d+)(?:\.\d+)?s"', msg)
+    return min(int(m.group(1)) + 2, 90) if m else default
 
 SECTOR_DE = {
     "Technology": "Technologie",
@@ -223,7 +240,7 @@ def medians(rows):
 # Gemini
 # ---------------------------------------------------------------------------
 
-def http_json(url, key, body=None, timeout=180):
+def http_json(url, key, body=None, timeout=HTTP_TIMEOUT):
     data = json.dumps(body).encode("utf-8") if body is not None else None
     req = urllib.request.Request(url, data=data, method="POST" if body is not None else "GET")
     req.add_header("x-goog-api-key", key)
@@ -284,16 +301,22 @@ def call_gemini(key, model, prompt):
             text = "".join(p.get("text", "") for p in parts if not p.get("thought"))
             return parse_json(text)
         except urllib.error.HTTPError as e:
-            msg = e.read().decode("utf-8", "ignore")[:300]
-            last = "HTTP %s: %s" % (e.code, msg)
+            full = e.read().decode("utf-8", "ignore")
+            last = "HTTP %s: %s" % (e.code, full[:300])
+            if e.code == 429 and re.search(r"PerDay|per day|daily", full, re.I):
+                raise QuotaExhausted("Tageskontingent von Gemini aufgebraucht (HTTP 429)")
             if e.code in (429, 500, 502, 503, 504):
-                wait = 20 * (attempt + 1)
-                print("  %s – neuer Versuch in %ss" % (last, wait))
+                wait = retry_delay(full, 20 * (attempt + 1))
+                if attempt + 1 >= MAX_RETRIES or time_left() < wait + HTTP_TIMEOUT:
+                    break
+                print("  %s – neuer Versuch in %ss" % (last[:160], wait))
                 time.sleep(wait)
                 continue
             raise RuntimeError(last)
-        except (urllib.error.URLError, TimeoutError, ValueError) as e:
-            last = str(e)
+        except (urllib.error.URLError, TimeoutError, ValueError, OSError) as e:
+            last = str(e) or e.__class__.__name__
+            if attempt + 1 >= MAX_RETRIES or time_left() < HTTP_TIMEOUT + 20:
+                break
             print("  Fehler:", last, "– neuer Versuch")
             time.sleep(10 * (attempt + 1))
     raise RuntimeError(last or "unbekannter Fehler")
@@ -388,6 +411,7 @@ def clean_text(v, n=400):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", help="Nur diesen Sektor (englischer Name, z. B. Technology) – zum Testen")
+    ap.add_argument("--force", action="store_true", help="Alle Sektoren als veraltet behandeln (manueller Start), älteste zuerst")
     ap.add_argument("--dry-run", action="store_true", help="Nur Prompts erzeugen und Größe ausgeben, keine API-Aufrufe")
     args = ap.parse_args()
 
@@ -415,38 +439,92 @@ def main():
         print("FEHLER: GEMINI_API_KEY ist nicht gesetzt. In GitHub unter Settings › Secrets › Actions anlegen.")
         sys.exit(1)
 
+    previous = load_json(OUT_FILE, {})
+    prev_sectors = previous.get("sectors") or {}
+    now_iso = lambda: datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+
+    # Datenstand: neuester Zeitstempel im Universum. Ein Sektor ist "aktuell", wenn er danach ausgewertet wurde.
+    data_stamp = latest(parse_ts(u.get("updatedAt")) for u in universe)
+    force = bool(args.force or args.only)
+
+    def is_fresh(entry):
+        ts = parse_ts((entry or {}).get("updatedAt"))
+        return bool(ts and (data_stamp is None or ts >= data_stamp))
+
+    def age_key(sec):
+        ts = parse_ts((prev_sectors.get(sec) or {}).get("updatedAt"))
+        return ts.timestamp() if ts else 0
+
+    todo = [s for s in sectors if force or not is_fresh(prev_sectors.get(s))]
+    todo.sort(key=age_key)   # älteste (oder fehlende) zuerst – so setzt jeder Lauf dort fort, wo der letzte aufhörte
+    overall_prev = previous.get("overall") or None
+    newest_sector = latest(parse_ts((prev_sectors.get(s) or {}).get("updatedAt")) for s in sectors)
+    overall_fresh = bool(overall_prev and parse_ts(overall_prev.get("updatedAt")) and newest_sector
+                         and parse_ts(overall_prev.get("updatedAt")) >= newest_sector and is_fresh(overall_prev))
+    print("Offen: %d von %d Sektoren%s" % (len(todo), len(sectors), " (manuell: alle, älteste zuerst)" if force else ""))
+
+    if not todo and overall_fresh:
+        print("Alles aktuell – nichts zu tun.")
+        return
+
     model = "dry-run" if args.dry_run else pick_model(key)
     print("Modell:", model)
 
-    previous = load_json(OUT_FILE, {})
     result = {
-        "updatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "updatedAt": previous.get("updatedAt"),
         "model": model,
         "universeSize": len(rows),
-        "overall": previous.get("overall") or None,
-        "sectors": {},
+        "overall": overall_prev,
+        "sectors": {s: prev_sectors[s] for s in sectors if s in prev_sectors},
         "errors": [],
+        "pending": [],
     }
 
-    all_cands = []
-    for i, sec in enumerate(sectors):
+    def finalize():
+        for s, entry in result["sectors"].items():
+            entry["stale"] = not is_fresh(entry)
+        result["pending"] = [SECTOR_DE.get(s, s) for s in sectors if not is_fresh(result["sectors"].get(s))]
+        if result["overall"]:
+            ov_ts = parse_ts(result["overall"].get("updatedAt"))
+            newest = latest(parse_ts(e.get("updatedAt")) for e in result["sectors"].values())
+            result["overall"]["stale"] = not (ov_ts and newest and ov_ts >= newest and is_fresh(result["overall"]))
+
+    def write_out():
+        finalize()
+        os.makedirs(DATA, exist_ok=True)
+        tmp = OUT_FILE + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(result, f, ensure_ascii=False, separators=(",", ":"))
+        os.replace(tmp, OUT_FILE)   # nach jedem Sektor gespeichert: bricht der Job ab, bleibt der Fortschritt
+
+    stop_reason = None
+    done = 0
+    for i, sec in enumerate(todo):
         srows = sorted(by_sector[sec], key=lambda r: r.get("mcap") or 0, reverse=True)[:MAX_ROWS_PER_SECTOR]
         sec_de = SECTOR_DE.get(sec, sec)
         prompt = sector_prompt(sec_de, srows, medians(srows))
-        print("[%d/%d] %s: %d Werte, ~%d Tokens" % (i + 1, len(sectors), sec_de, len(srows), len(prompt) // 4))
+        print("[%d/%d] %s: %d Werte, ~%d Tokens" % (i + 1, len(todo), sec_de, len(srows), len(prompt) // 4))
         if args.dry_run:
             continue
+        if stop_reason is None and time_left() < HTTP_TIMEOUT + 60:
+            stop_reason = "Zeitlimit erreicht – nächster Lauf macht weiter"
+        if stop_reason:
+            print("  verschoben:", stop_reason)
+            continue
+        t0 = time.time()
         try:
             res = call_gemini(key, model, prompt)
+        except QuotaExhausted as e:
+            stop_reason = str(e) + " – nächster Lauf macht weiter"
+            print("  ABBRUCH:", e)
+            result["errors"].append({"segment": sec_de, "error": clean_text(stop_reason, 200)})
+            continue
         except Exception as e:
             print("  übersprungen:", e)
             result["errors"].append({"segment": sec_de, "error": clean_text(e, 200)})
-            old = (previous.get("sectors") or {}).get(sec)
-            if old:
-                old["stale"] = True
-                result["sectors"][sec] = old
             time.sleep(PAUSE_BETWEEN_CALLS)
             continue
+        print("  Antwort nach %ds (noch %d Min. Budget)" % (time.time() - t0, time_left() // 60))
 
         valid = {r["t"] for r in srows}
         picks = []
@@ -455,16 +533,14 @@ def main():
             if t not in valid or any(x["ticker"] == t for x in picks):
                 continue  # Schutz gegen erfundene Ticker
             row = by_ticker[t]
-            pick = {
+            picks.append({
                 "ticker": t, "name": row["name"], "region": row["region"],
                 "type": clean_text(p.get("type"), 20),
                 "thesis": clean_text(p.get("thesis"), 120),
                 "reasons": [clean_text(x, 220) for x in (p.get("reasons") or [])[:3] if x],
                 "risks": [clean_text(x, 220) for x in (p.get("risks") or [])[:2] if x],
                 "conviction": max(1, min(5, int(p.get("conviction") or 3))) if str(p.get("conviction") or "3").isdigit() else 3,
-            }
-            picks.append(pick)
-            all_cands.append(dict(pick, sector=sec, sectorDe=sec_de, _row=row))
+            })
         warnings = []
         for w in (res.get("warnings") or [])[:3]:
             t = str(w.get("ticker") or "").upper().strip()
@@ -472,53 +548,96 @@ def main():
                 warnings.append({"ticker": t, "name": by_ticker[t]["name"], "region": by_ticker[t]["region"],
                                  "reason": clean_text(w.get("reason"), 220)})
         result["sectors"][sec] = {"name": sec_de, "count": len(by_sector[sec]), "summary": clean_text(res.get("summary"), 400),
-                                  "picks": picks, "warnings": warnings}
-        print("  %d Kandidaten, %d Warnungen" % (len(picks), len(warnings)))
+                                  "picks": picks, "warnings": warnings, "updatedAt": now_iso()}
+        result["updatedAt"] = now_iso()
+        done += 1
+        write_out()
+        print("  %d Kandidaten, %d Warnungen – gespeichert" % (len(picks), len(warnings)))
         time.sleep(PAUSE_BETWEEN_CALLS)
 
     if args.dry_run:
         print("Trockenlauf beendet, nichts geschrieben.")
         return
 
-    # Stufe 2: Gesamtauswertung (ETFs ausgenommen, die werden separat gezeigt)
-    stock_cands = [c for c in all_cands if c["sector"] != "ETF"]
-    if len(stock_cands) >= 5:
-        try:
-            res = call_gemini(key, model, overall_prompt(stock_cands))
-            cand_map = {c["ticker"]: c for c in stock_cands}
-            top, seen = [], set()
-            for item in sorted(res.get("top") or [], key=lambda x: x.get("rank") or 99):
-                t = str(item.get("ticker") or "").upper().strip()
-                if t not in cand_map or t in seen:
-                    continue
-                c = cand_map[t]
-                if sum(1 for x in top if x["sector"] == c["sector"]) >= 3:
-                    continue  # Streuung: höchstens 3 Werte je Sektor
-                seen.add(t)
-                top.append({"rank": len(top) + 1, "ticker": t, "name": c["name"], "sector": c["sector"], "sectorDe": c["sectorDe"],
-                            "region": c["region"], "type": c.get("type", ""),
-                            "thesis": clean_text(item.get("thesis") or c.get("thesis"), 120),
-                            "why": clean_text(item.get("why"), 320), "risk": clean_text(item.get("risk"), 220)})
-                if len(top) >= 10:
-                    break
-            result["overall"] = {"marketView": clean_text(res.get("marketView"), 600), "top": top}
-            print("Gesamt: %d Plätze" % len(top))
-        except Exception as e:
-            print("Gesamtauswertung fehlgeschlagen:", e)
-            result["errors"].append({"segment": "Gesamt", "error": clean_text(e, 200)})
-            if result["overall"]:
-                result["overall"]["stale"] = True
+    # Stufe 2: Gesamtauswertung erst, wenn alle Sektoren aktuell sind (ETFs ausgenommen)
+    open_secs = [s for s in sectors if not is_fresh(result["sectors"].get(s))]
+    ov = result["overall"]
+    ov_ts = parse_ts((ov or {}).get("updatedAt"))
+    newest = latest(parse_ts(e.get("updatedAt")) for e in result["sectors"].values())
+    need_overall = not (ov and ov_ts and newest and ov_ts >= newest and is_fresh(ov))
+    if args.only:
+        print("Gesamtauswertung bei --only übersprungen.")
+    elif open_secs:
+        print("Gesamtauswertung wartet, noch offen:", ", ".join(SECTOR_DE.get(s, s) for s in open_secs))
+    elif not need_overall:
+        print("Gesamtauswertung ist aktuell.")
+    elif stop_reason or time_left() < HTTP_TIMEOUT:
+        why = stop_reason or "Zeitlimit erreicht – nächster Lauf macht weiter"
+        print("Gesamtauswertung verschoben:", why)
+        result["errors"].append({"segment": "Gesamt", "error": why})
     else:
-        result["errors"].append({"segment": "Gesamt", "error": "Zu wenige Sektor-Kandidaten für eine Gesamtauswertung."})
+        stock_cands = []
+        for sec in sectors:
+            if sec == "ETF":
+                continue
+            entry = result["sectors"].get(sec) or {}
+            for p in entry.get("picks") or []:
+                row = by_ticker.get(p.get("ticker"))
+                if row:
+                    stock_cands.append(dict(p, sector=sec, sectorDe=SECTOR_DE.get(sec, sec), _row=row))
+        if len(stock_cands) < 5:
+            result["errors"].append({"segment": "Gesamt", "error": "Zu wenige Sektor-Kandidaten für eine Gesamtauswertung."})
+        else:
+            try:
+                res = call_gemini(key, model, overall_prompt(stock_cands))
+                cand_map = {c["ticker"]: c for c in stock_cands}
+                top, seen = [], set()
+                for item in sorted(res.get("top") or [], key=lambda x: x.get("rank") or 99):
+                    t = str(item.get("ticker") or "").upper().strip()
+                    if t not in cand_map or t in seen:
+                        continue
+                    c = cand_map[t]
+                    if sum(1 for x in top if x["sector"] == c["sector"]) >= 3:
+                        continue  # Streuung: höchstens 3 Werte je Sektor
+                    seen.add(t)
+                    top.append({"rank": len(top) + 1, "ticker": t, "name": c["name"], "sector": c["sector"], "sectorDe": c["sectorDe"],
+                                "region": c["region"], "type": c.get("type", ""),
+                                "thesis": clean_text(item.get("thesis") or c.get("thesis"), 120),
+                                "why": clean_text(item.get("why"), 320), "risk": clean_text(item.get("risk"), 220)})
+                    if len(top) >= 10:
+                        break
+                result["overall"] = {"marketView": clean_text(res.get("marketView"), 600), "top": top, "updatedAt": now_iso()}
+                result["updatedAt"] = now_iso()
+                done += 1
+                print("Gesamt: %d Plätze" % len(top))
+            except Exception as e:
+                print("Gesamtauswertung fehlgeschlagen:", e)
+                result["errors"].append({"segment": "Gesamt", "error": clean_text(e, 200)})
 
-    if not result["sectors"] and not result["overall"]:
-        print("FEHLER: Keine einzige Auswertung erfolgreich – bestehende Datei bleibt unverändert.")
+    if not done and not previous:
+        print("FEHLER: Keine einzige Auswertung erfolgreich.")
         sys.exit(1)
+    write_out()
+    print("Geschrieben:", OUT_FILE, "| neu:", done, "| Fehler:", len(result["errors"]), "| offen:", ", ".join(result["pending"]) or "–")
 
-    os.makedirs(DATA, exist_ok=True)
-    with open(OUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(result, f, ensure_ascii=False, separators=(",", ":"))
-    print("Geschrieben:", OUT_FILE, "| Fehler:", len(result["errors"]))
+
+def latest(values):
+    """Neuester Zeitstempel einer Folge, fehlende Werte ignoriert."""
+    vals = [v for v in values if v is not None]
+    return max(vals) if vals else None
+
+
+def parse_ts(v):
+    """ISO-Zeitstempel (mit Z, Offset oder ohne) -> datetime in UTC, sonst None."""
+    if not v:
+        return None
+    try:
+        d = datetime.fromisoformat(str(v).strip().replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if d.tzinfo is None:
+        d = d.replace(tzinfo=timezone.utc)
+    return d.astimezone(timezone.utc)
 
 
 if __name__ == "__main__":
