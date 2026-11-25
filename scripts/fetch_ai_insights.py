@@ -44,7 +44,11 @@ STARTED = time.time()
 
 
 class QuotaExhausted(RuntimeError):
-    """Tageskontingent der kostenlosen Stufe verbraucht – weitere Anfragen sind heute zwecklos."""
+    """Tageskontingent dieses Modells verbraucht (oder Modell nicht in der kostenlosen Stufe)."""
+
+
+class ModelUnavailable(RuntimeError):
+    """Modell dauerhaft überlastet (503) oder nicht verfügbar (404) – anderes Modell versuchen."""
 
 
 def time_left():
@@ -255,10 +259,13 @@ def version_tuple(name):
     return (int(m.group(1)), int(m.group(2) or 0)) if m else (0, 0)
 
 
-def pick_model(key):
+def pick_models(key):
+    """Kandidaten in Reihenfolge: GEMINI_MODEL (falls gesetzt), dann die neuesten stabilen Flash-Modelle,
+    zuletzt bewährte Aliase. Ist ein Modell überlastet oder sein Kontingent leer, wird das nächste genommen."""
+    out = []
     forced = (os.environ.get("GEMINI_MODEL") or "").strip()
     if forced:
-        return forced.replace("models/", "")
+        out.append(forced.replace("models/", ""))
     try:
         names, page = [], None
         for _ in range(5):
@@ -272,16 +279,17 @@ def pick_model(key):
                 break
         bad = ("lite", "preview", "exp", "image", "tts", "live", "audio", "embedding", "thinking", "latest", "translate")
         flash = [n for n in names if n.startswith("gemini-") and "flash" in n and not any(b in n for b in bad)]
-        if flash:
-            flash.sort(key=lambda n: (version_tuple(n), -len(n)), reverse=True)
-            return flash[0]
-        anyflash = [n for n in names if "flash" in n and "image" not in n and "tts" not in n and "live" not in n]
-        if anyflash:
-            anyflash.sort(key=version_tuple, reverse=True)
-            return anyflash[0]
+        flash.sort(key=lambda n: (version_tuple(n), -len(n)), reverse=True)
+        out += flash[:4]
     except Exception as e:
         print("Modellliste nicht abrufbar:", e)
-    return "gemini-flash-latest"
+    out += ["gemini-flash-latest", "gemini-2.5-flash", "gemini-flash-lite-latest"]
+    seen, res = set(), []
+    for n in out:
+        if n not in seen:
+            seen.add(n)
+            res.append(n)
+    return res
 
 
 def call_gemini(key, model, prompt):
@@ -303,11 +311,16 @@ def call_gemini(key, model, prompt):
         except urllib.error.HTTPError as e:
             full = e.read().decode("utf-8", "ignore")
             last = "HTTP %s: %s" % (e.code, full[:300])
-            if e.code == 429 and re.search(r"PerDay|per day|daily", full, re.I):
-                raise QuotaExhausted("Tageskontingent von Gemini aufgebraucht (HTTP 429)")
+            if e.code == 429 and re.search(r"PerDay|per day|daily|limit: 0", full, re.I):
+                print("  HTTP 429:", re.sub(r"\s+", " ", full)[:400])
+                raise QuotaExhausted("Kontingent für %s aufgebraucht oder nicht frei verfügbar (HTTP 429)" % model)
+            if e.code in (404, 400) and re.search(r"not found|not supported|NOT_FOUND", full, re.I):
+                raise ModelUnavailable("%s nicht verfügbar (HTTP %s)" % (model, e.code))
             if e.code in (429, 500, 502, 503, 504):
                 wait = retry_delay(full, 20 * (attempt + 1))
                 if attempt + 1 >= MAX_RETRIES or time_left() < wait + HTTP_TIMEOUT:
+                    if e.code == 503:
+                        raise ModelUnavailable("%s überlastet (HTTP 503)" % model)
                     break
                 print("  %s – neuer Versuch in %ss" % (last[:160], wait))
                 time.sleep(wait)
@@ -467,8 +480,9 @@ def main():
         print("Alles aktuell – nichts zu tun.")
         return
 
-    model = "dry-run" if args.dry_run else pick_model(key)
-    print("Modell:", model)
+    models = ["dry-run"] if args.dry_run else pick_models(key)
+    model = models[0]
+    print("Modelle (in dieser Reihenfolge):", ", ".join(models))
 
     result = {
         "updatedAt": previous.get("updatedAt"),
@@ -497,6 +511,21 @@ def main():
             json.dump(result, f, ensure_ascii=False, separators=(",", ":"))
         os.replace(tmp, OUT_FILE)   # nach jedem Sektor gespeichert: bricht der Job ab, bleibt der Fortschritt
 
+    def ask(prompt):
+        """Fragt das aktuelle Modell; bei leerem Kontingent oder Überlastung das nächste."""
+        nonlocal model
+        while True:
+            try:
+                out = call_gemini(key, model, prompt)
+                result["model"] = model
+                return out
+            except (QuotaExhausted, ModelUnavailable) as e:
+                models.pop(0)
+                if not models or time_left() < HTTP_TIMEOUT + 30:
+                    raise QuotaExhausted("Kein Gemini-Modell verfügbar (zuletzt: %s)" % e)
+                model = models[0]
+                print("  %s – wechsle auf %s" % (e, model))
+
     stop_reason = None
     done = 0
     for i, sec in enumerate(todo):
@@ -513,7 +542,7 @@ def main():
             continue
         t0 = time.time()
         try:
-            res = call_gemini(key, model, prompt)
+            res = ask(prompt)
         except QuotaExhausted as e:
             stop_reason = str(e) + " – nächster Lauf macht weiter"
             print("  ABBRUCH:", e)
@@ -589,7 +618,7 @@ def main():
             result["errors"].append({"segment": "Gesamt", "error": "Zu wenige Sektor-Kandidaten für eine Gesamtauswertung."})
         else:
             try:
-                res = call_gemini(key, model, overall_prompt(stock_cands))
+                res = ask(overall_prompt(stock_cands))
                 cand_map = {c["ticker"]: c for c in stock_cands}
                 top, seen = [], set()
                 for item in sorted(res.get("top") or [], key=lambda x: x.get("rank") or 99):
