@@ -76,7 +76,7 @@ def main():
         return
         
     universe = json.load(open(universe_path, encoding="utf-8"))
-    tickers = {u["ticker"].upper() for u in universe}
+    tickers = {u["ticker"].upper() for u in universe if isinstance(u, dict) and u.get("ticker")}
 
     # Alle Ticker zusammenführen, die in mindestens einer Quelle vorkommen und im Universum sind
     all_tickers = (set(ape_data.keys()) | set(ts_data.keys())) & tickers
