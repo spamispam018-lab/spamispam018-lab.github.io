@@ -17,6 +17,7 @@ window.App.CommandPalette = (function () {
     var nav = function (path) { return function () { window.App.Router.navigate(path); }; };
     return [
       { id: 'nav:screener', label: 'Filter', desc: 'Entdecken › Aktien filtern und durchsuchen', icon: '🔍', action: nav('/screener') },
+      { id: 'nav:ai', label: 'KI-Vorschläge', desc: 'Entdecken › Top 10 und Kandidaten je Sektor', icon: '✨', action: nav('/ai') },
       { id: 'nav:strategies', label: 'Strategien', desc: 'Entdecken › Value, Momentum, Dividende …', icon: '🎯', action: nav('/strategies') },
       { id: 'nav:backtest', label: 'Backtest', desc: 'Entdecken › Filter-Performance simulieren', icon: '🧪', action: nav('/backtest') },
       { id: 'nav:compare', label: 'Vergleich', desc: 'Entdecken › Aktien vergleichen', icon: '⚖️', action: nav('/compare') },

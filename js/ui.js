@@ -27,6 +27,7 @@ window.App.UI = (function () {
       label: 'Entdecken',
       items: [
         { id: 'screener', label: 'Filter', route: '/screener' },
+        { id: 'ai', label: 'KI', route: '/ai' },
         { id: 'strategies', label: 'Strategien', route: '/strategies' },
         { id: 'backtest', label: 'Backtest', route: '/backtest' },
         { id: 'compare', label: 'Vergleich', route: '/compare' }
@@ -48,7 +49,7 @@ window.App.UI = (function () {
 
   var SECTION_GROUP = {
     market: 'markt', macro: 'markt',
-    screener: 'entdecken', strategies: 'entdecken', backtest: 'entdecken', compare: 'entdecken',
+    screener: 'entdecken', ai: 'entdecken', strategies: 'entdecken', backtest: 'entdecken', compare: 'entdecken',
     watchlist: 'watchlist',
     portfolio: 'depot', dividends: 'depot', journal: 'depot'
   };

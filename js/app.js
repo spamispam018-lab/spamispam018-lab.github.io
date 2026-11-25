@@ -59,6 +59,9 @@
 
   // Entdecken
   page('/screener', 'Entdecken', 'Aktien filtern & finden', function () { App.Screener.initView(); });
+  page('/ai', 'Entdecken', 'KI-Vorschläge', function () {
+    if (App.AIInsights) App.AIInsights.initView();
+  });
   page('/strategies', 'Entdecken', 'Fertige Strategien', function () { App.Strategies.initView(); });
   page('/backtest', 'Entdecken', 'Filter-Performance simulieren', function () { App.Backtest.initView(); });
   page('/compare', 'Entdecken', 'Aktien im Vergleich', function () { App.Compare.initView(); });
