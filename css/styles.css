@@ -1430,3 +1430,47 @@ button.segbar-btn.active { background: var(--bg-tertiary); }
   flex-shrink: 0;
 }
 .wl-group-assign.has-groups { color: var(--accent-purple-light); border-color: var(--accent-purple); }
+
+/* ⓘ-Erklärungen an Kennzahlen */
+.info-i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  background: transparent;
+  color: var(--text-dim);
+  font: 700 11px/1 Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  vertical-align: middle;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  text-transform: none;
+  letter-spacing: 0;
+}
+/* größere Trefferfläche, ohne das Layout zu verschieben */
+.info-i::after { content: ''; position: absolute; inset: -12px; }
+.info-i:hover, .info-i.on { color: var(--accent-purple-light); }
+.info-box {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent-purple);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+.info-box-cell { margin: 8px 0 0; }
+.info-row td { padding-top: 0 !important; border-top: 0 !important; }
+.info-row .info-box { margin: 0 0 6px; }
+.info-box-title { font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
