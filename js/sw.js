@@ -3,7 +3,7 @@
  * Cacht App-Shell; Netzwerk-Anfragen laufen mit Cache-Fallback.
  */
 'use strict';
-var CACHE_NAME = 'aktien-app-v33';
+var CACHE_NAME = 'aktien-app-v34';
 var APP_SHELL = [
   './',
   './index.html',
