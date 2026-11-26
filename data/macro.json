@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-25T07:52:43.886392+00:00",
+ "updated": "2026-11-26T04:49:13.836830+00:00",
  "items": [
   {
    "id": "DGS10",
@@ -8,15 +8,14 @@
    "unit": "%",
    "freq": "d",
    "decimals": 2,
-   "value": 4.92,
-   "delta": -0.08,
+   "value": 4.91,
+   "delta": -0.09,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "2026-11-23",
+   "date": "2026-11-24",
    "signal": "warn",
    "hint": "Hohe Renditen belasten Wachstums- und Immobilienwerte.",
    "why": "Referenzzins für Bewertungen weltweit.",
    "series": [
-    4.67,
     4.73,
     4.75,
     4.79,
@@ -75,7 +74,8 @@
     5.07,
     5.04,
     4.92,
-    4.92
+    4.92,
+    4.91
    ]
   },
   {
@@ -85,15 +85,14 @@
    "unit": "Pp",
    "freq": "d",
    "decimals": 2,
-   "value": 0.28,
-   "delta": -0.03,
+   "value": 0.24,
+   "delta": -0.08,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "2026-11-24",
+   "date": "2026-11-25",
    "signal": "ok",
    "hint": "Negativ = invertierte Zinskurve, historisch ein Rezessions-Warnsignal.",
    "why": "Abstand zwischen langen und kurzen Zinsen.",
    "series": [
-    0.39,
     0.41,
     0.4,
     0.4,
@@ -152,7 +151,8 @@
     0.28,
     0.29,
     0.29,
-    0.28
+    0.28,
+    0.24
    ]
   },
   {
@@ -165,7 +165,7 @@
    "value": 3.88,
    "delta": 0.0,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "2026-11-23",
+   "date": "2026-11-24",
    "signal": "neutral",
    "hint": "",
    "why": "Zinsniveau der US-Notenbank.",
@@ -242,7 +242,7 @@
    "value": 2.5,
    "delta": 0.0,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "2026-11-24",
+   "date": "2026-11-25",
    "signal": "neutral",
    "hint": "",
    "why": "Leitzins der Europäischen Zentralbank.",
@@ -547,15 +547,14 @@
    "unit": "",
    "freq": "w",
    "decimals": 0,
-   "value": 197750.0,
-   "delta": -250.0,
+   "value": 196000.0,
+   "delta": -1000.0,
    "deltaLabel": "ggü. 4 Wochen",
-   "date": "2026-11-14",
+   "date": "2026-11-21",
    "signal": "ok",
    "hint": "Steigende Erstanträge deuten auf einen schwächeren Arbeitsmarkt.",
    "why": "Wöchentlicher Frühindikator für den Arbeitsmarkt.",
    "series": [
-    234000.0,
     227500.0,
     224750.0,
     227750.0,
@@ -614,7 +613,8 @@
     197000.0,
     195250.0,
     195750.0,
-    197750.0
+    197500.0,
+    196000.0
    ]
   },
   {
@@ -701,15 +701,14 @@
    "unit": "Pp",
    "freq": "d",
    "decimals": 2,
-   "value": 3.63,
-   "delta": 0.25,
+   "value": 3.72,
+   "delta": 0.34,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "2026-11-23",
+   "date": "2026-11-24",
    "signal": "ok",
    "hint": "Steigende Aufschläge zeigen Kreditstress, oft vor Kursverlusten.",
    "why": "Risikoaufschlag riskanter Unternehmensanleihen.",
    "series": [
-    2.65,
     2.66,
     2.65,
     2.68,
@@ -768,7 +767,8 @@
     3.47,
     3.52,
     3.76,
-    3.63
+    3.63,
+    3.72
    ]
   },
   {
@@ -778,15 +778,14 @@
    "unit": "Pp",
    "freq": "d",
    "decimals": 2,
-   "value": 0.97,
-   "delta": 0.06,
+   "value": 0.98,
+   "delta": 0.07,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "2026-11-23",
+   "date": "2026-11-24",
    "signal": "ok",
    "hint": "Aufschlag guter Unternehmensanleihen, steigt bei Stress.",
    "why": "Aufschlag guter Unternehmensanleihen.",
    "series": [
-    0.81,
     0.81,
     0.81,
     0.81,
@@ -845,7 +844,8 @@
     0.93,
     0.94,
     0.98,
-    0.97
+    0.97,
+    0.98
    ]
   },
   {
@@ -1009,15 +1009,14 @@
    "unit": "",
    "freq": "d",
    "decimals": 1,
-   "value": 26.36,
-   "delta": 6.91,
+   "value": 28.29,
+   "delta": 9.9,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "2026-11-24",
+   "date": "2026-11-25",
    "signal": "warn",
    "hint": "Über 20 nervöser Markt, über 30 Stress.",
    "why": "Erwartete Schwankung des S&P 500.",
    "series": [
-    15.2,
     14.32,
     14.53,
     15.3,
@@ -1076,7 +1075,8 @@
     28.44,
     35.89,
     26.62,
-    26.36
+    26.36,
+    28.29
    ]
   },
   {
@@ -1086,15 +1086,14 @@
    "unit": "",
    "freq": "d",
    "decimals": 4,
-   "value": 1.0943,
-   "delta": -0.0274,
+   "value": 1.0964,
+   "delta": -0.021,
    "deltaLabel": "ggü. 1 Monat",
-   "date": "2026-11-25",
+   "date": "2026-11-26",
    "signal": "neutral",
    "hint": "",
    "why": "Steigt der Euro, sinkt der Euro-Wert von US-Aktien.",
    "series": [
-    1.1585,
     1.1628,
     1.1614,
     1.1628,
@@ -1153,7 +1152,8 @@
     1.097,
     1.0972,
     1.0908,
-    1.0943
+    1.0962,
+    1.0964
    ]
   }
  ],
