@@ -93,6 +93,7 @@ def main():
         index[t] = dict(sm, top=({"t": items[0]["title"], "l": items[0]["label"]} if items else None))
         time.sleep(0.2)
     dump(os.path.join(NEWS, "_index.json"), index)
+    dump(os.path.join(NEWS, "_meta.json"), {"updatedAt": datetime.now(timezone.utc).isoformat(), "tickers": len(index)})
 
     sectors = {}
     for sec in {u.get("sector") for u in universe if u.get("sector")}:

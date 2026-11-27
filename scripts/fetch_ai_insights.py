@@ -44,7 +44,8 @@ GROQ_PREFERRED = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "meta-llama/
 GROQ_MAX_OUT = 3000            # Antwort-Tokens; zählt bei Groq mit ins Minutenlimit (kostenlos z. B. 8.000 TPM)
 GROQ_STATE = {}                # je Modell: verbleibende Tokens im Minutenfenster und Zeitpunkt des Resets
 
-MAX_ROWS_PER_SECTOR = 90       # größere Sektoren werden nach Marktkapitalisierung gekürzt
+MAX_ROWS_PER_SECTOR = 150      # größere Sektoren werden nach Marktkapitalisierung gekürzt
+PART_ROWS = 45                 # größere Sektoren werden in Teile dieser Größe zerlegt (passt ins Groq-Minutenlimit)
 PAUSE_BETWEEN_CALLS = 6        # Sekunden, schont die Minuten-Limits der kostenlosen Stufe (Flash-Lite ~10–15/Min.)
 PAUSE_FLASH = 13               # Flash erlaubt in der kostenlosen Stufe nur ~5 Anfragen pro Minute
 
@@ -752,39 +753,7 @@ def main():
 
     stop_reason = None
     done = 0
-    for i, sec in enumerate(todo):
-        srows = sorted(by_sector[sec], key=lambda r: r.get("mcap") or 0, reverse=True)[:MAX_ROWS_PER_SECTOR]
-        sec_de = SECTOR_DE.get(sec, sec)
-        prompt = sector_prompt(sec_de, srows, medians(srows))
-        print("[%d/%d] %s: %d Werte, ~%d Tokens" % (i + 1, len(todo), sec_de, len(srows), len(prompt) // 4))
-        if args.dry_run:
-            continue
-        if stop_reason is None and time_left() < HTTP_TIMEOUT + 60:
-            stop_reason = "Zeitlimit erreicht – nächster Lauf macht weiter"
-        if stop_reason:
-            print("  verschoben:", stop_reason)
-            continue
-        t0 = time.time()
-
-        def build_sector(n, sec_de=sec_de, srows=srows):
-            rows = srows if n is None else srows[:n]
-            return sector_prompt(sec_de, rows, medians(rows)), rows
-        try:
-            res, used_model, rows_used = ask(build_sector, models)
-        except QuotaExhausted as e:
-            stop_reason = str(e) + " – nächster Lauf macht weiter"
-            print("  ABBRUCH:", e)
-            result["errors"].append({"segment": sec_de, "error": clean_text(stop_reason, 200)})
-            continue
-        except Exception as e:
-            print("  übersprungen:", e)
-            result["errors"].append({"segment": sec_de, "error": clean_text(e, 200)})
-            time.sleep(pause_for(models[0] if models else ""))
-            continue
-        print("  Antwort von %s nach %ds%s (noch %d Min. Budget)" % (used_model, time.time() - t0,
-              "" if len(rows_used) == len(srows) else ", %d von %d Werten" % (len(rows_used), len(srows)), time_left() // 60))
-
-        valid = {r["t"] for r in srows}
+    def parse_answer(res, valid):
         picks = []
         for p in (res.get("picks") or [])[:5]:
             t = str(p.get("ticker") or "").upper().strip()
@@ -805,8 +774,84 @@ def main():
             if t in valid and t not in [p["ticker"] for p in picks]:
                 warnings.append({"ticker": t, "name": by_ticker[t]["name"], "region": by_ticker[t]["region"],
                                  "reason": clean_text(w.get("reason"), 220)})
-        result["sectors"][sec] = {"name": sec_de, "count": len(by_sector[sec]), "summary": clean_text(res.get("summary"), 400),
-                                  "picks": picks, "warnings": warnings, "updatedAt": now_iso(), "model": used_model}
+        return picks, warnings
+
+    for i, sec in enumerate(todo):
+        srows = sorted(by_sector[sec], key=lambda r: r.get("mcap") or 0, reverse=True)[:MAX_ROWS_PER_SECTOR]
+        sec_de = SECTOR_DE.get(sec, sec)
+        med_all = medians(srows)
+        k = max(1, -(-len(srows) // PART_ROWS))          # Anzahl Teile (aufgerundet)
+        size = -(-len(srows) // k)
+        parts = [srows[j * size:(j + 1) * size] for j in range(k)]
+        parts = [pt for pt in parts if pt]
+        print("[%d/%d] %s: %d Werte%s" % (i + 1, len(todo), sec_de, len(srows),
+              "" if len(parts) == 1 else " in %d Teilen" % len(parts)))
+        if args.dry_run:
+            continue
+        if stop_reason is None and time_left() < (HTTP_TIMEOUT + 60) * len(parts):
+            stop_reason = "Zeitlimit erreicht – nächster Lauf macht weiter"
+        if stop_reason:
+            print("  verschoben:", stop_reason)
+            continue
+
+        all_picks, all_warn, summaries, used_models, seen_rows = [], [], [], [], 0
+        failed = False
+        for j, part in enumerate(parts):
+            t0 = time.time()
+            note = "" if len(parts) == 1 else (
+                "\n\nHinweis: Dies ist Teil %d von %d dieses Sektors (nach Börsenwert sortiert, Teil 1 = größte Werte). "
+                "Die Mediane oben gelten für den ganzen Sektor. Wähle die besten Kandidaten aus DIESEM Teil." % (j + 1, len(parts)))
+
+            def build_part(n, part=part, note=note):
+                rows = part if n is None else part[:n]
+                return sector_prompt(sec_de, rows, med_all) + note, rows
+            try:
+                res, used_model, rows_used = ask(build_part, models)
+            except QuotaExhausted as e:
+                stop_reason = str(e) + " – nächster Lauf macht weiter"
+                print("  ABBRUCH:", e)
+                result["errors"].append({"segment": sec_de, "error": clean_text(stop_reason, 200)})
+                failed = True
+                break
+            except Exception as e:
+                print("  übersprungen:", e)
+                result["errors"].append({"segment": sec_de, "error": clean_text(e, 200)})
+                time.sleep(pause_for(models[0] if models else ""))
+                failed = True
+                break
+            seen_rows += len(rows_used)
+            print("  %sAntwort von %s nach %ds%s (noch %d Min. Budget)" % (
+                "" if len(parts) == 1 else "Teil %d: " % (j + 1), used_model, time.time() - t0,
+                "" if len(rows_used) == len(part) else ", %d von %d Werten" % (len(rows_used), len(part)), time_left() // 60))
+            pk, wn = parse_answer(res, {r["t"] for r in part})
+            for x in pk:
+                x["_part"] = j
+            all_picks += pk
+            all_warn += wn
+            if res.get("summary"):
+                summaries.append(clean_text(res.get("summary"), 400))
+            if used_model not in used_models:
+                used_models.append(used_model)
+            if j + 1 < len(parts):
+                time.sleep(pause_for(used_model))
+        if failed:
+            continue
+
+        # Teile zusammenführen: stärkste Überzeugung zuerst, bei Gleichstand größere Werte (früherer Teil)
+        all_picks.sort(key=lambda x: (-x["conviction"], x["_part"]))
+        picks, seen = [], set()
+        for x in all_picks:
+            if x["ticker"] not in seen:
+                seen.add(x["ticker"])
+                x.pop("_part", None)
+                picks.append(x)
+            if len(picks) >= 5:
+                break
+        warnings = [w for w in all_warn if w["ticker"] not in seen][:3]
+        used_model = ", ".join(used_models)
+        result["sectors"][sec] = {"name": sec_de, "count": len(by_sector[sec]), "summary": summaries[0] if summaries else "",
+                                  "picks": picks, "warnings": warnings, "updatedAt": now_iso(), "model": used_model,
+                                  "coverage": seen_rows}
         result["updatedAt"] = now_iso()
         done += 1
         write_out()
