@@ -44,7 +44,7 @@ window.App.StockInsider = (function () {
    */
   function fetchEtfInsiderData(stock) {
     return new Promise(function (resolve) {
-      var isEtf = (stock.sector === 'Sonstige' || stock.sector === 'ETF' || !stock.sector);
+      var isEtf = window.App.EtfHoldings.isEtf(stock);
       var holdings = stock.holdings || [];
 
       // Wenn es kein ETF ist oder keine Holdings vorhanden sind, liefere die nativen Daten
@@ -53,25 +53,11 @@ window.App.StockInsider = (function () {
         return;
       }
 
-      window.App.Data.getUniverse().then(function (universe) {
-        buildNameLookup(universe);
-
-        var top5 = holdings.slice(0, 5);
+      // Top-10-Positionen zuordnen (js/etf-holdings.js), dann deren Insider-Daten laden
+      window.App.EtfHoldings.match(stock, 10).then(function (list) {
+        var top5 = list.filter(function (h) { return h.ticker; });   // Name bleibt für die Tabelle
         var promises = top5.map(function (h) {
-          // Versuche den Ticker aus dem Namen abzuleiten
-          var cleanName = h.name.toLowerCase().replace(/inc\.|inc|corp\.|corp|ltd\.|ltd|plc|ag|se|co\./g, '').trim();
-          var targetTicker = nameToTickerMap[cleanName] || nameToTickerMap[h.name.toLowerCase()] || null;
-
-          if (!targetTicker) {
-            // Letzter Notnagel: Wenn der Name fast wie ein Ticker aussieht (z.B. "AAPL")
-            var possibleTicker = universe.find(function (u) { return u.ticker.indexOf(h.name) === 0; });
-            if (possibleTicker) targetTicker = possibleTicker.ticker;
-          }
-
-          if (targetTicker) {
-            return window.App.Data.getStock(targetTicker).catch(function () { return null; });
-          }
-          return Promise.resolve(null);
+          return window.App.Data.getStock(h.ticker).catch(function () { return null; });
         });
 
         Promise.all(promises).then(function (results) {

@@ -149,7 +149,8 @@ window.App.Portfolio = (function () {
     var html = '<div class="view-container">';
     html += '<div style="margin-bottom: 16px;"><h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 4px;">Mein Portfolio</h2>';
     html += '<div style="font-size: 0.78rem; color: var(--text-dim);">' + rows.length + ' Positionen' +
-      (rows.length ? ' <button class="chip-btn" id="pf-export-btn" style="padding: 3px 9px; margin-left: 10px; font-size: 0.72rem;">⬇ CSV</button>' : '') +
+      (rows.length ? ' <button class="chip-btn" id="pf-export-btn" style="padding: 3px 9px; margin-left: 10px; font-size: 0.72rem;">⬇ CSV</button>' +
+        ' <button class="chip-btn" id="pf-ai-btn" style="padding: 3px 9px; margin-left: 6px; font-size: 0.72rem;">✦ KI-Check</button>' : '') +
       '</div></div>';
 
     if (rows.length) {
@@ -211,8 +212,10 @@ window.App.Portfolio = (function () {
           '<div class="legend-item"><span class="legend-dot" style="background:#818cf8;"></span><span>Portfoliowert</span></div>' +
           '<div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span><span>Investiert</span></div>' +
         '</div>' +
+        '<div id="pf-eq-bench" class="horizontal-scroll-row" style="margin-top:10px;gap:6px;"></div>' +
         '<div id="pf-eq-stats" style="margin-top:12px;"></div>' +
         '</div>';
+      html += '<div id="pf-insights"></div>';
     }
 
     var datalist = universe.slice(0, 200).map(function (u) {
@@ -414,6 +417,12 @@ window.App.Portfolio = (function () {
       };
     });
 
+    var aiBtn = document.getElementById('pf-ai-btn');
+    if (aiBtn) aiBtn.onclick = function () {
+      var w = {};
+      rows.forEach(function (r) { w[r.p.ticker] = totalValue > 0 ? (r.v / totalValue) * 100 : 0; });
+      if (window.App.AIAsk) window.App.AIAsk.list('depot', rows.map(function (r) { return r.p.ticker; }), w);
+    };
     var exportBtn = document.getElementById('pf-export-btn');
     if (exportBtn) {
       exportBtn.onclick = function () {
@@ -501,6 +510,33 @@ window.App.Portfolio = (function () {
     });
 
     if (rows.length && stocksData) drawEquityCurve(rows, stocksData, value);
+    if (window.App.PortfolioInsights) window.App.PortfolioInsights.render(document.getElementById('pf-insights'), rows.filter(function (r) { return r.v > 0; }), stocksData, value);
+  }
+
+  /* ---------- Vergleichsindex für die Equity-Curve ---------- */
+  var BENCHES = [
+    { t: 'SPYI.DE', label: 'MSCI ACWI' },
+    { t: 'EUNL.DE', label: 'MSCI World' },
+    { t: 'SXR8.DE', label: 'S&P 500' },
+    { t: 'EXS1.DE', label: 'DAX' },
+    { t: '', label: 'Kein Vergleich' }
+  ];
+  var BENCH_KEY = 'app_portfolio_bench_v1';
+  var benchCache = {};
+  function getBench() { try { var v = localStorage.getItem(BENCH_KEY); return v === null ? 'SPYI.DE' : v; } catch (e) { return 'SPYI.DE'; } }
+  function setBench(v) { try { localStorage.setItem(BENCH_KEY, v); } catch (e) {} }
+
+  /** Kursreihe des Vergleichsindex (aus der Datei des ETFs), Promise -> {date: close} oder null. */
+  function loadBench(t) {
+    if (!t) return Promise.resolve(null);
+    if (benchCache[t]) return Promise.resolve(benchCache[t]);
+    return window.App.Data.getStock(t).then(function (st) {
+      var m = {};
+      ((st && st.chartHistory) || []).forEach(function (p) { if (p.close > 0) m[p.date] = p.close; });
+      if (st && st.quote && st.quote.price > 0) m[new Date().toISOString().slice(0, 10)] = st.quote.price;
+      benchCache[t] = Object.keys(m).length > 5 ? m : null;
+      return benchCache[t];
+    }).catch(function () { benchCache[t] = null; return null; });
   }
 
   function drawEquityCurve(rows, stocksData, currentTotalValue) {
@@ -586,14 +622,50 @@ window.App.Portfolio = (function () {
     var variance = rets.reduce(function (a, b) { return a + (b - avg) * (b - avg); }, 0) / (rets.length || 1);
     var vol = Math.sqrt(variance) * Math.sqrt(252) * 100;
 
+    var benchT = getBench();
+    var bench = benchT ? benchCache[benchT] : null;
+    if (benchT && bench === undefined) {
+      // Index erst laden, dann neu zeichnen
+      loadBench(benchT).then(function () { if (document.body.contains(canvas)) drawEquityCurve(rows, stocksData, currentTotalValue); });
+    }
+    // Index auf den Startwert des Depots normiert: "hätte ich die heutigen Bestände stattdessen im Index gehabt"
+    var benchVals = null, benchReturn = null;
+    if (bench) {
+      var bd = Object.keys(bench).sort(), bi = 0, lastB = null;
+      benchVals = filtered.map(function (v) {
+        while (bi < bd.length && bd[bi] <= v.date) { lastB = bench[bd[bi]]; bi++; }
+        return lastB;
+      });
+      var b0 = null;
+      for (var k = 0; k < benchVals.length; k++) { if (benchVals[k]) { b0 = benchVals[k]; break; } }
+      if (b0) {
+        benchVals = benchVals.map(function (x) { return x ? first * x / b0 : null; });
+        var bl = benchVals[benchVals.length - 1];
+        benchReturn = bl ? (bl / first - 1) * 100 : null;
+      } else benchVals = null;
+    }
+    var benchLabel = (BENCHES.filter(function (b) { return b.t === benchT; })[0] || {}).label || benchT;
+    var series = [
+      { name: 'Portfolio', color: '#818cf8', values: filtered.map(function (v) { return v.value; }), width: 2 },
+      { name: 'Investiert', color: '#10b981', values: filtered.map(function () { return invested; }), width: 1, dash: [4, 4] }
+    ];
+    if (benchVals) series.push({ name: benchLabel, color: '#f59e0b', values: benchVals, width: 1.5 });
     window.App.Charts.renderMultiLineChart(canvas, {
       labels: filtered.map(function (v) { return v.date.slice(5, 7) + '/' + v.date.slice(2, 4); }),
-      series: [
-        { name: 'Portfolio', color: '#818cf8', values: filtered.map(function (v) { return v.value; }), width: 2 },
-        { name: 'Investiert', color: '#10b981', values: filtered.map(function () { return invested; }), width: 1, dash: [4, 4] }
-      ],
+      series: series,
       formatY: function (v) { return window.App.Format.axisMoney(v); }
     });
+
+    var benchHost = document.getElementById('pf-eq-bench');
+    if (benchHost) {
+      benchHost.innerHTML = '<span style="font-size:0.72rem;color:var(--text-dim);align-self:center;flex-shrink:0;">Vergleich:</span>' +
+        BENCHES.map(function (b) {
+          return '<button class="chip-btn ' + (b.t === benchT ? 'active' : '') + '" data-bench="' + b.t + '" style="flex-shrink:0;padding:3px 9px;font-size:0.72rem;">' + b.label + '</button>';
+        }).join('');
+      benchHost.querySelectorAll('[data-bench]').forEach(function (btn) {
+        btn.onclick = function () { setBench(btn.getAttribute('data-bench')); drawEquityCurve(rows, stocksData, currentTotalValue); };
+      });
+    }
 
     var statsEl = document.getElementById('pf-eq-stats');
     if (statsEl) {
@@ -609,7 +681,10 @@ window.App.Portfolio = (function () {
           '<div style="text-align:center;padding:8px;background:var(--bg-tertiary);border-radius:var(--radius-sm);">' +
             '<div style="font-size:0.62rem;color:var(--text-dim);text-transform:uppercase;">Volatilität</div>' +
             '<div style="font-weight:800;">' + F.number(vol, 1) + ' %</div></div>' +
-        '</div>';
+        '</div>' +
+        (benchReturn !== null ? '<div style="font-size:0.76rem;color:var(--text-muted);margin-top:8px;line-height:1.5;">' + benchLabel + ' im selben Zeitraum: <b style="color:' + (benchReturn >= 0 ? 'var(--bullish)' : 'var(--bearish)') + ';">' + (benchReturn >= 0 ? '+' : '') + F.number(benchReturn, 1) + ' %</b> · Depot ' +
+          (totalReturn - benchReturn >= 0 ? '<b style="color:var(--bullish);">' + F.number(totalReturn - benchReturn, 1) + ' Prozentpunkte besser</b>' : '<b style="color:var(--bearish);">' + F.number(benchReturn - totalReturn, 1) + ' Prozentpunkte schlechter</b>') +
+          '<br><span style="color:var(--text-dim);font-size:0.7rem;">Vergleich mit den heutigen Beständen über den ganzen Zeitraum, ohne Käufe/Verkäufe dazwischen.</span></div>' : '');
     }
   }
 

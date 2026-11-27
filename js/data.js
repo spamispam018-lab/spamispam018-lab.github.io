@@ -40,12 +40,14 @@ window.App.Data = (function () {
     }
   }
 
-  function fetchJsonWithFallback(fileName) {
-    var bust = '?v=' + SESSION_VERSION;
+  /** opts.fresh: jedes Mal neu vom Server statt Sitzungs-Cache (z. B. KI-Datei, Statusseite). */
+  function fetchJsonWithFallback(fileName, opts) {
+    var fresh = !!(opts && opts.fresh);
+    var bust = fresh ? '?t=' + Date.now() : '?v=' + SESSION_VERSION;
     var primaryUrl = '/data/' + fileName + bust;
     var rawUrl = 'https://raw.githubusercontent.com/' + GITHUB_USER + '/' + GITHUB_REPO + '/' + GITHUB_BRANCH + '/data/' + fileName + bust;
 
-    return fetch(primaryUrl)
+    return fetch(primaryUrl, fresh ? { cache: 'no-store' } : undefined)
       .then(function (res) {
         if (res.ok) return res.json();
         throw new Error('Primary 404');

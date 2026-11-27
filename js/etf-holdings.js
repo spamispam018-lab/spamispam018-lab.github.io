@@ -30,7 +30,10 @@ window.App.EtfHoldings = (function () {
     if (!stock) return false;
     var qt = String((stock.profile && stock.profile.quoteType) || stock.quoteType || '').toUpperCase();
     if (qt === 'ETF' || qt === 'MUTUALFUND') return true;
-    return stock.sector === 'ETF' || stock.sector === 'Sonstige' || !stock.sector;
+    var sector = stock.sector || (stock.profile && stock.profile.sector) || '';
+    if (sector === 'ETF' || sector === 'Sonstige') return true;
+    // ohne Sektor nur dann ETF, wenn Positionen bekannt sind (sonst wäre jede Aktie ohne Profil ein "ETF")
+    return !sector && !!(stock.holdings && stock.holdings.length);
   }
 
   var indexCache = null;

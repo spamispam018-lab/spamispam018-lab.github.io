@@ -88,7 +88,8 @@ window.App.Watchlist = (function () {
     var html = '<div class="view-container">';
     html += '<div style="margin-bottom: 16px;"><h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 4px;">Meine Watchlist</h2>';
     html += '<div style="font-size: 0.78rem; color: var(--text-dim);">' + filtered.length + ' von ' + list.length + ' Werten' +
-      (list.length > 0 ? ' <button class="chip-btn" id="watchlist-export-btn" style="padding: 3px 9px; margin-left: 10px; font-size: 0.72rem;">⬇ CSV</button>' : '') +
+      (list.length > 0 ? ' <button class="chip-btn" id="watchlist-export-btn" style="padding: 3px 9px; margin-left: 10px; font-size: 0.72rem;">⬇ CSV</button>' +
+        ' <button class="chip-btn" id="watchlist-ai-btn" style="padding: 3px 9px; margin-left: 6px; font-size: 0.72rem;">✦ KI-Check</button>' : '') +
       '</div></div>';
 
     // Gruppen-Filter
@@ -118,6 +119,7 @@ window.App.Watchlist = (function () {
       return;
     }
 
+    html += '<div id="wl-digest"></div>';
     html += '<div id="watchlist-cards-container">';
     filtered.forEach(function (stock) {
       var chgCls = window.App.Format.changeClass(stock.changePercent);
@@ -151,8 +153,75 @@ window.App.Watchlist = (function () {
     });
     html += '</div></div>';
     container.innerHTML = html;
+    renderDigest(container.querySelector('#wl-digest'), filtered);
+    var aiBtn = container.querySelector('#watchlist-ai-btn');
+    if (aiBtn) aiBtn.onclick = function () {
+      if (window.App.AIAsk) window.App.AIAsk.list('watchlist', filtered.map(function (s) { return s.ticker; }));
+    };
 
     bindGroupEvents(container);
+  }
+
+  /* ---------- "Heute auffällig": was sich bei den Watchlist-Werten getan hat ---------- */
+  function digestEvents(s, news) {
+    var F = window.App.Format, ev = [];
+    var num = function (v) { return typeof v === 'number' && isFinite(v); };
+    if (num(s.changePercent) && Math.abs(s.changePercent) >= 3) {
+      ev.push({ w: 3 + Math.abs(s.changePercent) / 3, tone: s.changePercent > 0 ? 'up' : 'down', text: (s.changePercent > 0 ? '+' : '') + F.number(s.changePercent, 1) + ' % heute' });
+    }
+    if (s.cross && num(s.crossDaysAgo) && s.crossDaysAgo <= 1) {
+      ev.push({ w: 4, tone: s.cross === 'golden' ? 'up' : 'down', text: (s.cross === 'golden' ? 'Golden Cross' : 'Death Cross') + (s.crossDaysAgo === 0 ? (s.crossLive ? ' heute (vorläufig)' : ' heute') : ' gestern') });
+    }
+    if (s.emaCross && num(s.emaCrossDaysAgo) && s.emaCrossDaysAgo <= 1) {
+      ev.push({ w: 3, tone: s.emaCross === 'up' ? 'up' : 'down', text: 'EMA-Kreuz ' + (s.emaCross === 'up' ? '▲' : '▼') + (s.emaCrossDaysAgo === 0 ? (s.emaCrossLive ? ' heute (vorläufig)' : ' heute') : ' gestern') });
+    }
+    if (num(s.rangePos) && s.rangePos >= 98) ev.push({ w: 2.5, tone: 'up', text: 'am 52W-Hoch' });
+    if (num(s.rangePos) && s.rangePos <= 2) ev.push({ w: 2.5, tone: 'down', text: 'am 52W-Tief' });
+    if (num(s.rsi) && s.rsi <= 30) ev.push({ w: 2, tone: 'down', text: 'RSI ' + Math.round(s.rsi) + ' (überverkauft)' });
+    if (num(s.rsi) && s.rsi >= 75) ev.push({ w: 1.5, tone: 'up', text: 'RSI ' + Math.round(s.rsi) + ' (überkauft)' });
+    if (s.nextEarningsDate) {
+      var d = new Date(s.nextEarningsDate), days = Math.round((d - new Date(new Date().toDateString())) / 86400000);
+      if (days >= 0 && days <= 7) ev.push({ w: 2.2, tone: 'info', text: 'Zahlen ' + (days === 0 ? 'heute' : days === 1 ? 'morgen' : d.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' })) });
+    }
+    var n = news && news[s.ticker];
+    if (n && n.n >= 3 && num(n.score) && Math.abs(n.score) >= 0.3) {
+      ev.push({ w: 2, tone: n.score > 0 ? 'up' : 'down', text: 'News ' + (n.score > 0 ? 'positiv' : 'negativ') + (n.top && n.top.t ? ': ' + n.top.t : ''), long: true });
+    }
+    return ev;
+  }
+
+  function renderDigest(host, list) {
+    if (!host || !list.length) return;
+    window.App.Data.getJsonFile('news/_index.json').catch(function () { return {}; }).then(function (news) {
+      if (!document.body.contains(host)) return;
+      var rows = list.map(function (s) {
+        var ev = digestEvents(s, news || {});
+        return { s: s, ev: ev, w: ev.reduce(function (a, e) { return a + e.w; }, 0) };
+      }).filter(function (r) { return r.ev.length; }).sort(function (a, b) { return b.w - a.w; });
+      var color = { up: 'var(--bullish)', down: 'var(--bearish)', info: 'var(--accent, #6366f1)' };
+      var html = '<div class="card" style="padding:14px 16px;margin-bottom:14px;">' +
+        '<div class="card-header-dotted"><span class="card-title">Heute auffällig</span><span class="period-tag">' + (rows.length ? rows.length + ' von ' + list.length : 'alles ruhig') + '</span></div>';
+      if (!rows.length) {
+        html += '<div style="font-size:0.8rem;color:var(--text-muted);">Keine großen Bewegungen, Signale oder Termine bei deinen Werten.</div>';
+      } else {
+        rows.slice(0, 8).forEach(function (r) {
+          html += '<div data-dg="' + escapeAttr(r.s.ticker) + '" style="padding:8px 0;border-top:1px solid var(--border);cursor:pointer;">' +
+            '<div style="font-weight:700;font-size:0.86rem;">' + escapeAttr(r.s.name || r.s.ticker) + ' <span style="color:var(--text-dim);font-weight:600;font-size:0.74rem;">' + escapeAttr(r.s.ticker) + '</span></div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:3px;">' +
+              r.ev.sort(function (a, b) { return b.w - a.w; }).map(function (e) {
+                return '<span style="font-size:0.74rem;color:' + color[e.tone] + ';' + (e.long ? 'flex-basis:100%;color:var(--text-muted);' : '') + '">' +
+                  (e.long ? '<span style="color:' + color[e.tone] + ';">●</span> ' : '') + escapeAttr(e.text) + '</span>';
+              }).join('') +
+            '</div></div>';
+        });
+        if (rows.length > 8) html += '<div style="font-size:0.74rem;color:var(--text-dim);padding-top:6px;">… und ' + (rows.length - 8) + ' weitere</div>';
+      }
+      html += '</div>';
+      host.innerHTML = html;
+      host.querySelectorAll('[data-dg]').forEach(function (el) {
+        el.onclick = function () { window.App.Router.navigate('/stock/' + el.getAttribute('data-dg') + '/overview'); };
+      });
+    });
   }
 
   function escapeAttr(s) {

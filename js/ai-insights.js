@@ -218,7 +218,7 @@ window.App.AIInsights = (function () {
 
     var D = window.App.Data;
     Promise.all([
-      D.getJsonFile('ai_insights.json').catch(function () { return null; }),
+      D.getJsonFile('ai_insights.json', { fresh: true }).catch(function () { return null; }),
       D.getUniverse().catch(function () { return []; })
     ]).then(function (res) {
       if (!document.body.contains(container)) return;
@@ -230,6 +230,28 @@ window.App.AIInsights = (function () {
       render(container);
     });
   }
+
+  // Nach einem fertigen KI-Lauf: neue Datei abwarten (GitHub Pages braucht ein paar Minuten) und Seite neu zeichnen
+  var waitTimer = null;
+  window.addEventListener('app:workflow-done', function (ev) {
+    if (!ev.detail || ev.detail.file !== 'update_ai.yml' || !ev.detail.success) return;
+    var before = cache && cache.data && cache.data.updatedAt;
+    var tries = 0;
+    clearTimeout(waitTimer);
+    (function check() {
+      tries++;
+      window.App.Data.getJsonFile('ai_insights.json', { fresh: true }).then(function (d) {
+        if (d && d.updatedAt && d.updatedAt !== before) {
+          if (cache) cache.data = d;
+          var c = document.getElementById('app-view-content');
+          if (location.hash.indexOf('#/ai') === 0 && c) initView();
+          if (window.App.UI && window.App.UI.toast) window.App.UI.toast('Neue KI-Auswertung geladen');
+          return;
+        }
+        if (tries < 16) waitTimer = setTimeout(check, 30000);
+      }).catch(function () { if (tries < 16) waitTimer = setTimeout(check, 30000); });
+    })();
+  });
 
   return { initView: initView };
 })();

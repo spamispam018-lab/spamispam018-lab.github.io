@@ -69,6 +69,7 @@
 
   // Markt
   page('/market', 'Markt', 'Sektoren, Heatmap & Trends', function () { App.Market.initView(); });
+  page('/status', 'Markt', 'Datenstatus', function () { App.Status.initView(); });
   page('/macro', 'Markt', 'Makro-Umfeld', function () {
     var c = document.getElementById('app-view-content');
     if (!c) return;
@@ -205,6 +206,7 @@
               '<button class="dt-action" id="dt-act-alarm"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21h4"/></svg><span>Alarm</span></button>' +
               '<button class="dt-action" id="dt-act-compare"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4v16M17 4v16M3 8h8M13 16h8"/></svg><span>Vergleich</span></button>' +
               '<button class="dt-action" id="dt-act-note"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><span>Notiz</span></button>' +
+              '<button class="dt-action" id="dt-act-ai"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.8 4.6L18 9.5l-4.2 1.9L12 16l-1.8-4.6L6 9.5l4.2-1.9z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg><span>KI</span></button>' +
               '<button class="dt-action" id="dt-act-depot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span>Depot</span></button>' +
             '</div>' +
 
@@ -260,6 +262,8 @@
       App.Router.navigate('/journal');
       App.UI.prefill({ 'jn-ticker': ticker }, 'jn-thesis');
     };
+    var aiBtn = document.getElementById('dt-act-ai');
+    if (aiBtn) aiBtn.onclick = function () { if (App.AIAsk) App.AIAsk.stock(ticker); };
     var depot = document.getElementById('dt-act-depot');
     if (depot) depot.onclick = function () {
       App.Router.navigate('/portfolio');
@@ -448,7 +452,7 @@
 
     App.Router.init();
 
-    if (App.Alerts) App.Alerts.checkAndNotify();
+    if (App.Alerts) App.Alerts.startPolling();
     if (App.Transactions) App.Transactions.migrateOldPortfolio();
     if (App.Screener && App.Screener.checkScreenerAlerts) App.Screener.checkScreenerAlerts();
   });

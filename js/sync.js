@@ -159,6 +159,7 @@ window.App.Sync = (function () {
     return api('/gh/status').then(function (res) {
       if (handleAuth(res, root)) return;
       if (res.__status !== 200) { state.error = res.error || 'Status nicht abrufbar.'; render(root); return; }
+      notifyDone(state.runs, res.runs || {});
       state.runs = res.runs || {};
       state.checkedAt = res.checkedAt;
       state.setupError = '';
@@ -170,13 +171,27 @@ window.App.Sync = (function () {
     });
   }
 
+  function isRunning(r) { return r && (r.status === 'queued' || r.status === 'in_progress'); }
+
+  /** Meldet fertige Läufe an die App (Event "app:workflow-done", detail.file / detail.success). */
+  function notifyDone(oldRuns, newRuns) {
+    Object.keys(newRuns).forEach(function (f) {
+      var before = oldRuns[f], now = newRuns[f];
+      if (isRunning(before) && now && !isRunning(now) && now.status === 'completed') {
+        try { window.dispatchEvent(new CustomEvent('app:workflow-done', { detail: { file: f, success: now.conclusion === 'success' } })); } catch (e) {}
+      }
+    });
+  }
+
+  // Läuft ein Workflow, wird auch bei geschlossenem Sheet weiter abgefragt (höchstens 45 Min.),
+  // damit z. B. die KI-Seite nach dem Lauf von selbst neu lädt.
   function schedulePoll(root) {
     clearTimeout(state.timer);
-    var anyRunning = Object.keys(state.runs).some(function (k) { var r = state.runs[k]; return r && (r.status === 'queued' || r.status === 'in_progress'); });
-    if (!anyRunning) return;
-    state.timer = setTimeout(function () {
-      if (document.body.contains(root) && root.classList.contains('open')) refresh(root);
-    }, POLL_MS);
+    var anyRunning = Object.keys(state.runs).some(function (k) { return isRunning(state.runs[k]); });
+    if (!anyRunning) { state.pollSince = 0; return; }
+    if (!state.pollSince) state.pollSince = Date.now();
+    if (Date.now() - state.pollSince > 45 * 60 * 1000) { state.pollSince = 0; return; }
+    state.timer = setTimeout(function () { refresh(root); }, POLL_MS);
   }
 
   function start(root, job) {
@@ -214,8 +229,14 @@ window.App.Sync = (function () {
     UI().openSheet('', function (root) {
       render(root);
       refresh(root);
-    }, function () { clearTimeout(state.timer); });
+    }, function () { /* Abfrage läuft weiter, solange ein Workflow läuft */ });
   }
 
-  return { open: open };
+  /** Letzte Läufe aller Workflows (für die Statusseite); null ohne App-Passwort. */
+  function fetchRuns() {
+    if (!getKey()) return Promise.resolve(null);
+    return api('/gh/status').then(function (res) { return res.__status === 200 ? (res.runs || {}) : null; });
+  }
+
+  return { open: open, fetchRuns: fetchRuns, hasKey: function () { return !!getKey(); } };
 })();

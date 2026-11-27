@@ -331,32 +331,22 @@ window.App.StockFairValue = (function () {
     window.App.Data.getUniverse().then(function (universe) {
       if (!document.body.contains(container)) return;
 
-      var isEtf = (stock.sector === 'Sonstige' || stock.sector === 'ETF' || !stock.sector);
+      var isEtf = window.App.EtfHoldings.isEtf(stock);
       var holdings = stock.holdings || [];
 
       if (isEtf && holdings.length > 0) {
-        buildNameLookup(universe);
-        var top5 = holdings.slice(0, 5);
-        
-        var promises = top5.map(function(h) {
-          var cleanName = h.name.toLowerCase().replace(/inc\.|inc|corp\.|corp|ltd\.|ltd|plc|ag|se|co\./g, '').trim();
-          var targetTicker = nameToTickerMap[cleanName] || nameToTickerMap[h.name.toLowerCase()] || null;
-          if (!targetTicker) {
-            var possible = universe.find(function(u) { return u.ticker.indexOf(h.name) === 0; });
-            if (possible) targetTicker = possible.ticker;
-          }
-          if (targetTicker) {
-            return window.App.Data.getStock(targetTicker).then(function(res) {
-                return { data: res, weight: h.weight || 0 };
-            }).catch(function() { return null; });
-          }
-          return Promise.resolve(null);
-        });
-
+        // Top-10-Positionen zuordnen (js/etf-holdings.js), dann deren Daten laden
+        window.App.EtfHoldings.match(stock, 10).then(function (list) {
+         var promises = list.filter(function (h) { return h.ticker; }).map(function (h) {
+           return window.App.Data.getStock(h.ticker).then(function (res) {
+             return { data: res, weight: h.weight || 0 };
+           }).catch(function () { return null; });
+         });
         Promise.all(promises).then(function(results) {
            var validHoldings = results.filter(function(r) { return r && r.data; });
            draw(container, stock, universe, validHoldings);
-        });
+         });
+        }).catch(function () { draw(container, stock, universe, null); });
       } else {
          draw(container, stock, universe, null);
       }
