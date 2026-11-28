@@ -90,5 +90,69 @@ window.App.DipFinder = (function () {
     return res;
   }
 
-  return { evaluate: evaluate, DEFAULTS: DEFAULTS };
+  /* ------------------------------------------------------------------
+   * "Qualität im Ausverkauf": starke Firmen nach einem kräftigen Kurseinbruch.
+   * Anders als beim Dip darf der Kurs unter dem EMA 200 liegen und der Boden-Check "fallendes Messer"
+   * melden – das wird als Risiko angezeigt, nicht ausgeschlossen. Dafür strengere Qualität.
+   * ------------------------------------------------------------------ */
+  var SELLOFF_DEFAULTS = { ddMin: 20, minRoe: 15, maxFwdPe: 30, minUpside: 10, minCap: 5e9 };
+
+  function evaluateSelloff(s, opts) {
+    var o = {}, k;
+    for (k in SELLOFF_DEFAULTS) o[k] = SELLOFF_DEFAULTS[k];
+    for (k in (opts || {})) o[k] = opts[k];
+    var res = { ok: false, dd: null, rsi: num(s.rsi), trend: null, stable: false, score: 0, reasons: [], risks: [], miss: [] };
+    var price = num(s.price);
+    var closes = Array.isArray(s.closes) ? s.closes.filter(function (c) { return c > 0; }) : [];
+    if (!price || closes.length < 20) { res.miss.push('zu wenige Kursdaten'); return res; }
+
+    var high = Math.max.apply(null, closes.concat([price]));
+    res.dd = (price / high - 1) * 100;
+    var depth = -res.dd;
+    if (depth < o.ddMin) res.miss.push('Rückgang nur ' + depth.toFixed(0) + ' %');
+
+    // Qualität (fehlende Werte zählen als nicht erfüllt – bei einem Einbruch soll die Firma nachweislich solide sein)
+    var roe = num(s.returnOnEquity), pe = num(s.pe), fpe = num(s.forwardPe), up = num(s.upside), de = num(s.debtToEquity);
+    var cap = num(s.marketCap) || num(s.mcap);
+    if (roe === null || roe * 100 < o.minRoe) res.miss.push(roe === null ? 'ROE fehlt' : 'ROE ' + Math.round(roe * 100) + ' %');
+    if (pe !== null && pe <= 0) res.miss.push('Verlust');
+    if (fpe !== null && (fpe <= 0 || fpe > o.maxFwdPe)) res.miss.push('Fwd-KGV ' + Math.round(fpe));
+    if (o.minUpside > 0 && (up === null || up < o.minUpside)) res.miss.push(up === null ? 'kein Kursziel' : 'Kursziel +' + Math.round(up) + ' %');
+    if (cap !== null && cap < o.minCap) res.miss.push('klein');
+    if (de !== null && de > 250) res.miss.push('hohe Schulden');
+
+    // Risiken (kein Ausschluss)
+    var e200 = ema200(s);
+    if (e200) {
+      res.trend = (price / e200 - 1) * 100;
+      if (res.trend < -3) res.risks.push(Math.round(-res.trend) + ' % unter EMA 200');
+    }
+    if (s.bottom === 'knife') res.risks.push('fallendes Messer');
+    if (num(s.perf1m) !== null && s.perf1m <= -20) res.risks.push(Math.round(s.perf1m) + ' % in 1 Monat');
+
+    var last5 = closes.slice(-5).concat([price]);
+    res.stable = price > Math.min.apply(null, last5) * 1.005;
+    res.ok = res.miss.length === 0;
+
+    // Score: Qualität und Bewertung zählen mehr als die Tiefe des Einbruchs
+    var sc = 0;
+    if (roe !== null) sc += Math.min(25, roe * 100 / 2);
+    if (fpe !== null && fpe > 0) sc += Math.max(0, Math.min(20, (30 - fpe)));
+    if (up !== null) sc += Math.max(0, Math.min(20, up / 2));
+    sc += Math.min(15, depth / 3);
+    if (res.rsi !== null) sc += Math.max(0, Math.min(10, (45 - res.rsi) / 1.5));
+    if (res.stable) sc += 10;
+    sc -= res.risks.length * 3;
+    res.score = Math.round(Math.max(0, Math.min(100, sc)));
+
+    res.reasons.push('−' + depth.toFixed(0) + ' % vom 3M-Hoch');
+    if (roe !== null) res.reasons.push('ROE ' + Math.round(roe * 100) + ' %');
+    if (fpe !== null) res.reasons.push('Fwd-KGV ' + fpe.toFixed(1).replace('.', ','));
+    if (up !== null) res.reasons.push('Kursziel ' + (up >= 0 ? '+' : '') + Math.round(up) + ' %');
+    if (res.rsi !== null) res.reasons.push('RSI ' + Math.round(res.rsi));
+    if (res.stable) res.reasons.push('stabilisiert sich');
+    return res;
+  }
+
+  return { evaluate: evaluate, DEFAULTS: DEFAULTS, evaluateSelloff: evaluateSelloff, SELLOFF_DEFAULTS: SELLOFF_DEFAULTS };
 })();
