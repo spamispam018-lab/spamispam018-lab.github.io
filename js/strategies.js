@@ -18,7 +18,7 @@ window.App.Strategies = (function () {
     growth: { minRs: 80, minRevGrowth: 20, minVol: 100000 },
     dividend: { minYield: 2.5, maxPayout: 60 },
     momentum: { minRs: 80, minChange: 2 },
-    buythedip: { maxDip: -5, minRoe: 15, maxPe: 25 }
+    buythedip: { ddMin: 7, ddMax: 25, rsiMax: 45, minRoe: 10, maxPe: 35, needTrend: true }
   };
 
   function esc(s) {
@@ -94,7 +94,7 @@ window.App.Strategies = (function () {
       if (currentStrategy === 'growth') sliderState.growth = { minRs: 80, minRevGrowth: 20, minVol: 100000 };
       if (currentStrategy === 'dividend') sliderState.dividend = { minYield: 2.5, maxPayout: 60 };
       if (currentStrategy === 'momentum') sliderState.momentum = { minRs: 80, minChange: 2 };
-      if (currentStrategy === 'buythedip') sliderState.buythedip = { maxDip: -5, minRoe: 15, maxPe: 25 };
+      if (currentStrategy === 'buythedip') sliderState.buythedip = { ddMin: 7, ddMax: 25, rsiMax: 45, minRoe: 10, maxPe: 35, needTrend: true };
       renderSliders(container);
       applyStrategy(container);
     };
@@ -128,14 +128,25 @@ window.App.Strategies = (function () {
       html += sliderRow('mom-minChange', 'Min. Kursanstieg (Tag) %', 0, 20, 0.5, sliderState.momentum.minChange, ' %');
     }
     else if (currentStrategy === 'buythedip') {
-      infoEl.innerHTML = '<b>E. Buy the Dip:</b><br><br><b>Kriterien:</b> Du kaufst gezielt in Kursrücksetzer ein, um stark gefallene, aber grundsätzlich gesunde Qualitätswerte günstiger einzusammeln.<br><br>Kursrückgang ≤ <span id="val-dip-change">' + sliderState.buythedip.maxDip + '</span> %, ROE ≥ <span id="val-dip-roe">' + sliderState.buythedip.minRoe + '</span> %, KGV ≤ <span id="val-dip-pe">' + sliderState.buythedip.maxPe + '</span>, Marktkap. > 1 Mrd. €.';
-      
-      html += sliderRow('dip-maxDip', 'Kursrückgang (Tag) %', -20, 0, 1, sliderState.buythedip.maxDip, ' %');
-      html += sliderRow('dip-minRoe', 'Min. Eigenkapitalrendite (ROE) %', 0, 50, 1, sliderState.buythedip.minRoe, ' %');
-      html += sliderRow('dip-maxPe', 'Maximales KGV', 5, 50, 1, sliderState.buythedip.maxPe, '');
+      var bd = sliderState.buythedip;
+      infoEl.innerHTML = '<b>E. Buy the Dip:</b><br><br>Gesunde Aktien im <b>Rücksetzer</b>: Der Kurs liegt ' + bd.ddMin + '–' + bd.ddMax + ' % unter dem Hoch der letzten 3 Monate, ' +
+        (bd.needTrend ? 'der <b>Langfristtrend</b> ist intakt (Kurs höchstens 3 % unter dem EMA 200), ' : '') +
+        'der RSI zeigt einen kurzfristigen Ausverkauf (≤ ' + bd.rsiMax + '), und es ist kein „fallendes Messer“. Qualität: ROE ≥ ' + bd.minRoe + ' %, KGV ≤ ' + bd.maxPe + ', Börsenwert > 1 Mrd. €.<br><br>' +
+        'Sortiert nach <b>Dip-Score</b> (0–100): Rücksetzer um 10–20 %, niedriger RSI, Abstand über EMA 200, beginnende Stabilisierung und Analysten-Kursziel geben Punkte. Kein Kaufsignal – ein Rücksetzer kann weitergehen.';
+
+      html += sliderRow('dip-ddMin', 'Rücksetzer vom 3M-Hoch mindestens', 3, 20, 1, bd.ddMin, ' %');
+      html += sliderRow('dip-ddMax', 'Rücksetzer höchstens', 10, 50, 1, bd.ddMax, ' %');
+      html += sliderRow('dip-rsiMax', 'RSI höchstens', 25, 60, 1, bd.rsiMax, '');
+      html += sliderRow('dip-minRoe', 'Min. Eigenkapitalrendite (ROE)', 0, 40, 1, bd.minRoe, ' %');
+      html += sliderRow('dip-maxPe', 'Maximales KGV', 5, 60, 1, bd.maxPe, '');
+      html += '<label style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--text-muted);cursor:pointer;">' +
+        '<input type="checkbox" id="dip-needTrend"' + (bd.needTrend ? ' checked' : '') + '> Nur mit intaktem Langfristtrend (über EMA 200)</label>';
     }
 
     sliderHost.innerHTML = html;
+
+    var trendBox = sliderHost.querySelector('#dip-needTrend');
+    if (trendBox) trendBox.onchange = function () { sliderState.buythedip.needTrend = trendBox.checked; applyStrategy(container); };
 
     sliderHost.querySelectorAll('input[type="range"]').forEach(function(input) {
       input.oninput = function() {
@@ -156,9 +167,7 @@ window.App.Strategies = (function () {
         if (id === 'mom-minRs') sliderState.momentum.minRs = val;
         if (id === 'mom-minChange') sliderState.momentum.minChange = val;
 
-        if (id === 'dip-maxDip') sliderState.buythedip.maxDip = val;
-        if (id === 'dip-minRoe') sliderState.buythedip.minRoe = val;
-        if (id === 'dip-maxPe') sliderState.buythedip.maxPe = val;
+        if (id.indexOf('dip-') === 0) sliderState.buythedip[id.slice(4)] = val;
 
         var valLabel = input.previousElementSibling.querySelector('.slider-val');
         if (valLabel) {
@@ -178,9 +187,6 @@ window.App.Strategies = (function () {
         if (id === 'mom-minRs') container.querySelector('#val-mom-rs').textContent = val;
         if (id === 'mom-minChange') container.querySelector('#val-mom-change').textContent = val;
 
-        if (id === 'dip-maxDip') container.querySelector('#val-dip-change').textContent = val;
-        if (id === 'dip-minRoe') container.querySelector('#val-dip-roe').textContent = val;
-        if (id === 'dip-maxPe') container.querySelector('#val-dip-pe').textContent = val;
 
         applyStrategy(container);
       };
@@ -256,24 +262,21 @@ window.App.Strategies = (function () {
     }
     else if (currentStrategy === 'buythedip') {
       var s = sliderState.buythedip;
+      var dipOpts = { ddMin: s.ddMin, ddMax: Math.max(s.ddMax, s.ddMin), rsiMax: s.rsiMax, needTrend: s.needTrend, minRoe: s.minRoe, maxPe: s.maxPe };
       filtered = allStocks.filter(function (stock) {
-        var chgVal = Number(stock.changePercent) || 0;
-        var peVal = Number(stock.pe);
-        var roeVal = Number(stock.returnOnEquity);
-        
-        var roeOk = isNaN(roeVal) ? true : (roeVal * 100) >= s.minRoe;
-        var peOk = isNaN(peVal) ? true : (peVal > 0 && peVal <= s.maxPe);
-
-        return chgVal <= s.maxDip && 
-               roeOk && 
-               peOk && 
-               Number(stock.marketCap) > 1e9;
+        if (stock.sector === 'ETF' || stock.sector === 'Sonstige') return false;
+        stock._dip = window.App.DipFinder.evaluate(stock, dipOpts);
+        return stock._dip.ok;
       });
     }
 
-    filtered.sort(function(a, b) {
-      return (Number(b.marketCap) || 0) - (Number(a.marketCap) || 0);
-    });
+    if (currentStrategy === 'buythedip') {
+      filtered.sort(function (a, b) { return b._dip.score - a._dip.score; });
+    } else {
+      filtered.sort(function(a, b) {
+        return (Number(b.marketCap) || 0) - (Number(a.marketCap) || 0);
+      });
+    }
 
     if (filtered.length === 0) {
       listEl.innerHTML = '<div class="state-box"><p>Keine Aktien gefunden. Versuche die Slider weiter nach links/rechts zu ziehen, um die Kriterien zu lockern.</p></div>';
@@ -301,6 +304,8 @@ window.App.Strategies = (function () {
                 '<span class="ticker-badge">' + esc(stock.ticker) + '</span>' +
                 '<span class="sector-label">• ' + esc(stock.sector || 'Markt') + '</span>' +
               '</div>' +
+              (currentStrategy === 'buythedip' && stock._dip ? '<div style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;white-space:normal;line-height:1.35;">' +
+                '<b style="color:var(--accent-purple-light);">Dip-Score ' + stock._dip.score + '</b> · ' + esc(stock._dip.reasons.join(' · ')) + '</div>' : '') +
             '</div>' +
           '</div>' +
           '<div class="stock-info-right">' +
@@ -311,7 +316,7 @@ window.App.Strategies = (function () {
     });
 
     if (filtered.length > 50) {
-      html += '<div style="text-align: center; font-size: 0.75rem; color: var(--text-dim); margin-top: 10px;">(Die Top 50 nach Marktkapitalisierung werden angezeigt)</div>';
+      html += '<div style="text-align: center; font-size: 0.75rem; color: var(--text-dim); margin-top: 10px;">(Die Top 50 ' + (currentStrategy === 'buythedip' ? 'nach Dip-Score' : 'nach Marktkapitalisierung') + ' werden angezeigt)</div>';
     }
 
     listEl.innerHTML = html;
@@ -515,7 +520,7 @@ window.App.Strategies = (function () {
     } else if (strategyName === 'Momentum') {
       text += 'Min. RS-Rating ' + sliders.minRs + ', Min. Tagesanstieg ' + sliders.minChange + '%.';
     } else if (strategyName === 'Buy the Dip') {
-      text += 'Kursrückgang (Tag) maximal ' + sliders.maxDip + '%, Min. ROE ' + sliders.minRoe + '%, Max. KGV ' + sliders.maxPe + '.';
+      text += 'Rücksetzer ' + sliders.ddMin + '–' + sliders.ddMax + '% vom 3-Monats-Hoch, RSI ≤ ' + sliders.rsiMax + (sliders.needTrend ? ', Kurs über EMA 200' : '') + ', Min. ROE ' + sliders.minRoe + '%, Max. KGV ' + sliders.maxPe + '.';
     }
     
     text += '\nBitte bewerte die Aktien im Kontext dieser Strategie (z.B. ist der Dip bei "Buy the Dip" gesund oder ein fallendes Messer?).\n\n';
