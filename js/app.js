@@ -69,6 +69,7 @@
 
   // Markt
   page('/market', 'Markt', 'Sektoren, Heatmap & Trends', function () { App.Market.initView(); });
+  page('/catalysts', 'Markt', 'Treiber & Termine', function () { App.Catalysts.initView(); });
   page('/status', 'Markt', 'Datenstatus', function () { App.Status.initView(); });
   page('/macro', 'Markt', 'Makro-Umfeld', function () {
     var c = document.getElementById('app-view-content');

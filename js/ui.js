@@ -20,7 +20,8 @@ window.App.UI = (function () {
       label: 'Markt',
       items: [
         { id: 'market', label: 'Übersicht', route: '/market' },
-        { id: 'macro', label: 'Makro', route: '/macro' }
+        { id: 'macro', label: 'Makro', route: '/macro' },
+        { id: 'catalysts', label: 'Treiber', route: '/catalysts' }
       ]
     },
     entdecken: {
@@ -48,7 +49,7 @@ window.App.UI = (function () {
   };
 
   var SECTION_GROUP = {
-    market: 'markt', macro: 'markt',
+    market: 'markt', macro: 'markt', catalysts: 'markt',
     screener: 'entdecken', ai: 'entdecken', strategies: 'entdecken', backtest: 'entdecken', compare: 'entdecken',
     watchlist: 'watchlist',
     portfolio: 'depot', dividends: 'depot', journal: 'depot'

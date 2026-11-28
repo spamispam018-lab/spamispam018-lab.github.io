@@ -192,10 +192,20 @@ window.App.Watchlist = (function () {
 
   function renderDigest(host, list) {
     if (!host || !list.length) return;
-    window.App.Data.getJsonFile('news/_index.json').catch(function () { return {}; }).then(function (news) {
+    Promise.all([
+      window.App.Data.getJsonFile('news/_index.json').catch(function () { return {}; }),
+      window.App.Catalysts ? window.App.Catalysts.load() : Promise.resolve(null)
+    ]).then(function (res) {
+      var news = res[0], cat = res[1];
       if (!document.body.contains(host)) return;
       var rows = list.map(function (s) {
         var ev = digestEvents(s, news || {});
+        if (cat && window.App.Catalysts) {
+          window.App.Catalysts.forTicker(cat, s.ticker).slice(0, 2).forEach(function (it) {
+            ev.push({ w: it.status === 'bevorstehend' ? 3.5 : 3, tone: it.direction === 'positiv' ? 'up' : it.direction === 'negativ' ? 'down' : 'info',
+              text: '⚡ ' + it.title + ' · ' + window.App.Catalysts.whenText(it), long: true });
+          });
+        }
         return { s: s, ev: ev, w: ev.reduce(function (a, e) { return a + e.w; }, 0) };
       }).filter(function (r) { return r.ev.length; }).sort(function (a, b) { return b.w - a.w; });
       var color = { up: 'var(--bullish)', down: 'var(--bearish)', info: 'var(--accent, #6366f1)' };

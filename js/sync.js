@@ -16,6 +16,7 @@ window.App.Sync = (function () {
   var JOBS = [
     { file: 'update_data.yml', title: 'Kurse & Kennzahlen', desc: 'Alle Aktien neu abrufen (Delta). Dauert meist 10–30 Minuten. Danach startet die KI-Auswertung nicht automatisch.', inputs: { sync_mode: 'delta' } },
     { file: 'update_news.yml', title: 'Nachrichten & Stimmung', desc: 'Schlagzeilen aller Aktien mit FinBERT-Bewertung (für Screener-Filter und Farbpunkte).' },
+    { file: 'update_catalysts.yml', title: 'Treiber & Termine', desc: 'Nachrichten zu Politik, Zöllen, Regulierung und Notenbanken sammeln und von der KI einordnen lassen. Dauert 2–5 Minuten.' },
     { file: 'update_ai.yml', title: 'KI-Vorschläge', desc: 'Sektoren und Top 10 neu auswerten. Dauert einige Minuten.' },
     { file: 'update_macro.yml', title: 'Makro (GitHub-Kopie)', desc: 'Rückfall-Datei für das Makro-Umfeld. Live-Daten holt die App ohnehin über ↻.' },
     { file: 'fetch_reddit.yml', title: 'Reddit (GitHub-Kopie)', desc: 'Rückfall-Datei und Grundlage für die KI-Auswertung.' },

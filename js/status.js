@@ -29,6 +29,9 @@ window.App.Status = (function () {
     { key: 'macro', title: 'Makro-Umfeld (Rückfall-Datei)', file: 'macro.json', workflow: 'update_macro.yml', maxH: 30, weekdays: true,
       rhythm: 'Mo–Fr morgens', stamp: function (d) { return d && d.updated; },
       extra: function (d) { return d && d.items ? d.items.length + ' Reihen' + (d.errors && d.errors.length ? ' · ' + d.errors.length + ' Fehler' : '') : ''; } },
+    { key: 'catalysts', title: 'Treiber & Termine', file: 'catalysts.json', workflow: 'update_catalysts.yml', maxH: 14,
+      rhythm: 'täglich 2×', stamp: function (d) { return d && d.updatedAt; },
+      extra: function (d) { return d && d.items ? d.items.length + ' Einträge' + (d.errors && d.errors.length ? ' · ' + d.errors.length + ' Themen fehlgeschlagen' : '') : ''; } },
     { key: 'ai', title: 'KI-Vorschläge', file: 'ai_insights.json', workflow: 'update_ai.yml', maxH: 30, weekdays: true,
       rhythm: 'Di–Sa nachts', stamp: function (d) { return d && d.updatedAt; },
       extra: function (d) { return d && d.pending && d.pending.length ? 'offen: ' + d.pending.join(', ') : (d && d.model ? String(d.model).replace(/(^|, )groq:(openai\/)?/g, '$1Groq ').replace(/(^|, )gemini:/g, '$1') : ''); } }
