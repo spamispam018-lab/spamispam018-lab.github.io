@@ -12,11 +12,13 @@ Nur Python-Standardbibliothek, keine zusätzlichen Pakete nötig.
 
 Anbieter (mindestens einer nötig, beide als Secret in GitHub):
   GROQ_API_KEY    Schlüssel von console.groq.com – Hauptanbieter (ca. 1.000 Anfragen/Tag je Modell kostenlos)
-  GEMINI_API_KEY  Schlüssel aus Google AI Studio – Ersatz, falls Groq ausfällt oder sein Kontingent leer ist
+  MISTRAL_API_KEY Schlüssel von console.mistral.ai (kostenloser Tarif "Experiment") – erster Ersatz für Groq
+  GEMINI_API_KEY  Schlüssel aus Google AI Studio – Ersatz, falls Groq und Mistral ausfallen
   GEMINI_MODEL    (optional) erzwingt ein Gemini-Modell als erste Wahl unter den Gemini-Modellen
   GROQ_MODEL      (optional) erzwingt ein Groq-Modell als erste Wahl
+  MISTRAL_MODEL   (optional) erzwingt ein Mistral-Modell als erste Wahl unter den Mistral-Modellen
 
-Reihenfolge: Groq-Modelle -> Gemini Flash-Lite -> Gemini Flash (Top 10: Groq -> Gemini Flash -> Flash-Lite).
+Reihenfolge: Groq -> Mistral -> Gemini Flash-Lite -> Gemini Flash (Top 10: Groq -> Mistral -> Gemini Flash -> Flash-Lite).
 Ist ein Modell überlastet oder sein Kontingent erschöpft, wird automatisch das nächste genommen.
 
 Aufruf lokal:  GROQ_API_KEY=... GEMINI_API_KEY=... python scripts/fetch_ai_insights.py [--only Technology] [--dry-run]
@@ -43,6 +45,9 @@ GROQ_BASE = "https://api.groq.com/openai/v1"
 GROQ_PREFERRED = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "meta-llama/llama-4-scout-17b-16e-instruct", "openai/gpt-oss-20b"]
 GROQ_MAX_OUT = 3000            # Antwort-Tokens; zählt bei Groq mit ins Minutenlimit (kostenlos z. B. 8.000 TPM)
 GROQ_STATE = {}                # je Modell: verbleibende Tokens im Minutenfenster und Zeitpunkt des Resets
+MISTRAL_BASE = "https://api.mistral.ai/v1"
+MISTRAL_PREFERRED = ["mistral-medium-latest", "mistral-large-latest", "mistral-small-latest"]
+MISTRAL_MAX_OUT = 4000         # kostenlos: 1 Anfrage/Sek., 500.000 Tokens/Min., 1 Mrd. Tokens/Monat
 
 MAX_ROWS_PER_SECTOR = 150      # größere Sektoren werden nach Marktkapitalisierung gekürzt
 PART_ROWS = 45                 # größere Sektoren werden in Teile dieser Größe zerlegt (passt ins Groq-Minutenlimit)
@@ -53,6 +58,8 @@ PAUSE_FLASH = 13               # Flash erlaubt in der kostenlosen Stufe nur ~5 A
 def pause_for(model):
     if (model or "").startswith("groq:"):
         return 4            # Groq: Minutenlimits greifen über retry-after
+    if (model or "").startswith("mistral:"):
+        return 2            # Mistral: 1 Anfrage pro Sekunde
     return PAUSE_BETWEEN_CALLS if "lite" in (model or "") else PAUSE_FLASH
 MAX_RETRIES = 3
 HTTP_TIMEOUT = 120             # Sekunden je Anfrage
@@ -284,7 +291,7 @@ def version_tuple(name):
     return (int(m.group(1)), int(m.group(2) or 0)) if m else (0, 0)
 
 
-def pick_models(key, gkey=None):
+def pick_models(key, gkey=None, mkey=None):
     """Zwei Modell-Listen in Reihenfolge der Nutzung.
 
     Sektoren (12+ Anfragen): Flash-Lite zuerst – in der kostenlosen Stufe ca. 500 Anfragen/Tag statt ca. 20 bei Flash.
@@ -294,9 +301,10 @@ def pick_models(key, gkey=None):
     """
     forced = (os.environ.get("GEMINI_MODEL") or "").strip().replace("models/", "")
     flash, lite = [], []
+    groq = ["groq:" + n for n in groq_models(gkey)] if gkey else []
+    mistral = ["mistral:" + n for n in mistral_models(mkey)] if mkey else []
     if not key:
-        groq = ["groq:" + n for n in groq_models(gkey)] if gkey else []
-        return list(groq), list(groq)
+        return groq + mistral, groq + mistral
     try:
         names, page = [], None
         for _ in range(5):
@@ -327,9 +335,8 @@ def pick_models(key, gkey=None):
     lite_all = ["gemini:" + n for n in lite + ["gemini-flash-lite-latest"]]
     flash_all = ["gemini:" + n for n in flash + ["gemini-flash-latest"]]
     forced = "gemini:" + forced if forced else ""
-    groq = ["groq:" + n for n in groq_models(gkey)] if gkey else []
-    sectors = uniq(groq + [forced] + lite_all + flash_all)
-    overall = uniq(groq + [forced] + flash_all + lite_all)
+    sectors = uniq(groq + mistral + [forced] + lite_all + flash_all)
+    overall = uniq(groq + mistral + [forced] + flash_all + lite_all)
     return sectors, overall
 
 
@@ -393,6 +400,23 @@ def call_gemini(key, model, prompt):
             print("  Fehler:", last, "– neuer Versuch")
             time.sleep(10 * (attempt + 1))
     raise RuntimeError(last or "unbekannter Fehler")
+
+
+def mistral_models(mkey):
+    """Mistral-Modelle in Wunschreihenfolge, gefiltert auf die, die das Konto anbietet."""
+    forced = (os.environ.get("MISTRAL_MODEL") or "").strip()
+    pref = ([forced] if forced else []) + MISTRAL_PREFERRED
+    try:
+        req = urllib.request.Request(MISTRAL_BASE + "/models", headers={"Authorization": "Bearer " + mkey, "User-Agent": "aktien-app"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            ids = {m.get("id") for m in json.loads(resp.read().decode("utf-8")).get("data", [])}
+        avail = [m for m in pref if m in ids]
+        if avail:
+            return list(dict.fromkeys(avail))
+        print("Mistral: keines der Wunschmodelle gelistet, nehme Standardliste")
+    except Exception as e:
+        print("Mistral-Modellliste nicht abrufbar:", e)
+    return list(dict.fromkeys(pref))
 
 
 def parse_duration(v):
@@ -500,11 +524,88 @@ def call_groq(gkey, model, prompt):
     raise RuntimeError(last or "unbekannter Fehler")
 
 
+MISTRAL_LAST = [0.0]
+
+
+def call_mistral(mkey, model, prompt):
+    body = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": "Du bist ein sorgfältiger Aktienanalyst. Antworte ausschließlich mit einem gültigen JSON-Objekt im verlangten Format."},
+            {"role": "user", "content": prompt},
+        ],
+        "response_format": {"type": "json_object"},
+        "temperature": 0.3,
+        "max_tokens": MISTRAL_MAX_OUT,
+    }
+    data = json.dumps(body).encode("utf-8")
+    last = None
+    attempt = waits = 0
+    while attempt < MAX_RETRIES:
+        gap = 1.2 - (time.time() - MISTRAL_LAST[0])     # höchstens 1 Anfrage pro Sekunde
+        if gap > 0:
+            time.sleep(gap)
+        MISTRAL_LAST[0] = time.time()
+        req = urllib.request.Request(MISTRAL_BASE + "/chat/completions", data=data, method="POST", headers={
+            "Authorization": "Bearer " + mkey, "Content-Type": "application/json", "Accept": "application/json", "User-Agent": "aktien-app"})
+        try:
+            with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
+                res = json.loads(resp.read().decode("utf-8"))
+            choices = res.get("choices") or []
+            if not choices:
+                raise ValueError("Keine Antwort")
+            content = (choices[0].get("message") or {}).get("content") or ""
+            if isinstance(content, list):   # manche Modelle liefern Textblöcke
+                content = "".join(c.get("text", "") for c in content if isinstance(c, dict))
+            return parse_json(content)
+        except urllib.error.HTTPError as e:
+            full = e.read().decode("utf-8", "ignore")
+            last = "HTTP %s: %s" % (e.code, re.sub(r"\s+", " ", full)[:300])
+            if e.code in (401, 403):
+                raise QuotaExhausted("Mistral-Schlüssel ungültig oder Tarif nicht aktiv (HTTP %s)" % e.code)
+            if e.code == 429 and re.search(r"month|quota|budget|exhausted", full, re.I):
+                print("  " + last)
+                raise QuotaExhausted("Kontingent für %s aufgebraucht (HTTP 429)" % model)
+            if e.code == 404 or (e.code == 400 and re.search(r"invalid model|model.*not found|does not exist", full, re.I)):
+                raise ModelUnavailable("%s nicht verfügbar (HTTP %s)" % (model, e.code))
+            if e.code == 400 and re.search(r"too large|too long|context|max.*tokens", full, re.I):
+                raise TooLarge("Anfrage zu groß für %s (HTTP 400)" % model)
+            if e.code == 429 and waits < 6:
+                ra = e.headers.get("retry-after") if e.headers else None
+                wait = min(max(parse_duration(ra) or 5 * (waits + 1), 1) + 1, 65)
+                if time_left() < wait + HTTP_TIMEOUT:
+                    break
+                waits += 1
+                print("  Limit %s – warte %ds" % (model, wait))
+                time.sleep(wait)
+                continue
+            if e.code in (429, 500, 502, 503, 504):
+                attempt += 1
+                if e.code == 503 and attempt >= 2:
+                    raise ModelBusy("%s überlastet (HTTP 503)" % model)
+                if attempt >= MAX_RETRIES or time_left() < 20 + HTTP_TIMEOUT:
+                    break
+                print("  %s – neuer Versuch in 15s" % last[:160])
+                time.sleep(15)
+                continue
+            raise RuntimeError(last)
+        except (urllib.error.URLError, TimeoutError, ValueError, OSError) as e:
+            attempt += 1
+            last = str(e) or e.__class__.__name__
+            if attempt >= MAX_RETRIES or time_left() < HTTP_TIMEOUT + 20:
+                break
+            print("  Fehler:", last, "– neuer Versuch")
+            time.sleep(10 * attempt)
+    raise RuntimeError(last or "unbekannter Fehler")
+
+
 def call_model(spec, keys, prompt):
-    """spec = "groq:<modell>" oder "gemini:<modell>"."""
+    """spec = "groq:<modell>", "mistral:<modell>" oder "gemini:<modell>"."""
     provider, _, name = spec.partition(":")
     if provider == "groq":
         return call_groq(keys["groq"], name, prompt)
+    if provider == "mistral":
+        return call_mistral(keys["mistral"], name, prompt)
     return call_gemini(keys["gemini"], name, prompt)
 
 
@@ -622,12 +723,14 @@ def main():
 
     key = os.environ.get("GEMINI_API_KEY", "").strip()
     gkey = os.environ.get("GROQ_API_KEY", "").strip()
-    keys = {"gemini": key, "groq": gkey}
-    if not key and not gkey and not args.dry_run:
-        print("FEHLER: Weder GROQ_API_KEY noch GEMINI_API_KEY gesetzt. In GitHub unter Settings › Secrets › Actions anlegen.")
+    mkey = os.environ.get("MISTRAL_API_KEY", "").strip()
+    keys = {"gemini": key, "groq": gkey, "mistral": mkey}
+    if not key and not gkey and not mkey and not args.dry_run:
+        print("FEHLER: Kein KI-Schlüssel gesetzt (GROQ_API_KEY, MISTRAL_API_KEY oder GEMINI_API_KEY). In GitHub unter Settings › Secrets › Actions anlegen.")
         sys.exit(1)
-    if not gkey:
-        print("Hinweis: GROQ_API_KEY fehlt – nur Gemini wird genutzt.")
+    for n, v in (("GROQ_API_KEY", gkey), ("MISTRAL_API_KEY", mkey), ("GEMINI_API_KEY", key)):
+        if not v:
+            print("Hinweis: %s fehlt – dieser Anbieter wird übersprungen." % n)
 
     previous = load_json(OUT_FILE, {})
     prev_sectors = previous.get("sectors") or {}
@@ -660,7 +763,7 @@ def main():
     if args.dry_run:
         models, models_overall = ["dry-run"], ["dry-run"]
     else:
-        models, models_overall = pick_models(key, gkey)
+        models, models_overall = pick_models(key, gkey, mkey)
     model = models[0]
     print("Modelle Sektoren:", ", ".join(models))
     print("Modelle Gesamt-Top-10:", ", ".join(models_overall))

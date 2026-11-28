@@ -288,9 +288,10 @@ def fred_events(today):
 # ---------------------------------------------------------------------------- Hauptablauf
 def main():
     today = datetime.now(timezone.utc).date().isoformat()
-    keys = {"gemini": os.environ.get("GEMINI_API_KEY", "").strip(), "groq": os.environ.get("GROQ_API_KEY", "").strip()}
-    if not keys["gemini"] and not keys["groq"]:
-        print("FEHLER: GROQ_API_KEY oder GEMINI_API_KEY fehlt.")
+    keys = {"gemini": os.environ.get("GEMINI_API_KEY", "").strip(), "groq": os.environ.get("GROQ_API_KEY", "").strip(),
+            "mistral": os.environ.get("MISTRAL_API_KEY", "").strip()}
+    if not keys["gemini"] and not keys["groq"] and not keys["mistral"]:
+        print("FEHLER: Kein KI-Schlüssel gesetzt (GROQ_API_KEY, MISTRAL_API_KEY oder GEMINI_API_KEY).")
         sys.exit(1)
 
     universe = [u for u in load_json(os.path.join(DATA, "universe.json"), []) if isinstance(u, dict) and u.get("ticker")]
@@ -298,7 +299,7 @@ def main():
     previous = load_json(OUT, {})
     prev_seen = {it.get("id"): it.get("firstSeen") for it in previous.get("items", []) if it.get("id")}
 
-    models, _ = ai.pick_models(keys["gemini"], keys["groq"])
+    models, _ = ai.pick_models(keys["gemini"], keys["groq"], keys["mistral"])
     print("Modelle:", ", ".join(models))
 
     themes = load_themes()
