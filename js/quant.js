@@ -510,6 +510,7 @@ window.App.Quant = (function () {
       vol: annualVol(rets, ppy) * 100,
       maxDD: dd.maxDD,
       sharpe: sharpe(rets, ppy),
+      sortino: sortino(rets, ppy),
       calmar: (c != null && dd.maxDD < 0) ? (c * 100) / Math.abs(dd.maxDD) : null
     };
   }
@@ -526,6 +527,9 @@ window.App.Quant = (function () {
    *   trail  Trailing-Stop vom höchsten Schlusskurs seit dem Einstieg
    *   target Gewinnziel vom Einstiegskurs
    *   regime Array (gleich lang wie hist) mit true/false: Markt-Filter, investiert nur bei true
+   *   volTarget Ziel-Schwankung p. a. (0.15 = 15 %): Positionsgröße = Ziel / Schwankung der letzten ~3 Monate,
+   *          höchstens 100 %; umgeschichtet wird erst ab 10 Prozentpunkten Abweichung (spart Kosten)
+   * type 'custom': fertiges Signal in p.sig (z. B. Mehrheitsentscheid mehrerer Strategien)
    * Auch Stopps werden am Schlusskurs erkannt und am nächsten Schlusskurs ausgeführt. Nach einem Stopp
    * wird erst wieder gekauft, wenn das Strategie-Signal zwischendurch auf "Cash" war.
    */
@@ -536,7 +540,7 @@ window.App.Quant = (function () {
     var dates = hist.map(function (h) { return h.date; });
 
     var ppy = periodsPerYear(hist);
-    var sig = computeSignals(closes, type, scaleParams(type, p, ppy), dates);
+    var sig = type === 'custom' ? p.sig : computeSignals(closes, type, scaleParams(type, p, ppy), dates);
     var pos = new Array(n), i;
     var o = opts || {};
     var stop = o.stop > 0 ? o.stop : 0, trail = o.trail > 0 ? o.trail : 0, target = o.target > 0 ? o.target : 0;
@@ -566,11 +570,34 @@ window.App.Quant = (function () {
       }
     }
 
+    // Positionsgröße: 1 = voll investiert; mit Volatilitätssteuerung kleiner, wenn die Aktie unruhig ist
+    var size = pos.slice();
+    var vt = o.volTarget > 0 ? o.volTarget : 0;
+    if (vt) {
+      var L = Math.max(6, Math.round(63 * ppy / TD)), lr = [0];
+      for (i = 1; i < n; i++) lr.push(Math.log(closes[i] / closes[i - 1]));
+      var cur = 0;
+      for (i = 0; i < n; i++) {
+        if (!pos[i]) { size[i] = 0; cur = 0; continue; }
+        var t2 = i - 2, w = 1;
+        if (t2 >= L) {
+          var m = 0, q2 = 0, k2;
+          for (k2 = t2 - L + 1; k2 <= t2; k2++) m += lr[k2];
+          m /= L;
+          for (k2 = t2 - L + 1; k2 <= t2; k2++) q2 += (lr[k2] - m) * (lr[k2] - m);
+          var vol = Math.sqrt(q2 / (L - 1) * ppy);
+          w = vol > 0 ? Math.min(1, vt / vol) : 1;
+        }
+        if (!cur || Math.abs(w - cur) >= 0.1) cur = w;              // nur bei deutlicher Abweichung umschichten
+        size[i] = cur;
+      }
+    }
+
     var eq = [100], rets = [0], bh = [100, 100 * (1 - fee)];   // B&H steigt wie die Strategien frühestens am 2. Handelstag ein
     for (i = 1; i < n; i++) {
-      if (pos[i] !== pos[i - 1]) eq[i - 1] *= (1 - fee);          // Kosten beim Fill
+      if (size[i] !== size[i - 1]) eq[i - 1] *= (1 - fee * Math.abs(size[i] - size[i - 1]));   // Kosten auf den umgeschichteten Anteil
       var r = closes[i] / closes[i - 1] - 1;
-      eq.push(eq[i - 1] * (1 + pos[i] * r));
+      eq.push(eq[i - 1] * (1 + size[i] * r));
       rets.push(eq[i] / eq[i - 1] - 1);
       if (i >= 2) bh.push(bh[1] * closes[i] / closes[1]);
     }
@@ -595,9 +622,10 @@ window.App.Quant = (function () {
     }
 
     var stats = perfStats(eq, dates, rets.slice(1), ppy);
-    var held = 0;
-    for (i = 0; i < n; i++) held += pos[i];
+    var held = 0, inv = 0, sz = 0;
+    for (i = 0; i < n; i++) { held += size[i]; if (pos[i]) { inv++; sz += size[i]; } }
     stats.exposure = held / n * 100;
+    stats.avgSize = inv ? sz / inv * 100 : null;      // Ø Positionsgröße, solange investiert
     stats.trades = trades.length;
     var wins = trades.filter(function (t) { return t.ret > 0; }).length;
     stats.winRate = trades.length ? wins / trades.length * 100 : null;
@@ -612,11 +640,36 @@ window.App.Quant = (function () {
 
     return {
       dates: dates, equity: eq, buyHold: bh, trades: trades,
-      stats: stats, bhStats: bhStats, ppy: ppy, pos: pos, rets: rets,
+      stats: stats, bhStats: bhStats, ppy: ppy, pos: pos, size: size, rets: rets, sig: sig,
       pendingSignal: sig[n - 1] === 1 ? 'long' : 'cash'
     };
   }
 
+
+  /* ---------- Optimierungsziel ---------- */
+  /**
+   * Wonach "beste" Parameter ausgewählt werden. obj = { key: 'sharpe'|'sortino'|'calmar'|'total'|'ddcap', maxDD: 20 }
+   * ddcap = höchste Rendite, deren größter Rückgang höchstens maxDD % beträgt.
+   */
+  var OBJECTIVES = {
+    sharpe: { label: 'Sharpe' }, sortino: { label: 'Sortino' }, calmar: { label: 'Calmar' },
+    total: { label: 'Rendite' }, ddcap: { label: 'Rendite mit Drawdown-Grenze' }
+  };
+  function objScore(row, obj) {
+    var k = (obj && obj.key) || 'sharpe', v;
+    if (k === 'ddcap') {
+      var cap = -Math.abs((obj && obj.maxDD) || 20);
+      return row.maxDD >= cap ? row.total : -1e6 + row.maxDD;     // über der Grenze: nach Drawdown einordnen
+    }
+    v = k === 'total' ? row.total : row[k];
+    return v == null || !isFinite(v) ? -1e9 : v;
+  }
+  function pickBest(rows, obj) {
+    var cands = rows.filter(function (r) { return r.trades >= 3; });
+    if (!cands.length) cands = rows;
+    if (!cands.length) return null;
+    return cands.slice().sort(function (a, b) { return objScore(b, obj) - objScore(a, obj); })[0];
+  }
 
   /* ---------- Parameter-Suche ---------- */
   var PARAM_GRIDS = {
@@ -674,6 +727,7 @@ window.App.Quant = (function () {
       rows.push({
         params: p,
         total: res.stats.totalReturn, cagr: res.stats.cagr, maxDD: res.stats.maxDD, sharpe: res.stats.sharpe,
+        sortino: res.stats.sortino, calmar: res.stats.calmar,
         trades: res.stats.trades, exposure: res.stats.exposure,
         excess: res.stats.totalReturn - res.bhStats.totalReturn,
         beats: res.stats.totalReturn > res.bhStats.totalReturn,
@@ -709,15 +763,13 @@ window.App.Quant = (function () {
     Object.keys(STRATEGIES).forEach(function (type) {
       if (type === 'buyhold') return;
       var sr = searchParams(train, type, fee, opts && opts.regime ? Object.assign({}, opts, { regime: opts.regime.slice(0, split + 1) }) : opts);
-      var cands = sr.rows.filter(function (r) { return r.trades >= 3; });
-      if (!cands.length) cands = sr.rows;
-      if (!cands.length) return;
-      var best = cands.slice().sort(function (a, b) { return (b.sharpe == null ? -99 : b.sharpe) - (a.sharpe == null ? -99 : a.sharpe); })[0];
+      var best = pickBest(sr.rows, opts && opts.objective);
+      if (!best) return;
       var full = backtest(hist, type, best.params, fee, opts);
       if (full.error) return;
       var t = segStats(full.equity);
       rows.push({
-        type: type, params: best.params, trainSharpe: best.sharpe,
+        type: type, params: best.params, trainSharpe: best.sharpe, trainScore: objScore(best, opts && opts.objective),
         test: t, full: full.stats, trades: full.stats.trades, signalNow: full.pendingSignal,
         tradesInTest: full.trades.filter(function (x) { return x.entryDate >= testDates[0] || (!x.open && x.exitDate >= testDates[0]); }).length,
         beatsTest: t.totalReturn > bhTest.totalReturn
@@ -762,6 +814,12 @@ window.App.Quant = (function () {
   }
 
   /* ---------- Walk-Forward-Test ---------- */
+  /** Anteil investierter Zeit (inkl. Positionsgröße) ab Index off, in Prozent. */
+  function invShare(size, off) {
+    var seg = (size || []).slice(off + 1);
+    return seg.length ? seg.reduce(function (a, v) { return a + v; }, 0) / seg.length * 100 : null;
+  }
+
   /**
    * Rollierender Test: Parameter auf trainYears Jahren suchen (beste Sharpe, mind. 3 Trades),
    * dann die folgenden testYears Jahre damit handeln; danach das Fenster weiterschieben.
@@ -785,9 +843,7 @@ window.App.Quant = (function () {
       var train = hist.slice(a, b + 1);
       var o1 = opts && opts.regime ? Object.assign({}, opts, { regime: sub(opts.regime, a, b + 1) }) : opts;
       var sr = searchParams(train, type, fee, o1);
-      var cands = sr.rows.filter(function (r) { return r.trades >= 3; });
-      if (!cands.length) cands = sr.rows;
-      var best = cands.length ? cands.slice().sort(function (x, y) { return (y.sharpe == null ? -99 : y.sharpe) - (x.sharpe == null ? -99 : x.sharpe); })[0] : null;
+      var best = pickBest(sr.rows, opts && opts.objective);
       var params = best ? best.params : defaultParams(type);
       // Mit Vorlauf (Trainingsdaten) rechnen, damit Indikatoren zu Testbeginn schon gültig sind
       var o2 = opts && opts.regime ? Object.assign({}, opts, { regime: sub(opts.regime, a, c) }) : opts;
@@ -803,7 +859,7 @@ window.App.Quant = (function () {
       var tradesIn = res.trades.filter(function (t) { return t.entryDate >= dates[b] || (!t.open && t.exitDate >= dates[b]); }).length;
       windows.push({
         trainFrom: dates[a], trainTo: dates[b], testFrom: dates[b], testTo: dates[c - 1], params: params,
-        trainSharpe: best ? best.sharpe : null, trades: tradesIn,
+        trainSharpe: best ? best.sharpe : null, trades: tradesIn, inv: invShare(res.size, off),
         ret: (segEq[segEq.length - 1] / segEq[0] - 1) * 100,
         bhRet: (segBh[segBh.length - 1] / segBh[0] - 1) * 100
       });
@@ -820,6 +876,91 @@ window.App.Quant = (function () {
       beatWindows: windows.filter(function (w) { return w.ret > w.bhRet; }).length,
       trainYears: trainYears, testYears: testYears, ppy: ppy
     };
+  }
+
+  /**
+   * Ensemble im Walk-Forward: In jedem Fenster werden für alle Strategien die besten Parameter auf den
+   * Trainingsjahren gesucht; die 3 besten Strategien (nach Optimierungsziel) handeln das folgende Jahr
+   * gemeinsam – investiert, wenn mindestens 2 von 3 ein Kaufsignal haben.
+   * Läuft fensterweise mit Pausen, damit die App bedienbar bleibt. onProgress(fertig, gesamt).
+   */
+  function walkForwardEnsemble(hist, fee, opts, trainYears, testYears, onProgress) {
+    trainYears = trainYears || 3; testYears = testYears || 1;
+    var n = hist.length;
+    if (spanYears(hist) < trainYears + testYears) return Promise.resolve({ error: 'Zu wenig Daten: Für ' + trainYears + ' Jahre Training plus ' + testYears + ' Jahr Test werden mindestens ' + (trainYears + testYears) + ' Jahre Kurse gebraucht.' });
+    var dates = hist.map(function (h) { return h.date; });
+    var ppy = periodsPerYear(hist);
+    var addYears = function (d, y) { var x = new Date(d + 'T00:00:00'); x.setFullYear(x.getFullYear() + y); return x.toISOString().slice(0, 10); };
+    var idxOf = function (d) { var k = 0; while (k < n && dates[k] < d) k++; return k; };
+    var sub = function (arr, a, b) { return arr ? arr.slice(a, b) : null; };
+    // Fenster vorab bestimmen
+    var plan = [], start = dates[0];
+    while (true) {
+      var te = addYears(start, trainYears), xe = addYears(te, testYears);
+      var a = idxOf(start), b = idxOf(te), c = Math.min(n, idxOf(xe));
+      if (b >= n - 5 || c - b < 5) break;
+      plan.push([a, b, c]);
+      start = addYears(start, testYears);
+      if (c >= n) break;
+    }
+    if (!plan.length) return Promise.resolve({ error: 'Kein vollständiges Testfenster möglich.' });
+    var types = Object.keys(STRATEGIES).filter(function (t) { return t !== 'buyhold'; });
+    var obj = opts && opts.objective;
+    var windows = [], stratR = [], bhR = [], segDates = [], lastVote = null;
+
+    function doWindow(w) {
+      var a = w[0], b = w[1], c = w[2];
+      var train = hist.slice(a, b + 1);
+      var o1 = opts && opts.regime ? Object.assign({}, opts, { regime: sub(opts.regime, a, b + 1) }) : opts;
+      var ranked = [];
+      types.forEach(function (type) {
+        var best = pickBest(searchParams(train, type, fee, o1).rows, obj);
+        if (best) ranked.push({ type: type, params: best.params, score: objScore(best, obj) });
+      });
+      ranked.sort(function (x, y) { return y.score - x.score; });
+      var top = ranked.slice(0, 3);
+      var slice = hist.slice(a, c), closes = slice.map(function (h) { return h.close; }), sd = slice.map(function (h) { return h.date; });
+      var sigs = top.map(function (m) { return computeSignals(closes, m.type, scaleParams(m.type, m.params, ppy), sd); });
+      var need = Math.min(2, sigs.length);
+      var vote = closes.map(function (_, k) { var s = 0; sigs.forEach(function (sg) { s += sg[k] === 1 ? 1 : 0; }); return s >= need && need > 0 ? 1 : 0; });
+      var o2 = opts && opts.regime ? Object.assign({}, opts, { regime: sub(opts.regime, a, c) }) : opts;
+      var res = backtest(slice, 'custom', { sig: vote }, fee, o2);
+      if (res.error) return;
+      var off = b - a, segEq = res.equity.slice(off), segBh = res.buyHold.slice(off);
+      for (var k = 1; k < segEq.length; k++) {
+        stratR.push(segEq[k] / segEq[k - 1] - 1); bhR.push(segBh[k] / segBh[k - 1] - 1); segDates.push(res.dates[off + k]);
+      }
+      windows.push({
+        trainFrom: dates[a], testFrom: dates[b], testTo: dates[c - 1],
+        members: top.map(function (m, i) { return { type: m.type, params: m.params, now: sigs[i][sigs[i].length - 1] === 1 }; }),
+        trades: res.trades.filter(function (t) { return t.entryDate >= dates[b] || (!t.open && t.exitDate >= dates[b]); }).length,
+        inv: invShare(res.size, off),
+        ret: (segEq[segEq.length - 1] / segEq[0] - 1) * 100, bhRet: (segBh[segBh.length - 1] / segBh[0] - 1) * 100
+      });
+      lastVote = vote[vote.length - 1];
+    }
+
+    return new Promise(function (resolve) {
+      var i = 0;
+      (function step() {
+        if (i >= plan.length) {
+          if (!windows.length) { resolve({ error: 'Kein vollständiges Testfenster möglich.' }); return; }
+          var eq = [100], bh = [100];
+          stratR.forEach(function (r, k) { eq.push(eq[k] * (1 + r)); bh.push(bh[k] * (1 + bhR[k])); });
+          var d0 = [windows[0].testFrom].concat(segDates);
+          resolve({
+            ensemble: true, windows: windows, dates: d0, equity: eq, buyHold: bh,
+            stats: perfStats(eq, d0, stratR, ppy), bhStats: perfStats(bh, d0, bhR, ppy),
+            beatWindows: windows.filter(function (w) { return w.ret > w.bhRet; }).length,
+            trainYears: trainYears, testYears: testYears, ppy: ppy, signalNow: lastVote === 1 ? 'long' : 'cash'
+          });
+          return;
+        }
+        doWindow(plan[i]); i++;
+        if (onProgress) onProgress(i, plan.length);
+        setTimeout(step, 0);
+      })();
+    });
   }
 
   /* ---------- Bandbreite (Bootstrap) ---------- */
@@ -942,7 +1083,7 @@ window.App.Quant = (function () {
    * bewertet wird ausschließlich im Fenster. Bis 6 Monate wird auf Tageskursen bewertet (falls vorhanden), sonst auf der Hauptserie.
    * `full` ist die Hauptserie aus loadHistory (ggf. mit full.daily).
    */
-  function findBestRecent(full, fee, testDays) {
+  function findBestRecent(full, fee, testDays, opts) {
     var daily = (full.daily && full.daily.length > 30) ? full.daily : null;
     var evalH = (daily && testDays <= 183) ? daily : full;
     var m = evalH.length, i;
@@ -966,12 +1107,10 @@ window.App.Quant = (function () {
     var rows = [];
     Object.keys(STRATEGIES).forEach(function (type) {
       if (type === 'buyhold') return;
-      var sr = searchParams(train, type, fee);
-      var cands = sr.rows.filter(function (r) { return r.trades >= 3; });
-      if (!cands.length) cands = sr.rows;
-      if (!cands.length) return;
-      var best = cands.slice().sort(function (a, b) { return (b.sharpe == null ? -99 : b.sharpe) - (a.sharpe == null ? -99 : a.sharpe); })[0];
-      var res = backtest(evalH, type, best.params, fee);
+      var sr = searchParams(train, type, fee, opts && opts.volTarget ? { volTarget: opts.volTarget } : null);
+      var best = pickBest(sr.rows, opts && opts.objective);
+      if (!best) return;
+      var res = backtest(evalH, type, best.params, fee, opts && opts.volTarget ? { volTarget: opts.volTarget } : null);
       if (res.error) return;
       var t = segStats(res.equity);
       rows.push({
@@ -1078,7 +1217,8 @@ window.App.Quant = (function () {
     alignedReturns: alignedReturns, betaCorr: betaCorr, histogram: histogram,
     sma: sma, ema: ema, rsi: rsi, validateParams: validateParams,
     STRATEGIES: STRATEGIES, defaultParams: defaultParams, computeSignals: computeSignals, backtest: backtest,
-    regimeSeries: regimeSeries, walkForward: walkForward, bootstrap: bootstrap,
+    regimeSeries: regimeSeries, walkForward: walkForward, walkForwardEnsemble: walkForwardEnsemble, bootstrap: bootstrap,
+    OBJECTIVES: OBJECTIVES, objScore: objScore, pickBest: pickBest,
     PARAM_GRIDS: PARAM_GRIDS, gridCombos: gridCombos, searchParams: searchParams, findBest: findBest, findBestRecent: findBestRecent, indicatorSeries: indicatorSeries,
     loadHistory: loadHistory, loadHistoryFor: loadHistoryFor, preferDaily: wantsDaily, setPreferDaily: setPreferDaily
   };
