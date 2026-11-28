@@ -1,6 +1,13 @@
-"""Holt Nachrichten (yfinance) und bewertet Schlagzeilen mit FinBERT (kostenlos, läuft in der GitHub Action).
-Schreibt data/news/<TICKER>.json, data/news/_index.json (Kurzwerte) und data/news/_sectors.json."""
-import os, json, time, hashlib
+"""Holt Nachrichten (Google News, Ersatz: Yahoo/yfinance) und bewertet Schlagzeilen mit FinBERT
+(kostenlos, läuft in der GitHub Action).
+Schreibt data/news/<TICKER>.json, data/news/_index.json (Kurzwerte) und data/news/_sectors.json.
+
+Google News: Suche nach dem Firmennamen der letzten 7 Tage, zuerst auf Englisch (FinBERT bewertet nur
+englische Schlagzeilen zuverlässig). Kommen zu wenige Treffer (z. B. kleinere deutsche Werte), wird
+zusätzlich deutsch gesucht; deutsche Meldungen bleiben unbewertet (leerer Kreis in der App).
+Liefert Google nichts oder blockiert, werden wie bisher die Yahoo-Nachrichten genommen."""
+import os, json, time, hashlib, re, email.utils, urllib.parse, urllib.request
+import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 import yfinance as yf
 
@@ -11,6 +18,79 @@ MAX_ITEMS, TOP_PER_SECTOR, SECTOR_ITEMS = 8, 8, 12
 SECTOR_ETFS = {"Technology": ["QDVE.DE", "XDWT.DE"], "Healthcare": ["WHEA.DE"], "Consumer Defensive": ["WSCA.DE"],
                "Financial Services": ["WFIS.DE"], "Real Estate": ["IUSP.DE"], "Energy": ["WNRG.DE"]}
 _clf = None
+GOOGLE_PAUSE = 0.7          # Sekunden zwischen zwei Google-Abfragen
+GOOGLE_MIN = 3              # weniger englische Treffer -> zusätzlich deutsch suchen
+LEGAL = re.compile(r"\b(incorporated|inc|corporation|corp|company|co|limited|ltd|plc|ag|se|sa|nv|n\.v|s\.a|spa|kgaa|"
+                   r"holdings?|group|the|class [a-z]|cl [a-z]|& co|reit|a/s|asa|ab|oyj)\b\.?", re.I)
+google_blocked = False
+google_fail = 0
+
+
+def short_name(name, ticker):
+    """Suchname: Firmenname ohne Rechtsform ("NVIDIA Corporation" -> "NVIDIA")."""
+    n = LEGAL.sub(" ", str(name or "")).replace(",", " ")
+    n = re.sub(r"\s+", " ", n).strip(" .-&")
+    return n or ticker.split(".")[0]
+
+
+def google_news(query, lang):
+    params = {"q": query + " when:7d"}
+    params.update({"hl": "de", "gl": "DE", "ceid": "DE:de"} if lang == "de" else {"hl": "en-US", "gl": "US", "ceid": "US:en"})
+    req = urllib.request.Request("https://news.google.com/rss/search?" + urllib.parse.urlencode(params),
+                                 headers={"User-Agent": "Mozilla/5.0 (aktien-app news)"})
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        root = ET.fromstring(resp.read())
+    out = []
+    for item in root.iter("item"):
+        title = (item.findtext("title") or "").strip()
+        src_el = item.find("source")
+        src = (src_el.text or "").strip() if src_el is not None else ""
+        if src and title.endswith(" - " + src):
+            title = title[: -len(" - " + src)].strip()
+        try:
+            date = email.utils.parsedate_to_datetime(item.findtext("pubDate") or "").astimezone(timezone.utc).isoformat()
+        except Exception:
+            date = None
+        if title and date:
+            out.append({"id": hashlib.md5(title.encode()).hexdigest()[:12], "title": title, "source": src,
+                        "date": date, "url": (item.findtext("link") or "").strip(), "lang": lang})
+    return out
+
+
+def fetch_items(u):
+    """Schlagzeilen einer Aktie: Google News (en, ggf. de), sonst Yahoo."""
+    global google_blocked, google_fail
+    t = u["ticker"]
+    name = short_name(u.get("name"), t)
+    items = []
+    if not google_blocked:
+        try:
+            base = t.split(".")[0]
+            q_en = '"%s" (stock OR shares OR %s)' % (name, base) if base.isalpha() and len(base) >= 2 else '"%s" (stock OR shares)' % name
+            items = google_news(q_en, "en")
+            if len(items) < GOOGLE_MIN:
+                time.sleep(GOOGLE_PAUSE)
+                items += google_news('"%s" Aktie' % name, "de")
+            google_fail = 0
+        except Exception as e:
+            google_fail += 1
+            print("Google News Fehler", t, e)
+            if google_fail >= 3:
+                google_blocked = True
+                print("Google News blockiert – für den Rest des Laufs Yahoo-Nachrichten.")
+        time.sleep(GOOGLE_PAUSE)
+    if len(items) < 2:
+        try:
+            items += [r for r in (parse(x) for x in (yf.Ticker(t).news or [])) if r]
+        except Exception as e:
+            print("Yahoo-Fehler", t, e)
+    seen, out = set(), []
+    for r in sorted(items, key=lambda r: r["date"], reverse=True):
+        key = re.sub(r"\W+", " ", r["title"].lower()).strip()[:90]
+        if key not in seen:
+            seen.add(key)
+            out.append(r)
+    return out[:MAX_ITEMS]
 
 
 def iso(v):
@@ -64,6 +144,7 @@ def dump(path, obj):
 
 
 def summary(items):
+    items = [i for i in items if i.get("label")]          # unbewertete (deutsche) Meldungen zählen nicht
     n = len(items)
     c = {k: sum(1 for i in items if i["label"] == k) for k in ("positive", "neutral", "negative")}
     return {"score": round(sum(i["score"] for i in items) / n, 3) if n else None, "n": n,
@@ -77,21 +158,21 @@ def main():
     for u in universe:
         t = u["ticker"]
         old = {i["id"]: i for i in load(os.path.join(NEWS, t + ".json"), {}).get("items", [])}
-        try:
-            raw = [parse(x) for x in (yf.Ticker(t).news or [])]
-        except Exception as e:
-            print("Fehler", t, e)
-            raw = []
-        raw = sorted([r for r in raw if r], key=lambda r: r["date"], reverse=True)[:MAX_ITEMS]
+        raw = fetch_items(u)
         new = [r for r in raw if r["id"] not in old]
-        for r, s in zip(new, score([r["title"] for r in new])):
+        # FinBERT ist englisch trainiert: deutsche Schlagzeilen bleiben unbewertet
+        to_score = [r for r in new if r.get("lang") != "de"]
+        for r, s in zip(to_score, score([r["title"] for r in to_score])):
             r.update(s)
+        for r in new:
+            if r.get("lang") == "de":
+                r.update({"label": None, "score": None})
         items = [old.get(r["id"]) or r for r in raw]
         by_ticker[t] = items
         dump(os.path.join(NEWS, t + ".json"), {"ticker": t, "updatedAt": datetime.now(timezone.utc).isoformat(), "items": items})
         sm = summary(items)
-        index[t] = dict(sm, top=({"t": items[0]["title"], "l": items[0]["label"]} if items else None))
-        time.sleep(0.2)
+        top = next((i for i in items if i.get("label")), items[0] if items else None)
+        index[t] = dict(sm, top=({"t": top["title"], "l": top.get("label")} if top else None))
     dump(os.path.join(NEWS, "_index.json"), index)
     dump(os.path.join(NEWS, "_meta.json"), {"updatedAt": datetime.now(timezone.utc).isoformat(), "tickers": len(index)})
 
