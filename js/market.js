@@ -40,7 +40,10 @@ window.App.Market = (function () {
   var state = { period: 'perf1m', sector: null, industry: null, largeOnly: true };
   var universe = [];
   var redditData = {}; 
-  var showAllReddit = false; // NEU: Merkt sich, ob alle Reddit-Trends angezeigt werden sollen
+  // Reddit-Trends eingeklappt (nur Top 3) oder ausgeklappt (alle); Zustand wird gemerkt
+  var REDDIT_SHORT = 3;
+  var showAllReddit = false;
+  try { showAllReddit = localStorage.getItem('app_reddit_expanded_v1') === '1'; } catch (_) {}
   var styleInjected = false;
 
   function injectStyles() {
@@ -341,8 +344,8 @@ window.App.Market = (function () {
 
     if (allValidReddit.length === 0) return '';
 
-    // Standardmäßig die Top 8 anzeigen, außer der User hat auf "Alle anzeigen" geklickt
-    var displayList = showAllReddit ? allValidReddit : allValidReddit.slice(0, 8);
+    // Eingeklappt nur die Top 3, ausgeklappt alle
+    var displayList = showAllReddit ? allValidReddit : allValidReddit.slice(0, REDDIT_SHORT);
 
     var meta = (window.App.News && window.App.News.redditMeta) ? window.App.News.redditMeta() : {};
     var html = '<div class="card"><div class="card-header-dotted" style="align-items:center;gap:8px;"><span class="card-title">Reddit-Trends</span>' +
@@ -392,10 +395,10 @@ window.App.Market = (function () {
     });
 
     // Button zum Auf-/Zuklappen anzeigen, wenn es mehr als 8 Einträge gibt
-    if (allValidReddit.length > 8) {
+    if (allValidReddit.length > REDDIT_SHORT) {
         html += '<div style="text-align:center; margin-top:12px; padding-top:12px; border-top:1px dashed var(--border-subtle);">' +
                   '<button class="chip-btn" id="mk-reddit-toggle" style="font-size:.72rem; padding:4px 14px;">' +
-                  (showAllReddit ? 'Weniger anzeigen' : 'Alle ' + allValidReddit.length + ' anzeigen') +
+                  (showAllReddit ? '▲ Weniger anzeigen' : '▼ Alle ' + allValidReddit.length + ' anzeigen') +
                   '</button>' +
                 '</div>';
     }
@@ -645,6 +648,7 @@ window.App.Market = (function () {
     if (redditToggle) {
         redditToggle.onclick = function () {
             showAllReddit = !showAllReddit;
+            try { localStorage.setItem('app_reddit_expanded_v1', showAllReddit ? '1' : '0'); } catch (_) {}
             draw(container);
         };
     }
