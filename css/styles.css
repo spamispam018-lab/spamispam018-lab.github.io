@@ -720,6 +720,11 @@ input, button, select, textarea {
   left: 0;
   right: 0;
   max-height: 85vh;
+  max-height: 85dvh;                 /* sichtbare Höhe auf dem Handy (ohne Browserleisten) */
+  overscroll-behavior: contain;      /* Scrollen bleibt im Dialog, die Seite darunter bewegt sich nicht */
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
   background-color: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
   border-radius: 24px 24px 0 0;
@@ -734,8 +739,14 @@ input, button, select, textarea {
 .bottom-sheet.open {
   transform: translateY(0);
 }
+.bottom-sheet.dragging { transition: none; }
+body.sheet-open { overflow: hidden; }
 
 .sheet-handle {
+  cursor: grab;
+  touch-action: none;
+  /* größere Greiffläche als der sichtbare Strich */
+  box-shadow: 0 0 0 14px transparent;
   width: 40px;
   height: 5px;
   background-color: var(--border-color);
