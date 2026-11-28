@@ -179,13 +179,45 @@ window.App.Catalysts = (function () {
     return html + list.map(function (a) { return stockRow(a, mine, up); }).join('');
   }
 
+  /** Übersichtskarte: je 5 Aktien mit dem stärksten Rückenwind und Gegenwind. */
+  function overviewCard(data, uni, mine) {
+    if (!uni) return '<div class="card" style="padding:12px 14px;margin-top:12px;"><div style="font-size:0.78rem;color:var(--text-dim);">Lade Aktien…</div></div>';
+    var all = rankStocks(data, uni);
+    var ups = all.filter(function (a) { return a.score > 0; }).sort(function (a, b) { return b.score - a.score; });
+    var downs = all.filter(function (a) { return a.score < 0; }).sort(function (a, b) { return a.score - b.score; });
+    if (!ups.length && !downs.length) return '';
+    var col = function (title, list, up) {
+      var c = up ? 'var(--bullish)' : 'var(--bearish)';
+      return '<div style="flex:1 1 220px;min-width:0;">' +
+        '<div style="font-size:0.7rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:' + c + ';margin-bottom:4px;">' + title + ' (' + list.length + ')</div>' +
+        (list.length ? list.slice(0, 5).map(function (a) {
+          var top = (up ? a.pos : a.neg).slice().sort(function (x, y) { return weight(y) - weight(x); })[0];
+          var wk = a.u && a.u.perf1w;
+          return '<div data-cat-t="' + esc(a.ticker) + '" style="padding:6px 0;border-top:1px solid var(--border);cursor:pointer;">' +
+            '<div style="display:flex;justify-content:space-between;gap:6px;font-size:0.82rem;">' +
+              '<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><b>' + esc(a.ticker) + '</b>' + (mine[a.ticker] ? ' <span style="color:#f59e0b;">★</span>' : '') +
+              ' <span style="color:var(--text-muted);font-size:0.74rem;">' + esc((a.u && a.u.name) || '') + '</span></span>' +
+              '<span style="font-weight:800;color:' + c + ';white-space:nowrap;">' + (a.score > 0 ? '+' : '') + String(a.score).replace('.', ',') +
+              (wk != null ? ' <span style="font-weight:400;font-size:0.7rem;color:var(--text-dim);">1W ' + pct(wk) + '</span>' : '') + '</span></div>' +
+            (top ? '<div style="font-size:0.72rem;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(top.title) + '</div>' : '') +
+          '</div>';
+        }).join('') : '<div style="font-size:0.76rem;color:var(--text-dim);">keine</div>') +
+        (list.length > 5 ? '<button class="chip-btn" data-cat-f="' + (up ? 'up' : 'down') + '" style="margin-top:6px;padding:2px 9px;font-size:0.7rem;">Alle ' + list.length + ' ansehen</button>' : '') +
+      '</div>';
+    };
+    return '<div class="card" style="padding:12px 14px;margin-top:12px;">' +
+      '<div style="font-size:0.74rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);">Mögliche Gewinner &amp; Verlierer</div>' +
+      '<div style="font-size:0.72rem;color:var(--text-dim);margin:2px 0 8px;">Nach direkt betroffenen Treibern gewichtet – keine Kursprognose.</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:14px;">' + col('📈 Könnten steigen', ups, true) + col('📉 Könnten fallen', downs, false) + '</div></div>';
+  }
+
   function render(container, data, uni) {
     var mine = myTickers();
-    if (filter === 'up' || filter === 'down') {
-      if (!uni) {
-        window.App.Data.getUniverse().then(function (u) { if (document.body.contains(container)) render(container, data, u || []); });
-        return;
-      }
+    if (!uni) {
+      // Kursdaten für Rangliste und Übersichtskarte nachladen, dann neu zeichnen
+      window.App.Data.getUniverse().then(function (u) { if (document.body.contains(container)) render(container, data, u || []); })
+        .catch(function () { if (document.body.contains(container)) render(container, data, []); });
+      if (filter === 'up' || filter === 'down') return;
     }
     var items = (data.items || []).slice();
     var stockMode = filter === 'up' || filter === 'down';
@@ -214,7 +246,10 @@ window.App.Catalysts = (function () {
       '</div>';
     if (stockMode) {
       html += renderStocks(data, uni, mine, filter === 'up');
-    } else if (!items.length) {
+    } else if (filter === 'all') {
+      html += overviewCard(data, uni, mine);
+    }
+    if (!stockMode && !items.length) {
       html += '<div class="state-box"><p>' + (filter === 'all' ? 'Noch keine Einträge. Unter ⋯ › Daten-Updates „Treiber & Termine“ starten.' : 'Nichts für diesen Filter.') + '</p></div>';
     }
     if (!stockMode) html += section('Bevorstehend', upcoming, mine) + section('Gerade beschlossen', decided, mine) + section('Laufend', running, mine);
