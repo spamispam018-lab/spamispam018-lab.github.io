@@ -28,7 +28,7 @@ var APP_SHELL = [
   './js/news.js', './js/stock-overview.js', './js/chart-analyse.js', './js/stock-chart.js',
   './js/stock-forecast.js', './js/stock-peers.js', './js/stock-fairvalue.js', './js/stock-insider.js',
   './js/stock-analyst.js', './js/stock-financials.js', './js/stock-institutional.js', './js/stock-options.js',
-  './js/quant.js', './js/stock-risk.js', './js/stock-strategy.js', './js/strategy-scanner.js',
+  './js/quant.js', './js/stock-risk.js', './js/strategy-saved.js', './js/stock-strategy.js', './js/strategy-scanner.js',
   './js/stock-live.js', './js/compare.js', './js/backtest.js', './js/portfolio.js', './js/dividends.js',
   './js/journal.js', './js/alerts.js', './js/earnings.js', './js/strategies.js', './js/macro.js',
   './js/premarket.js', './js/ai-insights.js', './js/sync.js', './js/app.js'
