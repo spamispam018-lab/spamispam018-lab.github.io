@@ -23,6 +23,10 @@ GOOGLE_MIN = 3              # weniger englische Treffer -> zusätzlich deutsch s
 LEGAL = re.compile(r"\b(incorporated|inc|corporation|corp|company|co|limited|ltd|plc|ag|se|sa|nv|n\.v|s\.a|spa|kgaa|"
                    r"holdings?|group|the|class [a-z]|cl [a-z]|& co|reit|a/s|asa|ab|oyj)\b\.?", re.I)
 google_blocked = False
+bing_blocked = False
+bing_fail = 0
+STATS = {"google": 0, "bing": 0}
+BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36"
 google_fail = 0
 
 
@@ -37,7 +41,7 @@ def google_news(query, lang):
     params = {"q": query + " when:7d"}
     params.update({"hl": "de", "gl": "DE", "ceid": "DE:de"} if lang == "de" else {"hl": "en-US", "gl": "US", "ceid": "US:en"})
     req = urllib.request.Request("https://news.google.com/rss/search?" + urllib.parse.urlencode(params),
-                                 headers={"User-Agent": "Mozilla/5.0 (aktien-app news)"})
+                                 headers={"User-Agent": BROWSER_UA, "Accept": "application/rss+xml,text/xml"})
     with urllib.request.urlopen(req, timeout=20) as resp:
         root = ET.fromstring(resp.read())
     out = []
@@ -57,9 +61,48 @@ def google_news(query, lang):
     return out
 
 
+def bing_news(query, lang):
+    """Bing News RSS – zweite Quelle, falls Google Anfragen aus Rechenzentren abweist."""
+    params = {"q": query, "format": "rss", "qft": 'interval="7"'}
+    params.update({"setlang": "de-DE", "cc": "DE"} if lang == "de" else {"setlang": "en-US", "cc": "US"})
+    req = urllib.request.Request("https://www.bing.com/news/search?" + urllib.parse.urlencode(params),
+                                 headers={"User-Agent": BROWSER_UA, "Accept": "application/rss+xml,text/xml"})
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        root = ET.fromstring(resp.read())
+    out = []
+    for item in root.iter("item"):
+        title = (item.findtext("title") or "").strip()
+        url = (item.findtext("link") or "").strip()
+        m = re.search(r"[?&]url=([^&]+)", url)
+        if m:
+            url = urllib.parse.unquote(m.group(1))
+        src = ""
+        for ch in item:
+            if ch.tag.lower().endswith("source"):
+                src = (ch.text or "").strip()
+        if not src:
+            src = urllib.parse.urlparse(url).netloc.replace("www.", "")
+        try:
+            date = email.utils.parsedate_to_datetime(item.findtext("pubDate") or "").astimezone(timezone.utc).isoformat()
+        except Exception:
+            date = None
+        if title and date:
+            out.append({"id": hashlib.md5(title.encode()).hexdigest()[:12], "title": title, "source": src,
+                        "date": date, "url": url, "lang": lang})
+    return out
+
+
+def search_provider(fn, q_en, name):
+    items = fn(q_en, "en")
+    if len(items) < GOOGLE_MIN:
+        time.sleep(GOOGLE_PAUSE)
+        items += fn('"%s" Aktie' % name, "de")
+    return items
+
+
 def fetch_items(u):
     """Schlagzeilen einer Aktie: Google News (en, ggf. de), sonst Yahoo."""
-    global google_blocked, google_fail
+    global google_blocked, google_fail, bing_blocked, bing_fail
     t = u["ticker"]
     name = short_name(u.get("name"), t)
     items = []
@@ -67,17 +110,27 @@ def fetch_items(u):
         try:
             base = t.split(".")[0]
             q_en = '"%s" (stock OR shares OR %s)' % (name, base) if base.isalpha() and len(base) >= 2 else '"%s" (stock OR shares)' % name
-            items = google_news(q_en, "en")
-            if len(items) < GOOGLE_MIN:
-                time.sleep(GOOGLE_PAUSE)
-                items += google_news('"%s" Aktie' % name, "de")
+            items = search_provider(google_news, q_en, name)
             google_fail = 0
+            STATS["google"] += 1 if len(items) >= 2 else 0
         except Exception as e:
             google_fail += 1
             print("Google News Fehler", t, e)
             if google_fail >= 3:
                 google_blocked = True
-                print("Google News blockiert – für den Rest des Laufs Yahoo-Nachrichten.")
+                print("Google News blockiert – für den Rest des Laufs Bing bzw. Yahoo.")
+        time.sleep(GOOGLE_PAUSE)
+    if len(items) < 2 and not bing_blocked:
+        try:
+            items = search_provider(bing_news, '"%s" stock' % name, name)
+            bing_fail = 0
+            STATS["bing"] += 1 if len(items) >= 2 else 0
+        except Exception as e:
+            bing_fail += 1
+            print("Bing News Fehler", t, e)
+            if bing_fail >= 3:
+                bing_blocked = True
+                print("Bing News blockiert – für den Rest des Laufs Yahoo-Nachrichten.")
         time.sleep(GOOGLE_PAUSE)
     if len(items) < 2:
         try:
@@ -174,7 +227,9 @@ def main():
         top = next((i for i in items if i.get("label")), items[0] if items else None)
         index[t] = dict(sm, top=({"t": top["title"], "l": top.get("label")} if top else None))
     dump(os.path.join(NEWS, "_index.json"), index)
-    dump(os.path.join(NEWS, "_meta.json"), {"updatedAt": datetime.now(timezone.utc).isoformat(), "tickers": len(index)})
+    print("Quellen: Google %d, Bing %d, Rest Yahoo (von %d Werten)" % (STATS["google"], STATS["bing"], len(index)))
+    dump(os.path.join(NEWS, "_meta.json"), {"updatedAt": datetime.now(timezone.utc).isoformat(), "tickers": len(index),
+                                            "google": STATS["google"], "bing": STATS["bing"]})
 
     sectors = {}
     for sec in {u.get("sector") for u in universe if u.get("sector")}:
