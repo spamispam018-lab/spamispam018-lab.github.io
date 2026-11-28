@@ -137,7 +137,7 @@ window.App.StockStrategy = (function () {
               '<button class="chip-btn ' + (q.preferDaily() ? 'active' : '') + '" data-bt-data="daily">Tageskurse</button></div>' +
             '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.4;margin-top:4px;">' +
               (full.dailyFailed ? '<span style="color:var(--bearish);">Tageskurse konnten nicht geladen werden – es werden Wochenkurse verwendet.</span> ' : '') +
-              (q.preferDaily() && !full.dailyFailed ? 'Tägliche Schlusskurse über den Proxy (bis 20 Jahre, Handelswährung). ' : 'Tageskurse laden über den Proxy; zusätzlich gilt das für den Risiko-Tab. ') +
+              (q.preferDaily() && !full.dailyFailed ? 'Tägliche Schlusskurse über den Proxy (bis 10 Jahre, Handelswährung). ' : 'Tageskurse laden über den Proxy; zusätzlich gilt das für den Risiko-Tab. ') +
               'Aktuell: ' + (q.periodsPerYear(full) >= 200 ? 'Tageskurse' : (q.periodsPerYear(full) >= 40 ? 'Wochenkurse' : 'Monatskurse')) + ', ' + full.length + ' Datenpunkte.</div></div>' +
           '<div><label for="bt-fee" style="font-size:0.72rem;color:var(--text-dim);">Kosten je Kauf/Verkauf (%)</label>' +
             '<input id="bt-fee" class="search-input" type="number" min="0" max="5" step="0.05" inputmode="decimal" value="' + state.fee + '" style="width:100%;margin-top:4px;padding-left:12px;"></div>' +

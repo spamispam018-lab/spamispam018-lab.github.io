@@ -827,7 +827,7 @@ window.App.Quant = (function () {
   var PREF_KEY = 'prefer_daily_history_v1';
   var DAILY_PROXY = 'https://yahoo-proxy.spamispam018.workers.dev';
   var dailyLongCache = {};
-  var DAILY_MAX_YEARS = 20;
+  var DAILY_MAX_YEARS = 10;
 
   function preferDaily() {
     try { return localStorage.getItem(PREF_KEY) === '1'; } catch (e) { return false; }
@@ -839,11 +839,14 @@ window.App.Quant = (function () {
   var prefMemory = null;
   function wantsDaily() { return prefMemory !== null ? prefMemory : preferDaily(); }
 
-  /** Tägliche Schlusskurse (bis zu 20 Jahre) vom Proxy. Datum = Börsendatum. */
+  /**
+   * Tägliche Schlusskurse (bis zu 10 Jahre) vom Proxy. Datum = Börsendatum.
+   * range=max liefert bei Yahoo nur noch Monatskurse, deshalb range=10y.
+   */
   function fetchDailyLong(ticker) {
     var key = String(ticker).toUpperCase();
     if (dailyLongCache[key]) return dailyLongCache[key];
-    var url = DAILY_PROXY + '/?ticker=' + encodeURIComponent(key) + '&interval=1d&range=max&t=' + Date.now();
+    var url = DAILY_PROXY + '/?ticker=' + encodeURIComponent(key) + '&interval=1d&range=10y&t=' + Date.now();
     dailyLongCache[key] = fetch(url).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
