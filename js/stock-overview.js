@@ -152,7 +152,7 @@ window.App.StockOverview = (function () {
       '</div>' : '');
 
     container.innerHTML = html;
-    if (window.App.Catalysts) window.App.Catalysts.renderForStock(container, stock.ticker);
+    if (window.App.Catalysts) window.App.Catalysts.renderForStock(container, stock.ticker, (stock.profile && stock.profile.sector) || stock.sector);
 
     if (window.App.News) {
       window.App.News.fillTicker(
