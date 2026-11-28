@@ -499,7 +499,7 @@ window.App.Strategies = (function () {
     L.push('- Bilanz: Schulden/EBITDA ' + N(r.debtToEbitda, 1) + ', Verschuldung/Eigenkapital ' + N(r.debtToEquity, 0, ' %'));
     L.push('- Dividende: Rendite ' + P(r.dividendYield, 2) + ', Ausschüttungsquote ' + F(r.payoutRatio, 0));
     L.push('- Analysten: mittleres Kursziel ' + E(tg.mean) + ' (Spanne ' + E(tg.low) + ' bis ' + E(tg.high) + '), Potenzial ' + P(upside) +
-           ', ' + (nn(cnt) ? fnum(cnt, 0) + ' Analysten' : 'Analystenzahl ' + NA) + ', Kaufempfehlung ' + (nn(buyPct) ? 'bei ' + P(buyPct, 0) + ' der Analysten' : NA) + ', nächste Zahlen am ' + (earn ? dateDe(earn) : NA));
+           ', ' + (nn(cnt) ? fnum(cnt, 0) + ' Analysten' : 'Analystenzahl ' + NA) + ', Kaufempfehlung ' + (nn(buyPct) ? 'bei ' + P(buyPct, 0) + ' der Analysten' : NA) + ', nächste Zahlen am ' + (earn ? dateDe(earn) + ((an.nextEarningsEstimated || u.nextEarningsEstimated) ? ' (geschätzt, zuletzt ' + dateDe(an.lastEarningsDate || u.lastEarningsDate) + ')' : '') : NA));
     L.push('- Kursverlauf: Lage in der 52-Wochen-Spanne ' + N(rangePos, 0, ' %') + ' (Tief ' + E(lo) + ', Hoch ' + E(hi) + '), Performance 1W ' + P(u.perf1w) +
            ', 1M ' + P(u.perf1m) + ', 3M ' + P(u.perf3m) + ', YTD ' + P(u.perfYtd) + ', 1J ' + P(u.perf52w) +
            ', RS-Rating ' + N(u.rsRating, 0, ' von 99'));

@@ -52,6 +52,8 @@ window.App.Earnings = (function () {
             ticker: t,
             name: (st.profile && st.profile.name) || t,
             nextDate: analysts.nextEarningsDate || null,
+            estimated: !!analysts.nextEarningsEstimated,
+            lastDate: analysts.lastEarningsDate || null,
             epsEstimates: analysts.epsEstimates || []
           };
         })
@@ -104,7 +106,8 @@ window.App.Earnings = (function () {
                 '</div>' +
                 '<div style="text-align: right; flex-shrink: 0; white-space: nowrap;">' +
                   (it.nextDate
-                    ? '<div style="font-weight: 700;">' + F.date(it.nextDate) + '</div>'
+                    ? '<div style="font-weight: 700;">' + (it.estimated ? 'ca. ' : '') + F.date(it.nextDate) + '</div>' +
+                      (it.estimated ? '<div style="font-size:0.66rem;color:var(--text-dim);">geschätzt · zuletzt ' + F.date(it.lastDate) + '</div>' : '')
                     : '') +
                   '<div style="font-size: 0.7rem; color: var(--text-dim);">' +
                     (it.days !== null

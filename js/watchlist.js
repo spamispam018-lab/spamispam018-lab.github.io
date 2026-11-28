@@ -181,7 +181,7 @@ window.App.Watchlist = (function () {
     if (num(s.rsi) && s.rsi >= 75) ev.push({ w: 1.5, tone: 'up', text: 'RSI ' + Math.round(s.rsi) + ' (überkauft)' });
     if (s.nextEarningsDate) {
       var d = new Date(s.nextEarningsDate), days = Math.round((d - new Date(new Date().toDateString())) / 86400000);
-      if (days >= 0 && days <= 7) ev.push({ w: 2.2, tone: 'info', text: 'Zahlen ' + (days === 0 ? 'heute' : days === 1 ? 'morgen' : d.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' })) });
+      if (days >= 0 && days <= 7) ev.push({ w: 2.2, tone: 'info', text: 'Zahlen ' + (s.nextEarningsEstimated ? 'ca. ' : '') + (days === 0 ? 'heute' : days === 1 ? 'morgen' : d.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' })) });
     }
     var n = news && news[s.ticker];
     if (n && n.n >= 3 && num(n.score) && Math.abs(n.score) >= 0.3) {

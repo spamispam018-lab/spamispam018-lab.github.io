@@ -60,13 +60,32 @@ window.App.Data = (function () {
       });
   }
 
+  /**
+   * Termin der nächsten Zahlen: Liegt das gespeicherte Datum schon in der Vergangenheit (Yahoo liefert
+   * nach der Veröffentlichung oft noch den alten Termin), wird es in Quartalsschritten (91 Tage)
+   * fortgeschrieben und als geschätzt markiert. Das alte Datum bleibt als lastEarningsDate erhalten.
+   */
+  function fixEarnings(obj) {
+    if (!obj || (!obj.nextEarningsDate && !obj.lastEarningsDate)) return;
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var d = new Date(String(obj.nextEarningsDate || obj.lastEarningsDate).slice(0, 10) + 'T00:00:00');
+    if (isNaN(d) || d >= today) return;
+    obj.lastEarningsDate = obj.lastEarningsDate || String(obj.nextEarningsDate).slice(0, 10);
+    var guard = 0;
+    while (d < today && guard++ < 12) d.setDate(d.getDate() + 91);
+    obj.nextEarningsDate = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    obj.nextEarningsEstimated = true;
+  }
+
   // Gespeicherte Live-Kurse (js/live-prices.js) über die Daten legen
   function withLiveUniverse(list) {
+    try { (list || []).forEach(fixEarnings); } catch (e) {}
     try { if (window.App.Live) window.App.Live.applyUniverse(list); } catch (e) {}
     return list;
   }
 
   function withLiveStock(stock) {
+    try { if (stock) { fixEarnings(stock.analysts); fixEarnings(stock); } } catch (e) {}
     try { if (window.App.Live) window.App.Live.applyStock(stock); } catch (e) {}
     return stock;
   }
