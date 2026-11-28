@@ -240,10 +240,12 @@ window.App.Screener = (function () {
     tech_bearish: function (s) { return !!s.hasBearishPattern; },
     tech_double_top: function (s) { return hasTechPattern(s, 'double_top'); },
     tech_double_bottom: function (s) { return hasTechPattern(s, 'double_bottom'); },
-    tech_squeeze: function (s) { return s.bollingerSqueeze === true || hasTechPattern(s, 'squeeze'); }
+    tech_squeeze: function (s) { return s.bollingerSqueeze === true || hasTechPattern(s, 'squeeze'); },
+    buy_the_dip: function (s) { return !!(window.App.DipFinder && s.sector !== 'ETF' && s.sector !== 'Sonstige' && window.App.DipFinder.evaluate(s).ok); }
   };
 
   var PRESETS = [
+    { id: 'buy_the_dip', chip: '🎯 Buy the Dip', name: 'Buy the Dip', info: function () { var d = window.App.DipFinder ? window.App.DipFinder.DEFAULTS : {}; return 'Gesunde Aktie im Rücksetzer: ' + d.ddMin + '–' + d.ddMax + ' % unter dem 3-Monats-Hoch, Kurs höchstens 3 % unter dem EMA 200, RSI ≤ ' + d.rsiMax + ', kein fallendes Messer, ROE ≥ ' + d.minRoe + ' %, KGV ≤ ' + d.maxPe + '. Feineinstellung und Rangliste unter Entdecken › Strategien › Buy the Dip.'; } },
     { id: 'high_dividend', chip: '💰 Hohe Dividende', name: 'Hohe Dividende', info: function () { return 'Dividendenrendite mindestens 3 %.'; } },
     { id: 'value', chip: '💎 Value (KGV &lt; Branche)', name: 'Value', info: function () { return 'KGV positiv und mindestens ' + Math.round(VALUE_DISCOUNT * 100) + ' % unter dem Median der eigenen Branche.'; } },
     { id: 'undervalued', chip: '🔎 Unterbewertet', name: 'Unterbewertet', info: function () { return 'Günstiges KGV (wie Value), PEG ≤ 1,5, positive Marge, Verschuldung ≤ 150, Umsatzwachstum ≥ 0 und Kurs in der unteren Hälfte der 52W-Spanne.'; } },
