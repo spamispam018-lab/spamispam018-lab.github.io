@@ -165,9 +165,10 @@ window.App.News = (function () {
     if (data && data.unrated) note = 'Farbpunkt = FinBERT-Einschätzung (abends aktualisiert). Leerer Kreis = neue Meldung, noch nicht bewertet. Keine Anlageberatung.';
     if (data && data.stale) note = 'Neue Schlagzeilen gerade nicht abrufbar – letzter Stand. ' + note;
     if (data && data.live !== undefined) {
-      var SRC = { google: 'Google News', bing: 'Bing News', yahoo: 'Yahoo Finance' };
-      var src = data.source ? 'Quelle: ' + SRC[data.source] : 'Quelle: gespeicherte Daten';
-      if (data.source !== 'google' && data.sourceErrors && data.sourceErrors.length) src += ' (' + data.sourceErrors.join('; ') + ')';
+      var SRC = { alerts: 'Google Alerts', gdelt: 'GDELT', google: 'Google News', bing: 'Bing News', yahoo: 'Yahoo Finance' };
+      var src = data.source ? 'Quelle: ' + String(data.source).split('+').map(function (k) { return SRC[k] || k; }).join(' + ') : 'Quelle: gespeicherte Daten';
+      // Fehlerdetails nur, wenn weder Alerts noch GDELT/Google geliefert haben
+      if (!/alerts|gdelt|google/.test(data.source || '') && data.sourceErrors && data.sourceErrors.length) src += ' (' + data.sourceErrors.join('; ') + ')';
       note = esc(src) + '. ' + note;
     }
     var body = (data && data.items && data.items.length)
