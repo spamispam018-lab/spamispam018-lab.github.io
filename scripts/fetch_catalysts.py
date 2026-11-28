@@ -319,7 +319,13 @@ def main():
             continue
         if model not in used:
             used.append(model)
-        for ev in (res.get("ereignisse") or [])[:6]:
+        # Die KI liefert manchmal eine Liste statt eines Objekts oder einzelne Einträge als Text
+        evs = res.get("ereignisse") if isinstance(res, dict) else res
+        if not isinstance(evs, list):
+            print("  unerwartete Antwort – Thema übersprungen")
+            errors.append({"theme": th["title"], "error": "Antwort ohne Ereignisliste"})
+            continue
+        for ev in [e for e in evs if isinstance(e, dict)][:6]:
             title = ai.clean_text(ev.get("titel"), 110)
             if not title:
                 continue
