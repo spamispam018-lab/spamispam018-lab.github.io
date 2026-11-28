@@ -150,7 +150,7 @@ window.App.News = (function () {
       var dot = l
         ? '<span title="' + TXT[l] + ' (' + (i.score > 0 ? '+' : '') + i.score + ')" style="flex:0 0 9px;height:9px;margin-top:5px;border-radius:50%;background:' + COL[l] + '"></span>'
         : '<span title="neu, noch nicht bewertet" style="flex:0 0 9px;height:9px;margin-top:5px;border-radius:50%;border:1.5px solid var(--text-dim);box-sizing:border-box;"></span>';
-      return '<a href="' + esc(i.url) + '" target="_blank" rel="noopener" style="display:flex;gap:8px;padding:8px 0;border-top:1px solid var(--border-color,rgba(255,255,255,.08));text-decoration:none;color:inherit;">' +
+      return '<a class="news-row" href="' + esc(i.url) + '" target="_blank" rel="noopener" style="display:flex;gap:8px;padding:8px 0;border-top:1px solid var(--border-color,rgba(255,255,255,.08));text-decoration:none;color:inherit;">' +
         dot +
         '<span style="flex:1;font-size:.8rem;line-height:1.35;">' + esc(i.title) +
         '<span style="display:block;font-size:.66rem;color:var(--text-dim);margin-top:2px;">' + esc(i.source) + ' · ' + dateStr(i.date) + (showTicker && i.ticker ? ' · ' + esc(i.ticker) : '') + '</span></span></a>';
@@ -244,10 +244,42 @@ window.App.News = (function () {
     });
   }
 
+  /**
+   * Eingeklappt: nur die 3 neuesten Meldungen, darunter "Alle anzeigen".
+   * Der Zustand gilt für alle Aktien und wird gemerkt.
+   */
+  var SHORT_N = 3;
+  function collapsible(slotEl) {
+    var rows = slotEl.querySelectorAll('.news-row');
+    if (rows.length <= SHORT_N) return;
+    var collapsed = true;
+    try { collapsed = localStorage.getItem('app_news_collapsed_v1') !== '0'; } catch (_) {}
+    var last = rows[rows.length - 1];
+    var tog = document.createElement('button');
+    tog.type = 'button';
+    tog.className = 'chip-btn';
+    tog.style.cssText = 'display:block;width:100%;margin-top:6px;padding:6px 10px;font-size:.74rem;';
+    last.parentNode.insertBefore(tog, last.nextSibling);
+    var note = tog.nextElementSibling;   // Quellen-Hinweis nur ausgeklappt zeigen
+    var apply = function () {
+      for (var i = SHORT_N; i < rows.length; i++) rows[i].style.display = collapsed ? 'none' : 'flex';
+      if (note) note.style.display = collapsed ? 'none' : '';
+      tog.textContent = collapsed ? '▼ Alle ' + rows.length + ' Meldungen anzeigen' : '▲ Weniger anzeigen';
+    };
+    tog.onclick = function () {
+      collapsed = !collapsed;
+      try { localStorage.setItem('app_news_collapsed_v1', collapsed ? '1' : '0'); } catch (_) {}
+      apply();
+      if (collapsed) slotEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    };
+    apply();
+  }
+
   function newsSlot(ticker, slotEl, force) {
     loadTicker(ticker, force).then(function (d) {
       if (!slotEl) return;
       slotEl.innerHTML = card('Nachrichten', d, false, 'news');
+      collapsible(slotEl);
       var btn = slotEl.querySelector('[data-upd="news"]');
       if (btn) btn.onclick = function () {
         window.App.UI.setUpdating(btn, true);
