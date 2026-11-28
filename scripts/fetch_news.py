@@ -26,14 +26,18 @@ SECTOR_ETFS = {"Technology": ["QDVE.DE", "XDWT.DE"], "Healthcare": ["WHEA.DE"], 
 _clf = None
 GOOGLE_PAUSE = 0.7          # Sekunden zwischen zwei Google-Abfragen
 GOOGLE_MIN = 3              # weniger englische Treffer -> zusätzlich deutsch suchen
-LEGAL = re.compile(r"\b(incorporated|inc|corporation|corp|company|co|limited|ltd|plc|ag|se|sa|nv|n\.v|s\.a|spa|kgaa|"
-                   r"holdings?|group|the|class [a-z]|cl [a-z]|& co|reit|a/s|asa|ab|oyj)\b\.?", re.I)
-# Offizielle Namen, die in Schlagzeilen kaum vorkommen -> gebräuchlicher Name
+LEGAL = re.compile(r"\b(incorporated|inc|corporation|corp|company|companies|co|limited|ltd|plc|ag|aktiengesellschaft|se|sa|nv|n\.v|"
+                   r"s\.a|spa|kgaa|holdings?|group|the|class [a-z]|cl [a-z]|reit|a/s|asa|ab|oyj|ord|shs|d/b/a|common stock|"
+                   r"public limited|act\.a)\b\.?", re.I)
+# Offizielle Namen, die in Schlagzeilen kaum vorkommen -> gebräuchlicher Name (gleich in workers/yahoo-proxy.js)
 NAME_ALIASES = [
     (r"^Bayerische Motoren Werke", "BMW"), (r"^M(ü|ue)nchener R(ü|ue)ck", "Munich Re"), (r"^Hannover R(ü|ue)ck", "Hannover Re"),
     (r"Porsche Automobil", "Porsche SE"), (r"^Dr\.? Ing\.? h\.? ?c\.? F\.? Porsche", "Porsche"), (r"^Meta Platforms", "Meta"),
-    (r"^Taiwan Semiconductor", "TSMC"), (r"^Deutsche Post|^DHL", "DHL Group"), (r"^Alphabet", "Alphabet"),
-    (r"^International Business Machines", "IBM"), (r"^Advanced Micro Devices", "AMD"), (r"^Siemens Healthineers", "Siemens Healthineers"),
+    (r"^Taiwan Semiconductor", "TSMC"), (r"^Deutsche Post|^DHL", "DHL Group"), (r"^International Business Machines", "IBM"),
+    (r"^Advanced Micro Devices", "AMD"), (r"^Industria de Dise", "Inditex"), (r"^STROEER", "Ströer"),
+    (r"^Berkshire Hathaway", "Berkshire Hathaway"), (r"^K\+S|^K S$", "K+S"), (r"^News$", "News Corp"), (r"^Fox$", "Fox Corporation"),
+    (r"^Willis Towers Watson", "Willis Towers Watson"), (r"^Westinghouse Air Brake", "Wabtec"), (r"^BNP Paribas", "BNP Paribas"),
+    (r"^Novo Nordisk", "Novo Nordisk"), (r"Ahold Delhaize", "Ahold Delhaize"),
 ]
 google_blocked = False
 bing_blocked = False
@@ -47,17 +51,35 @@ GDELT_BUDGET = 20 * 60      # höchstens so lange GDELT abfragen
 ALERTS_FILE = os.path.join(DATA, "google_alerts.json")
 GDELT_ITEMS = {}            # Ticker -> Meldungen aus GDELT (am Anfang gesammelt)
 ALERT_FEEDS = {}            # Ticker -> RSS-Adresse aus Google Alerts
+ALERT_STATE = {"fail": 0}
+NAME_OVERRIDE = {}          # Ticker -> bereinigter Suchname (aus google_alerts.json, "names")
 BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36"
 google_fail = 0
 
 
 def short_name(name, ticker):
-    """Suchname: Firmenname ohne Rechtsform ("NVIDIA Corporation" -> "NVIDIA")."""
-    n = LEGAL.sub(" ", str(name or "")).replace(",", " ")
+    """Suchname: Firmenname ohne Rechtsform, Aktiengattung und abgeschnittene Wörter ("NVIDIA Corporation" -> "NVIDIA")."""
+    if ticker in NAME_OVERRIDE:
+        return NAME_OVERRIDE[ticker]
+    raw = str(name or "")
+    n = raw.split("(")[0]
+    truncated = len(raw) >= 30 and not re.search(r"[)\s]$", raw)      # Kursdaten kürzen lange Namen nach 30 Zeichen
+    n = re.sub(r"\$\s?[\d.,]+", " ", n)
+    n = re.sub(r"\b\d+(\s+\d+/\d+P?|/\d+P?)\b", " ", n, flags=re.I)
+    n = re.sub(r"\b\d+P\b", " ", n)
+    n = LEGAL.sub(" ", n)
+    if truncated:
+        n = re.sub(r"\s+\S+\s*$", "", n.strip())
+    n = re.sub(r"\bNew$", "", n.strip())
+    n = re.sub(r"[,+]", " ", n)
+    n = re.sub(r"\s+[A-Z]$", "", n.strip())
     n = re.sub(r"\s+", " ", n).strip(" .-&")
+    n = re.sub(r"\s+(and|of|&)$", "", n, flags=re.I)
     for pat, alias in NAME_ALIASES:
-        if re.search(pat, n, re.I):
+        if re.search(pat, n, re.I) or re.search(pat, raw, re.I):
             return alias
+    if len(n) > 4 and n == n.upper():
+        n = n[0] + n[1:].lower()
     return n or ticker.split(".")[0]
 
 
@@ -162,8 +184,11 @@ def load_alerts():
     for t, url in (feeds or {}).items():
         if isinstance(url, str) and url.startswith("https://www.google.com/alerts/feeds/"):
             ALERT_FEEDS[t.upper()] = url
+    for t, n in ((cfg.get("names") if isinstance(cfg, dict) else None) or {}).items():
+        if isinstance(n, str) and n.strip():
+            NAME_OVERRIDE[t.upper()] = n.strip()
     if ALERT_FEEDS:
-        print("Google Alerts: %d Feeds" % len(ALERT_FEEDS))
+        print("Google Alerts: %d Feeds, %d Suchnamen" % (len(ALERT_FEEDS), len(NAME_OVERRIDE)))
 
 
 def gdelt_query(names):
@@ -260,13 +285,18 @@ def fetch_items(u):
     t = u["ticker"]
     name = short_name(u.get("name"), t)
     items = []
-    if t in ALERT_FEEDS:
+    if t in ALERT_FEEDS and ALERT_STATE["fail"] < 5:
         try:
             got = alert_feed(ALERT_FEEDS[t])
             items += got
             STATS["alerts"] += 1 if got else 0
+            ALERT_STATE["fail"] = 0
         except Exception as e:
+            ALERT_STATE["fail"] += 1
             print("Google-Alerts-Fehler", t, e)
+            if ALERT_STATE["fail"] >= 5:
+                print("Google Alerts antwortet nicht – für den Rest des Laufs übersprungen.")
+        time.sleep(0.3)
     if GDELT_ITEMS.get(t):
         items += GDELT_ITEMS[t]
         STATS["gdelt"] += 1
