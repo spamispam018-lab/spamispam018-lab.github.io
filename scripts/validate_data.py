@@ -22,7 +22,7 @@ DATA = os.path.join(ROOT, "data")
 MIN_UNIVERSE = 50              # weniger Einträge = sicher kaputt
 MAX_SHRINK = 0.15              # mehr als 15 % weniger Einträge als vorher = Fehler
 MIN_PRICED_SHARE = 0.90        # mindestens 90 % der Einträge brauchen einen Kurs > 0
-SPECIAL = {"universe.json", "ai_insights.json", "macro.json", "status.json"}
+SPECIAL = {"universe.json", "ai_insights.json", "macro.json", "status.json", "catalysts.json"}
 
 errors, warnings = [], []
 
