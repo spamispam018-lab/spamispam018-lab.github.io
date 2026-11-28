@@ -176,7 +176,7 @@ window.App.AIInsights = (function () {
     }
 
     html += '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.45;padding:2px 4px 12px;">' +
-      'Automatisch erstellt von ' + esc(String(d.model || 'KI').replace(/(^|, )groq:(openai\/)?/g, '$1Groq ').replace(/(^|, )gemini:/g, '$1')) + ' auf Basis der App-Daten. Keine Anlageberatung – Vorschläge immer selbst prüfen.</div>';
+      'Automatisch erstellt von ' + esc(String(d.model || 'KI').replace(/(^|, )groq:(openai\/)?/g, '$1Groq ').replace(/(^|, )gemini:/g, '$1').replace(/(^|, )mistral:/g, '$1Mistral ')) + ' auf Basis der App-Daten. Keine Anlageberatung – Vorschläge immer selbst prüfen.</div>';
     html += '</div>';
 
     container.innerHTML = html;
