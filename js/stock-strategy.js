@@ -32,7 +32,8 @@ window.App.StockStrategy = (function () {
   ];
 
   var state = { type: 'sma_cross', params: {}, period: 'MAX', view: 'ALL', fee: 0.1, helpOpen: false, bestWin: '30p', collapsed: { search: false, best: false, wf: false },
-    risk: { stop: 0, trail: 0, target: 0, market: 'none' }, heat: 'excess' };
+    risk: { stop: 0, trail: 0, target: 0, market: 'none', volTarget: 0 }, heat: 'excess',
+    objective: 'sharpe', ddCap: 20, wfMode: 'single' };
 
   // Markt-Filter: Index-ETFs aus den App-Daten
   var MARKETS = [
@@ -45,7 +46,8 @@ window.App.StockStrategy = (function () {
 
   /** Risikoregeln als Optionen für Q.backtest (Prozent -> Anteil), Markt-Filter passend zu den Daten der Aktie. */
   function optsFor(hist) {
-    var r = state.risk, o = { stop: r.stop / 100, trail: r.trail / 100, target: r.target / 100 };
+    var r = state.risk, o = { stop: r.stop / 100, trail: r.trail / 100, target: r.target / 100, volTarget: (r.volTarget || 0) / 100,
+      objective: { key: state.objective, maxDD: state.ddCap } };
     if (r.market === 'none') return Promise.resolve(o);
     var ck = r.market + (Q().preferDaily() ? ':d' : '');
     if (!marketCache[ck]) marketCache[ck] = Q().loadHistoryFor(r.market);
@@ -61,6 +63,7 @@ window.App.StockStrategy = (function () {
     if (r.stop > 0) parts.push('Stop-Loss −' + F().number(r.stop, 1) + ' %');
     if (r.trail > 0) parts.push('Trailing-Stop −' + F().number(r.trail, 1) + ' %');
     if (r.target > 0) parts.push('Gewinnziel +' + F().number(r.target, 1) + ' %');
+    if (r.volTarget > 0) parts.push('Ziel-Schwankung ' + F().number(r.volTarget, 0) + ' % p. a.');
     if (r.market !== 'none') {
       var m = MARKETS.filter(function (x) { return x.key === r.market; })[0];
       parts.push((o && o.marketMissing ? 'Markt-Filter nicht verfügbar (keine Kurse für ' : 'nur wenn ') + esc(m ? m.label : r.market) + (o && o.marketMissing ? ')' : ''));
@@ -180,7 +183,8 @@ window.App.StockStrategy = (function () {
             '<summary style="font-size:0.78rem;font-weight:700;cursor:pointer;">Risikoregeln &amp; Markt-Filter <span id="bt-risk-sum" style="font-weight:400;color:var(--text-dim);">' + (riskText() ? '· ' + riskText() : '(aus)') + '</span></summary>' +
             '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.4;margin:6px 0 8px;">Gelten zusätzlich zu jeder Strategie. 0 = aus. Ausgeführt wird am nächsten Schlusskurs; nach einem Stopp wird erst nach einem neuen Kaufsignal wieder eingestiegen.</div>' +
             '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;">' +
-              riskInput('stop', 'Stop-Loss (%)') + riskInput('trail', 'Trailing-Stop (%)') + riskInput('target', 'Gewinnziel (%)') + '</div>' +
+              riskInput('stop', 'Stop-Loss (%)') + riskInput('trail', 'Trailing-Stop (%)') + riskInput('target', 'Gewinnziel (%)') + riskInput('volTarget', 'Ziel-Schwankung (% p. a.)') + '</div>' +
+            '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.4;margin-top:4px;">Ziel-Schwankung: Ist die Aktie unruhiger als das Ziel (z. B. 15 %), wird nur ein Teil investiert – bei 30 % Schwankung also die Hälfte. Senkt meist den Drawdown. Umgeschichtet wird erst ab 10 Prozentpunkten.</div>' +
             '<label for="bt-market" style="display:block;font-size:0.72rem;color:var(--text-dim);margin-top:8px;">Markt-Filter</label>' +
             '<select id="bt-market" class="sort-select" style="width:100%;margin-top:4px;">' +
               MARKETS.map(function (m) { return '<option value="' + m.key + '"' + (m.key === state.risk.market ? ' selected' : '') + '>' + esc(m.label) + '</option>'; }).join('') + '</select>' +
@@ -201,6 +205,13 @@ window.App.StockStrategy = (function () {
           '<button class="chip-btn active" id="bt-run" style="height:42px;justify-content:center;">Backtest starten</button>' +
           '<button class="chip-btn" id="bt-live-btn" style="height:42px;justify-content:center;">⚡ Mit diesen Werten Live-Signal ansehen</button>' +
           '<button class="chip-btn" id="bt-search-btn" style="height:42px;justify-content:center;">Parameter suchen, die Buy &amp; Hold schlagen</button>' +
+          '<div><label for="bt-obj" style="font-size:0.72rem;color:var(--text-dim);">„Beste“ Parameter auswählen nach</label>' +
+            '<div style="display:flex;gap:8px;margin-top:4px;">' +
+              '<select id="bt-obj" class="sort-select" style="flex:1;">' +
+                [['sharpe', 'Sharpe – Rendite je Schwankung'], ['sortino', 'Sortino – Rendite je Verlustschwankung'], ['calmar', 'Calmar – Rendite je Drawdown'], ['total', 'Höchste Rendite'], ['ddcap', 'Höchste Rendite mit Drawdown-Grenze']]
+                  .map(function (o) { return '<option value="' + o[0] + '"' + (state.objective === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>' +
+              '<input id="bt-ddcap" class="search-input" type="number" min="5" max="80" step="1" inputmode="decimal" value="' + state.ddCap + '" title="Größter erlaubter Drawdown in %" style="width:80px;padding-left:10px;' + (state.objective === 'ddcap' ? '' : 'display:none;') + '"></div>' +
+            '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.4;margin-top:4px;">Gilt für „Beste Strategie finden“ und den Walk-Forward-Test.' + '<span id="bt-ddcap-note"' + (state.objective === 'ddcap' ? '' : ' style="display:none;"') + '> Feld rechts: größter erlaubter Rückgang in %.</span></div></div>' +
           '<button class="chip-btn" id="bt-best-btn" style="height:42px;justify-content:center;">Beste Strategie finden (mit Testzeitraum)</button>' +
           '<button class="chip-btn" id="bt-wf-btn" style="height:42px;justify-content:center;">Walk-Forward-Test (rollierend)</button>' +
         '</div>' +
@@ -268,6 +279,16 @@ window.App.StockStrategy = (function () {
       };
     });
     container.querySelector('#bt-market').onchange = function (e) { state.risk.market = e.target.value; updRiskSum(); };
+    container.querySelector('#bt-obj').onchange = function (e) {
+      state.objective = e.target.value;
+      var on = state.objective === 'ddcap';
+      container.querySelector('#bt-ddcap').style.display = on ? '' : 'none';
+      container.querySelector('#bt-ddcap-note').style.display = on ? '' : 'none';
+    };
+    container.querySelector('#bt-ddcap').oninput = function (e) {
+      var v = Number(String(e.target.value).replace(',', '.'));
+      state.ddCap = isFinite(v) && v > 0 ? Math.min(v, 95) : 20;
+    };
 
     run(container, ticker, full);   // direkt ein erstes Ergebnis zeigen
   }
@@ -448,28 +469,37 @@ window.App.StockStrategy = (function () {
     var q = Q(), f = F();
     var box = container.querySelector('#bt-wf');
     var def = q.STRATEGIES[state.type];
-    if (state.type === 'buyhold') {
-      box.innerHTML = '<div class="state-box"><p>Buy &amp; Hold hat keine Parameter. Wähle eine andere Strategie.</p></div>';
-      return;
-    }
+    var ens = state.wfMode === 'ensemble';
+    if (state.type === 'buyhold' && !ens) state.wfMode = 'ensemble', ens = true;   // Buy & Hold hat keine Parameter
     state.collapsed.wf = false;
     state.wfTrain = state.wfTrain || 3;
-    box.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Rollierender Test läuft…</p></div>';
+    box.innerHTML = '<div class="state-box"><div class="spinner"></div><p id="bt-wf-prog">' + (ens ? 'Ensemble: teste alle Strategien je Fenster… (kann 10–30 Sekunden dauern)' : 'Rollierender Test läuft…') + '</p></div>';
     var per = PERIODS.filter(function (p) { return p.key === state.period; })[0];
     var hist = q.sliceYears(full, per.years);
     optsFor(hist).then(function (opts) {
-      setTimeout(function () {
-        var res = q.walkForward(hist, state.type, state.fee / 100, opts, state.wfTrain, 1);
-        var trainChips = '<div class="horizontal-scroll-row" style="margin-bottom:10px;gap:6px;"><span style="font-size:0.72rem;color:var(--text-dim);align-self:center;white-space:nowrap;">Training:</span>' +
+      var prog = function (i, n) { var el = box.querySelector('#bt-wf-prog'); if (el) el.textContent = 'Ensemble: Fenster ' + i + ' von ' + n + ' berechnet…'; };
+      var job = ens ? q.walkForwardEnsemble(hist, state.fee / 100, opts, state.wfTrain, 1, prog)
+        : new Promise(function (resolve) { setTimeout(function () { resolve(q.walkForward(hist, state.type, state.fee / 100, opts, state.wfTrain, 1)); }, 30); });
+      job.then(function (res) {
+        if (!document.body.contains(box)) return;
+        var shortLabel = function (m) { return (q.STRATEGIES[m.type] || {}).label || m.type; };
+        var modeChips = '<div class="horizontal-scroll-row" style="margin-bottom:8px;gap:6px;">' +
+          '<button class="chip-btn ' + (!ens ? 'active' : '') + '" data-bt-wfm="single" style="flex-shrink:0;">Gewählte Strategie</button>' +
+          '<button class="chip-btn ' + (ens ? 'active' : '') + '" data-bt-wfm="ensemble" style="flex-shrink:0;">Ensemble: Top 3 entscheiden</button></div>';
+        var trainChips = modeChips + '<div class="horizontal-scroll-row" style="margin-bottom:10px;gap:6px;"><span style="font-size:0.72rem;color:var(--text-dim);align-self:center;white-space:nowrap;">Training:</span>' +
           [2, 3, 5].map(function (y) { return '<button class="chip-btn ' + (state.wfTrain === y ? 'active' : '') + '" data-bt-wft="' + y + '" style="flex-shrink:0;">' + y + ' Jahre</button>'; }).join('') + '</div>';
-        var head = '<div class="card"><div class="card-header-dotted"><span class="card-title">Walk-Forward-Test</span><span class="period-tag">' + esc(def.label) + ' · ' + esc(per.label) + '</span></div>' + trainChips;
+        var objLabel = (q.OBJECTIVES[state.objective] || {}).label + (state.objective === 'ddcap' ? ' (max. −' + state.ddCap + ' %)' : '');
+        var head = '<div class="card"><div class="card-header-dotted"><span class="card-title">Walk-Forward-Test</span><span class="period-tag">' + esc(ens ? 'Ensemble' : def.label) + ' · ' + esc(per.label) + '</span></div>' + trainChips;
         if (res.error) {
           box.innerHTML = head + '<div style="font-size:0.82rem;color:var(--text-dim);line-height:1.5;">' + esc(res.error) + ' Wähle einen längeren Zeitraum oder kürzeres Training.</div></div>';
         } else {
           var s = res.stats, b = res.bhStats, diff = s.totalReturn - b.totalReturn;
           var html = head +
             '<div style="padding:10px 12px;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:0.8rem;line-height:1.5;margin-bottom:12px;">' +
-              'Jedes Jahr wurden die Parameter nur mit den <strong>' + res.trainYears + ' Jahren davor</strong> gesucht und dann im folgenden Jahr gehandelt. So entsteht ein Ergebnis ohne Blick in die Zukunft. ' +
+              (ens
+                ? 'Jedes Jahr wurden für <strong>alle Strategien</strong> die besten Parameter mit den <strong>' + res.trainYears + ' Jahren davor</strong> gesucht (nach ' + esc(objLabel) + '). Die 3 besten haben im folgenden Jahr gemeinsam gehandelt: investiert, wenn mindestens 2 von 3 ein Kaufsignal haben. '
+                : 'Jedes Jahr wurden die Parameter nur mit den <strong>' + res.trainYears + ' Jahren davor</strong> gesucht (nach ' + esc(objLabel) + ') und dann im folgenden Jahr gehandelt. ') +
+              'So entsteht ein Ergebnis ohne Blick in die Zukunft. ' +
               'Über alle ' + res.windows.length + ' Testjahre: Strategie <strong style="color:' + tone(s.totalReturn) + ';">' + pct(s.totalReturn, 1, true) + '</strong> (' + pct(s.cagr, 1, true) + ' p. a., Max. DD ' + pct(s.maxDD, 1) + ', Sharpe ' + num(s.sharpe, 2) + '), ' +
               'Buy &amp; Hold <strong style="color:' + tone(b.totalReturn) + ';">' + pct(b.totalReturn, 1, true) + '</strong> (' + pct(b.cagr, 1, true) + ' p. a., Max. DD ' + pct(b.maxDD, 1) + ', Sharpe ' + num(b.sharpe, 2) + '). ' +
               'Besser als Buy &amp; Hold in <strong>' + res.beatWindows + ' von ' + res.windows.length + '</strong> Jahren.' +
@@ -485,12 +515,14 @@ window.App.StockStrategy = (function () {
             res.windows.map(function (w) {
               var my = function (d) { return d.slice(5, 7) + '/' + d.slice(2, 4); };
               return '<tr><td style="white-space:nowrap;">' + my(w.testFrom) + '–' + my(w.testTo) +
-                '<div style="font-size:0.66rem;color:var(--text-dim);">' + w.trades + ' Trades</div></td>' +
-                '<td>' + esc(paramLabel(def, w.params)) + '</td>' +
+                '<div style="font-size:0.66rem;color:var(--text-dim);">' + w.trades + ' Trades · ' + pct(w.inv, 0) + ' inv.</div></td>' +
+                '<td>' + (ens ? w.members.map(function (m) { return '<div style="line-height:1.3;margin-bottom:2px;">' + esc(shortLabel(m)) + ' <span style="color:var(--text-dim);font-size:0.66rem;">' + esc(paramLabel(q.STRATEGIES[m.type], m.params)) + '</span></div>'; }).join('') : esc(paramLabel(def, w.params))) + '</td>' +
                 '<td style="text-align:right;font-weight:700;color:' + tone(w.ret) + ';">' + pct(w.ret, 1, true) + (w.ret > w.bhRet ? ' ✓' : '') + '</td>' +
                 '<td style="text-align:right;color:' + tone(w.bhRet) + ';">' + pct(w.bhRet, 1, true) + '</td></tr>';
             }).join('') + '</tbody></table></div>' +
-            '<div style="font-size:0.72rem;color:var(--text-dim);line-height:1.5;margin-top:10px;">Wechseln die besten Parameter von Jahr zu Jahr stark, ist die Regel instabil. ' +
+            (ens ? '<div style="margin-top:10px;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.8rem;">Signal heute (Ensemble des letzten Fensters): <strong style="color:' + (res.signalNow === 'long' ? 'var(--bullish)' : 'var(--text-muted)') + ';">' + (res.signalNow === 'long' ? 'investiert' : 'Cash') + '</strong>' +
+              '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;">' + res.windows[res.windows.length - 1].members.map(function (m) { return esc(shortLabel(m)) + ': ' + (m.now ? '<span style="color:var(--bullish);">Kauf</span>' : 'Cash'); }).join(' · ') + '</div></div>' : '') +
+            '<div style="font-size:0.72rem;color:var(--text-dim);line-height:1.5;margin-top:10px;">' + (ens ? 'Wechselt die Auswahl der Top 3 jedes Jahr komplett, ist keine Regel dauerhaft überlegen. ' : 'Wechseln die besten Parameter von Jahr zu Jahr stark, ist die Regel instabil. ') +
               (riskText(opts) ? 'Mit Risikoregeln: ' + riskText(opts) + '. ' : '') + 'Keine Anlageberatung.</div></div>';
           box.innerHTML = html;
           var smp = sampleIdx(0, res.equity.length);
@@ -507,7 +539,10 @@ window.App.StockStrategy = (function () {
         box.querySelectorAll('[data-bt-wft]').forEach(function (b) {
           b.onclick = function () { state.wfTrain = Number(b.getAttribute('data-bt-wft')); walkForward(container, ticker, full); };
         });
-      }, 30);
+        box.querySelectorAll('[data-bt-wfm]').forEach(function (b) {
+          b.onclick = function () { state.wfMode = b.getAttribute('data-bt-wfm'); walkForward(container, ticker, full); };
+        });
+      });
     });
   }
 
@@ -555,7 +590,7 @@ window.App.StockStrategy = (function () {
           b.onclick = function () { state.bestWin = b.getAttribute('data-bt-win'); findBest(container, ticker, full); };
         });
       };
-      var res = recent ? q.findBestRecent(full, state.fee / 100, bestDays(state.bestWin)) : q.findBest(q.sliceYears(full, per.years), state.fee / 100, 0.3, state.__opts);
+      var res = recent ? q.findBestRecent(full, state.fee / 100, bestDays(state.bestWin), state.__opts) : q.findBest(q.sliceYears(full, per.years), state.fee / 100, 0.3, state.__opts);
       if (res.error) {
         box.innerHTML = '<div class="card"><div class="card-header-dotted"><span class="card-title">Beste Strategie</span></div>' + winChips() +
           '<div style="font-size:0.82rem;color:var(--text-dim);line-height:1.5;">' + esc(res.error) + '</div></div>';
@@ -818,6 +853,7 @@ window.App.StockStrategy = (function () {
           row('Sharpe Ratio' + info('sharpe'), num(s.sharpe, 2), num(b.sharpe, 2)) +
           row('Calmar Ratio' + info('calmar'), num(s.calmar, 2), num(b.calmar, 2)) +
           row('Zeit investiert' + info('exposure'), pct(s.exposure, 0), '100 %') +
+          (opts && opts.volTarget ? row('Ø Positionsgröße', pct(s.avgSize, 0), '100 %') : '') +
           row('Anzahl Trades' + info('trades'), String(s.trades), '1') +
           row('Trefferquote' + info('winrate'), pct(s.winRate, 0), '—') +
           row('Ø Trade' + info('avg'), pct(s.avgTrade, 1, true), '—', tone(s.avgTrade)) +
