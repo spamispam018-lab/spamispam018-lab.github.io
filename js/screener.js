@@ -241,10 +241,12 @@ window.App.Screener = (function () {
     tech_double_top: function (s) { return hasTechPattern(s, 'double_top'); },
     tech_double_bottom: function (s) { return hasTechPattern(s, 'double_bottom'); },
     tech_squeeze: function (s) { return s.bollingerSqueeze === true || hasTechPattern(s, 'squeeze'); },
+    quality_selloff: function (s) { return !!(window.App.DipFinder && s.sector !== 'ETF' && s.sector !== 'Sonstige' && window.App.DipFinder.evaluateSelloff(s).ok); },
     buy_the_dip: function (s) { return !!(window.App.DipFinder && s.sector !== 'ETF' && s.sector !== 'Sonstige' && window.App.DipFinder.evaluate(s).ok); }
   };
 
   var PRESETS = [
+    { id: 'quality_selloff', chip: '📉 Qualität im Ausverkauf', name: 'Qualität im Ausverkauf', info: function () { var d = window.App.DipFinder ? window.App.DipFinder.SELLOFF_DEFAULTS : {}; return 'Starke Firma nach kräftigem Einbruch: mindestens ' + d.ddMin + ' % unter dem 3-Monats-Hoch, ROE ≥ ' + d.minRoe + ' %, Gewinn, Forward-KGV ≤ ' + d.maxFwdPe + ', Kursziel mind. +' + d.minUpside + ' %, Börsenwert > 5 Mrd. €. Trendbruch und „fallendes Messer“ sind erlaubt – höheres Risiko. Regler und Rangliste unter Entdecken › Strategien.'; } },
     { id: 'buy_the_dip', chip: '🎯 Buy the Dip', name: 'Buy the Dip', info: function () { var d = window.App.DipFinder ? window.App.DipFinder.DEFAULTS : {}; return 'Gesunde Aktie im Rücksetzer: ' + d.ddMin + '–' + d.ddMax + ' % unter dem 3-Monats-Hoch, Kurs höchstens 3 % unter dem EMA 200, RSI ≤ ' + d.rsiMax + ', kein fallendes Messer, ROE ≥ ' + d.minRoe + ' %, KGV ≤ ' + d.maxPe + '. Feineinstellung und Rangliste unter Entdecken › Strategien › Buy the Dip.'; } },
     { id: 'high_dividend', chip: '💰 Hohe Dividende', name: 'Hohe Dividende', info: function () { return 'Dividendenrendite mindestens 3 %.'; } },
     { id: 'value', chip: '💎 Value (KGV &lt; Branche)', name: 'Value', info: function () { return 'KGV positiv und mindestens ' + Math.round(VALUE_DISCOUNT * 100) + ' % unter dem Median der eigenen Branche.'; } },
