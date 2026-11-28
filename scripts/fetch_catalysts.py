@@ -33,7 +33,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 OUT = os.path.join(DATA, "catalysts.json")
 DAYS_BACK = 7
-MAX_HEADLINES = 16
+MAX_HEADLINES = 22
 MAX_CANDIDATES = 60
 KEEP_DECIDED_DAYS = 14
 
@@ -83,12 +83,13 @@ def load_themes():
         out, seen = [], set()
         for t in lst or []:
             tid = re.sub(r"[^a-z0-9_]", "", str(t.get("id", "")).lower())
-            q = [str(x) for x in (t.get("q") or []) if str(x).strip()][:2]
+            q = [str(x) for x in (t.get("q") or []) if str(x).strip()][:4]
             if not tid or tid in seen or not q or not t.get("title"):
                 print("  Thema übersprungen (id/title/q fehlt oder doppelt):", t.get("id") or t.get("title"))
                 continue
             seen.add(tid)
-            out.append({"id": tid, "title": str(t["title"])[:60], "q": q, "sectors": [str(x) for x in (t.get("sectors") or [])]})
+            out.append({"id": tid, "title": str(t["title"])[:60], "q": q, "sectors": [str(x) for x in (t.get("sectors") or [])],
+                        "industries": [str(x) for x in (t.get("industries") or [])]})
         if out:
             print("Themen aus %s: %d" % (os.path.basename(THEMES_FILE), len(out)))
             return out
@@ -154,10 +155,15 @@ def google_news(query, lang):
 
 
 def headlines_for(theme):
+    """Suchbegriffe: erster deutsch, zweiter englisch; weitere mit Präfix "de:" oder "en:" (ohne Präfix: englisch)."""
     seen, items = set(), []
     for i, q in enumerate(theme["q"]):
+        lang = "de" if i == 0 else "en"
+        m = re.match(r"^(de|en):\s*(.+)$", q)
+        if m:
+            lang, q = m.group(1), m.group(2)
         try:
-            for h in google_news(q, "de" if i == 0 else "en"):
+            for h in google_news(q, lang):
                 key = re.sub(r"\W+", " ", h["title"].lower()).strip()[:80]
                 if key in seen:
                     continue
@@ -170,11 +176,38 @@ def headlines_for(theme):
 
 
 # ---------------------------------------------------------------------------- KI
-def candidates(universe, sectors):
-    rows = [u for u in universe if u.get("ticker") and u.get("sector") not in ("ETF", "Sonstige")
-            and (not sectors or u.get("sector") in sectors)]
-    rows.sort(key=lambda u: u.get("marketCap") or 0, reverse=True)
-    return rows[:MAX_CANDIDATES]
+def candidates(universe, sectors, industries=None):
+    """Aktien, aus denen die KI zuordnen darf.
+
+    Zuerst alle Werte der passenden Branchen (industries, z. B. "Auto Manufacturers"), damit z. B. bei
+    EU-Autoregeln VW, BMW, Mercedes und Stellantis dabei sind und nicht nur die größten US-Werte.
+    Danach wird mit den größten Werten der Sektoren aufgefüllt – je zur Hälfte Europa und USA/Rest.
+    """
+    base = [u for u in universe if u.get("ticker") and u.get("sector") not in ("ETF", "Sonstige")]
+    cap = lambda u: u.get("marketCap") or 0
+    out, seen = [], set()
+    if industries:
+        keys = [k.lower() for k in industries]
+        hits = [u for u in base if any(k in str(u.get("industry") or "").lower() for k in keys)]
+        for u in sorted(hits, key=cap, reverse=True)[:40]:
+            out.append(u); seen.add(u["ticker"])
+    pool = [u for u in base if u["ticker"] not in seen and (not sectors or u.get("sector") in sectors)]
+    eu = sorted([u for u in pool if is_europe(u)], key=cap, reverse=True)
+    rest = sorted([u for u in pool if not is_europe(u)], key=cap, reverse=True)
+    while len(out) < MAX_CANDIDATES and (eu or rest):
+        for lst in (eu, rest):
+            if lst and len(out) < MAX_CANDIDATES:
+                out.append(lst.pop(0))
+    return out
+
+
+EUROPE = {"Germany", "France", "Netherlands", "Spain", "Italy", "Switzerland", "United Kingdom", "Denmark", "Sweden",
+          "Norway", "Finland", "Belgium", "Austria", "Ireland", "Portugal", "Luxembourg", "Poland"}
+
+
+def is_europe(u):
+    t = str(u.get("ticker") or "")
+    return u.get("country") in EUROPE or bool(re.search(r"\.(DE|PA|AS|MI|MC|SW|L|CO|ST|OL|HE|BR|VI|IR|LS)$", t))
 
 
 def theme_prompt(theme, heads, cands, today):
@@ -186,20 +219,23 @@ def theme_prompt(theme, heads, cands, today):
         lines.append("%d | %s | %s | %s" % (i, (h["date"] or "")[:10], h["source"][:30], h["title"][:180]))
     lines += [
         "",
-        "Aktien, die in der App vorkommen (Ticker | Name | Sektor | Land):",
+        "Aktien, die in der App vorkommen (Ticker | Name | Branche | Land):",
     ]
     for u in cands:
-        lines.append("%s | %s | %s | %s" % (u["ticker"], (u.get("name") or "")[:40], u.get("sector") or "-", u.get("country") or "-"))
+        lines.append("%s | %s | %s | %s" % (u["ticker"], (u.get("name") or "")[:40], u.get("industry") or u.get("sector") or "-", u.get("country") or "-"))
     lines += [
         "",
-        "Fasse die Schlagzeilen zu höchstens 4 kursrelevanten Ereignissen zusammen (gleiche Sache = ein Ereignis). "
+        "Fasse die Schlagzeilen zu höchstens 6 kursrelevanten Ereignissen zusammen (gleiche Sache = ein Ereignis). "
         "Nur Dinge, die Aktien oder Sektoren spürbar bewegen können: politische Entscheidungen, Gesetze, Regulierung, "
         "Zölle, Zinsentscheide, große Aufträge, Urteile. Keine Kursberichte, keine Meinungsbeiträge ohne neue Fakten.",
         "Für jedes Ereignis:",
         "- status: \"beschlossen\" (ist entschieden/verkündet), \"bevorstehend\" (Entscheidung/Abstimmung/Termin steht noch aus) oder \"laufend\" (Verhandlung ohne Termin)",
         "- datum: bei bevorstehend das Datum der Entscheidung als JJJJ-MM-TT, wenn es in den Schlagzeilen steht, sonst null; bei beschlossen das Datum der Entscheidung",
         "- richtung: \"positiv\", \"negativ\" oder \"unklar\" für die betroffenen Aktien insgesamt",
-        "- tickers: betroffene Aktien NUR aus der Liste oben (höchstens 8), leer wenn keine passt",
+        "- tickers: betroffene Aktien NUR aus der Liste oben (höchstens 8), leer wenn keine passt. Achte auf Region und Branche: "
+        "EU-Regeln und EU-Zölle treffen vor allem europäische Firmen dieser Branche (z. B. EU-Importquoten für chinesische Autos "
+        "schützen VW, BMW, Mercedes, Stellantis, Renault – nicht US-Hersteller); US-Regeln vor allem US-Firmen. Nenne nur Firmen, "
+        "die wirklich direkt betroffen sind, keine bloßen Branchengrößen aus anderen Regionen.",
         "- sektoren: betroffene Sektoren auf Deutsch",
         "- warum: 1 Satz, warum es den Kurs bewegen kann",
         "- quellen: Nummern der zugehörigen Schlagzeilen",
@@ -276,14 +312,14 @@ def main():
         if not heads:
             continue
         try:
-            res, model = ask_ai(theme_prompt(th, heads, candidates(universe, th["sectors"]), today), models, keys)
+            res, model = ask_ai(theme_prompt(th, heads, candidates(universe, th["sectors"], th.get("industries")), today), models, keys)
         except Exception as e:
             errors.append({"theme": th["title"], "error": str(e)[:200]})
             print("  übersprungen:", e)
             continue
         if model not in used:
             used.append(model)
-        for ev in (res.get("ereignisse") or [])[:4]:
+        for ev in (res.get("ereignisse") or [])[:6]:
             title = ai.clean_text(ev.get("titel"), 110)
             if not title:
                 continue
