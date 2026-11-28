@@ -1,11 +1,17 @@
-"""Holt Nachrichten (Google News, Ersatz: Yahoo/yfinance) und bewertet Schlagzeilen mit FinBERT
+"""Holt Nachrichten und bewertet Schlagzeilen mit FinBERT
 (kostenlos, läuft in der GitHub Action).
 Schreibt data/news/<TICKER>.json, data/news/_index.json (Kurzwerte) und data/news/_sectors.json.
 
 Google News: Suche nach dem Firmennamen der letzten 7 Tage, zuerst auf Englisch (FinBERT bewertet nur
 englische Schlagzeilen zuverlässig). Kommen zu wenige Treffer (z. B. kleinere deutsche Werte), wird
 zusätzlich deutsch gesucht; deutsche Meldungen bleiben unbewertet (leerer Kreis in der App).
-Liefert Google nichts oder blockiert, werden wie bisher die Yahoo-Nachrichten genommen."""
+Liefert Google nichts oder blockiert, werden wie bisher die Yahoo-Nachrichten genommen.
+
+Reihenfolge der Quellen je Aktie:
+  1. Google Alerts – eigene RSS-Feeds aus data/google_alerts.json (nur für eingetragene Werte)
+  2. GDELT – freie Nachrichtendatenbank, am Anfang gesammelt für alle Werte abgefragt
+  3. Google News, 4. Bing News, 5. Yahoo – nur wenn 1 und 2 zu wenig liefern"""
+import html
 import os, json, time, hashlib, re, email.utils, urllib.parse, urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
@@ -22,11 +28,25 @@ GOOGLE_PAUSE = 0.7          # Sekunden zwischen zwei Google-Abfragen
 GOOGLE_MIN = 3              # weniger englische Treffer -> zusätzlich deutsch suchen
 LEGAL = re.compile(r"\b(incorporated|inc|corporation|corp|company|co|limited|ltd|plc|ag|se|sa|nv|n\.v|s\.a|spa|kgaa|"
                    r"holdings?|group|the|class [a-z]|cl [a-z]|& co|reit|a/s|asa|ab|oyj)\b\.?", re.I)
+# Offizielle Namen, die in Schlagzeilen kaum vorkommen -> gebräuchlicher Name
+NAME_ALIASES = [
+    (r"^Bayerische Motoren Werke", "BMW"), (r"^M(ü|ue)nchener R(ü|ue)ck", "Munich Re"), (r"^Hannover R(ü|ue)ck", "Hannover Re"),
+    (r"Porsche Automobil", "Porsche SE"), (r"^Dr\.? Ing\.? h\.? ?c\.? F\.? Porsche", "Porsche"), (r"^Meta Platforms", "Meta"),
+    (r"^Taiwan Semiconductor", "TSMC"), (r"^Deutsche Post|^DHL", "DHL Group"), (r"^Alphabet", "Alphabet"),
+    (r"^International Business Machines", "IBM"), (r"^Advanced Micro Devices", "AMD"), (r"^Siemens Healthineers", "Siemens Healthineers"),
+]
 google_blocked = False
 bing_blocked = False
 google_retry_at = 0.0
 bing_fail = 0
-STATS = {"google": 0, "bing": 0}
+STATS = {"alerts": 0, "gdelt": 0, "google": 0, "bing": 0}
+GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc"
+GDELT_GROUP = 6             # Firmennamen je GDELT-Abfrage (mit OR verknüpft)
+GDELT_PAUSE = 5.5           # GDELT erlaubt eine Abfrage alle 5 Sekunden
+GDELT_BUDGET = 20 * 60      # höchstens so lange GDELT abfragen
+ALERTS_FILE = os.path.join(DATA, "google_alerts.json")
+GDELT_ITEMS = {}            # Ticker -> Meldungen aus GDELT (am Anfang gesammelt)
+ALERT_FEEDS = {}            # Ticker -> RSS-Adresse aus Google Alerts
 BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36"
 google_fail = 0
 
@@ -35,6 +55,9 @@ def short_name(name, ticker):
     """Suchname: Firmenname ohne Rechtsform ("NVIDIA Corporation" -> "NVIDIA")."""
     n = LEGAL.sub(" ", str(name or "")).replace(",", " ")
     n = re.sub(r"\s+", " ", n).strip(" .-&")
+    for pat, alias in NAME_ALIASES:
+        if re.search(pat, n, re.I):
+            return alias
     return n or ticker.split(".")[0]
 
 
@@ -100,6 +123,129 @@ def relevant(items, name, ticker):
     return [i for i in items if not words or any(w in i["title"].lower() for w in words) or (base + ")") in i["title"].lower()]
 
 
+def norm_words(s):
+    return " " + re.sub(r"[^a-z0-9äöüß]+", " ", str(s or "").lower()).strip() + " "
+
+
+def mk_item(title, src, date, url, lang):
+    return {"id": hashlib.md5(title.encode()).hexdigest()[:12], "title": title, "source": src,
+            "date": date, "url": url, "lang": lang}
+
+
+GERMAN_HINT = re.compile(r"\b(der|die|das|und|mit|für|nach|aktie|aktien|kurs|zahlen|gewinn|umsatz|prognose|börse)\b", re.I)
+
+
+def alert_feed(url):
+    """Google-Alerts-Feed (Atom) lesen."""
+    req = urllib.request.Request(url, headers={"User-Agent": BROWSER_UA, "Accept": "application/atom+xml,text/xml"})
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        root = ET.fromstring(resp.read())
+    ns = "{http://www.w3.org/2005/Atom}"
+    out = []
+    for e in root.iter(ns + "entry"):
+        title = html.unescape(re.sub(r"<[^>]+>", "", e.findtext(ns + "title") or "")).strip()
+        link_el = e.find(ns + "link")
+        link = link_el.get("href", "") if link_el is not None else ""
+        m = re.search(r"[?&]url=([^&]+)", link)
+        if m:
+            link = urllib.parse.unquote(m.group(1))
+        date = iso(e.findtext(ns + "published") or e.findtext(ns + "updated"))
+        if title and date:
+            src = urllib.parse.urlparse(link).netloc.replace("www.", "")
+            out.append(mk_item(title, src, date, link, "de" if GERMAN_HINT.search(title) else "en"))
+    return out
+
+
+def load_alerts():
+    cfg = load(ALERTS_FILE, {})
+    feeds = cfg.get("feeds") if isinstance(cfg, dict) else None
+    for t, url in (feeds or {}).items():
+        if isinstance(url, str) and url.startswith("https://www.google.com/alerts/feeds/"):
+            ALERT_FEEDS[t.upper()] = url
+    if ALERT_FEEDS:
+        print("Google Alerts: %d Feeds" % len(ALERT_FEEDS))
+
+
+def gdelt_query(names):
+    q = "(" + " OR ".join('"%s"' % n for n in names) + ")" if len(names) > 1 else '"%s"' % names[0]
+    params = {"query": q + " (sourcelang:english OR sourcelang:german)", "mode": "ArtList", "maxrecords": "250",
+              "timespan": "7d", "sort": "DateDesc", "format": "json"}
+    req = urllib.request.Request(GDELT_URL + "?" + urllib.parse.urlencode(params), headers={"User-Agent": BROWSER_UA})
+    with urllib.request.urlopen(req, timeout=40) as resp:
+        text = resp.read().decode("utf-8", "ignore")
+    if not text.strip().startswith("{"):
+        raise RuntimeError(text.strip()[:160] or "leere Antwort")
+    return json.loads(text).get("articles") or []
+
+
+def gdelt_article(a):
+    title = html.unescape(str(a.get("title") or "")).strip()
+    m = re.match(r"(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})", str(a.get("seendate") or ""))
+    if not title or not m:
+        return None
+    date = "%s-%s-%sT%s:%s:%s+00:00" % m.groups()
+    lang = "de" if str(a.get("language") or "").lower().startswith("german") else "en"
+    return mk_item(title, str(a.get("domain") or "").replace("www.", ""), date, a.get("url") or "", lang)
+
+
+def gdelt_prefetch(universe):
+    """Alle Werte gesammelt bei GDELT abfragen: mehrere Firmennamen je Anfrage, Zuordnung über den Titel."""
+    by_name = {}
+    for u in universe:
+        n = short_name(u.get("name"), u["ticker"])
+        if len(n) >= 3 and re.search(r"[A-Za-z]{3}", n):
+            by_name.setdefault(n, []).append(u["ticker"])
+    names = list(by_name)
+    started, fails, done = time.time(), 0, 0
+    for i in range(0, len(names), GDELT_GROUP):
+        if time.time() - started > GDELT_BUDGET:
+            print("GDELT: Zeitbudget erreicht nach %d von %d Namen" % (i, len(names)))
+            break
+        group = names[i:i + GDELT_GROUP]
+        arts = None
+        for attempt in range(2):
+            try:
+                arts = gdelt_query(group)
+                fails = 0
+                break
+            except Exception as e:
+                msg = str(e)
+                print("GDELT Fehler (%s): %s" % (", ".join(group)[:80], msg[:120]))
+                time.sleep(GDELT_PAUSE * (3 if "limit" in msg.lower() else 1))
+        time.sleep(GDELT_PAUSE)
+        if arts is None and len(group) > 1:
+            # Ein Name kann die ganze Abfrage scheitern lassen (z. B. zu kurz) -> einzeln versuchen
+            arts = []
+            for n in group:
+                try:
+                    arts += gdelt_query([n])
+                except Exception as e:
+                    print("  GDELT %s: %s" % (n, str(e)[:80]))
+                time.sleep(GDELT_PAUSE)
+            if arts:
+                fails = 0
+        if arts is None:
+            fails += 1
+            if fails >= 5:
+                print("GDELT nicht erreichbar – abgebrochen.")
+                break
+            continue
+        keys = [(n, norm_words(n)) for n in group]
+        for a in arts:
+            it = gdelt_article(a)
+            if not it:
+                continue
+            tw = norm_words(it["title"])
+            for n, k in keys:
+                if k in tw:
+                    for t in by_name[n]:
+                        lst = GDELT_ITEMS.setdefault(t, [])
+                        if len(lst) < 15:
+                            lst.append(it)
+        done += len(group)
+    print("GDELT: %d Namen abgefragt, Treffer für %d Werte" % (done, len(GDELT_ITEMS)))
+
+
 def search_provider(fn, q_en, name, ticker, q_de=None):
     items = relevant(fn(q_en, "en"), name, ticker)
     if len(items) < GOOGLE_MIN:
@@ -114,15 +260,25 @@ def fetch_items(u):
     t = u["ticker"]
     name = short_name(u.get("name"), t)
     items = []
+    if t in ALERT_FEEDS:
+        try:
+            got = alert_feed(ALERT_FEEDS[t])
+            items += got
+            STATS["alerts"] += 1 if got else 0
+        except Exception as e:
+            print("Google-Alerts-Fehler", t, e)
+    if GDELT_ITEMS.get(t):
+        items += GDELT_ITEMS[t]
+        STATS["gdelt"] += 1
     global google_retry_at
     if google_blocked and time.time() >= google_retry_at:
         google_blocked, google_fail = False, 2      # nach der Pause ein neuer Versuch; ein Fehler sperrt wieder
         print("Google News: neuer Versuch")
-    if not google_blocked:
+    if len(items) < 2 and not google_blocked:
         try:
             base = t.split(".")[0]
             q_en = '"%s" (stock OR shares OR %s)' % (name, base) if base.isalpha() and len(base) >= 2 else '"%s" (stock OR shares)' % name
-            items = search_provider(google_news, q_en, name, t)
+            items += search_provider(google_news, q_en, name, t)
             google_fail = 0
             STATS["google"] += 1 if len(items) >= 2 else 0
         except Exception as e:
@@ -135,7 +291,7 @@ def fetch_items(u):
         time.sleep(GOOGLE_PAUSE)
     if len(items) < 2 and not bing_blocked:
         try:
-            items = search_provider(bing_news, "%s stock" % name, name, t, "%s Aktie" % name)
+            items += search_provider(bing_news, "%s stock" % name, name, t, "%s Aktie" % name)
             bing_fail = 0
             STATS["bing"] += 1 if len(items) >= 2 else 0
         except Exception as e:
@@ -221,6 +377,8 @@ def main():
     os.makedirs(NEWS, exist_ok=True)
     universe = [u for u in load(os.path.join(DATA, "universe.json"), []) if isinstance(u, dict) and u.get("ticker")]
     index, by_ticker = {}, {}
+    load_alerts()
+    gdelt_prefetch(universe)
     for u in universe:
         t = u["ticker"]
         old = {i["id"]: i for i in load(os.path.join(NEWS, t + ".json"), {}).get("items", [])}
@@ -240,9 +398,9 @@ def main():
         top = next((i for i in items if i.get("label")), items[0] if items else None)
         index[t] = dict(sm, top=({"t": top["title"], "l": top.get("label")} if top else None))
     dump(os.path.join(NEWS, "_index.json"), index)
-    print("Quellen: Google %d, Bing %d, Rest Yahoo (von %d Werten)" % (STATS["google"], STATS["bing"], len(index)))
-    dump(os.path.join(NEWS, "_meta.json"), {"updatedAt": datetime.now(timezone.utc).isoformat(), "tickers": len(index),
-                                            "google": STATS["google"], "bing": STATS["bing"]})
+    print("Quellen: Google Alerts %d, GDELT %d, Google %d, Bing %d, Rest Yahoo (von %d Werten)"
+          % (STATS["alerts"], STATS["gdelt"], STATS["google"], STATS["bing"], len(index)))
+    dump(os.path.join(NEWS, "_meta.json"), dict({"updatedAt": datetime.now(timezone.utc).isoformat(), "tickers": len(index)}, **STATS))
 
     sectors = {}
     for sec in {u.get("sector") for u in universe if u.get("sector")}:
@@ -262,3 +420,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
