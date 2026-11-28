@@ -14,12 +14,12 @@ jobs:
 
     steps:
       - name: Repository auschecken
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
       - name: Python 3.11 einrichten
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -32,6 +32,10 @@ jobs:
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/fetch_macro.py
+
+      # Kaputte Daten (fehlende Ticker, ungültiges JSON, plötzlich viel weniger Werte) nicht committen
+      - name: Daten prüfen
+        run: python scripts/validate_data.py
 
       - name: Änderungen committen und pushen
         run: |

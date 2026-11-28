@@ -44,12 +44,12 @@ jobs:
 
     steps:
       - name: Repository auschecken
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
       - name: Python 3.11 einrichten
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -80,6 +80,10 @@ jobs:
           fi
           
           python scripts/fetch_market_data.py $ARGS
+
+      # Kaputte Daten (fehlende Ticker, ungültiges JSON, plötzlich viel weniger Werte) nicht committen
+      - name: Daten prüfen
+        run: python scripts/validate_data.py
 
       - name: Änderungen committen und pushen
         run: |

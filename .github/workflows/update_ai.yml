@@ -31,11 +31,11 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: main
           fetch-depth: 1
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
       - name: KI-Auswertung erstellen
@@ -56,9 +56,15 @@ jobs:
           else
             python scripts/fetch_ai_insights.py           # automatisch: nur veraltete Sektoren
           fi
-      # Auch nach Abbruch/Zeitüberschreitung: bereits fertige Sektoren sichern
-      - name: Committen und pushen
+      # Auch nach Abbruch/Zeitüberschreitung prüfen – fertige Sektoren sollen gesichert werden
+      - name: Daten prüfen
+        id: check
         if: always()
+        run: python scripts/validate_data.py
+
+      # Auch nach Abbruch/Zeitüberschreitung: bereits fertige Sektoren sichern (nur wenn die Prüfung bestanden ist)
+      - name: Committen und pushen
+        if: always() && steps.check.outcome == 'success'
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"

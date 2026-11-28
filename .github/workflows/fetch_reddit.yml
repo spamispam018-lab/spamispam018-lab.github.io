@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -25,6 +25,10 @@ jobs:
 
       - name: Run fetch_reddit.py
         run: python scripts/fetch_reddit.py
+
+      # Kaputte Daten (fehlende Ticker, ungültiges JSON, plötzlich viel weniger Werte) nicht committen
+      - name: Daten prüfen
+        run: python scripts/validate_data.py
 
       - name: Commit & push updated JSON files
         run: |
