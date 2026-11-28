@@ -80,7 +80,10 @@ window.App.News = (function () {
         unrated: items.length - withLabel.length,
         fetchedAt: live ? live.fetchedAt : (file.updatedAt || null),
         live: !!live,
-        stale: !!(live && live.stale)
+        stale: !!(live && live.stale),
+        // Quelle der Live-Schlagzeilen (google / bing / yahoo); leer = nur GitHub-Datei
+        source: live && live.items && live.items.length ? (live.source || 'yahoo') : '',
+        sourceErrors: (live && live.errors) || []
       };
       cache.tickers[t] = out;   // für Prompt-Bausteine
       cache.live[t] = out;
@@ -161,6 +164,12 @@ window.App.News = (function () {
     var note = 'Automatische Einschätzung (FinBERT), keine Anlageberatung.';
     if (data && data.unrated) note = 'Farbpunkt = FinBERT-Einschätzung (abends aktualisiert). Leerer Kreis = neue Meldung, noch nicht bewertet. Keine Anlageberatung.';
     if (data && data.stale) note = 'Neue Schlagzeilen gerade nicht abrufbar – letzter Stand. ' + note;
+    if (data && data.live !== undefined) {
+      var SRC = { google: 'Google News', bing: 'Bing News', yahoo: 'Yahoo Finance' };
+      var src = data.source ? 'Quelle: ' + SRC[data.source] : 'Quelle: gespeicherte Daten';
+      if (data.source !== 'google' && data.sourceErrors && data.sourceErrors.length) src += ' (' + data.sourceErrors.join('; ') + ')';
+      note = esc(src) + '. ' + note;
+    }
     var body = (data && data.items && data.items.length)
       ? bar(data) + list(data.items, showTicker) + '<div style="font-size:.62rem;color:var(--text-dim);margin-top:6px;line-height:1.4;">' + note + '</div>'
       : '<div style="font-size:.75rem;color:var(--text-dim);">Keine aktuellen Nachrichten vorhanden.</div>';
