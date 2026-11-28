@@ -105,8 +105,19 @@ window.App.Sync = (function () {
       '</form>';
   }
 
+  /**
+   * Das Sheet-Element teilen sich alle Dialoge der App. Die Hintergrund-Abfrage darf es nur
+   * neu zeichnen, solange es gerade die Daten-Updates zeigt – sonst würde sie z. B. die
+   * KI-Einschätzung überschreiben.
+   */
+  function showsSync(root) {
+    return !!(root && root.classList.contains('open') && root.querySelector('[data-sync-sheet]'));
+  }
+
   function render(root) {
-    var html = '<h3 class="ui-sheet-title">Daten-Updates</h3>';
+    if (!showsSync(root) && !state.firstRender) return;
+    state.firstRender = false;
+    var html = '<h3 class="ui-sheet-title" data-sync-sheet>Daten-Updates</h3>';
     if (!getKey()) {
       html += keyFormHtml(state.authError);
     } else if (state.setupError) {
@@ -228,6 +239,7 @@ window.App.Sync = (function () {
     state.opts = opts || {};
     state.error = '';
     UI().openSheet('', function (root) {
+      state.firstRender = true;     // Sheet ist gerade leer geöffnet worden
       render(root);
       refresh(root);
     }, function () { /* Abfrage läuft weiter, solange ein Workflow läuft */ });
