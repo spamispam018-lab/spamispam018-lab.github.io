@@ -4,7 +4,7 @@ scripts/fetch_catalysts.py – Treiber & Termine: Nachrichten und Entscheidungen
 
 Ablauf:
   1. Schlagzeilen der letzten 7 Tage je Thema aus Google-News-Feeds (deutsch + englisch, kostenlos)
-     z. B. EU-Regeln für Autos, Zölle, Chip-Exportregeln, Arzneimittelpreise, Notenbanken …
+     Themen stehen in data/catalyst_themes.json und lassen sich dort ergänzen oder streichen.
   2. Je Thema ordnet die KI (Groq, sonst Gemini – wie scripts/fetch_ai_insights.py) die Meldungen ein:
      beschlossen / bevorstehend (mit Datum) / laufend, eher positiv / negativ / unklar,
      betroffene Sektoren und Aktien aus der App (nur Ticker, die es in universe.json gibt).
@@ -70,6 +70,34 @@ THEMES = [
      "q": ["EU AI Act Digital Markets Act Strafe", "AI regulation antitrust big tech ruling"],
      "sectors": ["Technology", "Communication Services"]},
 ]
+
+THEMES_FILE = os.path.join(DATA, "catalyst_themes.json")
+
+
+def load_themes():
+    """Themen aus data/catalyst_themes.json (selbst bearbeitbar); fehlt oder ist sie fehlerhaft, gelten die eingebauten."""
+    try:
+        with open(THEMES_FILE, encoding="utf-8") as f:
+            raw = json.load(f)
+        lst = raw.get("themes") if isinstance(raw, dict) else raw
+        out, seen = [], set()
+        for t in lst or []:
+            tid = re.sub(r"[^a-z0-9_]", "", str(t.get("id", "")).lower())
+            q = [str(x) for x in (t.get("q") or []) if str(x).strip()][:2]
+            if not tid or tid in seen or not q or not t.get("title"):
+                print("  Thema übersprungen (id/title/q fehlt oder doppelt):", t.get("id") or t.get("title"))
+                continue
+            seen.add(tid)
+            out.append({"id": tid, "title": str(t["title"])[:60], "q": q, "sectors": [str(x) for x in (t.get("sectors") or [])]})
+        if out:
+            print("Themen aus %s: %d" % (os.path.basename(THEMES_FILE), len(out)))
+            return out
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        print("Themen-Datei fehlerhaft (%s) – nehme eingebaute Themen." % e)
+    return THEMES
+
 
 # FRED-Veröffentlichungen mit festen Terminen
 FRED_RELEASES = [
@@ -237,8 +265,9 @@ def main():
     models, _ = ai.pick_models(keys["gemini"], keys["groq"])
     print("Modelle:", ", ".join(models))
 
+    themes = load_themes()
     items, errors, used = [], [], []
-    for th in THEMES:
+    for th in themes:
         if ai.time_left() < ai.HTTP_TIMEOUT + 30:
             errors.append({"theme": th["title"], "error": "Zeitlimit"})
             continue
@@ -303,7 +332,7 @@ def main():
         previous["errors"] = errors
         final_obj = previous
     else:
-        final_obj = {"updatedAt": now_iso(), "model": ", ".join(used), "themes": [{"id": t["id"], "title": t["title"]} for t in THEMES],
+        final_obj = {"updatedAt": now_iso(), "model": ", ".join(used), "themes": [{"id": t["id"], "title": t["title"]} for t in themes],
                      "items": final, "errors": errors}
     os.makedirs(DATA, exist_ok=True)
     with open(OUT + ".tmp", "w", encoding="utf-8") as f:
