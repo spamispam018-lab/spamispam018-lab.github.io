@@ -174,6 +174,7 @@ window.App.UI = (function () {
     document.body.appendChild(backdrop);
     document.body.appendChild(sheet);
     backdrop.onclick = closeSheet;
+    enableSwipeClose(sheet);
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && sheet.classList.contains('open')) closeSheet();
     });
@@ -190,8 +191,60 @@ window.App.UI = (function () {
     sheetOnClose = onClose || null;
     s.sheet.innerHTML = '<div class="sheet-handle"></div>' + html;
     if (bind) bind(s.sheet);
+    s.sheet.scrollTop = 0;
+    s.sheet.style.transform = '';
     s.backdrop.classList.add('open');
     s.sheet.classList.add('open');
+    document.body.classList.add('sheet-open');
+  }
+
+  /**
+   * Nach unten wischen schließt den Dialog: am Griff jederzeit, im Inhalt nur, wenn er ganz oben steht.
+   * Sonst scrollt der Inhalt ganz normal.
+   */
+  function enableSwipeClose(sheet) {
+    var startY = 0, dy = 0, active = false, fromHandle = false, startScroll = 0;
+    sheet.addEventListener('touchstart', function (e) {
+      if (!sheet.classList.contains('open') || e.touches.length !== 1) return;
+      var t = e.target;
+      // Schieberegler und Eingabefelder nicht stören
+      if (t.closest && t.closest('input, textarea, select, .horizontal-scroll-row')) return;
+      fromHandle = !!(t.classList && t.classList.contains('sheet-handle'));
+      startY = e.touches[0].clientY;
+      startScroll = sheet.scrollTop;
+      dy = 0;
+      active = fromHandle || startScroll <= 0;
+    }, { passive: true });
+    sheet.addEventListener('touchmove', function (e) {
+      if (!active) return;
+      dy = e.touches[0].clientY - startY;
+      if (dy <= 0 || (!fromHandle && sheet.scrollTop > 0)) {
+        if (dy < 0 && !fromHandle) active = false;   // nach oben = normal scrollen
+        sheet.classList.remove('dragging');
+        sheet.style.transform = '';
+        return;
+      }
+      e.preventDefault();
+      sheet.classList.add('dragging');
+      sheet.style.transform = 'translateY(' + dy + 'px)';
+    }, { passive: false });
+    function end() {
+      if (!active) return;
+      active = false;
+      sheet.classList.remove('dragging');
+      if (dy > Math.min(120, sheet.offsetHeight * 0.25)) {
+        sheet.style.transform = '';
+        closeSheet();
+      } else {
+        sheet.style.transform = '';
+      }
+      dy = 0;
+    }
+    sheet.addEventListener('touchend', end);
+    sheet.addEventListener('touchcancel', end);
+    sheet.addEventListener('click', function (e) {
+      if (e.target.classList && e.target.classList.contains('sheet-handle')) closeSheet();
+    });
   }
 
   function closeSheet() {
@@ -199,6 +252,8 @@ window.App.UI = (function () {
     var wasOpen = sheetEls.sheet.classList.contains('open');
     sheetEls.backdrop.classList.remove('open');
     sheetEls.sheet.classList.remove('open');
+    sheetEls.sheet.style.transform = '';
+    document.body.classList.remove('sheet-open');
     var cb = sheetOnClose;
     sheetOnClose = null;
     if (wasOpen && cb) { try { cb(); } catch (e) { console.error(e); } }
