@@ -356,6 +356,43 @@ def process_insider_data(ticker_obj, cur):
     return {"summary": summary, "trades": trades}
 
 
+def find_next_earnings(t):
+    """Nächster Termin für Quartalszahlen: erstes Datum ab heute.
+
+    Yahoo liefert in t.calendar nach der Veröffentlichung oft noch den alten Termin. Deshalb werden alle
+    Kalender-Daten und zusätzlich get_earnings_dates() geprüft; gibt es nur vergangene Termine, bleibt
+    das Feld leer (die App schätzt dann ab dem letzten Termin).
+    Rückgabe: (nächster Termin oder None, letzter vergangener Termin oder None) als "YYYY-MM-DD".
+    """
+    today = datetime.now(timezone.utc).date()
+    dates = []
+    try:
+        cal = t.calendar
+        if cal and "Earnings Date" in cal and cal["Earnings Date"]:
+            for d in cal["Earnings Date"]:
+                try:
+                    dates.append(d if hasattr(d, "year") and not hasattr(d, "hour") else d.date())
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    try:
+        ed = t.get_earnings_dates(limit=8)
+        if ed is not None and len(ed.index):
+            for ts in ed.index:
+                try:
+                    dates.append(ts.date())
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    future = sorted(d for d in dates if d >= today)
+    past = sorted(d for d in dates if d < today)
+    nxt = future[0].strftime("%Y-%m-%d") if future else None
+    last = past[-1].strftime("%Y-%m-%d") if past else None
+    return nxt, last
+
+
 def process_analyst_data(info, ticker_obj, cur):
     targets = {
         "current": clean_val(to_eur(clean_val(info.get("currentPrice")), cur)),
@@ -856,17 +893,12 @@ def fetch_full_stock(ticker_sym):
     except Exception as e:
         print(f"Fehler bei Upgrades/Downgrades für {ticker_sym}: {e}")
 
-    next_earnings = None
-    try:
-        cal = t.calendar
-        if cal and 'Earnings Date' in cal and cal['Earnings Date']:
-            next_earnings = cal['Earnings Date'][0].strftime("%Y-%m-%d")
-    except Exception:
-        pass
+    next_earnings, last_earnings = find_next_earnings(t)
 
     analysts_data = process_analyst_data(info, t, cur)
     analysts_data["upgradesDowngrades"] = upgrades_list
     analysts_data["nextEarningsDate"] = next_earnings
+    analysts_data["lastEarningsDate"] = last_earnings
 
     result = {
         "ticker": ticker_sym, "profile": profile, "quote": quote, "ratios": ratios,
@@ -991,15 +1023,11 @@ def fetch_partial_stock(ticker_sym, sections, existing_data):
                             "action": str(row.get("Action", ""))})
         except Exception: pass
         
-        next_earnings = None
-        try:
-            cal = t.calendar
-            if cal and 'Earnings Date' in cal and cal['Earnings Date']:
-                next_earnings = cal['Earnings Date'][0].strftime("%Y-%m-%d")
-        except Exception: pass
-        
+        next_earnings, last_earnings = find_next_earnings(t)
+
         analysts_data["upgradesDowngrades"] = upgrades_list
         analysts_data["nextEarningsDate"] = next_earnings
+        analysts_data["lastEarningsDate"] = last_earnings
         result["analysts"] = analysts_data
         
     if "insider" in sections:
