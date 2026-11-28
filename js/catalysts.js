@@ -159,28 +159,92 @@ window.App.Catalysts = (function () {
     load().then(function (d) { if (document.body.contains(container)) render(container, d); });
   }
 
-  /** Kleine Karte oben in der Aktienansicht, wenn ein Treiber die Aktie betrifft. */
-  function renderForStock(host, ticker) {
+  // Englischer App-Sektor -> Stichwörter in den (deutschen) Sektorangaben der KI
+  var SECTOR_KEYS = {
+    'Technology': ['tech', 'halbleiter', 'chip', 'software', 'it-', 'ki'],
+    'Consumer Cyclical': ['auto', 'zykl', 'einzelhandel', 'konsum', 'luxus', 'reise'],
+    'Consumer Defensive': ['basiskonsum', 'lebensmittel', 'getränk', 'nahrung', 'konsumgüter'],
+    'Healthcare': ['gesundheit', 'pharma', 'biotech', 'medizin', 'krankenvers'],
+    'Financial Services': ['bank', 'finanz', 'versicher'],
+    'Industrials': ['industrie', 'rüstung', 'verteidigung', 'luftfahrt', 'maschinen', 'bau', 'transport', 'logistik'],
+    'Energy': ['energie', 'öl', 'gas'],
+    'Utilities': ['versorger', 'strom', 'erneuerbar', 'solar', 'wind'],
+    'Basic Materials': ['rohstoff', 'chemie', 'stahl', 'bergbau', 'metall', 'kupfer'],
+    'Communication Services': ['kommunikation', 'medien', 'telekom', 'internet', 'werbung'],
+    'Real Estate': ['immobilien']
+  };
+  var MARKET_KEYS = ['gesamtmarkt', 'markt', 'alle', 'breit'];
+
+  function matchesSector(it, sector) {
+    var keys = SECTOR_KEYS[sector];
+    if (!keys) return false;
+    return (it.sectors || []).some(function (x) {
+      x = String(x).toLowerCase();
+      return keys.some(function (k) { return x.indexOf(k) !== -1; });
+    });
+  }
+  function isMarketWide(it) {
+    return (it.sectors || []).some(function (x) { x = String(x).toLowerCase(); return MARKET_KEYS.some(function (k) { return x.indexOf(k) !== -1; }); }) ||
+      it.theme === 'fed' || it.theme === 'ecb' || it.theme === 'termine' || it.theme === 'us_fiscal';
+  }
+  function current(it) {
+    if (it.status === 'vorbei') return false;
+    var d = daysUntil(it.date);
+    if (it.status === 'beschlossen') return d === null || d >= -5;
+    if (it.status === 'bevorstehend') return d === null || d <= 21;
+    return true;
+  }
+
+  /** Treiber einer Aktie in drei Stufen: direkt genannt, über die Branche, marktweit (nächste Termine). */
+  function groupsFor(d, ticker, sector) {
+    var items = ((d && d.items) || []).filter(current);
+    var direct = items.filter(function (it) { return (it.tickers || []).indexOf(ticker) !== -1; });
+    var used = {};
+    direct.forEach(function (it) { used[it.id] = 1; });
+    var branch = items.filter(function (it) { return !used[it.id] && matchesSector(it, sector); });
+    branch.forEach(function (it) { used[it.id] = 1; });
+    var market = items.filter(function (it) { return !used[it.id] && isMarketWide(it) && it.status !== 'laufend'; })
+      .sort(function (a, b) { return String(a.date || '9').localeCompare(String(b.date || '9')); });
+    return { direct: direct, branch: branch.slice(0, 3), market: market.slice(0, 3) };
+  }
+
+  function miniRow(it) {
+    var dir = DIR[it.direction] || DIR.unklar;
+    return '<div style="padding:7px 0;border-top:1px solid var(--border);">' +
+      '<div style="font-size:0.84rem;font-weight:700;line-height:1.35;">' + esc(it.title) + (isNew(it) ? ' <span style="font-size:0.6rem;color:#fff;background:var(--accent-purple,#6366f1);border-radius:5px;padding:0 5px;vertical-align:middle;">NEU</span>' : '') + '</div>' +
+      '<div style="font-size:0.74rem;margin-top:2px;"><span style="color:' + dir.color + ';font-weight:700;">' + dir.label + '</span> · <span style="color:var(--text-muted);">' + esc(whenText(it)) + '</span></div>' +
+      (it.why ? '<div style="font-size:0.76rem;color:var(--text-muted);margin-top:2px;line-height:1.4;">' + esc(it.why) + '</div>' : '') + '</div>';
+  }
+
+  /** Karte "Treiber" oben im Überblick der Aktienansicht. */
+  function renderForStock(host, ticker, sector) {
     if (!host || !ticker) return;
     load().then(function (d) {
-      var list = forTicker(d, ticker);
-      if (!list.length || !document.body.contains(host)) return;
+      if (!document.body.contains(host)) return;
+      var g = groupsFor(d, ticker, sector);
+      var any = g.direct.length || g.branch.length || g.market.length;
+      var head = function (t) { return '<div style="font-size:0.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);margin:10px 0 2px;">' + t + '</div>'; };
       var div = document.createElement('div');
       div.className = 'card';
-      div.style.cssText = 'padding:12px 14px;margin-bottom:12px;border-left:3px solid #f59e0b;';
-      div.innerHTML = '<div style="font-size:0.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;">⚡ Treiber für diese Aktie</div>' +
-        list.slice(0, 3).map(function (it) {
-          var dir = DIR[it.direction] || DIR.unklar;
-          return '<div style="padding:6px 0;border-top:1px solid var(--border);">' +
-            '<div style="font-size:0.84rem;font-weight:700;line-height:1.35;">' + esc(it.title) + '</div>' +
-            '<div style="font-size:0.74rem;margin-top:2px;"><span style="color:' + dir.color + ';font-weight:700;">' + dir.label + '</span> · <span style="color:var(--text-muted);">' + esc(whenText(it)) + '</span></div>' +
-            (it.why ? '<div style="font-size:0.76rem;color:var(--text-muted);margin-top:2px;line-height:1.4;">' + esc(it.why) + '</div>' : '') + '</div>';
-        }).join('') +
-        '<button class="chip-btn" style="margin-top:8px;padding:2px 9px;font-size:0.72rem;" data-cat-all>Alle Treiber ansehen</button>';
+      div.id = 'stock-catalysts';
+      div.style.cssText = 'padding:12px 14px;margin-bottom:12px;' + (g.direct.length ? 'border-left:3px solid #f59e0b;' : '');
+      var html = '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">' +
+        '<div style="font-size:0.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);">⚡ Treiber</div>' +
+        '<button class="chip-btn" style="padding:2px 9px;font-size:0.7rem;" data-cat-all>Alle ansehen</button></div>';
+      if (!any) {
+        html += '<div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px;">' +
+          ((d.items || []).length ? 'Aktuell keine Meldungen zu Politik, Regulierung oder Terminen, die diese Aktie betreffen.' : 'Noch keine Treiber geladen – unter ⋯ › Daten-Updates „Treiber & Termine“ starten.') + '</div>';
+      }
+      if (g.direct.length) html += head('Direkt betroffen') + g.direct.map(miniRow).join('');
+      if (g.branch.length) html += head('Branche') + g.branch.map(miniRow).join('');
+      if (g.market.length) html += head('Gesamtmarkt') + g.market.map(miniRow).join('');
+      div.innerHTML = html;
+      var old = host.querySelector('#stock-catalysts');
+      if (old) old.remove();
       host.insertBefore(div, host.firstChild);
       div.querySelector('[data-cat-all]').onclick = function () { window.App.Router.navigate('/catalysts'); };
     });
   }
 
-  return { initView: initView, load: load, forTicker: forTicker, renderForStock: renderForStock, whenText: whenText };
+  return { initView: initView, load: load, forTicker: forTicker, groupsFor: groupsFor, renderForStock: renderForStock, whenText: whenText };
 })();
