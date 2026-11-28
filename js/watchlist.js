@@ -138,6 +138,7 @@ window.App.Watchlist = (function () {
               '<span class="ticker-badge">' + escapeAttr(stock.ticker) + '</span>' +
               '<span class="sector-label">• ' + escapeAttr(stock.sector || 'Markt') + grpLabel + '</span>' +
             '</div>' +
+            (window.App.SavedStrategy && window.App.SavedStrategy.get(stock.ticker) ? '<div data-sig-ticker="' + escapeAttr(stock.ticker) + '" style="margin-top:3px;min-height:16px;"></div>' : '') +
           '</div>' +
         '</div>' +
         '<div style="display: flex; align-items: center; gap: 10px; flex-shrink:0;">' +
@@ -154,6 +155,8 @@ window.App.Watchlist = (function () {
     html += '</div></div>';
     container.innerHTML = html;
     renderDigest(container.querySelector('#wl-digest'), filtered);
+    // Signal der gespeicherten Strategie je Aktie (Kaufen / Verkaufen / Halten / Nicht investiert)
+    if (window.App.SavedStrategy) window.App.SavedStrategy.decorate(container.querySelector('#watchlist-cards-container'));
     var aiBtn = container.querySelector('#watchlist-ai-btn');
     if (aiBtn) aiBtn.onclick = function () {
       if (window.App.AIAsk) window.App.AIAsk.list('watchlist', filtered.map(function (s) { return s.ticker; }));

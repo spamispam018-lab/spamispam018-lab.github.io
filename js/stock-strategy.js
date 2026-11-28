@@ -139,6 +139,7 @@ window.App.StockStrategy = (function () {
   function render(container, stock) {
     bindInfo(container); // ⓘ-Klicks im ganzen Modul (auch Parameter-Suche)
     var ticker = (stock.ticker || (stock.profile && stock.profile.ticker) || '').toUpperCase();
+    state.__stock = stock;
     container.innerHTML = '<div class="state-box"><div class="spinner"></div><p>Lade Kurshistorie…</p></div>';
 
     var ck = ticker + (Q().preferDaily() ? ':d' : '');
@@ -169,6 +170,7 @@ window.App.StockStrategy = (function () {
     }).join('');
 
     var html = '' +
+      '<div id="bt-saved"></div>' +
       '<div class="card">' +
         '<div class="card-header-dotted"><span class="card-title">Strategie-Backtest</span>' +
           '<span class="period-tag">' + F().date(full[0].date) + ' – ' + F().date(full[full.length - 1].date) + '</span></div>' +
@@ -214,8 +216,11 @@ window.App.StockStrategy = (function () {
             '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.4;margin-top:4px;">Gilt für „Beste Strategie finden“ und den Walk-Forward-Test.' + '<span id="bt-ddcap-note"' + (state.objective === 'ddcap' ? '' : ' style="display:none;"') + '> Feld rechts: größter erlaubter Rückgang in %.</span></div></div>' +
           '<button class="chip-btn" id="bt-best-btn" style="height:42px;justify-content:center;">Beste Strategie finden (mit Testzeitraum)</button>' +
           '<button class="chip-btn" id="bt-wf-btn" style="height:42px;justify-content:center;">Walk-Forward-Test (rollierend)</button>' +
+          '<button class="chip-btn active" id="bt-auto-btn" style="height:46px;justify-content:center;font-weight:800;">🔎 Automatisch beste Strategie finden (Walk-Forward)</button>' +
+          '<div style="font-size:0.7rem;color:var(--text-dim);line-height:1.4;margin-top:-4px;">Testet alle 13 Strategien und das Ensemble rollierend – nur mit Jahren, die die Suche nie gesehen hat – und bietet die beste zum Speichern an. Dauert auf dem Handy etwa 30–90 Sekunden.</div>' +
         '</div>' +
       '</div>' +
+      '<div id="bt-auto"></div>' +
       '<div id="bt-wf"></div>' +
       '<div id="bt-best"></div>' +
       '<div id="bt-search"></div>' +
@@ -267,6 +272,8 @@ window.App.StockStrategy = (function () {
     container.querySelector('#bt-search-btn').onclick = function () { search(container, ticker, full); };
     container.querySelector('#bt-best-btn').onclick = function () { findBest(container, ticker, full); };
     container.querySelector('#bt-wf-btn').onclick = function () { walkForward(container, ticker, full); };
+    container.querySelector('#bt-auto-btn').onclick = function () { autoSearch(container, ticker, full); };
+    renderSaved(container, ticker, full);
     var updRiskSum = function () {
       var t = riskText();
       container.querySelector('#bt-risk-sum').textContent = t ? '· ' + t : '(aus)';
@@ -868,6 +875,7 @@ window.App.StockStrategy = (function () {
         '<div style="height:220px;position:relative;"><canvas id="bt-single-chart" class="chart-canvas" style="height:100%;"></canvas></div>' +
         '<div id="bt-eq-note" style="display:none;font-size:0.72rem;color:var(--text-dim);line-height:1.45;margin-top:8px;"></div></div>' +
       bootHtml(boot, s, b) +
+      (state.type !== 'buyhold' ? '<button class="chip-btn" id="bt-save-single" style="width:100%;height:42px;justify-content:center;margin-bottom:12px;">💾 Diese Einstellung für ' + esc(ticker) + ' speichern (Signal in der Watchlist)</button>' : '') +
 
       '<div class="card"><div class="card-header-dotted"><span class="card-title">Trades (' + res.trades.length + ')</span>' +
         (res.pendingSignal === 'long' && state.type !== 'buyhold' ? '<span class="period-tag" style="display:inline-flex;align-items:center;">Signal heute: investiert' + info('signal') + '</span>' : (state.type !== 'buyhold' ? '<span class="period-tag" style="display:inline-flex;align-items:center;">Signal heute: Cash' + info('signal') + '</span>' : '')) + '</div>';
@@ -894,10 +902,137 @@ window.App.StockStrategy = (function () {
 
     out.innerHTML = html;
     bindInfo(out);
+    var sv = out.querySelector('#bt-save-single');
+    if (sv) sv.onclick = function () {
+      S().save(ticker, {
+        kind: 'single', type: state.type, params: params, risk: Object.assign({}, state.risk), fee: state.fee,
+        objective: state.objective, source: 'manuell',
+        test: { total: s.totalReturn, bh: b.totalReturn, maxDD: s.maxDD, sharpe: s.sharpe, note: 'normaler Backtest (' + per.label + ')' }
+      });
+      renderSaved(container, ticker, full);
+      UIx().toast('Strategie für ' + ticker + ' gespeichert');
+      var box = container.querySelector('#bt-saved');
+      if (box && box.scrollIntoView) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
 
     if (!viewsFor(res.dates).some(function (v) { return v.key === state.view; })) state.view = 'ALL';
     var ind = state.type !== 'buyhold' ? q.indicatorSeries(hist, state.type, params) : null;
     redrawViews(out, hist, res, params, ind);
+  }
+
+  var S = function () { return window.App.SavedStrategy; };
+  var UIx = function () { return window.App.UI || { toast: function () {} }; };
+
+  /* ---------- Gespeicherte Strategie dieser Aktie ---------- */
+  function renderSaved(container, ticker, full) {
+    var box = container.querySelector('#bt-saved');
+    if (!box || !S()) return;
+    var cfg = S().get(ticker);
+    if (!cfg) { box.innerHTML = ''; return; }
+    var t = cfg.test || {};
+    box.innerHTML = '<div class="card" style="border-left:3px solid var(--accent-purple,#6366f1);">' +
+      '<div class="card-header-dotted"><span class="card-title">Gespeicherte Strategie</span><span class="period-tag">' + F().date(cfg.savedAt.slice(0, 10)) + ' · ' + esc(cfg.source || '') + '</span></div>' +
+      '<div style="font-weight:700;font-size:0.88rem;">' + esc(S().label(cfg)) + '</div>' +
+      '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px;">' + savedRiskText(cfg) + '</div>' +
+      (t.total != null ? '<div style="font-size:0.74rem;color:var(--text-muted);margin-top:4px;">' + esc(t.note || '') + ': ' + pct(t.total, 1, true) + ' vs. Buy &amp; Hold ' + pct(t.bh, 1, true) + (t.maxDD != null ? ' · Max. DD ' + pct(t.maxDD, 1) : '') + '</div>' : '') +
+      '<div id="bt-saved-sig" style="margin-top:10px;padding:10px 12px;background:var(--bg-tertiary);border-radius:var(--radius-sm);"><div style="font-size:0.78rem;color:var(--text-dim);">Berechne Signal…</div></div>' +
+      '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">' +
+        (cfg.kind === 'single' ? '<button class="chip-btn" id="bt-saved-load">In Backtest übernehmen</button>' : '') +
+        '<button class="chip-btn" id="bt-saved-del">Entfernen</button></div></div>';
+    var live = liveFor(ticker);
+    S().signal(ticker, live).then(function (sg) {
+      var el = box.querySelector('#bt-saved-sig');
+      if (!el) return;
+      el.innerHTML = sg && !sg.error ? S().detailHtml(sg, F()) : '<div style="font-size:0.78rem;color:var(--text-dim);">Signal nicht berechenbar: ' + esc(sg && sg.error) + '</div>';
+    });
+    var ld = box.querySelector('#bt-saved-load');
+    if (ld) ld.onclick = function () {
+      state.type = cfg.type;
+      Object.keys(cfg.params).forEach(function (k) { state.params[cfg.type + '.' + k] = cfg.params[k]; });
+      state.risk = Object.assign({ stop: 0, trail: 0, target: 0, market: 'none', volTarget: 0 }, cfg.risk || {});
+      if (cfg.fee != null) state.fee = cfg.fee;
+      drawForm(container, state.__stock, ticker, full);
+    };
+    box.querySelector('#bt-saved-del').onclick = function () {
+      S().remove(ticker);
+      renderSaved(container, ticker, full);
+      UIx().toast('Gespeicherte Strategie entfernt');
+    };
+  }
+
+  function savedRiskText(cfg) {
+    var r = cfg.risk || {}, parts = [];
+    if (r.stop > 0) parts.push('Stop-Loss −' + r.stop + ' %');
+    if (r.trail > 0) parts.push('Trailing-Stop −' + r.trail + ' %');
+    if (r.target > 0) parts.push('Gewinnziel +' + r.target + ' %');
+    if (r.volTarget > 0) parts.push('Ziel-Schwankung ' + r.volTarget + ' %');
+    if (r.market && r.market !== 'none') { var m = MARKETS.filter(function (x) { return x.key === r.market; })[0]; parts.push(m ? m.label : r.market); }
+    return esc(parts.length ? parts.join(' · ') : 'ohne Risikoregeln') + ' · Kosten ' + F().number(cfg.fee != null ? cfg.fee : 0.1, 2) + ' %';
+  }
+
+  /**
+   * Kein separater Live-Kurs: Die Tageskurse vom Proxy enthalten während des Handels schon den heutigen
+   * Kurs als letzten Wert (und sind in Handelswährung – die Live-Kurse der App sind in Euro umgerechnet).
+   */
+  function liveFor() { return null; }
+
+  /* ---------- Automatische Suche ---------- */
+  function autoSearch(container, ticker, full) {
+    var q = Q(), f = F();
+    var box = container.querySelector('#bt-auto');
+    var per = PERIODS.filter(function (p) { return p.key === state.period; })[0];
+    var hist = q.sliceYears(full, per.years);
+    var train = state.wfTrain || 3;
+    box.innerHTML = '<div class="card"><div class="state-box"><div class="spinner"></div><p id="bt-auto-prog">Starte…</p></div></div>';
+    if (box.scrollIntoView) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    optsFor(hist).then(function (opts) {
+      var prog = function (i, n, lbl) { var el = box.querySelector('#bt-auto-prog'); if (el) el.textContent = 'Teste ' + lbl + ' (' + i + ' von ' + n + ')…'; };
+      return S().autoFind(hist, state.fee / 100, opts, train, prog).then(function (res) { return { res: res, opts: opts }; });
+    }).then(function (o) {
+      if (!document.body.contains(box)) return;
+      var res = o.res, opts = o.opts;
+      if (res.error) { box.innerHTML = '<div class="card"><div class="state-box"><p>' + esc(res.error) + ' Wähle einen längeren Zeitraum (z. B. Max.).</p></div></div>'; return; }
+      var objLabel = (q.OBJECTIVES[state.objective] || {}).label + (state.objective === 'ddcap' ? ' (max. −' + state.ddCap + ' %)' : '');
+      var best = res.rows[0];
+      var winner = best && best.beatsBH ? best : null;
+      var verdict = winner
+        ? '<b>' + esc(winner.label) + '</b> schneidet im Walk-Forward-Test nach ' + esc(objLabel) + ' am besten ab und schlägt Buy &amp; Hold.'
+        : 'Keine Strategie schlägt Buy &amp; Hold nach ' + esc(objLabel) + ' im Walk-Forward-Test. Für ' + esc(ticker) + ' ist <b>Buy &amp; Hold</b> hier die bessere Wahl – speichern kannst du trotzdem.';
+      var row = function (r, i) {
+        var isBh = r.type === 'buyhold';
+        return '<tr' + (isBh ? ' style="background:var(--bg-tertiary);"' : '') + '><td>' + (isBh ? '' : (i + 1) + '. ') + '<b>' + esc(r.label) + '</b>' +
+          (isBh ? '' : '<div style="font-size:0.66rem;color:var(--text-dim);">' + r.beat + '/' + r.windows + ' Jahre vorn · ' + r.trades + ' Trades</div>') + '</td>' +
+          '<td style="text-align:right;color:' + tone(r.total) + ';font-weight:700;">' + pct(r.total, 0, true) + '<div style="font-size:0.66rem;color:var(--text-dim);font-weight:400;">' + pct(r.cagr, 1, true) + ' p. a.</div></td>' +
+          '<td style="text-align:right;">' + pct(r.maxDD, 0) + '</td>' +
+          '<td style="text-align:right;">' + num(r.sharpe, 2) + '</td>' +
+          '<td style="text-align:right;">' + (isBh ? '' : '<button class="chip-btn" data-auto-save="' + r.type + '" style="padding:3px 9px;font-size:0.7rem;">' + (r.beatsBH ? '💾' : 'Speichern') + '</button>') + '</td></tr>';
+      };
+      box.innerHTML = '<div class="card"><div class="card-header-dotted"><span class="card-title">Automatische Suche</span><span class="period-tag">' + f.date(res.from) + ' – ' + f.date(res.to) + '</span></div>' +
+        '<div style="padding:10px 12px;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:0.8rem;line-height:1.5;margin-bottom:10px;">' + verdict +
+          '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;">Bewertet: ' + res.windows + ' Testjahre, je Jahr mit Parametern aus den ' + res.trainYears + ' Jahren davor (Training über „Walk-Forward“ änderbar).' +
+          (riskText(opts) ? ' Risikoregeln: ' + riskText(opts) + '.' : '') + '</div></div>' +
+        '<div class="table-responsive-wrapper"><table class="data-table compact"><thead><tr><th>Strategie</th><th style="text-align:right;">Rendite</th><th style="text-align:right;">Max. DD</th><th style="text-align:right;">Sharpe</th><th></th></tr></thead><tbody>' +
+          row(res.bh) + res.rows.map(row).join('') + '</tbody></table></div>' +
+        '<div style="font-size:0.72rem;color:var(--text-dim);line-height:1.5;margin-top:8px;">Beim Speichern werden die Parameter mit den <b>letzten ' + res.trainYears + ' Jahren</b> neu bestimmt – so, wie die Regel ab heute handeln würde. Danach siehst du das Signal hier oben und in der Watchlist. Keine Anlageberatung.</div></div>';
+      box.querySelectorAll('[data-auto-save]').forEach(function (b) {
+        b.onclick = function () {
+          var type = b.getAttribute('data-auto-save');
+          var r = res.rows.filter(function (x) { return x.type === type; })[0];
+          b.textContent = '…';
+          setTimeout(function () {
+            var pick = S().currentPick(hist, type, state.fee / 100, opts, res.trainYears);
+            S().save(ticker, Object.assign(pick, {
+              risk: Object.assign({}, state.risk), fee: state.fee, objective: state.objective, source: 'automatisch',
+              test: { total: r.total, bh: res.bh.total, maxDD: r.maxDD, sharpe: r.sharpe, note: 'Walk-Forward ' + res.windows + ' Jahre' }
+            }));
+            renderSaved(container, ticker, full);
+            UIx().toast('Strategie für ' + ticker + ' gespeichert');
+            var sb = container.querySelector('#bt-saved');
+            if (sb && sb.scrollIntoView) sb.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 20);
+        };
+      });
+    });
   }
 
   /** Bandbreite aus dem Bootstrap: Was wäre bei anderer Reihenfolge der Marktphasen herausgekommen? */
