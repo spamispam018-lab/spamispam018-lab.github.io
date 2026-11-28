@@ -162,6 +162,40 @@ def load_live_forex():
         print(f"Forex-Abruf fehlgeschlagen (nutze Fallback-Kurse): {e}")
 
 
+SPIKE_MIN = 0.12          # Ausreißer: mind. 12 % unter bzw. über BEIDEN Nachbartagen
+SPIKE_VOL_FACTOR = 1.5    # ... und kein auffällig hohes Volumen (echte Crash-Tage haben viel Umsatz)
+
+
+def clean_spikes(history, label=""):
+    """Entfernt einzelne fehlerhafte Schlusskurse (Datenfehler bei Yahoo).
+
+    Ein Punkt gilt als Fehler, wenn er mindestens SPIKE_MIN unter (oder über) BEIDEN Nachbartagen liegt
+    und das Volumen an dem Tag nicht auffällig hoch ist (unter SPIKE_VOL_FACTOR x 20-Tage-Schnitt oder fehlt).
+    Er wird durch das geometrische Mittel der Nachbarn ersetzt und mit "fixed": true markiert.
+    Echte Einbrüche mit hohem Umsatz bleiben unverändert.
+    """
+    pts = [p for p in (history or []) if isinstance(p, dict)]
+    fixes = []
+    for i in range(1, len(pts) - 1):
+        a, b, c = pts[i - 1].get("close"), pts[i].get("close"), pts[i + 1].get("close")
+        if not a or not b or not c or a <= 0 or b <= 0 or c <= 0:
+            continue
+        down = b <= a * (1 - SPIKE_MIN) and b <= c * (1 - SPIKE_MIN)
+        up = b >= a * (1 + SPIKE_MIN) and b >= c * (1 + SPIKE_MIN)
+        if not (down or up):
+            continue
+        vols = [p.get("volume") for p in pts[max(0, i - 20):i] if p.get("volume")]
+        vol = pts[i].get("volume")
+        if vol and vols and vol >= SPIKE_VOL_FACTOR * (sum(vols) / len(vols)):
+            continue  # hoher Umsatz: vermutlich echter Ausschlag
+        new = round(math.sqrt(a * c), 4)
+        fixes.append("%s %s: %.2f -> %.2f" % (label, pts[i].get("date"), b, new))
+        pts[i] = dict(pts[i], close=new, fixed=True)
+    if fixes:
+        print("  Kurs-Ausreißer korrigiert:", "; ".join(fixes))
+    return pts
+
+
 def to_eur(value, cur):
     if value is None: return None
     return round(value * RATES_TO_EUR.get(cur, 1.0), 4)
@@ -842,7 +876,7 @@ def fetch_full_stock(ticker_sym):
         "holdings": process_fund_data(t, ticker_sym),
         "institutional": institutional,
         "options": options,
-        "chartHistory": chart_history,
+        "chartHistory": clean_spikes(chart_history, ticker_sym),
         "dividends": dividends_info,
         "exDividendDate": dividends_info.get("exDate"),
         "updatedAt": datetime.now(timezone.utc).isoformat()
@@ -993,7 +1027,7 @@ def fetch_partial_stock(ticker_sym, sections, existing_data):
                                       "close": clean_val(to_eur(clean_val(row["Close"]), cur)),
                                       "volume": clean_val(row["Volume"])})
         except Exception: pass
-        result["chartHistory"] = chart_history
+        result["chartHistory"] = clean_spikes(chart_history, ticker_sym)
 
     result["updatedAt"] = datetime.now(timezone.utc).isoformat()
     return result
@@ -1213,7 +1247,19 @@ def build_universe_item(stock_data, existing_item=None):
     # Chart History stuff
     # Tage ohne Schlusskurs (None, z. B. Feiertage/Datenlücken) ignorieren, sonst crasht die Berechnung
     hist = [p for p in (stock_data.get("chartHistory") or []) if p.get("close") is not None]
+    hist = clean_spikes(hist, u_item.get("ticker", ""))   # auch alte, schon gespeicherte Fehler abfangen
     if hist:
+        # Beruht Yahoos 52W-Tief/-Hoch auf einem korrigierten Ausreißer, aus den bereinigten Kursen neu bestimmen
+        if any(p.get("fixed") for p in hist[-260:]) and u_item.get("low52") and u_item.get("high52"):
+            year = [p["close"] for p in hist[-260:]]
+            lo, hi = min(year), max(year)
+            changed = False
+            if u_item["low52"] < lo * 0.98:
+                u_item["low52"], changed = lo, True
+            if u_item["high52"] > hi * 1.02:
+                u_item["high52"], changed = hi, True
+            if changed and u_item.get("price") and u_item["high52"] > u_item["low52"]:
+                u_item["rangePos"] = ((u_item["price"] - u_item["low52"]) / (u_item["high52"] - u_item["low52"])) * 100
         c_now = hist[-1]["close"]
         u_item["perf1w"] = ((c_now / hist[-6]["close"]) - 1) * 100 if len(hist) > 5 else None
         u_item["perf1m"] = ((c_now / hist[-22]["close"]) - 1) * 100 if len(hist) > 21 else None
@@ -1506,7 +1552,7 @@ def run_delta_sync(tickers, is_manual=False, sections=None):
                             history.sort(key=lambda p: p.get("date", ""))
                             if len(history) > 750:
                                 history = history[-750:]
-                            stock_data["chartHistory"] = history
+                            stock_data["chartHistory"] = clean_spikes(history, sym)
 
                         if (old_price != new_price) or new_points:
                             stock_data["updatedAt"] = now_iso
