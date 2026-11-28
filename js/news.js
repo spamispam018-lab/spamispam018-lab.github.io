@@ -36,7 +36,7 @@ window.App.News = (function () {
   function normTitle(t) { return String(t || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
 
   /**
-   * Nachrichten einer Aktie: live Schlagzeilen vom Worker, ergänzt um die FinBERT-Bewertung
+   * Nachrichten einer Aktie: live Schlagzeilen vom Worker (Google News, Ersatz Yahoo), ergänzt um die FinBERT-Bewertung
    * aus den GitHub-Daten (Zuordnung über den Titel). Neue, noch nicht bewertete Meldungen
    * erscheinen grau. force = true holt sofort neue Schlagzeilen.
    */
@@ -44,7 +44,11 @@ window.App.News = (function () {
     if (!force && cache.live[t]) return Promise.resolve(cache.live[t]);
     return Promise.all([
       loadFileTicker(t),
-      workerJson('/news?ticker=' + encodeURIComponent(t), force).catch(function () { return null; })
+      // Firmenname für die Google-News-Suche im Worker (ohne Namen nutzt der Worker Yahoo)
+      window.App.Data.getUniverse().then(function (uni) {
+        var u = (uni || []).filter(function (x) { return x.ticker === t; })[0];
+        return workerJson('/news?ticker=' + encodeURIComponent(t) + (u && u.name ? '&name=' + encodeURIComponent(u.name) : ''), force);
+      }).catch(function () { return null; })
     ]).then(function (res) {
       var file = res[0] || {};
       var live = res[1];
