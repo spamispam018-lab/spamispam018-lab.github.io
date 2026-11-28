@@ -24,6 +24,7 @@ LEGAL = re.compile(r"\b(incorporated|inc|corporation|corp|company|co|limited|ltd
                    r"holdings?|group|the|class [a-z]|cl [a-z]|& co|reit|a/s|asa|ab|oyj)\b\.?", re.I)
 google_blocked = False
 bing_blocked = False
+google_retry_at = 0.0
 bing_fail = 0
 STATS = {"google": 0, "bing": 0}
 BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36"
@@ -92,11 +93,18 @@ def bing_news(query, lang):
     return out
 
 
-def search_provider(fn, q_en, name):
-    items = fn(q_en, "en")
+def relevant(items, name, ticker):
+    """Nur Meldungen, deren Titel den Firmennamen (oder das Kürzel) enthält – Bing liefert sonst viel Fremdes."""
+    words = [w for w in re.split(r"[\s\-]+", name.lower()) if len(w) >= 3][:2]
+    base = ticker.split(".")[0].lower()
+    return [i for i in items if not words or any(w in i["title"].lower() for w in words) or (base + ")") in i["title"].lower()]
+
+
+def search_provider(fn, q_en, name, ticker, q_de=None):
+    items = relevant(fn(q_en, "en"), name, ticker)
     if len(items) < GOOGLE_MIN:
         time.sleep(GOOGLE_PAUSE)
-        items += fn('"%s" Aktie' % name, "de")
+        items += relevant(fn(q_de or '"%s" Aktie' % name, "de"), name, ticker)
     return items
 
 
@@ -106,11 +114,15 @@ def fetch_items(u):
     t = u["ticker"]
     name = short_name(u.get("name"), t)
     items = []
+    global google_retry_at
+    if google_blocked and time.time() >= google_retry_at:
+        google_blocked, google_fail = False, 2      # nach der Pause ein neuer Versuch; ein Fehler sperrt wieder
+        print("Google News: neuer Versuch")
     if not google_blocked:
         try:
             base = t.split(".")[0]
             q_en = '"%s" (stock OR shares OR %s)' % (name, base) if base.isalpha() and len(base) >= 2 else '"%s" (stock OR shares)' % name
-            items = search_provider(google_news, q_en, name)
+            items = search_provider(google_news, q_en, name, t)
             google_fail = 0
             STATS["google"] += 1 if len(items) >= 2 else 0
         except Exception as e:
@@ -118,11 +130,12 @@ def fetch_items(u):
             print("Google News Fehler", t, e)
             if google_fail >= 3:
                 google_blocked = True
-                print("Google News blockiert – für den Rest des Laufs Bing bzw. Yahoo.")
+                google_retry_at = time.time() + 300
+                print("Google News blockiert – 5 Minuten Bing bzw. Yahoo, dann neuer Versuch.")
         time.sleep(GOOGLE_PAUSE)
     if len(items) < 2 and not bing_blocked:
         try:
-            items = search_provider(bing_news, '"%s" stock' % name, name)
+            items = search_provider(bing_news, "%s stock" % name, name, t, "%s Aktie" % name)
             bing_fail = 0
             STATS["bing"] += 1 if len(items) >= 2 else 0
         except Exception as e:
@@ -249,4 +262,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
