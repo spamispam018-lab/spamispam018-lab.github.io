@@ -32,10 +32,16 @@ window.App.AIAsk = (function () {
       u.cross ? u.cross + (u.crossDaysAgo != null ? '(' + u.crossDaysAgo + 'T)' : '') : '-'].join('|');
   }
   var HEAD = 'Ticker|Name|Sektor|Kurs€|Tag%|1M%|3M%|YTD%|KGV|FwdKGV|PEG|Div%|Kursziel-Potenzial%|Analysten|RSI|52W-Pos%|EMA-Trend|SMA-Kreuz';
+  // Lesehilfe, damit die KI die Kennzahlen richtig herum deutet (ohne sie gab es z. B. "RSI 38 überkauft")
+  var GUIDE = 'Lesehilfe: RSI unter 30 = überverkauft, über 70 = überkauft, dazwischen neutral. ' +
+    'Niedriges KGV/Forward-KGV = günstig bewertet (unter ca. 15 eher günstig, über ca. 30 eher teuer, immer im Vergleich zur Branche und zum Wachstum). ' +
+    'Forward-KGV deutlich unter KGV = Analysten erwarten steigende Gewinne. PEG unter 1 = günstig im Verhältnis zum Wachstum. ' +
+    '52W-Pos 0 = am 52-Wochen-Tief, 100 = am Hoch. Kursziel-Potenzial = Abstand des mittleren Analysten-Kursziels zum Kurs. ' +
+    'Nenne nur Bewertungen, die die Zahlen wirklich hergeben.';
 
   function stockPrompt(u, stock, news) {
     var t = (stock && stock.analysts && stock.analysts.targets) || {};
-    var lines = ['Bewerte diesen Wert für einen Privatanleger. Daten (Kurse in EUR, Stand heute):', HEAD, rowLine(u)];
+    var lines = ['Bewerte diesen Wert für einen Privatanleger. Daten (Kurse in EUR, Stand heute):', HEAD, rowLine(u), GUIDE];
     if (t.mean) lines.push('Analysten-Kursziele: tief ' + num(t.low, 2) + ', Mittel ' + num(t.mean, 2) + ', hoch ' + num(t.high, 2) + ', Anzahl ' + (t.analystCount || '-'));
     var extra = [['Umsatzwachstum%', u.revGrowth], ['Gewinnmarge%', u.profitMargins], ['ROE%', u.returnOnEquity], ['Verschuldung D/E', u.debtToEquity], ['Ausschüttungsquote%', u.payoutRatio]]
       .filter(function (x) { return typeof x[1] === 'number'; }).map(function (x) { return x[0] + ' ' + num(x[1]); });
@@ -60,6 +66,7 @@ window.App.AIAsk = (function () {
       : 'Das ist die Watchlist eines Privatanlegers. Ordne jeden Wert kurz ein und hebe die interessantesten und die kritischsten hervor.',
       'Daten (Kurse in EUR, Stand heute):', HEAD + (weights ? '|Gewicht%' : '')];
     rows.forEach(function (u) { lines.push(rowLine(u) + (weights ? '|' + num(weights[u.ticker]) : '')); });
+    lines.push(GUIDE + (weights ? ' ETFs (Sektor Sonstige) sind breit gestreut und für sich kein Klumpenrisiko; ein Anteil von 25 % ist keine „geringe Gewichtung“.' : ''));
     lines.push('', 'Antworte als JSON: {"ueberblick":"2–3 Sätze","werte":[{"ticker":"…","einschaetzung":"stark|neutral|kritisch","grund":"1 Satz mit Zahl"}],' +
       '"risiken":["bis 3 übergreifende Risiken' + (kind === 'depot' ? ', z. B. Klumpen nach Sektor/Region' : '') + '"]}. Nimm jeden Ticker genau einmal in "werte" auf.');
     return lines.join('\n');
