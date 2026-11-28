@@ -1,0 +1,194 @@
+{
+  "_hinweis": "Themen für Treiber & Termine (scripts/fetch_catalysts.py). Je Thema: id (eindeutig, ohne Leerzeichen), title (Anzeige), q (Suchbegriffe für Google News: erst deutsch, dann englisch; OR erlaubt), sectors (englische Sektornamen aus der App, deren größte Aktien die KI zuordnen darf; leer = alle). Jedes Thema kostet pro Lauf eine KI-Anfrage (ca. 30–40 Sekunden).",
+  "themes": [
+    {
+      "id": "autos_eu",
+      "title": "EU-Regeln für Autos",
+      "q": [
+        "EU Verbrenner-Aus OR CO2-Flottengrenzwerte OR Hybridfahrzeuge Autoindustrie",
+        "EU combustion engine ban OR CO2 fleet targets carmakers"
+      ],
+      "sectors": [
+        "Consumer Cyclical",
+        "Industrials",
+        "Basic Materials"
+      ]
+    },
+    {
+      "id": "tariffs",
+      "title": "Zölle & Handelsstreit",
+      "q": [
+        "Zölle USA EU OR China Handelsstreit",
+        "tariffs trade deal US EU China"
+      ],
+      "sectors": []
+    },
+    {
+      "id": "chips",
+      "title": "Chips & Exportregeln",
+      "q": [
+        "Chip Exportkontrollen China Halbleiter",
+        "chip export controls China semiconductors"
+      ],
+      "sectors": [
+        "Technology"
+      ]
+    },
+    {
+      "id": "pharma",
+      "title": "Arzneimittelpreise & Zulassungen",
+      "q": [
+        "Arzneimittelpreise USA Pharma Zölle",
+        "drug pricing Medicare negotiation pharma tariffs FDA"
+      ],
+      "sectors": [
+        "Healthcare"
+      ]
+    },
+    {
+      "id": "energy",
+      "title": "Energiepolitik & Ölpreis",
+      "q": [
+        "Strompreis Gaspreis Energiepolitik EU OR OPEC Ölförderung",
+        "OPEC output oil price energy policy"
+      ],
+      "sectors": [
+        "Energy",
+        "Utilities",
+        "Basic Materials"
+      ]
+    },
+    {
+      "id": "banks",
+      "title": "Bankenregulierung",
+      "q": [
+        "Bankenregulierung Eigenkapitalregeln Basel",
+        "bank capital rules Basel endgame regulation"
+      ],
+      "sectors": [
+        "Financial Services"
+      ]
+    },
+    {
+      "id": "defense",
+      "title": "Rüstung & Verteidigungsausgaben",
+      "q": [
+        "Rüstungsausgaben NATO Bundeswehr Aufträge",
+        "defense spending Europe NATO contracts"
+      ],
+      "sectors": [
+        "Industrials"
+      ]
+    },
+    {
+      "id": "fed",
+      "title": "US-Notenbank (Fed)",
+      "q": [
+        "Fed Zinsentscheid FOMC",
+        "Fed rate decision FOMC meeting"
+      ],
+      "sectors": []
+    },
+    {
+      "id": "ecb",
+      "title": "Europäische Zentralbank (EZB)",
+      "q": [
+        "EZB Zinsentscheid Lagarde",
+        "ECB rate decision"
+      ],
+      "sectors": []
+    },
+    {
+      "id": "china",
+      "title": "China-Konjunktur",
+      "q": [
+        "China Konjunkturpaket Wirtschaft",
+        "China stimulus economy"
+      ],
+      "sectors": [
+        "Basic Materials",
+        "Consumer Cyclical",
+        "Industrials",
+        "Technology"
+      ]
+    },
+    {
+      "id": "ai_reg",
+      "title": "KI & Tech-Regulierung",
+      "q": [
+        "EU AI Act Digital Markets Act Strafe",
+        "AI regulation antitrust big tech ruling"
+      ],
+      "sectors": [
+        "Technology",
+        "Communication Services"
+      ]
+    },
+    {
+      "id": "mna",
+      "title": "Übernahmen & Kartellverfahren",
+      "q": [
+        "Übernahmeangebot OR Fusion OR Kartellamt Genehmigung Konzern",
+        "takeover bid OR merger OR antitrust approval deal"
+      ],
+      "sectors": []
+    },
+    {
+      "id": "courts",
+      "title": "Klagen & Gerichtsurteile",
+      "q": [
+        "Urteil OR Sammelklage OR Vergleich Milliarden Konzern",
+        "court ruling OR lawsuit settlement OR verdict billion company"
+      ],
+      "sectors": []
+    },
+    {
+      "id": "geopolitics",
+      "title": "Geopolitik (Ukraine, Nahost)",
+      "q": [
+        "Ukraine Waffenstillstand OR Wiederaufbau OR Nahost Konflikt Börse",
+        "Ukraine ceasefire OR reconstruction OR Middle East conflict markets"
+      ],
+      "sectors": [
+        "Industrials",
+        "Energy",
+        "Basic Materials",
+        "Utilities"
+      ]
+    },
+    {
+      "id": "us_fiscal",
+      "title": "US-Haushalt & Steuern",
+      "q": [
+        "US-Haushalt Shutdown OR Schuldenobergrenze OR Steuerreform Kongress",
+        "government shutdown OR debt ceiling OR tax bill Congress"
+      ],
+      "sectors": []
+    },
+    {
+      "id": "climate",
+      "title": "Klima & Erneuerbare",
+      "q": [
+        "Emissionshandel OR Förderung Solar Wind OR Wärmepumpe Gesetz",
+        "clean energy tax credits OR solar wind subsidies OR EU emissions trading"
+      ],
+      "sectors": [
+        "Utilities",
+        "Industrials",
+        "Technology",
+        "Energy"
+      ]
+    },
+    {
+      "id": "us_health",
+      "title": "US-Gesundheitssystem",
+      "q": [
+        "Medicare Advantage Vergütung Krankenversicherer USA",
+        "Medicare Advantage rates OR ACA subsidies health insurers"
+      ],
+      "sectors": [
+        "Healthcare"
+      ]
+    }
+  ]
+}
