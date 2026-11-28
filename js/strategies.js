@@ -65,9 +65,13 @@ window.App.Strategies = (function () {
       '<div id="strategy-sliders" class="card" style="padding: 14px; margin-bottom: 14px;">' +
         '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">' +
           '<span style="font-size:0.85rem; font-weight:700; color:var(--text-main);">Filter anpassen</span>' +
-          '<button class="chip-btn" id="btn-reset-strategy" style="padding: 2px 8px; font-size: 0.7rem;">Zurücksetzen</button>' +
+          '<div style="display:flex;gap:6px;">' +
+            '<button class="chip-btn" id="btn-calibrate-strategy" style="padding: 2px 8px; font-size: 0.7rem;">⚙ An Daten anpassen</button>' +
+            '<button class="chip-btn" id="btn-reset-strategy" style="padding: 2px 8px; font-size: 0.7rem;">Zurücksetzen</button>' +
+          '</div>' +
         '</div>' +
         '<div id="strategy-slider-inputs" style="display: flex; flex-direction: column; gap: 12px;"></div>' +
+        '<div id="strategy-cal-note" style="display:none;font-size:0.7rem;color:var(--text-dim);margin-top:10px;line-height:1.45;"></div>' +
       '</div>' +
 
       '<div id="strategy-results"></div>' +
@@ -91,7 +95,11 @@ window.App.Strategies = (function () {
     var infoEl = container.querySelector('#strategy-info');
     var resetBtn = container.querySelector('#btn-reset-strategy');
     
+    var calBtn = container.querySelector('#btn-calibrate-strategy');
+    if (calBtn) calBtn.onclick = function () { calibrate(container); };
+
     resetBtn.onclick = function() {
+      var nt = container.querySelector('#strategy-cal-note'); if (nt) nt.style.display = 'none';
       if (currentStrategy === 'value') sliderState.value = { maxPe: 20, minRoe: 15, maxDebt: 2.5 };
       if (currentStrategy === 'growth') sliderState.growth = { minRs: 80, minRevGrowth: 20, minVol: 100000 };
       if (currentStrategy === 'dividend') sliderState.dividend = { minYield: 2.5, maxPayout: 60 };
@@ -218,8 +226,115 @@ window.App.Strategies = (function () {
     '</div>';
   }
 
-  function applyStrategy(container) {
-    var listEl = container.querySelector('#strategy-results');
+  /* ------------------------------------------------------------------
+   * "An Daten anpassen": Reglerwerte aus der aktuellen Verteilung im Markt ableiten.
+   * Jeder Regler bekommt eine Perzentil-Schwelle (z. B. KGV unter dem günstigsten Drittel, ROE im oberen
+   * Drittel). Danach wird die Strenge stufenweise verschoben, bis 8–30 Treffer übrig bleiben.
+   * ------------------------------------------------------------------ */
+  function nnum(v) { var n = Number(v); return v === null || v === undefined || v === '' || !isFinite(n) ? null : n; }
+  function depth3m(s) {
+    var c = Array.isArray(s.closes) ? s.closes.filter(function (x) { return x > 0; }) : [];
+    if (c.length < 20 || !(s.price > 0)) return null;
+    return (1 - s.price / Math.max.apply(null, c.concat([s.price]))) * 100;
+  }
+  // dir 'min': Wert muss ≥ Schwelle sein (höheres Perzentil = strenger); 'max': ≤ Schwelle (höher = lockerer)
+  var KNOBS = {
+    value: [
+      { key: 'maxPe', dir: 'max', pct: 35, lo: 5, hi: 50, step: 1, get: function (s) { var v = nnum(s.pe); return v > 0 ? v : null; } },
+      { key: 'minRoe', dir: 'min', pct: 55, lo: 0, hi: 50, step: 1, get: function (s) { var v = nnum(s.returnOnEquity); return v === null ? null : v * 100; } },
+      { key: 'maxDebt', dir: 'max', pct: 60, lo: 0, hi: 10, step: 0.5, get: function (s) { var v = nnum(s.debtToEbitda); return v !== null && v >= 0 ? v : null; } }
+    ],
+    growth: [
+      { key: 'minRs', dir: 'min', pct: 70, lo: 0, hi: 100, step: 1, get: function (s) { return nnum(s.rsRating); } },
+      { key: 'minRevGrowth', dir: 'min', pct: 65, lo: 0, hi: 50, step: 1, get: function (s) { var v = nnum(s.revGrowth); return v === null ? null : v * 100; } },
+      { key: 'minVol', dir: 'min', pct: 25, lo: 0, hi: 1000000, step: 50000, get: function (s) { return nnum(s.volume); } }
+    ],
+    dividend: [
+      { key: 'minYield', dir: 'min', pct: 60, lo: 0, hi: 10, step: 0.5, get: function (s) { var v = nnum(s.dividendYield); return v > 0 ? v : null; } },
+      { key: 'maxPayout', dir: 'max', pct: 70, lo: 10, hi: 100, step: 5, get: function (s) { var v = nnum(s.payoutRatio); return v > 0 ? v * 100 : null; } }
+    ],
+    momentum: [
+      { key: 'minRs', dir: 'min', pct: 85, lo: 0, hi: 100, step: 1, get: function (s) { return nnum(s.rsRating); } },
+      { key: 'minChange', dir: 'min', pct: 80, lo: 0, hi: 20, step: 0.5, get: function (s) { return nnum(s.changePercent); } }
+    ],
+    buythedip: [
+      { key: 'rsiMax', dir: 'max', pct: 35, lo: 25, hi: 60, step: 1, get: function (s) { return nnum(s.rsi); } },
+      { key: 'minRoe', dir: 'min', pct: 35, lo: 0, hi: 40, step: 1, get: function (s) { var v = nnum(s.returnOnEquity); return v === null ? null : v * 100; } },
+      { key: 'maxPe', dir: 'max', pct: 75, lo: 5, hi: 60, step: 1, get: function (s) { var v = nnum(s.pe); return v > 0 ? v : null; } }
+    ],
+    selloff: [
+      { key: 'ddMin', dir: 'min', pct: 80, lo: 10, hi: 60, step: 1, get: depth3m },
+      { key: 'minRoe', dir: 'min', pct: 50, lo: 5, hi: 50, step: 1, get: function (s) { var v = nnum(s.returnOnEquity); return v === null ? null : v * 100; } },
+      { key: 'maxFwdPe', dir: 'max', pct: 60, lo: 8, hi: 60, step: 1, get: function (s) { var v = nnum(s.forwardPe); return v > 0 ? v : null; } },
+      { key: 'minUpside', dir: 'min', pct: 40, lo: 0, hi: 60, step: 5, get: function (s) { return nnum(s.upside); } }
+    ]
+  };
+  var TARGET_MIN = 8, TARGET_MAX = 30, TARGET_IDEAL = 15;
+
+  function percentile(sorted, p) {
+    if (!sorted.length) return null;
+    var idx = Math.min(sorted.length - 1, Math.max(0, (p / 100) * (sorted.length - 1)));
+    var lo = Math.floor(idx), hi = Math.ceil(idx);
+    return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+  }
+
+  function calibrate(container) {
+    var knobs = KNOBS[currentStrategy];
+    if (!knobs || !allStocks.length) return;
+    var pop = allStocks.filter(function (s) { return s.sector !== 'ETF' && s.sector !== 'Sonstige' && !(Number(s.marketCap) && Number(s.marketCap) < 1e9); });
+    var dist = knobs.map(function (k) {
+      return pop.map(k.get).filter(function (v) { return v !== null && isFinite(v); }).sort(function (a, b) { return a - b; });
+    });
+    var original = JSON.parse(JSON.stringify(sliderState[currentStrategy]));
+
+    function valuesFor(level) {
+      var out = {};
+      knobs.forEach(function (k, i) {
+        var p = k.dir === 'min' ? k.pct - 8 * level : k.pct + 8 * level;
+        p = Math.max(2, Math.min(98, p));
+        var v = percentile(dist[i], p);
+        if (v === null) { out[k.key] = original[k.key]; return; }
+        // Richtung beim Runden: nie strenger als das Perzentil
+        v = k.dir === 'min' ? Math.floor(v / k.step) * k.step : Math.ceil(v / k.step) * k.step;
+        out[k.key] = Math.max(k.lo, Math.min(k.hi, Math.round(v * 100) / 100));
+      });
+      return out;
+    }
+
+    var best = null;
+    for (var level = -4; level <= 7; level++) {
+      var vals = valuesFor(level);
+      var cand = JSON.parse(JSON.stringify(original));
+      Object.keys(vals).forEach(function (k) { cand[k] = vals[k]; });
+      sliderState[currentStrategy] = cand;
+      var n = computeFiltered().length;
+      var inRange = n >= TARGET_MIN && n <= TARGET_MAX;
+      var dist2 = inRange ? Math.abs(n - TARGET_IDEAL) : 1000 + (n < TARGET_MIN ? TARGET_MIN - n : n - TARGET_MAX);
+      // bei Gleichstand die strengere Stufe (kleineres level) behalten
+      if (!best || dist2 < best.d) best = { d: dist2, vals: cand, n: n, level: level };
+      if (inRange && n >= TARGET_IDEAL) break;   // weiter lockern bringt nur mehr Treffer
+    }
+    if (!best || best.n === 0) {
+      // nichts gefunden: Standardwerte lassen, statt sinnlos verschärfte Werte zu setzen
+      sliderState[currentStrategy] = original;
+      if (window.App.UI && window.App.UI.toast) window.App.UI.toast('Mit den vorhandenen Daten findet diese Strategie keine Treffer – Werte unverändert');
+      return;
+    }
+    sliderState[currentStrategy] = best.vals;
+    renderSliders(container);
+    applyStrategy(container);
+    var msg = 'An ' + pop.length + ' Werte angepasst: ' + best.n + ' Treffer' + (best.n < TARGET_MIN ? ' (lockerer ging es nicht)' : '');
+    if (window.App.UI && window.App.UI.toast) window.App.UI.toast(msg);
+    var note = container.querySelector('#strategy-cal-note');
+    if (note) {
+      note.innerHTML = '⚙ ' + msg + '. Die Grenzen orientieren sich an der aktuellen Verteilung im Markt' +
+        (best.level > 0 ? ' und wurden etwas gelockert' : best.level < 0 ? ' und wurden etwas verschärft' : '') + '. „Zurücksetzen“ stellt die Standardwerte wieder her.';
+      note.style.display = '';
+    }
+  }
+
+  /** Treffer der aktuellen Strategie mit den aktuellen Reglerwerten (ohne Darstellung). */
+  function computeFiltered() {
     var filtered = [];
 
     if (currentStrategy === 'value') {
@@ -293,6 +408,13 @@ window.App.Strategies = (function () {
         return stock._dip.ok;
       });
     }
+
+    return filtered;
+  }
+
+  function applyStrategy(container) {
+    var listEl = container.querySelector('#strategy-results');
+    var filtered = computeFiltered();
 
     if (currentStrategy === 'buythedip' || currentStrategy === 'selloff') {
       filtered.sort(function (a, b) { return b._dip.score - a._dip.score; });
