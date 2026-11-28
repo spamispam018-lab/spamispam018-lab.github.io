@@ -109,9 +109,86 @@ window.App.Catalysts = (function () {
       list.map(function (it) { return card(it, mine); }).join('');
   }
 
-  function render(container, data) {
+  // ---------- Aktien mit Rückenwind / Gegenwind ----------
+  /** Gewicht eines Treibers: frisch beschlossen oder bald anstehend zählt mehr als "läuft schon länger". */
+  function weight(it) {
+    var d = daysUntil(it.date);
+    if (it.status === 'bevorstehend') return d === null ? 0.6 : d <= 7 ? 1 : d <= 21 ? 0.8 : 0.5;
+    if (it.status === 'beschlossen') return d === null ? 0.7 : d >= -2 ? 1 : d >= -5 ? 0.8 : 0;
+    if (it.status === 'laufend') return 0.5;
+    return 0;
+  }
+
+  /** Je Aktie: Summe der direkt genannten Treiber (positiv +, negativ -), gewichtet nach Aktualität. */
+  function rankStocks(data, uni) {
+    var byT = {};
+    (uni || []).forEach(function (u) { byT[u.ticker] = u; });
+    var acc = {};
+    (data.items || []).forEach(function (it) {
+      var w = weight(it);
+      if (!w || !(it.tickers || []).length) return;
+      var sign = it.direction === 'positiv' ? 1 : it.direction === 'negativ' ? -1 : 0;
+      it.tickers.forEach(function (t) {
+        if (!byT[t]) return;
+        var a = acc[t] = acc[t] || { ticker: t, score: 0, pos: [], neg: [], open: [] };
+        a.score += sign * w;
+        (sign > 0 ? a.pos : sign < 0 ? a.neg : a.open).push(it);
+      });
+    });
+    return Object.keys(acc).map(function (t) { var a = acc[t]; a.u = byT[t]; a.score = Math.round(a.score * 10) / 10; return a; });
+  }
+
+  function pct(v) {
+    if (v == null || isNaN(v)) return '–';
+    return (v > 0 ? '+' : '') + Number(v).toFixed(1).replace('.', ',') + ' %';   // perf1w ist bereits in Prozent
+  }
+
+  function stockRow(a, mine, up) {
+    var u = a.u || {};
+    var main = (up ? a.pos : a.neg).slice().sort(function (x, y) { return weight(y) - weight(x); });
+    var other = up ? a.neg : a.pos;
+    var col = a.score > 0 ? 'var(--bullish)' : 'var(--bearish)';
+    var wk = u.perf1w != null ? u.perf1w : null;
+    // Schon stark gelaufen? Dann ist die Nachricht vermutlich eingepreist
+    var priced = wk != null && (up ? wk > 8 : wk < -8);
+    return '<div class="card" data-cat-t="' + esc(a.ticker) + '" style="padding:11px 14px;margin-bottom:8px;cursor:pointer;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">' +
+        '<div style="min-width:0;"><span style="font-weight:800;">' + esc(a.ticker) + '</span>' + (mine[a.ticker] ? ' <span style="color:#f59e0b;">★</span>' : '') +
+        ' <span style="font-size:0.78rem;color:var(--text-muted);">' + esc(u.name || '') + '</span></div>' +
+        '<span style="font-weight:800;color:' + col + ';white-space:nowrap;">' + (a.score > 0 ? '+' : '') + String(a.score).replace('.', ',') + '</span>' +
+      '</div>' +
+      '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px;">1 Woche: <b style="color:' + (wk > 0 ? 'var(--bullish)' : wk < 0 ? 'var(--bearish)' : 'var(--text-muted)') + ';">' + pct(wk) + '</b>' +
+        (priced ? ' · <span style="color:#f59e0b;">schon deutlich ' + (up ? 'gestiegen' : 'gefallen') + ' – evtl. eingepreist</span>' : '') +
+        (other.length ? ' · ' + other.length + (up ? ' negativer' : ' positiver') + ' Treiber' : '') + '</div>' +
+      main.slice(0, 3).map(function (it) {
+        return '<div style="font-size:0.78rem;margin-top:5px;line-height:1.35;"><span style="color:' + col + ';">' + (up ? '▲' : '▼') + '</span> ' + esc(it.title) +
+          ' <span style="color:var(--text-dim);">· ' + esc(whenText(it)) + '</span></div>';
+      }).join('') +
+      (main.length > 3 ? '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:3px;">+ ' + (main.length - 3) + ' weitere</div>' : '') +
+    '</div>';
+  }
+
+  function renderStocks(data, uni, mine, up) {
+    var list = rankStocks(data, uni).filter(function (a) { return up ? a.score > 0 : a.score < 0; })
+      .sort(function (a, b) { return up ? b.score - a.score : a.score - b.score; }).slice(0, 30);
+    var html = '<div style="font-size:0.74rem;color:var(--text-muted);line-height:1.5;margin:12px 2px 8px;">' +
+      (up ? 'Aktien, die von aktuellen Entscheidungen und Terminen eher profitieren könnten.' : 'Aktien, denen aktuelle Entscheidungen und Termine eher schaden könnten.') +
+      ' Punkte: jeder direkt betroffene Treiber zählt 0,5–1 (frisch beschlossen oder in den nächsten 7 Tagen = 1), Gegen-Treiber werden abgezogen. ' +
+      'Keine Kursprognose – prüfe Chart und Bewertung selbst.</div>';
+    if (!list.length) return html + '<div class="state-box"><p>Aktuell keine Aktie mit überwiegend ' + (up ? 'positiven' : 'negativen') + ' Treibern.</p></div>';
+    return html + list.map(function (a) { return stockRow(a, mine, up); }).join('');
+  }
+
+  function render(container, data, uni) {
     var mine = myTickers();
+    if (filter === 'up' || filter === 'down') {
+      if (!uni) {
+        window.App.Data.getUniverse().then(function (u) { if (document.body.contains(container)) render(container, data, u || []); });
+        return;
+      }
+    }
     var items = (data.items || []).slice();
+    var stockMode = filter === 'up' || filter === 'down';
     if (filter === 'mine') items = items.filter(function (it) { return (it.tickers || []).some(function (t) { return mine[t]; }); });
     if (filter === 'positiv' || filter === 'negativ') items = items.filter(function (it) { return it.direction === filter; });
 
@@ -132,17 +209,20 @@ window.App.Catalysts = (function () {
         '<div style="font-size:0.74rem;color:var(--text-muted);line-height:1.5;margin-top:8px;">Politik, Regulierung, Zölle und Notenbanken aus den Nachrichten, von der KI eingeordnet. ' +
           'Die Richtung ist eine Einschätzung, keine Prognose – oft ist eine erwartete Entscheidung schon im Kurs.</div>' +
         '<div class="horizontal-scroll-row" style="margin-top:10px;gap:6px;">' +
+          chip('up', '📈 Rückenwind') + chip('down', '📉 Gegenwind') +
           chip('all', 'Alle') + chip('mine', '★ Meine Werte') + chip('positiv', '▲ positiv') + chip('negativ', '▼ negativ') + '</div>' +
       '</div>';
-    if (!items.length) {
+    if (stockMode) {
+      html += renderStocks(data, uni, mine, filter === 'up');
+    } else if (!items.length) {
       html += '<div class="state-box"><p>' + (filter === 'all' ? 'Noch keine Einträge. Unter ⋯ › Daten-Updates „Treiber & Termine“ starten.' : 'Nichts für diesen Filter.') + '</p></div>';
     }
-    html += section('Bevorstehend', upcoming, mine) + section('Gerade beschlossen', decided, mine) + section('Laufend', running, mine);
+    if (!stockMode) html += section('Bevorstehend', upcoming, mine) + section('Gerade beschlossen', decided, mine) + section('Laufend', running, mine);
     html += '</div>';
     container.innerHTML = html;
 
     container.querySelectorAll('[data-cat-f]').forEach(function (b) {
-      b.onclick = function () { filter = b.getAttribute('data-cat-f'); render(container, data); };
+      b.onclick = function () { filter = b.getAttribute('data-cat-f'); render(container, data, uni); };
     });
     container.querySelectorAll('[data-cat-t]').forEach(function (b) {
       b.onclick = function () { window.App.Router.navigate('/stock/' + b.getAttribute('data-cat-t') + '/overview'); };
@@ -272,5 +352,5 @@ window.App.Catalysts = (function () {
     });
   }
 
-  return { initView: initView, load: load, forTicker: forTicker, groupsFor: groupsFor, renderForStock: renderForStock, whenText: whenText };
+  return { rankStocks: rankStocks, initView: initView, load: load, forTicker: forTicker, groupsFor: groupsFor, renderForStock: renderForStock, whenText: whenText };
 })();
