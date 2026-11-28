@@ -18,7 +18,8 @@ window.App.Strategies = (function () {
     growth: { minRs: 80, minRevGrowth: 20, minVol: 100000 },
     dividend: { minYield: 2.5, maxPayout: 60 },
     momentum: { minRs: 80, minChange: 2 },
-    buythedip: { ddMin: 7, ddMax: 25, rsiMax: 45, minRoe: 10, maxPe: 35, needTrend: true }
+    buythedip: { ddMin: 7, ddMax: 25, rsiMax: 45, minRoe: 10, maxPe: 35, needTrend: true },
+    selloff: { ddMin: 20, minRoe: 15, maxFwdPe: 30, minUpside: 10 }
   };
 
   function esc(s) {
@@ -56,6 +57,7 @@ window.App.Strategies = (function () {
         '<button class="main-tab-btn ' + (currentStrategy === 'dividend' ? 'active' : '') + '" data-strat="dividend">💰 Dividende</button>' +
         '<button class="main-tab-btn ' + (currentStrategy === 'momentum' ? 'active' : '') + '" data-strat="momentum">📈 Momentum</button>' +
         '<button class="main-tab-btn ' + (currentStrategy === 'buythedip' ? 'active' : '') + '" data-strat="buythedip">🎯 Buy the Dip</button>' +
+        '<button class="main-tab-btn ' + (currentStrategy === 'selloff' ? 'active' : '') + '" data-strat="selloff">📉 Qualität im Ausverkauf</button>' +
       '</div>' +
 
       '<div id="strategy-info" class="card" style="padding: 14px; margin-bottom: 14px; background: var(--bg-secondary); font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;"></div>' +
@@ -95,6 +97,7 @@ window.App.Strategies = (function () {
       if (currentStrategy === 'dividend') sliderState.dividend = { minYield: 2.5, maxPayout: 60 };
       if (currentStrategy === 'momentum') sliderState.momentum = { minRs: 80, minChange: 2 };
       if (currentStrategy === 'buythedip') sliderState.buythedip = { ddMin: 7, ddMax: 25, rsiMax: 45, minRoe: 10, maxPe: 35, needTrend: true };
+      if (currentStrategy === 'selloff') sliderState.selloff = { ddMin: 20, minRoe: 15, maxFwdPe: 30, minUpside: 10 };
       renderSliders(container);
       applyStrategy(container);
     };
@@ -126,6 +129,17 @@ window.App.Strategies = (function () {
       
       html += sliderRow('mom-minRs', 'Min. Relative Stärke (RS-Rating)', 0, 100, 1, sliderState.momentum.minRs, '');
       html += sliderRow('mom-minChange', 'Min. Kursanstieg (Tag) %', 0, 20, 0.5, sliderState.momentum.minChange, ' %');
+    }
+    else if (currentStrategy === 'selloff') {
+      var so = sliderState.selloff;
+      infoEl.innerHTML = '<b>F. Qualität im Ausverkauf:</b><br><br>Starke Firmen nach einem <b>kräftigen Einbruch</b>: mindestens ' + so.ddMin + ' % unter dem Hoch der letzten 3 Monate. ' +
+        'Anders als bei Buy the Dip darf der Langfristtrend gebrochen sein – das ist hier das Risiko und wird an jedem Wert angezeigt (unter EMA 200, fallendes Messer, starker Monatsverlust).<br><br>' +
+        'Dafür strenge Qualität: ROE ≥ ' + so.minRoe + ' %, Gewinn, Forward-KGV ≤ ' + so.maxFwdPe + (so.minUpside > 0 ? ', Analysten-Kursziel mind. +' + so.minUpside + ' %' : '') + ', Börsenwert > 5 Mrd. €, keine hohe Verschuldung. ' +
+        'Sortiert nach Score aus Qualität, Bewertung, Kursziel und Stabilisierung. <b>Höheres Risiko</b> – der Einbruch kann weitergehen.';
+      html += sliderRow('so-ddMin', 'Rückgang vom 3M-Hoch mindestens', 10, 60, 1, so.ddMin, ' %');
+      html += sliderRow('so-minRoe', 'Min. Eigenkapitalrendite (ROE)', 5, 50, 1, so.minRoe, ' %');
+      html += sliderRow('so-maxFwdPe', 'Max. Forward-KGV', 8, 60, 1, so.maxFwdPe, '');
+      html += sliderRow('so-minUpside', 'Min. Kursziel-Potenzial (0 = egal)', 0, 60, 5, so.minUpside, ' %');
     }
     else if (currentStrategy === 'buythedip') {
       var bd = sliderState.buythedip;
@@ -168,6 +182,7 @@ window.App.Strategies = (function () {
         if (id === 'mom-minChange') sliderState.momentum.minChange = val;
 
         if (id.indexOf('dip-') === 0) sliderState.buythedip[id.slice(4)] = val;
+        if (id.indexOf('so-') === 0) sliderState.selloff[id.slice(3)] = val;
 
         var valLabel = input.previousElementSibling.querySelector('.slider-val');
         if (valLabel) {
@@ -270,7 +285,16 @@ window.App.Strategies = (function () {
       });
     }
 
-    if (currentStrategy === 'buythedip') {
+    else if (currentStrategy === 'selloff') {
+      var so = sliderState.selloff;
+      filtered = allStocks.filter(function (stock) {
+        if (stock.sector === 'ETF' || stock.sector === 'Sonstige') return false;
+        stock._dip = window.App.DipFinder.evaluateSelloff(stock, so);
+        return stock._dip.ok;
+      });
+    }
+
+    if (currentStrategy === 'buythedip' || currentStrategy === 'selloff') {
       filtered.sort(function (a, b) { return b._dip.score - a._dip.score; });
     } else {
       filtered.sort(function(a, b) {
@@ -304,8 +328,9 @@ window.App.Strategies = (function () {
                 '<span class="ticker-badge">' + esc(stock.ticker) + '</span>' +
                 '<span class="sector-label">• ' + esc(stock.sector || 'Markt') + '</span>' +
               '</div>' +
-              (currentStrategy === 'buythedip' && stock._dip ? '<div style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;white-space:normal;line-height:1.35;">' +
-                '<b style="color:var(--accent-purple-light);">Dip-Score ' + stock._dip.score + '</b> · ' + esc(stock._dip.reasons.join(' · ')) + '</div>' : '') +
+              ((currentStrategy === 'buythedip' || currentStrategy === 'selloff') && stock._dip ? '<div style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;white-space:normal;line-height:1.35;">' +
+                '<b style="color:var(--accent-purple-light);">' + (currentStrategy === 'selloff' ? 'Score ' : 'Dip-Score ') + stock._dip.score + '</b> · ' + esc(stock._dip.reasons.join(' · ')) +
+                (stock._dip.risks && stock._dip.risks.length ? '<br><span style="color:#f59e0b;">⚠ ' + esc(stock._dip.risks.join(' · ')) + '</span>' : '') + '</div>' : '') +
             '</div>' +
           '</div>' +
           '<div class="stock-info-right">' +
@@ -316,7 +341,7 @@ window.App.Strategies = (function () {
     });
 
     if (filtered.length > 50) {
-      html += '<div style="text-align: center; font-size: 0.75rem; color: var(--text-dim); margin-top: 10px;">(Die Top 50 ' + (currentStrategy === 'buythedip' ? 'nach Dip-Score' : 'nach Marktkapitalisierung') + ' werden angezeigt)</div>';
+      html += '<div style="text-align: center; font-size: 0.75rem; color: var(--text-dim); margin-top: 10px;">(Die Top 50 ' + (currentStrategy === 'buythedip' || currentStrategy === 'selloff' ? 'nach Score' : 'nach Marktkapitalisierung') + ' werden angezeigt)</div>';
     }
 
     listEl.innerHTML = html;
@@ -354,7 +379,8 @@ window.App.Strategies = (function () {
             growth: 'Growth & Momentum',
             dividend: 'Dividende',
             momentum: 'Momentum',
-            buythedip: 'Buy the Dip'
+            buythedip: 'Buy the Dip',
+            selloff: 'Qualität im Ausverkauf'
           };
           
           // Aktuelle Slider-Werte übergeben
@@ -519,6 +545,8 @@ window.App.Strategies = (function () {
       text += 'Min. Dividendenrendite ' + sliders.minYield + '%, Max. Payout Ratio ' + sliders.maxPayout + '%.';
     } else if (strategyName === 'Momentum') {
       text += 'Min. RS-Rating ' + sliders.minRs + ', Min. Tagesanstieg ' + sliders.minChange + '%.';
+    } else if (strategyName === 'Qualität im Ausverkauf') {
+      text += 'Mind. ' + sliders.ddMin + '% unter dem 3-Monats-Hoch, ROE ≥ ' + sliders.minRoe + '%, Forward-KGV ≤ ' + sliders.maxFwdPe + ', Kursziel-Potenzial ≥ ' + sliders.minUpside + '%. Trendbruch erlaubt.';
     } else if (strategyName === 'Buy the Dip') {
       text += 'Rücksetzer ' + sliders.ddMin + '–' + sliders.ddMax + '% vom 3-Monats-Hoch, RSI ≤ ' + sliders.rsiMax + (sliders.needTrend ? ', Kurs über EMA 200' : '') + ', Min. ROE ' + sliders.minRoe + '%, Max. KGV ' + sliders.maxPe + '.';
     }
