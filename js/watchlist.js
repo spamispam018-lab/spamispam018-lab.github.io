@@ -209,12 +209,17 @@ window.App.Watchlist = (function () {
         return { s: s, ev: ev, w: ev.reduce(function (a, e) { return a + e.w; }, 0) };
       }).filter(function (r) { return r.ev.length; }).sort(function (a, b) { return b.w - a.w; });
       var color = { up: 'var(--bullish)', down: 'var(--bearish)', info: 'var(--accent, #6366f1)' };
+      // Eingeklappt nur die 3 auffälligsten Werte, ausgeklappt alle; Zustand wird gemerkt
+      var SHORT = 3;
+      var expanded = false;
+      try { expanded = localStorage.getItem('app_digest_expanded_v1') === '1'; } catch (_) {}
+      var draw = function () {
       var html = '<div class="card" style="padding:14px 16px;margin-bottom:14px;">' +
         '<div class="card-header-dotted"><span class="card-title">Heute auffällig</span><span class="period-tag">' + (rows.length ? rows.length + ' von ' + list.length : 'alles ruhig') + '</span></div>';
       if (!rows.length) {
         html += '<div style="font-size:0.8rem;color:var(--text-muted);">Keine großen Bewegungen, Signale oder Termine bei deinen Werten.</div>';
       } else {
-        rows.slice(0, 8).forEach(function (r) {
+        rows.slice(0, expanded ? rows.length : SHORT).forEach(function (r) {
           html += '<div data-dg="' + escapeAttr(r.s.ticker) + '" style="padding:8px 0;border-top:1px solid var(--border);cursor:pointer;">' +
             '<div style="font-weight:700;font-size:0.86rem;">' + escapeAttr(r.s.name || r.s.ticker) + ' <span style="color:var(--text-dim);font-weight:600;font-size:0.74rem;">' + escapeAttr(r.s.ticker) + '</span></div>' +
             '<div style="display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:3px;">' +
@@ -224,13 +229,25 @@ window.App.Watchlist = (function () {
               }).join('') +
             '</div></div>';
         });
-        if (rows.length > 8) html += '<div style="font-size:0.74rem;color:var(--text-dim);padding-top:6px;">… und ' + (rows.length - 8) + ' weitere</div>';
+        if (rows.length > SHORT) {
+          html += '<button type="button" class="chip-btn" data-dg-toggle style="display:block;width:100%;margin-top:8px;padding:6px 10px;font-size:0.74rem;">' +
+            (expanded ? '▲ Weniger anzeigen' : '▼ Alle ' + rows.length + ' auffälligen Werte anzeigen') + '</button>';
+        }
       }
       html += '</div>';
       host.innerHTML = html;
       host.querySelectorAll('[data-dg]').forEach(function (el) {
         el.onclick = function () { window.App.Router.navigate('/stock/' + el.getAttribute('data-dg') + '/overview'); };
       });
+      var tog = host.querySelector('[data-dg-toggle]');
+      if (tog) tog.onclick = function () {
+        expanded = !expanded;
+        try { localStorage.setItem('app_digest_expanded_v1', expanded ? '1' : '0'); } catch (_) {}
+        draw();
+        if (!expanded) host.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      };
+      };
+      draw();
     });
   }
 
