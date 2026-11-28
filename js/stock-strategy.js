@@ -67,8 +67,14 @@ window.App.StockStrategy = (function () {
     }
     return parts.join(' · ');
   }
-  var BEST_WINS = [['30p', 'Letzte 30 %'], ['1Y', '1 Jahr'], ['6M', '6 Monate'], ['3M', '3 Monate'], ['1M', '1 Monat'], ['1W', '1 Woche'], ['1D', '1 Tag']];
+  var BEST_WINS = [['30p', 'Letzte 30 %'], ['YTD', 'Seit 1. Januar'], ['1Y', '1 Jahr'], ['6M', '6 Monate'], ['3M', '3 Monate'], ['1M', '1 Monat'], ['1W', '1 Woche'], ['1D', '1 Tag']];
   var BEST_DAYS = { '1Y': 365, '6M': 182, '3M': 91, '1M': 30, '1W': 7, '1D': 1 };
+  /** Tage im Bewertungsfenster; "YTD" = seit dem 1. Januar des laufenden Jahres. */
+  function bestDays(key) {
+    if (key !== 'YTD') return BEST_DAYS[key];
+    var now = new Date(), jan1 = new Date(now.getFullYear(), 0, 1);
+    return Math.max(2, Math.round((now - jan1) / 86400000) + 1);
+  }
 
   // Erklärungen für die ⓘ-Knöpfe
   var BT_INFO = {
@@ -549,7 +555,7 @@ window.App.StockStrategy = (function () {
           b.onclick = function () { state.bestWin = b.getAttribute('data-bt-win'); findBest(container, ticker, full); };
         });
       };
-      var res = recent ? q.findBestRecent(full, state.fee / 100, BEST_DAYS[state.bestWin]) : q.findBest(q.sliceYears(full, per.years), state.fee / 100, 0.3, state.__opts);
+      var res = recent ? q.findBestRecent(full, state.fee / 100, bestDays(state.bestWin)) : q.findBest(q.sliceYears(full, per.years), state.fee / 100, 0.3, state.__opts);
       if (res.error) {
         box.innerHTML = '<div class="card"><div class="card-header-dotted"><span class="card-title">Beste Strategie</span></div>' + winChips() +
           '<div style="font-size:0.82rem;color:var(--text-dim);line-height:1.5;">' + esc(res.error) + '</div></div>';
@@ -591,7 +597,7 @@ window.App.StockStrategy = (function () {
               '<div style="color:var(--text-dim);">Die Parameter wurden nur auf den Daten bis ' + f.date(res.trainEnd) + ' gesucht. Bewertet wird <strong style="color:var(--text-main);">ausschließlich der Testzeitraum ' + f.date(res.testStart) + ' – ' + f.date(res.testEnd) + '</strong> (' + (recent ? 'Zeitfenster: ' + winLabel : 'letzte 30 %') + '), den die Suche nie gesehen hat. ' +
               'Gegenüber Buy &amp; Hold (' + pct(bt.totalReturn, 1, true) + ', Max. DD ' + pct(bt.maxDD, 1) + ', Sharpe ' + num(bt.sharpe, 2) + ') waren im Test besser: Rendite ' + beatRet + ', Sharpe ' + beatSh + ', Drawdown ' + beatDD + ' von ' + res.rows.length + ' Strategien.</div>' +
             '</div>' +
-            (recent && BEST_DAYS[state.bestWin] <= 31 ? '<div style="padding:8px 12px;border:1px solid #f59e0b;border-radius:var(--radius-sm);font-size:0.76rem;line-height:1.45;margin-bottom:10px;"><strong>Sehr kurzer Zeitraum:</strong> In ' + res.days + (res.ppy >= 200 ? ' Handelstagen' : ' Wochen') + ' haben die meisten Strategien keinen oder nur einen Trade. Die Rangfolge ist dann überwiegend Zufall und sagt wenig über die Zukunft. Aussagekräftiger sind 6 Monate oder mehr.</div>' : '') +
+            (recent && bestDays(state.bestWin) <= 31 ? '<div style="padding:8px 12px;border:1px solid #f59e0b;border-radius:var(--radius-sm);font-size:0.76rem;line-height:1.45;margin-bottom:10px;"><strong>Sehr kurzer Zeitraum:</strong> In ' + res.days + (res.ppy >= 200 ? ' Handelstagen' : ' Wochen') + ' haben die meisten Strategien keinen oder nur einen Trade. Die Rangfolge ist dann überwiegend Zufall und sagt wenig über die Zukunft. Aussagekräftiger sind 6 Monate oder mehr.</div>' : '') +
             '<div class="horizontal-scroll-row" style="margin-bottom:10px;"><span style="font-size:0.72rem;color:var(--text-dim);align-self:center;white-space:nowrap;">Sortieren nach (Test):</span>' +
               chip('sharpe', 'Sharpe') + chip('total', 'Rendite') + chip('dd', 'Kleinster Drawdown') + '</div>' +
             '<div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:6px;">Zeile antippen, um Strategie und Parameter zu übernehmen</div>' +
