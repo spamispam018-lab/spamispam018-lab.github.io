@@ -228,9 +228,21 @@ window.App.Catalysts = (function () {
       div.className = 'card';
       div.id = 'stock-catalysts';
       div.style.cssText = 'padding:12px 14px;margin-bottom:12px;' + (g.direct.length ? 'border-left:3px solid #f59e0b;' : '');
-      var html = '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">' +
-        '<div style="font-size:0.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);">⚡ Treiber</div>' +
-        '<button class="chip-btn" style="padding:2px 9px;font-size:0.7rem;" data-cat-all>Alle ansehen</button></div>';
+      // Eingeklappt: nur Kopfzeile mit Anzahl; Zustand wird für alle Aktien gemerkt
+      var collapsed = true;
+      try { collapsed = localStorage.getItem('app_cat_collapsed_v1') !== '0'; } catch (_) {}
+      var parts = [];
+      if (g.direct.length) parts.push('<b style="color:#f59e0b;">' + g.direct.length + ' direkt</b>');
+      if (g.branch.length) parts.push(g.branch.length + ' Branche');
+      if (g.market.length) parts.push(g.market.length + ' Markt');
+      var html = '<div data-cat-toggle style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;user-select:none;">' +
+        '<div style="display:flex;align-items:center;gap:8px;min-width:0;">' +
+          '<span data-cat-arrow style="display:inline-block;transition:transform .15s;font-size:0.7rem;color:var(--text-dim);">▶</span>' +
+          '<span style="font-size:0.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);">⚡ Treiber</span>' +
+          '<span style="font-size:0.72rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (parts.length ? parts.join(' · ') : 'keine') + '</span>' +
+        '</div>' +
+        '<button class="chip-btn" style="padding:2px 9px;font-size:0.7rem;flex-shrink:0;" data-cat-all>Alle ansehen</button></div>' +
+        '<div data-cat-body>';
       if (!any) {
         html += '<div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px;">' +
           ((d.items || []).length ? 'Aktuell keine Meldungen zu Politik, Regulierung oder Terminen, die diese Aktie betreffen.' : 'Noch keine Treiber geladen – unter ⋯ › Daten-Updates „Treiber & Termine“ starten.') + '</div>';
@@ -238,11 +250,25 @@ window.App.Catalysts = (function () {
       if (g.direct.length) html += head('Direkt betroffen') + g.direct.map(miniRow).join('');
       if (g.branch.length) html += head('Branche') + g.branch.map(miniRow).join('');
       if (g.market.length) html += head('Gesamtmarkt') + g.market.map(miniRow).join('');
+      html += '</div>';
       div.innerHTML = html;
+      var body = div.querySelector('[data-cat-body]');
+      var arrow = div.querySelector('[data-cat-arrow]');
+      var apply = function () {
+        body.style.display = collapsed ? 'none' : '';
+        arrow.style.transform = collapsed ? '' : 'rotate(90deg)';
+      };
+      apply();
+      div.querySelector('[data-cat-toggle]').onclick = function (e) {
+        if (e.target.closest('[data-cat-all]')) return;
+        collapsed = !collapsed;
+        try { localStorage.setItem('app_cat_collapsed_v1', collapsed ? '1' : '0'); } catch (_) {}
+        apply();
+      };
       var old = host.querySelector('#stock-catalysts');
       if (old) old.remove();
       host.insertBefore(div, host.firstChild);
-      div.querySelector('[data-cat-all]').onclick = function () { window.App.Router.navigate('/catalysts'); };
+      div.querySelector('[data-cat-all]').onclick = function (e) { e.stopPropagation(); window.App.Router.navigate('/catalysts'); };
     });
   }
 
