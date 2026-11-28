@@ -938,5 +938,30 @@ window.App.StockStrategy = (function () {
 
   function getConfig() { return { type: state.type, params: currentParams() }; }
 
-  return { render: render, prefill: prefill, getConfig: getConfig };
+  /** Anleitung: In welcher Reihenfolge man mit den Werkzeugen eine belastbare Strategie findet. */
+  function renderGuide(el) {
+    var steps = [
+      ['Grundeinstellungen', 'Im Backtest: <b>Tageskurse</b> wählen (bis 10 Jahre; bei Bedarf Wochenkurse für längere Historie), Zeitraum <b>10 Jahre</b> oder <b>Max.</b>, Kosten auf deine echte Ordergebühr setzen (z. B. 0,1 %).'],
+      ['Kandidaten suchen', '<b>„Beste Strategie finden“</b> mit Bewertungszeitraum <b>„Letzte 30 %“</b>, sortiert nach <b>Sharpe</b>. Gute Kandidaten: Test-Sharpe über Buy &amp; Hold, mindestens ~10 Trades, Training- und Test-Sharpe liegen nah beieinander. Zeile antippen übernimmt die Strategie.'],
+      ['Aktuelle Phase prüfen', 'Dasselbe mit <b>„Seit 1. Januar“</b> oder <b>„1 Jahr“</b>: Funktioniert der Kandidat auch zuletzt? Wenige Trades hier sind normal – nur ein grober Abgleich.'],
+      ['Robustheit prüfen', '<b>„Parameter suchen, die Buy &amp; Hold schlagen“</b> und unten die <b>Robustheits-Karte</b> ansehen. Liegt die Einstellung (umrandet) in einer <b>grünen Fläche</b>? Besser ein Feld in der Mitte der Fläche nehmen als den einzelnen Spitzenwert.'],
+      ['Walk-Forward-Test', '<b>„Walk-Forward-Test (rollierend)“</b> mit 3 Jahren Training. Bestanden, wenn die Kurve mit Buy &amp; Hold mithält (oder bei ähnlicher Rendite deutlich ruhiger ist), sie in mehr als der Hälfte der Jahre vorn liegt und die gewählten Parameter nicht jedes Jahr springen. Gegenprobe mit 2 und 5 Jahren Training.'],
+      ['Risikoregeln ausprobieren', 'Unter <b>„Risikoregeln &amp; Markt-Filter“</b> z. B. Trailing-Stop 10–20 % oder Markt-Filter S&amp;P 500 bzw. DAX einstellen, Backtest und Walk-Forward wiederholen. Nur übernehmen, wenn der Drawdown deutlich sinkt, ohne viel Rendite zu kosten.'],
+      ['Bandbreite ansehen', 'Im Ergebnis die Karte <b>„Bandbreite (Zufallstest)“</b>: „Strategie vor Buy &amp; Hold“ sollte bei mindestens 50–60 % liegen, und das <b>„schlecht“-Szenario</b> beim Drawdown muss für dich aushaltbar sein.'],
+      ['Forward-Test in Echtzeit', '<b>„Mit diesen Werten Live-Signal ansehen“</b> zeigt das heutige Signal. Strategie, Parameter und Datum als <b>Notiz</b> festhalten und 3–6 Monate nur beobachten (oder mit kleinem Betrag). Erst wenn sie sich auch in dieser echten Zukunft bewährt, ernsthaft einsetzen.']
+    ];
+    el.innerHTML = '<div style="font-size:0.8rem;color:var(--text-muted);line-height:1.5;margin-bottom:10px;">Ziel ist nicht die Strategie mit der höchsten Rendite im Nachhinein, sondern eine, die mehrere unabhängige Prüfungen besteht.</div>' +
+      steps.map(function (st, i) {
+        return '<div style="display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--border);">' +
+          '<div style="flex:0 0 24px;height:24px;border-radius:50%;background:var(--accent-purple,#6366f1);color:#fff;font-size:0.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;">' + (i + 1) + '</div>' +
+          '<div style="min-width:0;"><div style="font-weight:700;font-size:0.86rem;">' + st[0] + '</div>' +
+          '<div style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;margin-top:2px;">' + st[1] + '</div></div></div>';
+      }).join('') +
+      '<div style="margin-top:8px;padding:10px 12px;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:0.76rem;line-height:1.5;">' +
+        '<b>Kurz-Checkliste – eine Strategie taugt, wenn:</b><br>✓ sie im Testzeitraum (Schritt 2) Buy &amp; Hold beim Sharpe schlägt<br>✓ ihre Einstellung in einer grünen Fläche liegt (Schritt 4)<br>' +
+        '✓ sie den Walk-Forward-Test besteht (Schritt 5)<br>✓ sie im Zufallstest in mehr als der Hälfte der Fälle vorn liegt (Schritt 7)<br>✓ sie sich im Forward-Test bewährt (Schritt 8)<br>' +
+        '<span style="color:var(--text-dim);">Scheitert sie an einem Punkt, ist Buy &amp; Hold meist die bessere Wahl. Keine Anlageberatung.</span></div>';
+  }
+
+  return { render: render, prefill: prefill, getConfig: getConfig, renderGuide: renderGuide };
 })();

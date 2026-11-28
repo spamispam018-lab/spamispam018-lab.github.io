@@ -117,6 +117,7 @@
     ] },
     { id: 'risiko', label: 'Risiko & Strategie', cards: [
       { id: 'risk', title: 'Risiko', desc: 'Volatilität, maximaler Verlust, Beta', render: function (el, s) { App.StockRisk.render(el, s); } },
+      { id: 'guide', title: 'Anleitung: Beste Strategie finden', desc: 'Schritt für Schritt bis zum Forward-Test', render: function (el) { App.StockStrategy.renderGuide(el); } },
       { id: 'strategy', title: 'Backtest dieser Aktie', desc: 'Handelsstrategien auf den Kursverlauf testen', render: function (el, s) { App.StockStrategy.render(el, s); } },
       { id: 'live', title: 'Live-Signale', desc: 'Signale der Backtest-Strategie mit heutigem Kurs', render: function (el, s) { App.StockLive.render(el, s); } }
     ] }
